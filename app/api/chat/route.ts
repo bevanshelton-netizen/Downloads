@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { canUserAskQuestion } from '@/lib/subscription'
+import { getSession } from '@/lib/auth'
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY
 
@@ -43,7 +45,11 @@ interface RequestBody {
 
 export async function POST(request: NextRequest) {
   try {
-    // Validate API key
+    // Get current session
+    const session = await getSession()
+    const userId = session?.user?.id
+
+    // Check API key
     if (!OPENAI_API_KEY) {
       return NextResponse.json(
         { error: 'OpenAI API key is not configured' },
@@ -66,6 +72,22 @@ export async function POST(request: NextRequest) {
         { error: 'At least one message is required' },
         { status: 400 }
       )
+    }
+
+    // Check subscription limits if user is authenticated
+    if (userId) {
+      const { canAsk, message, remaining } = await canUserAskQuestion(userId)
+
+      if (!canAsk) {
+        return NextResponse.json(
+          {
+            error: message || 'Daily question limit reached',
+            remaining: remaining || 0,
+            limitExceeded: true,
+          },
+          { status: 429 }
+        )
+      }
     }
 
     // Call OpenAI API

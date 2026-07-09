@@ -90,6 +90,9 @@ This downloads all the libraries the project needs. It may take 2-5 minutes.
    OPENAI_API_KEY=sk_test_your_openai_api_key_here
    NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+   PAYFAST_MERCHANT_ID=test_merchant_id
+   PAYFAST_MERCHANT_KEY=test_merchant_key
+   PAYFAST_SANDBOX=true
    NEXT_PUBLIC_APP_NAME=THE CHANCELLOR™
    NEXT_PUBLIC_APP_URL=http://localhost:3000
    ```
@@ -98,6 +101,7 @@ This downloads all the libraries the project needs. It may take 2-5 minutes.
    - Replace `sk_test_your_openai_api_key_here` with your actual OpenAI API key
    - Replace `https://your-project.supabase.co` with your actual Supabase URL
    - Replace `your_supabase_anon_key_here` with your actual Supabase Anon Key
+   - **Do NOT add real PayFast credentials yet** - Payment integration is placeholder only
 
 **Important:** Never commit `.env.local` to GitHub. It's already in `.gitignore`.
 
@@ -119,72 +123,132 @@ Open your browser and visit: **http://localhost:3000**
 
 You should see THE CHANCELLOR™ home page!
 
-## Testing Authentication
+## Testing Subscriptions
 
-### Create an Account
+### Test Free Plan
 
-1. Click "Sign Up" in the top navigation
-2. Fill in your details:
-   - Full Name: Your name
-   - Email: Your email
-   - Password: A secure password (6+ characters)
-3. Click "Sign Up"
-4. You'll be redirected to login
+1. **Create a Free Account**
+   - Click "Sign Up"
+   - Fill in your details
+   - Sign up with email/password
 
-### Sign In
+2. **Go to Ask The Chancellor**
+   - You'll see "Free Plan" displayed
+   - You have **5 questions per day**
+   - After 5 questions, you'll see a limit warning
 
-1. Click "Login" in the top navigation
-2. Enter your email and password
-3. Click "Sign In"
-4. You'll be redirected to your **Dashboard**
+3. **Test the Daily Limit**
+   - Ask 5 questions
+   - On the 6th attempt, you'll get an error message
+   - Button to upgrade to Wisdom or Legacy plan
 
-### Dashboard Features
+### Test Paid Plans
 
-Once logged in, you can:
-- View your subscription status
-- Access "Ask The Chancellor" chat
-- View recent conversations
-- Access the 12 Domains and 50 Laws
-- Edit your profile and change your password
-- Sign out
+1. **View Subscription Plans**
+   - Click "Subscribe" in the navigation
+   - See all three plans: Free (R0), Wisdom (R99), Legacy (R299)
 
-### Test the Chat Feature
+2. **Try to Upgrade** (Placeholder)
+   - Click "Upgrade Now" on Wisdom or Legacy
+   - You'll see "Payment integration coming soon"
+   - Full PayFast integration ready for implementation
 
-1. From the dashboard, click "Start Conversation" or go to /ask
-2. Type a question in the input field
-3. Click "Send Message" or press Enter
-4. Wait for THE CHANCELLOR™ to respond
-5. Messages are automatically saved to your chat history
+3. **Manually Test Upgrade** (For Development)
+   - In Supabase, go to SQL Editor
+   - Run this query to upgrade your test user:
+   ```sql
+   UPDATE subscriptions
+   SET tier = 'wisdom', status = 'active'
+   WHERE user_id = 'your_user_id';
+   ```
+   - You now have unlimited questions on the Ask page
 
-## Supabase Database Overview
+## Subscription Plans
 
-Your database now has these tables:
+### Free Plan - R0/month
+- **5 questions per day**
+- Access to 50 Laws of Life
+- Community forum access
+- Basic support
 
-### users
-- Stores user profiles and subscription information
-- Linked to Supabase Auth
-- Only users can see their own data
+### Wisdom Plan - R99/month
+- **Unlimited questions**
+- Priority response time
+- 12 Domains deep dives
+- Weekly group sessions
+- Exclusive resources library
+- Premium support
 
-### chat_messages
-- Stores conversation history
-- Each message is linked to a user
-- Private - users can only see their own messages
-- Automatically saved when authenticated
+### Legacy Plan - R299/month
+- **Everything in Wisdom, plus:**
+- Personal mentorship track
+- Monthly one-on-ones
+- Custom learning paths
+- VIP event access
+- Direct messaging access
+- Priority support
 
-### laws
-- Contains all 50 Laws of Life
-- Public - everyone can read them
-- Already seeded with all laws
+## How Subscription Limits Work
 
-### products
-- Stores Chancellor Collection items
-- Public - everyone can read them
-- Pre-seeded with sample products
+### Daily Question Counting
+1. When a user asks a question, it's stored in `chat_messages` table
+2. The system counts user messages from today (00:00 to 23:59)
+3. Free users can ask up to 5 questions per day
+4. Wisdom and Legacy users have unlimited access
 
-### subscriptions
-- Stores user subscription details
-- Links to payment and tier information
-- Private - users can only see their own
+### API Protection
+1. When a user sends a chat message, `/api/chat` is called
+2. The API checks the user's subscription tier
+3. For Free users, it checks daily count
+4. If limit exceeded, API returns error (HTTP 429)
+5. Frontend shows upgrade prompt
+
+### Subscription Checking
+1. Dashboard shows current plan and daily count
+2. Ask page displays remaining questions (Free plan only)
+3. Dashboard has quick upgrade button
+4. Subscription page shows all plans with features
+
+## PayFast Integration (Placeholder)
+
+### Current Status
+- **Not active yet** - Payment system is a placeholder
+- `lib/payfast.ts` contains helper functions for future integration
+- Environment variables are placeholder only
+- Upgrade buttons show "Coming soon" message
+
+### Future Implementation Steps
+1. Get real PayFast merchant credentials
+2. Update `.env.local` with real values:
+   ```
+   PAYFAST_MERCHANT_ID=your_real_merchant_id
+   PAYFAST_MERCHANT_KEY=your_real_merchant_key
+   PAYFAST_SANDBOX=false (for production)
+   ```
+3. Implement `/api/payfast/notify` endpoint
+4. Connect `Subscribe` page to PayFast payment flow
+5. Handle payment notifications and subscription updates
+
+## Testing the Chat API
+
+### With cURL (Test Limits)
+```bash
+# Test without authentication
+curl -X POST http://localhost:3000/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "messages": [{
+      "role": "user",
+      "content": "Hello, what is wisdom?"
+    }]
+  }'
+```
+
+### Test with Browser
+1. Sign up for an account
+2. Go to /ask
+3. Ask questions and watch the counter
+4. Free users will be limited after 5 questions
 
 ## Database Security
 
@@ -194,6 +258,7 @@ Your database is protected by **Row Level Security (RLS)**:
 - Chat messages are private to each user
 - Laws and products are publicly readable
 - Subscriptions are private to each user
+- Daily limits are checked server-side
 
 The frontend uses only the **Anon Public Key** - never expose the Service Role Key.
 
@@ -232,146 +297,91 @@ downloads/
 │   ├── page.tsx             # Home page
 │   ├── api/
 │   │   └── chat/
-│   │       └── route.ts     # Chat API endpoint
+│   │       └── route.ts     # Chat API endpoint (with subscription limits)
 │   └── (pages)/
 │       ├── auth/
 │       │   ├── signup/      # Sign up page
-│       │   ├── login/       # Login page
-│       │   └── reset-password/  # Password reset page
-│       ├── ask/             # Ask The Chancellor page
-│       ├── domains/         # 12 Domains page
-│       ├── laws/            # 50 Laws of Life page
-│       ├── collection/      # Chancellor Collection page
-│       ├── about/           # About page
+│       │   └── login/       # Login page
+│       ├── ask/             # Ask The Chancellor (with limits)
 │       ├── subscribe/       # Subscribe page
 │       └── dashboard/       # Protected dashboard
-│           └── profile/     # User profile page
 ├── components/
 │   ├── auth/                # Auth components (ProtectedRoute)
 │   ├── layout/              # Layout components (Navbar, Footer)
 │   ├── sections/            # Section components (Hero, etc)
-│   └── ui/                  # Reusable UI components (Button, Card, etc)
+│   └── ui/                  # Reusable UI components
 ├── lib/
-│   ├── supabase.ts          # Supabase client setup
-│   ├── supabase-service.ts  # Supabase helper functions
-│   ├── database.types.ts    # TypeScript database types
-│   └── auth.ts              # Authentication functions
+│   ├── supabase.ts          # Supabase client
+│   ├── auth.ts              # Authentication functions
+│   ├── subscription.ts      # Subscription & limits logic
+│   ├── payfast.ts           # PayFast integration (placeholder)
+│   └── supabase-service.ts  # Database helpers
 ├── styles/
 │   └── globals.css          # Global styles
 ├── supabase/
 │   ├── schema.sql           # Database schema
-│   └── seed.sql             # Seed data (50 Laws + products)
-├── public/                  # Static images and assets
-├── .env.local.example       # Environment variables template
-├── SETUP_GUIDE.md           # This file
-└── package.json             # Project dependencies
+│   └── seed.sql             # Seed data
+└── .env.local.example       # Environment template
 ```
-
-## User Authentication Flow
-
-1. **Sign Up** (unauthenticated)
-   - User enters email, password, and name
-   - Account created in Supabase Auth
-   - User profile created in database
-   - User redirected to login
-
-2. **Login** (unauthenticated)
-   - User enters email and password
-   - Supabase validates credentials
-   - User session created
-   - User redirected to dashboard
-
-3. **Dashboard** (authenticated)
-   - Protected route - requires valid session
-   - Displays user profile, subscription, recent chats
-   - Shows quick links to features
-
-4. **Ask The Chancellor** (authenticated)
-   - Messages automatically saved to database
-   - Chat history persists
-   - Users can view previous conversations
-
-5. **Profile** (authenticated)
-   - Users can update password
-   - View account information
-   - Sign out
 
 ## Troubleshooting
 
 ### "npm: command not found"
-- Node.js is not installed. Download and install from https://nodejs.org
+- Node.js is not installed. Download from https://nodejs.org
 
 ### "Port 3000 already in use"
-- Another application is using port 3000
-- Either close that application or run on a different port:
-  ```bash
-  npm run dev -- -p 3001
-  ```
+```bash
+npm run dev -- -p 3001
+```
 
-### Authentication not working
-- Make sure Supabase Email provider is enabled
-- Check that your Supabase URL and Anon Key are correct in `.env.local`
-- Check browser console (F12) for error messages
+### Chat limit not working
+- Make sure you're logged in
+- Check browser console for errors
+- Verify Supabase is properly configured
 
-### Chat not working / "Failed to fetch response"
-- Make sure your OpenAI API key is correct in `.env.local`
-- Check that you have an active OpenAI account with available credits
-- Check browser console (F12) for detailed error messages
+### Can't upgrade subscription
+- Payment integration is placeholder only
+- Use manual SQL update for testing (see above)
+- Full PayFast integration coming soon
 
-### Supabase errors
-- Make sure your Supabase URL and Anon Key are correct in `.env.local`
-- Make sure you've run both schema.sql and seed.sql in Supabase
-- Make sure Email authentication is enabled
-- Check Supabase logs in the dashboard for details
-
-### "ProtectedRoute" errors
-- Make sure you're logged in to access protected pages
-- Try clearing your browser cache and cookies
-- Refresh the page
-
-### Styles not loading / page looks broken
-- Try deleting `.next` folder and restarting:
-  ```bash
-  rm -rf .next
-  npm run dev
-  ```
+### Styles not loading
+```bash
+rm -rf .next
+npm run dev
+```
 
 ### "Module not found" errors
-- Run `npm install` again
-- Delete `node_modules` folder and `package-lock.json`, then run `npm install`
+```bash
+rm -rf node_modules package-lock.json
+npm install
+```
 
 ## Deployment
 
 When ready to deploy:
 
-1. Build the project:
+1. Build:
    ```bash
    npm run build
    ```
 
-2. Test the production build:
+2. Test production build:
    ```bash
    npm run start
    ```
 
-3. Deploy to hosting (Vercel recommended):
+3. Deploy to Vercel:
    - Create account at https://vercel.com
-   - Connect your GitHub repository
-   - Add your environment variables to Vercel project settings:
-     - `OPENAI_API_KEY`
-     - `NEXT_PUBLIC_SUPABASE_URL`
-     - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-     - `NEXT_PUBLIC_APP_URL` (set to your production domain)
-   - Deploy with one click
+   - Connect GitHub repository
+   - Add environment variables
+   - Deploy
 
 ## Need Help?
 
-- Check GitHub Issues: https://github.com/bevanshelton-netizen/downloads/issues
-- Open an Issue for bugs or feature requests
-- Review Next.js docs: https://nextjs.org/docs
-- Review Supabase docs: https://supabase.com/docs
-- Supabase Auth docs: https://supabase.com/docs/guides/auth
-- OpenAI API docs: https://platform.openai.com/docs
+- GitHub Issues: https://github.com/bevanshelton-netizen/downloads/issues
+- Next.js Docs: https://nextjs.org/docs
+- Supabase Docs: https://supabase.com/docs
+- OpenAI Docs: https://platform.openai.com/docs
 
 ## Technology Stack
 
@@ -380,6 +390,7 @@ When ready to deploy:
 - **AI:** OpenAI API (GPT-4 Turbo)
 - **Database:** Supabase (PostgreSQL)
 - **Authentication:** Supabase Auth
+- **Payments:** PayFast (placeholder for now)
 - **Deployment:** Vercel (recommended)
 
 ---
