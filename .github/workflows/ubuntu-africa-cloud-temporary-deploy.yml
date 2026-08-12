@@ -33,8 +33,8 @@ jobs:
       - name: Type check
         run: npm run typecheck
 
-      - name: Build
-        run: npm run build
+      - name: Build for Cloudflare
+        run: npm run build:cloudflare
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: placeholder
@@ -42,7 +42,7 @@ jobs:
           APP_URL: https://example.invalid
 
       - name: Deploy temporary Cloudflare preview
-        run: npx wrangler@latest deploy --temporary
+        run: npx wrangler deploy --temporary
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: placeholder
