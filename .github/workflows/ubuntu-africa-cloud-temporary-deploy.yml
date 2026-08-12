@@ -42,7 +42,7 @@ jobs:
           APP_URL: https://example.invalid
 
       - name: Deploy temporary Cloudflare preview
-        run: npx wrangler@latest deploy --temporary --yes
+        run: npx wrangler@latest deploy --temporary
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: placeholder
