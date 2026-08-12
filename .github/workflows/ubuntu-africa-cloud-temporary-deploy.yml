@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - agent/ubuntu-africa-cloud-deploy
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'ubuntu-africa-cloud/**'
+      - '.github/workflows/ubuntu-africa-cloud-temporary-deploy.yml'
   workflow_dispatch:
 
 jobs:
@@ -20,8 +26,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: ubuntu-africa-cloud/package-lock.json
 
       - name: Install dependencies
         run: npm install --no-audit --no-fund
