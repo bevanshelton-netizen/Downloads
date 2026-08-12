@@ -5,12 +5,13 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:cloudflare": "opennextjs-cloudflare build",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "check": "npm run typecheck && npm run build",
-    "deploy:cloudflare": "npx wrangler deploy"
+    "deploy:cloudflare": "wrangler deploy"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
@@ -21,6 +22,7 @@
     "zod": "^4.0.0"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "latest",
     "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
@@ -29,6 +31,7 @@
     "eslint-config-next": "^16.0.0",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.7.0",
-    "vitest": "^3.0.0"
+    "vitest": "^3.0.0",
+    "wrangler": "^4.121.0"
   }
 }
