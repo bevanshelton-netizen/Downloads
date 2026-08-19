@@ -1,43 +1,97 @@
-# Ubuntu Africa Cloud — Deployment Guide
+# Ubuntu Africa Cloud — Launch Guide
 
-## A. Supabase
-1. Create a free Supabase project.
-2. SQL Editor: run `supabase/schema.sql`, then `supabase/phase3.sql`, then `supabase/final.sql`.
-3. Authentication: enable Email/Password.
-4. Set Site URL to your deployed URL.
-5. Add redirect URLs: `/auth/confirm` and `/update-password` on the deployed origin.
-6. Create your own account through the app.
-7. In SQL Editor, replace `YOUR_EMAIL_HERE` in the commented statement in `final.sql` and run that one INSERT to make yourself super admin.
+## 1. Hosting target: Netlify Free
 
-## B. Environment variables
-Set all four variables from `.env.example`. `SUPABASE_SERVICE_ROLE_KEY` is server-only and must never be exposed in browser code or committed.
+Repository: `bevanshelton-netizen/Downloads`
 
-## C. Local test
-```bash
-npm install
-npm run typecheck
-npm run build
-npm run dev
-```
+Branch: `agent/ubuntu-africa-cloud-deploy`
 
-## D. Free deployment route
-Use Cloudflare Workers for the full-stack Next.js deployment. For an existing Next.js project, current Cloudflare tooling can auto-detect and configure the framework. From the project folder run `npx wrangler deploy`, sign in to Cloudflare when prompted, and accept the generated configuration. Deploy first to the free `*.workers.dev` address. Free quotas may change, so verify the dashboard before launch.
+The repository-level `netlify.toml` already configures:
 
-## E. First launch test
-- Register owner account and verify email.
-- Create organisation.
-- Create a website project.
-- Submit it.
-- Open `/admin` as the super admin.
-- Approve and publish.
-- Verify public route `/sites/<project-slug>`.
-- Create support/content/payment records.
-- Confirm another customer cannot read the first customer's project IDs.
+- Base directory: `ubuntu-africa-cloud`
+- Build command: `npm run build`
+- Publish directory: `.next`
+- Node.js: 22
 
-## F. Production rules
-- Never expose service-role key.
-- Keep arbitrary code uploads disabled.
-- Keep customer shell/Docker access disabled.
-- Use manual EFT only until PayFast is deliberately integrated and tested.
-- Add real backup/restore testing before charging customers.
-- Recheck free-tier limits before onboarding each batch of customers.
+No Cloudflare configuration is required for this deployment.
+
+## 2. Supabase backend
+
+Create one free Supabase project named `Ubuntu Africa Cloud`.
+
+In SQL Editor run, in order:
+
+1. `supabase/schema.sql`
+2. `supabase/phase3.sql`
+3. `supabase/final.sql`
+
+Enable Email/Password authentication.
+
+## 3. Netlify environment variables
+
+Add these in Netlify under Site configuration > Environment variables:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `APP_URL`
+
+Keep `SUPABASE_SERVICE_ROLE_KEY` secret and server-only. Never commit it to GitHub or place it in a `NEXT_PUBLIC_` variable.
+
+For the first deployment, `APP_URL` may be set to the Netlify production URL once Netlify assigns it, followed by one redeploy.
+
+## 4. Supabase URL configuration
+
+After Netlify assigns the live URL, set that URL as the Supabase Authentication Site URL and add:
+
+- `https://YOUR-NETLIFY-SITE/auth/confirm`
+- `https://YOUR-NETLIFY-SITE/update-password`
+
+## 5. Owner setup
+
+Register through the live application and confirm the email address.
+
+Then run the super-admin INSERT provided in `supabase/final.sql`, replacing the placeholder email with the registered owner email.
+
+## 6. Health check
+
+Open:
+
+`https://YOUR-NETLIFY-SITE/api/health`
+
+Expected result before launch:
+
+`status: ready`
+
+If configuration is incomplete, the endpoint returns `configuration_required` and lists only the missing environment variable names. It never returns secret values.
+
+## 7. Launch acceptance test
+
+Before sharing the site publicly, verify:
+
+- home page loads
+- registration works
+- verification email arrives
+- login works
+- organisation creation works
+- customer dashboard is protected
+- website project can be created and previewed
+- project can be submitted for approval
+- `/admin` works only for a platform admin
+- admin can approve and publish a site
+- published route `/sites/<slug>` loads publicly
+- support ticket submission works
+- content request submission works
+- manual payment record flow works
+- tenant A cannot access tenant B records
+- suspended tenants cannot operate normally
+- password reset completes successfully
+
+## 8. Pilot launch rules
+
+- Start with managed websites and approved templates only.
+- Do not enable arbitrary customer code, shell or Docker access.
+- Keep AI assistance manual during the zero-cost pilot.
+- Keep payments as manual EFT records until a payment gateway is deliberately integrated and tested.
+- Do not activate paid infrastructure or metered services without explicit owner approval.
+- Monitor Netlify and Supabase free-tier usage before onboarding each additional customer batch.
