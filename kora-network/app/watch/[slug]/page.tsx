@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { createSignedPlaybackUrl } from '@/lib/video';
+import AdSupportedPlayer from '@/components/AdSupportedPlayer';
 
 export default async function WatchShow({
   params,
@@ -69,7 +70,7 @@ export default async function WatchShow({
       </section>
       <section className="watchLayout">
         <div className="playerShell">
-          {playbackUrl ? <iframe src={playbackUrl} allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture" allowFullScreen title={selected?.title || production.title} /> : <div className="playerPlaceholder"><strong>{selected ? 'Video is processing or playback credentials are not active yet.' : 'No published episodes yet.'}</strong></div>}
+          {selected ? <AdSupportedPlayer contentUrl={playbackUrl} episodeId={selected.id} title={selected.title || production.title} adsEnabled={production.access_mode === 'free'} /> : <div className="playerPlaceholder"><strong>No published episodes yet.</strong></div>}
         </div>
         <aside className="episodeRail">
           <h3>Episodes</h3>
