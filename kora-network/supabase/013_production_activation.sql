@@ -35,8 +35,10 @@ create table if not exists public.platform_release_events (
 alter table public.platform_release_state enable row level security;
 alter table public.platform_release_events enable row level security;
 
-create policy "staff reads release state" on public.platform_release_state
-for select using (public.is_staff());
+-- Release booleans and the maintenance message are intentionally non-secret so middleware
+-- can fail closed for anonymous users without exposing the service-role credential.
+create policy "public reads release state" on public.platform_release_state
+for select to anon, authenticated using (true);
 
 create policy "admins read release events" on public.platform_release_events
 for select using (exists(select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
