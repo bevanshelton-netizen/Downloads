@@ -18,7 +18,10 @@ function slugify(value: string) {
 export async function createProduction(formData: FormData) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
+  if (!user) redirect('/login?next=/studio/productions/new');
+
+  const { data: creator } = await supabase.from('creators').select('id').eq('owner_id', user.id).maybeSingle();
+  if (!creator) redirect('/creators/apply?error=KORA%20creator%20approval%20is%20required%20before%20you%20can%20create%20a%20production');
 
   const { data: acceptance } = await supabase.from('agreement_acceptances')
     .select('id')
@@ -42,23 +45,6 @@ export async function createProduction(formData: FormData) {
   if (title.length < 2) redirect('/studio/productions/new?error=Please%20enter%20a%20title');
   if (!rightsConfirmed || !contributorsConfirmed || !musicConfirmed || !likenessConfirmed || !policyConfirmed) {
     redirect('/studio/productions/new?error=Complete%20every%20rights%20and%20content%20declaration%20before%20creating%20the%20production');
-  }
-
-  let { data: creator } = await supabase
-    .from('creators')
-    .select('id')
-    .eq('owner_id', user.id)
-    .maybeSingle();
-
-  if (!creator) {
-    const creatorName = String(user.user_metadata?.display_name || user.email?.split('@')[0] || 'Creator');
-    const result = await supabase
-      .from('creators')
-      .insert({ owner_id: user.id, name: creatorName })
-      .select('id')
-      .single();
-    if (result.error) redirect(`/studio/productions/new?error=${encodeURIComponent(result.error.message)}`);
-    creator = result.data;
   }
 
   const slug = `${slugify(title) || 'production'}-${randomUUID().slice(0, 8)}`;
