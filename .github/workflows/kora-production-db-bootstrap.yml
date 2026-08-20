@@ -1,0 +1,39 @@
+name: KORA Production DB Bootstrap
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type exactly BOOTSTRAP FRESH KORA DATABASE
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    environment: kora-production
+    defaults:
+      run:
+        working-directory: kora-network
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      KORA_DB_BOOTSTRAP_CONFIRM: ${{ inputs.confirmation }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Require explicit confirmation
+        run: |
+          test "$KORA_DB_BOOTSTRAP_CONFIRM" = "BOOTSTRAP FRESH KORA DATABASE" || { echo "Confirmation did not match."; exit 1; }
+      - name: Validate migration inventory
+        run: node scripts/check-migrations.mjs
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+      - name: Bootstrap brand-new KORA production database
+        run: bash scripts/bootstrap-production-db.sh
