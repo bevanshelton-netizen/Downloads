@@ -7,7 +7,7 @@ export async function GET() {
   return NextResponse.json({
     service: 'KORA',
     appVersion: process.env.npm_package_version || 'unknown',
-    schemaVersion: 13,
+    schemaVersion: 14,
     commit: commit ? commit.slice(0, 12) : null,
     environment: process.env.VERCEL_ENV || process.env.NODE_ENV || 'unknown',
     timestamp: new Date().toISOString(),
