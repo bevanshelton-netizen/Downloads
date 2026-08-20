@@ -1,0 +1,11 @@
+{
+  "framework": "nextjs",
+  "headers": [
+    {
+      "source": "/api/internal/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0" }
+      ]
+    }
+  ]
+}
