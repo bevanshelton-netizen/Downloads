@@ -13,6 +13,13 @@ async function staffClient() {
   return supabase;
 }
 
+function catLocalToIso(value: string) {
+  const withSeconds = value.length === 16 ? `${value}:00` : value;
+  const parsed = new Date(`${withSeconds}+02:00`);
+  if (Number.isNaN(parsed.getTime())) throw new Error('Invalid CAT date/time');
+  return parsed.toISOString();
+}
+
 export async function createScheduleItem(formData: FormData) {
   const channelId = String(formData.get('channel_id') ?? '');
   const title = String(formData.get('title') ?? '').trim();
@@ -21,13 +28,21 @@ export async function createScheduleItem(formData: FormData) {
   const sponsorName = String(formData.get('sponsor_name') ?? '').trim();
   const isPremiere = formData.get('is_premiere') === 'on';
 
-  if (!channelId || !title || !startsAt || !endsAt || new Date(endsAt) <= new Date(startsAt)) {
+  if (!channelId || !title || !startsAt || !endsAt) {
     redirect('/admin/schedule?error=Check%20channel%2C%20title%20and%20programme%20times');
   }
 
+  let startIso: string;
+  let endIso: string;
+  try {
+    startIso = catLocalToIso(startsAt);
+    endIso = catLocalToIso(endsAt);
+  } catch {
+    redirect('/admin/schedule?error=Invalid%20programme%20date%20or%20time');
+  }
+  if (new Date(endIso) <= new Date(startIso)) redirect('/admin/schedule?error=Programme%20end%20must%20follow%20its%20start');
+
   const supabase = await staffClient();
-  const startIso = new Date(startsAt).toISOString();
-  const endIso = new Date(endsAt).toISOString();
   const { data: overlap } = await supabase
     .from('schedule_items')
     .select('id')
