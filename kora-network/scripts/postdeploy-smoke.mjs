@@ -17,6 +17,19 @@ if (base.protocol !== 'https:') {
 }
 
 const expectReady = String(process.env.KORA_EXPECT_READY || 'false') === 'true';
+const privateBetaInfrastructureChecks = [
+  'appUrl',
+  'supabaseConfigured',
+  'databaseReachable',
+  'schemaCurrent',
+  'adminBootstrapped',
+  'channelSeeded',
+  'payfastCredentials',
+  'cloudflareStream',
+  'rewardVerifierSecret',
+  'operatorIdentity',
+  'supportContacts',
+];
 
 async function json(path) {
   const response = await fetch(new URL(path, base), { redirect: 'follow', headers: { 'user-agent': 'kora-production-smoke/1.0' } });
@@ -47,6 +60,16 @@ if (expectReady) {
   const sensible = readiness.response.status === 200 || readiness.response.status === 503;
   console.log(`${sensible ? 'PASS' : 'FAIL'}  /api/readiness — HTTP ${readiness.response.status}; productionReady=${Boolean(readiness.body?.productionReady)}`);
   failed ||= !sensible;
+
+  const checks = readiness.body?.checks;
+  if (!checks || typeof checks !== 'object') {
+    console.log('FAIL  private-beta infrastructure checks — readiness payload did not include checks');
+    failed = true;
+  } else {
+    const missingInfrastructure = privateBetaInfrastructureChecks.filter((name) => checks[name] !== true);
+    console.log(`${missingInfrastructure.length ? 'FAIL' : 'PASS'}  private-beta infrastructure — ${missingInfrastructure.length ? `blocked by ${missingInfrastructure.join(', ')}` : 'core services are ready'}`);
+    failed ||= missingInfrastructure.length > 0;
+  }
 }
 
 if (!ready && readiness.body?.checks) {
@@ -57,7 +80,7 @@ if (!ready && readiness.body?.checks) {
 }
 
 const version = await json('/api/version');
-const versionOk = version.response.status === 200 && version.body?.service === 'KORA' && Number(version.body?.schemaVersion) === 13;
+const versionOk = version.response.status === 200 && version.body?.service === 'KORA' && Number(version.body?.schemaVersion) === 14;
 console.log(`${versionOk ? 'PASS' : 'FAIL'}  /api/version — HTTP ${version.response.status}; schema=${version.body?.schemaVersion ?? 'unknown'}`);
 failed ||= !versionOk;
 
@@ -71,4 +94,4 @@ console.log(`${homeOk ? 'PASS' : 'FAIL'}  / — HTTP ${home.status}${home.header
 failed ||= !homeOk;
 
 if (failed) process.exit(1);
-console.log(`\nKORA ${expectReady ? 'public-launch' : 'post-deploy'} smoke test passed.`);
+console.log(`\nKORA ${expectReady ? 'public-launch' : 'private-beta'} smoke test passed.`);
