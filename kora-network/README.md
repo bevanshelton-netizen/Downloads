@@ -35,10 +35,13 @@ npm run build
 
 ## Production activation
 
-`DEPLOYMENT.md` is the authoritative production runbook. KORA exposes:
+`DEPLOYMENT.md` is the authoritative production runbook and `PRODUCTION_AUTOMATION.md` describes the guarded GitHub workflows that automate the production database bootstrap, first-admin bootstrap, private-beta deployment and launch preflight.
+
+KORA exposes:
 
 - `GET /api/health` — process liveness only.
 - `GET /api/readiness` — strict production readiness.
+- `GET /api/version` — non-secret deployed build/schema identity.
 - `/admin/launch` — administrator-only release control, maintenance switch and final go-live preflight.
 
 Public account creation, creator applications and advertiser campaign creation are controlled independently by the production release state. The final public-launch switch cannot be enabled while another readiness check is failing.
@@ -46,6 +49,8 @@ Public account creation, creator applications and advertiser campaign creation a
 ## Operations references
 
 - `DEPLOYMENT.md` — production infrastructure, migrations, first admin and final release sequence.
+- `PRODUCTION_AUTOMATION.md` — GitHub Environment variables/secrets and guarded deployment workflows.
+- `PRODUCTION_ACTIVATION.md` — controlled private-beta and public-release operating sequence.
 - `LAUNCH_OPERATIONS.md` — contextual ad delivery and reporting operations.
 - `PPV_OPERATIONS.md` — PayFast one-time purchase and permanent entitlement operations.
 - `LEGAL_REVIEW.md` — legal/regulatory review checklist.
