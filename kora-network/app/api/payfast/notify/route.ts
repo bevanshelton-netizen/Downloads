@@ -2,6 +2,16 @@ import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { plans, type PlanCode, validateItn } from '@/lib/payfast';
 
+function addOneMonth(value?: string | null) {
+  const base = value && new Date(value) > new Date() ? new Date(value) : new Date();
+  const day = base.getUTCDate();
+  base.setUTCDate(1);
+  base.setUTCMonth(base.getUTCMonth() + 1);
+  const lastDay = new Date(Date.UTC(base.getUTCFullYear(), base.getUTCMonth() + 1, 0)).getUTCDate();
+  base.setUTCDate(Math.min(day, lastDay));
+  return base.toISOString();
+}
+
 export async function POST(request: Request) {
   const raw = await request.text();
   const params = new URLSearchParams(raw);
@@ -51,7 +61,7 @@ export async function POST(request: Request) {
 
   const { data: subscription, error: lookupError } = await admin
     .from('subscriptions')
-    .select('id,plan_code,status,provider_subscription_id')
+    .select('id,plan_code,status,provider_subscription_id,current_period_end,cancelled_at')
     .eq('id', orderId)
     .maybeSingle();
   if (lookupError || !subscription) return new NextResponse('Unknown order', { status: 404 });
@@ -63,27 +73,39 @@ export async function POST(request: Request) {
 
   if (paymentStatus === 'COMPLETE') {
     const providerPaymentId = fields.pf_payment_id;
+    const subscriptionToken = fields.token || subscription.provider_subscription_id;
     if (!providerPaymentId) return new NextResponse('Missing provider payment', { status: 400 });
+    if (!subscriptionToken) return new NextResponse('Missing subscription token', { status: 400 });
 
-    if (subscription.status !== 'active' || subscription.provider_subscription_id !== providerPaymentId) {
-      const currentPeriodEnd = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000).toISOString();
+    const { data: existingRevenue } = await admin.from('revenue_events')
+      .select('id')
+      .eq('source_type', 'payfast_subscription')
+      .eq('source_id', providerPaymentId)
+      .maybeSingle();
+
+    if (!existingRevenue) {
+      const { error: revenueError } = await admin.from('revenue_events').insert({
+        source_type: 'payfast_subscription',
+        source_id: providerPaymentId,
+        gross_amount: receivedAmount,
+        currency: 'ZAR',
+        cleared: true,
+        cleared_at: new Date().toISOString(),
+      });
+      if (revenueError) return new NextResponse('Revenue persistence failure', { status: 500 });
+
       const { error } = await admin.from('subscriptions').update({
         status: 'active',
-        provider_subscription_id: providerPaymentId,
-        current_period_end: currentPeriodEnd,
+        provider_subscription_id: subscriptionToken,
+        current_period_end: addOneMonth(subscription.current_period_end),
       }).eq('id', orderId);
       if (error) return new NextResponse('Persistence failure', { status: 500 });
+    } else if (subscription.provider_subscription_id !== subscriptionToken) {
+      const { error } = await admin.from('subscriptions')
+        .update({ provider_subscription_id: subscriptionToken })
+        .eq('id', orderId);
+      if (error) return new NextResponse('Token persistence failure', { status: 500 });
     }
-
-    const { error: revenueError } = await admin.from('revenue_events').upsert({
-      source_type: 'payfast_subscription',
-      source_id: providerPaymentId,
-      gross_amount: receivedAmount,
-      currency: 'ZAR',
-      cleared: true,
-      cleared_at: new Date().toISOString(),
-    }, { onConflict: 'source_type,source_id' });
-    if (revenueError) return new NextResponse('Revenue persistence failure', { status: 500 });
   } else if (subscription.status !== 'active') {
     const { error } = await admin.from('subscriptions').update({
       status: paymentStatus?.toLowerCase() || 'pending',
