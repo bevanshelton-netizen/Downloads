@@ -3,8 +3,8 @@ import { legal } from '@/lib/legal';
 import { getPlatformReleaseState } from '@/lib/platform-state';
 import { signIn, signUp } from './actions';
 
-export default async function Login({ searchParams }: { searchParams: Promise<{ error?: string; next?: string }> }) {
-  const [{ error, next }, release] = await Promise.all([searchParams, getPlatformReleaseState()]);
+export default async function Login({ searchParams }: { searchParams: Promise<{ error?: string; message?: string; next?: string }> }) {
+  const [{ error, message, next }, release] = await Promise.all([searchParams, getPlatformReleaseState()]);
   const safeNext = next?.startsWith('/') && !next.startsWith('//') ? next : '/studio';
   const signupOpen = release.public_signups_enabled || process.env.KORA_PRIVATE_SIGNUP_ENABLED === 'true';
   return (
@@ -18,6 +18,7 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
         <article className="panel" style={{ gridColumn: 'span 2' }}>
           <h3>{signupOpen ? 'Sign in or create your account' : 'Sign in to KORA'}</h3>
           {error ? <p role="alert">{error}</p> : null}
+          {message ? <p><strong>{message}</strong></p> : null}
           {!signupOpen ? <p>New account creation is currently closed while KORA is in controlled launch.</p> : null}
           <form style={{ display: 'grid', gap: 14, maxWidth: 620 }}>
             <input type="hidden" name="next" value={safeNext} />
@@ -30,6 +31,7 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
             <div className="actions">
               <button className="primary" formAction={signIn}>Sign in</button>
               {signupOpen ? <button className="secondary" formAction={signUp}>Create account</button> : null}
+              <Link className="secondary" href="/forgot-password">Forgot password?</Link>
             </div>
           </form>
         </article>
