@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 const allowedEvents = new Set(['impression','click','complete']);
 
@@ -13,8 +14,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid ad event' }, { status: 400 });
   }
 
+  const admin = createAdminClient();
   const now = new Date().toISOString();
-  const { data: campaign } = await supabase
+  const { data: campaign } = await admin
     .from('campaigns')
     .select('id,status,starts_at,ends_at')
     .eq('id', body.campaignId)
@@ -24,7 +26,7 @@ export async function POST(request: Request) {
   if (campaign.starts_at && campaign.starts_at > now) return NextResponse.json({ error: 'Campaign has not started' }, { status: 409 });
   if (campaign.ends_at && campaign.ends_at < now) return NextResponse.json({ error: 'Campaign has ended' }, { status: 409 });
 
-  const { data, error } = await supabase.from('ad_events').insert({
+  const { data, error } = await admin.from('ad_events').insert({
     campaign_id: campaign.id,
     user_id: user.id,
     event_type: body.eventType,
