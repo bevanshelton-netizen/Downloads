@@ -12,9 +12,9 @@ async function authenticatedClient() {
   return { supabase, user };
 }
 
-async function hasFamilyPin(supabase: Awaited<ReturnType<typeof createClient>>, userId: string) {
-  const { data } = await supabase.from('family_pins').select('owner_id').eq('owner_id', userId).maybeSingle();
-  return Boolean(data);
+async function hasFamilyPin(supabase: Awaited<ReturnType<typeof createClient>>) {
+  const { data, error } = await supabase.rpc('has_family_pin');
+  return !error && data === true;
 }
 
 async function verifyPin(supabase: Awaited<ReturnType<typeof createClient>>, pin: string) {
@@ -23,13 +23,13 @@ async function verifyPin(supabase: Awaited<ReturnType<typeof createClient>>, pin
 }
 
 export async function setFamilyPin(formData: FormData) {
-  const { supabase, user } = await authenticatedClient();
+  const { supabase } = await authenticatedClient();
   const currentPin = String(formData.get('current_pin') ?? '');
   const newPin = String(formData.get('new_pin') ?? '');
   const confirmPin = String(formData.get('confirm_pin') ?? '');
   if (newPin !== confirmPin) redirect('/family?error=New%20PINs%20do%20not%20match');
 
-  if (await hasFamilyPin(supabase, user.id)) {
+  if (await hasFamilyPin(supabase)) {
     if (!(await verifyPin(supabase, currentPin))) redirect('/family?error=Current%20family%20PIN%20is%20incorrect');
   }
 
@@ -40,9 +40,9 @@ export async function setFamilyPin(formData: FormData) {
 }
 
 export async function createChildProfile(formData: FormData) {
-  const { supabase, user } = await authenticatedClient();
+  const { supabase } = await authenticatedClient();
   const pin = String(formData.get('family_pin') ?? '');
-  if (!(await hasFamilyPin(supabase, user.id))) redirect('/family?error=Set%20a%20family%20PIN%20before%20creating%20Kids%20profiles');
+  if (!(await hasFamilyPin(supabase))) redirect('/family?error=Set%20a%20family%20PIN%20before%20creating%20Kids%20profiles');
   if (!(await verifyPin(supabase, pin))) redirect('/family?error=Family%20PIN%20is%20incorrect');
 
   const nickname = String(formData.get('nickname') ?? '').trim();
@@ -69,7 +69,7 @@ export async function deleteChildProfile(formData: FormData) {
 export async function enterChildMode(formData: FormData) {
   const { supabase, user } = await authenticatedClient();
   const profileId = String(formData.get('profile_id') ?? '');
-  if (!(await hasFamilyPin(supabase, user.id))) redirect('/family?error=Set%20a%20family%20PIN%20before%20launching%20Kids%20Mode');
+  if (!(await hasFamilyPin(supabase))) redirect('/family?error=Set%20a%20family%20PIN%20before%20launching%20Kids%20Mode');
 
   const { data: profile } = await supabase.from('viewer_profiles').select('id').eq('id', profileId).eq('owner_id', user.id).eq('profile_kind', 'child').maybeSingle();
   if (!profile) redirect('/family?error=Kids%20profile%20not%20found');
