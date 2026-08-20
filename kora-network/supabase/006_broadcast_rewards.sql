@@ -37,6 +37,49 @@ alter table public.reward_claims enable row level security;
 create policy "viewer reads own reward claims" on public.reward_claims
 for select using (user_id = auth.uid() or public.is_staff());
 
+-- Operations records money as cleared before any reward pool can exist.
+create or replace function public.fund_campaign_from_cleared_revenue(
+  p_campaign_id uuid,
+  p_gross_amount numeric,
+  p_reward_amount numeric
+)
+returns uuid
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_budget numeric;
+  v_planned_reward numeric;
+  v_revenue_id uuid;
+  v_pool_id uuid;
+begin
+  if p_gross_amount <= 0 then raise exception 'Gross cleared amount must be positive'; end if;
+  if p_reward_amount < 0 or p_reward_amount > p_gross_amount then raise exception 'Invalid reward funding amount'; end if;
+
+  select budget, reward_pool into v_budget, v_planned_reward
+  from public.campaigns where id = p_campaign_id for update;
+  if v_budget is null then raise exception 'Campaign not found'; end if;
+  if p_gross_amount > v_budget then raise exception 'Cleared amount exceeds campaign budget'; end if;
+  if p_reward_amount > v_planned_reward then raise exception 'Reward funding exceeds campaign reward allocation'; end if;
+
+  insert into public.revenue_events(source_type, source_id, gross_amount, currency, cleared, cleared_at)
+  values('campaign', p_campaign_id::text, p_gross_amount, 'ZAR', true, now())
+  returning id into v_revenue_id;
+
+  if p_reward_amount > 0 then
+    insert into public.reward_pools(revenue_event_id, campaign_id, funded_amount)
+    values(v_revenue_id, p_campaign_id, p_reward_amount)
+    returning id into v_pool_id;
+  end if;
+
+  update public.campaigns set status = 'active' where id = p_campaign_id;
+  return coalesce(v_pool_id, v_revenue_id);
+end;
+$$;
+
+revoke all on function public.fund_campaign_from_cleared_revenue(uuid, numeric, numeric) from public, anon, authenticated;
+grant execute on function public.fund_campaign_from_cleared_revenue(uuid, numeric, numeric) to service_role;
+
 -- Atomic, service-only claim function. A client cannot choose its own reward amount.
 create or replace function public.claim_verified_ad_reward(
   p_user_id uuid,
