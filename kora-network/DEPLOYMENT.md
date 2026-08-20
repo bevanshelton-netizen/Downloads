@@ -1,17 +1,19 @@
 # KORA Production Deployment
 
-## Recommended production topology
+KORA is designed to launch only when the real production services, legal identity, safety controls and operating processes have passed acceptance testing. A successful code build alone is not a public go-live decision.
 
-- Web application: Vercel, deployed from `bevanshelton-netizen/Downloads` with Root Directory set to `kora-network`.
-- Database, authentication and server data: Supabase.
-- Video ingest, private playback and live HLS delivery: Cloudflare Stream or another compatible HLS origin.
+## Production topology
+
+- Web application: Vercel, repository `bevanshelton-netizen/Downloads`, Root Directory `kora-network`.
+- Database/auth/server data: Supabase.
+- Creator upload, private playback and live HLS: Cloudflare Stream or an approved compatible origin.
 - Payments: PayFast.
-- Payout/KYC operations: approved external verification and payout process; KORA stores status/provider references, not banking passwords, PINs, CVVs or OTPs.
-- Source of truth: GitHub `main` branch.
+- Creator KYC/payouts: approved external verification and payout process. KORA must never collect banking passwords, card PINs, CVVs or OTPs.
+- Source of truth: GitHub `main`.
 
-## 1. Supabase
+## 1. Supabase — required migration order
 
-Create a dedicated production Supabase project. In the SQL editor apply the KORA SQL files in this order:
+For a new production database apply these files in this order:
 
 1. `supabase/schema.sql`
 2. `supabase/002_platform_core.sql`
@@ -23,8 +25,15 @@ Create a dedicated production Supabase project. In the SQL editor apply the KORA
 8. `supabase/008_creator_economy_family.sql`
 9. `supabase/009_family_pin_privacy.sql`
 10. `supabase/010_creator_revenue_reserve_hardening.sql`
+11. `supabase/011_launch_analytics_ads.sql`
+12. `supabase/012_ppv_entitlements.sql`
+13. `supabase/013_schema_readiness.sql`
 
-Then configure the production application with:
+Migration 013 is intentionally a final integrity check. It fails if critical earlier KORA tables/functions are absent and then records the required production schema version in `platform_schema_meta`.
+
+The historical `000_fresh_install.sql` predates the latest commercial and PPV layers. Do not treat it by itself as a complete v13 production install unless it is regenerated to include every migration above.
+
+Configure only through deployment secrets:
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
@@ -32,157 +41,127 @@ Then configure the production application with:
 
 Never expose the service-role key to browser code or commit it to Git.
 
-## 2. Vercel and operational checks
+## 2. Vercel
 
-Import the GitHub repository and configure:
+Import the repository with:
 
 - Production Branch: `main`
 - Root Directory: `kora-network`
-- Framework Preset: Next.js
-- Build Command: `npm run build`
-- Install Command: `npm install --no-audit --no-fund`
+- Framework: Next.js
+- Install: `npm install --no-audit --no-fund`
+- Build: `npm run build`
 
-Set `NEXT_PUBLIC_APP_URL` to the final HTTPS production origin, without a trailing slash.
+Set `NEXT_PUBLIC_APP_URL` to the final HTTPS production origin without a trailing slash.
 
-KORA exposes two non-secret operational endpoints:
+Operational endpoints:
 
-- `GET /api/health` is a liveness check. A running application returns HTTP 200 with `status: "ok"`.
-- `GET /api/readiness` is the strict production go-live gate. It returns HTTP 200 with `status: "ready"` and `productionReady: true` only when production infrastructure, public legal identity/contact details, legal/regulatory approval, child-safety signoff and payout-operations signoff are configured. Sandbox PayFast, the mock video provider or incomplete approval gates intentionally return HTTP 503.
+- `GET /api/health` — liveness only; a running app returns HTTP 200 / `status: "ok"`.
+- `GET /api/readiness` — strict go-live gate. It now checks real database reachability and schema version in addition to configuration/approval gates. It returns HTTP 200 only when every launch condition passes.
+- `/admin/launch` — administrator launch-control screen showing the same non-secret checks.
 
-## 3. Public operator identity and approval gates
+## 3. Public identity and explicit approvals
 
-Complete these environment values with real approved details:
+Supply real approved values:
 
 - `NEXT_PUBLIC_OPERATOR_NAME`
 - `NEXT_PUBLIC_SUPPORT_EMAIL`
 - `NEXT_PUBLIC_PRIVACY_EMAIL`
 - `NEXT_PUBLIC_RIGHTS_EMAIL`
 
-Keep these explicit gates false until the corresponding work is completed and signed off:
+Keep every acceptance flag `false` until the named work has actually been completed:
 
 - `KORA_LEGAL_APPROVED=false`
 - `KORA_REGULATORY_APPROVED=false`
 - `KORA_CHILD_SAFETY_APPROVED=false`
 - `KORA_PAYOUT_OPERATIONS_APPROVED=false`
+- `KORA_PAYMENT_ACCEPTANCE_APPROVED=false`
+- `KORA_STREAMING_ACCEPTANCE_APPROVED=false`
+- `KORA_AD_OPERATIONS_APPROVED=false`
+- `KORA_MONITORING_APPROVED=false`
+- `KORA_BACKUP_APPROVED=false`
 
-The legal pages intentionally display a draft warning until legal approval is enabled. Do not set legal/regulatory flags merely to obtain a green readiness response. See `LEGAL_REVIEW.md`.
+Never set flags merely to obtain a green readiness response.
 
 ## 4. PayFast
 
-Start in sandbox mode:
+Start with sandbox credentials and `PAYFAST_SANDBOX=true`.
 
-- `PAYFAST_MERCHANT_ID`
-- `PAYFAST_MERCHANT_KEY`
-- `PAYFAST_PASSPHRASE`
-- `PAYFAST_SANDBOX=true`
+KORA supports:
 
-The integration generates these URLs automatically from `NEXT_PUBLIC_APP_URL`:
+- Premium membership checkout via `/api/payfast/checkout`.
+- One-time pay-per-view checkout via `/api/payfast/purchase`.
+- Server-to-server notification at `/api/payfast/notify`.
 
-- Return: `/account?payment=success`
-- Cancel: `/account?payment=cancelled`
-- ITN notify: `/api/payfast/notify`
+PPV prices are read from the production database, not from the browser. Browser return from PayFast never unlocks content; only a validated ITN can complete the entitlement. `012_ppv_entitlements.sql` atomically records the permanent purchase and cleared revenue.
 
-Before switching live, complete an authenticated sandbox checkout and confirm that the ITN activates the subscription only when signature validation, merchant validation, amount validation and duplicate-payment controls succeed.
+Before live mode, test valid and invalid signatures, merchant mismatch, amount mismatch, duplicate ITNs, cancelled checkout, completed PPV unlock, My Library, subscription activation and revenue uniqueness. Then set `KORA_PAYMENT_ACCEPTANCE_APPROVED=true` only after the acceptance record is retained.
 
-## 5. Cloudflare Stream and live television
+## 5. Streaming and broadcast
 
-For real creator uploads set:
+For Cloudflare Stream configure:
 
 - `VIDEO_PROVIDER=cloudflare`
 - `CLOUDFLARE_ACCOUNT_ID`
 - `CLOUDFLARE_STREAM_TOKEN`
 - `CLOUDFLARE_STREAM_CUSTOMER_CODE`
 
-Cloudflare Stream direct uploads are created server-side and playback is private/signed. Use a token restricted to the minimum Stream permissions required by KORA.
+Creator uploads are created server-side. Private playback uses signed URLs. Live channels use HTTPS HLS feeds controlled through `/admin/schedule`; the public EPG renders programme times in CAT.
 
-Live channel playback URLs are controlled by authorised staff from `/admin/schedule`. Production feeds should use HTTPS HLS URLs. Master Control enters schedule times in CAT, KORA stores them in UTC and public schedules render in CAT.
+Test upload, processing, signed playback, multiple devices, at least one live HLS channel and EPG rollover before setting `KORA_STREAMING_ACCEPTANCE_APPROVED=true`.
 
-## 6. Creator acquisition and contracts
+## 6. Creators, rights and moderation
 
-Public recruitment begins at `/creators` and `/creators/apply`. Applicants must have a KORA account. Operations reviews applications at `/admin/creators`.
+Creator journey:
 
-Accepting an application creates/activates the creator record and issues a versioned creator revenue-share offer. The percentage is stored in basis points and can be configured per offer. The creator sees the percentage and revenue basis in `/studio/earnings` and must actively accept it before any creator revenue can be allocated.
+`application → operations review → creator deal offer → creator acceptance → Creator Agreement → production rights declarations → upload → moderation → publication → analytics/revenue → KYC → payout`
 
-A creator must also accept the current versioned Creator Agreement before creating a production. Each production records rights declarations covering ownership/control, performers/contributors/locations, music and likeness permissions and content-policy compliance.
+Creators retain their IP by default under the draft creator agreement structure, subject to the distribution licence they accept. Every production records declarations for ownership/control, performers/contributors/locations, music and likeness permissions.
 
-## 7. Creator revenue and payouts
+Pornography and explicit sexual content are prohibited platform-wide. Publication remains human-moderation gated.
 
-`/admin/revenue` allocates an eligible amount from an already-cleared revenue event to a published production. The database then:
+## 7. Revenue, advertising and viewer rewards
 
-1. derives the production's creator;
-2. reads the creator's accepted deal;
-3. subtracts any viewer-reward funds already reserved against the same cleared revenue event;
-4. prevents cumulative creator allocation above the remaining cleared revenue;
-5. calculates creator/platform shares;
-6. writes the creator wallet credit and allocation record atomically.
+Campaign money is separated into controlled uses. Operations first records cleared advertiser funding. Advertising staff then approve the actual creative. `011_launch_analytics_ads.sql` provides contextual ad decisions and atomically reserves media spend at the configured CPM; delivery cannot consume the campaign's planned viewer-reward reserve or exceed the remaining media budget.
 
-The operations user cannot type a different creator percentage during allocation.
+Free/ad-supported programmes can receive approved pre-roll. Advertisers receive aggregate campaign reporting only. Creators receive aggregate production analytics only. Raw household/viewer identifiers are not exposed in those reports.
 
-Creators manage deal acceptance and payout onboarding at `/studio/earnings`. Payout onboarding stores legal name, country and method preference; verification/provider references remain operations-controlled. A payout request requires both `profiles.kyc_status='verified'` and `payout_profiles.status='verified'`, plus at least R100 available balance.
+Viewer rewards require authenticated eligibility, a verified sponsored-completion event and cleared funded reward balance. The browser cannot choose the reward amount. Child profiles cannot receive cash rewards. Keep `KORA_INTERNAL_API_SECRET` server-only.
 
-`/admin/payouts` is the controlled verification/processing queue. A rejected pending payout automatically releases its wallet hold exactly once. Set `KORA_PAYOUT_OPERATIONS_APPROVED=true` only after the real KYC and payout process has been tested and assigned to accountable operations staff.
+Set `KORA_AD_OPERATIONS_APPROVED=true` only after budget exhaustion, duplicate event, child inventory, reward funding and reporting tests pass.
 
-## 8. KORA Family and Kids Mode
+## 8. KORA Family / Kids
 
-Parents manage Kids profiles at `/family`. A child profile stores only a nickname and broad age band; no exact date of birth is required. Database constraints force child profiles to have purchases, cash rewards and personalised advertising disabled and a maximum age rating derived from the age band.
+Child profiles store a nickname and broad age band rather than an exact birth date. Database rules disable child purchases, cash rewards and personalised ads. Family PIN state is privacy-protected; Kids Mode confines the session to Kids routes until the correct parent PIN is supplied.
 
-A parent must set a 4–6 digit family PIN before launching Kids Mode. The PIN is bcrypt-hashed in the database; authenticated clients can query only whether a PIN exists, not the hash. Launching a child profile sets an HttpOnly child-mode cookie and middleware confines that authenticated session to `/kids` routes until the correct family PIN is supplied. A stale child cookie is cleared if the parent session expires so the account cannot become trapped outside sign-in.
+KORA Kids uses a separately approved catalogue. A/PG rating alone is insufficient: moderators must explicitly mark a title Kids-approved. Pay-per-view titles are excluded from Kids.
 
-KORA Kids does not inherit the ordinary catalogue automatically. A production must be published, A/PG rated and separately marked `kids_approved` by a moderator. Pay-per-view titles are excluded from Kids. Premium Kids titles may use the parent's existing subscription but Kids Mode never opens a purchase flow.
+Set `KORA_CHILD_SAFETY_APPROVED=true` only after child-data, moderation, parental-control, cookie/session and multi-device tests pass.
 
-Set `KORA_CHILD_SAFETY_APPROVED=true` only after child-data, moderation, parental-control and device testing has passed.
+## 9. Creator revenue and payouts
 
-## 9. Sponsored-viewing rewards
+Creator revenue allocation uses the accepted deal percentage automatically and cannot consume money reserved for viewer rewards. Payout requests require the required KYC/payout verification and create a wallet hold so the same balance cannot be requested repeatedly.
 
-Generate a long random `KORA_INTERNAL_API_SECRET` and store it only in server environment secrets. Trusted ad-verification infrastructure calls `/api/internal/ads/verify` with this value in the `x-kora-internal-secret` header.
+`/admin/payouts` is the controlled processing queue. A rejected payout releases its hold once; a paid request cannot be reprocessed.
 
-The client cannot choose the reward amount. A verified ad event cannot be paid twice. Cumulative cleared campaign funding cannot exceed the campaign budget and cumulative funded rewards cannot exceed the campaign's planned reward allocation. Child profiles have rewards disabled and KORA Kids does not expose the reward flow.
+Set `KORA_PAYOUT_OPERATIONS_APPROVED=true` only after the real verification/provider process and reconciliation ownership are established.
 
-## 10. Production smoke test
+## 10. Production acceptance test
 
-Run this sequence after the first production deployment:
+Before public launch, complete at minimum:
 
-1. `GET /api/health` returns HTTP 200 and `status: "ok"`.
-2. During sandbox/setup, `GET /api/readiness` returns HTTP 503 and identifies incomplete non-secret checks.
-3. Create a viewer account and confirm Terms/Privacy acceptance metadata.
-4. Submit a creator application, review it in `/admin/creators`, issue an offer and accept that offer in `/studio/earnings`.
-5. Confirm an unapproved account cannot create a production.
-6. Accept the Creator Agreement and create a production with all production rights declarations.
-7. Upload an episode, submit moderation and approve publication.
-8. Confirm an A/PG production does not appear in KORA Kids until the moderator separately enables Kids approval.
-9. Set a family PIN, create a child profile and enter Kids Mode.
-10. Confirm middleware keeps the child inside `/kids`, purchases/rewards/personalised ads are unavailable and the correct PIN is required to exit.
-11. Confirm Kids playback rejects non-Kids-approved titles and ratings above the active child profile.
-12. Confirm private normal and Kids playback work on supported devices.
-13. Complete a PayFast sandbox subscription and confirm valid ITN activation/duplicate protection.
-14. Confirm live HLS and EPG operation in CAT.
-15. Confirm fake/unverified sponsored viewing cannot create a reward and verified rewards require a cleared funded pool.
-16. Create a cleared revenue test event, allocate eligible revenue to a production and confirm the accepted deal percentage is used automatically.
-17. Confirm creator allocation cannot use viewer-reward money reserved from the same revenue event, cannot exceed remaining cleared revenue and cannot duplicate the same event/production allocation.
-18. Submit payout onboarding and confirm payout requests fail before KYC and payout verification.
-19. After controlled verification, request a payout; confirm a rejection releases the held balance exactly once and a paid request cannot be reprocessed.
-20. Confirm pornography/explicit-sexual-content controls and human moderation remain enforced.
-21. Confirm public legal pages show approved operator/contact details and no draft warning before launch.
+1. `/api/health` returns `ok`; `/api/readiness` stays blocked until all gates are intentionally satisfied.
+2. Schema migration 013 applies successfully and `/admin/launch` reports the required schema version.
+3. Viewer registration records current Terms/Privacy acceptance.
+4. Creator application, deal acceptance, Creator Agreement and production rights workflow pass.
+5. Upload, moderation, signed on-demand playback, live HLS and CAT EPG pass on target devices.
+6. Kids PIN, confinement, Kids-only catalogue, no purchase/reward flow and child-safe advertising restrictions pass.
+7. PayFast sandbox membership and PPV transactions pass valid/invalid ITN tests; PPV only unlocks after verified ITN and appears in My Library.
+8. Advertiser campaign funding, creative review, CPM delivery, budget exhaustion, aggregate reports and viewer-reward reserve protection pass.
+9. Verified rewards cannot exceed cleared funded pools and cannot be claimed twice.
+10. Creator revenue uses the accepted deal and respects all reserved funds.
+11. KYC, payout hold, rejection release, paid resolution and reconciliation pass.
+12. Pornography/explicit-sexual-content controls, human moderation and rights complaint workflow pass.
+13. Monitoring/error alerts are exercised and the database backup is restored successfully in a test environment.
+14. Public operator identity, support/privacy/rights contacts and approved legal documents are live.
 
-## 11. Go-live gate
-
-Do not market KORA as fully operational until all of the following are true:
-
-- Production Supabase database is migrated and backed up.
-- Row-level security policies and service-only money functions are tested.
-- `/api/health` reports `ok`.
-- Cloudflare Stream private upload/playback works.
-- Live HLS and EPG pass device testing.
-- PayFast sandbox checkout and ITN pass end-to-end.
-- Creator application, deal acceptance, rights declaration and revenue allocation pass end-to-end.
-- KYC/payout onboarding, payout hold, paid/rejected resolution and reconciliation pass end-to-end.
-- Sponsored rewards pass abuse, concurrency and duplicate-claim tests.
-- Family PIN, Kids-mode confinement, Kids moderation and child-data minimisation pass device/security review.
-- Public operator identity and monitored support/privacy/rights contacts are real.
-- `KORA_LEGAL_APPROVED=true` only after professional legal review.
-- `KORA_REGULATORY_APPROVED=true` only after required regulatory/compliance work is confirmed and implemented.
-- `KORA_CHILD_SAFETY_APPROVED=true` only after child-safety review.
-- `KORA_PAYOUT_OPERATIONS_APPROVED=true` only after the real payout/KYC operating process is approved.
-- Monitoring, error logging and database backup procedures are active.
-
-After sandbox tests pass, switch PayFast live, confirm `VIDEO_PROVIDER=cloudflare`, set the final production HTTPS domain, redeploy and require `GET /api/readiness` to return HTTP 200 with `productionReady: true`. Repeat payment, playback, live-channel, creator-revenue, payout and Kids-mode smoke tests before public launch.
+After those tests, switch PayFast live, keep Cloudflare production credentials active, set the final HTTPS domain, record each explicit acceptance flag, redeploy and require `/api/readiness` to return HTTP 200 with `productionReady: true` before public launch.
