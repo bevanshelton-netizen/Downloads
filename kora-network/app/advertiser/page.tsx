@@ -27,8 +27,8 @@ export default async function Advertiser({ searchParams }: { searchParams: Promi
           </div>
           <label>Reward per verified completed sponsored view<input name="reward_per_completion" type="number" min="0" step="0.01" defaultValue="0" /><small>This amount is not payable until operations confirms cleared campaign funding.</small></label>
           <div className="formGrid">
-            <label>Starts<input name="starts_at" type="datetime-local" /></label>
-            <label>Ends<input name="ends_at" type="datetime-local" /></label>
+            <label>Starts (CAT)<input name="starts_at" type="datetime-local" /></label>
+            <label>Ends (CAT)<input name="ends_at" type="datetime-local" /></label>
           </div>
           <button className="primary" type="submit">Save draft campaign</button>
         </form>
