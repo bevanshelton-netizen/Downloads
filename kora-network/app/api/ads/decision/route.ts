@@ -35,59 +35,67 @@ export async function POST(request: Request) {
   const now = new Date().toISOString();
   const { data: campaigns } = await admin
     .from('campaigns')
-    .select('id,reward_per_completion')
+    .select('id,reward_per_completion,budget,reward_pool,media_cpm,media_spend')
     .eq('status', 'active')
+    .gt('media_cpm', 0)
     .or(`starts_at.is.null,starts_at.lte.${now}`)
     .or(`ends_at.is.null,ends_at.gt.${now}`);
 
-  if (!campaigns?.length) return new NextResponse(null, { status: 204 });
-  const campaignById = new Map(campaigns.map(c => [c.id, c]));
+  const eligibleCampaigns = (campaigns ?? []).filter(c => {
+    const cost = Number(c.media_cpm || 0) / 1000;
+    return cost > 0 && Number(c.media_spend || 0) + cost <= Math.max(Number(c.budget || 0) - Number(c.reward_pool || 0), 0);
+  });
+  if (!eligibleCampaigns.length) return new NextResponse(null, { status: 204 });
+  const campaignById = new Map(eligibleCampaigns.map(c => [c.id, c]));
 
   let creativeQuery = admin
     .from('campaign_creatives')
     .select('id,campaign_id,name,media_url,click_url,duration_seconds,family_safe')
     .eq('status', 'approved')
-    .in('campaign_id', campaigns.map(c => c.id));
+    .in('campaign_id', eligibleCampaigns.map(c => c.id));
 
   if (viewerProfile?.profile_kind === 'child') creativeQuery = creativeQuery.eq('family_safe', true);
   const { data: creatives } = await creativeQuery.limit(50);
   if (!creatives?.length) return new NextResponse(null, { status: 204 });
 
-  // Selection is deliberately contextual, not behavioural. We do not use viewer identity,
-  // watch history or child profile attributes to target advertising.
-  const creative = creatives[Math.floor(Math.random() * creatives.length)];
-  const campaign = campaignById.get(creative.campaign_id);
-  if (!campaign) return new NextResponse(null, { status: 204 });
+  // Selection is contextual, never behavioural. Shuffle candidates so one campaign does not
+  // permanently occupy the first slot, then let the database atomically reserve media spend.
+  const candidates = [...creatives].sort(() => Math.random() - 0.5);
+  for (const creative of candidates) {
+    const campaign = campaignById.get(creative.campaign_id);
+    if (!campaign) continue;
 
-  const rewardsAllowed = Boolean(user) && (!viewerProfile || viewerProfile.rewards_allowed) && viewerProfile?.profile_kind !== 'child';
-  const rewardAmount = Number(campaign.reward_per_completion || 0);
-  const rewardEligible = rewardsAllowed && rewardAmount > 0;
+    const rewardsAllowed = Boolean(user) && (!viewerProfile || viewerProfile.rewards_allowed) && viewerProfile?.profile_kind !== 'child';
+    const rewardAmount = Number(campaign.reward_per_completion || 0);
+    const rewardEligible = rewardsAllowed && rewardAmount > 0;
 
-  const { data: delivery, error } = await admin.from('ad_deliveries').insert({
-    campaign_id: campaign.id,
-    creative_id: creative.id,
-    user_id: user?.id ?? null,
-    viewer_profile_id: viewerProfile?.id ?? null,
-    episode_id: body?.episodeId || null,
-    channel_id: body?.channelId || null,
-    placement_type: placementType,
-    reward_eligible: rewardEligible,
-  }).select('id').single();
+    const { data: deliveryId, error } = await admin.rpc('issue_contextual_ad_delivery', {
+      p_campaign_id: campaign.id,
+      p_creative_id: creative.id,
+      p_user_id: user?.id ?? null,
+      p_viewer_profile_id: viewerProfile?.id ?? null,
+      p_episode_id: body?.episodeId || null,
+      p_channel_id: body?.channelId || null,
+      p_placement_type: placementType,
+      p_reward_eligible: rewardEligible,
+    });
+    if (error || !deliveryId) continue;
 
-  if (error || !delivery) return NextResponse.json({ error: 'Could not create ad delivery' }, { status: 500 });
+    return NextResponse.json({
+      deliveryId,
+      campaignId: campaign.id,
+      creative: {
+        id: creative.id,
+        name: creative.name,
+        mediaUrl: creative.media_url,
+        clickUrl: creative.click_url,
+        durationSeconds: creative.duration_seconds,
+      },
+      rewardEligible,
+      rewardAmount: rewardEligible ? rewardAmount : 0,
+      targeting: 'contextual',
+    });
+  }
 
-  return NextResponse.json({
-    deliveryId: delivery.id,
-    campaignId: campaign.id,
-    creative: {
-      id: creative.id,
-      name: creative.name,
-      mediaUrl: creative.media_url,
-      clickUrl: creative.click_url,
-      durationSeconds: creative.duration_seconds,
-    },
-    rewardEligible,
-    rewardAmount: rewardEligible ? rewardAmount : 0,
-    targeting: viewerProfile?.personalised_ads_allowed ? 'contextual' : 'contextual',
-  });
+  return new NextResponse(null, { status: 204 });
 }
