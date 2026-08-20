@@ -55,7 +55,6 @@ export async function createCampaign(formData: FormData) {
     reward_per_completion: rewardPerCompletion,
     starts_at: startIso,
     ends_at: endIso,
-    status: 'draft',
   });
   if (error) redirect(`/advertiser?error=${encodeURIComponent(error.message)}`);
   revalidatePath('/advertiser');
