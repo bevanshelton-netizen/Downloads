@@ -7,12 +7,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { legal } from '@/lib/legal';
 
 function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
-    .slice(0, 60);
+  return value.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
 }
 
 export async function createProduction(formData: FormData) {
@@ -44,19 +39,10 @@ export async function createProduction(formData: FormData) {
     redirect('/studio/productions/new?error=Complete%20every%20rights%20and%20content%20declaration%20before%20creating%20the%20production');
   }
 
-  let { data: creator } = await supabase
-    .from('creators')
-    .select('id')
-    .eq('owner_id', user.id)
-    .maybeSingle();
-
+  let { data: creator } = await supabase.from('creators').select('id').eq('owner_id', user.id).maybeSingle();
   if (!creator) {
     const creatorName = String(user.user_metadata?.display_name || user.email?.split('@')[0] || 'Creator');
-    const result = await supabase
-      .from('creators')
-      .insert({ owner_id: user.id, name: creatorName })
-      .select('id')
-      .single();
+    const result = await supabase.from('creators').insert({ owner_id: user.id, name: creatorName }).select('id').single();
     if (result.error) redirect(`/studio/productions/new?error=${encodeURIComponent(result.error.message)}`);
     creator = result.data;
   }
@@ -70,7 +56,6 @@ export async function createProduction(formData: FormData) {
     genre: genre || null,
     primary_language: primaryLanguage || null,
     age_rating: ageRating,
-    status: 'draft',
     explicit_sexual_content: false,
   }).select('id').single();
 
