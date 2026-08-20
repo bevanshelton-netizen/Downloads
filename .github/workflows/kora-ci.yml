@@ -1,0 +1,38 @@
+name: KORA CI
+
+on:
+  pull_request:
+    paths:
+      - 'kora-network/**'
+      - '.github/workflows/kora-ci.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'kora-network/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: kora-network
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: kora-network/package.json
+      - run: npm install --no-audit --no-fund
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_APP_NAME: KORA
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
+          NEXT_PUBLIC_SUPABASE_URL: https://ci-placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
+          SUPABASE_SERVICE_ROLE_KEY: ci-placeholder-service-role-key
+          VIDEO_PROVIDER: mock
+          PAYFAST_MERCHANT_ID: '10000100'
+          PAYFAST_MERCHANT_KEY: ci-placeholder-merchant-key
+          PAYFAST_PASSPHRASE: ci-placeholder-passphrase
+          PAYFAST_SANDBOX: 'true'
