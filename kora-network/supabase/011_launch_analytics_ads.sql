@@ -1,4 +1,8 @@
--- KORA Phase 6: approved ad creatives, contextual delivery and privacy-safe reporting.
+-- KORA Phase 6: approved ad creatives, budgeted contextual delivery and privacy-safe reporting.
+
+alter table public.campaigns
+  add column if not exists media_cpm numeric(14,2) not null default 0 check (media_cpm >= 0),
+  add column if not exists media_spend numeric(14,4) not null default 0 check (media_spend >= 0);
 
 create table if not exists public.campaign_creatives (
   id uuid primary key default gen_random_uuid(),
@@ -27,6 +31,7 @@ create table if not exists public.ad_deliveries (
   channel_id uuid references public.live_channels(id) on delete set null,
   placement_type text not null default 'pre_roll' check (placement_type in ('pre_roll','mid_roll','post_roll','sponsored_unlock','display')),
   reward_eligible boolean not null default false,
+  cost_amount numeric(14,4) not null default 0 check (cost_amount >= 0),
   served_at timestamptz not null default now(),
   completed_at timestamptz,
   verified boolean not null default false
@@ -76,11 +81,91 @@ for update using (
 create policy "staff manages creatives" on public.campaign_creatives
 for all using (public.is_staff()) with check (public.is_staff());
 
--- Raw ad deliveries can contain user/profile identifiers. Keep them staff-only.
+-- Raw delivery rows can contain user/profile identifiers. Keep them staff-only.
 create policy "staff reads ad deliveries" on public.ad_deliveries
 for select using (public.is_staff());
 create policy "staff manages ad deliveries" on public.ad_deliveries
 for all using (public.is_staff()) with check (public.is_staff());
+
+-- Service-only atomic media reservation. Campaign reward allocation is reserved from media spend.
+create or replace function public.issue_contextual_ad_delivery(
+  p_campaign_id uuid,
+  p_creative_id uuid,
+  p_user_id uuid,
+  p_viewer_profile_id uuid,
+  p_episode_id uuid,
+  p_channel_id uuid,
+  p_placement_type text,
+  p_reward_eligible boolean
+)
+returns uuid
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_budget numeric;
+  v_reward_budget numeric;
+  v_media_cpm numeric;
+  v_media_spend numeric;
+  v_status text;
+  v_starts timestamptz;
+  v_ends timestamptz;
+  v_cost numeric;
+  v_family_safe boolean;
+  v_profile_kind text;
+  v_profile_owner uuid;
+  v_profile_rewards boolean;
+  v_delivery uuid;
+begin
+  if p_placement_type not in ('pre_roll','mid_roll','post_roll','sponsored_unlock','display') then
+    raise exception 'Unsupported placement type';
+  end if;
+
+  select budget, reward_pool, media_cpm, media_spend, status, starts_at, ends_at
+  into v_budget, v_reward_budget, v_media_cpm, v_media_spend, v_status, v_starts, v_ends
+  from public.campaigns where id = p_campaign_id for update;
+
+  if v_status is distinct from 'active' then raise exception 'Campaign is not active'; end if;
+  if v_starts is not null and v_starts > now() then raise exception 'Campaign has not started'; end if;
+  if v_ends is not null and v_ends <= now() then raise exception 'Campaign has ended'; end if;
+  if v_media_cpm <= 0 then raise exception 'Campaign media rate is not configured'; end if;
+
+  select family_safe into v_family_safe
+  from public.campaign_creatives
+  where id = p_creative_id and campaign_id = p_campaign_id and status = 'approved';
+  if v_family_safe is null then raise exception 'Approved campaign creative not found'; end if;
+
+  if p_viewer_profile_id is not null then
+    select profile_kind, owner_id, rewards_allowed
+    into v_profile_kind, v_profile_owner, v_profile_rewards
+    from public.viewer_profiles where id = p_viewer_profile_id;
+    if v_profile_owner is null or p_user_id is null or v_profile_owner <> p_user_id then
+      raise exception 'Viewer profile ownership mismatch';
+    end if;
+    if v_profile_kind = 'child' and v_family_safe is not true then raise exception 'Creative is not eligible for Kids inventory'; end if;
+    if v_profile_kind = 'child' and p_reward_eligible then raise exception 'Kids profiles cannot receive cash rewards'; end if;
+    if p_reward_eligible and v_profile_rewards is not true then raise exception 'Viewer profile does not permit rewards'; end if;
+  end if;
+
+  v_cost := round(v_media_cpm / 1000.0, 4);
+  if v_media_spend + v_cost > greatest(v_budget - v_reward_budget, 0) then raise exception 'Campaign media budget exhausted'; end if;
+
+  update public.campaigns set media_spend = media_spend + v_cost where id = p_campaign_id;
+
+  insert into public.ad_deliveries(
+    campaign_id, creative_id, user_id, viewer_profile_id, episode_id, channel_id,
+    placement_type, reward_eligible, cost_amount
+  ) values (
+    p_campaign_id, p_creative_id, p_user_id, p_viewer_profile_id, p_episode_id, p_channel_id,
+    p_placement_type, p_reward_eligible, v_cost
+  ) returning id into v_delivery;
+
+  return v_delivery;
+end;
+$$;
+
+revoke all on function public.issue_contextual_ad_delivery(uuid,uuid,uuid,uuid,uuid,uuid,text,boolean) from public, anon, authenticated;
+grant execute on function public.issue_contextual_ad_delivery(uuid,uuid,uuid,uuid,uuid,uuid,text,boolean) to service_role;
 
 -- Aggregated creator metrics only: no viewer identities are returned.
 create or replace function public.creator_performance_summary(p_days integer default 30)
@@ -146,7 +231,9 @@ returns table (
   completions bigint,
   verified_completions bigint,
   rewards_paid numeric,
-  deliveries bigint
+  deliveries bigint,
+  media_spend numeric,
+  media_cpm numeric
 )
 language plpgsql
 security definer set search_path = public
@@ -154,9 +241,11 @@ as $$
 declare
   v_user uuid := auth.uid();
   v_name text;
+  v_spend numeric;
+  v_cpm numeric;
 begin
   if v_user is null then raise exception 'Authentication required'; end if;
-  select c.name into v_name
+  select c.name, c.media_spend, c.media_cpm into v_name, v_spend, v_cpm
   from public.campaigns c
   where c.id = p_campaign_id
     and (c.advertiser_id = v_user or public.is_staff());
@@ -169,7 +258,8 @@ begin
     count(*) filter (where ae.event_type = 'complete')::bigint,
     count(*) filter (where ae.event_type = 'complete' and ae.verified = true)::bigint,
     coalesce((select sum(rc.amount) from public.reward_claims rc join public.ad_events e2 on e2.id = rc.ad_event_id where e2.campaign_id = p_campaign_id),0)::numeric,
-    (select count(*) from public.ad_deliveries d where d.campaign_id = p_campaign_id)::bigint
+    (select count(*) from public.ad_deliveries d where d.campaign_id = p_campaign_id)::bigint,
+    v_spend, v_cpm
   from public.ad_events ae
   where ae.campaign_id = p_campaign_id;
 end;
