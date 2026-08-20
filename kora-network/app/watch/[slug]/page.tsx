@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { createSignedPlaybackUrl } from '@/lib/video';
+import PurchaseButton from '@/components/PurchaseButton';
 
 export default async function WatchShow({
   params,
@@ -47,7 +48,20 @@ export default async function WatchShow({
       .limit(1)
       .maybeSingle();
     if (!purchase) {
-      return <main><section className="subHero"><div className="eyebrow">PREMIUM PREMIERE</div><h1>{production.title}</h1><p>This title is available as a paid unlock for R{Number(production.purchase_price || 0).toFixed(2)}. Pay-per-view checkout is being activated alongside the production payment catalogue.</p><Link className="secondary" href="/watch">← Back to catalogue</Link></section></main>;
+      const price = Number(production.purchase_price || 0);
+      return (
+        <main>
+          <section className="subHero">
+            <div className="eyebrow">PREMIUM PREMIERE</div>
+            <h1>{production.title}</h1>
+            <p>Unlock this title once and keep access on your KORA account.</p>
+            <div className="actions">
+              <PurchaseButton productionId={production.id} label={`Unlock for R${price.toFixed(2)}`} />
+              <Link className="secondary" href="/watch">← Back to catalogue</Link>
+            </div>
+          </section>
+        </main>
+      );
     }
   }
 
