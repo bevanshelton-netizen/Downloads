@@ -3,7 +3,18 @@
 alter table public.live_channels
   add column if not exists playback_url text,
   add column if not exists logo_url text,
-  add column if not exists is_family_safe boolean not null default true;
+  add column if not exists is_family_safe boolean not null default true,
+  add column if not exists display_order integer not null default 100;
+
+update public.live_channels set display_order = case slug
+  when 'kora-one' then 1
+  when 'kora-drama' then 2
+  when 'kora-family' then 3
+  when 'kora-faith' then 4
+  when 'kora-music' then 5
+  when 'kora-kids' then 6
+  when 'kora-creators' then 7
+  else 100 end;
 
 alter table public.schedule_items
   add column if not exists sponsor_name text,
@@ -37,7 +48,6 @@ alter table public.reward_claims enable row level security;
 create policy "viewer reads own reward claims" on public.reward_claims
 for select using (user_id = auth.uid() or public.is_staff());
 
--- Operations records money as cleared before any reward pool can exist.
 create or replace function public.fund_campaign_from_cleared_revenue(
   p_campaign_id uuid,
   p_gross_amount numeric,
@@ -91,7 +101,6 @@ $$;
 revoke all on function public.fund_campaign_from_cleared_revenue(uuid, numeric, numeric) from public, anon, authenticated;
 grant execute on function public.fund_campaign_from_cleared_revenue(uuid, numeric, numeric) to service_role;
 
--- Atomic, service-only claim function. A client cannot choose its own reward amount.
 create or replace function public.claim_verified_ad_reward(
   p_user_id uuid,
   p_ad_event_id uuid
