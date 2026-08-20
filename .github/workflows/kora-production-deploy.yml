@@ -1,0 +1,90 @@
+name: KORA Deploy Private Beta
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type exactly DEPLOY KORA PRIVATE BETA
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: kora-production
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      NEXT_PUBLIC_APP_NAME: KORA
+      NEXT_PUBLIC_APP_URL: ${{ vars.NEXT_PUBLIC_APP_URL }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      VIDEO_PROVIDER: cloudflare
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_STREAM_TOKEN: ${{ secrets.CLOUDFLARE_STREAM_TOKEN }}
+      CLOUDFLARE_STREAM_CUSTOMER_CODE: ${{ vars.CLOUDFLARE_STREAM_CUSTOMER_CODE }}
+      PAYFAST_MERCHANT_ID: ${{ secrets.PAYFAST_MERCHANT_ID }}
+      PAYFAST_MERCHANT_KEY: ${{ secrets.PAYFAST_MERCHANT_KEY }}
+      PAYFAST_PASSPHRASE: ${{ secrets.PAYFAST_PASSPHRASE }}
+      PAYFAST_SANDBOX: ${{ vars.PAYFAST_SANDBOX }}
+      KORA_INTERNAL_API_SECRET: ${{ secrets.KORA_INTERNAL_API_SECRET }}
+      NEXT_PUBLIC_OPERATOR_NAME: ${{ vars.NEXT_PUBLIC_OPERATOR_NAME }}
+      NEXT_PUBLIC_SUPPORT_EMAIL: ${{ vars.NEXT_PUBLIC_SUPPORT_EMAIL }}
+      NEXT_PUBLIC_PRIVACY_EMAIL: ${{ vars.NEXT_PUBLIC_PRIVACY_EMAIL }}
+      NEXT_PUBLIC_RIGHTS_EMAIL: ${{ vars.NEXT_PUBLIC_RIGHTS_EMAIL }}
+      KORA_LEGAL_APPROVED: ${{ vars.KORA_LEGAL_APPROVED }}
+      KORA_REGULATORY_APPROVED: ${{ vars.KORA_REGULATORY_APPROVED }}
+      KORA_CHILD_SAFETY_APPROVED: ${{ vars.KORA_CHILD_SAFETY_APPROVED }}
+      KORA_PAYOUT_OPERATIONS_APPROVED: ${{ vars.KORA_PAYOUT_OPERATIONS_APPROVED }}
+      KORA_BACKUP_OPERATIONS_APPROVED: ${{ vars.KORA_BACKUP_OPERATIONS_APPROVED }}
+      KORA_INCIDENT_RESPONSE_APPROVED: ${{ vars.KORA_INCIDENT_RESPONSE_APPROVED }}
+      KORA_PREFLIGHT_MODE: private_beta
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: kora-network/package.json
+      - name: Require explicit deployment confirmation
+        run: |
+          test "${{ inputs.confirmation }}" = "DEPLOY KORA PRIVATE BETA" || { echo "Confirmation did not match."; exit 1; }
+      - name: Require Vercel deployment credentials
+        run: |
+          test -n "$VERCEL_TOKEN" || { echo "Missing VERCEL_TOKEN"; exit 1; }
+          test -n "$VERCEL_ORG_ID" || { echo "Missing VERCEL_ORG_ID"; exit 1; }
+          test -n "$VERCEL_PROJECT_ID" || { echo "Missing VERCEL_PROJECT_ID"; exit 1; }
+      - name: Install dependencies
+        working-directory: kora-network
+        run: npm install --no-audit --no-fund
+      - name: Validate migrations and production integrations
+        working-directory: kora-network
+        run: |
+          npm run validate:migrations
+          npm run typecheck
+          npm run preflight:production
+      - name: Pull Vercel production project settings
+        working-directory: kora-network
+        run: npx --yes vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
+      - name: Build exactly what will deploy
+        working-directory: kora-network
+        run: npx --yes vercel@latest build --prod --token="$VERCEL_TOKEN"
+      - name: Deploy private beta
+        id: deploy
+        working-directory: kora-network
+        run: |
+          DEPLOY_URL="$(npx --yes vercel@latest deploy --prebuilt --prod --token="$VERCEL_TOKEN" | tail -n 1)"
+          test -n "$DEPLOY_URL"
+          echo "url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
+          echo "KORA deployed to $DEPLOY_URL"
+      - name: Smoke test deployed private beta
+        working-directory: kora-network
+        env:
+          KORA_TARGET_URL: ${{ steps.deploy.outputs.url }}
+          KORA_EXPECT_READY: 'false'
+        run: npm run smoke:production
