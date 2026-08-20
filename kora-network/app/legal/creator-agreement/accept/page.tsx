@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server';
 import { legal } from '@/lib/legal';
 import { acceptCreatorAgreement } from './actions';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AcceptCreatorAgreement({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
