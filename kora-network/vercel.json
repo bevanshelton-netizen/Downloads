@@ -1,6 +1,5 @@
 {
   "framework": "nextjs",
-  "regions": ["cpt1"],
   "headers": [
     {
       "source": "/api/internal/(.*)",
