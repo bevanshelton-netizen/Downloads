@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { getPlatformReleaseState } from '@/lib/platform-state';
 
 const creatorTypes = new Set(['filmmaker','producer','writer','actor_creator','comedian','musician','documentarian','studio','other']);
 
@@ -17,6 +18,9 @@ function httpsUrl(value: string) {
 }
 
 export async function submitCreatorApplication(formData: FormData) {
+  const release = await getPlatformReleaseState();
+  if (!release.creator_applications_enabled) redirect('/creators/apply?error=Creator%20applications%20are%20not%20open%20yet');
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login?next=/creators/apply');
