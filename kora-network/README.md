@@ -40,6 +40,10 @@ npm run dev
 6. Advertiser portal + campaign measurement
 7. Smart-TV/mobile packaging + production deployment
 
+## Production deployment
+
+Use `DEPLOYMENT.md` for the production activation sequence covering Supabase, Vercel, PayFast, Cloudflare Stream and launch smoke tests. The deployed application exposes `GET /api/health`, which reports whether the production integrations are configured without exposing credentials.
+
 ## Non-negotiable content rule
 
 KORA does not permit pornography or explicit sexual content. See `CONTENT_POLICY.md`.
