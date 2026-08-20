@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { legal } from '@/lib/legal';
@@ -25,7 +26,7 @@ export default async function Advertiser({ searchParams }: { searchParams: Promi
 
   return (
     <main>
-      <section className="subHero"><div className="eyebrow">KORA FOR BRANDS</div><h1>Campaign control room.</h1><p>Plan measurable campaigns, sponsor content and deliberately allocate part of a real paid media budget to verified viewer rewards.</p></section>
+      <section className="subHero"><div className="eyebrow">KORA FOR BRANDS</div><h1>Campaign control room.</h1><p>Plan measurable campaigns, submit approved creative and deliberately allocate part of a real paid media budget to verified viewer rewards.</p><div className="actions"><Link className="secondary" href="/advertiser/creatives">Creative library</Link><Link className="secondary" href="/advertiser/reports">Campaign reports</Link></div></section>
       <section className="grid three">
         <form action={createCampaign} className="panel formPanel" style={{ gridColumn: 'span 2' }}>
           <h3>New campaign</h3>
