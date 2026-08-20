@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { createSignedPlaybackUrl } from '@/lib/video';
+import ViewerEngagement from '@/components/ViewerEngagement';
 
 export default async function WatchShow({
   params,
@@ -62,6 +63,7 @@ export default async function WatchShow({
 
   return (
     <main>
+      {selected ? <ViewerEngagement episodeId={selected.id} /> : null}
       <section className="watchHero">
         <div className="eyebrow">{production.access_mode.replace('_', ' ').toUpperCase()} • {production.age_rating || 'UNRATED'}</div>
         <h1>{production.title}</h1>
