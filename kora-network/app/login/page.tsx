@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { legal } from '@/lib/legal';
 import { signIn, signUp } from './actions';
 
-export default async function Login({ searchParams }: { searchParams: Promise<{ error?: string; next?: string }> }) {
-  const { error, next } = await searchParams;
+export default async function Login({ searchParams }: { searchParams: Promise<{ error?: string; message?: string; next?: string }> }) {
+  const { error, message, next } = await searchParams;
   const safeNext = next?.startsWith('/') && !next.startsWith('//') ? next : '/studio';
   return (
     <main>
@@ -16,6 +16,7 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
         <article className="panel" style={{ gridColumn: 'span 2' }}>
           <h3>Sign in or create your account</h3>
           {error ? <p role="alert">{error}</p> : null}
+          {message ? <p><strong>{message}</strong></p> : null}
           <form style={{ display: 'grid', gap: 14, maxWidth: 620 }}>
             <input type="hidden" name="next" value={safeNext} />
             <label>Email<input name="email" type="email" required autoComplete="email" /></label>
@@ -25,6 +26,7 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
             <div className="actions">
               <button className="primary" formAction={signIn}>Sign in</button>
               <button className="secondary" formAction={signUp}>Create account</button>
+              <Link className="secondary" href="/forgot-password">Forgot password?</Link>
             </div>
           </form>
         </article>
