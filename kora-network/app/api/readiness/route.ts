@@ -41,6 +41,7 @@ export async function GET() {
       && configured('CLOUDFLARE_ACCOUNT_ID')
       && configured('CLOUDFLARE_STREAM_TOKEN')
       && configured('CLOUDFLARE_STREAM_CUSTOMER_CODE'),
+    rewardVerifierSecret: configured('KORA_INTERNAL_API_SECRET'),
     operatorIdentity: Boolean(operatorName && !/pending/i.test(operatorName)),
     supportContacts: isRealEmail(process.env.NEXT_PUBLIC_SUPPORT_EMAIL)
       && isRealEmail(process.env.NEXT_PUBLIC_PRIVACY_EMAIL)
