@@ -12,6 +12,10 @@ function catLocalToIso(value: string) {
   return parsed.toISOString();
 }
 
+function csvList(value: FormDataEntryValue | null) {
+  return String(value ?? '').split(',').map(x => x.trim()).filter(Boolean).slice(0, 20);
+}
+
 export async function createCampaign(formData: FormData) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -29,6 +33,8 @@ export async function createCampaign(formData: FormData) {
   const budget = Number(formData.get('budget'));
   const rewardPool = Number(formData.get('reward_pool') || 0);
   const rewardPerCompletion = Number(formData.get('reward_per_completion') || 0);
+  const targetGenres = csvList(formData.get('target_genres'));
+  const targetLanguages = csvList(formData.get('target_languages'));
   const startsAt = String(formData.get('starts_at') ?? '');
   const endsAt = String(formData.get('ends_at') ?? '');
 
@@ -53,6 +59,8 @@ export async function createCampaign(formData: FormData) {
     budget,
     reward_pool: rewardPool,
     reward_per_completion: rewardPerCompletion,
+    target_genres: targetGenres,
+    target_languages: targetLanguages,
     starts_at: startIso,
     ends_at: endIso,
     status: 'draft',
