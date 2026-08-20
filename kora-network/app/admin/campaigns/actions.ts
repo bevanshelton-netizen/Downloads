@@ -5,16 +5,16 @@ import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
-async function requireStaff() {
+async function requireAdmin() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
-  if (!profile || !['moderator','admin'].includes(profile.role)) redirect('/');
+  if (!profile || profile.role !== 'admin') redirect('/');
 }
 
 export async function confirmCampaignFunding(formData: FormData) {
-  await requireStaff();
+  await requireAdmin();
   const campaignId = String(formData.get('campaign_id') ?? '');
   const grossAmount = Number(formData.get('gross_amount'));
   const rewardAmount = Number(formData.get('reward_amount') || 0);
