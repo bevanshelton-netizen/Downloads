@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import './globals.css';
+import './forms.css';
 import { brand } from '@/lib/brand';
 
 export const metadata: Metadata = {
