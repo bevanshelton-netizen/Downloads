@@ -6,6 +6,10 @@ function configured(name: string, minimumLength = 1) {
   return (process.env[name]?.trim().length ?? 0) >= minimumLength;
 }
 
+function configuredAny(names: string[], minimumLength = 1) {
+  return names.some((name) => configured(name, minimumLength));
+}
+
 function isHttpsOrigin(value?: string) {
   if (!value) return false;
   try {
@@ -48,8 +52,8 @@ export async function getLaunchReadiness() {
   const checks = {
     appUrl: isHttpsOrigin(appUrl),
     supabaseConfigured: isHttpsOrigin(supabaseUrl)
-      && configured('NEXT_PUBLIC_SUPABASE_ANON_KEY', 10)
-      && configured('SUPABASE_SERVICE_ROLE_KEY', 20),
+      && configuredAny(['NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'], 10)
+      && configuredAny(['SUPABASE_SECRET_KEY', 'SUPABASE_SERVICE_ROLE_KEY'], 20),
     databaseReachable,
     schemaCurrent: release.schema_version >= 14,
     adminBootstrapped: adminCount > 0,
