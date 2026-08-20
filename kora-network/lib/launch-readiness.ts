@@ -51,7 +51,7 @@ export async function getLaunchReadiness() {
       && configured('NEXT_PUBLIC_SUPABASE_ANON_KEY', 10)
       && configured('SUPABASE_SERVICE_ROLE_KEY', 20),
     databaseReachable,
-    schemaCurrent: release.schema_version >= 13,
+    schemaCurrent: release.schema_version >= 14,
     adminBootstrapped: adminCount > 0,
     channelSeeded: activeChannelCount >= 1,
     payfastCredentials: configured('PAYFAST_MERCHANT_ID')
