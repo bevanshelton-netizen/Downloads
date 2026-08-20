@@ -11,11 +11,12 @@ export default async function AdminHub() {
 
   return (
     <main>
-      <section className="subHero"><div className="eyebrow">KORA OPERATIONS</div><h1>Network control.</h1><p>Moderation, broadcast scheduling and commercial controls stay separated from creator and viewer workflows.</p></section>
+      <section className="subHero"><div className="eyebrow">KORA OPERATIONS</div><h1>Network control.</h1><p>Moderation, broadcast scheduling, creator revenue and commercial controls stay separated from creator and viewer workflows.</p></section>
       <section className="grid three">
         <article className="panel"><h3>Content moderation</h3><p>Review productions and viewer reports before or after publication.</p><Link className="primary" href="/admin/moderation">Open moderation</Link></article>
         <article className="panel"><h3>Master control</h3><p>Connect live channel feeds and programme the electronic guide.</p><Link className="primary" href="/admin/schedule">Open schedule</Link></article>
         {profile.role === 'admin' ? <article className="panel"><h3>Commercial operations</h3><p>Confirm cleared advertiser money and create funded reward pools.</p><Link className="primary" href="/admin/campaigns">Open campaigns</Link></article> : null}
+        {profile.role === 'admin' ? <article className="panel"><h3>Creator earnings</h3><p>Allocate auditable creator revenue shares from cleared revenue into creator wallets.</p><Link className="primary" href="/admin/earnings">Open earnings</Link></article> : null}
       </section>
     </main>
   );
