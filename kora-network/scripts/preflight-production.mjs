@@ -1,7 +1,9 @@
 const checks = [];
+const mode = String(process.env.KORA_PREFLIGHT_MODE || 'public_launch').trim();
+const publicLaunch = mode === 'public_launch';
 
-function add(name, ok, note) {
-  checks.push({ name, ok: Boolean(ok), note });
+function add(name, ok, note, required = true) {
+  checks.push({ name, ok: Boolean(ok), note, required });
 }
 
 function value(name) {
@@ -45,20 +47,24 @@ add('NEXT_PUBLIC_OPERATOR_NAME', nonPlaceholder('NEXT_PUBLIC_OPERATOR_NAME', 3),
 add('NEXT_PUBLIC_SUPPORT_EMAIL', email('NEXT_PUBLIC_SUPPORT_EMAIL'), 'monitored email');
 add('NEXT_PUBLIC_PRIVACY_EMAIL', email('NEXT_PUBLIC_PRIVACY_EMAIL'), 'monitored email');
 add('NEXT_PUBLIC_RIGHTS_EMAIL', email('NEXT_PUBLIC_RIGHTS_EMAIL'), 'monitored email');
-add('KORA_LEGAL_APPROVED', value('KORA_LEGAL_APPROVED') === 'true', 'explicit sign-off');
-add('KORA_REGULATORY_APPROVED', value('KORA_REGULATORY_APPROVED') === 'true', 'explicit sign-off');
-add('KORA_CHILD_SAFETY_APPROVED', value('KORA_CHILD_SAFETY_APPROVED') === 'true', 'explicit sign-off');
-add('KORA_PAYOUT_OPERATIONS_APPROVED', value('KORA_PAYOUT_OPERATIONS_APPROVED') === 'true', 'explicit sign-off');
-add('KORA_BACKUP_OPERATIONS_APPROVED', value('KORA_BACKUP_OPERATIONS_APPROVED') === 'true', 'backup/restore procedure signed off');
-add('KORA_INCIDENT_RESPONSE_APPROVED', value('KORA_INCIDENT_RESPONSE_APPROVED') === 'true', 'incident process signed off');
 
+add('KORA_LEGAL_APPROVED', value('KORA_LEGAL_APPROVED') === 'true', 'explicit sign-off', publicLaunch);
+add('KORA_REGULATORY_APPROVED', value('KORA_REGULATORY_APPROVED') === 'true', 'explicit sign-off', publicLaunch);
+add('KORA_CHILD_SAFETY_APPROVED', value('KORA_CHILD_SAFETY_APPROVED') === 'true', 'explicit sign-off', publicLaunch);
+add('KORA_PAYOUT_OPERATIONS_APPROVED', value('KORA_PAYOUT_OPERATIONS_APPROVED') === 'true', 'explicit sign-off', publicLaunch);
+add('KORA_BACKUP_OPERATIONS_APPROVED', value('KORA_BACKUP_OPERATIONS_APPROVED') === 'true', 'backup/restore procedure signed off', publicLaunch);
+add('KORA_INCIDENT_RESPONSE_APPROVED', value('KORA_INCIDENT_RESPONSE_APPROVED') === 'true', 'incident process signed off', publicLaunch);
+
+console.log(`KORA preflight mode: ${mode}`);
 for (const check of checks) {
-  console.log(`${check.ok ? 'PASS' : 'FAIL'}  ${check.name} — ${check.note}`);
+  const label = check.ok ? 'PASS' : check.required ? 'FAIL' : 'WARN';
+  console.log(`${label}  ${check.name} — ${check.note}`);
 }
 
-const failed = checks.filter((c) => !c.ok);
-console.log(`\nKORA production preflight: ${checks.length - failed.length}/${checks.length} checks passed.`);
+const failed = checks.filter((c) => c.required && !c.ok);
+const passed = checks.filter((c) => c.ok).length;
+console.log(`\nKORA production preflight: ${passed}/${checks.length} checks passed; ${failed.length} required checks failed.`);
 if (failed.length) {
-  console.error(`Missing or invalid production requirements: ${failed.map((c) => c.name).join(', ')}`);
+  console.error(`Missing or invalid required production requirements: ${failed.map((c) => c.name).join(', ')}`);
   process.exit(1);
 }
