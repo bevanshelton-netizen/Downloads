@@ -43,6 +43,13 @@ grant update (
 drop policy if exists "wallet owner creates payout request" on public.payout_requests;
 revoke insert, update, delete on table public.payout_requests from authenticated;
 
+-- Migration 003 created this as a partial unique index. Recreate it as a normal unique
+-- index so PostgREST/Supabase ON CONFLICT(source_type,source_id) can infer it reliably.
+-- PostgreSQL unique indexes already allow multiple NULL source IDs.
+drop index if exists public.revenue_events_source_unique;
+create unique index revenue_events_source_unique
+on public.revenue_events(source_type, source_id);
+
 -- A PayFast recurring token belongs to one membership, and a completed one-time
 -- provider payment belongs to one purchase.
 create unique index if not exists subscriptions_provider_subscription_unique
@@ -53,9 +60,8 @@ create unique index if not exists purchases_provider_payment_unique
 on public.purchases(provider, provider_payment_id)
 where provider_payment_id is not null;
 
--- Campaign funding is cumulative. Migration 003 intentionally makes one revenue row
--- unique per (source_type, source_id), so later cleared instalments increase that row
--- rather than attempting to insert a duplicate campaign revenue event.
+-- Campaign funding is cumulative. One campaign revenue row is increased as cleared
+-- instalments arrive, while each funded reward pool remains auditable.
 create or replace function public.fund_campaign_from_cleared_revenue(
   p_campaign_id uuid,
   p_gross_amount numeric,
@@ -91,12 +97,8 @@ begin
   from public.reward_pools
   where campaign_id = p_campaign_id;
 
-  if v_existing_gross + p_gross_amount > v_budget then
-    raise exception 'Cumulative cleared amount exceeds campaign budget';
-  end if;
-  if v_existing_reward + p_reward_amount > v_planned_reward then
-    raise exception 'Cumulative reward funding exceeds campaign reward allocation';
-  end if;
+  if v_existing_gross + p_gross_amount > v_budget then raise exception 'Cumulative cleared amount exceeds campaign budget'; end if;
+  if v_existing_reward + p_reward_amount > v_planned_reward then raise exception 'Cumulative reward funding exceeds campaign reward allocation'; end if;
 
   if v_revenue_id is null then
     insert into public.revenue_events(source_type, source_id, gross_amount, currency, cleared, cleared_at)
@@ -104,9 +106,7 @@ begin
     returning id into v_revenue_id;
   else
     update public.revenue_events
-    set gross_amount = gross_amount + p_gross_amount,
-        cleared = true,
-        cleared_at = now()
+    set gross_amount = gross_amount + p_gross_amount, cleared = true, cleared_at = now()
     where id = v_revenue_id;
   end if;
 
@@ -127,8 +127,7 @@ grant execute on function public.fund_campaign_from_cleared_revenue(uuid, numeri
 to service_role;
 
 -- Creator earnings are allocated only from a cleared revenue event. Existing viewer
--- reward funding and existing creator allocations are counted before any new credit,
--- preventing KORA from allocating more money than actually cleared.
+-- reward funding and existing creator allocations are counted before any new credit.
 create or replace function public.allocate_creator_earning(
   p_creator_id uuid,
   p_revenue_event_id uuid,
@@ -151,10 +150,7 @@ begin
   if p_amount <= 0 then raise exception 'Creator earning amount must be positive'; end if;
 
   select gross_amount, cleared into v_gross, v_cleared
-  from public.revenue_events
-  where id = p_revenue_event_id
-  for update;
-
+  from public.revenue_events where id = p_revenue_event_id for update;
   if v_gross is null then raise exception 'Revenue event not found'; end if;
   if v_cleared is not true then raise exception 'Revenue must be cleared before creator allocation'; end if;
 
@@ -162,19 +158,15 @@ begin
   if v_owner_id is null then raise exception 'Creator not found'; end if;
 
   if p_production_id is not null and not exists (
-    select 1 from public.productions
-    where id = p_production_id and creator_id = p_creator_id
-  ) then
-    raise exception 'Production does not belong to creator';
-  end if;
+    select 1 from public.productions where id = p_production_id and creator_id = p_creator_id
+  ) then raise exception 'Production does not belong to creator'; end if;
 
   select coalesce(sum(amount), 0) into v_creator_allocated
   from public.creator_earnings
   where revenue_event_id = p_revenue_event_id and status <> 'reversed';
 
   select coalesce(sum(funded_amount), 0) into v_reward_funded
-  from public.reward_pools
-  where revenue_event_id = p_revenue_event_id;
+  from public.reward_pools where revenue_event_id = p_revenue_event_id;
 
   if v_creator_allocated + v_reward_funded + p_amount > v_gross then
     raise exception 'Allocation exceeds cleared revenue available';
@@ -183,17 +175,12 @@ begin
   select id into v_wallet_id from public.wallets where owner_id = v_owner_id;
   if v_wallet_id is null then raise exception 'Creator wallet not found'; end if;
 
-  insert into public.creator_earnings(
-    creator_id, revenue_event_id, production_id, amount, currency, status
-  ) values (
-    p_creator_id, p_revenue_event_id, p_production_id, p_amount, 'ZAR', 'available'
-  ) returning id into v_earning_id;
+  insert into public.creator_earnings(creator_id, revenue_event_id, production_id, amount, currency, status)
+  values(p_creator_id, p_revenue_event_id, p_production_id, p_amount, 'ZAR', 'available')
+  returning id into v_earning_id;
 
   insert into public.ledger_entries(wallet_id, kind, amount, reason, source_type, source_id)
-  values(
-    v_wallet_id, 'credit', p_amount, 'Creator revenue share',
-    'creator_earning', v_earning_id::text
-  );
+  values(v_wallet_id, 'credit', p_amount, 'Creator revenue share', 'creator_earning', v_earning_id::text);
 
   return v_earning_id;
 end;
