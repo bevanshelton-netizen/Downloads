@@ -24,6 +24,7 @@ jobs:
           cache: npm
           cache-dependency-path: kora-network/package.json
       - run: npm install --no-audit --no-fund
+      - run: npm run typecheck
       - run: npm run build
         env:
           NEXT_PUBLIC_APP_NAME: KORA
@@ -36,3 +37,4 @@ jobs:
           PAYFAST_MERCHANT_KEY: ci-placeholder-merchant-key
           PAYFAST_PASSPHRASE: ci-placeholder-passphrase
           PAYFAST_SANDBOX: 'true'
+          KORA_INTERNAL_API_SECRET: ci-placeholder-internal-secret
