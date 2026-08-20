@@ -5,6 +5,8 @@ import './forms.css';
 import './workspaces.css';
 import { brand } from '@/lib/brand';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: `${brand.name} | African Digital TV`,
   description: brand.description,
