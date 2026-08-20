@@ -4,9 +4,9 @@
 revoke update on table public.profiles from authenticated;
 grant update (display_name, country_code) on table public.profiles to authenticated;
 
--- Creator identity may be created/edited only through allowed identity fields. Verification and payout state stay privileged.
+-- Creator identity is created only by the staff approval workflow. Existing creators may edit public identity fields,
+-- while verification and payout state remain privileged.
 revoke insert, update, delete on table public.creators from authenticated;
-grant insert (owner_id, name, bio) on table public.creators to authenticated;
 grant update (name, bio) on table public.creators to authenticated;
 
 -- Creators may create/edit catalogue metadata but never moderation/publication state or Kids approval.
