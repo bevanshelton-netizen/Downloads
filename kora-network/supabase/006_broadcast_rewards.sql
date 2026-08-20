@@ -50,6 +50,8 @@ as $$
 declare
   v_budget numeric;
   v_planned_reward numeric;
+  v_existing_gross numeric;
+  v_existing_reward numeric;
   v_revenue_id uuid;
   v_pool_id uuid;
 begin
@@ -59,8 +61,17 @@ begin
   select budget, reward_pool into v_budget, v_planned_reward
   from public.campaigns where id = p_campaign_id for update;
   if v_budget is null then raise exception 'Campaign not found'; end if;
-  if p_gross_amount > v_budget then raise exception 'Cleared amount exceeds campaign budget'; end if;
-  if p_reward_amount > v_planned_reward then raise exception 'Reward funding exceeds campaign reward allocation'; end if;
+
+  select coalesce(sum(gross_amount), 0) into v_existing_gross
+  from public.revenue_events
+  where source_type = 'campaign' and source_id = p_campaign_id::text and cleared = true;
+
+  select coalesce(sum(funded_amount), 0) into v_existing_reward
+  from public.reward_pools
+  where campaign_id = p_campaign_id;
+
+  if v_existing_gross + p_gross_amount > v_budget then raise exception 'Cumulative cleared amount exceeds campaign budget'; end if;
+  if v_existing_reward + p_reward_amount > v_planned_reward then raise exception 'Cumulative reward funding exceeds campaign reward allocation'; end if;
 
   insert into public.revenue_events(source_type, source_id, gross_amount, currency, cleared, cleared_at)
   values('campaign', p_campaign_id::text, p_gross_amount, 'ZAR', true, now())
