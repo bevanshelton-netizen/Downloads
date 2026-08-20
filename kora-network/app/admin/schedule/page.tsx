@@ -18,7 +18,7 @@ export default async function ScheduleAdmin({ searchParams }: { searchParams: Pr
 
   const now = new Date().toISOString();
   const [{ data: channels }, { data: items }] = await Promise.all([
-    supabase.from('live_channels').select('id,name,slug,playback_url,is_active').order('name'),
+    supabase.from('live_channels').select('id,name,slug,playback_url,is_active,display_order').order('display_order'),
     supabase.from('schedule_items').select('id,title,starts_at,ends_at,sponsor_name,is_premiere,channel_id').gte('ends_at', now).order('starts_at').limit(50),
   ]);
 
