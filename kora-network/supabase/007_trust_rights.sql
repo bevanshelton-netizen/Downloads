@@ -77,3 +77,38 @@ create index if not exists agreement_acceptances_user_doc_idx
   on public.agreement_acceptances(user_id, document_code, document_version);
 create index if not exists rights_disputes_status_idx
   on public.rights_disputes(status, created_at);
+
+-- The existing on_auth_user_created trigger creates public.profiles first.
+-- This alphabetically-later trigger records the versions explicitly accepted at signup.
+create or replace function public.handle_signup_legal_acceptance()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_terms text;
+  v_privacy text;
+begin
+  v_terms := nullif(new.raw_user_meta_data->>'platform_terms_version', '');
+  v_privacy := nullif(new.raw_user_meta_data->>'privacy_notice_version', '');
+
+  if v_terms is not null then
+    insert into public.agreement_acceptances(user_id, document_code, document_version)
+    values(new.id, 'platform_terms', v_terms)
+    on conflict do nothing;
+  end if;
+
+  if v_privacy is not null then
+    insert into public.agreement_acceptances(user_id, document_code, document_version)
+    values(new.id, 'privacy_notice', v_privacy)
+    on conflict do nothing;
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists zz_on_auth_legal_acceptance on auth.users;
+create trigger zz_on_auth_legal_acceptance
+after insert on auth.users
+for each row execute procedure public.handle_signup_legal_acceptance();
