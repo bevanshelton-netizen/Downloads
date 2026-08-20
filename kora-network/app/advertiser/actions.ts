@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { legal } from '@/lib/legal';
 
 function catLocalToIso(value: string) {
   const withSeconds = value.length === 16 ? `${value}:00` : value;
@@ -15,6 +16,14 @@ export async function createCampaign(formData: FormData) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
+
+  const { data: acceptance } = await supabase.from('agreement_acceptances')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('document_code', legal.advertiserTerms.code)
+    .eq('document_version', legal.advertiserTerms.version)
+    .maybeSingle();
+  if (!acceptance) redirect('/legal/advertiser-terms/accept');
 
   const name = String(formData.get('name') ?? '').trim();
   const budget = Number(formData.get('budget'));

@@ -27,8 +27,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </header>
         {children}
         <footer>
-          <strong>{brand.name}</strong>
-          <span>Family-safe creator television • No pornography or explicit sexual content.</span>
+          <div><strong>{brand.name}</strong><span>Family-safe creator television • No pornography or explicit sexual content.</span></div>
+          <div className="footerLinks">
+            <Link href="/legal/terms">Terms</Link>
+            <Link href="/legal/privacy">Privacy</Link>
+            <Link href="/legal/content-policy">Safety</Link>
+            <Link href="/legal/creator-agreement">Creators</Link>
+            <Link href="/legal/advertiser-terms">Advertisers</Link>
+            <Link href="/legal/copyright">Copyright</Link>
+            <Link href="/legal/refunds">Refunds</Link>
+          </div>
         </footer>
       </body>
     </html>

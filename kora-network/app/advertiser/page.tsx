@@ -1,11 +1,21 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { legal } from '@/lib/legal';
 import { createCampaign } from './actions';
 
 export default async function Advertiser({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
+
+  const { data: acceptance } = await supabase.from('agreement_acceptances')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('document_code', legal.advertiserTerms.code)
+    .eq('document_version', legal.advertiserTerms.version)
+    .maybeSingle();
+  if (!acceptance) redirect('/legal/advertiser-terms/accept');
+
   const { error } = await searchParams;
   const { data: campaigns } = await supabase
     .from('campaigns')
@@ -32,7 +42,7 @@ export default async function Advertiser({ searchParams }: { searchParams: Promi
           </div>
           <button className="primary" type="submit">Save draft campaign</button>
         </form>
-        <article className="panel"><h3>Revenue guardrail</h3><p>A planned reward allocation is not a cash promise. KORA only activates reward credits after campaign money has actually cleared and a funded reward pool has been created.</p></article>
+        <article className="panel"><h3>Revenue guardrail</h3><p>A planned reward allocation is not a cash promise. KORA only activates reward credits after campaign money has actually cleared and a funded reward pool has been created.</p><small>Advertiser Terms v{legal.advertiserTerms.version} accepted.</small></article>
       </section>
       <section>
         <div className="panel"><h3>Your campaigns</h3>{(campaigns ?? []).length ? (campaigns ?? []).map((campaign) => <div className="productionRow" key={campaign.id}><strong>{campaign.name}</strong><span>R{Number(campaign.budget).toFixed(2)} budget • R{Number(campaign.reward_pool).toFixed(2)} rewards • R{Number(campaign.reward_per_completion).toFixed(2)}/verified completion • {campaign.status}</span></div>) : <p>No campaigns yet.</p>}</div>

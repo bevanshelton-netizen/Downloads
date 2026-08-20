@@ -3,6 +3,8 @@
 import { randomUUID } from 'node:crypto';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { legal } from '@/lib/legal';
 
 function slugify(value: string) {
   return value
@@ -18,17 +20,29 @@ export async function createProduction(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
+  const { data: acceptance } = await supabase.from('agreement_acceptances')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('document_code', legal.creatorAgreement.code)
+    .eq('document_version', legal.creatorAgreement.version)
+    .maybeSingle();
+  if (!acceptance) redirect('/legal/creator-agreement/accept');
+
   const title = String(formData.get('title') ?? '').trim();
   const synopsis = String(formData.get('synopsis') ?? '').trim();
   const genre = String(formData.get('genre') ?? '').trim();
   const primaryLanguage = String(formData.get('primary_language') ?? '').trim();
   const ageRating = String(formData.get('age_rating') ?? 'PG').trim();
   const rightsConfirmed = formData.get('rights_confirmed') === 'on';
+  const contributorsConfirmed = formData.get('contributors_confirmed') === 'on';
+  const musicConfirmed = formData.get('music_confirmed') === 'on';
+  const likenessConfirmed = formData.get('likeness_confirmed') === 'on';
   const policyConfirmed = formData.get('policy_confirmed') === 'on';
 
   if (title.length < 2) redirect('/studio/productions/new?error=Please%20enter%20a%20title');
-  if (!rightsConfirmed) redirect('/studio/productions/new?error=You%20must%20confirm%20you%20have%20the%20rights%20to%20publish%20this%20content');
-  if (!policyConfirmed) redirect('/studio/productions/new?error=You%20must%20accept%20the%20content%20policy');
+  if (!rightsConfirmed || !contributorsConfirmed || !musicConfirmed || !likenessConfirmed || !policyConfirmed) {
+    redirect('/studio/productions/new?error=Complete%20every%20rights%20and%20content%20declaration%20before%20creating%20the%20production');
+  }
 
   let { data: creator } = await supabase
     .from('creators')
@@ -48,7 +62,7 @@ export async function createProduction(formData: FormData) {
   }
 
   const slug = `${slugify(title) || 'production'}-${randomUUID().slice(0, 8)}`;
-  const { error } = await supabase.from('productions').insert({
+  const productionResult = await supabase.from('productions').insert({
     creator_id: creator.id,
     title,
     slug,
@@ -58,8 +72,28 @@ export async function createProduction(formData: FormData) {
     age_rating: ageRating,
     status: 'draft',
     explicit_sexual_content: false,
+  }).select('id').single();
+
+  if (productionResult.error || !productionResult.data) {
+    redirect(`/studio/productions/new?error=${encodeURIComponent(productionResult.error?.message || 'Could not create production')}`);
+  }
+
+  const declaration = await supabase.from('production_rights_declarations').insert({
+    production_id: productionResult.data.id,
+    declarant_id: user.id,
+    creator_terms_version: legal.creatorAgreement.version,
+    owns_or_controls_rights: rightsConfirmed,
+    contributor_permissions_confirmed: contributorsConfirmed,
+    music_permissions_confirmed: musicConfirmed,
+    likeness_permissions_confirmed: likenessConfirmed,
+    content_policy_confirmed: policyConfirmed,
   });
 
-  if (error) redirect(`/studio/productions/new?error=${encodeURIComponent(error.message)}`);
+  if (declaration.error) {
+    const admin = createAdminClient();
+    await admin.from('productions').delete().eq('id', productionResult.data.id);
+    redirect(`/studio/productions/new?error=${encodeURIComponent(`Rights record failed: ${declaration.error.message}`)}`);
+  }
+
   redirect('/studio?created=1');
 }
