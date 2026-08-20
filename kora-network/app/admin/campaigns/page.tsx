@@ -7,7 +7,7 @@ export default async function CampaignOperations({ searchParams }: { searchParam
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
-  if (!profile || !['moderator','admin'].includes(profile.role)) redirect('/');
+  if (!profile || profile.role !== 'admin') redirect('/');
   const { error } = await searchParams;
 
   const { data: campaigns } = await supabase
@@ -17,7 +17,7 @@ export default async function CampaignOperations({ searchParams }: { searchParam
 
   return (
     <main>
-      <section className="subHero"><div className="eyebrow">KORA COMMERCIAL OPERATIONS</div><h1>Clear money before rewards.</h1><p>Campaigns become active only after operations records cleared campaign revenue. Viewer rewards can never exceed the funded portion of that cleared revenue.</p></section>
+      <section className="subHero"><div className="eyebrow">KORA COMMERCIAL OPERATIONS</div><h1>Clear money before rewards.</h1><p>Campaigns become active only after an administrator records cleared campaign revenue. Viewer rewards can never exceed the funded portion of that cleared revenue.</p></section>
       <section className="dashMain">
         {error ? <div className="panel"><strong>{error}</strong></div> : null}
         <div className="panel">
