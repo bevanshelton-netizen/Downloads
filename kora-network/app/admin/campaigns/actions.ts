@@ -32,3 +32,18 @@ export async function confirmCampaignFunding(formData: FormData) {
   revalidatePath('/admin/campaigns');
   revalidatePath('/advertiser');
 }
+
+export async function setCampaignDeliveryRules(formData: FormData) {
+  await requireAdmin();
+  const campaignId = String(formData.get('campaign_id') ?? '');
+  const cpmRate = Number(formData.get('cpm_rate'));
+  const frequencyCap = Number(formData.get('frequency_cap_per_day'));
+  if (!campaignId || !Number.isFinite(cpmRate) || cpmRate <= 0 || !Number.isInteger(frequencyCap) || frequencyCap < 1 || frequencyCap > 50) {
+    redirect('/admin/campaigns?error=Set%20a%20positive%20CPM%20and%20a%20frequency%20cap%20between%201%20and%2050');
+  }
+
+  const admin = createAdminClient();
+  const { error } = await admin.from('campaigns').update({ cpm_rate: cpmRate, frequency_cap_per_day: frequencyCap }).eq('id', campaignId);
+  if (error) redirect(`/admin/campaigns?error=${encodeURIComponent(error.message)}`);
+  revalidatePath('/admin/campaigns');
+}
