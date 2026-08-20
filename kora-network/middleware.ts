@@ -5,6 +5,7 @@ export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  let authenticated = false;
 
   if (url && anonKey) {
     const supabase = createServerClient(url, anonKey, {
@@ -17,19 +18,25 @@ export async function middleware(request: NextRequest) {
         },
       },
     });
-    await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
+    authenticated = Boolean(user);
   }
 
   const childProfile = request.cookies.get('kora_child_profile')?.value;
   const pathname = request.nextUrl.pathname;
   const childAllowed = pathname === '/kids' || pathname.startsWith('/kids/') || pathname === '/api/health' || pathname === '/api/readiness';
 
-  if (childProfile && !childAllowed) {
+  if (childProfile && !authenticated) {
+    response.cookies.delete('kora_child_profile');
+    return response;
+  }
+
+  if (childProfile && authenticated && !childAllowed) {
     const destination = request.nextUrl.clone();
     destination.pathname = '/kids';
     destination.search = '';
     const redirectResponse = NextResponse.redirect(destination);
-    response.cookies.getAll().forEach(cookie => redirectResponse.cookies.set(cookie));
+    response.cookies.getAll().forEach(({ name, value, ...options }) => redirectResponse.cookies.set(name, value, options));
     return redirectResponse;
   }
 
