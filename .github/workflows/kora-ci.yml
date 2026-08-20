@@ -5,10 +5,13 @@ on:
     paths:
       - 'kora-network/**'
       - '.github/workflows/kora-ci.yml'
+      - '.github/workflows/kora-production-*.yml'
+      - '.github/workflows/kora-bootstrap-first-admin.yml'
   push:
     branches: [main]
     paths:
       - 'kora-network/**'
+      - '.github/workflows/kora-*.yml'
 
 jobs:
   build:
@@ -25,6 +28,12 @@ jobs:
           cache-dependency-path: kora-network/package.json
       - run: npm install --no-audit --no-fund
       - run: npm run validate:migrations
+      - name: Validate deployment automation syntax
+        run: |
+          node --check scripts/preflight-production.mjs
+          node --check scripts/postdeploy-smoke.mjs
+          node --check scripts/bootstrap-admin.mjs
+          bash -n scripts/bootstrap-production-db.sh
       - run: npm run typecheck
       - run: npm run build
         env:
