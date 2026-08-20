@@ -1,5 +1,7 @@
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { legal } from '@/lib/legal';
 import { createProduction } from './actions';
 
 export default async function NewProduction({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
@@ -8,12 +10,20 @@ export default async function NewProduction({ searchParams }: { searchParams: Pr
   if (!user) redirect('/login');
   const { error } = await searchParams;
 
+  const { data: acceptance } = await supabase.from('agreement_acceptances')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('document_code', legal.creatorAgreement.code)
+    .eq('document_version', legal.creatorAgreement.version)
+    .maybeSingle();
+  if (!acceptance) redirect('/legal/creator-agreement/accept');
+
   return (
     <main>
       <section className="subHero">
         <div className="eyebrow">CREATOR STUDIO</div>
         <h1>Start a new production.</h1>
-        <p>Create the catalogue record first. Video upload and moderation attach to this production next.</p>
+        <p>Create the catalogue and rights record first. Video upload and moderation attach to this production next.</p>
       </section>
       <section>
         <form action={createProduction} className="panel formPanel">
@@ -23,11 +33,17 @@ export default async function NewProduction({ searchParams }: { searchParams: Pr
           <div className="formGrid">
             <label>Genre<input name="genre" placeholder="Drama, documentary, comedy…" /></label>
             <label>Primary language<input name="primary_language" placeholder="English, isiZulu, isiXhosa…" /></label>
-            <label>Age rating<select name="age_rating" defaultValue="PG"><option>A</option><option>PG</option><option>13</option><option>16</option><option>18</option></select></label>
+            <label>Proposed age rating<select name="age_rating" defaultValue="PG"><option>A</option><option>PG</option><option>13</option><option>16</option><option>18</option></select></label>
           </div>
-          <label className="check"><input type="checkbox" name="rights_confirmed" required /> I own or control the rights required to publish this production.</label>
+          <h3>Rights declaration</h3>
+          <p>You accepted Creator Agreement version {legal.creatorAgreement.version}. These declarations are stored against this production.</p>
+          <label className="check"><input type="checkbox" name="rights_confirmed" required /> I own or control the rights required to publish and monetise this production.</label>
+          <label className="check"><input type="checkbox" name="contributors_confirmed" required /> I have the necessary performer, contributor and location permissions.</label>
+          <label className="check"><input type="checkbox" name="music_confirmed" required /> I control or have licensed all music/composition and recording rights used in this production.</label>
+          <label className="check"><input type="checkbox" name="likeness_confirmed" required /> I have the necessary permissions for identifiable people's likenesses and participation.</label>
           <label className="check"><input type="checkbox" name="policy_confirmed" required /> This production complies with KORA's content policy, including the prohibition on pornography and explicit sexual content.</label>
-          <button className="primary" type="submit">Create production</button>
+          <p><Link href="/legal/creator-agreement">Creator Agreement</Link> • <Link href="/legal/copyright">Rights complaint process</Link></p>
+          <button className="primary" type="submit">Create production & rights record</button>
         </form>
       </section>
     </main>
