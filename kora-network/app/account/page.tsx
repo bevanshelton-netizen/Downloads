@@ -9,12 +9,13 @@ export default async function Account({ searchParams }: { searchParams: Promise<
   if (!user) redirect('/login');
   const { payment } = await searchParams;
 
-  const [{ data: profile }, { data: subscriptions }, { data: wallet }, { data: rewardClaims }, { data: creator }] = await Promise.all([
+  const [{ data: profile }, { data: subscriptions }, { data: wallet }, { data: rewardClaims }, { data: creator }, { count: purchaseCount }] = await Promise.all([
     supabase.from('profiles').select('role').eq('id', user.id).maybeSingle(),
     supabase.from('subscriptions').select('plan_code,status,current_period_end').eq('user_id', user.id).order('created_at', { ascending: false }).limit(5),
     supabase.from('wallets').select('id').eq('owner_id', user.id).maybeSingle(),
     supabase.from('reward_claims').select('id,amount,created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(10),
     supabase.from('creators').select('id').eq('owner_id', user.id).maybeSingle(),
+    supabase.from('purchases').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'complete'),
   ]);
 
   let balance = 0;
@@ -27,9 +28,9 @@ export default async function Account({ searchParams }: { searchParams: Promise<
     <main>
       <section className="subHero">
         <div className="eyebrow">MY KORA</div>
-        <h1>Your membership, family and wallet.</h1>
-        <p>Subscriptions fund premium programming while verified reward earnings remain separate and transparent.</p>
-        <div className="actions"><Link className="secondary" href="/family">KORA Family</Link>{creator ? <Link className="secondary" href="/studio/earnings">Creator earnings</Link> : null}{profile && ['moderator','admin'].includes(profile.role) ? <Link className="secondary" href="/admin">KORA Operations</Link> : null}</div>
+        <h1>Your membership, library, family and wallet.</h1>
+        <p>Subscriptions fund premium programming, paid unlocks stay in your library and verified reward earnings remain separate and transparent.</p>
+        <div className="actions"><Link className="secondary" href="/account/library">My Library{purchaseCount ? ` (${purchaseCount})` : ''}</Link><Link className="secondary" href="/family">KORA Family</Link>{creator ? <Link className="secondary" href="/studio/earnings">Creator earnings</Link> : null}{profile && ['moderator','admin'].includes(profile.role) ? <Link className="secondary" href="/admin">KORA Operations</Link> : null}</div>
       </section>
       <section className="grid three">
         <article className="panel"><small>Reward wallet</small><h3>R{balance.toFixed(2)}</h3><p>Rewards are credited only from cleared funded reward pools after sponsored-view verification. Kids profiles cannot earn cash rewards.</p></article>
