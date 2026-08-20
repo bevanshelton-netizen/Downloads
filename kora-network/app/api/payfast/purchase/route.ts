@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { buildPurchaseCheckout } from '@/lib/payfast';
 
 export async function POST(request: Request) {
@@ -23,7 +24,8 @@ export async function POST(request: Request) {
   const amount = Number(production.purchase_price);
   if (!Number.isFinite(amount) || amount <= 0) return NextResponse.json({ error: 'Purchase price is not configured' }, { status: 409 });
 
-  const { data: complete } = await supabase.from('purchases')
+  const admin = createAdminClient();
+  const { data: complete } = await admin.from('purchases')
     .select('id')
     .eq('user_id', user.id)
     .eq('production_id', production.id)
@@ -32,7 +34,7 @@ export async function POST(request: Request) {
     .maybeSingle();
   if (complete) return NextResponse.json({ alreadyOwned: true, redirect: `/watch/${production.slug}` });
 
-  const { data: existingPending } = await supabase.from('purchases')
+  const { data: existingPending } = await admin.from('purchases')
     .select('id,amount')
     .eq('user_id', user.id)
     .eq('production_id', production.id)
@@ -43,7 +45,7 @@ export async function POST(request: Request) {
 
   let purchase = existingPending;
   if (!purchase || Math.abs(Number(purchase.amount) - amount) > 0.01) {
-    const created = await supabase.from('purchases').insert({
+    const created = await admin.from('purchases').insert({
       user_id: user.id,
       production_id: production.id,
       amount,
