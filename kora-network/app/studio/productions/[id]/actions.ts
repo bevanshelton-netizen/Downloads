@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 async function ownedProduction(productionId: string) {
   const supabase = await createClient();
@@ -26,7 +27,6 @@ export async function addEpisode(formData: FormData) {
     production_id: productionId,
     episode_number: episodeNumber,
     title,
-    status: 'draft',
   });
   if (error) redirect(`/studio/productions/${productionId}?error=${encodeURIComponent(error.message)}`);
   revalidatePath(`/studio/productions/${productionId}`);
@@ -41,8 +41,10 @@ export async function submitForReview(formData: FormData) {
   if (!episodes?.length) redirect(`/studio/productions/${productionId}?error=Add%20at%20least%20one%20episode%20before%20review`);
   if (episodes.some((episode) => !episode.playback_id)) redirect(`/studio/productions/${productionId}?error=Upload%20video%20for%20every%20episode%20before%20review`);
 
-  const { error } = await supabase.from('productions').update({ status: 'review' }).eq('id', productionId);
+  const admin = createAdminClient();
+  const { error } = await admin.from('productions').update({ status: 'review' }).eq('id', productionId).in('status', ['draft','rejected']);
   if (error) redirect(`/studio/productions/${productionId}?error=${encodeURIComponent(error.message)}`);
-  await supabase.from('episodes').update({ status: 'review' }).eq('production_id', productionId);
+  const { error: episodeError } = await admin.from('episodes').update({ status: 'review' }).eq('production_id', productionId);
+  if (episodeError) redirect(`/studio/productions/${productionId}?error=${encodeURIComponent(episodeError.message)}`);
   revalidatePath(`/studio/productions/${productionId}`);
 }
