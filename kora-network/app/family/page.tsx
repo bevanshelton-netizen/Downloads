@@ -8,12 +8,12 @@ export default async function Family({ searchParams }: { searchParams: Promise<{
   if (!user) redirect('/login?next=/family');
   const { error, pin } = await searchParams;
 
-  const [{ data: profiles }, { data: familyPin }] = await Promise.all([
+  const [{ data: profiles }, { data: hasPinData }] = await Promise.all([
     supabase.from('viewer_profiles').select('id,nickname,profile_kind,age_band,max_age_rating,purchases_allowed,rewards_allowed,personalised_ads_allowed,created_at').eq('owner_id', user.id).order('created_at'),
-    supabase.from('family_pins').select('owner_id').eq('owner_id', user.id).maybeSingle(),
+    supabase.rpc('has_family_pin'),
   ]);
   const childProfiles = (profiles ?? []).filter(p => p.profile_kind === 'child');
-  const hasPin = Boolean(familyPin);
+  const hasPin = hasPinData === true;
 
   return (
     <main>
@@ -24,7 +24,7 @@ export default async function Family({ searchParams }: { searchParams: Promise<{
         <div className="grid three">
           <form action={setFamilyPin} className="panel formPanel">
             <h3>{hasPin ? 'Change family PIN' : 'Set family PIN'}</h3>
-            <p>The PIN is required to exit locked Kids Mode and to change child profiles.</p>
+            <p>The PIN is required to exit locked Kids Mode and to change child profiles. Only a boolean “PIN configured” state is exposed to the app; the hash itself is not selectable by viewers.</p>
             {hasPin ? <label>Current PIN<input name="current_pin" type="password" inputMode="numeric" minLength={4} maxLength={6} required /></label> : null}
             <label>New PIN<input name="new_pin" type="password" inputMode="numeric" pattern="[0-9]{4,6}" minLength={4} maxLength={6} required /></label>
             <label>Confirm new PIN<input name="confirm_pin" type="password" inputMode="numeric" pattern="[0-9]{4,6}" minLength={4} maxLength={6} required /></label>
