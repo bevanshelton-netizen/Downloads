@@ -32,3 +32,18 @@ export async function confirmCampaignFunding(formData: FormData) {
   revalidatePath('/admin/campaigns');
   revalidatePath('/advertiser');
 }
+
+export async function setCampaignMediaRate(formData: FormData) {
+  await requireAdmin();
+  const campaignId = String(formData.get('campaign_id') ?? '');
+  const mediaCpm = Number(formData.get('media_cpm'));
+  if (!campaignId || !Number.isFinite(mediaCpm) || mediaCpm <= 0 || mediaCpm > 10000) {
+    redirect('/admin/campaigns?error=Enter%20a%20valid%20media%20CPM');
+  }
+
+  const admin = createAdminClient();
+  const { error } = await admin.from('campaigns').update({ media_cpm: mediaCpm }).eq('id', campaignId);
+  if (error) redirect(`/admin/campaigns?error=${encodeURIComponent(error.message)}`);
+  revalidatePath('/admin/campaigns');
+  revalidatePath('/advertiser/reports');
+}

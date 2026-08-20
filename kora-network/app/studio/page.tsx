@@ -41,7 +41,7 @@ export default async function Studio({ searchParams }: { searchParams: Promise<{
         <div className="actions"><Link className="primary" href={creator ? '/studio/earnings' : '/creators/apply'}>{creator ? 'Deals & earnings' : 'Apply to KORA'}</Link><form action={signOut}><button className="secondary">Sign out</button></form></div>
       </section>
       <section className="dashboard">
-        <aside><b>Studio</b><span>Overview</span><span>Content</span><span>Analytics</span><Link href="/studio/earnings">Revenue & payouts</Link><span>Rights</span></aside>
+        <aside><b>Studio</b><span>Overview</span><span>Content</span><Link href="/studio/analytics">Analytics</Link><Link href="/studio/earnings">Revenue & payouts</Link><span>Rights</span></aside>
         <div className="dashMain">
           {created ? <div className="panel"><strong>Production created.</strong> It is saved as a draft until you submit it for moderation.</div> : null}
           {offeredDeals ? <div className="panel"><strong>You have a creator deal waiting.</strong> Review the percentage and revenue basis before accepting it. <Link href="/studio/earnings">Review offer →</Link></div> : null}

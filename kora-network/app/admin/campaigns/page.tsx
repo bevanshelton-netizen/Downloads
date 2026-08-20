@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { confirmCampaignFunding } from './actions';
+import { confirmCampaignFunding, setCampaignMediaRate } from './actions';
 
 export default async function CampaignOperations({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const supabase = await createClient();
@@ -12,26 +12,27 @@ export default async function CampaignOperations({ searchParams }: { searchParam
 
   const { data: campaigns } = await supabase
     .from('campaigns')
-    .select('id,name,budget,reward_pool,reward_per_completion,status,starts_at,ends_at,advertiser_id')
+    .select('id,name,budget,reward_pool,reward_per_completion,media_cpm,media_spend,status,starts_at,ends_at,advertiser_id')
     .order('starts_at', { ascending: false });
 
   return (
     <main>
-      <section className="subHero"><div className="eyebrow">KORA COMMERCIAL OPERATIONS</div><h1>Clear money before rewards.</h1><p>Campaigns become active only after an administrator records cleared campaign revenue. Viewer rewards can never exceed the funded portion of that cleared revenue.</p></section>
+      <section className="subHero"><div className="eyebrow">KORA COMMERCIAL OPERATIONS</div><h1>Clear money before delivery.</h1><p>Campaigns activate only after cleared revenue is recorded. Media delivery and viewer rewards then consume separate protected portions of the campaign budget.</p></section>
       <section className="dashMain">
         {error ? <div className="panel"><strong>{error}</strong></div> : null}
         <div className="panel">
-          <h3>Campaign funding queue</h3>
+          <h3>Campaign funding and delivery rates</h3>
           {(campaigns ?? []).length ? (campaigns ?? []).map(campaign => (
-            <form action={confirmCampaignFunding} className="moderationItem" key={campaign.id}>
-              <input type="hidden" name="campaign_id" value={campaign.id} />
-              <div><strong>{campaign.name}</strong><p>Budget R{Number(campaign.budget).toFixed(2)} • planned reward allocation R{Number(campaign.reward_pool).toFixed(2)} • R{Number(campaign.reward_per_completion).toFixed(2)} per verified completion • {campaign.status}</p></div>
-              <div className="formGrid">
+            <div className="moderationItem" key={campaign.id}>
+              <div><strong>{campaign.name}</strong><p>Budget R{Number(campaign.budget).toFixed(2)} • rewards reserved R{Number(campaign.reward_pool).toFixed(2)} • reward R{Number(campaign.reward_per_completion).toFixed(2)}/verified completion • media spend R{Number(campaign.media_spend || 0).toFixed(2)} • CPM R{Number(campaign.media_cpm || 0).toFixed(2)} • {campaign.status}</p></div>
+              <form action={setCampaignMediaRate} className="inlineForm"><input type="hidden" name="campaign_id" value={campaign.id}/><label>Media CPM<input name="media_cpm" type="number" min="0.01" max="10000" step="0.01" defaultValue={Number(campaign.media_cpm || 0) || ''} required /></label><button className="secondary">Save CPM</button></form>
+              <form action={confirmCampaignFunding} className="formGrid" style={{gridColumn:'1/-1'}}>
+                <input type="hidden" name="campaign_id" value={campaign.id} />
                 <label>Cleared revenue received<input name="gross_amount" type="number" min="0.01" step="0.01" required /></label>
                 <label>Fund reward pool now<input name="reward_amount" type="number" min="0" step="0.01" defaultValue="0" /></label>
-              </div>
-              <div className="actions"><button className="primary">Confirm cleared funds & activate</button></div>
-            </form>
+                <div className="actions"><button className="primary">Confirm cleared funds & activate</button></div>
+              </form>
+            </div>
           )) : <p>No campaigns.</p>}
         </div>
       </section>
