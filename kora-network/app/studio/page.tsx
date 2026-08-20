@@ -43,7 +43,7 @@ export default async function Studio({ searchParams }: { searchParams: Promise<{
           </div>
           <div className="panel">
             <div className="sectionHead"><div><h3>Your productions</h3><p>Draft, submit and publish African stories from one place.</p></div><Link className="primary" href="/studio/productions/new">New production</Link></div>
-            {productions.length ? <div className="productionList">{productions.map((p) => <div className="productionRow" key={p.id}><strong>{p.title}</strong><span>{p.age_rating || 'Unrated'} • {p.status}</span></div>)}</div> : <p>No productions yet. Create your first one to start the publishing workflow.</p>}
+            {productions.length ? <div className="productionList">{productions.map((p) => <Link className="productionRow" key={p.id} href={`/studio/productions/${p.id}`}><strong>{p.title}</strong><span>{p.age_rating || 'Unrated'} • {p.status}</span></Link>)}</div> : <p>No productions yet. Create your first one to start the publishing workflow.</p>}
           </div>
         </div>
       </section>
