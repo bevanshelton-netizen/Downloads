@@ -24,6 +24,7 @@ jobs:
         working-directory: kora-network
     env:
       NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       KORA_BOOTSTRAP_CONFIRM: ${{ inputs.confirmation }}
     steps:
