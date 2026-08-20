@@ -27,12 +27,19 @@ export async function moderateProduction(formData: FormData) {
   const { error } = await admin.from('productions').update({ status: productionStatus }).eq('id', productionId).eq('status', 'review');
   if (error) redirect(`/admin/moderation?error=${encodeURIComponent(error.message)}`);
 
-  await admin.from('episodes').update({
-    status: episodeStatus,
-    published_at: decision === 'approved' ? new Date().toISOString() : null,
-  }).eq('production_id', productionId);
-
+  await admin.from('episodes').update({ status: episodeStatus, published_at: decision === 'approved' ? new Date().toISOString() : null }).eq('production_id', productionId);
   await admin.from('moderation_reviews').insert({ production_id: productionId, reviewer_id: user.id, decision, reason: reason || null });
   revalidatePath('/admin/moderation');
   revalidatePath('/watch');
+}
+
+export async function resolveContentReport(formData: FormData) {
+  const reportId = String(formData.get('report_id') ?? '');
+  const resolution = String(formData.get('resolution') ?? '');
+  if (!reportId || !['resolved', 'dismissed'].includes(resolution)) return;
+
+  const { admin } = await moderator();
+  const { error } = await admin.from('content_reports').update({ status: resolution }).eq('id', reportId).eq('status', 'open');
+  if (error) redirect(`/admin/moderation?error=${encodeURIComponent(error.message)}`);
+  revalidatePath('/admin/moderation');
 }
