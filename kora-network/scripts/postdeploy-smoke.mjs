@@ -57,14 +57,18 @@ if (!ready && readiness.body?.checks) {
 }
 
 const version = await json('/api/version');
-const versionOk = version.response.status === 200 && version.body?.service === 'KORA';
-console.log(`${versionOk ? 'PASS' : 'FAIL'}  /api/version — HTTP ${version.response.status}`);
+const versionOk = version.response.status === 200 && version.body?.service === 'KORA' && Number(version.body?.schemaVersion) === 13;
+console.log(`${versionOk ? 'PASS' : 'FAIL'}  /api/version — HTTP ${version.response.status}; schema=${version.body?.schemaVersion ?? 'unknown'}`);
 failed ||= !versionOk;
 
 const home = await page('/');
-const homeOk = [200, 302, 303, 307, 308].includes(home.status);
-console.log(`${homeOk ? 'PASS' : 'FAIL'}  / — HTTP ${home.status}`);
+let homeOk = [200, 302, 303, 307, 308].includes(home.status);
+if (expectReady) {
+  const location = home.headers.get('location') || '';
+  if (home.status !== 200 || /\/coming-soon(?:$|\?)/.test(location)) homeOk = false;
+}
+console.log(`${homeOk ? 'PASS' : 'FAIL'}  / — HTTP ${home.status}${home.headers.get('location') ? ` → ${home.headers.get('location')}` : ''}`);
 failed ||= !homeOk;
 
 if (failed) process.exit(1);
-console.log('\nKORA post-deploy smoke test passed.');
+console.log(`\nKORA ${expectReady ? 'public-launch' : 'post-deploy'} smoke test passed.`);
