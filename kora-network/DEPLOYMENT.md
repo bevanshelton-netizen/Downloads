@@ -18,6 +18,7 @@ Create a dedicated production Supabase project. In the SQL editor apply the KORA
 4. `supabase/004_content_commerce.sql`
 5. `supabase/005_payouts.sql`
 6. `supabase/006_broadcast_rewards.sql`
+7. `supabase/007_trust_rights.sql`
 
 Then configure the production application with:
 
@@ -42,9 +43,22 @@ Set `NEXT_PUBLIC_APP_URL` to the final HTTPS production origin, without a traili
 KORA exposes two non-secret operational endpoints:
 
 - `GET /api/health` is a liveness check. A running application returns HTTP 200 with `status: "ok"`.
-- `GET /api/readiness` is the strict production go-live gate. It returns HTTP 200 with `status: "ready"` and `productionReady: true` only when the production HTTPS URL, Supabase, live PayFast configuration and Cloudflare Stream are all configured. Sandbox PayFast or the mock video provider intentionally returns HTTP 503.
+- `GET /api/readiness` is the strict production go-live gate. It returns HTTP 200 with `status: "ready"` and `productionReady: true` only when production infrastructure, public legal identity/contact details, legal approval and regulatory approval are configured. Sandbox PayFast, the mock video provider or unapproved legal/regulatory gates intentionally return HTTP 503.
 
-## 3. PayFast
+## 3. Public operator identity and legal approval
+
+Complete these environment values with real approved details:
+
+- `NEXT_PUBLIC_OPERATOR_NAME`
+- `NEXT_PUBLIC_SUPPORT_EMAIL`
+- `NEXT_PUBLIC_PRIVACY_EMAIL`
+- `NEXT_PUBLIC_RIGHTS_EMAIL`
+
+The legal pages intentionally display a draft warning until `KORA_LEGAL_APPROVED=true`. Do not set this flag until the published Terms, Privacy Notice, Creator Agreement, Advertiser Terms, copyright/rights process and refund/cancellation terms have been professionally reviewed for the operating entity.
+
+Keep `KORA_REGULATORY_APPROVED=false` until KORA's South African regulatory position, including FPB online-distribution/classification requirements and POPIA operations, has been reviewed and the required registrations/approvals/processes are in place. See `LEGAL_REVIEW.md`.
+
+## 4. PayFast
 
 Start in sandbox mode:
 
@@ -63,7 +77,7 @@ Before switching live, complete an authenticated sandbox checkout and confirm th
 
 After sandbox acceptance, replace the values with the live PayFast merchant credentials and set `PAYFAST_SANDBOX=false`.
 
-## 4. Cloudflare Stream and live television
+## 5. Cloudflare Stream and live television
 
 For real creator uploads set:
 
@@ -78,7 +92,13 @@ For non-production smoke testing the platform may use `VIDEO_PROVIDER=mock`, but
 
 Live channel playback URLs are controlled by authorised staff from `/admin/schedule`. Production feeds should use HTTPS HLS URLs. The public `/live` page reads the live channel state and electronic programme guide from Supabase; `/live/[slug]` plays the channel through the HLS-capable player. Master Control enters schedule times in CAT, KORA stores them in UTC and public schedules render in CAT.
 
-## 5. Sponsored-viewing rewards
+## 6. Creator agreements and rights provenance
+
+A creator must accept the current versioned Creator Agreement before creating a production. Each production then records declarations covering ownership/control of distribution rights, performer/contributor/location permissions, music rights, likeness permissions and content-policy compliance. If the rights record cannot be created, the production record is rolled back.
+
+Changing the Creator Agreement version in `lib/legal.ts` automatically requires creators to accept the new version before creating further productions.
+
+## 7. Sponsored-viewing rewards
 
 Generate a long random `KORA_INTERNAL_API_SECRET` and store it only in server environment secrets. Trusted ad-verification infrastructure calls `/api/internal/ads/verify` with this value in the `x-kora-internal-secret` header. Never expose the value to viewers, creators or advertisers.
 
@@ -91,21 +111,21 @@ The reward path deliberately separates four events:
 
 The client cannot choose the reward amount. A verified ad event cannot be paid twice. Cumulative cleared campaign funding cannot exceed the campaign budget and cumulative funded rewards cannot exceed the campaign's planned reward allocation.
 
-## 6. Production smoke test
+## 8. Production smoke test
 
 Run this sequence after the first production deployment:
 
 1. `GET /api/health` returns HTTP 200 and `status: "ok"`.
-2. During sandbox setup, `GET /api/readiness` may return HTTP 503; inspect its non-secret checks to see what remains outstanding.
+2. During sandbox/setup, `GET /api/readiness` returns HTTP 503 and identifies incomplete non-secret checks.
 3. Create a new viewer account and sign in.
-4. Create a creator profile and a production.
-5. Upload an episode and attach the video asset.
-6. Submit the production for moderation.
-7. Approve it from the moderation console and confirm it appears in the catalogue.
-8. Confirm private playback works for the approved episode.
-9. Complete a PayFast sandbox subscription.
-10. Confirm the subscription becomes active only after a valid ITN.
-11. Confirm the corresponding revenue event is recorded only once.
+4. Confirm a creator who has not accepted the current Creator Agreement is redirected to acceptance before production creation.
+5. Accept the agreement and create a production with all rights declarations; confirm the versioned acceptance and production rights record exist.
+6. Upload an episode and attach the video asset.
+7. Submit the production for moderation.
+8. Approve it from the moderation console and confirm it appears in the catalogue.
+9. Confirm private playback works for the approved episode.
+10. Complete a PayFast sandbox subscription.
+11. Confirm the subscription becomes active only after a valid ITN and the corresponding revenue event is recorded only once.
 12. Confirm an advertiser can create a campaign and planned reward allocation cannot exceed the campaign budget.
 13. Connect a test HLS stream to one channel in `/admin/schedule` and confirm it plays on `/live/[slug]`.
 14. Add two scheduled programmes and confirm the public guide reflects the correct CAT times and blocks overlaps.
@@ -114,8 +134,9 @@ Run this sequence after the first production deployment:
 17. Confirm cumulative campaign funding and cumulative reward funding cannot exceed their configured caps.
 18. Confirm a payout request is blocked until the platform's KYC and cleared-balance rules are satisfied.
 19. Confirm prohibited pornography/explicit-sexual-content workflow controls remain enforced.
+20. Confirm public legal pages show the approved operator/contact details and no draft warning before launch.
 
-## 7. Go-live gate
+## 9. Go-live gate
 
 Do not market KORA as fully operational until all of the following are true:
 
@@ -128,6 +149,10 @@ Do not market KORA as fully operational until all of the following are true:
 - Admin/moderator access is assigned deliberately, not by public self-registration.
 - Creator payout/KYC process has an operational owner.
 - Sponsored reward funding and verification pass abuse, concurrency and duplicate-claim testing.
+- Creator agreement acceptance and production rights-provenance records pass end-to-end testing.
+- Public operator identity and support/privacy/rights contacts are real and monitored.
+- `KORA_LEGAL_APPROVED=true` only after professional legal review.
+- `KORA_REGULATORY_APPROVED=true` only after the required regulatory/compliance position is confirmed and implemented.
 - Privacy policy, terms, creator agreement, advertiser terms, refund/cancellation policy and content policy are published.
 - Monitoring, error logging and database backup procedures are active.
 
