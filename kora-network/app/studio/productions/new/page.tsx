@@ -7,8 +7,11 @@ import { createProduction } from './actions';
 export default async function NewProduction({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
+  if (!user) redirect('/login?next=/studio/productions/new');
   const { error } = await searchParams;
+
+  const { data: creator } = await supabase.from('creators').select('id').eq('owner_id', user.id).maybeSingle();
+  if (!creator) redirect('/creators/apply?error=KORA%20creator%20approval%20is%20required%20before%20starting%20a%20production');
 
   const { data: acceptance } = await supabase.from('agreement_acceptances')
     .select('id')

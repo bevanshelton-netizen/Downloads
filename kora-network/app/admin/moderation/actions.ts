@@ -17,13 +17,16 @@ export async function moderateProduction(formData: FormData) {
   const productionId = String(formData.get('production_id') ?? '');
   const decision = String(formData.get('decision') ?? '');
   const reason = String(formData.get('reason') ?? '').trim();
+  const kidsRequested = formData.get('kids_approved') === 'on';
   if (!productionId || !['approved', 'rejected', 'needs_changes'].includes(decision)) return;
 
   const { supabase, user } = await moderator();
+  const { data: production } = await supabase.from('productions').select('age_rating').eq('id', productionId).maybeSingle();
+  const kidsApproved = decision === 'approved' && kidsRequested && ['A','PG'].includes(production?.age_rating ?? '');
   const productionStatus = decision === 'approved' ? 'published' : decision === 'rejected' ? 'rejected' : 'draft';
   const episodeStatus = decision === 'approved' ? 'published' : decision === 'rejected' ? 'rejected' : 'draft';
 
-  const { error } = await supabase.from('productions').update({ status: productionStatus }).eq('id', productionId).eq('status', 'review');
+  const { error } = await supabase.from('productions').update({ status: productionStatus, kids_approved: kidsApproved }).eq('id', productionId).eq('status', 'review');
   if (error) redirect(`/admin/moderation?error=${encodeURIComponent(error.message)}`);
 
   await supabase.from('episodes').update({
@@ -35,8 +38,9 @@ export async function moderateProduction(formData: FormData) {
     production_id: productionId,
     reviewer_id: user.id,
     decision,
-    reason: reason || null,
+    reason: reason || (kidsRequested && !kidsApproved ? 'General catalogue decision; Kids approval not applied because Kids requires A or PG.' : null),
   });
 
   revalidatePath('/admin/moderation');
+  revalidatePath('/kids');
 }

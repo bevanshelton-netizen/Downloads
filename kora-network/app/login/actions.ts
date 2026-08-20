@@ -11,17 +11,29 @@ function formCredentials(formData: FormData) {
   return { email, password };
 }
 
+function safeNext(value: FormDataEntryValue | null) {
+  const next = String(value ?? '').trim();
+  return next.startsWith('/') && !next.startsWith('//') ? next : '/studio';
+}
+
+function loginError(message: string, next: string) {
+  const suffix = next !== '/studio' ? `&next=${encodeURIComponent(next)}` : '';
+  return `/login?error=${encodeURIComponent(message)}${suffix}`;
+}
+
 export async function signIn(formData: FormData) {
   const supabase = await createClient();
   const credentials = formCredentials(formData);
+  const next = safeNext(formData.get('next'));
   const { error } = await supabase.auth.signInWithPassword(credentials);
-  if (error) redirect(`/login?error=${encodeURIComponent(error.message)}`);
-  redirect('/studio');
+  if (error) redirect(loginError(error.message, next));
+  redirect(next);
 }
 
 export async function signUp(formData: FormData) {
+  const next = safeNext(formData.get('next'));
   const accepted = formData.get('platform_accepted') === 'on';
-  if (!accepted) redirect('/login?error=Accept%20the%20Terms%20of%20Use%20and%20Privacy%20Notice%20to%20create%20an%20account');
+  if (!accepted) redirect(loginError('Accept the Terms of Use and Privacy Notice to create an account', next));
 
   const supabase = await createClient();
   const credentials = formCredentials(formData);
@@ -35,8 +47,8 @@ export async function signUp(formData: FormData) {
       },
     },
   });
-  if (error) redirect(`/login?error=${encodeURIComponent(error.message)}`);
-  redirect('/studio');
+  if (error) redirect(loginError(error.message, next));
+  redirect(next);
 }
 
 export async function signOut() {
