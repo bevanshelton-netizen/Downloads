@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { legal } from '@/lib/legal';
+import { getPlatformReleaseState } from '@/lib/platform-state';
 
 function catLocalToIso(value: string) {
   const withSeconds = value.length === 16 ? `${value}:00` : value;
@@ -13,6 +14,9 @@ function catLocalToIso(value: string) {
 }
 
 export async function createCampaign(formData: FormData) {
+  const release = await getPlatformReleaseState();
+  if (!release.advertiser_campaigns_enabled) redirect('/advertiser?error=New%20campaign%20creation%20is%20not%20open%20yet');
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');

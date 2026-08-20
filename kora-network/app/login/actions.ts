@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { legal } from '@/lib/legal';
+import { getPlatformReleaseState } from '@/lib/platform-state';
 
 function formCredentials(formData: FormData) {
   const email = String(formData.get('email') ?? '').trim();
@@ -32,6 +33,12 @@ export async function signIn(formData: FormData) {
 
 export async function signUp(formData: FormData) {
   const next = safeNext(formData.get('next'));
+  const release = await getPlatformReleaseState();
+  const privateSignup = process.env.KORA_PRIVATE_SIGNUP_ENABLED === 'true';
+  if (!release.public_signups_enabled && !privateSignup) {
+    redirect(loginError('New account creation is not open yet.', next));
+  }
+
   const accepted = formData.get('platform_accepted') === 'on';
   if (!accepted) redirect(loginError('Accept the Terms of Use and Privacy Notice to create an account', next));
 
