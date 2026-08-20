@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { allocateCreatorRevenue } from './actions';
 
 export default async function RevenueOperations({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
@@ -10,14 +11,15 @@ export default async function RevenueOperations({ searchParams }: { searchParams
   if (profile?.role !== 'admin') redirect('/');
   const { error } = await searchParams;
 
+  const admin = createAdminClient();
   const [{ data: revenues }, { data: productions }, { data: allocations }] = await Promise.all([
-    supabase.from('revenue_events').select('id,source_type,source_id,gross_amount,currency,cleared_at,created_at').eq('cleared', true).order('created_at', { ascending: false }).limit(50),
-    supabase.from('productions').select('id,title,creator_id,status').eq('status', 'published').order('title').limit(200),
-    supabase.from('creator_revenue_allocations').select('id,creator_id,production_id,eligible_amount,creator_amount,platform_amount,created_at').order('created_at', { ascending: false }).limit(50),
+    admin.from('revenue_events').select('id,source_type,source_id,gross_amount,currency,cleared_at,created_at').eq('cleared', true).order('created_at', { ascending: false }).limit(50),
+    admin.from('productions').select('id,title,creator_id,status').eq('status', 'published').order('title').limit(200),
+    admin.from('creator_revenue_allocations').select('id,creator_id,production_id,eligible_amount,creator_amount,platform_amount,created_at').order('created_at', { ascending: false }).limit(50),
   ]);
 
   const creatorIds = [...new Set((productions ?? []).map(p => p.creator_id))];
-  const { data: creators } = creatorIds.length ? await supabase.from('creators').select('id,name').in('id', creatorIds) : { data: [] as Array<{id:string;name:string}> };
+  const { data: creators } = creatorIds.length ? await admin.from('creators').select('id,name').in('id', creatorIds) : { data: [] as Array<{id:string;name:string}> };
   const creatorById = new Map((creators ?? []).map(c => [c.id, c.name]));
   const productionById = new Map((productions ?? []).map(p => [p.id, p.title]));
 
