@@ -21,6 +21,8 @@ Create a dedicated production Supabase project. In the SQL editor apply the KORA
 6. `supabase/006_broadcast_rewards.sql`
 7. `supabase/007_trust_rights.sql`
 8. `supabase/008_creator_economy_family.sql`
+9. `supabase/009_family_pin_privacy.sql`
+10. `supabase/010_creator_revenue_reserve_hardening.sql`
 
 Then configure the production application with:
 
@@ -109,9 +111,10 @@ A creator must also accept the current versioned Creator Agreement before creati
 
 1. derives the production's creator;
 2. reads the creator's accepted deal;
-3. prevents cumulative allocation above the cleared revenue event;
-4. calculates creator/platform shares;
-5. writes the creator wallet credit and allocation record atomically.
+3. subtracts any viewer-reward funds already reserved against the same cleared revenue event;
+4. prevents cumulative creator allocation above the remaining cleared revenue;
+5. calculates creator/platform shares;
+6. writes the creator wallet credit and allocation record atomically.
 
 The operations user cannot type a different creator percentage during allocation.
 
@@ -121,14 +124,9 @@ Creators manage deal acceptance and payout onboarding at `/studio/earnings`. Pay
 
 ## 8. KORA Family and Kids Mode
 
-Parents manage Kids profiles at `/family`. A child profile stores only a nickname and broad age band; no exact date of birth is required. Database constraints force child profiles to have:
+Parents manage Kids profiles at `/family`. A child profile stores only a nickname and broad age band; no exact date of birth is required. Database constraints force child profiles to have purchases, cash rewards and personalised advertising disabled and a maximum age rating derived from the age band.
 
-- purchases disabled;
-- cash rewards disabled;
-- personalised advertising disabled;
-- a maximum age rating derived from the age band.
-
-A parent must set a 4–6 digit family PIN before launching Kids Mode. The PIN is bcrypt-hashed in the database. Launching a child profile sets an HttpOnly child-mode cookie and middleware confines that session to `/kids` routes until the correct family PIN is supplied.
+A parent must set a 4–6 digit family PIN before launching Kids Mode. The PIN is bcrypt-hashed in the database; authenticated clients can query only whether a PIN exists, not the hash. Launching a child profile sets an HttpOnly child-mode cookie and middleware confines that authenticated session to `/kids` routes until the correct family PIN is supplied. A stale child cookie is cleared if the parent session expires so the account cannot become trapped outside sign-in.
 
 KORA Kids does not inherit the ordinary catalogue automatically. A production must be published, A/PG rated and separately marked `kids_approved` by a moderator. Pay-per-view titles are excluded from Kids. Premium Kids titles may use the parent's existing subscription but Kids Mode never opens a purchase flow.
 
@@ -160,7 +158,7 @@ Run this sequence after the first production deployment:
 14. Confirm live HLS and EPG operation in CAT.
 15. Confirm fake/unverified sponsored viewing cannot create a reward and verified rewards require a cleared funded pool.
 16. Create a cleared revenue test event, allocate eligible revenue to a production and confirm the accepted deal percentage is used automatically.
-17. Confirm creator allocation cannot exceed cleared revenue and cannot duplicate the same event/production allocation.
+17. Confirm creator allocation cannot use viewer-reward money reserved from the same revenue event, cannot exceed remaining cleared revenue and cannot duplicate the same event/production allocation.
 18. Submit payout onboarding and confirm payout requests fail before KYC and payout verification.
 19. After controlled verification, request a payout; confirm a rejection releases the held balance exactly once and a paid request cannot be reprocessed.
 20. Confirm pornography/explicit-sexual-content controls and human moderation remain enforced.
