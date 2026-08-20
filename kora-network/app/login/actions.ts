@@ -44,9 +44,11 @@ export async function signUp(formData: FormData) {
 
   const supabase = await createClient();
   const credentials = formCredentials(formData);
-  const { error } = await supabase.auth.signUp({
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '');
+  const { data, error } = await supabase.auth.signUp({
     ...credentials,
     options: {
+      emailRedirectTo: appUrl ? `${appUrl}/auth/callback?next=${encodeURIComponent(next)}` : undefined,
       data: {
         platform_terms_version: legal.platformTerms.version,
         privacy_notice_version: legal.privacyNotice.version,
@@ -55,6 +57,7 @@ export async function signUp(formData: FormData) {
     },
   });
   if (error) redirect(loginError(error.message, next));
+  if (!data.session) redirect(`/login?message=${encodeURIComponent('Check your email to confirm your KORA account.')}`);
   redirect(next);
 }
 
