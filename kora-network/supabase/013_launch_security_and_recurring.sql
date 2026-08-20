@@ -27,6 +27,16 @@ on table public.episodes to authenticated;
 grant update (episode_number, title, duration_seconds, vertical)
 on table public.episodes to authenticated;
 
+-- Advertisers can draft campaign economics but cannot self-activate campaigns or mutate
+-- operational delivery state. Activation/funding remains a service-role operation.
+revoke insert, update, delete on table public.campaigns from authenticated;
+grant insert (
+  advertiser_id, name, budget, reward_pool, reward_per_completion, starts_at, ends_at
+) on table public.campaigns to authenticated;
+grant update (
+  name, budget, reward_pool, reward_per_completion, starts_at, ends_at
+) on table public.campaigns to authenticated;
+
 -- Payout requests must go through the security-definer RPC which enforces KYC,
 -- verified payout onboarding, minimum amount and available balance.
 drop policy if exists "wallet owner creates payout request" on public.payout_requests;
