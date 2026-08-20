@@ -41,7 +41,7 @@ add('CLOUDFLARE_STREAM_CUSTOMER_CODE', nonPlaceholder('CLOUDFLARE_STREAM_CUSTOME
 add('PAYFAST_MERCHANT_ID', nonPlaceholder('PAYFAST_MERCHANT_ID', 4), 'configured');
 add('PAYFAST_MERCHANT_KEY', nonPlaceholder('PAYFAST_MERCHANT_KEY', 8), 'configured');
 add('PAYFAST_PASSPHRASE', nonPlaceholder('PAYFAST_PASSPHRASE', 8), 'configured');
-add('PAYFAST_SANDBOX', value('PAYFAST_SANDBOX') === 'false', 'must be false for production');
+add('PAYFAST_SANDBOX', value('PAYFAST_SANDBOX') === 'false', 'must be false for public launch; sandbox is allowed in private beta', publicLaunch);
 add('KORA_INTERNAL_API_SECRET', nonPlaceholder('KORA_INTERNAL_API_SECRET', 32), '32+ character server secret');
 add('NEXT_PUBLIC_OPERATOR_NAME', nonPlaceholder('NEXT_PUBLIC_OPERATOR_NAME', 3), 'real operating entity');
 add('NEXT_PUBLIC_SUPPORT_EMAIL', email('NEXT_PUBLIC_SUPPORT_EMAIL'), 'monitored email');
