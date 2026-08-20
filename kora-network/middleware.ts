@@ -1,11 +1,29 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
+function redirectTo(request: NextRequest, response: NextResponse, pathname: string, search = '') {
+  const destination = request.nextUrl.clone();
+  destination.pathname = pathname;
+  destination.search = search;
+  const redirectResponse = NextResponse.redirect(destination);
+  response.cookies.getAll().forEach(({ name, value, ...options }) => redirectResponse.cookies.set(name, value, options));
+  return redirectResponse;
+}
+
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   let authenticated = false;
+  let staff = false;
+  let publicLaunchEnabled = false;
+  let maintenanceMode = false;
+
+  const pathname = request.nextUrl.pathname;
+  const alwaysPublic = pathname === '/coming-soon'
+    || pathname.startsWith('/legal/')
+    || pathname === '/login'
+    || pathname.startsWith('/api/');
 
   if (url && anonKey) {
     const supabase = createServerClient(url, anonKey, {
@@ -18,13 +36,43 @@ export async function middleware(request: NextRequest) {
         },
       },
     });
+
     const { data: { user } } = await supabase.auth.getUser();
     authenticated = Boolean(user);
+
+    if (process.env.NODE_ENV === 'production') {
+      const { data: release } = await supabase
+        .from('platform_release_state')
+        .select('public_launch_enabled,maintenance_mode')
+        .eq('singleton', true)
+        .maybeSingle();
+      publicLaunchEnabled = release?.public_launch_enabled === true;
+      maintenanceMode = release?.maintenance_mode === true;
+
+      if (user && maintenanceMode) {
+        const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
+        staff = profile?.role === 'admin' || profile?.role === 'moderator';
+      }
+    } else {
+      publicLaunchEnabled = true;
+    }
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    if (maintenanceMode && !staff && !alwaysPublic) {
+      return redirectTo(request, response, '/coming-soon', '?maintenance=1');
+    }
+    if (!publicLaunchEnabled && !authenticated && !alwaysPublic) {
+      return redirectTo(request, response, '/coming-soon');
+    }
   }
 
   const childProfile = request.cookies.get('kora_child_profile')?.value;
-  const pathname = request.nextUrl.pathname;
-  const childAllowed = pathname === '/kids' || pathname.startsWith('/kids/') || pathname === '/api/health' || pathname === '/api/readiness';
+  const childAllowed = pathname === '/kids'
+    || pathname.startsWith('/kids/')
+    || pathname === '/coming-soon'
+    || pathname === '/api/health'
+    || pathname === '/api/readiness';
 
   if (childProfile && !authenticated) {
     response.cookies.delete('kora_child_profile');
@@ -32,12 +80,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (childProfile && authenticated && !childAllowed) {
-    const destination = request.nextUrl.clone();
-    destination.pathname = '/kids';
-    destination.search = '';
-    const redirectResponse = NextResponse.redirect(destination);
-    response.cookies.getAll().forEach(({ name, value, ...options }) => redirectResponse.cookies.set(name, value, options));
-    return redirectResponse;
+    return redirectTo(request, response, '/kids');
   }
 
   return response;
