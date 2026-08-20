@@ -3,16 +3,17 @@ import { notFound, redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { createSignedPlaybackUrl } from '@/lib/video';
 import AdSupportedPlayer from '@/components/AdSupportedPlayer';
+import PurchaseGate from '@/components/PurchaseGate';
 
 export default async function WatchShow({
   params,
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ episode?: string }>;
+  searchParams: Promise<{ episode?: string; payment?: string }>;
 }) {
   const { slug } = await params;
-  const { episode: requestedEpisode } = await searchParams;
+  const { episode: requestedEpisode, payment } = await searchParams;
   const supabase = await createClient();
 
   const { data: production } = await supabase
@@ -38,7 +39,7 @@ export default async function WatchShow({
   }
 
   if (production.access_mode === 'pay_per_view') {
-    if (!user) redirect('/login');
+    if (!user) redirect(`/login?next=${encodeURIComponent(`/watch/${slug}`)}`);
     const { data: purchase } = await supabase
       .from('purchases')
       .select('id')
@@ -48,7 +49,8 @@ export default async function WatchShow({
       .limit(1)
       .maybeSingle();
     if (!purchase) {
-      return <main><section className="subHero"><div className="eyebrow">PREMIUM PREMIERE</div><h1>{production.title}</h1><p>This title is available as a paid unlock for R{Number(production.purchase_price || 0).toFixed(2)}. Pay-per-view checkout is being activated alongside the production payment catalogue.</p><Link className="secondary" href="/watch">← Back to catalogue</Link></section></main>;
+      const price = Number(production.purchase_price || 0);
+      return <main><section className="subHero"><div className="eyebrow">PREMIUM PREMIERE</div><h1>{production.title}</h1><p>This title is a one-time paid unlock. Access is granted only after KORA receives and verifies PayFast's server-to-server payment confirmation.</p><PurchaseGate productionId={production.id} price={price} paymentStatus={payment}/><div className="actions"><Link className="secondary" href="/watch">← Back to catalogue</Link></div></section></main>;
     }
   }
 
@@ -60,6 +62,7 @@ export default async function WatchShow({
     .order('episode_number');
   const selected = (episodes ?? []).find((item) => item.id === requestedEpisode) ?? episodes?.[0];
   const playbackUrl = selected?.playback_id ? await createSignedPlaybackUrl(selected.playback_id).catch(() => null) : null;
+  const adsEnabled = production.access_mode === 'free' || production.access_mode === 'ad_supported';
 
   return (
     <main>
@@ -70,7 +73,7 @@ export default async function WatchShow({
       </section>
       <section className="watchLayout">
         <div className="playerShell">
-          {selected ? <AdSupportedPlayer contentUrl={playbackUrl} episodeId={selected.id} title={selected.title || production.title} adsEnabled={production.access_mode === 'free'} /> : <div className="playerPlaceholder"><strong>No published episodes yet.</strong></div>}
+          {selected ? <AdSupportedPlayer contentUrl={playbackUrl} episodeId={selected.id} title={selected.title || production.title} adsEnabled={adsEnabled} /> : <div className="playerPlaceholder"><strong>No published episodes yet.</strong></div>}
         </div>
         <aside className="episodeRail">
           <h3>Episodes</h3>
