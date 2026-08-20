@@ -1,0 +1,12 @@
+{
+  "framework": "nextjs",
+  "regions": ["cpt1"],
+  "headers": [
+    {
+      "source": "/api/internal/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0" }
+      ]
+    }
+  ]
+}
