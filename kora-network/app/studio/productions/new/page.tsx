@@ -26,7 +26,7 @@ export default async function NewProduction({ searchParams }: { searchParams: Pr
       <section className="subHero">
         <div className="eyebrow">CREATOR STUDIO</div>
         <h1>Start a new production.</h1>
-        <p>Create the catalogue and rights record first. Video upload and moderation attach to this production next.</p>
+        <p>Create the catalogue, monetisation and rights record first. Video upload and moderation attach to this production next.</p>
       </section>
       <section>
         <form action={createProduction} className="panel formPanel">
@@ -38,6 +38,12 @@ export default async function NewProduction({ searchParams }: { searchParams: Pr
             <label>Primary language<input name="primary_language" placeholder="English, isiZulu, isiXhosa…" /></label>
             <label>Proposed age rating<select name="age_rating" defaultValue="PG"><option>A</option><option>PG</option><option>13</option><option>16</option><option>18</option></select></label>
           </div>
+          <h3>Monetisation</h3>
+          <div className="formGrid">
+            <label>Access model<select name="access_mode" defaultValue="ad_supported"><option value="ad_supported">Free with approved advertising</option><option value="free">Free</option><option value="premium">KORA Premium members</option><option value="pay_per_view">One-time paid unlock</option></select></label>
+            <label>Pay-per-view price (ZAR)<input name="purchase_price" type="number" min="1" step="0.01" placeholder="Required only for paid unlock" /></label>
+          </div>
+          <p>For paid unlocks, KORA reads the price from the server-side production record. A browser cannot choose its own checkout amount.</p>
           <h3>Rights declaration</h3>
           <p>You accepted Creator Agreement version {legal.creatorAgreement.version}. These declarations are stored against this production.</p>
           <label className="check"><input type="checkbox" name="rights_confirmed" required /> I own or control the rights required to publish and monetise this production.</label>
