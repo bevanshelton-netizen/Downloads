@@ -133,7 +133,7 @@ function payFastApiSignature(fields: Record<string, string>, passphrase: string)
 
 export async function cancelPayFastSubscription(token: string) {
   const { merchantId, passphrase } = config(true);
-  const timestamp = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+  const timestamp = new Date().toISOString().replace(/\.\d{3}Z$/, '+00:00');
   const headersToSign = {
     'merchant-id': merchantId,
     timestamp,
