@@ -15,6 +15,10 @@ function nonPlaceholder(name, min = 1) {
   return v.length >= min && !/(placeholder|example|changeme|pending|localhost|127\.0\.0\.1)/i.test(v);
 }
 
+function anyNonPlaceholder(names, min = 1) {
+  return names.some((name) => nonPlaceholder(name, min));
+}
+
 function httpsUrl(name) {
   const v = value(name);
   try {
@@ -32,8 +36,16 @@ function email(name) {
 
 add('NEXT_PUBLIC_APP_URL', httpsUrl('NEXT_PUBLIC_APP_URL'), 'final HTTPS origin');
 add('NEXT_PUBLIC_SUPABASE_URL', httpsUrl('NEXT_PUBLIC_SUPABASE_URL'), 'production Supabase HTTPS URL');
-add('NEXT_PUBLIC_SUPABASE_ANON_KEY', nonPlaceholder('NEXT_PUBLIC_SUPABASE_ANON_KEY', 20), 'configured');
-add('SUPABASE_SERVICE_ROLE_KEY', nonPlaceholder('SUPABASE_SERVICE_ROLE_KEY', 20), 'configured');
+add(
+  'SUPABASE_PUBLIC_KEY',
+  anyNonPlaceholder(['NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'], 20),
+  'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY configured (legacy anon key also accepted)'
+);
+add(
+  'SUPABASE_SERVER_KEY',
+  anyNonPlaceholder(['SUPABASE_SECRET_KEY', 'SUPABASE_SERVICE_ROLE_KEY'], 20),
+  'SUPABASE_SECRET_KEY configured (legacy service-role key also accepted)'
+);
 add('VIDEO_PROVIDER', value('VIDEO_PROVIDER') === 'cloudflare', 'must be cloudflare');
 add('CLOUDFLARE_ACCOUNT_ID', nonPlaceholder('CLOUDFLARE_ACCOUNT_ID', 8), 'configured');
 add('CLOUDFLARE_STREAM_TOKEN', nonPlaceholder('CLOUDFLARE_STREAM_TOKEN', 20), 'configured');
