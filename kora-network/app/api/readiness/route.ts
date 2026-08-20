@@ -48,6 +48,8 @@ export async function GET() {
       && isRealEmail(process.env.NEXT_PUBLIC_RIGHTS_EMAIL),
     legalApproved: process.env.KORA_LEGAL_APPROVED === 'true',
     regulatoryApproved: process.env.KORA_REGULATORY_APPROVED === 'true',
+    childSafetyApproved: process.env.KORA_CHILD_SAFETY_APPROVED === 'true',
+    payoutOperationsApproved: process.env.KORA_PAYOUT_OPERATIONS_APPROVED === 'true',
   };
 
   const productionReady = Object.values(checks).every(Boolean);
