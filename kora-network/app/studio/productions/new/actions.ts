@@ -15,6 +15,8 @@ function slugify(value: string) {
     .slice(0, 60);
 }
 
+const accessModes = new Set(['free','ad_supported','premium','pay_per_view']);
+
 export async function createProduction(formData: FormData) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -36,6 +38,9 @@ export async function createProduction(formData: FormData) {
   const genre = String(formData.get('genre') ?? '').trim();
   const primaryLanguage = String(formData.get('primary_language') ?? '').trim();
   const ageRating = String(formData.get('age_rating') ?? 'PG').trim();
+  const accessMode = String(formData.get('access_mode') ?? 'ad_supported').trim();
+  const rawPurchasePrice = String(formData.get('purchase_price') ?? '').trim();
+  const purchasePrice = rawPurchasePrice ? Number(rawPurchasePrice) : null;
   const rightsConfirmed = formData.get('rights_confirmed') === 'on';
   const contributorsConfirmed = formData.get('contributors_confirmed') === 'on';
   const musicConfirmed = formData.get('music_confirmed') === 'on';
@@ -43,6 +48,10 @@ export async function createProduction(formData: FormData) {
   const policyConfirmed = formData.get('policy_confirmed') === 'on';
 
   if (title.length < 2) redirect('/studio/productions/new?error=Please%20enter%20a%20title');
+  if (!accessModes.has(accessMode)) redirect('/studio/productions/new?error=Choose%20a%20valid%20access%20model');
+  if (accessMode === 'pay_per_view' && (!Number.isFinite(purchasePrice) || Number(purchasePrice) <= 0)) {
+    redirect('/studio/productions/new?error=Enter%20a%20valid%20pay-per-view%20price');
+  }
   if (!rightsConfirmed || !contributorsConfirmed || !musicConfirmed || !likenessConfirmed || !policyConfirmed) {
     redirect('/studio/productions/new?error=Complete%20every%20rights%20and%20content%20declaration%20before%20creating%20the%20production');
   }
@@ -56,6 +65,8 @@ export async function createProduction(formData: FormData) {
     genre: genre || null,
     primary_language: primaryLanguage || null,
     age_rating: ageRating,
+    access_mode: accessMode,
+    purchase_price: accessMode === 'pay_per_view' ? purchasePrice : null,
     status: 'draft',
     explicit_sexual_content: false,
   }).select('id').single();
