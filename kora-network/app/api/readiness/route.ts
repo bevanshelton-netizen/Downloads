@@ -16,11 +16,17 @@ function isHttpsOrigin(value?: string) {
   }
 }
 
+function isRealEmail(value?: string) {
+  if (!value || value.endsWith('.invalid')) return false;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
 export async function GET() {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const payfastMode = process.env.PAYFAST_SANDBOX === 'false' ? 'live' : 'sandbox';
   const videoProvider = process.env.VIDEO_PROVIDER || 'mock';
+  const operatorName = process.env.NEXT_PUBLIC_OPERATOR_NAME?.trim();
 
   const checks = {
     appUrl: isHttpsOrigin(appUrl),
@@ -35,6 +41,12 @@ export async function GET() {
       && configured('CLOUDFLARE_ACCOUNT_ID')
       && configured('CLOUDFLARE_STREAM_TOKEN')
       && configured('CLOUDFLARE_STREAM_CUSTOMER_CODE'),
+    operatorIdentity: Boolean(operatorName && !/pending/i.test(operatorName)),
+    supportContacts: isRealEmail(process.env.NEXT_PUBLIC_SUPPORT_EMAIL)
+      && isRealEmail(process.env.NEXT_PUBLIC_PRIVACY_EMAIL)
+      && isRealEmail(process.env.NEXT_PUBLIC_RIGHTS_EMAIL),
+    legalApproved: process.env.KORA_LEGAL_APPROVED === 'true',
+    regulatoryApproved: process.env.KORA_REGULATORY_APPROVED === 'true',
   };
 
   const productionReady = Object.values(checks).every(Boolean);
