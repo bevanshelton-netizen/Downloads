@@ -20,12 +20,14 @@ export async function signIn(formData: FormData) {
 }
 
 export async function signUp(formData: FormData) {
-  const accepted = formData.get('platform_accepted') === 'on';
-  if (!accepted) redirect('/login?error=Accept%20the%20Terms%20of%20Use%20and%20Privacy%20Notice%20to%20create%20an%20account');
+  if (formData.get('platform_accepted') !== 'on') {
+    redirect('/login?error=Accept%20the%20Terms%20of%20Use%20and%20Privacy%20Notice%20to%20create%20an%20account');
+  }
 
   const supabase = await createClient();
   const credentials = formCredentials(formData);
-  const { error } = await supabase.auth.signUp({
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '');
+  const { data, error } = await supabase.auth.signUp({
     ...credentials,
     options: {
       data: {
@@ -33,10 +35,12 @@ export async function signUp(formData: FormData) {
         privacy_notice_version: legal.privacyNotice.version,
         legal_acceptance_recorded_at: new Date().toISOString(),
       },
+      ...(appUrl ? { emailRedirectTo: `${appUrl}/auth/callback` } : {}),
     },
   });
   if (error) redirect(`/login?error=${encodeURIComponent(error.message)}`);
-  redirect('/studio');
+  if (data.session) redirect('/studio');
+  redirect('/login?message=Check%20your%20email%20to%20confirm%20your%20KORA%20account');
 }
 
 export async function signOut() {
