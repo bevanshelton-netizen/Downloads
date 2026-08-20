@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,6 +22,17 @@ function isRealEmail(value?: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
+async function databaseMigrated(supabaseConfigured: boolean) {
+  if (!supabaseConfigured) return false;
+  try {
+    const admin = createAdminClient();
+    const { error } = await admin.from('subscriptions').select('id,cancelled_at').limit(1);
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
 export async function GET() {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
@@ -28,11 +40,14 @@ export async function GET() {
   const videoProvider = process.env.VIDEO_PROVIDER || 'mock';
   const operatorName = process.env.NEXT_PUBLIC_OPERATOR_NAME?.trim();
 
+  const supabaseConfigured = isHttpsOrigin(supabaseUrl)
+    && configured('NEXT_PUBLIC_SUPABASE_ANON_KEY')
+    && configured('SUPABASE_SERVICE_ROLE_KEY');
+
   const checks = {
     appUrl: isHttpsOrigin(appUrl),
-    supabase: isHttpsOrigin(supabaseUrl)
-      && configured('NEXT_PUBLIC_SUPABASE_ANON_KEY')
-      && configured('SUPABASE_SERVICE_ROLE_KEY'),
+    supabase: supabaseConfigured,
+    databaseMigrated: await databaseMigrated(supabaseConfigured),
     payfastCredentials: configured('PAYFAST_MERCHANT_ID')
       && configured('PAYFAST_MERCHANT_KEY')
       && configured('PAYFAST_PASSPHRASE'),
