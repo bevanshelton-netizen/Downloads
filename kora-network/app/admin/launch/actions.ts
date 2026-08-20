@@ -44,7 +44,7 @@ export async function updateReleaseState(formData: FormData) {
 
   const admin = createAdminClient();
   const payload = {
-    schema_version: 13,
+    schema_version: 14,
     release_name: releaseName,
     public_launch_enabled: publicLaunch,
     public_signups_enabled: publicSignups,

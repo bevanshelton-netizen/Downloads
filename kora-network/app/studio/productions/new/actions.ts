@@ -67,7 +67,6 @@ export async function createProduction(formData: FormData) {
     age_rating: ageRating,
     access_mode: accessMode,
     purchase_price: accessMode === 'pay_per_view' ? purchasePrice : null,
-    status: 'draft',
     explicit_sexual_content: false,
   }).select('id').single();
 

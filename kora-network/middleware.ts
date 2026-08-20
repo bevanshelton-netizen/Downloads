@@ -23,6 +23,9 @@ export async function middleware(request: NextRequest) {
   const alwaysPublic = pathname === '/coming-soon'
     || pathname.startsWith('/legal/')
     || pathname === '/login'
+    || pathname === '/forgot-password'
+    || pathname === '/reset-password'
+    || pathname === '/auth/callback'
     || pathname.startsWith('/api/');
 
   if (url && anonKey) {
