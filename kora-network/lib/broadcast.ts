@@ -17,6 +17,7 @@ export type BroadcastChannel = {
   playback_url: string | null;
   logo_url: string | null;
   is_family_safe: boolean;
+  display_order: number;
   now: GuideItem | null;
   next: GuideItem | null;
 };
@@ -29,9 +30,9 @@ export async function getBroadcastGuide(): Promise<BroadcastChannel[]> {
   const [{ data: channels, error: channelError }, { data: schedule, error: scheduleError }] = await Promise.all([
     supabase
       .from('live_channels')
-      .select('id,name,slug,description,playback_url,logo_url,is_family_safe')
+      .select('id,name,slug,description,playback_url,logo_url,is_family_safe,display_order')
       .eq('is_active', true)
-      .order('name'),
+      .order('display_order'),
     supabase
       .from('schedule_items')
       .select('id,channel_id,title,starts_at,ends_at,sponsor_name,is_premiere')
@@ -56,7 +57,7 @@ export async function getChannel(slug: string) {
   const horizon = new Date(now.getTime() + 24 * 60 * 60 * 1000);
   const { data: channel } = await supabase
     .from('live_channels')
-    .select('id,name,slug,description,playback_url,logo_url,is_family_safe')
+    .select('id,name,slug,description,playback_url,logo_url,is_family_safe,display_order')
     .eq('slug', slug)
     .eq('is_active', true)
     .maybeSingle();
