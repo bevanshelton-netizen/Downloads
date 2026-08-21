@@ -31,6 +31,7 @@ jobs:
       - run: npm run validate:release-policy
       - run: npm run validate:money-integrity
       - run: npm run validate:public-experience
+      - run: npm run validate:activation
       - run: npm run build:bootstrap-sql
       - name: Upload one-shot Supabase bootstrap SQL
         uses: actions/upload-artifact@v4
@@ -44,11 +45,14 @@ jobs:
           node --check scripts/preflight-production.mjs
           node --check scripts/postdeploy-smoke.mjs
           node --check scripts/bootstrap-admin.mjs
+          node --check scripts/ensure-first-admin.mjs
           node --check scripts/build-production-bootstrap.mjs
           node --check scripts/validate-release-policy.mjs
           node --check scripts/validate-money-integrity.mjs
           node --check scripts/validate-public-experience.mjs
+          node --check scripts/validate-activation-orchestration.mjs
           bash -n scripts/bootstrap-production-db.sh
+          bash -n scripts/ensure-production-db.sh
       - run: npm run typecheck
       - run: npm run build
         env:
