@@ -38,6 +38,16 @@ check('Supabase privileged key comes from GitHub Secrets', /SUPABASE_SECRET_KEY:
 check('Supabase publishable key comes from GitHub Secrets', /NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:\s*\$\{\{\s*secrets\.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY\s*\}\}/.test(deploy));
 check('PayFast mode comes from protected environment vars', /PAYFAST_SANDBOX:\s*\$\{\{\s*vars\.PAYFAST_SANDBOX\s*\}\}/.test(deploy));
 
+const firstAdminWorkflow = readFromRepo('.github/workflows/kora-bootstrap-first-admin.yml');
+check('First-admin workflow supplies modern Supabase secret key', /SUPABASE_SECRET_KEY:\s*\$\{\{\s*secrets\.SUPABASE_SECRET_KEY\s*\}\}/.test(firstAdminWorkflow));
+const firstAdminScript = readFromApp('scripts/bootstrap-admin.mjs');
+check('First-admin script accepts modern key with legacy fallback', firstAdminScript.includes('process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY'));
+
+const dbBootstrap = readFromApp('scripts/bootstrap-production-db.sh');
+check('DB bootstrap reads the pinned production instance', dbBootstrap.includes('production-instance.json') && dbBootstrap.includes('supabaseProjectRef'));
+check('DB bootstrap rejects a URL for the wrong project', dbBootstrap.includes('SUPABASE_DB_URL') && dbBootstrap.includes('EXPECTED_SUPABASE_REF') && dbBootstrap.includes('does not identify the pinned KORA production project'));
+check('DB bootstrap retains fresh-database refusal', dbBootstrap.includes("to_regclass('public.profiles')") && dbBootstrap.includes('Refusing fresh bootstrap'));
+
 const approvalFlags = [
   'KORA_LEGAL_APPROVED',
   'KORA_REGULATORY_APPROVED',
