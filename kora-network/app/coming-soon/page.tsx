@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { getPlatformReleaseState } from '@/lib/platform-state';
 import styles from './coming-soon.module.css';
@@ -113,6 +114,27 @@ export default async function ComingSoon({ searchParams }: { searchParams: Promi
             <p>The kora is West Africa&apos;s celebrated 21-string harp, carried through generations by musicians and storytellers. Like its strings unite different notes, KORA brings Africa&apos;s voices, cultures, creators and families together on one screen.</p>
           </div>
         </aside>
+      </section>
+
+      <section className={styles.visualExperience}>
+        <header className={styles.visualHead}>
+          <div><span>NOW SHOWING ON KORA</span><h2>Press play on Africa.</h2></div>
+          <p>Drama. Music. Cartoons. Sport. Family. Creator TV. One screen alive with African talent.</p>
+        </header>
+        <div className={styles.screenShell}>
+          <div className={styles.screenChrome}><span /><span /><span /><b>KORA PREMIERE SCREEN</b></div>
+          <div className={styles.screenPicture}>
+            <Image src="/images/kora-programme-montage.webp" alt="A preview montage of KORA African drama, live music, cartoons, football, family entertainment and creator television" fill sizes="(max-width: 900px) 94vw, 88vw" className={styles.screenImage} />
+            <div className={styles.screenShade} />
+            <div className={styles.screenOverlay}>
+              <span className={styles.playButton} aria-hidden="true">▶</span>
+              <div><small>THE KORA EXPERIENCE</small><strong>Stories. Sound. Sport. Smiles.</strong></div>
+            </div>
+          </div>
+          <div className={styles.screenRail}>
+            <span>KORA ORIGINALS</span><span>LIVE MUSIC</span><span>KORA KIDS</span><span>MATCHDAY</span><span>FAMILY NIGHT</span><span>CREATOR TV</span>
+          </div>
+        </div>
       </section>
 
       <section className={styles.symbolShowcase} aria-label="Entertainment on KORA">
