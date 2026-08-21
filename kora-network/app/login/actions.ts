@@ -22,10 +22,23 @@ function loginError(message: string, next: string) {
   return `/login?error=${encodeURIComponent(message)}${suffix}`;
 }
 
+function supabaseConfigured() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const publicKey = (
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  )?.trim();
+  return Boolean(url && publicKey);
+}
+
 export async function signIn(formData: FormData) {
+  const next = safeNext(formData.get('next'));
+  if (!supabaseConfigured()) {
+    redirect(loginError('KORA account access is being activated. Please try again when the controlled launch opens.', next));
+  }
+
   const supabase = await createClient();
   const credentials = formCredentials(formData);
-  const next = safeNext(formData.get('next'));
   const { error } = await supabase.auth.signInWithPassword(credentials);
   if (error) redirect(loginError(error.message, next));
   redirect(next);
@@ -37,6 +50,9 @@ export async function signUp(formData: FormData) {
   const privateSignup = process.env.KORA_PRIVATE_SIGNUP_ENABLED === 'true';
   if (!release.public_signups_enabled && !privateSignup) {
     redirect(loginError('New account creation is not open yet.', next));
+  }
+  if (!supabaseConfigured()) {
+    redirect(loginError('KORA account creation is being activated. Please try again when the controlled launch opens.', next));
   }
 
   const accepted = formData.get('platform_accepted') === 'on';
@@ -62,7 +78,9 @@ export async function signUp(formData: FormData) {
 }
 
 export async function signOut() {
-  const supabase = await createClient();
-  await supabase.auth.signOut();
+  if (supabaseConfigured()) {
+    const supabase = await createClient();
+    await supabase.auth.signOut();
+  }
   redirect('/');
 }
