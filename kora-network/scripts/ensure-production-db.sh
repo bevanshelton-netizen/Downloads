@@ -38,8 +38,13 @@ else
 fi
 
 version="$(psql "$SUPABASE_DB_URL" -X -A -t -v ON_ERROR_STOP=1 -c "select schema_version from public.platform_release_state where singleton=true;")"
-if [[ "$version" != "14" ]]; then
-  echo "KORA production database is not at schema version 14: ${version:-missing}." >&2
+if [[ "$version" == "14" ]]; then
+  echo "Applying incremental schema 15 live-event application migration."
+  psql "$SUPABASE_DB_URL" -X -v ON_ERROR_STOP=1 -f supabase/015_live_event_applications.sql
+  version="$(psql "$SUPABASE_DB_URL" -X -A -t -v ON_ERROR_STOP=1 -c "select schema_version from public.platform_release_state where singleton=true;")"
+fi
+if [[ "$version" != "15" ]]; then
+  echo "KORA production database is not at schema version 15: ${version:-missing}." >&2
   exit 1
 fi
 
@@ -56,4 +61,4 @@ if ! [[ "$channel_count" =~ ^[0-9]+$ ]] || (( channel_count < 1 )); then
 fi
 
 release_name="$(psql "$SUPABASE_DB_URL" -X -A -t -v ON_ERROR_STOP=1 -c "select release_name from public.platform_release_state where singleton=true;")"
-echo "KORA database verified: schema=14, release=${release_name:-unknown}, active_channels=$channel_count, public_launch=false."
+echo "KORA database verified: schema=15, release=${release_name:-unknown}, active_channels=$channel_count, public_launch=false."

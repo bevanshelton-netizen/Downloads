@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { getPlatformReleaseState } from '@/lib/platform-state';
 import styles from './perform-live.module.css';
 
 const journey = [
@@ -9,10 +8,8 @@ const journey = [
   ['04', 'Go live', 'KORA promotes the event, streams it to fans and prepares the replay and results.'],
 ] as const;
 
-export default async function PerformLive() {
-  const release = await getPlatformReleaseState();
-  const applicationsOpen = release.creator_applications_enabled;
-  const applyHref = applicationsOpen ? '/creators/apply' : '/login?next=/creators/apply';
+export default function PerformLive() {
+  const applyHref = '/perform-live/apply';
 
   return (
     <main className={styles.page}>
@@ -22,7 +19,7 @@ export default async function PerformLive() {
           <h1>Your stage.<br/><span>Africa&apos;s screen.</span><br/>The world watching.</h1>
           <p>Stream Amapiano, Afrobeats, Gospel, Jazz, Hip-Hop, R&amp;B, Soul, Reggae, Maskandi, Gqom, Kwaito, Rock, Classical, traditional music and emerging hybrid sounds live on KORA—then keep the recording working for you.</p>
           <div className={styles.actions}>
-            <Link className={styles.primary} href={applyHref}>{applicationsOpen ? 'Apply to perform live →' : 'Join the founding artist waitlist →'}</Link>
+            <Link className={styles.primary} href={applyHref}>Apply to perform live →</Link>
             <Link className={styles.secondary} href="/music">Explore KORA music genres</Link>
             <a className={styles.secondary} href="#how-it-works">See how it works</a>
           </div>
@@ -66,7 +63,7 @@ export default async function PerformLive() {
         <div className={styles.eyebrow}>WHO SHOULD APPLY</div>
         <h2>African talent in every rhythm, language and generation.</h2>
         <p>Independent musicians, bands, choirs, DJs, soloists, producers, ensembles, orchestras, gospel artists, traditional performers, festivals, churches, campuses, venues, promoters and cultural organisations are welcome across KORA&apos;s genre lanes.</p>
-        <div className={styles.actions}><Link className={styles.primary} href={applyHref}>{applicationsOpen ? 'Start your artist application →' : 'Register for a controlled pilot →'}</Link><Link className={styles.secondary} href="/music">See all music lanes</Link><Link className={styles.secondary} href="/legal/creator-agreement">Read creator terms</Link></div>
+        <div className={styles.actions}><Link className={styles.primary} href={applyHref}>Start your artist application →</Link><Link className={styles.secondary} href="/music">See all music lanes</Link><Link className={styles.secondary} href="/legal/creator-agreement">Read creator terms</Link></div>
         <small>KORA is family-safe. Pornography and explicit sexual content are not permitted. Artists retain their intellectual property by default and accept transparent commercial terms before monetisation.</small>
       </section>
     </main>

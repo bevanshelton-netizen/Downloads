@@ -36,8 +36,8 @@ jobs:
       - name: Upload one-shot Supabase bootstrap SQL
         uses: actions/upload-artifact@v4
         with:
-          name: kora-production-bootstrap-schema14
-          path: kora-network/artifacts/kora-production-bootstrap-schema14.sql
+          name: kora-production-bootstrap-schema15
+          path: kora-network/artifacts/kora-production-bootstrap-schema15.sql
           if-no-files-found: error
           retention-days: 14
       - name: Validate deployment automation syntax
