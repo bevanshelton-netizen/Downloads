@@ -8,6 +8,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "validate:migrations": "node scripts/check-migrations.mjs",
+    "validate:release-policy": "node scripts/validate-release-policy.mjs",
     "build:bootstrap-sql": "node scripts/build-production-bootstrap.mjs",
     "bootstrap:admin": "node scripts/bootstrap-admin.mjs",
     "preflight:production": "node scripts/preflight-production.mjs",
