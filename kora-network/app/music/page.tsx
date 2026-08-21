@@ -27,6 +27,7 @@ export default function MusicPage() {
           <p>KORA is built for the full spectrum of music: new African movements, heritage sounds, faith music and global genres. Artists do not have to fit into one box to belong here.</p>
           <div className={styles.actions}>
             <Link className={styles.primary} href="/open-africa">Watch music free →</Link>
+            <Link className={styles.secondary} href="/artists">Discover KORA artists</Link>
             <Link className={styles.secondary} href="/perform-live">Perform live on KORA</Link>
             <Link className={styles.secondary} href="/creators">Join as an artist</Link>
           </div>
@@ -86,7 +87,8 @@ export default function MusicPage() {
           <p>Amapiano producer? Gospel choir? Jazz quartet? Maskandi artist? Rock band? Classical ensemble? DJ? Independent singer-songwriter? Bring the music and the audience you want to build.</p>
         </div>
         <div className={styles.actions}>
-          <Link className={styles.primary} href="/creators">Join the creator network →</Link>
+          <Link className={styles.primary} href="/artists">Explore artist pages →</Link>
+          <Link className={styles.secondary} href="/creators">Join the creator network</Link>
           <Link className={styles.secondary} href="/perform-live">Founding live artists</Link>
         </div>
       </section>
