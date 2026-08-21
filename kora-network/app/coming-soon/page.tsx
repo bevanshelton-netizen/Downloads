@@ -84,6 +84,29 @@ export default async function ComingSoon({ searchParams }: { searchParams: Promi
         </div>
       </section>
 
+      <section className={styles.platformStory}>
+        <div className={styles.africaSignature} aria-label="Built in Africa, for Africa, ready for the world">
+          <span>BUILT IN AFRICA</span><i>◆</i><span>FOR AFRICA</span><i>◆</i><span>READY FOR THE WORLD</span>
+        </div>
+        <div className={styles.platformPitch}>
+          <div className={styles.platformCopy}>
+            <div className={styles.goldEyebrow}>AFRICA&apos;S FAMILY-SAFE ENTERTAINMENT NETWORK</div>
+            <h2>One platform. Africa&apos;s stories, sounds and stars.</h2>
+            <p>KORA brings African live television, movies, short drama, music, cartoons, comedy, faith, sport and creator channels together—available live and on demand for audiences at home and across the world.</p>
+          </div>
+          <div className={styles.platformActions}>
+            <article><span>▶</span><div><b>WATCH</b><p>Stream live channels and on-demand entertainment for every generation.</p></div></article>
+            <article><span>●</span><div><b>CREATE</b><p>Launch your channel, own your work and grow a loyal audience.</p></div></article>
+            <article><span>✦</span><div><b>ADVERTISE</b><p>Place your brand inside trusted African culture—not beside random clicks.</p></div></article>
+          </div>
+        </div>
+        <div className={styles.platformLinks}>
+          <Link href="/login">Start watching →</Link>
+          <Link href="/creators">Bring your content →</Link>
+          <Link href="/advertise">Reach KORA audiences →</Link>
+        </div>
+      </section>
+
       <section className={styles.symbolShowcase} aria-label="Entertainment on KORA">
         <div className={styles.symbolShowcaseHead}>
           <span>THIS IS KORA</span>
