@@ -85,8 +85,8 @@ export default async function ComingSoon({ searchParams }: { searchParams: Promi
       </section>
 
       <section className={styles.platformStory}>
-        <div className={styles.africaSignature} aria-label="Built in Africa, for Africa, ready for the world">
-          <span>BUILT IN AFRICA</span><i>◆</i><span>FOR AFRICA</span><i>◆</i><span>READY FOR THE WORLD</span>
+        <div className={styles.africaSignature} aria-label="Built in Africa. For the world.">
+          <span>BUILT IN AFRICA</span><i>◆</i><span>FOR THE WORLD</span>
         </div>
         <div className={styles.platformPitch}>
           <div className={styles.platformCopy}>
