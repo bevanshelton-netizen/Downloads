@@ -63,7 +63,7 @@ for (const flag of approvalFlags) {
 }
 
 const readiness = readFromApp('lib/launch-readiness.ts');
-check('Readiness requires schema 14 or newer', readiness.includes('schemaCurrent: release.schema_version >= 14'));
+check('Readiness requires schema 15 or newer', readiness.includes('schemaCurrent: release.schema_version >= 15'));
 check('Readiness requires database reachability', readiness.includes('databaseReachable,'));
 check('Readiness requires a bootstrapped admin', readiness.includes('adminBootstrapped: adminCount > 0'));
 check('Readiness requires at least one live channel', readiness.includes('channelSeeded: activeChannelCount >= 1'));
