@@ -19,7 +19,7 @@ const publicPaths = [
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') || 'https://kora.example';
   const now = new Date();
-  return publicPaths.map((path, index) => ({
+  return publicPaths.map((path, index): MetadataRoute.Sitemap[number] => ({
     url: `${base}${path}`,
     lastModified: now,
     changeFrequency: index === 0 ? 'daily' : 'weekly',
