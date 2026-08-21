@@ -6,7 +6,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..');
 const supabaseDir = join(root, 'supabase');
 const outputDir = join(root, 'artifacts');
-const outputPath = join(outputDir, 'kora-production-bootstrap-schema17.sql');
+const outputPath = join(outputDir, 'kora-production-bootstrap-schema18.sql');
 
 const sources = [
   '000_fresh_install.sql',
@@ -22,17 +22,18 @@ const sources = [
   '015_live_event_applications.sql',
   '016_ticketing_hub.sql',
   '017_ticket_payment_hardening.sql',
+  '018_artist_discovery.sql',
 ];
 
 const parts = [];
-parts.push(`-- KORA NETWORK — ONE-SHOT PRODUCTION DATABASE BOOTSTRAP (SCHEMA 17)\n-- GENERATED FILE. DO NOT EDIT BY HAND.\n-- Use ONLY on a brand-new, empty KORA Supabase project.\n-- It installs the base schema through migration 017 in the canonical order.\n-- The first guard refuses to run if public.profiles already exists.\n\nDO $$\nBEGIN\n  IF to_regclass('public.profiles') IS NOT NULL THEN\n    RAISE EXCEPTION 'KORA bootstrap refused: public.profiles already exists. Use incremental migrations instead.';\n  END IF;\nEND\n$$;\n`);
+parts.push(`-- KORA NETWORK — ONE-SHOT PRODUCTION DATABASE BOOTSTRAP (SCHEMA 18)\n-- GENERATED FILE. DO NOT EDIT BY HAND.\n-- Use ONLY on a brand-new, empty KORA Supabase project.\n-- It installs the base schema through migration 018 in the canonical order.\n-- The first guard refuses to run if public.profiles already exists.\n\nDO $$\nBEGIN\n  IF to_regclass('public.profiles') IS NOT NULL THEN\n    RAISE EXCEPTION 'KORA bootstrap refused: public.profiles already exists. Use incremental migrations instead.';\n  END IF;\nEND\n$$;\n`);
 
 for (const source of sources) {
   const sql = await readFile(join(supabaseDir, source), 'utf8');
   parts.push(`\n-- ============================================================\n-- BEGIN CANONICAL SOURCE: ${source}\n-- ============================================================\n${sql.trim()}\n-- END CANONICAL SOURCE: ${source}\n`);
 }
 
-parts.push(`\n-- ============================================================\n-- FINAL SCHEMA ASSERTION\n-- ============================================================\nDO $$\nDECLARE\n  v_schema integer;\nBEGIN\n  SELECT schema_version INTO v_schema\n  FROM public.platform_release_state\n  WHERE singleton = true;\n\n  IF COALESCE(v_schema, 0) <> 17 THEN\n    RAISE EXCEPTION 'KORA bootstrap incomplete: expected schema version 17, found %', COALESCE(v_schema, 0);\n  END IF;\nEND\n$$;\n\n-- KORA schema 14 bootstrap complete. Public launch remains fail-closed.\n`);
+parts.push(`\n-- ============================================================\n-- FINAL SCHEMA ASSERTION\n-- ============================================================\nDO $$\nDECLARE\n  v_schema integer;\nBEGIN\n  SELECT schema_version INTO v_schema\n  FROM public.platform_release_state\n  WHERE singleton = true;\n\n  IF COALESCE(v_schema, 0) <> 18 THEN\n    RAISE EXCEPTION 'KORA bootstrap incomplete: expected schema version 18, found %', COALESCE(v_schema, 0);\n  END IF;\nEND\n$$;\n\n-- KORA schema 18 bootstrap complete. Public launch remains fail-closed.\n`);
 
 await mkdir(outputDir, { recursive: true });
 await writeFile(outputPath, parts.join('\n'), 'utf8');
