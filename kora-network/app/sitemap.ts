@@ -2,9 +2,13 @@ import type { MetadataRoute } from 'next';
 
 const publicPaths = [
   '/',
+  '/open-africa',
+  '/music',
+  '/artists',
+  '/perform-live',
+  '/tickets',
   '/watch',
   '/live',
-  '/tickets',
   '/kids',
   '/creators',
   '/advertise',
