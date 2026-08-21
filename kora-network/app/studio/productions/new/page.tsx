@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { legal } from '@/lib/legal';
+import { allMusicGenres } from '@/lib/music-genres';
 import { createProduction } from './actions';
 
 export default async function NewProduction({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
@@ -34,10 +35,14 @@ export default async function NewProduction({ searchParams }: { searchParams: Pr
           <label>Title<input name="title" required minLength={2} /></label>
           <label>Synopsis<textarea name="synopsis" rows={5} /></label>
           <div className="formGrid">
-            <label>Genre<input name="genre" placeholder="Drama, documentary, comedy…" /></label>
+            <label>Genre<input name="genre" list="kora-genre-options" placeholder="Drama, Amapiano, Gospel, documentary…" /></label>
             <label>Primary language<input name="primary_language" placeholder="English, isiZulu, isiXhosa…" /></label>
             <label>Proposed age rating<select name="age_rating" defaultValue="PG"><option>A</option><option>PG</option><option>13</option><option>16</option><option>18</option></select></label>
           </div>
+          <datalist id="kora-genre-options">
+            {allMusicGenres.map((genre) => <option value={genre} key={genre} />)}
+          </datalist>
+          <p>Music creators can choose a KORA genre suggestion or type an emerging, regional or hybrid sound in their own words.</p>
           <h3>Monetisation</h3>
           <div className="formGrid">
             <label>Access model<select name="access_mode" defaultValue="ad_supported"><option value="ad_supported">Free with approved advertising</option><option value="free">Free</option><option value="premium">KORA Premium members</option><option value="pay_per_view">One-time paid unlock</option></select></label>
