@@ -31,7 +31,7 @@ On a production Supabase project apply, in order:
 
 `npm run validate:migrations` checks that the numbered source migrations are contiguous through 014. Migration 013 creates the fail-safe release state; migration 014 locks privileged database fields behind trusted server/staff workflows and adds the recurring-subscription lifecycle fields. Missing either keeps production readiness closed.
 
-Never commit `SUPABASE_SERVICE_ROLE_KEY` or expose it to browser code.
+For new Supabase projects, use the modern publishable and secret API keys. Never expose `SUPABASE_SECRET_KEY` (or the legacy `SUPABASE_SERVICE_ROLE_KEY`) to browser code or commit either to Git.
 
 ## 2. Web environment and Supabase Auth
 
@@ -39,8 +39,8 @@ Required infrastructure values:
 
 - `NEXT_PUBLIC_APP_URL` — final HTTPS origin, no trailing slash.
 - `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — preferred public API key for new projects (`sb_publishable_...`).
+- `SUPABASE_SECRET_KEY` — preferred server-only privileged API key for new projects (`sb_secret_...`).
 - `VIDEO_PROVIDER=cloudflare`
 - `CLOUDFLARE_ACCOUNT_ID`
 - `CLOUDFLARE_STREAM_TOKEN`
@@ -50,6 +50,8 @@ Required infrastructure values:
 - `PAYFAST_PASSPHRASE`
 - `PAYFAST_SANDBOX=false` only after sandbox acceptance.
 - `KORA_INTERNAL_API_SECRET` — long random server-only secret, at least 32 characters in production.
+
+Legacy Supabase environment names remain supported only as migration fallbacks: `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY`. A brand-new KORA production project should use the modern key names above unless a compatibility issue genuinely requires the legacy pair.
 
 In Supabase Auth set the production Site URL to `NEXT_PUBLIC_APP_URL` and allow `${NEXT_PUBLIC_APP_URL}/auth/callback` as a redirect. KORA uses this route for account email confirmation and password recovery. Test signup confirmation, ordinary sign-in, forgot-password and password reset on the production origin.
 
