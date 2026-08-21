@@ -23,6 +23,7 @@ export async function middleware(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
   const alwaysPublic = pathname === '/coming-soon'
+    || pathname === '/open-africa'
     || pathname.startsWith('/legal/')
     || pathname === '/creators'
     || pathname === '/advertise'
@@ -78,6 +79,7 @@ export async function middleware(request: NextRequest) {
   const childAllowed = pathname === '/kids'
     || pathname.startsWith('/kids/')
     || pathname === '/coming-soon'
+    || pathname === '/open-africa'
     || pathname === '/api/health'
     || pathname === '/api/readiness';
 

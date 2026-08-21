@@ -53,7 +53,8 @@ export default async function ComingSoon({ searchParams }: { searchParams: Promi
               : 'A bold new home for African drama, music, comedy, faith, sport, family entertainment and creator-led television—made for every generation.'}
           </p>
           <div className={styles.actions}>
-            <Link className={styles.primary} href="/login">Join the controlled launch →</Link>
+            <Link className={styles.primary} href="/open-africa">Watch free now →</Link>
+            <Link className={styles.secondary} href="/login">Join the controlled launch</Link>
             <Link className={styles.secondary} href="/creators">I&apos;m a creator</Link>
             <Link className={styles.secondary} href="/advertise">I&apos;m a brand</Link>
           </div>
@@ -127,7 +128,7 @@ export default async function ComingSoon({ searchParams }: { searchParams: Promi
             <Image src="/images/kora-programme-montage.webp" alt="A preview montage of KORA African drama, live music, cartoons, football, family entertainment and creator television" fill sizes="(max-width: 900px) 94vw, 88vw" className={styles.screenImage} />
             <div className={styles.screenShade} />
             <div className={styles.screenOverlay}>
-              <span className={styles.playButton} aria-hidden="true">▶</span>
+              <Link className={styles.playButton} href="/open-africa" aria-label="Watch KORA Open Africa free">▶</Link>
               <div><small>THE KORA EXPERIENCE</small><strong>Stories. Sound. Sport. Smiles.</strong></div>
             </div>
           </div>

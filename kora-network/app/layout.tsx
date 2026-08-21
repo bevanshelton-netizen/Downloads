@@ -43,6 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <header className="top">
           <Link className="logo" href="/" aria-label="KORA Network home"><KoraMark /><span className="logoWords"><b>{brand.name}</b><small>NETWORK</small></span></Link>
           <nav aria-label="Main navigation">
+            <Link href="/open-africa">Watch Free</Link>
             <Link href="/watch">On Demand</Link>
             <Link href="/live">Live TV</Link>
             <Link href="/kids">Kids</Link>
