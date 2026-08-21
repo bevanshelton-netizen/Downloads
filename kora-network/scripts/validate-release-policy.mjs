@@ -6,22 +6,11 @@ const repoRoot = path.resolve(appRoot, '..');
 const failures = [];
 const passes = [];
 
-function readFromApp(relative) {
-  return fs.readFileSync(path.join(appRoot, relative), 'utf8');
-}
-
-function readFromRepo(relative) {
-  return fs.readFileSync(path.join(repoRoot, relative), 'utf8');
-}
-
+function readFromApp(relative) { return fs.readFileSync(path.join(appRoot, relative), 'utf8'); }
+function readFromRepo(relative) { return fs.readFileSync(path.join(repoRoot, relative), 'utf8'); }
 function check(name, condition, detail) {
-  if (condition) {
-    passes.push(name);
-    console.log(`PASS  ${name}`);
-  } else {
-    failures.push(`${name}${detail ? ` — ${detail}` : ''}`);
-    console.error(`FAIL  ${name}${detail ? ` — ${detail}` : ''}`);
-  }
+  if (condition) { passes.push(name); console.log(`PASS  ${name}`); }
+  else { failures.push(`${name}${detail ? ` — ${detail}` : ''}`); console.error(`FAIL  ${name}${detail ? ` — ${detail}` : ''}`); }
 }
 
 const vercel = JSON.parse(readFromApp('vercel.json'));
@@ -48,14 +37,7 @@ check('DB bootstrap reads the pinned production instance', dbBootstrap.includes(
 check('DB bootstrap rejects a URL for the wrong project', dbBootstrap.includes('SUPABASE_DB_URL') && dbBootstrap.includes('EXPECTED_SUPABASE_REF') && dbBootstrap.includes('does not identify the pinned KORA production project'));
 check('DB bootstrap retains fresh-database refusal', dbBootstrap.includes("to_regclass('public.profiles')") && dbBootstrap.includes('Refusing fresh bootstrap'));
 
-const approvalFlags = [
-  'KORA_LEGAL_APPROVED',
-  'KORA_REGULATORY_APPROVED',
-  'KORA_CHILD_SAFETY_APPROVED',
-  'KORA_PAYOUT_OPERATIONS_APPROVED',
-  'KORA_BACKUP_OPERATIONS_APPROVED',
-  'KORA_INCIDENT_RESPONSE_APPROVED',
-];
+const approvalFlags = ['KORA_LEGAL_APPROVED','KORA_REGULATORY_APPROVED','KORA_CHILD_SAFETY_APPROVED','KORA_PAYOUT_OPERATIONS_APPROVED','KORA_BACKUP_OPERATIONS_APPROVED','KORA_INCIDENT_RESPONSE_APPROVED'];
 for (const flag of approvalFlags) {
   const protectedReference = new RegExp(`${flag}:\\s*\\$\\{\\{\\s*vars\\.${flag}\\s*\\}\\}`);
   const hardcodedTrue = new RegExp(`${flag}:\\s*['\"]?true['\"]?`, 'i');
@@ -63,15 +45,13 @@ for (const flag of approvalFlags) {
 }
 
 const readiness = readFromApp('lib/launch-readiness.ts');
-check('Readiness requires schema 17 or newer', readiness.includes('schemaCurrent: release.schema_version >= 17'));
+check('Readiness requires schema 18 or newer', readiness.includes('schemaCurrent: release.schema_version >= 18'));
 check('Readiness requires database reachability', readiness.includes('databaseReachable,'));
 check('Readiness requires a bootstrapped admin', readiness.includes('adminBootstrapped: adminCount > 0'));
 check('Readiness requires at least one live channel', readiness.includes('channelSeeded: activeChannelCount >= 1'));
 check('Readiness requires public launch database switch', readiness.includes('publicLaunchEnabled: publicAccessOpen(release)'));
 check('Production readiness requires every gate', readiness.includes('Object.values(checks).every(Boolean)'));
-for (const flag of approvalFlags) {
-  check(`${flag} runtime gate requires exact true`, readiness.includes(`process.env.${flag} === 'true'`));
-}
+for (const flag of approvalFlags) check(`${flag} runtime gate requires exact true`, readiness.includes(`process.env.${flag} === 'true'`));
 
 const middleware = readFromApp('middleware.ts');
 check('Anonymous production access fails closed before public launch', middleware.includes('if (!publicLaunchEnabled && !authenticated && !alwaysPublic)'));
@@ -79,21 +59,8 @@ check('Closed public access redirects to coming-soon', middleware.includes("retu
 check('Maintenance mode excludes non-staff users', middleware.includes('if (maintenanceMode && !staff && !alwaysPublic)'));
 check('Child profiles are confined to Kids Mode', middleware.includes("return redirectTo(request, response, '/kids');"));
 
-const trackedSecretFiles = ['.env', '.env.local', '.env.production', '.env.production.local'];
-for (const name of trackedSecretFiles) {
-  check(`${name} is not present in KORA source`, !fs.existsSync(path.join(appRoot, name)));
-}
-
-function walk(dir, out = []) {
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    if (entry.name === 'node_modules' || entry.name === '.next' || entry.name === 'artifacts') continue;
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) walk(full, out);
-    else if (/\.(?:ts|tsx|js|mjs|json|md|sql)$/.test(entry.name) || entry.name === '.env.example') out.push(full);
-  }
-  return out;
-}
-
+for (const name of ['.env', '.env.local', '.env.production', '.env.production.local']) check(`${name} is not present in KORA source`, !fs.existsSync(path.join(appRoot, name)));
+function walk(dir, out = []) { for (const entry of fs.readdirSync(dir, { withFileTypes: true })) { if (entry.name === 'node_modules' || entry.name === '.next' || entry.name === 'artifacts') continue; const full = path.join(dir, entry.name); if (entry.isDirectory()) walk(full, out); else if (/\.(?:ts|tsx|js|mjs|json|md|sql)$/.test(entry.name) || entry.name === '.env.example') out.push(full); } return out; }
 const scanFiles = walk(appRoot).filter((file) => !file.endsWith('validate-release-policy.mjs'));
 const longSupabaseSecret = /sb_secret_[A-Za-z0-9_-]{20,}/;
 const supabasePersonalToken = /sbp_[A-Za-z0-9_-]{20,}/;

@@ -6,20 +6,11 @@ const repoRoot = path.resolve(appRoot, '..');
 const failures = [];
 let passed = 0;
 
-function readApp(relative) {
-  return fs.readFileSync(path.join(appRoot, relative), 'utf8');
-}
-function readRepo(relative) {
-  return fs.readFileSync(path.join(repoRoot, relative), 'utf8');
-}
+function readApp(relative) { return fs.readFileSync(path.join(appRoot, relative), 'utf8'); }
+function readRepo(relative) { return fs.readFileSync(path.join(repoRoot, relative), 'utf8'); }
 function check(name, condition, detail = '') {
-  if (condition) {
-    passed += 1;
-    console.log(`PASS  ${name}`);
-  } else {
-    failures.push(`${name}${detail ? ` — ${detail}` : ''}`);
-    console.error(`FAIL  ${name}${detail ? ` — ${detail}` : ''}`);
-  }
+  if (condition) { passed += 1; console.log(`PASS  ${name}`); }
+  else { failures.push(`${name}${detail ? ` — ${detail}` : ''}`); console.error(`FAIL  ${name}${detail ? ` — ${detail}` : ''}`); }
 }
 
 const workflow = readRepo('.github/workflows/kora-production-activate.yml');
@@ -34,14 +25,7 @@ check('Private beta uses Cloudflare video', /VIDEO_PROVIDER:\s*cloudflare/.test(
 check('PayFast mode remains protected configuration', /PAYFAST_SANDBOX:\s*\$\{\{\s*vars\.PAYFAST_SANDBOX\s*\}\}/.test(workflow));
 check('Private-beta preflight mode is explicit', /KORA_PREFLIGHT_MODE:\s*private_beta/.test(workflow));
 
-for (const flag of [
-  'KORA_LEGAL_APPROVED',
-  'KORA_REGULATORY_APPROVED',
-  'KORA_CHILD_SAFETY_APPROVED',
-  'KORA_PAYOUT_OPERATIONS_APPROVED',
-  'KORA_BACKUP_OPERATIONS_APPROVED',
-  'KORA_INCIDENT_RESPONSE_APPROVED',
-]) {
+for (const flag of ['KORA_LEGAL_APPROVED','KORA_REGULATORY_APPROVED','KORA_CHILD_SAFETY_APPROVED','KORA_PAYOUT_OPERATIONS_APPROVED','KORA_BACKUP_OPERATIONS_APPROVED','KORA_INCIDENT_RESPONSE_APPROVED']) {
   check(`${flag} remains externally controlled`, new RegExp(`${flag}:\\s*\\$\\{\\{\\s*vars\\.${flag}\\s*\\}\\}`).test(workflow));
   check(`${flag} is not hard-coded true`, !new RegExp(`${flag}:\\s*['\"]?true['\"]?`, 'i').test(workflow));
 }
@@ -60,7 +44,8 @@ const db = readApp('scripts/ensure-production-db.sh');
 check('Database ensure script pins the KORA Supabase project', db.includes('production-instance.json') && db.includes('supabaseProjectRef') && db.includes('EXPECTED_SUPABASE_REF'));
 check('Existing databases are verified rather than rebuilt', db.includes('profiles_exists') && db.includes('verifying it instead of rebuilding it'));
 check('Fresh bootstrap retains the destructive-operation guard', db.includes('BOOTSTRAP FRESH KORA DATABASE') && db.includes('bootstrap-production-db.sh'));
-check('Database ensure requires schema 17', db.includes('schema version 17') && db.includes('version\" != \"17\"'));
+check('Database ensure carries ticket hardening before artist discovery', db.indexOf('017_ticket_payment_hardening.sql') >= 0 && db.indexOf('018_artist_discovery.sql') > db.indexOf('017_ticket_payment_hardening.sql'));
+check('Database ensure requires schema 18', db.includes('schema version 18') && db.includes('version\" != \"18\"'));
 check('Private beta refuses an already-public database', db.includes('public-launch switch is already enabled'));
 check('Database ensure requires at least one active channel', db.includes('active seeded channel') && db.includes('live_channels'));
 
