@@ -24,6 +24,7 @@ export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const alwaysPublic = pathname === '/coming-soon'
     || pathname.startsWith('/legal/')
+    || pathname === '/creators'
     || pathname === '/login'
     || pathname === '/forgot-password'
     || pathname === '/reset-password'
