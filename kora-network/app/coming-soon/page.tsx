@@ -105,6 +105,14 @@ export default async function ComingSoon({ searchParams }: { searchParams: Promi
           <Link href="/creators">Bring your content →</Link>
           <Link href="/advertise">Reach KORA audiences →</Link>
         </div>
+        <aside className={styles.koraMeaning}>
+          <div className={styles.koraInstrument} aria-hidden="true">𝄞<span>21</span></div>
+          <div>
+            <div className={styles.goldEyebrow}>WHY THE NAME KORA?</div>
+            <h3>Many strings. Many stories. One Africa in harmony.</h3>
+            <p>The kora is West Africa&apos;s celebrated 21-string harp, carried through generations by musicians and storytellers. Like its strings unite different notes, KORA brings Africa&apos;s voices, cultures, creators and families together on one screen.</p>
+          </div>
+        </aside>
       </section>
 
       <section className={styles.symbolShowcase} aria-label="Entertainment on KORA">
