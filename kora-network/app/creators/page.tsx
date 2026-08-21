@@ -25,6 +25,11 @@ export default async function Creators() {
         <article className="panel"><h3>See the numbers</h3><p>Creator Studio tracks your accepted deal, credited creator revenue, wallet balance and payout history.</p></article>
       </section>
       <section className="economy">
+        <div><div className="eyebrow">LIVE CONCERTS ON KORA</div><h2>Turn your next performance into a global stage.</h2></div>
+        <p>Founding artists can register for KORA’s controlled live-concert pilots, combining promotion, ticketing, sponsors, audience insight and replay in one campaign.</p>
+        <div className="actions"><Link className="primary" href="/perform-live">Explore Perform Live on KORA</Link></div>
+      </section>
+      <section className="economy">
         <div><div className="eyebrow">FOUNDING CREATOR PIPELINE</div><h2>We are looking for the stories television has not found yet.</h2></div>
         <p>Filmmakers, independent studios, writers, actor-creators, comedians, musicians and documentary makers can apply. KORA reviews audience fit, rights readiness, quality and safety before issuing any creator deal.</p>
         <div className="actions"><Link className="primary" href={primaryHref}>{applicationsOpen ? 'Submit your creator application' : 'Join the controlled launch'}</Link></div>

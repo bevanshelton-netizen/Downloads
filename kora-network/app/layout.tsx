@@ -48,6 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/live">Live TV</Link>
             <Link href="/kids">Kids</Link>
             <Link href="/creators">Creators</Link>
+            <Link href="/perform-live">Perform Live</Link>
             <Link href="/studio">Studio</Link>
             <Link href="/advertise">Advertise</Link>
           </nav>

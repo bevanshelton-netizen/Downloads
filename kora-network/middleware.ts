@@ -24,6 +24,7 @@ export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const alwaysPublic = pathname === '/coming-soon'
     || pathname === '/open-africa'
+    || pathname === '/perform-live'
     || pathname.startsWith('/legal/')
     || pathname === '/creators'
     || pathname === '/advertise'
