@@ -21,6 +21,18 @@
   padding:7vh 6vw 5vh;
   position:relative;
 }
+.venueLights{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.venueLights i{position:absolute;top:-12%;width:26%;height:95%;transform-origin:50% 0;filter:blur(10px);opacity:.2;clip-path:polygon(43% 0,57% 0,100% 100%,0 100%)}
+.venueLights i:nth-child(1){left:4%;background:linear-gradient(#fff7b2,transparent);transform:rotate(-12deg)}
+.venueLights i:nth-child(2){left:38%;background:linear-gradient(#62e8ff,transparent);transform:rotate(4deg)}
+.venueLights i:nth-child(3){right:2%;background:linear-gradient(#ff80b8,transparent);transform:rotate(14deg)}
+.venueSymbols{position:absolute;inset:0;z-index:1;pointer-events:none;color:#fff}
+.venueSymbols span{position:absolute;display:grid;place-items:center;text-shadow:0 .8rem 2rem rgba(32,15,104,.35);animation:venueFloat 5s ease-in-out infinite}
+.noteOne{left:3%;top:14%;font-size:clamp(2rem,4vw,4.8rem);color:#ffd166;transform:rotate(-14deg)}
+.noteTwo{left:47%;top:7%;font-size:clamp(1.8rem,3vw,3.8rem);color:#b8f23c;animation-delay:-1.8s!important}
+.reel{right:2.5%;top:10%;font-size:clamp(2.4rem,4.5vw,5.2rem);animation:reelSpin 12s linear infinite!important}
+.clapper{left:48%;bottom:8%;font-size:clamp(2rem,3.4vw,4.2rem);transform:rotate(-10deg);animation-delay:-3s!important}
+.star{right:43%;top:30%;font-size:clamp(1.2rem,2vw,2.3rem);color:#21d4fd;animation-delay:-2.3s!important}
 .copy{position:relative;z-index:2}
 .kicker{
   display:inline-flex;
@@ -89,6 +101,8 @@
   background:conic-gradient(from 25deg,var(--sun),var(--coral),var(--violet),var(--cyan),var(--sun));
   filter:blur(55px);opacity:.58;animation:breathe 6s ease-in-out infinite;
 }
+.venueSign{position:absolute;top:5%;z-index:4;padding:.65rem 1.1rem;border:2px solid rgba(255,255,255,.58);border-radius:.75rem;background:rgba(17,24,39,.72);box-shadow:0 0 2rem rgba(255,180,0,.42),inset 0 0 1.2rem rgba(255,79,114,.18);font-size:.72rem;font-weight:950;letter-spacing:.16em;transform:rotate(-2deg)}
+.venueSign span{color:#ffb400;text-shadow:0 0 .7rem #ffb400;animation:blink 1.6s ease-in-out infinite}
 .cards{position:relative;width:min(100%,540px);height:510px}
 .card{
   position:absolute;
@@ -110,6 +124,11 @@
 .cardTwo{left:27%;top:2%;z-index:2;transform:rotate(2deg);background:linear-gradient(155deg,#06b6d4,#2563eb 54%,#7c3aed)}
 .cardThree{right:0;top:23%;transform:rotate(10deg);background:linear-gradient(155deg,#84cc16,#f59e0b 52%,#db2777)}
 .icon{font-size:3.4rem;filter:drop-shadow(0 .8rem 1rem rgba(0,0,0,.28))}
+.cartoonCast{position:absolute;right:2%;bottom:1%;z-index:5;display:flex;align-items:center;padding:.45rem .8rem .45rem .45rem;border:1px solid rgba(255,255,255,.32);border-radius:999px;background:rgba(255,255,255,.18);backdrop-filter:blur(14px);box-shadow:0 1rem 2.5rem rgba(38,20,112,.28);transform:rotate(2deg)}
+.cartoonCast span{display:grid;place-items:center;width:3rem;height:3rem;margin-right:-.55rem;border:2px solid #fff;border-radius:50%;font-size:1.7rem;background:linear-gradient(145deg,#ffb400,#ff4f72)}
+.cartoonCast .cartoonTwo{background:linear-gradient(145deg,#21d4fd,#8b5cf6)}
+.cartoonCast .cartoonThree{background:linear-gradient(145deg,#b8f23c,#ffb400);margin-right:.65rem}
+.cartoonCast b{font-size:.72rem;letter-spacing:.04em;white-space:nowrap}
 .patternBand{
   min-height:5.2rem;display:flex;align-items:center;justify-content:space-around;gap:1rem;
   padding:.8rem 3vw;color:#fff;font-size:clamp(1rem,2.2vw,2rem);font-weight:950;
@@ -183,6 +202,9 @@
 .finalCta h2{font-size:clamp(2.4rem,5vw,5.2rem);line-height:.94;letter-spacing:-.05em;margin:0 0 1rem}
 .finalCta p{max-width:700px;margin:0 auto 1.5rem;font-size:1.08rem}
 .darkButton{display:inline-flex;padding:.9rem 1.35rem;border-radius:999px;background:#ffffff;color:#5b1baa;font-weight:950;box-shadow:0 1rem 2.5rem rgba(76,20,126,.25)}
+@keyframes venueFloat{50%{transform:translateY(-14px) rotate(7deg)}}
+@keyframes reelSpin{to{transform:rotate(360deg)}}
+@keyframes blink{50%{opacity:.35}}
 @keyframes marquee{to{transform:translateX(-50%)}}
 @keyframes breathe{50%{transform:scale(1.14);opacity:.4}}
 @media(max-width:1000px){
@@ -192,7 +214,7 @@
 }
 @media(max-width:700px){
   .hero{padding-inline:5vw}.title{font-size:clamp(3.35rem,16vw,5rem)}
-  .stage{min-height:390px}.cards{height:370px}
+  .stage{min-height:430px}.cards{height:370px}.venueSign{top:1%}.cartoonCast{right:auto;left:50%;bottom:0;transform:translateX(-50%)}.venueSymbols .clapper,.venueSymbols .star{display:none}
   .card{width:48%;padding:.8rem;border-radius:1.15rem}
   .cardOne{left:0}.cardTwo{left:26%}.cardThree{right:0}
   .culture{padding-block:5rem 3rem}.cultureGrid{grid-template-columns:1fr 1fr}.cultureCard{min-height:175px}.patternBand span:nth-child(even){display:none}
@@ -200,4 +222,4 @@
   .audiences{grid-template-columns:1fr}
   .section{padding-block:4.5rem}.finalCta{margin-inline:5vw}
 }
-@media(prefers-reduced-motion:reduce){.glow,.ribbonTrack{animation:none}.primary,.secondary,.category{transition:none}}
+@media(prefers-reduced-motion:reduce){.glow,.ribbonTrack,.venueSymbols span,.venueSign span{animation:none}.primary,.secondary,.category{transition:none}}
