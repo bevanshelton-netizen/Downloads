@@ -129,6 +129,22 @@
 .cartoonCast .cartoonTwo{background:linear-gradient(145deg,#21d4fd,#8b5cf6)}
 .cartoonCast .cartoonThree{background:linear-gradient(145deg,#b8f23c,#ffb400);margin-right:.65rem}
 .cartoonCast b{font-size:.72rem;letter-spacing:.04em;white-space:nowrap}
+.platformStory{position:relative;z-index:4;margin:0;padding:0 6vw 3rem;background:linear-gradient(120deg,#090d0b 0%,#101a12 58%,#063c24 100%);border-block:1px solid rgba(255,196,0,.5);box-shadow:0 2rem 5rem rgba(5,12,8,.34)}
+.platformStory::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 85% 20%,rgba(22,163,74,.2),transparent 25rem),repeating-linear-gradient(135deg,transparent 0 34px,rgba(255,190,0,.035) 35px 36px)}
+.africaSignature{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:1.2rem;margin-inline:-6vw;padding:.85rem 6vw;background:linear-gradient(90deg,#050706 0 33%,#0d6b37 33% 67%,#d5a500 67%);color:#fff;font-size:.68rem;font-weight:950;letter-spacing:.18em;text-align:center}
+.africaSignature i{font-style:normal;color:#ffd43b;text-shadow:0 0 .8rem rgba(255,212,59,.7)}
+.platformPitch{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(380px,.95fr);gap:clamp(2rem,6vw,7rem);align-items:center;padding:4rem 0 2rem}
+.goldEyebrow{color:#f6c90e;font-size:.75rem;font-weight:950;letter-spacing:.18em}
+.platformCopy h2{max-width:760px;margin:.75rem 0 1.2rem;color:#fff;font-size:clamp(2.7rem,5.2vw,5.5rem);line-height:.92;letter-spacing:-.055em}
+.platformCopy p{max-width:780px;margin:0;color:#dce9df;font-size:clamp(1rem,1.35vw,1.16rem);line-height:1.72}
+.platformActions{display:grid;gap:.75rem}
+.platformActions article{display:grid;grid-template-columns:3.5rem 1fr;gap:1rem;align-items:center;padding:1rem;border:1px solid rgba(246,201,14,.36);border-radius:1.2rem;background:rgba(255,255,255,.07);box-shadow:inset 4px 0 0 #148a46}
+.platformActions article:nth-child(2){box-shadow:inset 4px 0 0 #f6c90e}.platformActions article:nth-child(3){box-shadow:inset 4px 0 0 #fff}
+.platformActions article>span{display:grid;place-items:center;width:3.2rem;height:3.2rem;border-radius:50%;background:#f6c90e;color:#07110a;font-size:1.25rem;font-weight:950;box-shadow:0 0 1.5rem rgba(246,201,14,.22)}
+.platformActions b{color:#f6c90e;font-size:.82rem;letter-spacing:.14em}.platformActions p{margin:.3rem 0 0;color:#dce9df;font-size:.91rem;line-height:1.45}
+.platformLinks{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:.7rem}
+.platformLinks a{display:inline-flex;padding:.82rem 1.15rem;border:1px solid rgba(246,201,14,.46);border-radius:999px;background:#0d6b37;color:#fff;font-weight:900;transition:transform .2s ease,background .2s ease}
+.platformLinks a:first-child{background:#f6c90e;color:#07110a}.platformLinks a:hover{transform:translateY(-3px);background:#148a46}
 .symbolShowcase{position:relative;z-index:3;padding:1.8rem 6vw 2.2rem;background:linear-gradient(180deg,rgba(14,24,75,.55),rgba(42,23,119,.3));border-top:1px solid rgba(255,255,255,.18)}
 .symbolShowcaseHead{display:flex;align-items:end;justify-content:space-between;gap:1rem;margin-bottom:1.2rem}
 .symbolShowcaseHead span{color:#21d4fd;font-size:.72rem;font-weight:950;letter-spacing:.22em}
@@ -227,17 +243,18 @@
 @media(max-width:1000px){
   .hero{grid-template-columns:1fr;padding-top:5rem}
   .stage{min-height:500px}.cards{height:450px}
-  .culture{grid-template-columns:1fr}.symbolGrid{grid-template-columns:repeat(4,1fr)}.categories{grid-template-columns:repeat(3,1fr)}
+  .platformPitch{grid-template-columns:1fr}.culture{grid-template-columns:1fr}.symbolGrid{grid-template-columns:repeat(4,1fr)}.categories{grid-template-columns:repeat(3,1fr)}
 }
 @media(max-width:700px){
   .hero{padding-inline:5vw}.title{font-size:clamp(3.35rem,16vw,5rem)}
   .stage{min-height:430px}.cards{height:370px}.venueSign{top:1%}.cartoonCast{right:auto;left:50%;bottom:0;transform:translateX(-50%)}.venueSymbols .clapper,.venueSymbols .star{display:none}
   .card{width:48%;padding:.8rem;border-radius:1.15rem}
   .cardOne{left:0}.cardTwo{left:26%}.cardThree{right:0}
+  .africaSignature{gap:.55rem;font-size:.56rem;letter-spacing:.08em}.africaSignature span:last-child{display:none}.platformPitch{padding-top:3rem}.platformStory{padding-bottom:2.3rem}.platformActions article{grid-template-columns:3.1rem 1fr}.platformLinks a{flex:1 1 100%;justify-content:center}
   .symbolShowcaseHead{align-items:flex-start;flex-direction:column}.symbolGrid{display:flex;overflow-x:auto;padding-bottom:.6rem;scroll-snap-type:x mandatory}.symbolTile{flex:0 0 42%;min-height:132px;scroll-snap-align:start}
   .culture{padding-block:5rem 3rem}.cultureGrid{grid-template-columns:1fr 1fr}.cultureCard{min-height:175px}.patternBand span:nth-child(even){display:none}
   .categories{grid-template-columns:repeat(2,1fr)}
   .audiences{grid-template-columns:1fr}
   .section{padding-block:4.5rem}.finalCta{margin-inline:5vw}
 }
-@media(prefers-reduced-motion:reduce){.glow,.ribbonTrack,.venueSymbols span,.venueSign span{animation:none}.primary,.secondary,.category,.symbolTile{transition:none}}
+@media(prefers-reduced-motion:reduce){.glow,.ribbonTrack,.venueSymbols span,.venueSign span{animation:none}.primary,.secondary,.category,.symbolTile,.platformLinks a{transition:none}}
