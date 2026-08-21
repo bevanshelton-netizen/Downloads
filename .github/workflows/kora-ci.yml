@@ -1,17 +1,17 @@
 name: KORA CI
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - 'kora-network/**'
       - '.github/workflows/kora-ci.yml'
       - '.github/workflows/kora-production-*.yml'
       - '.github/workflows/kora-bootstrap-first-admin.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'kora-network/**'
-      - '.github/workflows/kora-*.yml'
+
+concurrency:
+  group: kora-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
