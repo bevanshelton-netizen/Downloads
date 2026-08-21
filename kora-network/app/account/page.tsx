@@ -31,7 +31,7 @@ export default async function Account({ searchParams }: { searchParams: Promise<
         <div className="eyebrow">MY KORA</div>
         <h1>Your membership, library, family and wallet.</h1>
         <p>Subscriptions fund premium programming, paid unlocks stay in your library and verified reward earnings remain separate and transparent.</p>
-        <div className="actions"><Link className="secondary" href="/account/library">My Library{purchaseCount ? ` (${purchaseCount})` : ''}</Link><Link className="secondary" href="/family">KORA Family</Link>{creator ? <Link className="secondary" href="/studio/earnings">Creator earnings</Link> : null}{profile && ['moderator','admin'].includes(profile.role) ? <Link className="secondary" href="/admin">KORA Operations</Link> : null}</div>
+        <div className="actions"><Link className="secondary" href="/account/tickets">My Tickets</Link><Link className="secondary" href="/account/library">My Library{purchaseCount ? ` (${purchaseCount})` : ''}</Link><Link className="secondary" href="/family">KORA Family</Link>{creator ? <Link className="secondary" href="/studio/earnings">Creator earnings</Link> : null}{profile && ['moderator','admin'].includes(profile.role) ? <Link className="secondary" href="/admin">KORA Operations</Link> : null}</div>
       </section>
       {message ? <section><div className="panel"><strong>{message}</strong></div></section> : null}
       {error ? <section><div className="panel"><strong>{error}</strong></div></section> : null}

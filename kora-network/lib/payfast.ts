@@ -101,6 +101,8 @@ export function buildPurchaseCheckout(input: {
   return checkoutResponse(fields);
 }
 
+export function buildTicketCheckout(input:{orderId:string;email:string;eventSlug:string;title:string;amount:number}){if(!Number.isFinite(input.amount)||input.amount<=0)throw new Error('Invalid ticket amount');const slug=encodeURIComponent(input.eventSlug);const fields=baseCheckoutFields({orderId:input.orderId,email:input.email,returnUrl:`/tickets/${slug}?payment=success`,cancelUrl:`/tickets/${slug}?payment=cancelled`});Object.assign(fields,{amount:input.amount.toFixed(2),item_name:`KORA Ticket: ${input.title}`.slice(0,100),custom_str2:'ticket'});return checkoutResponse(fields,true)}
+
 export async function validateItn(fields: Record<string, string>) {
   const receivedSignature = fields.signature;
   const unsigned = { ...fields };

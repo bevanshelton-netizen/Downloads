@@ -26,6 +26,7 @@ const rewards = read('supabase/006_broadcast_rewards.sql');
 const creatorReserve = read('supabase/010_creator_revenue_reserve_hardening.sql');
 const ppv = read('supabase/012_ppv_entitlements.sql');
 const recurring = read('supabase/014_launch_security_and_recurring.sql');
+const ticketing = read('supabase/017_ticket_payment_hardening.sql');
 
 check('PayFast ITN verifies signature before trust', payfast.includes('payFastSignature(unsigned, process.env.PAYFAST_PASSPHRASE) !== receivedSignature'));
 check('PayFast ITN verifies merchant identity', payfast.includes("fields.merchant_id !== process.env.PAYFAST_MERCHANT_ID"));
@@ -69,6 +70,11 @@ check('PPV completion writes cleared revenue only after success', ppv.includes("
 check('PPV revenue insert is duplicate-safe', ppv.includes('on conflict (source_type, source_id) where source_id is not null do nothing'));
 check('PPV completion RPC is service-role only', ppv.includes('grant execute on function public.complete_payfast_purchase(uuid,text,numeric) to service_role'));
 
+check('Ticket reservation locks inventory', ticketing.includes('for update') && ticketing.includes('reserved_count=reserved_count+p_quantity'));
+check('Ticket completion rechecks stored amount', ticketing.includes('abs(v_order.total_amount-p_amount)>0.01'));
+check('Ticket completion is idempotent', ticketing.includes("if v_order.status='complete'") && ticketing.includes('Ticket order already completed by another payment'));
+check('Ticket issuance follows inventory conversion', ticketing.includes('sold_count=sold_count+v_order.quantity') && ticketing.includes('insert into public.event_tickets'));
+check('Ticket completion RPC is service-role only', ticketing.includes('grant execute on function public.complete_payfast_ticket_order(uuid,text,numeric) to service_role'));
 check('PayFast recurring token is unique', recurring.includes('create unique index if not exists subscriptions_payfast_token_unique'));
 check('Users cannot self-elevate role or KYC', recurring.includes('revoke update on table public.profiles from authenticated') && recurring.includes('grant update (display_name, country_code)'));
 check('Users cannot directly insert payout requests', recurring.includes('revoke insert, update, delete on table public.payout_requests from authenticated'));

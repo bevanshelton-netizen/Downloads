@@ -29,6 +29,13 @@ export async function POST(request: Request) {
 
   const admin = createAdminClient();
 
+  if (orderType === 'ticket') {
+    const {data:order,error:lookupError}=await admin.from('ticket_orders').select('id,total_amount,status').eq('id',orderId).eq('provider','payfast').maybeSingle();
+    if(lookupError||!order)return new NextResponse('Unknown ticket order',{status:404});if(Math.abs(receivedAmount-Number(order.total_amount))>0.01)return new NextResponse('Amount mismatch',{status:400});
+    if(paymentStatus==='COMPLETE'){const providerPaymentId=fields.pf_payment_id;if(!providerPaymentId)return new NextResponse('Missing provider payment',{status:400});const{error}=await admin.rpc('complete_payfast_ticket_order',{p_order_id:order.id,p_provider_payment_id:providerPaymentId,p_amount:receivedAmount});if(error)return new NextResponse('Ticket persistence failure',{status:500});}
+    else if(order.status==='pending'&&['FAILED','CANCELLED'].includes(paymentStatus)){await admin.rpc('release_ticket_order',{p_order_id:order.id,p_status:'cancelled'});}return new NextResponse('OK');
+  }
+
   if (orderType === 'purchase') {
     const { data: purchase, error: purchaseLookupError } = await admin
       .from('purchases')
