@@ -8,8 +8,8 @@ Create a GitHub Environment named `kora-production`. Put secrets in Environment 
 
 ### Required secrets
 
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — preferred public API key for new Supabase projects (`sb_publishable_...`)
+- `SUPABASE_SECRET_KEY` — preferred server-only privileged API key for new Supabase projects (`sb_secret_...`)
 - `SUPABASE_DB_URL` — direct Postgres connection string for the brand-new production database bootstrap only
 - `CLOUDFLARE_STREAM_TOKEN`
 - `PAYFAST_MERCHANT_ID`
@@ -19,6 +19,8 @@ Create a GitHub Environment named `kora-production`. Put secrets in Environment 
 - `VERCEL_TOKEN`
 - `VERCEL_ORG_ID`
 - `VERCEL_PROJECT_ID`
+
+Legacy Supabase keys remain supported only as migration fallbacks: `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY`. Do not configure them for a new KORA project unless a compatibility issue genuinely requires them.
 
 ### Required variables
 
