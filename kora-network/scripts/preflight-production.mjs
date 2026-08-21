@@ -1,3 +1,8 @@
+import { readFileSync } from 'node:fs';
+
+const productionInstance = JSON.parse(
+  readFileSync(new URL('../production-instance.json', import.meta.url), 'utf8')
+);
 const checks = [];
 const mode = String(process.env.KORA_PREFLIGHT_MODE || 'public_launch').trim();
 const publicLaunch = mode === 'public_launch';
@@ -29,6 +34,15 @@ function httpsUrl(name) {
   }
 }
 
+function exactOrigin(name, expected) {
+  const v = value(name);
+  try {
+    return new URL(v).origin === expected;
+  } catch {
+    return false;
+  }
+}
+
 function email(name) {
   const v = value(name);
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) && !v.endsWith('.invalid');
@@ -36,6 +50,11 @@ function email(name) {
 
 add('NEXT_PUBLIC_APP_URL', httpsUrl('NEXT_PUBLIC_APP_URL'), 'final HTTPS origin');
 add('NEXT_PUBLIC_SUPABASE_URL', httpsUrl('NEXT_PUBLIC_SUPABASE_URL'), 'production Supabase HTTPS URL');
+add(
+  'SUPABASE_PROJECT_MATCH',
+  exactOrigin('NEXT_PUBLIC_SUPABASE_URL', productionInstance.supabaseUrl),
+  `must be confirmed KORA project ${productionInstance.supabaseProjectRef}`
+);
 add(
   'SUPABASE_PUBLIC_KEY',
   anyNonPlaceholder(['NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'], 20),
