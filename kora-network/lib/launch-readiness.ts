@@ -1,4 +1,5 @@
 import 'server-only';
+import productionInstance from '@/production-instance.json';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getPlatformReleaseState, publicAccessOpen } from '@/lib/platform-state';
 
@@ -17,6 +18,16 @@ function isHttpsOrigin(value?: string) {
     return url.protocol === 'https:' && !['localhost', '127.0.0.1'].includes(url.hostname);
   } catch {
     return false;
+  }
+}
+
+function normalizedOrigin(value?: string) {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    return url.origin;
+  } catch {
+    return null;
   }
 }
 
@@ -54,6 +65,7 @@ export async function getLaunchReadiness() {
     supabaseConfigured: isHttpsOrigin(supabaseUrl)
       && configuredAny(['NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'], 10)
       && configuredAny(['SUPABASE_SECRET_KEY', 'SUPABASE_SERVICE_ROLE_KEY'], 20),
+    supabaseProjectMatch: normalizedOrigin(supabaseUrl) === productionInstance.supabaseUrl,
     databaseReachable,
     schemaCurrent: release.schema_version >= 14,
     adminBootstrapped: adminCount > 0,
@@ -98,6 +110,7 @@ export async function getLaunchReadiness() {
       publicSignupsEnabled: release.public_signups_enabled,
       creatorApplicationsEnabled: release.creator_applications_enabled,
       advertiserCampaignsEnabled: release.advertiser_campaigns_enabled,
+      supabaseProjectRef: productionInstance.supabaseProjectRef,
     },
     timestamp: new Date().toISOString(),
   };

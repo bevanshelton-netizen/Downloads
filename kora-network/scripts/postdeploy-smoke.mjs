@@ -20,6 +20,7 @@ const expectReady = String(process.env.KORA_EXPECT_READY || 'false') === 'true';
 const privateBetaInfrastructureChecks = [
   'appUrl',
   'supabaseConfigured',
+  'supabaseProjectMatch',
   'databaseReachable',
   'schemaCurrent',
   'adminBootstrapped',
