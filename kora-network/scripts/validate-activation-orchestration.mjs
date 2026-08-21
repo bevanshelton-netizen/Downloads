@@ -60,7 +60,7 @@ const db = readApp('scripts/ensure-production-db.sh');
 check('Database ensure script pins the KORA Supabase project', db.includes('production-instance.json') && db.includes('supabaseProjectRef') && db.includes('EXPECTED_SUPABASE_REF'));
 check('Existing databases are verified rather than rebuilt', db.includes('profiles_exists') && db.includes('verifying it instead of rebuilding it'));
 check('Fresh bootstrap retains the destructive-operation guard', db.includes('BOOTSTRAP FRESH KORA DATABASE') && db.includes('bootstrap-production-db.sh'));
-check('Database ensure requires schema 15', db.includes('schema version 15') && db.includes('version\" != \"14\"'));
+check('Database ensure requires schema 15', db.includes('schema version 15') && db.includes('version\" != \"15\"'));
 check('Private beta refuses an already-public database', db.includes('public-launch switch is already enabled'));
 check('Database ensure requires at least one active channel', db.includes('active seeded channel') && db.includes('live_channels'));
 
