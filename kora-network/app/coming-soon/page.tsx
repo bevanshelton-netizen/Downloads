@@ -11,6 +11,16 @@ const categories = [
   { icon: '💃🏾', label: 'Dance & Lifestyle' },
 ];
 
+const entertainmentSymbols = [
+  { symbol: '🎵', label: 'Music', tone: 'music' },
+  { symbol: '🎞️', label: 'Movies', tone: 'movies' },
+  { symbol: '🦁', label: 'Cartoons', tone: 'cartoons' },
+  { symbol: '📺', label: 'Live TV', tone: 'live' },
+  { symbol: '💃🏾', label: 'Dance', tone: 'dance' },
+  { symbol: '⚽', label: 'Sport', tone: 'sport' },
+  { symbol: '👨🏾‍👩🏾‍👧🏾', label: 'Family', tone: 'family' },
+];
+
 const cultureMoments = [
   { symbol: '🪘', title: 'The beat', copy: 'Amapiano, Afrobeats, gospel, jazz and sounds still being invented.' },
   { symbol: '🎭', title: 'The story', copy: 'Drama, comedy and cinema shaped by the places we call home.' },
@@ -71,6 +81,21 @@ export default async function ComingSoon({ searchParams }: { searchParams: Promi
             <span className={styles.cartoonThree}>🦁</span>
             <b>Meet the KORA crew!</b>
           </div>
+        </div>
+      </section>
+
+      <section className={styles.symbolShowcase} aria-label="Entertainment on KORA">
+        <div className={styles.symbolShowcaseHead}>
+          <span>THIS IS KORA</span>
+          <strong>See it. Hear it. Feel it.</strong>
+        </div>
+        <div className={styles.symbolGrid}>
+          {entertainmentSymbols.map((item) => (
+            <article className={[styles.symbolTile, styles[item.tone]].join(' ')} key={item.label}>
+              <span aria-hidden="true">{item.symbol}</span>
+              <b>{item.label}</b>
+            </article>
+          ))}
         </div>
       </section>
 
