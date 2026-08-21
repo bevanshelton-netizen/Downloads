@@ -2,14 +2,14 @@ import { createClient } from '@supabase/supabase-js';
 
 const email = String(process.argv[2] || '').trim().toLowerCase();
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const serviceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
   console.error('Usage: npm run bootstrap:admin -- admin@example.com');
   process.exit(1);
 }
 if (!url || !serviceKey) {
-  console.error('NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required.');
+  console.error('NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY (or legacy SUPABASE_SERVICE_ROLE_KEY) are required.');
   process.exit(1);
 }
 if (process.env.KORA_BOOTSTRAP_CONFIRM !== 'BOOTSTRAP_FIRST_ADMIN') {
