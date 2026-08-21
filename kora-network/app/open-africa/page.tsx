@@ -57,6 +57,32 @@ const programmes = [
     description: 'An open-licence window into the sound, instruments and energy of African music.',
     tone: 'blue',
   },
+  {
+    title: 'Aje Kogba',
+    country: 'Nigeria',
+    category: 'Yoruba Short Film & Storytelling',
+    duration: '11 min',
+    creator: 'Yoruba Wikimedians User Group; produced and directed by Tunde Oladimeji',
+    license: 'CC BY-SA 4.0',
+    licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
+    sourcePage: 'https://commons.wikimedia.org/wiki/File:Aje_kogba.webm',
+    videoUrl: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Aje_kogba.webm',
+    description: 'A Yoruba didactic story about navigating life’s challenges and adversaries.',
+    tone: 'green',
+  },
+  {
+    title: 'Itan Ore Meji',
+    country: 'Nigeria',
+    category: 'Yoruba Short Film & Storytelling',
+    duration: 'Short film',
+    creator: 'Yoruba Wikimedians User Group',
+    license: 'CC BY-SA 4.0',
+    licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
+    sourcePage: 'https://commons.wikimedia.org/wiki/File:Itan_Ore_meji_(Ase-sile,_Abo_waba).webm',
+    videoUrl: 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Itan_Ore_meji_(Ase-sile,_Abo_waba).webm',
+    description: 'A Yoruba oral-storytelling film preserving language, wisdom and community memory.',
+    tone: 'gold',
+  },
 ] as const;
 
 export default function OpenAfrica() {
@@ -103,7 +129,7 @@ export default function OpenAfrica() {
       </section>
 
       <section className={styles.catalogue}>
-        <header className={styles.catalogueHead}><div><div className={styles.eyebrow}>THE OPEN COLLECTION</div><h2>Choose your next African moment.</h2></div><span>{programmes.length} launch selections • More added as rights are verified</span></header>
+        <header className={styles.catalogueHead}><div><div className={styles.eyebrow}>KORA SHORT FILMS + THE OPEN COLLECTION</div><h2>Watch African stories, music and culture free.</h2></div><span>{programmes.length} launch selections • More added as rights are verified</span></header>
         <div className={styles.grid}>
           {programmes.map((programme, index) => (
             <button className={[styles.card, styles[programme.tone], index === selectedIndex ? styles.active : ''].join(' ')} key={programme.title} onClick={() => { setSelectedIndex(index); document.getElementById('watch-now')?.scrollIntoView({ behavior: 'smooth' }); }}>
