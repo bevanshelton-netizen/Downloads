@@ -16,7 +16,7 @@ export default async function ComingSoon({ searchParams }: { searchParams: Promi
   const isMaintenance = maintenance === '1' || release.maintenance_mode;
 
   return (
-    <main className={styles.page}>
+    <main className={styles.page} id="main-content">
       <section className={styles.hero}>
         <div className={styles.copy}>
           <div className={styles.kicker}><span className={styles.pulse} /> AFRICA&apos;S NEXT SCREEN IS WAKING UP</div>
@@ -29,6 +29,7 @@ export default async function ComingSoon({ searchParams }: { searchParams: Promi
           <div className={styles.actions}>
             <Link className={styles.primary} href="/login">Join the controlled launch →</Link>
             <Link className={styles.secondary} href="/creators">I&apos;m a creator</Link>
+            <Link className={styles.secondary} href="/advertise">I&apos;m a brand</Link>
           </div>
           <div className={styles.trust}>
             <span>Family-safe</span><span>Creator-first</span><span>Live + On Demand</span><span>Made in Africa</span>
@@ -78,22 +79,25 @@ export default async function ComingSoon({ searchParams }: { searchParams: Promi
           <div className={styles.eyebrow}>FOR VIEWERS</div>
           <b>Entertainment that belongs to us.</b>
           <p>Watch African stories, live channels and unforgettable moments in a safe, welcoming space.</p>
+          <Link href="/login">Invited member access →</Link>
         </article>
         <article className={styles.audience}>
           <div className={styles.eyebrow}>FOR CREATORS</div>
           <b>Your story. Your audience. Your IP.</b>
           <p>Build a channel, grow a community and participate transparently in the value you create.</p>
+          <Link href="/creators">Explore creator opportunities →</Link>
         </article>
         <article className={styles.audience}>
           <div className={styles.eyebrow}>FOR BRANDS</div>
           <b>Reach culture, not just clicks.</b>
           <p>Support programmes and creators audiences care about through measurable, family-safe campaigns.</p>
+          <Link href="/advertise">Explore brand partnerships →</Link>
         </article>
       </section>
 
       <section className={styles.finalCta}>
         <h2>Africa is not waiting for the future. We&apos;re streaming it.</h2>
-        <p>KORA is currently welcoming invited members while our final production checks are completed.</p>
+        <p>KORA is currently welcoming invited members while final production integrations and external operating approvals are completed.</p>
         <Link className={styles.darkButton} href="/login">Invited member sign in</Link>
       </section>
     </main>
