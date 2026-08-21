@@ -13,7 +13,9 @@ function redirectTo(request: NextRequest, response: NextResponse, pathname: stri
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const publicKey =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   let authenticated = false;
   let staff = false;
   let publicLaunchEnabled = false;
@@ -28,8 +30,8 @@ export async function middleware(request: NextRequest) {
     || pathname === '/auth/callback'
     || pathname.startsWith('/api/');
 
-  if (url && anonKey) {
-    const supabase = createServerClient(url, anonKey, {
+  if (url && publicKey) {
+    const supabase = createServerClient(url, publicKey, {
       cookies: {
         getAll: () => request.cookies.getAll(),
         setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
