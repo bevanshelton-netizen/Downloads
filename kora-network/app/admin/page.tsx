@@ -15,6 +15,7 @@ export default async function AdminHub() {
       <section className="grid three">
         <article className="panel"><h3>Content moderation</h3><p>Review productions, assign separate Kids approval and handle viewer reports.</p><Link className="primary" href="/admin/moderation">Open moderation</Link></article>
         <article className="panel"><h3>Master control</h3><p>Connect live channel feeds and programme the electronic guide.</p><Link className="primary" href="/admin/schedule">Open schedule</Link></article>
+        <article className="panel"><h3>KORA Tickets</h3><p>Create event previews and guarded ticket inventory.</p><Link className="primary" href="/admin/tickets">Open ticket operations</Link></article>
         <article className="panel"><h3>Live-event pilots</h3><p>Review concert proposals, rights, venues and technical readiness.</p><Link className="primary" href="/admin/live-events">Open live-event queue</Link></article>
         <article className="panel"><h3>Creator acquisition</h3><p>Review filmmakers and issue transparent creator deal offers.</p><Link className="primary" href="/admin/creators">Open creator queue</Link></article>
         <article className="panel"><h3>Advertising review</h3><p>Review campaign media and destination links before any creative can be served.</p><Link className="primary" href="/admin/ads">Open ad review</Link></article>

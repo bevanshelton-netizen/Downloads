@@ -45,6 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <nav aria-label="Main navigation">
             <Link href="/open-africa">Watch Free</Link>
             <Link href="/music">Music</Link>
+            <Link href="/tickets">Tickets</Link>
             <Link href="/watch">On Demand</Link>
             <Link href="/live">Live TV</Link>
             <Link href="/kids">Kids</Link>

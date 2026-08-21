@@ -4,6 +4,7 @@ const publicPaths = [
   '/',
   '/watch',
   '/live',
+  '/tickets',
   '/kids',
   '/creators',
   '/advertise',
