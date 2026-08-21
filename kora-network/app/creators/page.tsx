@@ -25,6 +25,11 @@ export default async function Creators() {
         <article className="panel"><h3>See the numbers</h3><p>Creator Studio tracks your accepted deal, credited creator revenue, wallet balance and payout history.</p></article>
       </section>
       <section className="economy">
+        <div><div className="eyebrow">KORA MUSIC • MANY GENRES, ONE NETWORK</div><h2>Your sound does not have to fit one box.</h2></div>
+        <p>KORA is building discovery lanes for Amapiano, Afrobeats, Gospel, Jazz, Hip-Hop, R&amp;B, Soul, Reggae, Maskandi, Gqom, Kwaito, Rock, Classical, traditional music and emerging hybrid sounds.</p>
+        <div className="actions"><Link className="primary" href="/music">Explore KORA Music</Link></div>
+      </section>
+      <section className="economy">
         <div><div className="eyebrow">LIVE CONCERTS ON KORA</div><h2>Turn your next performance into a global stage.</h2></div>
         <p>Founding artists can register for KORA’s controlled live-concert pilots, combining promotion, ticketing, sponsors, audience insight and replay in one campaign.</p>
         <div className="actions"><Link className="primary" href="/perform-live">Explore Perform Live on KORA</Link></div>
