@@ -48,8 +48,13 @@ if [[ "$version" == "15" ]]; then
   psql "$SUPABASE_DB_URL" -X -v ON_ERROR_STOP=1 -f supabase/016_ticketing_hub.sql
   version="$(psql "$SUPABASE_DB_URL" -X -A -t -v ON_ERROR_STOP=1 -c "select schema_version from public.platform_release_state where singleton=true;")"
 fi
-if [[ "$version" != "16" ]]; then
-  echo "KORA production database is not at schema version 16: ${version:-missing}." >&2
+if [[ "$version" == "16" ]]; then
+  echo "Applying incremental schema 17 ticket payment hardening."
+  psql "$SUPABASE_DB_URL" -X -v ON_ERROR_STOP=1 -f supabase/017_ticket_payment_hardening.sql
+  version="$(psql "$SUPABASE_DB_URL" -X -A -t -v ON_ERROR_STOP=1 -c "select schema_version from public.platform_release_state where singleton=true;")"
+fi
+if [[ "$version" != "17" ]]; then
+  echo "KORA production database is not at schema version 17: ${version:-missing}." >&2
   exit 1
 fi
 
@@ -66,4 +71,4 @@ if ! [[ "$channel_count" =~ ^[0-9]+$ ]] || (( channel_count < 1 )); then
 fi
 
 release_name="$(psql "$SUPABASE_DB_URL" -X -A -t -v ON_ERROR_STOP=1 -c "select release_name from public.platform_release_state where singleton=true;")"
-echo "KORA database verified: schema=16, release=${release_name:-unknown}, active_channels=$channel_count, public_launch=false."
+echo "KORA database verified: schema=17, release=${release_name:-unknown}, active_channels=$channel_count, public_launch=false."
