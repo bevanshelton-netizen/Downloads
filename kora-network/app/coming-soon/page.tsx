@@ -4,11 +4,18 @@ import styles from './coming-soon.module.css';
 
 const categories = [
   { icon: '🎬', label: 'Drama & Film' },
-  { icon: '🎵', label: 'Music' },
-  { icon: '😂', label: 'Comedy' },
+  { icon: '🪘', label: 'Music & Rhythm' },
+  { icon: '🎙️', label: 'Comedy & Talk' },
   { icon: '⚽', label: 'Sport & Culture' },
-  { icon: '✨', label: 'Faith & Family' },
-  { icon: '🌍', label: 'African Stories' },
+  { icon: '👨🏾‍👩🏾‍👧🏾', label: 'Faith & Family' },
+  { icon: '💃🏾', label: 'Dance & Lifestyle' },
+];
+
+const cultureMoments = [
+  { symbol: '🪘', title: 'The beat', copy: 'Amapiano, Afrobeats, gospel, jazz and sounds still being invented.' },
+  { symbol: '🎭', title: 'The story', copy: 'Drama, comedy and cinema shaped by the places we call home.' },
+  { symbol: '🎙️', title: 'The voice', copy: 'Bold creators, honest conversations and ideas crossing every border.' },
+  { symbol: '⚽', title: 'The spirit', copy: 'Sport, celebration and the electric joy of watching together.' },
 ];
 
 export default async function ComingSoon({ searchParams }: { searchParams: Promise<{ maintenance?: string }> }) {
@@ -52,12 +59,32 @@ export default async function ComingSoon({ searchParams }: { searchParams: Promi
         </div>
       </section>
 
+      <div className={styles.patternBand} aria-hidden="true">
+        <span>◆</span><span>▲</span><span>●</span><span>◇</span><span>✦</span><span>▰</span><span>◆</span><span>▲</span><span>●</span><span>◇</span><span>✦</span><span>▰</span>
+      </div>
+
       <div className={styles.ribbon} aria-hidden="true">
         <div className={styles.ribbonTrack}>
           <span>LIVE TV</span><span>SHORT DRAMA</span><span>MUSIC</span><span>COMEDY</span><span>FAITH</span><span>KIDS</span><span>CREATOR TV</span>
           <span>LIVE TV</span><span>SHORT DRAMA</span><span>MUSIC</span><span>COMEDY</span><span>FAITH</span><span>KIDS</span><span>CREATOR TV</span>
         </div>
       </div>
+
+      <section className={styles.culture}>
+        <div className={styles.cultureIntro}>
+          <div className={styles.eyebrow}>THE CONTINENT IN FULL COLOUR</div>
+          <h2>54 countries. Countless rhythms. One brilliant screen.</h2>
+          <p>Contemporary African entertainment without borders—rooted in home, alive to the world, and designed for everyone to enjoy.</p>
+        </div>
+        <div className={styles.cultureGrid}>
+          {cultureMoments.map((moment) => (
+            <article className={styles.cultureCard} key={moment.title}>
+              <span className={styles.cultureSymbol}>{moment.symbol}</span>
+              <div><strong>{moment.title}</strong><p>{moment.copy}</p></div>
+            </article>
+          ))}
+        </div>
+      </section>
 
       <section className={styles.section}>
         <header className={styles.sectionHead}>
