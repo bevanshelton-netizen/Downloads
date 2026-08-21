@@ -25,6 +25,14 @@ export default async function ComingSoon({ searchParams }: { searchParams: Promi
   return (
     <main className={styles.page} id="main-content">
       <section className={styles.hero}>
+        <div className={styles.venueLights} aria-hidden="true"><i /><i /><i /></div>
+        <div className={styles.venueSymbols} aria-hidden="true">
+          <span className={styles.noteOne}>♪</span>
+          <span className={styles.noteTwo}>♫</span>
+          <span className={styles.reel}>🎞️</span>
+          <span className={styles.clapper}>🎬</span>
+          <span className={styles.star}>✦</span>
+        </div>
         <div className={styles.copy}>
           <div className={styles.kicker}><span className={styles.pulse} /> AFRICA&apos;S NEXT SCREEN IS WAKING UP</div>
           <h1 className={styles.title}>Feel the rhythm.<span>Meet KORA.</span></h1>
@@ -45,6 +53,7 @@ export default async function ComingSoon({ searchParams }: { searchParams: Promi
 
         <div className={styles.stage} aria-label="KORA entertainment highlights">
           <div className={styles.glow} />
+          <div className={styles.venueSign} aria-hidden="true"><span>●</span> KORA LIVE TONIGHT <span>●</span></div>
           <div className={styles.cards}>
             <article className={[styles.card, styles.cardOne].join(' ')}>
               <small>KORA ORIGINALS</small><span className={styles.icon}>🎭</span><strong>Stories that feel like home.</strong>
@@ -55,6 +64,12 @@ export default async function ComingSoon({ searchParams }: { searchParams: Promi
             <article className={[styles.card, styles.cardThree].join(' ')}>
               <small>FOR EVERY GENERATION</small><span className={styles.icon}>🌍</span><strong>Watch together. Feel connected.</strong>
             </article>
+          </div>
+          <div className={styles.cartoonCast} aria-label="KORA's family-friendly entertainment characters" role="img">
+            <span className={styles.cartoonOne}>👩🏾‍🎤</span>
+            <span className={styles.cartoonTwo}>🧑🏿‍🎤</span>
+            <span className={styles.cartoonThree}>🦁</span>
+            <b>Meet the KORA crew!</b>
           </div>
         </div>
       </section>
