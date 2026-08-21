@@ -15,9 +15,25 @@ if ! command -v psql >/dev/null 2>&1; then
   echo "psql is required." >&2
   exit 1
 fi
+if ! command -v node >/dev/null 2>&1; then
+  echo "node is required to verify the pinned KORA production project." >&2
+  exit 1
+fi
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
+
+EXPECTED_SUPABASE_REF="$(node -e "const p=require('./production-instance.json'); process.stdout.write(String(p.supabaseProjectRef||''))")"
+if [[ -z "$EXPECTED_SUPABASE_REF" ]]; then
+  echo "production-instance.json does not contain a Supabase project reference." >&2
+  exit 1
+fi
+if [[ "$SUPABASE_DB_URL" != *"$EXPECTED_SUPABASE_REF"* ]]; then
+  echo "Refusing bootstrap: SUPABASE_DB_URL does not identify the pinned KORA production project." >&2
+  exit 1
+fi
+
+echo "Confirmed target database URL identifies the pinned KORA production project."
 
 files=(
   "supabase/000_fresh_install.sql"
