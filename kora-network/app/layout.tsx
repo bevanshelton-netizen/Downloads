@@ -23,13 +23,25 @@ export const viewport: Viewport = {
   colorScheme: 'dark',
 };
 
+function KoraMark() {
+  return (
+    <svg className="koraMark" viewBox="0 0 64 76" aria-hidden="true">
+      <path className="koraNeck" d="M37 5v41" />
+      <path className="koraBody" d="M13 47c0-13 9-22 24-22s24 9 24 22c0 14-10 24-24 24S13 61 13 47Z" />
+      <path className="koraBridge" d="M21 47h32" />
+      <path className="koraString" d="M29 12 24 47M33 9 30 47M37 7v40M41 11l2 36M45 16l4 31" />
+      <circle cx="37" cy="48" r="4" />
+    </svg>
+  );
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
         <a className="skipLink" href="#page-content">Skip to content</a>
         <header className="top">
-          <Link className="logo" href="/" aria-label="KORA Network home">{brand.name}<span>NETWORK</span></Link>
+          <Link className="logo" href="/" aria-label="KORA Network home"><KoraMark /><span className="logoWords"><b>{brand.name}</b><small>NETWORK</small></span></Link>
           <nav aria-label="Main navigation">
             <Link href="/watch">On Demand</Link>
             <Link href="/live">Live TV</Link>
@@ -42,7 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </header>
         <div id="page-content" tabIndex={-1}>{children}</div>
         <footer>
-          <div className="footerBrand"><strong>{brand.name}</strong><span>Family-safe creator television • No pornography or explicit sexual content.</span></div>
+          <div className="footerBrand"><div className="footerLogo"><KoraMark /><strong>{brand.name}</strong></div><span>Family-safe creator television • No pornography or explicit sexual content.</span></div>
           <div className="footerLinks" aria-label="Legal and policy links">
             <Link href="/legal/terms">Terms</Link>
             <Link href="/legal/privacy">Privacy</Link>
