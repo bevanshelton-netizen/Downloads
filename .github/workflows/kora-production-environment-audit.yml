@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 concurrency:
   group: kora-production-environment-audit
@@ -64,8 +65,8 @@ jobs:
         shell: bash
         run: |
           set +e
-          npm run preflight:production
-          code=$?
+          npm run preflight:production 2>&1 | tee "$RUNNER_TEMP/kora-preflight.log"
+          code=${PIPESTATUS[0]}
           echo "exit_code=$code" >> "$GITHUB_OUTPUT"
           exit 0
       - name: Read-only deployed readiness snapshot
@@ -73,24 +74,46 @@ jobs:
         shell: bash
         run: |
           if [[ -z "${NEXT_PUBLIC_APP_URL:-}" ]]; then
-            echo "NEXT_PUBLIC_APP_URL is not configured; deployed readiness cannot be queried."
+            echo "NEXT_PUBLIC_APP_URL is not configured; deployed readiness cannot be queried." | tee "$RUNNER_TEMP/kora-readiness.log"
             echo "status=unavailable" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          node - <<'NODE'
+          node - <<'NODE' | tee "$RUNNER_TEMP/kora-readiness.log"
           const base = String(process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '');
           try {
             const response = await fetch(`${base}/api/readiness`, { cache: 'no-store' });
             const text = await response.text();
-            console.log(`Readiness HTTP ${response.status}`);
-            try {
-              const data = JSON.parse(text);
-              console.log(JSON.stringify(data, null, 2));
-            } catch {
-              console.log('Readiness endpoint did not return JSON.');
+            let data = null;
+            try { data = JSON.parse(text); } catch {}
+            if (!data || typeof data !== 'object') {
+              console.log(JSON.stringify({ httpStatus: response.status, readable: false }, null, 2));
+            } else {
+              const details = data.details && typeof data.details === 'object' ? data.details : {};
+              const safe = {
+                httpStatus: response.status,
+                service: data.service,
+                status: data.status,
+                productionReady: data.productionReady === true,
+                checks: data.checks && typeof data.checks === 'object' ? data.checks : {},
+                details: {
+                  payfastMode: details.payfastMode,
+                  videoProvider: details.videoProvider,
+                  schemaVersion: details.schemaVersion,
+                  releaseName: details.releaseName,
+                  adminCount: details.adminCount,
+                  activeChannelCount: details.activeChannelCount,
+                  maintenanceMode: details.maintenanceMode,
+                  publicSignupsEnabled: details.publicSignupsEnabled,
+                  creatorApplicationsEnabled: details.creatorApplicationsEnabled,
+                  advertiserCampaignsEnabled: details.advertiserCampaignsEnabled,
+                  supabaseProjectRef: details.supabaseProjectRef,
+                },
+                timestamp: data.timestamp,
+              };
+              console.log(JSON.stringify(safe, null, 2));
             }
           } catch (error) {
-            console.log(`Readiness request failed: ${error instanceof Error ? error.message : 'unknown error'}`);
+            console.log(JSON.stringify({ requestFailed: true, message: error instanceof Error ? error.message : 'unknown error' }, null, 2));
           }
           NODE
       - name: Audit summary
@@ -99,13 +122,55 @@ jobs:
           {
             echo '# KORA production environment audit'
             echo
-            echo 'This workflow is read-only. It does not print secret values or mutate KORA, Supabase, PayFast, Cloudflare, or Vercel.'
+            echo 'This workflow is read-only against production systems. It never prints secret values.'
             echo
             if [[ '${{ steps.preflight.outputs.exit_code }}' == '0' ]]; then
               echo '- Protected-environment private-beta preflight: **PASS**'
             else
-              echo '- Protected-environment private-beta preflight: **BLOCKED** — see the preflight step for the exact missing configuration names.'
+              echo '- Protected-environment private-beta preflight: **BLOCKED**'
             fi
-            echo '- Deployed `/api/readiness`: queried when `NEXT_PUBLIC_APP_URL` is configured; output contains readiness booleans/counts only.'
-            echo '- No public-launch switch is changed by this audit.'
+            echo '- Deployed `/api/readiness`: queried when `NEXT_PUBLIC_APP_URL` is configured; output is reduced to the existing safe readiness fields.'
+            echo '- No database, provider account, deployment, or public-launch switch is changed by this audit.'
           } >> "$GITHUB_STEP_SUMMARY"
+      - name: Publish safe audit result to one GitHub issue
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PREFLIGHT_EXIT: ${{ steps.preflight.outputs.exit_code }}
+        run: |
+          issue_file="$RUNNER_TEMP/kora-audit-issue.md"
+          failures="$(grep -E '^(FAIL|WARN)  ' "$RUNNER_TEMP/kora-preflight.log" || true)"
+          if [[ -z "$failures" ]]; then failures='No blocking or warning configuration lines.'; fi
+          readiness="$(cat "$RUNNER_TEMP/kora-readiness.log" 2>/dev/null || echo '{"readiness":"unavailable"}')"
+          {
+            echo '# KORA production environment audit'
+            echo
+            echo '**Production systems are read-only in this audit. No secret values are included below.**'
+            echo
+            if [[ "$PREFLIGHT_EXIT" == '0' ]]; then
+              echo '## Protected environment preflight: PASS'
+            else
+              echo '## Protected environment preflight: BLOCKED'
+            fi
+            echo
+            echo '### Blocking / warning configuration names'
+            echo '```text'
+            printf '%s\n' "$failures"
+            echo '```'
+            echo
+            echo '### Safe deployed readiness snapshot'
+            echo '```json'
+            printf '%s\n' "$readiness"
+            echo '```'
+            echo
+            echo "Audit workflow run: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo "Updated: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          } > "$issue_file"
+
+          title='KORA production environment audit'
+          number="$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search 'KORA production environment audit in:title' --json number,title --jq '.[] | select(.title == "KORA production environment audit") | .number' | head -n 1)"
+          if [[ -n "$number" ]]; then
+            gh issue edit "$number" --repo "$GITHUB_REPOSITORY" --body-file "$issue_file"
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body-file "$issue_file"
+          fi
