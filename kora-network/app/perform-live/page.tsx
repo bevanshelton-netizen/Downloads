@@ -20,9 +20,10 @@ export default async function PerformLive() {
         <div className={styles.heroCopy}>
           <div className={styles.eyebrow}>KORA FOUNDING ARTISTS • CONTROLLED PILOT</div>
           <h1>Your stage.<br/><span>Africa&apos;s screen.</span><br/>The world watching.</h1>
-          <p>Stream concerts, festivals, gospel, jazz, amapiano, comedy, spoken word and cultural performances live on KORA—then keep the recording working for you.</p>
+          <p>Stream Amapiano, Afrobeats, Gospel, Jazz, Hip-Hop, R&amp;B, Soul, Reggae, Maskandi, Gqom, Kwaito, Rock, Classical, traditional music and emerging hybrid sounds live on KORA—then keep the recording working for you.</p>
           <div className={styles.actions}>
             <Link className={styles.primary} href={applyHref}>{applicationsOpen ? 'Apply to perform live →' : 'Join the founding artist waitlist →'}</Link>
+            <Link className={styles.secondary} href="/music">Explore KORA music genres</Link>
             <a className={styles.secondary} href="#how-it-works">See how it works</a>
           </div>
           <small>Recruitment is open for controlled pilots. Public broadcasting begins only after rights, safety, payment and technical rehearsal checks pass.</small>
@@ -34,7 +35,7 @@ export default async function PerformLive() {
         </div>
       </section>
 
-      <div className={styles.rail}><span>LIVE CONCERTS</span><i>◆</i><span>GLOBAL DISCOVERY</span><i>◆</i><span>TICKETS + SPONSORS + REPLAYS</span></div>
+      <div className={styles.rail}><span>LIVE CONCERTS</span><i>◆</i><span>EVERY GENRE</span><i>◆</i><span>GLOBAL DISCOVERY</span><i>◆</i><span>TICKETS + SPONSORS + REPLAYS</span></div>
 
       <section className={styles.value}>
         <div><span>90%</span><strong>of net ticket revenue to the founding artist</strong><small>Under the accepted event deal; payment costs and refunds are deducted before the split.</small></div>
@@ -64,8 +65,8 @@ export default async function PerformLive() {
       <section className={styles.fit}>
         <div className={styles.eyebrow}>WHO SHOULD APPLY</div>
         <h2>African talent in every rhythm, language and generation.</h2>
-        <p>Independent musicians, bands, choirs, DJs, gospel artists, jazz and folk performers, comedians, poets, festivals, churches, campuses, venues, promoters and cultural organisations.</p>
-        <div className={styles.actions}><Link className={styles.primary} href={applyHref}>{applicationsOpen ? 'Start your artist application →' : 'Register for a controlled pilot →'}</Link><Link className={styles.secondary} href="/legal/creator-agreement">Read creator terms</Link></div>
+        <p>Independent musicians, bands, choirs, DJs, soloists, producers, ensembles, orchestras, gospel artists, traditional performers, festivals, churches, campuses, venues, promoters and cultural organisations are welcome across KORA&apos;s genre lanes.</p>
+        <div className={styles.actions}><Link className={styles.primary} href={applyHref}>{applicationsOpen ? 'Start your artist application →' : 'Register for a controlled pilot →'}</Link><Link className={styles.secondary} href="/music">See all music lanes</Link><Link className={styles.secondary} href="/legal/creator-agreement">Read creator terms</Link></div>
         <small>KORA is family-safe. Pornography and explicit sexual content are not permitted. Artists retain their intellectual property by default and accept transparent commercial terms before monetisation.</small>
       </section>
     </main>
