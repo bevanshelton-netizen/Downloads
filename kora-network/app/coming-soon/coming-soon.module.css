@@ -254,7 +254,7 @@
   .stage{min-height:430px}.cards{height:370px}.venueSign{top:1%}.cartoonCast{right:auto;left:50%;bottom:0;transform:translateX(-50%)}.venueSymbols .clapper,.venueSymbols .star{display:none}
   .card{width:48%;padding:.8rem;border-radius:1.15rem}
   .cardOne{left:0}.cardTwo{left:26%}.cardThree{right:0}
-  .africaSignature{gap:.55rem;font-size:.56rem;letter-spacing:.08em}.africaSignature span:last-child{display:none}.platformPitch{padding-top:3rem}.platformStory{padding-bottom:2.3rem}.platformActions article{grid-template-columns:3.1rem 1fr}.platformLinks a{flex:1 1 100%;justify-content:center}.koraMeaning{grid-template-columns:1fr;text-align:center}.koraInstrument{margin-inline:auto}.koraMeaning p{font-size:.92rem}
+  .africaSignature{gap:.55rem;font-size:.56rem;letter-spacing:.08em}.platformPitch{padding-top:3rem}.platformStory{padding-bottom:2.3rem}.platformActions article{grid-template-columns:3.1rem 1fr}.platformLinks a{flex:1 1 100%;justify-content:center}.koraMeaning{grid-template-columns:1fr;text-align:center}.koraInstrument{margin-inline:auto}.koraMeaning p{font-size:.92rem}
   .symbolShowcaseHead{align-items:flex-start;flex-direction:column}.symbolGrid{display:flex;overflow-x:auto;padding-bottom:.6rem;scroll-snap-type:x mandatory}.symbolTile{flex:0 0 42%;min-height:132px;scroll-snap-align:start}
   .culture{padding-block:5rem 3rem}.cultureGrid{grid-template-columns:1fr 1fr}.cultureCard{min-height:175px}.patternBand span:nth-child(even){display:none}
   .categories{grid-template-columns:repeat(2,1fr)}
