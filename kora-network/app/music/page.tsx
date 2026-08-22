@@ -41,10 +41,10 @@ export default function MusicPage() {
         <span>AMAPIANO</span><i>◆</i><span>GOSPEL</span><i>◆</i><span>JAZZ</span><i>◆</i><span>HIP-HOP</span><i>◆</i><span>MASKANDI</span><i>◆</i><span>REGGAE</span><i>◆</i><span>CLASSICAL</span>
       </div>
 
-      <section className={styles.intro}>
+      <section className={styles.intro} id="genre-discovery">
         <div className={styles.eyebrow}>BROWSE BY GENRE</div>
         <h2>From the village to the festival stage. From church choirs to global clubs.</h2>
-        <p>These are KORA&apos;s core music discovery lanes. Hybrid and emerging genres are welcome too—Creator Studio still allows artists to describe a sound in their own words.</p>
+        <p>Choose a genre to discover matching KORA artists and their upcoming live events. Hybrid and emerging genres are welcome too—Creator Studio still allows artists to describe a sound in their own words.</p>
       </section>
 
       <section className={styles.genreGrid}>
@@ -55,7 +55,11 @@ export default function MusicPage() {
               <div><h2>{group.title}</h2><p>{group.description}</p></div>
             </div>
             <div className={styles.chips}>
-              {group.genres.map((genre) => <span key={genre}>{genre}</span>)}
+              {group.genres.map((genre) => (
+                <Link href={`/artists?genre=${encodeURIComponent(genre)}`} key={genre} aria-label={`Discover ${genre} artists on KORA`}>
+                  {genre}<b aria-hidden="true"> →</b>
+                </Link>
+              ))}
             </div>
           </article>
         ))}
