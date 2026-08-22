@@ -45,6 +45,30 @@ export async function verifyPayoutOnboarding(formData: FormData) {
   revalidatePath('/studio/earnings');
 }
 
+export async function releaseTicketSettlement(formData: FormData) {
+  await requireAdmin();
+  const settlementId = String(formData.get('settlement_id') ?? '');
+  if (!settlementId) return;
+  const admin = createAdminClient();
+  const { error } = await admin.rpc('release_ticket_settlement', { p_settlement_id: settlementId });
+  if (error) redirect(`/admin/payouts?error=${encodeURIComponent(error.message)}`);
+  revalidatePath('/admin/payouts');
+  revalidatePath('/studio/earnings');
+}
+
+export async function recordConfirmedTicketRefund(formData: FormData) {
+  await requireAdmin();
+  const settlementId = String(formData.get('settlement_id') ?? '');
+  const confirmation = String(formData.get('refund_confirmed') ?? '');
+  if (!settlementId || confirmation !== 'yes') redirect('/admin/payouts?error=Confirm%20the%20external%20refund%20before%20reversing%20the%20KORA%20settlement');
+  const admin = createAdminClient();
+  const { error } = await admin.rpc('record_confirmed_ticket_refund', { p_settlement_id: settlementId });
+  if (error) redirect(`/admin/payouts?error=${encodeURIComponent(error.message)}`);
+  revalidatePath('/admin/payouts');
+  revalidatePath('/studio/earnings');
+  revalidatePath('/tickets');
+}
+
 export async function resolvePayout(formData: FormData) {
   await requireAdmin();
   const payoutRequestId = String(formData.get('payout_request_id') ?? '');

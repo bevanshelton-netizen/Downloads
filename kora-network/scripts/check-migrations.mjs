@@ -18,7 +18,7 @@ for (const item of numbered) {
   seen.add(item.number);
 }
 
-const latest = 18;
+const latest = 19;
 for (let number = 2; number <= latest; number += 1) {
   if (!seen.has(number)) throw new Error(`Missing KORA migration ${String(number).padStart(3,'0')}`);
 }
