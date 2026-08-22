@@ -20,15 +20,25 @@ function eventDate(value: string | null) {
   return date.toLocaleString('en-ZA', { dateStyle: 'medium', timeStyle: 'short' });
 }
 
-export default async function Tickets() {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from('ticket_events')
-    .select('id,title,slug,description,starts_at,event_mode,status,sales_enabled')
-    .in('status', ['published', 'postponed', 'cancelled', 'completed'])
-    .order('starts_at');
+async function loadTicketEvents() {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from('ticket_events')
+      .select('id,title,slug,description,starts_at,event_mode,status,sales_enabled')
+      .in('status', ['published', 'postponed', 'cancelled', 'completed'])
+      .order('starts_at');
 
-  const events = ((data ?? []) as TicketEvent[]).filter((event) => event.id && event.slug && event.title);
+    if (error) return [];
+    return ((data ?? []) as TicketEvent[]).filter((event) => event.id && event.slug && event.title);
+  } catch {
+    // The public marketplace must remain available while production data services recover.
+    return [];
+  }
+}
+
+export default async function Tickets() {
+  const events = await loadTicketEvents();
 
   return (
     <main className={styles.page}>
@@ -45,7 +55,7 @@ export default async function Tickets() {
       </section>
 
       <section className={styles.grid}>
-        {!error && events.length ? (
+        {events.length ? (
           events.map((event) => {
             const description = event.description?.trim() || 'More event details will be announced soon.';
             const mode = event.event_mode?.trim().toUpperCase() || 'EVENT';
