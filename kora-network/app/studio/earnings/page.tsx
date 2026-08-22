@@ -18,9 +18,10 @@ export default async function CreatorEarnings({ searchParams }: { searchParams: 
 
   if (!creator) return <main><section className="subHero"><div className="eyebrow">CREATOR ECONOMY</div><h1>Apply before monetising.</h1><p>KORA creator deals are offered after creator review.</p><Link className="primary" href="/creators/apply">Apply to KORA</Link></section></main>;
 
-  const [{ data: deals }, { data: allocations }] = await Promise.all([
+  const [{ data: deals }, { data: allocations }, { data: ticketSettlements }] = await Promise.all([
     supabase.from('creator_deals').select('id,deal_name,version,revenue_share_bps,revenue_basis,status,offered_at,accepted_at').eq('creator_id', creator.id).order('offered_at', { ascending: false }),
     supabase.from('creator_revenue_allocations').select('id,eligible_amount,creator_amount,platform_amount,created_at,production_id').eq('creator_id', creator.id).order('created_at', { ascending: false }).limit(50),
+    supabase.from('ticket_settlements').select('id,beneficiary_name,gross_amount,beneficiary_share_bps,beneficiary_amount,platform_amount,status,available_at,created_at').eq('owner_id', user.id).order('created_at', { ascending: false }).limit(50),
   ]);
 
   let balance = 0;
@@ -35,20 +36,24 @@ export default async function CreatorEarnings({ searchParams }: { searchParams: 
   }
 
   const totalCreatorRevenue = (allocations ?? []).reduce((sum, item) => sum + Number(item.creator_amount), 0);
+  const pendingTicketRevenue = (ticketSettlements ?? []).filter(item => item.status === 'pending').reduce((sum, item) => sum + Number(item.beneficiary_amount), 0);
+  const releasedTicketRevenue = (ticketSettlements ?? []).filter(item => item.status === 'released').reduce((sum, item) => sum + Number(item.beneficiary_amount), 0);
   const acceptedDeal = (deals ?? []).find(d => d.status === 'accepted');
   const offeredDeals = (deals ?? []).filter(d => d.status === 'offered');
   const payoutReady = profile?.kyc_status === 'verified' && payoutProfile?.status === 'verified';
 
   return (
     <main>
-      <section className="subHero"><div className="eyebrow">CREATOR ECONOMY</div><h1>Your deal. Your earnings. Your payout trail.</h1><p>KORA credits creator revenue only from cleared eligible revenue using the accepted deal stored against your creator account.</p></section>
+      <section className="subHero"><div className="eyebrow">CREATOR ECONOMY</div><h1>Your deal. Your tickets. Your payout trail.</h1><p>KORA separates ticket accruals from withdrawable wallet money. Ticket income is shown immediately after cleared payment, held through the event/refund window, then released to your wallet for payout under the normal KYC controls.</p></section>
       <section className="dashMain">
         {error ? <div className="panel"><strong>{error}</strong></div> : null}
         {payout ? <div className="panel"><strong>Payout request submitted.</strong> The amount is held from your available wallet while operations processes it.</div> : null}
         <div className="kpis">
           <div><small>Available wallet</small><b>R{balance.toFixed(2)}</b></div>
-          <div><small>Creator revenue credited</small><b>R{totalCreatorRevenue.toFixed(2)}</b></div>
-          <div><small>Active creator share</small><b>{acceptedDeal ? `${(acceptedDeal.revenue_share_bps / 100).toFixed(1)}%` : 'No deal accepted'}</b></div>
+          <div><small>Ticket income on hold</small><b>R{pendingTicketRevenue.toFixed(2)}</b></div>
+          <div><small>Ticket income released</small><b>R{releasedTicketRevenue.toFixed(2)}</b></div>
+          <div><small>Creator content revenue credited</small><b>R{totalCreatorRevenue.toFixed(2)}</b></div>
+          <div><small>Active content share</small><b>{acceptedDeal ? `${(acceptedDeal.revenue_share_bps / 100).toFixed(1)}%` : 'No deal accepted'}</b></div>
         </div>
 
         {offeredDeals.map(deal => <form action={acceptCreatorDeal} className="panel" key={deal.id}>
@@ -58,6 +63,8 @@ export default async function CreatorEarnings({ searchParams }: { searchParams: 
           <p>This does not transfer ownership of your IP. Revenue allocation begins only after you accept this offer and qualifying revenue has cleared.</p>
           <button className="primary">Accept creator deal</button>
         </form>)}
+
+        <div className="panel"><h3>KORA Tickets settlements</h3><p>Ticket splits are event-specific and are frozen on each completed order. A pending settlement is real cleared ticket revenue, but it is not withdrawable until the event/refund hold expires and KORA releases it.</p>{(ticketSettlements ?? []).length ? (ticketSettlements ?? []).map(item => <div className="productionRow" key={item.id}><strong>R{Number(item.beneficiary_amount).toFixed(2)} • {item.status}</strong><span>Gross R{Number(item.gross_amount).toFixed(2)} • your event share {(item.beneficiary_share_bps/100).toFixed(1)}% • KORA R{Number(item.platform_amount).toFixed(2)} • release not before {new Date(item.available_at).toLocaleString('en-ZA')}</span></div>) : <p>No KORA ticket settlements yet.</p>}</div>
 
         <div className="grid three">
           <form action={submitPayoutOnboarding} className="panel formPanel" style={{ gridColumn: 'span 2' }}>
@@ -77,7 +84,7 @@ export default async function CreatorEarnings({ searchParams }: { searchParams: 
         </div>
 
         <div className="grid two">
-          <div className="panel"><h3>Revenue allocations</h3>{(allocations ?? []).length ? (allocations ?? []).map(item => <div className="productionRow" key={item.id}><strong>R{Number(item.creator_amount).toFixed(2)} credited</strong><span>Eligible R{Number(item.eligible_amount).toFixed(2)} • {new Date(item.created_at).toLocaleDateString('en-ZA')}</span></div>) : <p>No creator revenue has been allocated yet.</p>}</div>
+          <div className="panel"><h3>Content revenue allocations</h3>{(allocations ?? []).length ? (allocations ?? []).map(item => <div className="productionRow" key={item.id}><strong>R{Number(item.creator_amount).toFixed(2)} credited</strong><span>Eligible R{Number(item.eligible_amount).toFixed(2)} • {new Date(item.created_at).toLocaleDateString('en-ZA')}</span></div>) : <p>No creator revenue has been allocated yet.</p>}</div>
           <div className="panel"><h3>Payout history</h3>{requests.length ? requests.map(item => <div className="productionRow" key={item.id}><strong>R{item.amount.toFixed(2)}</strong><span>{item.status} • {new Date(item.requested_at).toLocaleDateString('en-ZA')}</span></div>) : <p>No payout requests yet.</p>}</div>
         </div>
       </section>

@@ -67,7 +67,7 @@ export async function getLaunchReadiness() {
       && configuredAny(['SUPABASE_SECRET_KEY', 'SUPABASE_SERVICE_ROLE_KEY'], 20),
     supabaseProjectMatch: normalizedOrigin(supabaseUrl) === productionInstance.supabaseUrl,
     databaseReachable,
-    schemaCurrent: release.schema_version >= 18,
+    schemaCurrent: release.schema_version >= 19,
     adminBootstrapped: adminCount > 0,
     channelSeeded: activeChannelCount >= 1,
     payfastCredentials: configured('PAYFAST_MERCHANT_ID')

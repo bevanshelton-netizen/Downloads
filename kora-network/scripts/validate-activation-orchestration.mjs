@@ -45,7 +45,8 @@ check('Database ensure script pins the KORA Supabase project', db.includes('prod
 check('Existing databases are verified rather than rebuilt', db.includes('profiles_exists') && db.includes('verifying it instead of rebuilding it'));
 check('Fresh bootstrap retains the destructive-operation guard', db.includes('BOOTSTRAP FRESH KORA DATABASE') && db.includes('bootstrap-production-db.sh'));
 check('Database ensure carries ticket hardening before artist discovery', db.indexOf('017_ticket_payment_hardening.sql') >= 0 && db.indexOf('018_artist_discovery.sql') > db.indexOf('017_ticket_payment_hardening.sql'));
-check('Database ensure requires schema 18', db.includes('schema version 18') && db.includes('version\" != \"18\"'));
+check('Database ensure carries artist discovery before ticket settlements', db.indexOf('018_artist_discovery.sql') >= 0 && db.indexOf('019_ticket_settlements.sql') > db.indexOf('018_artist_discovery.sql'));
+check('Database ensure requires schema 19', db.includes('schema version 19') && db.includes('version\" != \"19\"'));
 check('Private beta refuses an already-public database', db.includes('public-launch switch is already enabled'));
 check('Database ensure requires at least one active channel', db.includes('active seeded channel') && db.includes('live_channels'));
 
