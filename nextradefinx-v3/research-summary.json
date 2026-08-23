@@ -1,0 +1,18 @@
+{
+  "version": "0.3.0",
+  "research_mode": "synthetic_walk_forward_validation",
+  "model_family": "transparent_baseline_ensemble_v0.3",
+  "overall_health": "halted",
+  "real_money_enabled": false,
+  "claim_boundary": "Pipeline validation only. No live-market predictive-performance claim.",
+  "instruments": {
+    "XAUUSD": {"directional_accuracy": 0.548577, "high_confidence_accuracy": 0.562937, "brier_score": 0.259347, "coverage": 0.842002, "health": "normal"},
+    "USDZAR": {"directional_accuracy": 0.487733, "high_confidence_accuracy": 0.485584, "brier_score": 0.270873, "coverage": 0.646712, "health": "halted"},
+    "US100": {"directional_accuracy": 0.523062, "high_confidence_accuracy": 0.522831, "brier_score": 0.27155, "coverage": 0.859666, "health": "watch"},
+    "SPX": {"directional_accuracy": 0.52895, "high_confidence_accuracy": 0.529484, "brier_score": 0.268531, "coverage": 0.798822, "health": "watch"},
+    "BTCUSD": {"directional_accuracy": 0.526006, "high_confidence_accuracy": 0.523207, "brier_score": 0.275634, "coverage": 0.930324, "health": "watch"},
+    "WTI": {"directional_accuracy": 0.506379, "high_confidence_accuracy": 0.520101, "brier_score": 0.271256, "coverage": 0.781158, "health": "watch"},
+    "J200": {"directional_accuracy": 0.496565, "high_confidence_accuracy": 0.505571, "brier_score": 0.273257, "coverage": 0.704612, "health": "halted"},
+    "EURUSD": {"directional_accuracy": 0.511286, "high_confidence_accuracy": 0.518854, "brier_score": 0.26363, "coverage": 0.650638, "health": "halted"}
+  }
+}
