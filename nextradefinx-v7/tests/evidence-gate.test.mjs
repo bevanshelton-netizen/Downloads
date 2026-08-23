@@ -1,0 +1,6 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { evaluateEvidenceGate } from '../src/shadow/evidence-gate.mjs';
+const policy = { evidence_gate: { minimum_observation_days:30, minimum_total_forecasts:500, minimum_directional_calls:200, minimum_brier_improvement_vs_naive:0.03, maximum_calibration_ece:0.08, require_directional_wilson_lower_bound_above_random:true, directional_random_baseline:0.5 }, boundaries:{execution_enabled:false,client_visible:false,personalized_advice_enabled:false} };
+test('blocks weak evidence', () => { const r=evaluateEvidenceGate({ trackRecord:{observation_days:5,forecasts:100,directional_calls:60,directional_hits:31,brier_score:0.25,naive_brier_score:0.25,calibration_ece:0.12}, policy }); assert.equal(r.eligible_for_internal_review,false); assert.ok(r.blockers.length>=4); });
+test('allows only statistically supported evidence', () => { const r=evaluateEvidenceGate({ trackRecord:{observation_days:90,forecasts:3000,directional_calls:1200,directional_hits:720,brier_score:0.22,naive_brier_score:0.25,calibration_ece:0.04}, policy }); assert.equal(r.eligible_for_internal_review,true); assert.ok(r.diagnostics.directional_wilson_lower_95>0.5); });
