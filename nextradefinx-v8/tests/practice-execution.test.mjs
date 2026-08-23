@@ -1,0 +1,15 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { normalizeOrderIntent } from '../src/execution/order-intent.mjs';
+import { assessPracticeRisk } from '../src/execution/pretrade-risk.mjs';
+import { assertExecutionMode } from '../src/execution/execution-firewall.mjs';
+import { PaperBroker } from '../src/broker/paper-broker.mjs';
+const policy={max_risk_per_trade_pct:1,max_position_notional_pct:20,max_daily_loss_pct:3,max_open_positions:5};
+test('normalizes a valid practice intent',()=>{const r=normalizeOrderIntent({symbol:' xauusd ',side:'buy',quantity:1,reference_price:2500,stop_price:2475}); assert.equal(r.ok,true); assert.equal(r.intent.symbol,'XAUUSD');});
+test('rejects a live intent',()=>{const r=normalizeOrderIntent({account_mode:'live',symbol:'XAUUSD',side:'BUY',quantity:1,reference_price:2500,stop_price:2475}); assert.equal(r.ok,false);});
+test('allows a small practice trade',()=>{const r=assessPracticeRisk({intent:{reference_price:100,stop_price:98,quantity:100,order_type:'MARKET'},account:{balance:100000,open_positions:1,daily_pnl:0},policy}); assert.equal(r.allowed,true); assert.equal(r.metrics.risk_amount,200);});
+test('blocks excessive per-trade risk',()=>{const r=assessPracticeRisk({intent:{reference_price:100,stop_price:80,quantity:100,order_type:'MARKET'},account:{balance:100000,open_positions:1,daily_pnl:0},policy}); assert.equal(r.allowed,false); assert.ok(r.blockers.includes('risk_per_trade_exceeds_policy'));});
+test('blocks after daily loss limit',()=>{const r=assessPracticeRisk({intent:{reference_price:100,stop_price:99,quantity:10,order_type:'MARKET'},account:{balance:100000,open_positions:1,daily_pnl:-3500},policy}); assert.equal(r.allowed,false);});
+test('execution firewall allows practice only when live flag is off',()=>{delete process.env.EXECUTION_ENABLED; assert.equal(assertExecutionMode('practice').execution_enabled,false);});
+test('execution firewall rejects live mode',()=>{assert.throws(()=>assertExecutionMode('live'),/real_execution_not_implemented_v8/);});
+test('paper broker returns simulated fill only',async()=>{delete process.env.EXECUTION_ENABLED; const broker=new PaperBroker({slippageBps:1}); const fill=await broker.placeOrder({account_mode:'practice',symbol:'XAUUSD',side:'BUY',quantity:1,reference_price:2500,stop_price:2475,order_type:'MARKET'}); assert.equal(fill.simulated,true); assert.equal(fill.execution_enabled,false);});
