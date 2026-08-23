@@ -1,0 +1,19 @@
+{
+  "version": "0.5.0",
+  "mode": "synthetic_chronological_shadow_replay",
+  "generated_at": "2026-08-23T19:21:02.565Z",
+  "per_instrument": {
+    "XAUUSD": {"forecasts":139,"outcomes":139,"pending":0,"directional_calls":129,"no_forecast":10,"abstention_rate":0.071942,"directional_accuracy":0.503876,"brier_score":0.271635,"execution_enabled":false,"client_visible":false},
+    "USDZAR": {"forecasts":139,"outcomes":139,"pending":0,"directional_calls":0,"no_forecast":139,"abstention_rate":1,"directional_accuracy":null,"brier_score":0.283391,"execution_enabled":false,"client_visible":false},
+    "US100": {"forecasts":139,"outcomes":139,"pending":0,"directional_calls":0,"no_forecast":139,"abstention_rate":1,"directional_accuracy":null,"brier_score":0.286723,"execution_enabled":false,"client_visible":false},
+    "SPX": {"forecasts":139,"outcomes":139,"pending":0,"directional_calls":0,"no_forecast":139,"abstention_rate":1,"directional_accuracy":null,"brier_score":0.268027,"execution_enabled":false,"client_visible":false},
+    "BTCUSD": {"forecasts":139,"outcomes":139,"pending":0,"directional_calls":0,"no_forecast":139,"abstention_rate":1,"directional_accuracy":null,"brier_score":0.291012,"execution_enabled":false,"client_visible":false},
+    "WTI": {"forecasts":139,"outcomes":139,"pending":0,"directional_calls":0,"no_forecast":139,"abstention_rate":1,"directional_accuracy":null,"brier_score":0.275098,"execution_enabled":false,"client_visible":false},
+    "J200": {"forecasts":139,"outcomes":139,"pending":0,"directional_calls":0,"no_forecast":139,"abstention_rate":1,"directional_accuracy":null,"brier_score":0.269963,"execution_enabled":false,"client_visible":false},
+    "EURUSD": {"forecasts":139,"outcomes":139,"pending":0,"directional_calls":0,"no_forecast":139,"abstention_rate":1,"directional_accuracy":null,"brier_score":0.280644,"execution_enabled":false,"client_visible":false}
+  },
+  "overall": {"forecasts":1112,"outcomes":1112,"pending":0,"directional_calls":129,"no_forecast":983,"abstention_rate":0.883993,"directional_accuracy":0.503876,"brier_score":0.278311,"execution_enabled":false,"client_visible":false},
+  "execution_enabled": false,
+  "client_visible": false,
+  "claim_boundary": "Synthetic chronological replay only. This validates scoring plumbing and is not live-market evidence."
+}
