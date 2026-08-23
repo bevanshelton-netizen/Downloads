@@ -1,0 +1,23 @@
+{
+  "version": "0.7.0",
+  "circuit_breaker": {
+    "max_consecutive_provider_failures": 3,
+    "max_consecutive_data_quality_failures": 2,
+    "halt_on_ledger_integrity_failure": true,
+    "cooldown_seconds": 3600
+  },
+  "evidence_gate": {
+    "minimum_observation_days": 30,
+    "minimum_total_forecasts": 500,
+    "minimum_directional_calls": 200,
+    "minimum_brier_improvement_vs_naive": 0.03,
+    "maximum_calibration_ece": 0.08,
+    "require_directional_wilson_lower_bound_above_random": true,
+    "directional_random_baseline": 0.5
+  },
+  "boundaries": {
+    "execution_enabled": false,
+    "client_visible": false,
+    "personalized_advice_enabled": false
+  }
+}
