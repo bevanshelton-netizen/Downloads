@@ -6,7 +6,8 @@ import { signIn, signUp } from './actions';
 export default async function Login({ searchParams }: { searchParams: Promise<{ error?: string; message?: string; next?: string }> }) {
   const [{ error, message, next }, release] = await Promise.all([searchParams, getPlatformReleaseState()]);
   const safeNext = next?.startsWith('/') && !next.startsWith('//') ? next : '/studio';
-  const signupOpen = release.public_signups_enabled || process.env.KORA_PRIVATE_SIGNUP_ENABLED === 'true';
+  const artistPilotSignup = safeNext === '/perform-live/apply';
+  const signupOpen = release.public_signups_enabled || artistPilotSignup || process.env.KORA_PRIVATE_SIGNUP_ENABLED === 'true';
   return (
     <main>
       <section className="subHero">
@@ -19,6 +20,7 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
           <h3>{signupOpen ? 'Sign in or create your account' : 'Sign in to KORA'}</h3>
           {error ? <p role="alert">{error}</p> : null}
           {message ? <p><strong>{message}</strong></p> : null}
+          {artistPilotSignup ? <p><strong>Founding artist applications are open.</strong> Create your KORA account here, confirm your email, and we will return you to the live-event application.</p> : null}
           {!signupOpen ? <p>New account creation is currently closed while KORA is in controlled launch.</p> : null}
           <form style={{ display: 'grid', gap: 14, maxWidth: 620 }}>
             <input type="hidden" name="next" value={safeNext} />
