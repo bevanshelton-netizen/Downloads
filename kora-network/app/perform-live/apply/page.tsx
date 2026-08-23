@@ -5,7 +5,13 @@ import { submitLiveEventApplication } from './actions';
 
 export default async function LiveEventApply({ searchParams }: { searchParams: Promise<{ error?: string; submitted?: string; status?: string }> }) {
   const { error, submitted, status } = await searchParams;
-  const supabase = await createClient();
+  let supabase;
+  try {
+    supabase = await createClient();
+  } catch {
+    redirect('/login?next=/perform-live/apply');
+  }
+
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login?next=/perform-live/apply');
 
