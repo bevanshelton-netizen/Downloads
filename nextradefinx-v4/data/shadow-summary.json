@@ -1,0 +1,14 @@
+{
+  "version": "0.4.0",
+  "mode": "development_shadow_fixture",
+  "live_data_connected": false,
+  "execution_enabled": false,
+  "client_visible": false,
+  "provider": "fixture-synthetic",
+  "ledger_count": 8,
+  "ledger_verified": true,
+  "tail_hash": "25404654a1c7ab425a897df58622de3af413ad34b48d0bb1f480b9cff589aff0",
+  "directional_forecasts": 1,
+  "no_forecast_count": 7,
+  "claim_boundary": "Development shadow infrastructure only; no live-market performance claim."
+}
