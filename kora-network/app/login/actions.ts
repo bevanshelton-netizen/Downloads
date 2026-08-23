@@ -48,7 +48,8 @@ export async function signUp(formData: FormData) {
   const next = safeNext(formData.get('next'));
   const release = await getPlatformReleaseState();
   const privateSignup = process.env.KORA_PRIVATE_SIGNUP_ENABLED === 'true';
-  if (!release.public_signups_enabled && !privateSignup) {
+  const artistPilotSignup = next === '/perform-live/apply';
+  if (!release.public_signups_enabled && !privateSignup && !artistPilotSignup) {
     redirect(loginError('New account creation is not open yet.', next));
   }
   if (!supabaseConfigured()) {
