@@ -1,0 +1,26 @@
+{
+  "provider": "twelve_data",
+  "agreement_status": "PENDING",
+  "approved_use": {
+    "internal_shadow_research": false,
+    "historical_storage": false,
+    "model_training": false,
+    "derived_probabilities": false,
+    "client_price_display": false,
+    "redistribution": false
+  },
+  "instruments": {
+    "XAUUSD": {"approved": false, "max_delay_seconds": 900},
+    "USDZAR": {"approved": false, "max_delay_seconds": 900},
+    "EURUSD": {"approved": false, "max_delay_seconds": 900},
+    "BTCUSD": {"approved": false, "max_delay_seconds": 900},
+    "SPX": {"approved": false, "max_delay_seconds": 900},
+    "US100": {"approved": false, "max_delay_seconds": 900},
+    "WTI": {"approved": false, "max_delay_seconds": 900},
+    "J200": {"approved": false, "max_delay_seconds": 1800}
+  },
+  "attribution_required": true,
+  "contract_reference": null,
+  "approved_by": null,
+  "approved_at": null
+}
