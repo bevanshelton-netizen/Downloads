@@ -1,0 +1,4 @@
+export const STEPS=['invite','verify_email','consent','profile','learning_passport','first_lesson','paper_practice','journal','dashboard'];
+export function nextStep(s={}){if(!s.inviteApproved)return'invite';if(!s.emailVerified)return'verify_email';if(!(s.termsAccepted&&s.privacyAccepted&&s.riskAccepted))return'consent';if(!(s.language&&s.experienceLevel&&s.learningGoal))return'profile';if(!s.passportCreated)return'learning_passport';if(!s.firstLessonCompleted)return'first_lesson';if(!s.paperPracticeCompleted)return'paper_practice';if(!s.journalCompleted)return'journal';return'dashboard'}
+export function completion(s={}){const n=nextStep(s),i=STEPS.indexOf(n);return n==='dashboard'?100:Math.max(0,Math.round((i/(STEPS.length-1))*100))}
+export function canEnterPaperPractice(s={}){return Boolean(s.inviteApproved&&s.emailVerified&&s.termsAccepted&&s.privacyAccepted&&s.riskAccepted&&s.passportCreated&&s.firstLessonCompleted)}
