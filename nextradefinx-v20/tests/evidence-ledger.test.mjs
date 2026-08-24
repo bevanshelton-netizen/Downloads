@@ -1,0 +1,11 @@
+import test from 'node:test'; import assert from 'node:assert/strict';
+import {buildReleaseEvidence,validateReleaseEvidence,hashEvidence,canonicalJson} from '../src/release/evidence-ledger.mjs';
+const good={version:'v20.0.0',commitSha:'04b00bc167594fdaa552e5e1869092b184c70f31',termsVersion:'2026-08-24',privacyVersion:'2026-08-24',riskVersion:'2026-08-24',migrations:['v12_accounts','v13_consent'],rlsIsolationPassed:true,testSuites:4,testsPassed:34,testsFailed:0,openCriticalBugs:0,inviteOnly:true,cohortCap:1,goNoGoDecision:'GO_NEXT_COHORT'};
+test('canonical json is stable',()=>assert.equal(canonicalJson({b:1,a:2}),canonicalJson({a:2,b:1})));
+test('hash is deterministic',()=>assert.equal(hashEvidence({a:1}),hashEvidence({a:1})));
+test('valid evidence passes',()=>assert.equal(validateReleaseEvidence(buildReleaseEvidence(good)).ok,true));
+test('tampering detected',()=>{const r=buildReleaseEvidence(good);r.beta.cohortCap=99;assert.ok(validateReleaseEvidence(r).errors.includes('evidence_hash_mismatch'));});
+test('failed RLS blocks',()=>assert.ok(validateReleaseEvidence(buildReleaseEvidence({...good,rlsIsolationPassed:false})).errors.includes('rls_isolation_not_passed')));
+test('critical bug blocks',()=>assert.ok(validateReleaseEvidence(buildReleaseEvidence({...good,openCriticalBugs:1})).errors.includes('critical_bug_open')));
+test('non-GO review blocks',()=>assert.ok(validateReleaseEvidence(buildReleaseEvidence({...good,goNoGoDecision:'HOLD_AND_REVIEW'})).errors.includes('go_no_go_not_approved')));
+test('real-money boundaries remain false',()=>assert.deepEqual(buildReleaseEvidence(good).productBoundaries,{liveExecution:false,clientFunds:false,leverage:false,personalizedAdvice:false,brokerConnectivity:false}));
