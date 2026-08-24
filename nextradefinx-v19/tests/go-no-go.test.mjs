@@ -1,0 +1,12 @@
+import test from 'node:test'; import assert from 'node:assert/strict';
+import {evaluateBetaReview,privacySafeBetaMetrics} from '../src/review/go-no-go.mjs';
+const b={rlsIsolationPassed:true,consentAuditPassed:true,authPersistencePassed:true,deletionFlowPassed:true,incidents:[],invitedLearners:1,activatedLearners:1,completedFirstSession:1,openSupportIssues:0,openCriticalBugs:0,openMediumBugs:0};
+test('clean first learner can expand',()=>assert.equal(evaluateBetaReview(b).decision,'GO_NEXT_COHORT'));
+test('cross-user access stops',()=>assert.equal(evaluateBetaReview({...b,incidents:[{type:'cross_user_access',status:'open'}]}).decision,'STOP_AND_FIX'));
+test('resolved incident clears',()=>assert.equal(evaluateBetaReview({...b,incidents:[{type:'cross_user_access',status:'resolved'}]}).decision,'GO_NEXT_COHORT'));
+test('failed isolation stops',()=>assert.ok(evaluateBetaReview({...b,rlsIsolationPassed:false}).blockers.includes('rls_isolation_not_proven')));
+test('critical bug stops',()=>assert.ok(evaluateBetaReview({...b,openCriticalBugs:1}).blockers.includes('critical_bug_open')));
+test('low completion holds',()=>assert.equal(evaluateBetaReview({...b,invitedLearners:5,activatedLearners:5,completedFirstSession:3}).decision,'HOLD_AND_REVIEW'));
+test('support load holds',()=>assert.equal(evaluateBetaReview({...b,openSupportIssues:4}).decision,'HOLD_AND_REVIEW'));
+test('impossible counts block',()=>assert.ok(evaluateBetaReview({...b,invitedLearners:1,activatedLearners:2}).blockers.includes('activated_exceeds_invited')));
+test('safe metrics ignore unknown',()=>assert.deepEqual(privacySafeBetaMetrics([{type:'lesson_completed'},{type:'bank_balance_viewed'},{type:'lesson_completed'}]),{lesson_completed:2}));
