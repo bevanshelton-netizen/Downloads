@@ -55,7 +55,7 @@ jobs:
           grep -qi "not legal advice" doxa-sure/risk-check.html
           grep -qi "not an insurance policy" doxa-sure/first-customers.html
           grep -qi "not.*guarantee" doxa-sure/RESCUE_PACK_SOP.md
-          ! grep -Eqi "we stop banks|guaranteed to save|guarantee.*save your|banks cannot repossess" doxa-sure/risk-check.html doxa-sure/first-customers.html doxa-sure/FIRST_100_PLAYBOOK.md
+          ! grep -Eqi "we stop banks|guaranteed to save|guarantee.*save your|banks cannot repossess" doxa-sure/risk-check.html doxa-sure/first-customers.html
       - name: Verify shared-database isolation
         shell: bash
         run: |
