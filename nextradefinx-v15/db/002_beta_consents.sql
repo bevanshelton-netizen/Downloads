@@ -1,0 +1,11 @@
+create table if not exists public.beta_invites (user_id uuid primary key references auth.users(id) on delete cascade,status text not null default 'pending' check (status in ('pending','approved','revoked')),approved_at timestamptz,created_at timestamptz not null default now());
+alter table public.beta_invites enable row level security;
+create policy "beta_invites_select_own" on public.beta_invites for select using (auth.uid()=user_id);
+create table if not exists public.consent_receipts (id uuid primary key default gen_random_uuid(),user_id uuid not null references auth.users(id) on delete cascade,consent_type text not null check (consent_type in ('terms','privacy','risk')),document_version text not null,accepted_at timestamptz not null default now(),user_agent text,unique(user_id,consent_type,document_version));
+alter table public.consent_receipts enable row level security;
+create policy "consent_select_own" on public.consent_receipts for select using (auth.uid()=user_id);
+create policy "consent_insert_own" on public.consent_receipts for insert with check (auth.uid()=user_id);
+create table if not exists public.account_deletion_requests (id uuid primary key default gen_random_uuid(),user_id uuid not null references auth.users(id) on delete cascade,status text not null default 'requested' check (status in ('requested','processing','completed','cancelled')),requested_at timestamptz not null default now(),completed_at timestamptz);
+alter table public.account_deletion_requests enable row level security;
+create policy "deletion_select_own" on public.account_deletion_requests for select using (auth.uid()=user_id);
+create policy "deletion_insert_own" on public.account_deletion_requests for insert with check (auth.uid()=user_id);
