@@ -1,0 +1,10 @@
+{
+  "name": "nextradefinx-v17-isolation-harness",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "activation:check": "node scripts/activation-health-check.mjs",
+    "rls:test": "node scripts/rls-isolation-check.mjs"
+  }
+}
