@@ -1,0 +1,8 @@
+{
+  "name": "nextradefinx-v18-first-learner-onboarding",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs"
+  }
+}
