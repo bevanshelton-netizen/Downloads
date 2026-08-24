@@ -11,6 +11,8 @@ The Rescue Readiness Pack is administrative case organisation and referral prepa
 - financial-product advice;
 - a guarantee that a lender will restructure an account or suspend enforcement.
 
+It is not a guarantee that an asset can be saved.
+
 If the facts indicate urgent legal/enforcement activity, do not delay the customer from seeking suitably qualified professional help.
 
 ## Intake
