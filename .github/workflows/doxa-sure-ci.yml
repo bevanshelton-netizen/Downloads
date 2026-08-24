@@ -1,0 +1,49 @@
+name: DOXA-SURE Bootstrap CI
+
+on:
+  push:
+    paths:
+      - 'doxa-sure/**'
+      - '.github/workflows/doxa-sure-ci.yml'
+  pull_request:
+    paths:
+      - 'doxa-sure/**'
+      - '.github/workflows/doxa-sure-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: JavaScript syntax
+        run: node --check doxa-sure/app.js
+      - name: Bootstrap safety gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f doxa-sure/index.html
+          test -f doxa-sure/styles.css
+          test -f doxa-sure/config.js
+          test -f doxa-sure/supabase/migrations/001_doxa_bootstrap_mvp.sql
+          grep -q "SAVE MY ASSET" doxa-sure/index.html
+          grep -q "doxa_ensure_member" doxa-sure/app.js
+          grep -q "doxa_on_auth_user_created" doxa-sure/supabase/migrations/001_doxa_bootstrap_mvp.sql
+          grep -q "doxa-vault-docs" doxa-sure/supabase/migrations/001_doxa_bootstrap_mvp.sql
+          ! grep -Eq "service[_-]?role|SUPABASE_SERVICE_ROLE_KEY" doxa-sure/config.js
+          ! grep -Eq "id_number|account_number|bank_password|pin_number" doxa-sure/index.html doxa-sure/app.js
+      - name: Verify shared-database isolation
+        shell: bash
+        run: |
+          set -euo pipefail
+          sql=doxa-sure/supabase/migrations/001_doxa_bootstrap_mvp.sql
+          ! grep -Eq 'drop table.*(profiles|memberships|assets|documents|rescue_cases)' "$sql"
+          ! grep -Eq 'drop trigger if exists on_auth_user_created' "$sql"
+          grep -q 'public.doxa_profiles' "$sql"
+          grep -q 'public.doxa_rescue_cases' "$sql"
