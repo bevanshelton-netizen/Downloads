@@ -1,0 +1,2 @@
+export const PRODUCT_BOUNDARY=Object.freeze({liveExecution:false,clientFunds:false,leverage:false,personalizedAdvice:false,brokerConnectivity:false,profitPromises:false,mode:'education_and_paper_trading_only'});
+export function assertProductBoundary(c={}){const v=[];for(const k of ['liveExecution','clientFunds','leverage','personalizedAdvice','brokerConnectivity','profitPromises'])if(c[k]===true)v.push(`${k}_must_remain_false`);return{ok:v.length===0,violations:v}}

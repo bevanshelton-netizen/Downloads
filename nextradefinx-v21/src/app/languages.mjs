@@ -1,0 +1,3 @@
+export const LANGUAGES=[['en','English'],['zu','isiZulu'],['xh','isiXhosa'],['af','Afrikaans'],['nso','Sepedi'],['tn','Setswana'],['st','Sesotho'],['ts','X'+'itsonga'],['ss','siSwati'],['ve','Tshivenda'],['nr','isiNdebele'],['fr','Français'],['pt','Português'],['es','Español'],['de','Deutsch'],['it','Italiano'],['nl','Nederlands'],['sw','Kiswahili'],['ar','العربية'],['ur','اردو'],['hi','हिन्दी'],['bn','বাংলা'],['zh','中文'],['ja','日本語'],['ko','한국어'],['tr','Türkçe'],['id','Bahasa Indonesia']];
+export function languageName(code){return LANGUAGES.find(([c])=>c===code)?.[1]||'English'}
+export function isRTL(code){return['ar','ur'].includes(code)}
