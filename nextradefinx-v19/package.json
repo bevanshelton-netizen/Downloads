@@ -1,0 +1,8 @@
+{
+  "name": "nextradefinx-v19-beta-evidence-review",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs"
+  }
+}
