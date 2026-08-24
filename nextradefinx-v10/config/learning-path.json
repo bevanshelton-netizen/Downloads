@@ -1,0 +1,24 @@
+{
+  "version": "1.0.0",
+  "designation": "NexTradeFinX Trader Readiness",
+  "legal_status": "internal_educational_competency_only",
+  "stages": [
+    {"id":0,"key":"discover","title":"Discover","min_quiz":60,"min_completion":60,"min_simulations":0},
+    {"id":1,"key":"foundations","title":"Foundations","min_quiz":65,"min_completion":65,"min_simulations":0},
+    {"id":2,"key":"market_skills","title":"Market Skills","min_quiz":70,"min_completion":70,"min_simulations":5},
+    {"id":3,"key":"risk_first","title":"Risk First","min_quiz":75,"min_completion":75,"min_simulations":10},
+    {"id":4,"key":"analysis","title":"Analysis","min_quiz":75,"min_completion":80,"min_simulations":15},
+    {"id":5,"key":"practice_ready","title":"Practice Ready","min_quiz":80,"min_completion":85,"min_simulations":20}
+  ],
+  "practice_ready_policy": {
+    "min_readiness_score": 75,
+    "min_quiz_average_pct": 80,
+    "min_lesson_completion_pct": 85,
+    "min_journal_completion_pct": 75,
+    "min_discipline_score": 75,
+    "min_simulations_completed": 20,
+    "max_daily_loss_breaches": 0,
+    "max_oversized_trade_attempts": 1,
+    "execution_mode": "paper_only"
+  }
+}
