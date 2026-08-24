@@ -1,0 +1,13 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const sql=fs.readFileSync(new URL('../supabase/000_bootstrap.sql',import.meta.url),'utf8').toLowerCase();
+const policyLines=sql.split('\n').filter(l=>l.trim().startsWith('create policy'));
+for(const t of ['learner_passports','learning_events','beta_invites','consent_receipts','account_deletion_requests']) test(`creates ${t}`,()=>assert.ok(sql.includes(`create table if not exists public.${t}`)));
+test('enables RLS on all learner tables',()=>assert.equal((sql.match(/enable row level security/g)||[]).length,5));
+test('uses authenticated role policies',()=>assert.ok(sql.includes('to authenticated')));
+test('invite has no learner insert policy',()=>assert.equal(policyLines.some(l=>l.includes('on public.beta_invites')&&l.includes(' for insert ')),false));
+test('consent has no learner update policy',()=>assert.equal(policyLines.some(l=>l.includes('on public.consent_receipts')&&l.includes(' for update ')),false));
+test('learning events have no learner delete policy',()=>assert.equal(policyLines.some(l=>l.includes('on public.learning_events')&&l.includes(' for delete ')),false));
+test('bootstrap contains no service role secret',()=>assert.equal(sql.includes('service_role_key'),false));
+test('bootstrap contains no brokerage tables',()=>assert.equal(/create table if not exists public\.(broker|wallet|live_orders|client_funds)/.test(sql),false));
