@@ -1,0 +1,9 @@
+{
+  "name": "nextradefinx-v22-supabase-bootstrap",
+  "private": true,
+  "version": "0.22.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs"
+  }
+}
