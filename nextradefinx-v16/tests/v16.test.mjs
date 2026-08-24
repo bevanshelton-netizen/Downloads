@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import { rolloutDecision } from '../src/ops/rollout-controller.mjs';
+import { incidentAction } from '../src/ops/incident-gate.mjs';
+import { betaKillSwitch } from '../src/ops/kill-switch.mjs';
+const healthy={activeLearners:1,targetCap:5,openCriticalIncidents:0,rlsIsolationGreen:true,consentGreen:true,supportBacklog:0,behaviourRiskAlerts:0};
+assert.equal(rolloutDecision(healthy).mayAddLearner,true);
+assert.equal(rolloutDecision({...healthy,supportBacklog:4}).mayAddLearner,false);
+assert.equal(rolloutDecision({...healthy,activeLearners:5}).mayAddLearner,false);
+assert.equal(incidentAction({type:'privacy_breach',severity:'high'}).action,'HALT_BETA');
+assert.equal(incidentAction({type:'support_delay',severity:'high'}).action,'FREEZE_NEW_INVITES');
+assert.equal(betaKillSwitch({}).tripped,false);
+assert.equal(betaKillSwitch({crossUserAccess:true}).tripped,true);
+assert.equal(betaKillSwitch({crossUserAccess:true}).liveExecutionEnabled,false);
+console.log('V16 tests passed: 8/8');
