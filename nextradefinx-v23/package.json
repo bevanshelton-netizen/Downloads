@@ -1,0 +1,12 @@
+{
+  "name": "nextradefinx",
+  "version": "0.23.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "security:scan": "node ops/scan-public-secrets.mjs",
+    "activation:check": "node ops/v17/scripts/activation-health-check.mjs",
+    "rls:test": "node ops/v17/scripts/rls-isolation-check.mjs"
+  }
+}
