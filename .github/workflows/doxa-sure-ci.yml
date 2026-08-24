@@ -23,7 +23,9 @@ jobs:
         with:
           node-version: 22
       - name: JavaScript syntax
-        run: node --check doxa-sure/app.js
+        run: |
+          node --check doxa-sure/app.js
+          node --check doxa-sure/risk-check.js
       - name: Bootstrap safety gates
         shell: bash
         run: |
@@ -31,13 +33,29 @@ jobs:
           test -f doxa-sure/index.html
           test -f doxa-sure/styles.css
           test -f doxa-sure/config.js
+          test -f doxa-sure/risk-check.html
+          test -f doxa-sure/risk-check.js
+          test -f doxa-sure/first-customers.html
+          test -f doxa-sure/RESCUE_PACK_SOP.md
+          test -f doxa-sure/FIRST_100_PLAYBOOK.md
           test -f doxa-sure/supabase/migrations/001_doxa_bootstrap_mvp.sql
           grep -q "SAVE MY ASSET" doxa-sure/index.html
+          grep -q "Free Asset Risk Check" doxa-sure/risk-check.html
+          grep -q "R199" doxa-sure/first-customers.html
+          grep -q "R99" doxa-sure/first-customers.html
           grep -q "doxa_ensure_member" doxa-sure/app.js
           grep -q "doxa_on_auth_user_created" doxa-sure/supabase/migrations/001_doxa_bootstrap_mvp.sql
           grep -q "doxa-vault-docs" doxa-sure/supabase/migrations/001_doxa_bootstrap_mvp.sql
           ! grep -Eq "service[_-]?role|SUPABASE_SERVICE_ROLE_KEY" doxa-sure/config.js
-          ! grep -Eq "id_number|account_number|bank_password|pin_number" doxa-sure/index.html doxa-sure/app.js
+          ! grep -Eq "id_number|account_number|bank_password|pin_number" doxa-sure/index.html doxa-sure/app.js doxa-sure/risk-check.html doxa-sure/risk-check.js
+      - name: Revenue-funnel compliance language
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -qi "not legal advice" doxa-sure/risk-check.html
+          grep -qi "not an insurance policy" doxa-sure/first-customers.html
+          grep -qi "not.*guarantee" doxa-sure/RESCUE_PACK_SOP.md
+          ! grep -Eqi "we stop banks|guaranteed to save|guarantee.*save your|banks cannot repossess" doxa-sure/risk-check.html doxa-sure/first-customers.html
       - name: Verify shared-database isolation
         shell: bash
         run: |
