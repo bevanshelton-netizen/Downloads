@@ -1,0 +1,2 @@
+const HALT_TYPES=new Set(['privacy_breach','cross_user_access','secret_exposure','auth_bypass']);
+export function incidentAction({type,severity}){if(HALT_TYPES.has(type)) return{action:'HALT_BETA',reason:type};if(severity==='critical') return{action:'HALT_BETA',reason:'critical_incident'};if(severity==='high') return{action:'FREEZE_NEW_INVITES',reason:'high_incident'};return{action:'LOG_AND_REVIEW',reason:'normal_incident'};}
