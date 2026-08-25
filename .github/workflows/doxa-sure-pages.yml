@@ -1,9 +1,14 @@
 name: Deploy DOXA-SURE Demo to GitHub Pages
 
-# Pages is not yet enabled on this shared repository. Keep deployment manual so
-# ordinary DOXA-SURE commits do not generate repeated failure notifications.
+# Runs only when this deployment workflow changes or is started manually.
+# configure-pages may create the Pages site when the repository permits it.
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/doxa-sure-pages.yml'
 
 permissions:
   contents: read
@@ -25,6 +30,8 @@ jobs:
         uses: actions/checkout@v6
       - name: Configure Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - name: Upload DOXA-SURE site
         uses: actions/upload-pages-artifact@v4
         with:
