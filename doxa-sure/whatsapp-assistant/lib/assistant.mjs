@@ -18,7 +18,7 @@ export function classifyIntent(input = '') {
   const text = normalize(input);
   if (!text) return 'welcome';
   if (includesAny(text, ['password', 'pin ', 'online banking login', 'otp'])) return 'sensitive';
-  if (/^8\b/.test(text) || /^(human|agent|person)\b/.test(text) || includesAny(text, ['call me', 'phone me', 'speak to a human'])) return 'human';
+  if (/^8\b/.test(text) || /\b(human|agent|person)\b/.test(text) || includesAny(text, ['call me', 'phone me', 'speak to a human'])) return 'human';
   if (/^4\b/.test(text) || includesAny(text, ['section 129', 's129', 'summons', 'court paper', 'court papers', 'auction', 'sale in execution', 'sale-in-execution', 'legal letter', 'repossession notice'])) return 'legal';
   if (/^(hi|hello|hey|menu|start|help|good morning|good afternoon|good evening)\b/.test(text)) return 'welcome';
   if (/^5\b/.test(text) || includesAny(text, ['asset risk check', 'risk check', 'green —', 'amber —', 'red —', 'critical —', 'green -', 'amber -', 'red -', 'critical -'])) return 'risk_result';
