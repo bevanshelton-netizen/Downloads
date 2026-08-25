@@ -22,6 +22,20 @@ export async function middleware(request: NextRequest) {
   let maintenanceMode = false;
 
   const pathname = request.nextUrl.pathname;
+
+  // DOXA-SURE is an isolated static pilot published through the existing Vercel project.
+  // Rewrite the clean public route before KORA auth/maintenance rules are evaluated.
+  if (pathname === '/doxa-sure' || pathname === '/doxa-sure/') {
+    const destination = request.nextUrl.clone();
+    destination.pathname = '/doxa-sure-site.html';
+    return NextResponse.rewrite(destination);
+  }
+
+  // Keep the static target directly accessible and independent of KORA session state.
+  if (pathname === '/doxa-sure-site.html') {
+    return response;
+  }
+
   const alwaysPublic = pathname === '/coming-soon'
     || pathname === '/open-africa'
     || pathname === '/perform-live'
