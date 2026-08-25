@@ -1,0 +1,33 @@
+name: DOXA-SURE WhatsApp Assistant CI
+
+on:
+  push:
+    paths:
+      - 'doxa-sure/whatsapp-assistant/**'
+      - '.github/workflows/doxa-sure-whatsapp-assistant-ci.yml'
+  pull_request:
+    paths:
+      - 'doxa-sure/whatsapp-assistant/**'
+      - '.github/workflows/doxa-sure-whatsapp-assistant-ci.yml'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: doxa-sure/whatsapp-assistant
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Syntax and unit tests
+        run: npm run check
+      - name: Secret and safety gates
+        run: |
+          ! grep -R -E 'EA[A-Za-z0-9]{20,}|APP_SECRET=[^r]|ACCESS_TOKEN=[^r]' . --exclude-dir=.git
+          grep -q 'X-Hub-Signature-256' README.md
+          grep -q 'not an insurer' lib/assistant.mjs
+          grep -q 'Legal deadlines can continue to run' lib/assistant.mjs
+          grep -q 'Do not send payment until' lib/assistant.mjs
