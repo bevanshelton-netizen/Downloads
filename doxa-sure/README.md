@@ -1,6 +1,5 @@
 # DOXA-SURE Bootstrap MVP
 
-**Brand meaning:** ALL THAT GOD HAS AND ALL THAT GOD IS  
 **Operating promise:** Protecting what has been entrusted to you.  
 **Build rule:** Membership instant. Insurance delayed. Rescue audited.
 
