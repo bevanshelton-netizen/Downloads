@@ -17,16 +17,16 @@ function includesAny(text, words) {
 export function classifyIntent(input = '') {
   const text = normalize(input);
   if (!text) return 'welcome';
-  if (/^(hi|hello|hey|menu|start|help|good morning|good afternoon|good evening)\b/.test(text)) return 'welcome';
-  if (/^1\b/.test(text) || includesAny(text, ['home', 'bond', 'mortgage', 'house'])) return 'home';
-  if (/^2\b/.test(text) || includesAny(text, ['vehicle', 'car', 'finance', 'repossession', 'repossess'])) return 'vehicle';
-  if (/^3\b/.test(text) || includesAny(text, ['income', 'retrenched', 'retrenchment', 'salary', 'job loss', 'lost my job', 'reduced income'])) return 'income';
-  if (/^4\b/.test(text) || includesAny(text, ['section 129', 's129', 'summons', 'court paper', 'court papers', 'auction', 'sale in execution', 'sale-in-execution', 'legal letter', 'repossession notice'])) return 'legal';
-  if (/^5\b/.test(text) || includesAny(text, ['asset risk check', 'risk check', 'green —', 'amber —', 'red —', 'critical —', 'green -', 'amber -', 'red -', 'critical -'])) return 'risk_result';
-  if (/^6\b/.test(text) || includesAny(text, ['r199', 'rescue readiness pack', 'readiness pack'])) return 'pack';
-  if (/^7\b/.test(text) || includesAny(text, ['r99', 'shield'])) return 'shield';
-  if (/^8\b/.test(text) || includesAny(text, ['human', 'person', 'agent', 'call me', 'phone me'])) return 'human';
   if (includesAny(text, ['password', 'pin ', 'online banking login', 'otp'])) return 'sensitive';
+  if (/^8\b/.test(text) || /^(human|agent|person)\b/.test(text) || includesAny(text, ['call me', 'phone me', 'speak to a human'])) return 'human';
+  if (/^4\b/.test(text) || includesAny(text, ['section 129', 's129', 'summons', 'court paper', 'court papers', 'auction', 'sale in execution', 'sale-in-execution', 'legal letter', 'repossession notice'])) return 'legal';
+  if (/^(hi|hello|hey|menu|start|help|good morning|good afternoon|good evening)\b/.test(text)) return 'welcome';
+  if (/^5\b/.test(text) || includesAny(text, ['asset risk check', 'risk check', 'green —', 'amber —', 'red —', 'critical —', 'green -', 'amber -', 'red -', 'critical -'])) return 'risk_result';
+  if (/^6\b/.test(text) || /^pack\b/.test(text) || includesAny(text, ['r199', 'rescue readiness pack', 'readiness pack'])) return 'pack';
+  if (/^7\b/.test(text) || /^shield\b/.test(text) || includesAny(text, ['r99', 'doxa-sure shield'])) return 'shield';
+  if (/^1\b/.test(text) || includesAny(text, ['home', 'bond', 'mortgage', 'house'])) return 'home';
+  if (/^2\b/.test(text) || includesAny(text, ['vehicle', 'car', 'vehicle finance', 'car finance', 'repossess'])) return 'vehicle';
+  if (/^3\b/.test(text) || includesAny(text, ['income', 'retrenched', 'retrenchment', 'salary', 'job loss', 'lost my job', 'reduced income'])) return 'income';
   return 'general';
 }
 
