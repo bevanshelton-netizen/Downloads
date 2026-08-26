@@ -83,7 +83,7 @@ jobs:
           grep -qi "No customer-facing match may be made" doxa-sure/BROKER_NETWORK_MODEL.md
           grep -qi "verification_status" doxa-sure/supabase/migrations/003_doxa_broker_network.sql
           grep -qi "enable row level security" doxa-sure/supabase/migrations/003_doxa_broker_network.sql
-          ! grep -Eqi "use our FSP licence|rent.*FSP|borrow.*FSP|guaranteed broker match" doxa-sure/site/network.html doxa-sure/site/broker-portal.html
+          ! grep -Eqi "you can use our FSP|rent our FSP|borrow our FSP|use this brokerage's FSP as your own|guaranteed broker match" doxa-sure/site/network.html doxa-sure/site/broker-portal.html
       - name: Verify shared-database isolation
         shell: bash
         run: |
