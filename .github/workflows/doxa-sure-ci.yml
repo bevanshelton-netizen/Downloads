@@ -43,7 +43,11 @@ jobs:
           test -f doxa-sure/FIRST_100_PLAYBOOK.md
           test -f doxa-sure/supabase/migrations/001_doxa_bootstrap_mvp.sql
           test -f doxa-sure/supabase/migrations/002_doxa_secure_leads.sql
+          test -f doxa-sure/supabase/migrations/003_doxa_broker_network.sql
           test -f doxa-sure/leads-dashboard.html
+          test -f doxa-sure/site/network.html
+          test -f doxa-sure/site/broker-portal.html
+          test -f doxa-sure/BROKER_NETWORK_MODEL.md
           grep -q "SAVE MY ASSET" doxa-sure/index.html
           grep -q "Free Asset Risk Check" doxa-sure/risk-check.html
           grep -q "R199" doxa-sure/first-customers.html
@@ -55,6 +59,8 @@ jobs:
           grep -q "doxa-vault-docs" doxa-sure/supabase/migrations/001_doxa_bootstrap_mvp.sql
           grep -q "doxa_submit_pilot_lead" doxa-sure/supabase/migrations/002_doxa_secure_leads.sql
           grep -q "doxa_leads_admin_select" doxa-sure/supabase/migrations/002_doxa_secure_leads.sql
+          grep -q "public.doxa_brokerages" doxa-sure/supabase/migrations/003_doxa_broker_network.sql
+          grep -q "public.doxa_broker_matches" doxa-sure/supabase/migrations/003_doxa_broker_network.sql
           ! grep -Eq "for select to (anon|public)" doxa-sure/supabase/migrations/002_doxa_secure_leads.sql
           ! grep -Eq "service[_-]?role|SUPABASE_SERVICE_ROLE_KEY" doxa-sure/config.js
           ! grep -Eq "id_number|account_number|bank_password|pin_number" doxa-sure/index.html doxa-sure/app.js doxa-sure/risk-check.html doxa-sure/risk-check.js doxa-sure/pilot.html
@@ -67,6 +73,17 @@ jobs:
           grep -qi "not an insurance policy" doxa-sure/pilot.html
           grep -qi "not.*guarantee" doxa-sure/RESCUE_PACK_SOP.md
           ! grep -Eqi "we stop banks|guaranteed to save|guarantee.*save your|banks cannot repossess" doxa-sure/risk-check.html doxa-sure/first-customers.html doxa-sure/pilot.html
+      - name: Broker-network compliance boundaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -qi "does not lend out, borrow or present another firm's FSP licence as its own" doxa-sure/site/network.html
+          grep -qi "paid plan does not override eligibility" doxa-sure/site/broker-portal.html
+          grep -qi "No borrowed/rented FSP licence wording" doxa-sure/BROKER_NETWORK_MODEL.md
+          grep -qi "No customer-facing match may be made" doxa-sure/BROKER_NETWORK_MODEL.md
+          grep -qi "verification_status" doxa-sure/supabase/migrations/003_doxa_broker_network.sql
+          grep -qi "enable row level security" doxa-sure/supabase/migrations/003_doxa_broker_network.sql
+          ! grep -Eqi "you can use our FSP|rent our FSP|borrow our FSP|use this brokerage's FSP as your own|guaranteed broker match" doxa-sure/site/network.html doxa-sure/site/broker-portal.html
       - name: Verify shared-database isolation
         shell: bash
         run: |
