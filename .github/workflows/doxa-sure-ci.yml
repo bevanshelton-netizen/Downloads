@@ -26,6 +26,8 @@ jobs:
         run: |
           node --check doxa-sure/app.js
           node --check doxa-sure/risk-check.js
+          node --check doxa-sure/lead-capture.js
+          node --check doxa-sure/leads-dashboard.js
       - name: Bootstrap safety gates
         shell: bash
         run: |
@@ -40,6 +42,8 @@ jobs:
           test -f doxa-sure/RESCUE_PACK_SOP.md
           test -f doxa-sure/FIRST_100_PLAYBOOK.md
           test -f doxa-sure/supabase/migrations/001_doxa_bootstrap_mvp.sql
+          test -f doxa-sure/supabase/migrations/002_doxa_secure_leads.sql
+          test -f doxa-sure/leads-dashboard.html
           grep -q "SAVE MY ASSET" doxa-sure/index.html
           grep -q "Free Asset Risk Check" doxa-sure/risk-check.html
           grep -q "R199" doxa-sure/first-customers.html
@@ -49,6 +53,9 @@ jobs:
           grep -q "doxa_ensure_member" doxa-sure/app.js
           grep -q "doxa_on_auth_user_created" doxa-sure/supabase/migrations/001_doxa_bootstrap_mvp.sql
           grep -q "doxa-vault-docs" doxa-sure/supabase/migrations/001_doxa_bootstrap_mvp.sql
+          grep -q "doxa_submit_pilot_lead" doxa-sure/supabase/migrations/002_doxa_secure_leads.sql
+          grep -q "doxa_leads_admin_select" doxa-sure/supabase/migrations/002_doxa_secure_leads.sql
+          ! grep -Eq "for select to (anon|public)" doxa-sure/supabase/migrations/002_doxa_secure_leads.sql
           ! grep -Eq "service[_-]?role|SUPABASE_SERVICE_ROLE_KEY" doxa-sure/config.js
           ! grep -Eq "id_number|account_number|bank_password|pin_number" doxa-sure/index.html doxa-sure/app.js doxa-sure/risk-check.html doxa-sure/risk-check.js doxa-sure/pilot.html
       - name: Revenue-funnel compliance language
