@@ -17,6 +17,7 @@
 
 ## Keep disabled until dependencies exist
 - Live Supabase mode until the migration is applied and a browser-safe anon/publishable key is configured
+- Secure lead capture until migration `002_doxa_secure_leads.sql` is applied, the public key is configured, and the owner account is enrolled in `doxa_admins`
 - Real document upload until live storage is configured
 - Insurance benefits until a licensed underwriting structure exists
 - Legal representation unless handled by an attorney

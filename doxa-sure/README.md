@@ -65,6 +65,22 @@ window.DOXA_CONFIG = {
 
 The anon/publishable key is intended for browser use; Row Level Security is the real data barrier. Never place the Supabase service-role key in this frontend.
 
+## Secure pilot leads
+
+Apply `supabase/migrations/002_doxa_secure_leads.sql` after migration 001. It adds the minimal-consent form on `pilot.html` and an owner-only lead desk at `leads-dashboard.html`.
+
+The public browser never receives table read access. It may call only the validated `doxa_submit_pilot_lead` function. Lead reads and status updates require an authenticated user explicitly enrolled in `doxa_admins`.
+
+After the owner has used the dashboard magic-link sign-in once, run this once in the Supabase SQL editor with the owner's real email:
+
+```sql
+insert into public.doxa_admins(user_id)
+select id from auth.users where email = 'OWNER_EMAIL'
+on conflict do nothing;
+```
+
+The site does not connect to WhatsApp or the owner's personal phone.
+
 ## Regulatory boundary
 
 This MVP is a rescue-coordination and case-organisation tool. It must not be marketed as an insurance policy, legal representation, debt counselling, or a guarantee that an asset will be saved. Regulated actions must be handed to appropriately authorised professionals.
