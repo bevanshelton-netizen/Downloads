@@ -1,0 +1,17 @@
+{
+  "name": "izakhono-cloud-zero",
+  "version": "0.2.0",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit --target ES2022 --lib ES2022,DOM --module ESNext src/index.ts",
+    "dev": "wrangler dev",
+    "deploy:first": "wrangler deploy",
+    "db:migrate": "wrangler d1 migrations apply DB --remote",
+    "deploy": "wrangler deploy",
+    "test:package": "python -m unittest discover -s tests -v"
+  },
+  "devDependencies": {
+    "typescript": "5.9.2",
+    "wrangler": "4.45.0"
+  }
+}
