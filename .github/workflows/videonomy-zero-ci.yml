@@ -1,0 +1,37 @@
+name: VIDEONOMY Zero Launch Gate
+
+on:
+  push:
+    branches: [videonomy-cloudflare-zero]
+  pull_request:
+    branches: [videonomy-cloudflare-zero]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Extract validated launch bundle
+        run: |
+          rm -rf .videonomy-ci
+          mkdir .videonomy-ci
+          base64 -d videonomy-cloudflare-zero-v0.3.tgz.b64 > .videonomy-ci/app.tgz
+          tar -xzf .videonomy-ci/app.tgz -C .videonomy-ci
+      - name: Install dependencies
+        working-directory: .videonomy-ci
+        run: npm install
+      - name: Typecheck
+        working-directory: .videonomy-ci
+        run: npm run typecheck
+      - name: Package and security tests
+        working-directory: .videonomy-ci
+        run: npm run test:package
+      - name: Validate Wrangler configuration
+        working-directory: .videonomy-ci
+        run: npx wrangler deploy --dry-run
