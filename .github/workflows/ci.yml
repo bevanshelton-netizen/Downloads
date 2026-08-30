@@ -1,0 +1,26 @@
+name: IZAKHONO Builder Production Gate
+
+on:
+  push:
+    branches: [izakhono-builder-production]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install
+      - run: npm run typecheck
+      - run: npx wrangler deploy --dry-run
+      - name: Security and UI assertions
+        run: |
+          set -euo pipefail
+          ! grep -R "ADMIN_SECRET" -n public || (echo "Admin secret must not appear in public assets" && exit 1)
+          ! grep -R "access-control-allow-origin.*\*" -n src || (echo "Wildcard CORS is forbidden" && exit 1)
+          grep -q "x-admin-secret" src/index.ts
+          grep -q "builder_projects" migrations/0001_init.sql
+          grep -q "IZAKHONO BUILDER" public/index.html
+          grep -q "Build a new app" public/index.html
