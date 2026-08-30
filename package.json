@@ -1,28 +1,18 @@
 {
-  "name": "videonomy-cloudflare-zero-launch",
+  "name": "videonomy",
   "version": "0.3.0",
   "private": true,
   "scripts": {
-    "build": "echo VIDEONOMY Cloudflare bootstrap ready",
-    "deploy": "bash deploy-videonomy-zero.sh"
+    "typecheck": "tsc --noEmit --target ES2022 --lib ES2022,DOM,DOM.Iterable --module ESNext src/index.ts src/payfast.ts",
+    "dev": "wrangler dev",
+    "deploy:first": "wrangler deploy",
+    "db:migrate": "wrangler d1 migrations apply DB --remote",
+    "deploy": "wrangler deploy --yes && wrangler d1 migrations apply DB --remote && wrangler deploy --yes",
+    "test:package": "python -m unittest discover -s tests -v",
+    "typecheck:payments": "tsc --noEmit --target ES2022 --lib ES2022,DOM,DOM.Iterable --module ESNext src/payfast.ts"
   },
-  "cloudflare": {
-    "bindings": {
-      "ADMIN_SECRET": {
-        "description": "Private administrator secret for the VIDEONOMY launch dashboard. Do not commit it to GitHub."
-      },
-      "ABUSE_SALT": {
-        "description": "Private random value used to pseudonymize anti-abuse keys. Do not commit it to GitHub."
-      },
-      "PAYFAST_MERCHANT_ID": {
-        "description": "PayFast merchant ID. Optional until live checkout is activated."
-      },
-      "PAYFAST_MERCHANT_KEY": {
-        "description": "PayFast merchant key. Optional until live checkout is activated."
-      },
-      "PAYFAST_PASSPHRASE": {
-        "description": "PayFast passphrase. Optional until live checkout is activated."
-      }
-    }
+  "devDependencies": {
+    "typescript": "5.9.2",
+    "wrangler": "4.45.0"
   }
 }
