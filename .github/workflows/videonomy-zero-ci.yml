@@ -21,7 +21,7 @@ jobs:
         run: |
           rm -rf .videonomy-ci
           mkdir .videonomy-ci
-          base64 -d videonomy-cloudflare-zero-v0.3.tgz.b64 > .videonomy-ci/app.tgz
+          cat videonomy-bundle/chunk-*.b64 | base64 -d > .videonomy-ci/app.tgz
           tar -xzf .videonomy-ci/app.tgz -C .videonomy-ci
       - name: Install dependencies
         working-directory: .videonomy-ci
