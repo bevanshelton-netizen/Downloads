@@ -1,0 +1,39 @@
+name: IZAKHONO Builder Gate
+
+on:
+  push:
+    branches: [izakhono-builder]
+    paths:
+      - 'izakhono-builder/**'
+      - '.github/workflows/izakhono-builder-ci.yml'
+  pull_request:
+    paths:
+      - 'izakhono-builder/**'
+
+jobs:
+  validate-builder:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Generate test application
+        run: |
+          chmod +x izakhono-builder/create-app.sh
+          ./izakhono-builder/create-app.sh builder-smoke "Builder Smoke Test" .builder-smoke
+      - name: Install generated application
+        working-directory: .builder-smoke
+        run: npm install
+      - name: Typecheck generated application
+        working-directory: .builder-smoke
+        run: npm run typecheck
+      - name: Validate Cloudflare deployment
+        working-directory: .builder-smoke
+        run: npx wrangler deploy --dry-run
+      - name: Verify no placeholders remain
+        run: |
+          if grep -R '__APP_' .builder-smoke --exclude-dir=node_modules; then
+            echo 'Unresolved template placeholder found.' >&2
+            exit 1
+          fi
