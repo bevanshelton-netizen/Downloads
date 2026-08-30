@@ -1,11 +1,23 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "izakhono-cloud-zero",
+  "name": "videonomy",
   "main": "src/index.ts",
   "compatibility_date": "2026-08-01",
-  "assets": { "directory": "./public", "binding": "ASSETS" },
-  "d1_databases": [{ "binding": "DB", "migrations_dir": "migrations" }],
-  "r2_buckets": [{ "binding": "MEDIA" }],
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA"
+    }
+  ],
   "vars": {
     "APP_ENV": "production"
   }
