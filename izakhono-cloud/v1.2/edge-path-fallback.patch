@@ -1,0 +1,35 @@
+--- edge/main.py.v1.1
++++ edge/main.py.v1.2
+@@ -30,6 +30,7 @@
+         if c["hostname"].lower()==host:
+             target=c; break
+ 
++    proxied_path=path
+     if not target:
+         base=data.get("domain","")
+         if base and host.endswith("."+base):
+@@ -38,12 +39,24 @@
+                 if r["slug"]==slug:
+                     target=r; break
+ 
++        # Staging/path fallback: https://apps.<domain>/<slug>/...
++        # This avoids requiring a wildcard certificate before production DNS exists.
++        if not target and base and host==base:
++            bits=[b for b in path.split("/") if b]
++            if bits:
++                slug=bits[0]
++                for r in data.get("routes",[]):
++                    if r["slug"]==slug:
++                        target=r
++                        proxied_path="/".join(bits[1:])
++                        break
++
+     if not target:
+-        raise HTTPException(404,"No live IZAKHONO CLOUD deployment for this hostname")
++        raise HTTPException(404,"No live IZAKHONO CLOUD deployment for this hostname or path")
+ 
+     body=await request.body()
+     headers={k:v for k,v in request.headers.items() if k.lower() not in ("host","content-length","connection")}
+-    url=f"http://{target['internal_host']}:{target['internal_port']}/{path}"
++    url=f"http://{target['internal_host']}:{target['internal_port']}/{proxied_path}"
+     if request.url.query: url += "?"+request.url.query

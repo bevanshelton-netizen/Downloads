@@ -1,0 +1,23 @@
+{
+    email {$ACME_EMAIL}
+    admin off
+}
+
+{$CLOUD_DOMAIN} {
+    reverse_proxy control:8080
+}
+
+id.{$CLOUD_DOMAIN} {
+    reverse_proxy identity:8090
+}
+
+apps.{$CLOUD_DOMAIN} {
+    reverse_proxy edge:8088
+}
+
+owner.{$CLOUD_DOMAIN} {
+    basic_auth {
+        {$OWNER_USERNAME} {$OWNER_PASSWORD_HASH}
+    }
+    reverse_proxy owner-console:8070
+}
