@@ -1,0 +1,27 @@
+name: VIDEONOMY Production Gate
+
+on:
+  push:
+    branches: [videonomy-production]
+  pull_request:
+    branches: [videonomy-production]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Package and security tests
+        run: npm run test:package
+      - name: Validate Cloudflare deployment
+        run: npx wrangler deploy --dry-run
