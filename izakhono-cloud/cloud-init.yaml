@@ -1,0 +1,20 @@
+#cloud-config
+package_update: true
+packages:
+  - ca-certificates
+  - curl
+  - unzip
+  - coreutils
+write_files:
+  - path: /usr/local/sbin/install-izakhono-cloud
+    permissions: '0755'
+    owner: root:root
+    content: |
+      #!/usr/bin/env bash
+      set -euo pipefail
+      curl -fsSL https://raw.githubusercontent.com/bevanshelton-netizen/Downloads/izakhono-cloud-v1-4/izakhono-cloud/install-first-server.sh -o /tmp/install-first-server.sh
+      chmod +x /tmp/install-first-server.sh
+      exec /tmp/install-first-server.sh
+runcmd:
+  - [ bash, -lc, "/usr/local/sbin/install-izakhono-cloud" ]
+final_message: "IZAKHONO CLOUD cloud-init finished after $UPTIME seconds. Check /var/lib/izakhono-cloud/status and /var/log/izakhono-cloud-bootstrap.log."
