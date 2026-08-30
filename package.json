@@ -1,0 +1,28 @@
+{
+  "name": "videonomy-cloudflare-zero-launch",
+  "version": "0.3.0",
+  "private": true,
+  "scripts": {
+    "build": "echo VIDEONOMY Cloudflare bootstrap ready",
+    "deploy": "bash deploy-videonomy-zero.sh"
+  },
+  "cloudflare": {
+    "bindings": {
+      "ADMIN_SECRET": {
+        "description": "Private administrator secret for the VIDEONOMY launch dashboard. Do not commit it to GitHub."
+      },
+      "ABUSE_SALT": {
+        "description": "Private random value used to pseudonymize anti-abuse keys. Do not commit it to GitHub."
+      },
+      "PAYFAST_MERCHANT_ID": {
+        "description": "PayFast merchant ID. Optional until live checkout is activated."
+      },
+      "PAYFAST_MERCHANT_KEY": {
+        "description": "PayFast merchant key. Optional until live checkout is activated."
+      },
+      "PAYFAST_PASSPHRASE": {
+        "description": "PayFast passphrase. Optional until live checkout is activated."
+      }
+    }
+  }
+}
