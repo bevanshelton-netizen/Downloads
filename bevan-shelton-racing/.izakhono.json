@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "name": "BEVAN SHELTON RACING — Africa Unleashed",
+  "slug": "bevan-shelton-racing",
+  "build_context": "bevan-shelton-racing",
+  "dockerfile_path": "bevan-shelton-racing/Dockerfile",
+  "container_port": 8080,
+  "health_path": "/health",
+  "branch": "main",
+  "alpha": {
+    "preflight": true,
+    "rehearsal": false,
+    "windows_package": false
+  }
+}
