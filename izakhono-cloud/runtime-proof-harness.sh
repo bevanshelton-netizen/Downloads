@@ -119,7 +119,7 @@ assert not (h.get("Binds") or [])
 assert not (h.get("PortBindings") or {})
 PY
 
-python3 "$LOCAL_EXEC" rollback "$EXECUTION_ID" --execution-dir "$EXECUTION_DIR" >/dev/null
+python3 "$LOCAL_EXEC" rollback --execution-id "$EXECUTION_ID" --execution-dir "$EXECUTION_DIR" >/dev/null
 if docker inspect "$CONTAINER" >/dev/null 2>&1; then
   echo "ERROR: rollback left proof container behind" >&2
   exit 1
