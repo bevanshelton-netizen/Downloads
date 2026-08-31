@@ -1,0 +1,100 @@
+name: IZAKHONO CLOUD Multi-Node Gate
+
+on:
+  pull_request:
+    paths:
+      - 'izakhono-cloud/multinode.py'
+      - 'izakhono-cloud/enroll-this-node.sh'
+      - 'izakhono-cloud/register-node.sh'
+      - 'izakhono-cloud/MULTI-NODE.md'
+      - '.github/workflows/izakhono-cloud-multinode.yml'
+  push:
+    branches:
+      - izakhono-cloud-v1-6-multinode
+    paths:
+      - 'izakhono-cloud/multinode.py'
+      - 'izakhono-cloud/enroll-this-node.sh'
+      - 'izakhono-cloud/register-node.sh'
+      - 'izakhono-cloud/MULTI-NODE.md'
+      - '.github/workflows/izakhono-cloud-multinode.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  multinode-gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate scripts
+        run: |
+          bash -n izakhono-cloud/enroll-this-node.sh
+          bash -n izakhono-cloud/register-node.sh
+          python3 -m py_compile izakhono-cloud/multinode.py
+
+      - name: Prove two signed candidate identities
+        run: |
+          set -euo pipefail
+          TOOL=izakhono-cloud/multinode.py
+          ROOT="$RUNNER_TEMP/izakhono-multinode"
+          mkdir -p "$ROOT/a-proof" "$ROOT/b-proof"
+          touch "$ROOT/a-proof/LOCAL_READY" "$ROOT/b-proof/LOCAL_READY"
+
+          python3 "$TOOL" init --state-dir "$ROOT/a-node"
+          python3 "$TOOL" export --state-dir "$ROOT/a-node" --proof-state-dir "$ROOT/a-proof" --output "$ROOT/a.json"
+          python3 "$TOOL" init --state-dir "$ROOT/b-node"
+          python3 "$TOOL" export --state-dir "$ROOT/b-node" --proof-state-dir "$ROOT/b-proof" --output "$ROOT/b.json"
+
+          python3 "$TOOL" verify "$ROOT/a.json"
+          python3 "$TOOL" verify "$ROOT/b.json"
+          python3 "$TOOL" register "$ROOT/a.json" --registry-dir "$ROOT/registry"
+          python3 "$TOOL" register "$ROOT/b.json" --registry-dir "$ROOT/registry"
+          python3 "$TOOL" list --registry-dir "$ROOT/registry" > "$ROOT/list.json"
+
+          if grep -R -q -- 'BEGIN PRIVATE KEY' "$ROOT/a.json" "$ROOT/b.json" "$ROOT/registry"; then
+            echo 'ERROR: private key leaked into enrollment material' >&2
+            exit 1
+          fi
+
+          python3 - "$ROOT/list.json" "$ROOT/a.json" "$ROOT/b.json" <<'PY'
+          import json, sys
+          rows = json.load(open(sys.argv[1], encoding='utf-8'))
+          assert len(rows) == 2, rows
+          assert len({r['node_id'] for r in rows}) == 2, rows
+          for row in rows:
+              assert row['trust_state'] == 'candidate', row
+              assert row['schedulable'] is False, row
+              assert row['public_ready'] is False, row
+              assert row['proof_state'] == 'local_ready', row
+          for path in sys.argv[2:]:
+              bundle = json.load(open(path, encoding='utf-8'))
+              assert bundle['descriptor']['public_ready'] is False
+              assert bundle['descriptor']['trust_state'] == 'candidate'
+          PY
+
+      - name: Reject a tampered descriptor
+        run: |
+          set -euo pipefail
+          TOOL=izakhono-cloud/multinode.py
+          ROOT="$RUNNER_TEMP/izakhono-tamper"
+          mkdir -p "$ROOT/proof"
+          touch "$ROOT/proof/LOCAL_READY"
+          python3 "$TOOL" export --state-dir "$ROOT/node" --proof-state-dir "$ROOT/proof" --output "$ROOT/good.json"
+          python3 - "$ROOT/good.json" "$ROOT/bad.json" <<'PY'
+          import json, sys
+          bundle = json.load(open(sys.argv[1], encoding='utf-8'))
+          bundle['descriptor']['hostname'] = 'tampered-host'
+          json.dump(bundle, open(sys.argv[2], 'w', encoding='utf-8'), indent=2, sort_keys=True)
+          PY
+          if python3 "$TOOL" verify "$ROOT/bad.json"; then
+            echo 'ERROR: tampered enrollment bundle was accepted' >&2
+            exit 1
+          fi
+
+      - name: Guard the v1.6 truth boundary
+        run: |
+          grep -q 'trust_state=candidate' izakhono-cloud/MULTI-NODE.md
+          grep -q 'schedulable=false' izakhono-cloud/MULTI-NODE.md
+          grep -q 'public_ready=false' izakhono-cloud/MULTI-NODE.md
+          grep -q 'does not implement remote root commands' izakhono-cloud/MULTI-NODE.md
