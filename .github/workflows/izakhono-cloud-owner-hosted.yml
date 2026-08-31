@@ -1,0 +1,32 @@
+name: IZAKHONO CLOUD Owner-Hosted Gate
+
+on:
+  pull_request:
+    paths:
+      - 'izakhono-cloud/owner-node-bootstrap.sh'
+      - 'izakhono-cloud/OWNER-HOSTED-NODE.md'
+      - '.github/workflows/izakhono-cloud-owner-hosted.yml'
+  push:
+    branches:
+      - izakhono-cloud-v1-5-owner-hosted
+    paths:
+      - 'izakhono-cloud/owner-node-bootstrap.sh'
+      - 'izakhono-cloud/OWNER-HOSTED-NODE.md'
+      - '.github/workflows/izakhono-cloud-owner-hosted.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  owner-hosted-gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate owner-node bootstrap syntax
+        run: bash -n izakhono-cloud/owner-node-bootstrap.sh
+      - name: Require immutable verified installer pin
+        run: grep -Eq 'VERIFIED_INSTALLER_REF=.*[0-9a-f]{40}' izakhono-cloud/owner-node-bootstrap.sh
+      - name: Guard no-card owner-hosted contract
+        run: |
+          grep -q 'no bank or card details are required by IZAKHONO CLOUD' izakhono-cloud/OWNER-HOSTED-NODE.md
+          grep -q 'Software cannot create CPU, RAM, storage, electricity or an internet connection' izakhono-cloud/OWNER-HOSTED-NODE.md
