@@ -3,7 +3,7 @@ set -euo pipefail
 
 REPO_OWNER=${IZAKHONO_GITHUB_OWNER:-bevanshelton-netizen}
 REPO_NAME=${IZAKHONO_GITHUB_REPO:-Downloads}
-RELEASE_REF=${IZAKHONO_RELEASE_REF:-50ff6ed54d2f4d2760209c8c88669d0af8928661}
+RELEASE_REF=${IZAKHONO_RELEASE_REF:-e25d56c37116cebca639c6d0cbf5f72b92bb301c}
 BASE="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${RELEASE_REF}/izakhono-cloud"
 RELEASE_BASE="${BASE}/release/v1.4"
 INSTALL_DIR=${IZAKHONO_INSTALL_DIR:-/opt/izakhono-cloud}
