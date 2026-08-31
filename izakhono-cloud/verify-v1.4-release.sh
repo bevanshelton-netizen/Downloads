@@ -30,6 +30,14 @@ bash -n "$ROOT/check-first-server.sh"
 grep -Eq 'RELEASE_REF=\$\{IZAKHONO_RELEASE_REF:-[0-9a-f]{40}\}' "$ROOT/install-first-server.sh" || { echo "installer release ref is not immutable" >&2; exit 1; }
 grep -Eq 'INSTALLER_REF=[0-9a-f]{40}' "$ROOT/cloud-init.yaml" || { echo "cloud-init installer ref is not immutable" >&2; exit 1; }
 
+RELEASE_REF=$(grep -Eo 'RELEASE_REF=\$\{IZAKHONO_RELEASE_REF:-[0-9a-f]{40}\}' "$ROOT/install-first-server.sh" | head -n1 | sed -E 's/.*:-([0-9a-f]{40})\}/\1/')
+INSTALLER_REF=$(grep -Eo 'INSTALLER_REF=[0-9a-f]{40}' "$ROOT/cloud-init.yaml" | head -n1 | cut -d= -f2)
+[ -n "$RELEASE_REF" ] || { echo "could not extract immutable release ref" >&2; exit 1; }
+[ -n "$INSTALLER_REF" ] || { echo "could not extract immutable installer ref" >&2; exit 1; }
+grep -Fq "$RELEASE_REF" "$ROOT/FIRST-SERVER-QUICKSTART.md" || { echo "quickstart release ref is stale" >&2; exit 1; }
+grep -Fq "$INSTALLER_REF" "$ROOT/FIRST-SERVER-QUICKSTART.md" || { echo "quickstart installer ref is stale" >&2; exit 1; }
+grep -Fq "$EXPECTED_RELEASE_SHA" "$ROOT/FIRST-SERVER-QUICKSTART.md" || { echo "quickstart checksum is stale" >&2; exit 1; }
+
 unzip -q "$TMP/release.zip" -d "$TMP/unpacked"
 PKG="$TMP/unpacked/izakhono-cloud-v1.4-zero-touch"
 [ -d "$PKG" ] || { echo "release root missing" >&2; exit 1; }
@@ -52,3 +60,5 @@ python3 -m py_compile \
 
 echo "IZAKHONO CLOUD v1.4 release verification: PASS"
 echo "release_sha256=$ACTUAL_SHA"
+echo "release_ref=$RELEASE_REF"
+echo "installer_ref=$INSTALLER_REF"
