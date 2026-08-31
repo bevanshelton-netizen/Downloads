@@ -1,0 +1,61 @@
+name: IZAKHONO CLOUD Public Ingress
+
+on:
+  pull_request:
+    paths:
+      - 'izakhono-cloud/public-ingress.py'
+      - 'izakhono-cloud/PUBLIC-INGRESS-V1.16.md'
+      - '.github/workflows/izakhono-cloud-public-ingress.yml'
+  push:
+    branches:
+      - 'izakhono-cloud-v1-16-public-ingress'
+    paths:
+      - 'izakhono-cloud/public-ingress.py'
+      - 'izakhono-cloud/PUBLIC-INGRESS-V1.16.md'
+      - '.github/workflows/izakhono-cloud-public-ingress.yml'
+
+jobs:
+  public-ingress-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile planner
+        run: python3 -m py_compile izakhono-cloud/public-ingress.py
+      - name: Generate deterministic safe plan
+        run: |
+          RECEIPT=$(printf 'alpha-receipt' | sha256sum | cut -d' ' -f1)
+          python3 izakhono-cloud/public-ingress.py plan \
+            --project bevan-shelton-racing \
+            --hostname racing.example.com \
+            --upstream-port 18080 \
+            --health-path /health \
+            --deployment-receipt-sha256 "$RECEIPT" \
+            --out /tmp/plan-a.json
+          python3 izakhono-cloud/public-ingress.py plan \
+            --project bevan-shelton-racing \
+            --hostname racing.example.com \
+            --upstream-port 18080 \
+            --health-path /health \
+            --deployment-receipt-sha256 "$RECEIPT" \
+            --out /tmp/plan-b.json
+          cmp /tmp/plan-a.json /tmp/plan-b.json
+          python3 - <<'PY'
+          import json
+          p=json.load(open('/tmp/plan-a.json'))
+          assert p['upstream']['host']=='127.0.0.1'
+          assert p['promotion']['requires_external_https_verification'] is True
+          assert p['truth_boundary']['public_ready'] is False
+          assert p['truth_boundary']['commercial_ready'] is False
+          assert 'reverse_proxy 127.0.0.1:18080' in p['route_config']
+          PY
+      - name: Reject unsafe names and private targets
+        run: |
+          set +e
+          R=$(printf 'alpha-receipt' | sha256sum | cut -d' ' -f1)
+          python3 izakhono-cloud/public-ingress.py plan --project bad --hostname localhost --upstream-port 18080 --deployment-receipt-sha256 "$R" >/dev/null 2>&1
+          test $? -ne 0 || exit 1
+          python3 izakhono-cloud/public-ingress.py plan --project bad --hostname '*.example.com' --upstream-port 18080 --deployment-receipt-sha256 "$R" >/dev/null 2>&1
+          test $? -ne 0 || exit 1
+          python3 izakhono-cloud/public-ingress.py plan --project bad --hostname bad.example.com --upstream-port 18080 --deployment-receipt-sha256 "$R" --target-ip 127.0.0.1 >/dev/null 2>&1
+          test $? -ne 0 || exit 1
+          exit 0
