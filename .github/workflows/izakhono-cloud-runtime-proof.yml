@@ -1,0 +1,42 @@
+name: IZAKHONO CLOUD Runtime Proof Harness
+
+on:
+  push:
+    branches:
+      - izakhono-cloud-v1-11-runtime-proof-harness
+    paths:
+      - 'izakhono-cloud/runtime-proof-harness.sh'
+      - 'izakhono-cloud/RUNTIME-PROOF-HARNESS.md'
+      - '.github/workflows/izakhono-cloud-runtime-proof.yml'
+  pull_request:
+    paths:
+      - 'izakhono-cloud/runtime-proof-harness.sh'
+      - 'izakhono-cloud/RUNTIME-PROOF-HARNESS.md'
+      - '.github/workflows/izakhono-cloud-runtime-proof.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  runtime-proof:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate harness syntax
+        run: bash -n izakhono-cloud/runtime-proof-harness.sh
+      - name: Confirm Docker engine
+        run: docker info
+      - name: Exercise real Docker runtime and rollback
+        run: |
+          bash izakhono-cloud/runtime-proof-harness.sh ci | tee /tmp/runtime-proof.log
+          grep -q '^real_container_runtime_exercised=true$' /tmp/runtime-proof.log
+          grep -q '^isolation_flags_verified=true$' /tmp/runtime-proof.log
+          grep -q '^rollback_verified=true$' /tmp/runtime-proof.log
+          grep -q '^owner_controlled_hardware_verified=false$' /tmp/runtime-proof.log
+          grep -q '^public_ready=false$' /tmp/runtime-proof.log
+          grep -q '^commercial_ready=false$' /tmp/runtime-proof.log
+      - name: Guard runtime truth boundary
+        run: |
+          grep -q 'owner_controlled_hardware_verified=false' izakhono-cloud/runtime-proof-harness.sh
+          grep -q 'requires_independent_owner_hardware_attestation' izakhono-cloud/runtime-proof-harness.sh
+          grep -q 'not.*proof of owner-controlled hardware' izakhono-cloud/RUNTIME-PROOF-HARNESS.md
