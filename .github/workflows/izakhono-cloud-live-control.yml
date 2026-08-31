@@ -1,0 +1,156 @@
+name: IZAKHONO CLOUD Live Node Control Gate
+
+on:
+  push:
+    branches: [izakhono-cloud-v1-14-live-control-challenge]
+    paths:
+      - 'izakhono-cloud/live-control-challenge.py'
+      - 'izakhono-cloud/LIVE-NODE-CONTROL-CHALLENGE.md'
+      - '.github/workflows/izakhono-cloud-live-control.yml'
+  pull_request:
+    paths:
+      - 'izakhono-cloud/live-control-challenge.py'
+      - 'izakhono-cloud/LIVE-NODE-CONTROL-CHALLENGE.md'
+      - '.github/workflows/izakhono-cloud-live-control.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  live-control-gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile live control tool
+        run: python3 -m py_compile izakhono-cloud/live-control-challenge.py
+
+      - name: Confirm crypto and Docker dependencies
+        run: |
+          openssl version
+          docker info >/dev/null
+
+      - name: Prove short-lived verifier challenge and node response
+        run: |
+          set -euo pipefail
+          ROOT=$(mktemp -d)
+          trap 'rm -rf "$ROOT"' EXIT
+          mkdir -p "$ROOT/node" "$ROOT/verifier"
+
+          python3 izakhono-cloud/multinode.py init --state-dir "$ROOT/node" >/dev/null
+          NODE_ID=$(cat "$ROOT/node/identity/node-id")
+          cat > "$ROOT/runtime.json" <<EOF
+          {
+            "schema": "izakhono.runtime-proof.v1",
+            "proof_scope": "github_hosted_docker_runtime",
+            "owner_controlled_hardware_verified": false,
+            "node_id": "$NODE_ID",
+            "real_container_runtime_exercised": true,
+            "isolation_flags_verified": true,
+            "rollback_verified": true,
+            "public_ready": false,
+            "commercial_ready": false
+          }
+          EOF
+
+          python3 izakhono-cloud/owner-attestation.py create \
+            --runtime-proof "$ROOT/runtime.json" \
+            --node-state-dir "$ROOT/node" \
+            --output "$ROOT/attestation.json" >/dev/null
+
+          python3 izakhono-cloud/independent-verifier.py init-verifier \
+            --state-dir "$ROOT/verifier" >/dev/null
+          python3 izakhono-cloud/independent-verifier.py issue \
+            --attestation "$ROOT/attestation.json" \
+            --runtime-proof "$ROOT/runtime.json" \
+            --owner-attestation-tool izakhono-cloud/owner-attestation.py \
+            --verifier-state-dir "$ROOT/verifier" \
+            --output "$ROOT/external.json" >/dev/null
+
+          python3 izakhono-cloud/live-control-challenge.py issue-challenge \
+            --receipt "$ROOT/external.json" \
+            --attestation "$ROOT/attestation.json" \
+            --runtime-proof "$ROOT/runtime.json" \
+            --verifier-tool izakhono-cloud/independent-verifier.py \
+            --verifier-state-dir "$ROOT/verifier" \
+            --output "$ROOT/challenge.json" \
+            --ttl-minutes 5
+
+          python3 izakhono-cloud/live-control-challenge.py respond "$ROOT/challenge.json" \
+            --node-state-dir "$ROOT/node" \
+            --output "$ROOT/response.json"
+
+          python3 izakhono-cloud/live-control-challenge.py finalize \
+            --challenge "$ROOT/challenge.json" \
+            --response "$ROOT/response.json" \
+            --receipt "$ROOT/external.json" \
+            --attestation "$ROOT/attestation.json" \
+            --runtime-proof "$ROOT/runtime.json" \
+            --verifier-tool izakhono-cloud/independent-verifier.py \
+            --verifier-state-dir "$ROOT/verifier" \
+            --output "$ROOT/final.json"
+
+          python3 izakhono-cloud/live-control-challenge.py verify-final "$ROOT/final.json" \
+            --challenge "$ROOT/challenge.json" \
+            --response "$ROOT/response.json" \
+            --external-receipt "$ROOT/external.json" \
+            --attestation "$ROOT/attestation.json" \
+            --runtime-proof "$ROOT/runtime.json" | tee "$ROOT/verify.log"
+
+          grep -q '^verification_level=live_node_key_control_verified$' "$ROOT/verify.log"
+          grep -q '^node_key_possession_verified=true$' "$ROOT/verify.log"
+          grep -q '^physical_ownership_independently_verified=false$' "$ROOT/verify.log"
+          grep -q '^public_ready=false$' "$ROOT/verify.log"
+
+      - name: Reject wrong node, tampering and readiness escalation
+        run: |
+          set -euo pipefail
+          ROOT=$(mktemp -d)
+          trap 'rm -rf "$ROOT"' EXIT
+          mkdir -p "$ROOT/node1" "$ROOT/node2" "$ROOT/verifier"
+          python3 izakhono-cloud/multinode.py init --state-dir "$ROOT/node1" >/dev/null
+          python3 izakhono-cloud/multinode.py init --state-dir "$ROOT/node2" >/dev/null
+          NODE_ID=$(cat "$ROOT/node1/identity/node-id")
+          printf '{"schema":"izakhono.runtime-proof.v1","proof_scope":"github_hosted_docker_runtime","owner_controlled_hardware_verified":false,"node_id":"%s","real_container_runtime_exercised":true,"isolation_flags_verified":true,"rollback_verified":true,"public_ready":false,"commercial_ready":false}\n' "$NODE_ID" > "$ROOT/runtime.json"
+          python3 izakhono-cloud/owner-attestation.py create --runtime-proof "$ROOT/runtime.json" --node-state-dir "$ROOT/node1" --output "$ROOT/attestation.json" >/dev/null
+          python3 izakhono-cloud/independent-verifier.py init-verifier --state-dir "$ROOT/verifier" >/dev/null
+          python3 izakhono-cloud/independent-verifier.py issue --attestation "$ROOT/attestation.json" --runtime-proof "$ROOT/runtime.json" --owner-attestation-tool izakhono-cloud/owner-attestation.py --verifier-state-dir "$ROOT/verifier" --output "$ROOT/external.json" >/dev/null
+          python3 izakhono-cloud/live-control-challenge.py issue-challenge --receipt "$ROOT/external.json" --attestation "$ROOT/attestation.json" --runtime-proof "$ROOT/runtime.json" --verifier-tool izakhono-cloud/independent-verifier.py --verifier-state-dir "$ROOT/verifier" --output "$ROOT/challenge.json" >/dev/null
+
+          if python3 izakhono-cloud/live-control-challenge.py respond "$ROOT/challenge.json" --node-state-dir "$ROOT/node2" --output "$ROOT/wrong.json"; then
+            echo 'ERROR: challenge accepted by wrong node' >&2
+            exit 1
+          fi
+
+          python3 izakhono-cloud/live-control-challenge.py respond "$ROOT/challenge.json" --node-state-dir "$ROOT/node1" --output "$ROOT/response.json" >/dev/null
+          python3 izakhono-cloud/live-control-challenge.py finalize --challenge "$ROOT/challenge.json" --response "$ROOT/response.json" --receipt "$ROOT/external.json" --attestation "$ROOT/attestation.json" --runtime-proof "$ROOT/runtime.json" --verifier-tool izakhono-cloud/independent-verifier.py --verifier-state-dir "$ROOT/verifier" --output "$ROOT/final.json" >/dev/null
+
+          python3 - "$ROOT/response.json" "$ROOT/tampered-response.json" <<'PY'
+          import json,sys
+          x=json.load(open(sys.argv[1])); x['response']['node_key_possession_response']=False
+          json.dump(x,open(sys.argv[2],'w'))
+          PY
+          if python3 izakhono-cloud/live-control-challenge.py finalize --challenge "$ROOT/challenge.json" --response "$ROOT/tampered-response.json" --receipt "$ROOT/external.json" --attestation "$ROOT/attestation.json" --runtime-proof "$ROOT/runtime.json" --verifier-tool izakhono-cloud/independent-verifier.py --verifier-state-dir "$ROOT/verifier" --output "$ROOT/bad-final.json"; then
+            echo 'ERROR: tampered node response was accepted' >&2
+            exit 1
+          fi
+
+          python3 - "$ROOT/final.json" "$ROOT/escalated.json" <<'PY'
+          import json,sys
+          x=json.load(open(sys.argv[1])); x['verification']['physical_ownership_independently_verified']=True
+          json.dump(x,open(sys.argv[2],'w'))
+          PY
+          if python3 izakhono-cloud/live-control-challenge.py verify-final "$ROOT/escalated.json" --challenge "$ROOT/challenge.json" --response "$ROOT/response.json" --external-receipt "$ROOT/external.json" --attestation "$ROOT/attestation.json" --runtime-proof "$ROOT/runtime.json"; then
+            echo 'ERROR: readiness/ownership escalation was accepted' >&2
+            exit 1
+          fi
+
+      - name: Guard v1.14 truth boundary
+        run: |
+          grep -q 'verification_level.*live_node_key_control_verified' izakhono-cloud/live-control-challenge.py
+          grep -q 'physical_ownership_independently_verified.*False' izakhono-cloud/live-control-challenge.py
+          grep -q 'independent_hardware_verified.*False' izakhono-cloud/live-control-challenge.py
+          grep -q 'public_ready.*False' izakhono-cloud/live-control-challenge.py
+          grep -q 'commercial_ready.*False' izakhono-cloud/live-control-challenge.py
+          grep -q 'MAX_TTL_MINUTES = 15' izakhono-cloud/live-control-challenge.py
+          ! grep -Eiq 'serial(_number)?|mac(_address)?|credit.?card|bank.?detail' izakhono-cloud/live-control-challenge.py
