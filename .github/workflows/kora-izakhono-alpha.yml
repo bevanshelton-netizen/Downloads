@@ -1,0 +1,23 @@
+name: KORA IZAKHONO Central Alpha
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'kora-network/**'
+      - '.github/workflows/kora-izakhono-alpha.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'kora-network/**'
+      - '.github/workflows/kora-izakhono-alpha.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  alpha-core:
+    uses: bevanshelton-netizen/izakhono-builder/.github/workflows/izakhono-build-to-alpha.yml@efbb9fc15f95d9123a12079bf11f9d8a22769edc
+    with:
+      manifest_path: kora-network/.izakhono.json

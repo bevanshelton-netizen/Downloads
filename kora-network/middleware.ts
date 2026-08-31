@@ -23,6 +23,12 @@ export async function middleware(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
+  // Health must prove the application process itself without depending on an external provider.
+  // Deeper database/provider readiness remains a separate production gate at /api/readiness.
+  if (pathname === '/api/health') {
+    return response;
+  }
+
   // DOXA-SURE is an isolated static pilot published through the existing Vercel project.
   // Rewrite the clean public route before KORA auth/maintenance rules are evaluated.
   if (pathname === '/doxa-sure' || pathname === '/doxa-sure/') {
