@@ -1,0 +1,145 @@
+name: IZAKHONO CLOUD Scheduler Candidate Gate
+
+on:
+  pull_request:
+    paths:
+      - 'izakhono-cloud/scheduler-candidate.py'
+      - 'izakhono-cloud/SCHEDULER-CANDIDATE.md'
+      - '.github/workflows/izakhono-cloud-scheduler-candidate.yml'
+  push:
+    branches:
+      - izakhono-cloud-v1-8-scheduler-candidate
+    paths:
+      - 'izakhono-cloud/scheduler-candidate.py'
+      - 'izakhono-cloud/SCHEDULER-CANDIDATE.md'
+      - '.github/workflows/izakhono-cloud-scheduler-candidate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  scheduler-candidate-gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile scheduler candidate
+        run: python3 -m py_compile izakhono-cloud/scheduler-candidate.py
+
+      - name: Prove deterministic safe placement proposal
+        run: |
+          tmp=$(mktemp -d)
+          cat > "$tmp/nodes.json" <<'JSON'
+          [
+            {
+              "node_id":"izn-aaaaaaaaaaaaaaaaaaaaaaaa",
+              "signature_verified":true,
+              "controller_authenticated":true,
+              "trust_state":"candidate",
+              "proof_state":"runtime_ready",
+              "healthy":true,
+              "schedulable":false,
+              "public_ready":false,
+              "architecture":"x86_64",
+              "labels":["general","media"],
+              "free_cpu_millicores":3000,
+              "free_memory_mb":6000,
+              "free_disk_mb":50000
+            },
+            {
+              "node_id":"izn-bbbbbbbbbbbbbbbbbbbbbbbb",
+              "signature_verified":true,
+              "controller_authenticated":true,
+              "trust_state":"candidate",
+              "proof_state":"runtime_ready",
+              "healthy":true,
+              "schedulable":false,
+              "public_ready":false,
+              "architecture":"amd64",
+              "labels":["general","media"],
+              "free_cpu_millicores":5000,
+              "free_memory_mb":12000,
+              "free_disk_mb":90000
+            },
+            {
+              "node_id":"izn-unsafeunsafeunsafeunsafe",
+              "signature_verified":true,
+              "controller_authenticated":true,
+              "trust_state":"candidate",
+              "proof_state":"runtime_ready",
+              "healthy":true,
+              "schedulable":true,
+              "public_ready":true,
+              "architecture":"x86_64",
+              "labels":["general","media"],
+              "free_cpu_millicores":99999,
+              "free_memory_mb":99999,
+              "free_disk_mb":999999
+            }
+          ]
+          JSON
+          cat > "$tmp/workload.json" <<'JSON'
+          {
+            "workload_id":"allegro-preview",
+            "cpu_millicores":1000,
+            "memory_mb":2048,
+            "disk_mb":5000,
+            "architecture":"x86_64",
+            "labels":["media"]
+          }
+          JSON
+          python3 izakhono-cloud/scheduler-candidate.py --nodes "$tmp/nodes.json" --workload "$tmp/workload.json" --output "$tmp/proposal.json"
+          python3 - "$tmp/proposal.json" <<'PY'
+          import json, sys
+          p=json.load(open(sys.argv[1]))
+          assert p['decision_state']=='proposal'
+          assert p['placement']['node_id']=='izn-bbbbbbbbbbbbbbbbbbbbbbbb'
+          assert p['eligible_nodes']==2
+          assert p['rejected_nodes']==1
+          assert p['execution_allowed'] is False
+          assert p['remote_execution'] is False
+          assert p['automatic_failover'] is False
+          assert p['public_ready'] is False
+          assert p['requires_real_node_proof'] is True
+          PY
+
+      - name: Prove insufficient capacity fails closed
+        run: |
+          tmp=$(mktemp -d)
+          cat > "$tmp/nodes.json" <<'JSON'
+          [{
+            "node_id":"izn-cccccccccccccccccccccccc",
+            "signature_verified":true,
+            "controller_authenticated":true,
+            "trust_state":"candidate",
+            "proof_state":"local_ready",
+            "healthy":true,
+            "schedulable":false,
+            "public_ready":false,
+            "architecture":"arm64",
+            "labels":["general"],
+            "free_cpu_millicores":500,
+            "free_memory_mb":512,
+            "free_disk_mb":1000
+          }]
+          JSON
+          cat > "$tmp/workload.json" <<'JSON'
+          {"workload_id":"too-large","cpu_millicores":1000,"memory_mb":2048,"disk_mb":5000,"architecture":"any","labels":[]}
+          JSON
+          python3 izakhono-cloud/scheduler-candidate.py --nodes "$tmp/nodes.json" --workload "$tmp/workload.json" --output "$tmp/proposal.json"
+          python3 - "$tmp/proposal.json" <<'PY'
+          import json, sys
+          p=json.load(open(sys.argv[1]))
+          assert p['placement'] is None
+          assert p['eligible_nodes']==0
+          assert p['execution_allowed'] is False
+          assert p['public_ready'] is False
+          PY
+
+      - name: Guard v1.8 truth boundary
+        run: |
+          grep -q 'execution_allowed=false' izakhono-cloud/SCHEDULER-CANDIDATE.md
+          grep -q 'remote_execution=false' izakhono-cloud/SCHEDULER-CANDIDATE.md
+          grep -q 'automatic_failover=false' izakhono-cloud/SCHEDULER-CANDIDATE.md
+          grep -q 'public_ready=false' izakhono-cloud/SCHEDULER-CANDIDATE.md
+          grep -q 'requires_real_node_proof=true' izakhono-cloud/SCHEDULER-CANDIDATE.md
