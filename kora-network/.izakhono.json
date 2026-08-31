@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "name": "KORA",
+  "slug": "kora-network",
+  "build_context": "kora-network",
+  "dockerfile_path": "kora-network/Dockerfile",
+  "container_port": 3000,
+  "health_path": "/api/health",
+  "branch": "main",
+  "alpha": {
+    "preflight": true,
+    "rehearsal": false,
+    "windows_package": false
+  }
+}
