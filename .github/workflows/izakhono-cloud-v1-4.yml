@@ -1,0 +1,24 @@
+name: IZAKHONO CLOUD v1.4 Release Gate
+
+on:
+  pull_request:
+    paths:
+      - 'izakhono-cloud/**'
+      - '.github/workflows/izakhono-cloud-v1-4.yml'
+  push:
+    branches:
+      - izakhono-cloud-v1-4
+    paths:
+      - 'izakhono-cloud/**'
+      - '.github/workflows/izakhono-cloud-v1-4.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  release-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify immutable release, installer and launch gate
+        run: bash izakhono-cloud/verify-v1.4-release.sh
