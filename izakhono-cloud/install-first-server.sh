@@ -3,8 +3,9 @@ set -euo pipefail
 
 REPO_OWNER=${IZAKHONO_GITHUB_OWNER:-bevanshelton-netizen}
 REPO_NAME=${IZAKHONO_GITHUB_REPO:-Downloads}
-BRANCH=${IZAKHONO_GITHUB_BRANCH:-izakhono-cloud-v1-4}
-BASE="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}/izakhono-cloud"
+RELEASE_REF=${IZAKHONO_RELEASE_REF:-50ff6ed54d2f4d2760209c8c88669d0af8928661}
+BASE="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${RELEASE_REF}/izakhono-cloud"
+RELEASE_BASE="${BASE}/release/v1.4"
 INSTALL_DIR=${IZAKHONO_INSTALL_DIR:-/opt/izakhono-cloud}
 STATE_DIR=/var/lib/izakhono-cloud
 LOG=/var/log/izakhono-cloud-bootstrap.log
@@ -21,6 +22,7 @@ rm -f "$STATE_DIR/READY" "$STATE_DIR/FAILED"
 exec > >(tee -a "$LOG") 2>&1
 
 echo "=== IZAKHONO CLOUD v1.4 zero-touch install ==="
+echo "Release ref: ${RELEASE_REF}"
 date -Is
 
 export DEBIAN_FRONTEND=noninteractive
@@ -29,13 +31,26 @@ apt-get install -y ca-certificates curl unzip coreutils
 
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
-curl -fsSL "$BASE/izakhono-cloud-v1.4-zero-touch.zip.b64" -o "$TMP/release.b64"
-curl -fsSL "$BASE/izakhono-cloud-v1.4-zero-touch.zip.sha256" -o "$TMP/release.sha256"
+
+: > "$TMP/release.b64"
+for part in 00 01 02 03 04 05 06 07; do
+  echo "Downloading verified release part ${part}..."
+  curl -fsSL "${RELEASE_BASE}/part${part}.b64" -o "$TMP/part${part}.b64"
+  cat "$TMP/part${part}.b64" >> "$TMP/release.b64"
+done
+curl -fsSL "${RELEASE_BASE}/izakhono-cloud-v1.4-zero-touch.zip.sha256" -o "$TMP/release.sha256"
+
 base64 -d "$TMP/release.b64" > "$TMP/release.zip"
-(
-  cd "$TMP"
-  sed 's#izakhono-cloud-v1.4-zero-touch.zip#release.zip#' release.sha256 | sha256sum -c -
-)
+EXPECTED_SHA=$(awk 'NR==1 {print $1}' "$TMP/release.sha256")
+ACTUAL_SHA=$(sha256sum "$TMP/release.zip" | awk '{print $1}')
+if [ -z "$EXPECTED_SHA" ] || [ "$ACTUAL_SHA" != "$EXPECTED_SHA" ]; then
+  echo "ERROR: IZAKHONO release checksum verification failed." >&2
+  echo "Expected: ${EXPECTED_SHA:-missing}" >&2
+  echo "Actual:   ${ACTUAL_SHA:-missing}" >&2
+  exit 1
+fi
+
+echo "Release checksum verified: ${ACTUAL_SHA}"
 
 rm -rf "${INSTALL_DIR:?}"/*
 unzip -q "$TMP/release.zip" -d "$TMP/unpacked"
@@ -49,13 +64,13 @@ if ./bootstrap-ubuntu.sh && ./production-proof.sh; then
   cp .owner-credentials /root/izakhono-owner-credentials
   chmod 600 /root/izakhono-owner-credentials
   date -Is > "$STATE_DIR/READY"
-  printf 'IZAKHONO CLOUD v1.4\nstatus=ready\ninstalled_at=%s\n' "$(date -Is)" > "$STATE_DIR/status"
+  printf 'IZAKHONO CLOUD v1.4\nstatus=ready\nrelease_ref=%s\nrelease_sha256=%s\ninstalled_at=%s\n' "$RELEASE_REF" "$ACTUAL_SHA" "$(date -Is)" > "$STATE_DIR/status"
   echo "=== IZAKHONO CLOUD FIRST SERVER: READY ==="
   echo "Owner credentials are stored at /root/izakhono-owner-credentials"
 else
   rc=$?
   date -Is > "$STATE_DIR/FAILED"
-  printf 'IZAKHONO CLOUD v1.4\nstatus=failed\nfailed_at=%s\nexit_code=%s\n' "$(date -Is)" "$rc" > "$STATE_DIR/status"
+  printf 'IZAKHONO CLOUD v1.4\nstatus=failed\nrelease_ref=%s\nrelease_sha256=%s\nfailed_at=%s\nexit_code=%s\n' "$RELEASE_REF" "$ACTUAL_SHA" "$(date -Is)" "$rc" > "$STATE_DIR/status"
   echo "=== IZAKHONO CLOUD FIRST SERVER: FAILED CLOSED ===" >&2
   exit "$rc"
 fi
