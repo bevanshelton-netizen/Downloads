@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'izakhono-cloud/public-ingress.py'
+      - 'izakhono-cloud/apply-public-ingress.sh'
       - 'izakhono-cloud/PUBLIC-INGRESS-V1.16.md'
       - '.github/workflows/izakhono-cloud-public-ingress.yml'
   push:
@@ -11,6 +12,7 @@ on:
       - 'izakhono-cloud-v1-16-public-ingress'
     paths:
       - 'izakhono-cloud/public-ingress.py'
+      - 'izakhono-cloud/apply-public-ingress.sh'
       - 'izakhono-cloud/PUBLIC-INGRESS-V1.16.md'
       - '.github/workflows/izakhono-cloud-public-ingress.yml'
 
@@ -19,8 +21,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Compile planner
-        run: python3 -m py_compile izakhono-cloud/public-ingress.py
+      - name: Compile planner and lint owner-node apply path
+        run: |
+          python3 -m py_compile izakhono-cloud/public-ingress.py
+          bash -n izakhono-cloud/apply-public-ingress.sh
       - name: Generate deterministic safe plan
         run: |
           RECEIPT=$(printf 'alpha-receipt' | sha256sum | cut -d' ' -f1)
@@ -44,6 +48,7 @@ jobs:
           p=json.load(open('/tmp/plan-a.json'))
           assert p['upstream']['host']=='127.0.0.1'
           assert p['promotion']['requires_external_https_verification'] is True
+          assert p['promotion']['rollback_on_https_failure'] is True
           assert p['truth_boundary']['public_ready'] is False
           assert p['truth_boundary']['commercial_ready'] is False
           assert 'reverse_proxy 127.0.0.1:18080' in p['route_config']
