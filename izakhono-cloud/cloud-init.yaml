@@ -12,7 +12,8 @@ write_files:
     content: |
       #!/usr/bin/env bash
       set -euo pipefail
-      curl -fsSL https://raw.githubusercontent.com/bevanshelton-netizen/Downloads/izakhono-cloud-v1-4/izakhono-cloud/install-first-server.sh -o /tmp/install-first-server.sh
+      INSTALLER_REF=9507b6a9b0abff1fc7f7b2812731a50742215987
+      curl -fsSL "https://raw.githubusercontent.com/bevanshelton-netizen/Downloads/${INSTALLER_REF}/izakhono-cloud/install-first-server.sh" -o /tmp/install-first-server.sh
       chmod +x /tmp/install-first-server.sh
       exec /tmp/install-first-server.sh
 runcmd:
