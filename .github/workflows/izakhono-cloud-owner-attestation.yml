@@ -1,0 +1,92 @@
+name: IZAKHONO CLOUD Owner Hardware Attestation Gate
+
+on:
+  push:
+    branches: [izakhono-cloud-v1-12-owner-attestation]
+    paths:
+      - 'izakhono-cloud/owner-attestation.py'
+      - 'izakhono-cloud/OWNER-HARDWARE-ATTESTATION.md'
+      - '.github/workflows/izakhono-cloud-owner-attestation.yml'
+  pull_request:
+    paths:
+      - 'izakhono-cloud/owner-attestation.py'
+      - 'izakhono-cloud/OWNER-HARDWARE-ATTESTATION.md'
+      - '.github/workflows/izakhono-cloud-owner-attestation.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  owner-attestation-gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile attestation tool
+        run: python3 -m py_compile izakhono-cloud/owner-attestation.py
+
+      - name: Confirm Docker engine
+        run: docker info >/dev/null
+
+      - name: Prove signed self-attestation and runtime binding
+        run: |
+          set -euo pipefail
+          ROOT=$(mktemp -d)
+          trap 'rm -rf "$ROOT"' EXIT
+          mkdir -p "$ROOT/node" "$ROOT/proofs"
+          python3 izakhono-cloud/multinode.py init --state-dir "$ROOT/node" >/dev/null
+          NODE_ID=$(cat "$ROOT/node/identity/node-id")
+          cat > "$ROOT/runtime.json" <<EOF
+          {
+            "schema": "izakhono.runtime-proof.v1",
+            "proof_scope": "github_hosted_docker_runtime",
+            "owner_controlled_hardware_verified": false,
+            "node_id": "$NODE_ID",
+            "real_container_runtime_exercised": true,
+            "isolation_flags_verified": true,
+            "rollback_verified": true,
+            "public_ready": false,
+            "commercial_ready": false
+          }
+          EOF
+          python3 izakhono-cloud/owner-attestation.py create \
+            --runtime-proof "$ROOT/runtime.json" \
+            --node-state-dir "$ROOT/node" \
+            --output "$ROOT/attestation.json"
+          python3 izakhono-cloud/owner-attestation.py verify \
+            "$ROOT/attestation.json" --runtime-proof "$ROOT/runtime.json" | tee "$ROOT/verify.log"
+          grep -q '^verification_level=self_attested$' "$ROOT/verify.log"
+          grep -q '^independent_hardware_verified=false$' "$ROOT/verify.log"
+          grep -q '^public_ready=false$' "$ROOT/verify.log"
+
+      - name: Reject tampered attestation and mismatched runtime proof
+        run: |
+          set -euo pipefail
+          ROOT=$(mktemp -d)
+          trap 'rm -rf "$ROOT"' EXIT
+          mkdir -p "$ROOT/node"
+          python3 izakhono-cloud/multinode.py init --state-dir "$ROOT/node" >/dev/null
+          NODE_ID=$(cat "$ROOT/node/identity/node-id")
+          printf '{"schema":"izakhono.runtime-proof.v1","node_id":"%s","real_container_runtime_exercised":true,"isolation_flags_verified":true,"rollback_verified":true,"public_ready":false,"commercial_ready":false}\n' "$NODE_ID" > "$ROOT/runtime.json"
+          python3 izakhono-cloud/owner-attestation.py create --runtime-proof "$ROOT/runtime.json" --node-state-dir "$ROOT/node" --output "$ROOT/a.json" >/dev/null
+          python3 - "$ROOT/a.json" "$ROOT/tampered.json" <<'PY'
+          import json,sys
+          a=json.load(open(sys.argv[1])); a['attestation']['machine']['memory_mb'] += 1
+          json.dump(a,open(sys.argv[2],'w'))
+          PY
+          if python3 izakhono-cloud/owner-attestation.py verify "$ROOT/tampered.json" --runtime-proof "$ROOT/runtime.json"; then
+            echo 'ERROR: tampered attestation was accepted' >&2; exit 1
+          fi
+          cp "$ROOT/runtime.json" "$ROOT/runtime2.json"
+          printf ' ' >> "$ROOT/runtime2.json"
+          if python3 izakhono-cloud/owner-attestation.py verify "$ROOT/a.json" --runtime-proof "$ROOT/runtime2.json"; then
+            echo 'ERROR: mismatched runtime proof was accepted' >&2; exit 1
+          fi
+
+      - name: Guard v1.12 truth boundary
+        run: |
+          grep -q 'verification_level.*self_attested' izakhono-cloud/owner-attestation.py
+          grep -q 'independent_hardware_verified.*False' izakhono-cloud/owner-attestation.py
+          grep -q 'public_ready.*False' izakhono-cloud/owner-attestation.py
+          grep -q 'commercial_ready.*False' izakhono-cloud/owner-attestation.py
+          ! grep -Eiq 'serial_number|mac_address|credit.?card|bank.?detail' izakhono-cloud/owner-attestation.py
