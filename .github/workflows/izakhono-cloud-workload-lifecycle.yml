@@ -1,0 +1,100 @@
+name: IZAKHONO CLOUD Workload Lifecycle Gate
+
+on:
+  push:
+    branches:
+      - izakhono-cloud-v1-9-signed-workload-lifecycle
+    paths:
+      - 'izakhono-cloud/workload-lifecycle.py'
+      - 'izakhono-cloud/WORKLOAD-LIFECYCLE.md'
+      - '.github/workflows/izakhono-cloud-workload-lifecycle.yml'
+  pull_request:
+    paths:
+      - 'izakhono-cloud/workload-lifecycle.py'
+      - 'izakhono-cloud/WORKLOAD-LIFECYCLE.md'
+      - '.github/workflows/izakhono-cloud-workload-lifecycle.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  workload-lifecycle-gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile lifecycle tool
+        run: python3 -m py_compile izakhono-cloud/workload-lifecycle.py
+      - name: Prove signed reversible rehearsal
+        run: |
+          set -euo pipefail
+          T=$(mktemp -d)
+          mkdir -p "$T/proof" "$T/lifecycle"
+          touch "$T/proof/LOCAL_READY"
+          cat > "$T/spec.json" <<'JSON'
+          {
+            "workload_id": "allegro-core-pilot",
+            "target_node_id": "izn-ci-owner-node-001",
+            "image": "registry.example/izakhono/allegro-core@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "cpu_millis": 500,
+            "memory_mb": 512,
+            "disk_mb": 1024,
+            "rootfs_read_only": true,
+            "ports": [8787]
+          }
+          JSON
+          python3 izakhono-cloud/workload-lifecycle.py sign --state-dir "$T/controller" --spec "$T/spec.json" --output "$T/bundle.json"
+          python3 izakhono-cloud/workload-lifecycle.py verify "$T/bundle.json"
+          OUT=$(python3 izakhono-cloud/workload-lifecycle.py stage "$T/bundle.json" --node-id izn-ci-owner-node-001 --proof-dir "$T/proof" --lifecycle-dir "$T/lifecycle")
+          PLAN=$(printf '%s\n' "$OUT" | sed -n 's/^plan_id=//p')
+          test -n "$PLAN"
+          grep -q 'staged_not_executed' "$T/lifecycle/$PLAN/state.json"
+          python3 izakhono-cloud/workload-lifecycle.py rehearse "$T/lifecycle/$PLAN"
+          grep -q 'rehearsed_not_executed' "$T/lifecycle/$PLAN/state.json"
+          if python3 izakhono-cloud/workload-lifecycle.py apply "$T/lifecycle/$PLAN"; then
+            echo 'ERROR: v1.9 apply unexpectedly succeeded' >&2
+            exit 1
+          fi
+          python3 izakhono-cloud/workload-lifecycle.py rollback "$T/lifecycle/$PLAN"
+          grep -q 'rolled_back' "$T/lifecycle/$PLAN/state.json"
+          grep -q '"execution_allowed": false' "$T/lifecycle/$PLAN/state.json"
+      - name: Reject tampering and unsafe workload flags
+        run: |
+          set -euo pipefail
+          T=$(mktemp -d)
+          cat > "$T/spec.json" <<'JSON'
+          {
+            "workload_id": "safe-test",
+            "target_node_id": "izn-ci-owner-node-002",
+            "image": "registry.example/safe@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "cpu_millis": 100,
+            "memory_mb": 128,
+            "disk_mb": 256
+          }
+          JSON
+          python3 izakhono-cloud/workload-lifecycle.py sign --state-dir "$T/controller" --spec "$T/spec.json" --output "$T/bundle.json"
+          python3 - "$T/bundle.json" "$T/tampered.json" <<'PY'
+          import json,sys
+          b=json.load(open(sys.argv[1]))
+          b['manifest']['spec']['image']='registry.example/safe@sha256:' + ('c'*64)
+          json.dump(b,open(sys.argv[2],'w'))
+          PY
+          if python3 izakhono-cloud/workload-lifecycle.py verify "$T/tampered.json"; then
+            echo 'ERROR: tampered signed bundle was accepted' >&2
+            exit 1
+          fi
+          python3 - "$T/spec.json" "$T/unsafe.json" <<'PY'
+          import json,sys
+          s=json.load(open(sys.argv[1])); s['privileged']=True
+          json.dump(s,open(sys.argv[2],'w'))
+          PY
+          if python3 izakhono-cloud/workload-lifecycle.py sign --state-dir "$T/controller2" --spec "$T/unsafe.json" --output "$T/unsafe-bundle.json"; then
+            echo 'ERROR: privileged workload was signed' >&2
+            exit 1
+          fi
+      - name: Guard v1.9 truth boundary
+        run: |
+          grep -q '`execution_allowed=false`' izakhono-cloud/WORKLOAD-LIFECYCLE.md
+          grep -q '`remote_execution=false`' izakhono-cloud/WORKLOAD-LIFECYCLE.md
+          grep -q '`automatic_failover=false`' izakhono-cloud/WORKLOAD-LIFECYCLE.md
+          grep -q '`public_ready=false`' izakhono-cloud/WORKLOAD-LIFECYCLE.md
+          grep -q 'apply.*always fails closed' izakhono-cloud/WORKLOAD-LIFECYCLE.md
