@@ -1,0 +1,157 @@
+name: IZAKHONO CLOUD Authenticated Control Gate
+
+on:
+  pull_request:
+    paths:
+      - 'izakhono-cloud/control_channel.py'
+      - 'izakhono-cloud/pin-controller.sh'
+      - 'izakhono-cloud/CONTROL-CHANNEL.md'
+      - 'izakhono-cloud/multinode.py'
+      - '.github/workflows/izakhono-cloud-control-channel.yml'
+  push:
+    branches:
+      - izakhono-cloud-v1-7-auth-control
+    paths:
+      - 'izakhono-cloud/control_channel.py'
+      - 'izakhono-cloud/pin-controller.sh'
+      - 'izakhono-cloud/CONTROL-CHANNEL.md'
+      - 'izakhono-cloud/multinode.py'
+      - '.github/workflows/izakhono-cloud-control-channel.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  authenticated-control-gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate source syntax
+        run: |
+          python3 -m py_compile izakhono-cloud/multinode.py izakhono-cloud/control_channel.py
+          bash -n izakhono-cloud/pin-controller.sh
+
+      - name: Prove signed controller command and signed node acknowledgement
+        run: |
+          set -euo pipefail
+          TMP=$(mktemp -d)
+          trap 'rm -rf "$TMP"' EXIT
+
+          python3 izakhono-cloud/multinode.py init --state-dir "$TMP/node"
+          NODE_ID=$(cat "$TMP/node/identity/node-id")
+
+          python3 izakhono-cloud/control_channel.py controller-init --state-dir "$TMP/controller"
+          CONTROLLER_PUB="$TMP/controller/identity/public.pem"
+          NODE_PUB="$TMP/node/identity/public.pem"
+
+          python3 izakhono-cloud/control_channel.py command-create \
+            --controller-state-dir "$TMP/controller" \
+            --target-node-id "$NODE_ID" \
+            --action status \
+            --ttl-seconds 300 \
+            --output "$TMP/command.json"
+
+          COMMAND_ID=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["payload"]["command_id"])' "$TMP/command.json")
+
+          python3 izakhono-cloud/control_channel.py command-verify "$TMP/command.json" \
+            --trusted-controller-key "$CONTROLLER_PUB" \
+            --expected-node-id "$NODE_ID"
+
+          python3 izakhono-cloud/control_channel.py node-ack "$TMP/command.json" \
+            --node-state-dir "$TMP/node" \
+            --trusted-controller-key "$CONTROLLER_PUB" \
+            --seen-dir "$TMP/seen" \
+            --output "$TMP/ack.json"
+
+          python3 izakhono-cloud/control_channel.py ack-verify "$TMP/ack.json" \
+            --node-public-key "$NODE_PUB" \
+            --expected-command-id "$COMMAND_ID"
+
+          python3 - <<'PY' "$TMP/command.json" "$TMP/ack.json"
+          import json, sys
+          command = json.load(open(sys.argv[1]))
+          ack = json.load(open(sys.argv[2]))
+          assert command['payload']['remote_execution'] is False
+          assert command['payload']['schedulable'] is False
+          assert command['payload']['public_ready'] is False
+          assert ack['payload']['status'] == 'verified_not_executed'
+          assert ack['payload']['remote_execution'] is False
+          assert ack['payload']['schedulable'] is False
+          assert ack['payload']['public_ready'] is False
+          PY
+
+      - name: Reject replay, wrong target, untrusted controller and tampering
+        run: |
+          set -euo pipefail
+          TMP=$(mktemp -d)
+          trap 'rm -rf "$TMP"' EXIT
+
+          python3 izakhono-cloud/multinode.py init --state-dir "$TMP/node"
+          NODE_ID=$(cat "$TMP/node/identity/node-id")
+          python3 izakhono-cloud/multinode.py init --state-dir "$TMP/other-node"
+          OTHER_NODE_ID=$(cat "$TMP/other-node/identity/node-id")
+
+          python3 izakhono-cloud/control_channel.py controller-init --state-dir "$TMP/controller"
+          python3 izakhono-cloud/control_channel.py controller-init --state-dir "$TMP/rogue-controller"
+          CONTROLLER_PUB="$TMP/controller/identity/public.pem"
+          ROGUE_PUB="$TMP/rogue-controller/identity/public.pem"
+
+          python3 izakhono-cloud/control_channel.py command-create \
+            --controller-state-dir "$TMP/controller" \
+            --target-node-id "$NODE_ID" \
+            --action health \
+            --output "$TMP/command.json"
+
+          python3 izakhono-cloud/control_channel.py node-ack "$TMP/command.json" \
+            --node-state-dir "$TMP/node" \
+            --trusted-controller-key "$CONTROLLER_PUB" \
+            --seen-dir "$TMP/seen" \
+            --output "$TMP/ack.json"
+
+          if python3 izakhono-cloud/control_channel.py node-ack "$TMP/command.json" \
+            --node-state-dir "$TMP/node" \
+            --trusted-controller-key "$CONTROLLER_PUB" \
+            --seen-dir "$TMP/seen" \
+            --output "$TMP/replay-ack.json"; then
+            echo 'ERROR: replay was accepted' >&2
+            exit 1
+          fi
+
+          if python3 izakhono-cloud/control_channel.py command-verify "$TMP/command.json" \
+            --trusted-controller-key "$CONTROLLER_PUB" \
+            --expected-node-id "$OTHER_NODE_ID"; then
+            echo 'ERROR: wrong-target command was accepted' >&2
+            exit 1
+          fi
+
+          if python3 izakhono-cloud/control_channel.py command-verify "$TMP/command.json" \
+            --trusted-controller-key "$ROGUE_PUB" \
+            --expected-node-id "$NODE_ID"; then
+            echo 'ERROR: untrusted controller was accepted' >&2
+            exit 1
+          fi
+
+          cp "$TMP/command.json" "$TMP/tampered.json"
+          python3 - <<'PY' "$TMP/tampered.json"
+          import json, sys
+          p = sys.argv[1]
+          data = json.load(open(p))
+          data['payload']['action'] = 'inventory'
+          json.dump(data, open(p, 'w'), indent=2, sort_keys=True)
+          PY
+          if python3 izakhono-cloud/control_channel.py command-verify "$TMP/tampered.json" \
+            --trusted-controller-key "$CONTROLLER_PUB" \
+            --expected-node-id "$NODE_ID"; then
+            echo 'ERROR: tampered command was accepted' >&2
+            exit 1
+          fi
+
+      - name: Guard v1.7 truth boundary
+        run: |
+          grep -q 'verified_not_executed' izakhono-cloud/control_channel.py
+          grep -q 'remote_execution=false' izakhono-cloud/CONTROL-CHANNEL.md
+          grep -q 'schedulable=false' izakhono-cloud/CONTROL-CHANNEL.md
+          grep -q 'public_ready=false' izakhono-cloud/CONTROL-CHANNEL.md
+          grep -q 'does not open a network listener' izakhono-cloud/CONTROL-CHANNEL.md
+          ! grep -Eq 'subprocess.*(docker|ssh)|os\.system\(|shell=True' izakhono-cloud/control_channel.py
