@@ -1,0 +1,56 @@
+name: IZAKHONO CLOUD v1.4 Release Gate
+
+on:
+  pull_request:
+    paths:
+      - 'izakhono-cloud/**'
+      - '.github/workflows/izakhono-cloud-v1-4.yml'
+  push:
+    branches:
+      - izakhono-cloud-v1-4
+    paths:
+      - 'izakhono-cloud/**'
+      - '.github/workflows/izakhono-cloud-v1-4.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  release-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify immutable release, installer and launch gate
+        run: bash izakhono-cloud/verify-v1.4-release.sh
+      - name: Verify Oracle A1 preflight syntax
+        run: bash -n izakhono-cloud/oracle-a1-preflight.sh
+      - name: Verify upstream images support Linux Arm64
+        shell: bash
+        run: |
+          set -euo pipefail
+          images=(
+            'postgres:16-alpine'
+            'minio/minio:latest'
+            'caddy:2-alpine'
+            'prom/prometheus:latest'
+            'prom/alertmanager:latest'
+            'prom/node-exporter:latest'
+            'python:3.12-slim'
+          )
+          for image in "${images[@]}"; do
+            echo "Checking ${image} for linux/arm64..."
+            docker buildx imagetools inspect --raw "$image" > /tmp/izakhono-image-index.json
+            python3 - "$image" <<'PY'
+          import json, sys
+          image = sys.argv[1]
+          with open('/tmp/izakhono-image-index.json', encoding='utf-8') as fh:
+              data = json.load(fh)
+          platforms = {
+              (m.get('platform', {}).get('os'), m.get('platform', {}).get('architecture'))
+              for m in data.get('manifests', [])
+          }
+          if ('linux', 'arm64') not in platforms:
+              raise SystemExit(f'{image}: linux/arm64 manifest missing; platforms={sorted(platforms)}')
+          print(f'{image}: linux/arm64 OK')
+          PY
+          done
