@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'izakhono-cloud/owner-node-bootstrap.sh'
+      - 'izakhono-cloud/owner-node-windows.ps1'
       - 'izakhono-cloud/OWNER-HOSTED-NODE.md'
       - '.github/workflows/izakhono-cloud-owner-hosted.yml'
   push:
@@ -11,6 +12,7 @@ on:
       - izakhono-cloud-v1-5-owner-hosted
     paths:
       - 'izakhono-cloud/owner-node-bootstrap.sh'
+      - 'izakhono-cloud/owner-node-windows.ps1'
       - 'izakhono-cloud/OWNER-HOSTED-NODE.md'
       - '.github/workflows/izakhono-cloud-owner-hosted.yml'
 
@@ -24,9 +26,29 @@ jobs:
       - uses: actions/checkout@v4
       - name: Validate owner-node bootstrap syntax
         run: bash -n izakhono-cloud/owner-node-bootstrap.sh
+      - name: Validate Windows helper syntax
+        shell: pwsh
+        run: |
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path 'izakhono-cloud/owner-node-windows.ps1'),
+            [ref]$null,
+            [ref]$errors
+          ) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
       - name: Require immutable verified installer pin
         run: grep -Eq 'VERIFIED_INSTALLER_REF=.*[0-9a-f]{40}' izakhono-cloud/owner-node-bootstrap.sh
+      - name: Require immutable Windows bootstrap pin
+        run: grep -Eq "PinnedBootstrapRef = '[0-9a-f]{40}'" izakhono-cloud/owner-node-windows.ps1
       - name: Guard no-card owner-hosted contract
         run: |
           grep -q 'no bank or card details are required by IZAKHONO CLOUD' izakhono-cloud/OWNER-HOSTED-NODE.md
           grep -q 'Software cannot create CPU, RAM, storage, electricity or an internet connection' izakhono-cloud/OWNER-HOSTED-NODE.md
+      - name: Guard Windows local proof truth boundary
+        run: |
+          grep -q 'LOCAL_READY' izakhono-cloud/owner-node-windows.ps1
+          grep -q 'public_ready=false' izakhono-cloud/owner-node-windows.ps1
+          grep -q 'This is not public/commercial readiness' izakhono-cloud/owner-node-windows.ps1
