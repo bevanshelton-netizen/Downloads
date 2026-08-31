@@ -7,10 +7,10 @@ For an Ubuntu 24.04 host with Docker capability and a public IPv4 address:
 3. Otherwise, after signing in to the host, run the immutable installer:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/bevanshelton-netizen/Downloads/9507b6a9b0abff1fc7f7b2812731a50742215987/izakhono-cloud/install-first-server.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/bevanshelton-netizen/Downloads/0cb1db194926ea5d6e9e40ba2ce8eb806aac2e0d/izakhono-cloud/install-first-server.sh | sudo bash
 ```
 
-The installer itself pins release payload commit `50ff6ed54d2f4d2760209c8c88669d0af8928661` and verifies SHA-256 `3df20c679d0ce8956ccfba7f4deb7528e221b9f112a2ceb238a22b045e9d939f` before installation.
+The installer pins release payload commit `e25d56c37116cebca639c6d0cbf5f72b92bb301c` and verifies SHA-256 `3df20c679d0ce8956ccfba7f4deb7528e221b9f112a2ceb238a22b045e9d939f` before installation.
 
 Check the result:
 
