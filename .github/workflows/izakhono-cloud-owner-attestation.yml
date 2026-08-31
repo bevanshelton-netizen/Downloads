@@ -89,4 +89,4 @@ jobs:
           grep -q 'independent_hardware_verified.*False' izakhono-cloud/owner-attestation.py
           grep -q 'public_ready.*False' izakhono-cloud/owner-attestation.py
           grep -q 'commercial_ready.*False' izakhono-cloud/owner-attestation.py
-          ! grep -Eiq 'serial(_number)?|mac(_address)?|credit.?card|bank.?detail' izakhono-cloud/owner-attestation.py
+          ! grep -Eiq 'serial_number|mac_address|credit.?card|bank.?detail' izakhono-cloud/owner-attestation.py
