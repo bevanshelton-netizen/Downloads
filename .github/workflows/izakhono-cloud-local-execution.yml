@@ -1,0 +1,203 @@
+name: IZAKHONO CLOUD Controlled Local Execution Gate
+
+on:
+  push:
+    branches:
+      - izakhono-cloud-v1-10-controlled-local-execution
+    paths:
+      - 'izakhono-cloud/local-execution.py'
+      - 'izakhono-cloud/LOCAL-EXECUTION.md'
+      - '.github/workflows/izakhono-cloud-local-execution.yml'
+  pull_request:
+    paths:
+      - 'izakhono-cloud/local-execution.py'
+      - 'izakhono-cloud/LOCAL-EXECUTION.md'
+      - '.github/workflows/izakhono-cloud-local-execution.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  local-execution-gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile local execution tool
+        run: python3 -m py_compile izakhono-cloud/local-execution.py
+
+      - name: Prove local authorization, simulated execution and rollback
+        shell: bash
+        run: |
+          set -euo pipefail
+          tmp=$(mktemp -d)
+          trap 'rm -rf "$tmp"' EXIT
+
+          node="$tmp/node"
+          proof="$tmp/proof"
+          execdir="$tmp/executions"
+          mkdir -p "$proof" "$execdir"
+          touch "$proof/READY"
+          printf 'enabled=true\n' > "$proof/ALLOW_LOCAL_EXECUTION"
+
+          python3 izakhono-cloud/multinode.py init --state-dir "$node"
+          node_id=$(cat "$node/identity/node-id")
+
+          cat > "$tmp/spec.json" <<JSON
+          {
+            "workload_id": "ci-proof-workload",
+            "target_node_id": "${node_id}",
+            "image": "example.invalid/izakhono-proof@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "cpu_millis": 100,
+            "memory_mb": 64,
+            "disk_mb": 32,
+            "ports": [],
+            "privileged": false,
+            "host_network": false,
+            "host_mounts": [],
+            "rootfs_read_only": true
+          }
+          JSON
+
+          python3 izakhono-cloud/workload-lifecycle.py sign \
+            --state-dir "$tmp/controller" \
+            --spec "$tmp/spec.json" \
+            --output "$tmp/workload.json"
+
+          python3 izakhono-cloud/local-execution.py authorize "$tmp/workload.json" \
+            --lifecycle-tool izakhono-cloud/workload-lifecycle.py \
+            --node-state-dir "$node" \
+            --proof-dir "$proof" \
+            --output "$tmp/permit.json" \
+            --ttl-minutes 5
+
+          python3 izakhono-cloud/local-execution.py verify-permit \
+            "$tmp/permit.json" "$tmp/workload.json" \
+            --node-state-dir "$node"
+
+          python3 izakhono-cloud/local-execution.py execute \
+            "$tmp/permit.json" "$tmp/workload.json" \
+            --lifecycle-tool izakhono-cloud/workload-lifecycle.py \
+            --node-state-dir "$node" \
+            --proof-dir "$proof" \
+            --execution-dir "$execdir" > "$tmp/dry-run.json"
+          grep -q '"execution_performed": false' "$tmp/dry-run.json"
+          test ! -e "$execdir/consumed-nonces"
+
+          cat > "$tmp/fake-runtime" <<'SH'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          printf '%s\n' "$*" >> "${RUNTIME_LOG:?}"
+          case "${1:-}" in
+            info|create|start|rm) exit 0 ;;
+            *) exit 91 ;;
+          esac
+          SH
+          chmod 700 "$tmp/fake-runtime"
+          export RUNTIME_LOG="$tmp/runtime.log"
+          export IZAKHONO_RUNTIME_BIN="$tmp/fake-runtime"
+
+          python3 izakhono-cloud/local-execution.py execute \
+            "$tmp/permit.json" "$tmp/workload.json" \
+            --lifecycle-tool izakhono-cloud/workload-lifecycle.py \
+            --node-state-dir "$node" \
+            --proof-dir "$proof" \
+            --execution-dir "$execdir" \
+            --execute-local > "$tmp/executed.txt"
+
+          execution_id=$(awk -F= '/^execution_id=/{print $2}' "$tmp/executed.txt")
+          test -n "$execution_id"
+          grep -q 'state=executed_local_candidate' "$tmp/executed.txt"
+          grep -q -- '--read-only' "$tmp/runtime.log"
+          grep -q -- '--network none' "$tmp/runtime.log"
+          grep -q -- '--cap-drop ALL' "$tmp/runtime.log"
+          grep -q -- 'no-new-privileges:true' "$tmp/runtime.log"
+          grep -q -- '--pids-limit 128' "$tmp/runtime.log"
+
+          if python3 izakhono-cloud/local-execution.py execute \
+            "$tmp/permit.json" "$tmp/workload.json" \
+            --lifecycle-tool izakhono-cloud/workload-lifecycle.py \
+            --node-state-dir "$node" \
+            --proof-dir "$proof" \
+            --execution-dir "$execdir" \
+            --execute-local; then
+            echo 'ERROR: replayed permit was accepted' >&2
+            exit 1
+          fi
+
+          python3 izakhono-cloud/local-execution.py rollback \
+            --execution-id "$execution_id" \
+            --execution-dir "$execdir" > "$tmp/rollback.txt"
+          grep -q 'state=rolled_back_local' "$tmp/rollback.txt"
+          grep -q '^rm -f izakhono-proof-' "$tmp/runtime.log"
+
+      - name: Reject missing activation, LOCAL_READY-only and tampering
+        shell: bash
+        run: |
+          set -euo pipefail
+          tmp=$(mktemp -d)
+          trap 'rm -rf "$tmp"' EXIT
+
+          node="$tmp/node"
+          proof="$tmp/proof"
+          mkdir -p "$proof"
+          python3 izakhono-cloud/multinode.py init --state-dir "$node"
+          node_id=$(cat "$node/identity/node-id")
+
+          cat > "$tmp/spec.json" <<JSON
+          {
+            "workload_id": "negative-proof",
+            "target_node_id": "${node_id}",
+            "image": "example.invalid/negative@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "cpu_millis": 100,
+            "memory_mb": 64,
+            "disk_mb": 32,
+            "ports": []
+          }
+          JSON
+          python3 izakhono-cloud/workload-lifecycle.py sign --state-dir "$tmp/controller" --spec "$tmp/spec.json" --output "$tmp/workload.json"
+
+          touch "$proof/LOCAL_READY"
+          printf 'enabled=true\n' > "$proof/ALLOW_LOCAL_EXECUTION"
+          if python3 izakhono-cloud/local-execution.py authorize "$tmp/workload.json" \
+            --lifecycle-tool izakhono-cloud/workload-lifecycle.py \
+            --node-state-dir "$node" --proof-dir "$proof" --output "$tmp/permit.json"; then
+            echo 'ERROR: LOCAL_READY-only node was allowed to authorize execution' >&2
+            exit 1
+          fi
+
+          rm -f "$proof/LOCAL_READY"
+          touch "$proof/READY"
+          rm -f "$proof/ALLOW_LOCAL_EXECUTION"
+          if python3 izakhono-cloud/local-execution.py authorize "$tmp/workload.json" \
+            --lifecycle-tool izakhono-cloud/workload-lifecycle.py \
+            --node-state-dir "$node" --proof-dir "$proof" --output "$tmp/permit.json"; then
+            echo 'ERROR: execution authorization succeeded without local activation' >&2
+            exit 1
+          fi
+
+          printf 'enabled=true\n' > "$proof/ALLOW_LOCAL_EXECUTION"
+          python3 izakhono-cloud/local-execution.py authorize "$tmp/workload.json" \
+            --lifecycle-tool izakhono-cloud/workload-lifecycle.py \
+            --node-state-dir "$node" --proof-dir "$proof" --output "$tmp/permit.json"
+          python3 - "$tmp/permit.json" <<'PY'
+          import json, sys
+          p=sys.argv[1]
+          x=json.load(open(p))
+          x['permit']['workload_id']='tampered'
+          json.dump(x, open(p,'w'))
+          PY
+          if python3 izakhono-cloud/local-execution.py verify-permit "$tmp/permit.json" "$tmp/workload.json" --node-state-dir "$node"; then
+            echo 'ERROR: tampered permit was accepted' >&2
+            exit 1
+          fi
+
+      - name: Guard v1.10 truth boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'public_ready=false' izakhono-cloud/LOCAL-EXECUTION.md
+          grep -q 'commercial_ready=false' izakhono-cloud/LOCAL-EXECUTION.md
+          grep -q 'automatic_failover=false' izakhono-cloud/LOCAL-EXECUTION.md
+          grep -q 'fake container runtime' izakhono-cloud/LOCAL-EXECUTION.md
+          grep -q 'real owner-controlled Docker host' izakhono-cloud/LOCAL-EXECUTION.md
