@@ -1,0 +1,73 @@
+name: IZAKHONO CLOUD Deploy Plane
+
+on:
+  push:
+    branches:
+      - izakhono-cloud-v1-15-deploy-plane
+  pull_request:
+    paths:
+      - 'izakhono-cloud/deploy-plane.py'
+      - 'izakhono-cloud/alpha-deploy.py'
+      - 'izakhono-cloud/fixtures/hello/**'
+      - '.github/workflows/izakhono-cloud-deploy-plane.yml'
+
+jobs:
+  deploy-plane-proof:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Syntax check
+        run: |
+          python3 -m py_compile izakhono-cloud/deploy-plane.py izakhono-cloud/alpha-deploy.py
+
+      - name: Deterministic planning proof
+        run: |
+          python3 izakhono-cloud/deploy-plane.py izakhono-cloud/fixtures/hello/.izakhono.json --out /tmp/plan-a.json
+          python3 izakhono-cloud/deploy-plane.py izakhono-cloud/fixtures/hello/.izakhono.json --out /tmp/plan-b.json
+          cmp /tmp/plan-a.json /tmp/plan-b.json
+
+      - name: Real Docker software-path build, health and rollback proof
+        run: |
+          python3 izakhono-cloud/alpha-deploy.py \
+            izakhono-cloud/fixtures/hello/.izakhono.json \
+            --repo-root "$GITHUB_WORKSPACE" \
+            --execute-local \
+            --ci-proof \
+            --out /tmp/receipt.json
+          python3 - <<'PY'
+          import json, subprocess
+          r=json.load(open('/tmp/receipt.json'))
+          e=r['execution']
+          assert e['health_passed'] is True
+          assert e['health_url_scope']=='loopback-only'
+          assert e['runtime_isolation']['readonly_rootfs'] is True
+          assert e['runtime_isolation']['privileged'] is False
+          assert 'ALL' in e['runtime_isolation']['cap_drop']
+          assert e['truth_boundary']['public_ready'] is False
+          assert e['truth_boundary']['commercial_ready'] is False
+          cid=e['container_id']
+          left=subprocess.run(['docker','inspect',cid], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+          assert left.returncode != 0, 'probe container must be removed after proof'
+          print('deploy-plane proof passed without public-readiness escalation')
+          PY
+
+      - name: Reject unsafe manifest traversal
+        run: |
+          python3 - <<'PY'
+          import importlib.util
+          spec=importlib.util.spec_from_file_location('p','izakhono-cloud/deploy-plane.py')
+          m=importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+          bad={
+            'name':'Bad','slug':'bad','build_context':'../escape','dockerfile_path':'Dockerfile',
+            'container_port':8080,'health_path':'/health','branch':'main'
+          }
+          try:
+            m.build_plan(bad)
+          except ValueError:
+            print('unsafe traversal rejected')
+          else:
+            raise SystemExit('unsafe traversal was accepted')
+          PY
