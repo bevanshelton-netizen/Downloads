@@ -1,0 +1,104 @@
+name: IZAKHONO CLOUD External Verifier Gate
+
+on:
+  push:
+    branches: [izakhono-cloud-v1-13-independent-verifier]
+    paths:
+      - 'izakhono-cloud/independent-verifier.py'
+      - 'izakhono-cloud/EXTERNAL-VERIFIER.md'
+      - '.github/workflows/izakhono-cloud-independent-verifier.yml'
+  pull_request:
+    paths:
+      - 'izakhono-cloud/independent-verifier.py'
+      - 'izakhono-cloud/EXTERNAL-VERIFIER.md'
+      - '.github/workflows/izakhono-cloud-independent-verifier.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  external-verifier-gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile verifier
+        run: python3 -m py_compile izakhono-cloud/independent-verifier.py
+
+      - name: Confirm crypto and Docker dependencies
+        run: |
+          openssl version
+          docker version --format '{{.Server.Version}}'
+
+      - name: Prove distinct verifier receipt and binding
+        run: |
+          set -euo pipefail
+          ROOT=$(mktemp -d)
+          trap 'rm -rf "$ROOT"' EXIT
+          mkdir -p "$ROOT/node" "$ROOT/verifier"
+          python3 izakhono-cloud/multinode.py init --state-dir "$ROOT/node" >/dev/null
+          NODE_ID=$(cat "$ROOT/node/identity/node-id")
+          cat > "$ROOT/runtime.json" <<EOF
+          {
+            "schema": "izakhono.runtime-proof.v1",
+            "proof_scope": "ci_verifier_fixture",
+            "owner_controlled_hardware_verified": false,
+            "node_id": "$NODE_ID",
+            "real_container_runtime_exercised": true,
+            "isolation_flags_verified": true,
+            "rollback_verified": true,
+            "public_ready": false,
+            "commercial_ready": false
+          }
+          EOF
+          python3 izakhono-cloud/owner-attestation.py create \
+            --runtime-proof "$ROOT/runtime.json" \
+            --node-state-dir "$ROOT/node" \
+            --output "$ROOT/attestation.json" >/dev/null
+          python3 izakhono-cloud/independent-verifier.py issue \
+            --attestation "$ROOT/attestation.json" \
+            --runtime-proof "$ROOT/runtime.json" \
+            --owner-attestation-tool izakhono-cloud/owner-attestation.py \
+            --verifier-state-dir "$ROOT/verifier" \
+            --output "$ROOT/receipt.json" | tee "$ROOT/issue.log"
+          python3 izakhono-cloud/independent-verifier.py verify "$ROOT/receipt.json" \
+            --attestation "$ROOT/attestation.json" \
+            --runtime-proof "$ROOT/runtime.json" | tee "$ROOT/verify.log"
+          cmp -s "$ROOT/node/identity/public.pem" "$ROOT/verifier/public.pem" && { echo 'ERROR: verifier key equals node key' >&2; exit 1; } || true
+          grep -q '^verification_level=external_cryptographic_verification$' "$ROOT/verify.log"
+          grep -q '^independent_hardware_verified=false$' "$ROOT/verify.log"
+          grep -q '^public_ready=false$' "$ROOT/verify.log"
+
+      - name: Reject tampered receipt and mismatched proof
+        run: |
+          set -euo pipefail
+          ROOT=$(mktemp -d)
+          trap 'rm -rf "$ROOT"' EXIT
+          mkdir -p "$ROOT/node" "$ROOT/verifier"
+          python3 izakhono-cloud/multinode.py init --state-dir "$ROOT/node" >/dev/null
+          NODE_ID=$(cat "$ROOT/node/identity/node-id")
+          printf '{"schema":"izakhono.runtime-proof.v1","node_id":"%s","real_container_runtime_exercised":true,"isolation_flags_verified":true,"rollback_verified":true,"public_ready":false,"commercial_ready":false}\n' "$NODE_ID" > "$ROOT/runtime.json"
+          python3 izakhono-cloud/owner-attestation.py create --runtime-proof "$ROOT/runtime.json" --node-state-dir "$ROOT/node" --output "$ROOT/a.json" >/dev/null
+          python3 izakhono-cloud/independent-verifier.py issue --attestation "$ROOT/a.json" --runtime-proof "$ROOT/runtime.json" --owner-attestation-tool izakhono-cloud/owner-attestation.py --verifier-state-dir "$ROOT/verifier" --output "$ROOT/r.json" >/dev/null
+          python3 - "$ROOT/r.json" "$ROOT/tampered.json" <<'PY'
+          import json,sys
+          x=json.load(open(sys.argv[1])); x['receipt']['node_signature_valid']=False
+          json.dump(x,open(sys.argv[2],'w'))
+          PY
+          if python3 izakhono-cloud/independent-verifier.py verify "$ROOT/tampered.json" --attestation "$ROOT/a.json" --runtime-proof "$ROOT/runtime.json"; then
+            echo 'ERROR: tampered receipt accepted' >&2; exit 1
+          fi
+          cp "$ROOT/runtime.json" "$ROOT/runtime2.json"
+          printf ' ' >> "$ROOT/runtime2.json"
+          if python3 izakhono-cloud/independent-verifier.py verify "$ROOT/r.json" --attestation "$ROOT/a.json" --runtime-proof "$ROOT/runtime2.json"; then
+            echo 'ERROR: mismatched runtime proof accepted' >&2; exit 1
+          fi
+
+      - name: Guard v1.13 truth boundary
+        run: |
+          grep -q 'verification_level.*external_cryptographic_verification' izakhono-cloud/independent-verifier.py
+          grep -q 'hardware_control_independently_witnessed.*False' izakhono-cloud/independent-verifier.py
+          grep -q 'independent_hardware_verified.*False' izakhono-cloud/independent-verifier.py
+          grep -q 'public_ready.*False' izakhono-cloud/independent-verifier.py
+          grep -q 'commercial_ready.*False' izakhono-cloud/independent-verifier.py
+          ! grep -q 'independent_hardware_verified.*True' izakhono-cloud/independent-verifier.py
