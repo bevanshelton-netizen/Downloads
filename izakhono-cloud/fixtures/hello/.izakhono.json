@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "name": "IZAKHONO Hello",
+  "slug": "izakhono-hello",
+  "build_context": "izakhono-cloud/fixtures/hello",
+  "dockerfile_path": "izakhono-cloud/fixtures/hello/Dockerfile",
+  "container_port": 8080,
+  "health_path": "/health",
+  "branch": "main",
+  "alpha": {
+    "preflight": true,
+    "rehearsal": true,
+    "windows_package": false
+  }
+}
