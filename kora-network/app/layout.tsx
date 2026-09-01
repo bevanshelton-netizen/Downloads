@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import Link from 'next/link';
 import './globals.css';
+import './brand-boost.css';
 import './forms.css';
 import './workspaces.css';
 import { brand } from '@/lib/brand';
