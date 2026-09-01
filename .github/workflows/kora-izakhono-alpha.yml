@@ -18,6 +18,7 @@ permissions:
 
 jobs:
   alpha-core:
-    uses: bevanshelton-netizen/izakhono-builder/.github/workflows/izakhono-build-to-alpha.yml@efbb9fc15f95d9123a12079bf11f9d8a22769edc
+    # Immutable reviewed IZAKHONO Builder policy. Upgrade only through an intentional reviewed pin change.
+    uses: bevanshelton-netizen/izakhono-builder/.github/workflows/izakhono-build-to-alpha.yml@b53395ede1fa2bf446c88e12554bfcf3c3eaa2ff
     with:
       manifest_path: kora-network/.izakhono.json
