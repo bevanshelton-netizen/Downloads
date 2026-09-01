@@ -53,6 +53,24 @@ Rules:
 - the launcher forces `HOST=127.0.0.1` and `PORT=<manifest port>` into the child environment.
 - credentials, API keys, payment secrets and tunnel tokens must not be stored in the manifest or deployment plan.
 
+## Windows one-command path
+
+On an owner-controlled Windows machine with Python 3 installed, use:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\izakhono-cloud\launch-bridge-windows.ps1 -Manifest .\path\to\launch-manifest.json -RepoRoot . -ProofOnly
+```
+
+The helper generates the deterministic plan, runs the real native process, requires `/health` to pass, writes a hashed proof receipt into the Windows temporary directory, and confirms that neither Docker nor a public IP was used.
+
+After proof, omit `-ProofOnly` to keep the application running:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\izakhono-cloud\launch-bridge-windows.ps1 -Manifest .\path\to\launch-manifest.json -RepoRoot .
+```
+
+The app remains loopback-only. The named outbound tunnel is a separate process and credential boundary.
+
 ## Deterministic plan
 
 ```bash
@@ -85,7 +103,7 @@ After the proof succeeds:
 python3 izakhono-cloud/launch-bridge.py run /tmp/launch-plan.json --repo-root . --receipt /tmp/live-launch-receipt.json
 ```
 
-The launcher stays attached to the app process. A later service wrapper can supervise it automatically on Windows or Linux.
+The launcher stays attached to the app process. The Windows helper above wraps this path for the first owner-machine deployment.
 
 ## Public HTTPS without a public IP
 
