@@ -79,15 +79,15 @@ export default function OpenLibraryPage() {
       <section className={styles.musicShelf}>
         <header className={styles.sectionHead}>
           <div>
-            <div className={styles.eyebrow}>LISTEN FREE</div>
-            <h2>The KORA public-domain music shelf.</h2>
+            <div className={styles.eyebrow}>LISTEN FREE • MULTI-GENRE</div>
+            <h2>Jazz, blues, hip-hop, funk, reggae, electronic and classical.</h2>
           </div>
           <Link className={styles.primary} href="/music#open-library">See full Music page →</Link>
         </header>
         <div className={styles.trackGrid}>
-          {openLibraryTracks.slice(0, 6).map((track) => (
+          {openLibraryTracks.map((track) => (
             <article className={styles.track} key={track.id}>
-              <div><span className={styles.audioBadge}>FREE • {track.license}</span><small>{track.duration}</small></div>
+              <div><span className={styles.audioBadge}>FREE • {track.genre}</span><small>{track.duration} • {track.license}</small></div>
               <h3>{track.title}</h3>
               <p>{track.creator}</p>
               <audio controls preload="none" src={track.mediaUrl}>Your browser does not support audio playback.</audio>
