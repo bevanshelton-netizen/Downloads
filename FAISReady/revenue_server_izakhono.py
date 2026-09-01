@@ -113,9 +113,12 @@ def build_izakhono_checkout(order: sqlite3.Row) -> tuple[str, dict[str, str], bo
     parsed = urllib.parse.urlsplit(checkout_url)
     if parsed.scheme != "https" or parsed.hostname not in {"www.payfast.co.za", "sandbox.payfast.co.za"}:
         raise ValueError("IZAKHONO PAY returned an unsafe checkout URL")
+    sandbox = parsed.hostname == "sandbox.payfast.co.za"
+    if not sandbox and not base.env_bool("FAISREADY_IZAKHONO_PAY_LIVE_APPROVED", False):
+        raise ValueError("IZAKHONO PAY live FAISReady payments are not approved")
     if not isinstance(fields, dict) or not all(isinstance(k, str) and isinstance(v, str) for k, v in fields.items()):
         raise ValueError("IZAKHONO PAY checkout form is invalid")
-    return checkout_url, fields, parsed.hostname == "sandbox.payfast.co.za"
+    return checkout_url, fields, sandbox
 
 
 def event_already_seen(event_id: str, payload_hash: str, path: Path | None = None) -> bool:
