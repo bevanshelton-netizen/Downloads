@@ -16,8 +16,9 @@
 - Entitlement created only after accepted ITN
 - Quick-Tunnel sandbox runner
 - Named-tunnel runner using environment/token-file secrets rather than command-line token disclosure
-- Public HTTPS health proof receipt format
+- Public HTTPS health proof receipt
 - Online SQLite backup, integrity check and restore-check receipt
+- Git ignore boundary for local database, backups, environment files, token files and proof receipts
 - CI checks for all software contracts above
 
 ## Real-world gates before taking live customer money
@@ -25,13 +26,15 @@
 2. `cloudflared` installed on that machine.
 3. Temporary Quick Tunnel used only for sandbox proof if needed.
 4. Stable named tunnel + custom HTTPS hostname configured to `http://127.0.0.1:18091`.
-5. Real PayFast Merchant ID, Merchant Key and passphrase stored only in the protected owner-machine environment.
-6. Authorised PayFast payout configuration confirmed.
-7. PayFast Sandbox transaction completed end to end through the public hostname.
-8. ITN validation confirmed and the correct 90-day/120-day entitlement observed.
-9. SQLite backup created and restore-check receipt passes against real pilot data.
-10. Sandbox disabled only after all prior gates pass.
-11. One controlled low-value live transaction verified before broad promotion.
+5. Tunnel token provided through a protected environment variable or token file and never committed to Git.
+6. Real PayFast Merchant ID, Merchant Key and passphrase stored only in the protected owner-machine environment.
+7. Authorised PayFast payout configuration confirmed.
+8. PayFast Sandbox transaction completed end to end through the public hostname.
+9. ITN validation confirmed and the correct 90-day/120-day entitlement observed.
+10. SQLite backup created and restore-check receipt passes against real pilot data.
+11. At least one backup copy retained off the owner machine in encrypted storage.
+12. Sandbox disabled only after all prior gates pass.
+13. One controlled low-value live transaction verified before broad promotion.
 
 ## Scale-after-revenue gates
 - Move SQLite data into the later IZAKHONO distributed data layer when concurrency/HA requires it.
