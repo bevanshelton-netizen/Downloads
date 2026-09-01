@@ -62,12 +62,15 @@ export async function POST(request: Request) {
 
   try {
     if (useIzakhonoPay()) {
+      const safeSlug = encodeURIComponent(production.slug);
       return NextResponse.json(await buildIzakhonoPayCheckout({
         orderId: purchase.id,
         email: user.email,
         amount,
         description: `KORA: ${production.title}`,
         kind: 'purchase',
+        returnPath: `/watch/${safeSlug}?payment=success`,
+        cancelPath: `/watch/${safeSlug}?payment=cancelled`,
         metadata: { production_id: production.id, slug: production.slug },
       }));
     }
