@@ -42,10 +42,12 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // The public-beta homepage is informational; payment, private and readiness gates stay intact.
+  // Public-beta discovery routes stay informational/free; payment, private and readiness gates stay intact.
   const alwaysPublic = pathname === '/'
     || pathname === '/coming-soon'
     || pathname === '/open-africa'
+    || pathname === '/music'
+    || pathname.startsWith('/music/')
     || pathname === '/perform-live'
     || pathname.startsWith('/perform-live/')
     || pathname === '/artists'
