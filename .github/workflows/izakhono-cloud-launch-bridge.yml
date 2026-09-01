@@ -1,0 +1,77 @@
+name: IZAKHONO CLOUD Launch Bridge
+
+on:
+  pull_request:
+    paths:
+      - 'izakhono-cloud/launch-bridge.py'
+      - 'izakhono-cloud/fixtures/launch-bridge-*'
+      - 'izakhono-cloud/LAUNCH-BRIDGE-V1.17.md'
+      - '.github/workflows/izakhono-cloud-launch-bridge.yml'
+  push:
+    branches:
+      - 'izakhono-cloud-v1-17-launch-bridge'
+    paths:
+      - 'izakhono-cloud/launch-bridge.py'
+      - 'izakhono-cloud/fixtures/launch-bridge-*'
+      - 'izakhono-cloud/LAUNCH-BRIDGE-V1.17.md'
+      - '.github/workflows/izakhono-cloud-launch-bridge.yml'
+
+jobs:
+  native-launch-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile launch bridge
+        run: |
+          python3 -m py_compile izakhono-cloud/launch-bridge.py
+          python3 -m py_compile izakhono-cloud/fixtures/launch-bridge-app.py
+      - name: Generate deterministic plans
+        run: |
+          python3 izakhono-cloud/launch-bridge.py plan izakhono-cloud/fixtures/launch-bridge-manifest.json --out /tmp/plan-a.json
+          python3 izakhono-cloud/launch-bridge.py plan izakhono-cloud/fixtures/launch-bridge-manifest.json --out /tmp/plan-b.json
+          cmp /tmp/plan-a.json /tmp/plan-b.json
+          python3 - <<'PY'
+          import json
+          p=json.load(open('/tmp/plan-a.json'))
+          assert p['runtime']['mode']=='native_process'
+          assert p['runtime']['listen_host']=='127.0.0.1'
+          assert p['runtime']['docker_required'] is False
+          assert p['runtime']['public_ip_required'] is False
+          assert p['runtime']['inbound_firewall_opening_required'] is False
+          assert p['ingress']['mode']=='outbound_tunnel'
+          assert p['truth_boundary']['commercial_ready'] is False
+          PY
+      - name: Prove real native process health and cleanup
+        run: |
+          python3 izakhono-cloud/launch-bridge.py run /tmp/plan-a.json --repo-root . --proof-only --receipt /tmp/receipt.json
+          python3 - <<'PY'
+          import json
+          r=json.load(open('/tmp/receipt.json'))
+          assert r['local_health_passed'] is True
+          assert r['docker_used'] is False
+          assert r['public_ip_used'] is False
+          assert r['proof_only'] is True
+          assert r['public_https_verified'] is False
+          assert r['commercial_ready'] is False
+          PY
+          if curl -fsS --max-time 2 http://127.0.0.1:18082/health >/dev/null 2>&1; then
+            echo 'proof process was not cleaned up' >&2
+            exit 1
+          fi
+      - name: Reject tampered plan and unsafe manifest
+        run: |
+          python3 - <<'PY'
+          import json
+          p=json.load(open('/tmp/plan-a.json'))
+          p['runtime']['listen_host']='0.0.0.0'
+          json.dump(p, open('/tmp/tampered.json','w'))
+          m=json.load(open('izakhono-cloud/fixtures/launch-bridge-manifest.json'))
+          m['workdir']='../escape'
+          json.dump(m, open('/tmp/unsafe.json','w'))
+          PY
+          set +e
+          python3 izakhono-cloud/launch-bridge.py run /tmp/tampered.json --repo-root . --proof-only >/dev/null 2>&1
+          test $? -ne 0 || exit 1
+          python3 izakhono-cloud/launch-bridge.py plan /tmp/unsafe.json >/dev/null 2>&1
+          test $? -ne 0 || exit 1
+          exit 0
