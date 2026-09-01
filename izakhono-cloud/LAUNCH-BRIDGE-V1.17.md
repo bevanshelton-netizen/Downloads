@@ -9,7 +9,7 @@ It deliberately removes two external launch requirements from the first stage:
 - Docker is **not required** to run a supported project.
 - A public IPv4 address is **not required** when public traffic is carried by an outbound tunnel.
 
-The app process remains bound to `127.0.0.1`. The public edge must be a separate HTTPS/tunnel layer. This keeps the owner machine from exposing the application port directly to the Internet.
+The application process remains bound to `127.0.0.1`. Public HTTPS is a separate edge/tunnel layer, so the owner machine does not need to expose the application port directly to the Internet.
 
 ## Architecture
 
@@ -22,16 +22,18 @@ public HTTPS edge / named outbound tunnel
       v
 owner-controlled machine
       |
-      +--> 127.0.0.1:PORT
-             |
-             +--> native Node/Python/other process
+      +--> IZAKHONO Launch Bridge
+              |
+              +--> 127.0.0.1:PORT
+                      |
+                      +--> native Node/Python/other process
 ```
 
-The tunnel is a **launch bridge**, not the final IZAKHONO CLOUD independence claim. The long-term platform can later replace the tunnel edge and native runtime with IZAKHONO-owned nodes and OCI/container or other runtimes without changing the customer-facing product.
+The tunnel is a **launch bridge**, not the final IZAKHONO CLOUD independence claim. The long-term platform can later replace the edge and native runtime with IZAKHONO-owned nodes and additional runtimes without changing the customer-facing product.
 
 ## Manifest
 
-Create a project launch manifest outside secrets:
+A project uses a deterministic launch manifest:
 
 ```json
 {
@@ -55,72 +57,71 @@ Rules:
 
 ## Windows one-command path
 
-On an owner-controlled Windows machine with Python 3 installed, use:
+On an owner-controlled Windows machine with Python 3 installed:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\izakhono-cloud\launch-bridge-windows.ps1 -Manifest .\path\to\launch-manifest.json -RepoRoot . -ProofOnly
 ```
 
-The helper generates the deterministic plan, runs the real native process, requires `/health` to pass, writes a hashed proof receipt into the Windows temporary directory, and confirms that neither Docker nor a public IP was used.
+The helper generates the deterministic plan, starts the real native process, requires the health route to pass, writes a hashed proof receipt into the Windows temporary directory, and confirms that neither Docker nor a public IP was used.
 
-After proof, omit `-ProofOnly` to keep the application running:
+After proof, omit `-ProofOnly` to keep the application running.
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\izakhono-cloud\launch-bridge-windows.ps1 -Manifest .\path\to\launch-manifest.json -RepoRoot .
-```
+## First revenue pilot: FAISReady
 
-The app remains loopback-only. The named outbound tunnel is a separate process and credential boundary.
+FAISReady is now wired as the first revenue-bearing Launch Bridge workload:
 
-## Deterministic plan
+- public storefront with a limited free sample;
+- server-side R299 / R399 / R549 plans;
+- native Python revenue server;
+- local SQLite orders, payment-event audit and entitlements;
+- signed PayFast hosted checkout;
+- fail-closed PayFast ITN verification before access is granted;
+- 90-day / 120-day access-token enforcement;
+- Quick-Tunnel public sandbox runner;
+- remotely-managed named-tunnel runner with token kept out of command-line arguments;
+- public HTTPS health proof receipt;
+- SQLite online backup, integrity check and restore-check receipt.
 
-```bash
-python3 izakhono-cloud/launch-bridge.py plan path/to/launch-manifest.json --out /tmp/launch-plan.json
-```
-
-The plan contains SHA-256 bindings for the manifest and plan and records the fail-closed truth boundary.
-
-## Local execution proof
-
-```bash
-python3 izakhono-cloud/launch-bridge.py run /tmp/launch-plan.json --repo-root . --proof-only --receipt /tmp/launch-receipt.json
-```
-
-This starts the native process, requires the loopback health endpoint to pass, creates a hashed receipt, and then shuts the proof process down.
-
-A successful proof receipt records:
-
-- `local_health_passed=true`
-- `docker_used=false`
-- `public_ip_used=false`
-- `public_https_verified=false`
-- `commercial_ready=false`
-
-## Run the app
-
-After the proof succeeds:
-
-```bash
-python3 izakhono-cloud/launch-bridge.py run /tmp/launch-plan.json --repo-root . --receipt /tmp/live-launch-receipt.json
-```
-
-The launcher stays attached to the app process. The Windows helper above wraps this path for the first owner-machine deployment.
+The old full preparation engine is not the public storefront; it is served through the paid `/learn` route only when an active entitlement token exists.
 
 ## Public HTTPS without a public IP
 
-For the bootstrap phase, use a **named outbound tunnel** from the public HTTPS edge to `http://127.0.0.1:<port>`.
+For temporary sandbox testing, FAISReady can use a Quick Tunnel. Quick Tunnel URLs are temporary and must not be treated as production.
 
-The production hostname must be a domain under owner control. Tunnel credentials stay on the owner machine and are never committed to GitHub.
+For a stable deployment, configure a remotely-managed tunnel/custom hostname to the loopback service. Tunnel tokens remain outside Git through `TUNNEL_TOKEN` or `TUNNEL_TOKEN_FILE`.
 
-Do not use a random/quick development tunnel as the production storefront. The production route needs a stable named tunnel and custom hostname, followed by an external HTTPS health verification.
+The edge runner independently calls the public `/health` endpoint before producing an edge proof receipt.
 
-## Revenue-first truth boundary
+## Revenue-data recovery
 
-This layer is intentionally narrower than full IZAKHONO CLOUD:
+The FAISReady bootstrap database can be backed up while live using SQLite's online backup API. The backup tool verifies SQLite integrity, restores into a temporary database, compares row counts and writes SHA-256 evidence. Customer/payment backups are private records and are explicitly marked as not eligible for Git commits.
 
-- it can run a real customer-facing app without Docker;
-- it can be published without a public IP using an outbound tunnel;
-- it preserves deterministic plans and receipts;
-- it does **not** prove independent infrastructure ownership;
-- it does **not** claim HA, automatic failover, independent edge ownership or commercial cloud GA.
+## CI proof
 
-The immediate business goal is to get the first monetizable product online safely, collect revenue, and use revenue to fund the first dedicated IZAKHONO nodes. The infrastructure can then migrate behind the same product/domain without rebuilding the business.
+The branch gate now verifies:
+
+- deterministic launch plans;
+- native process execution and cleanup;
+- no Docker/public-IP dependency;
+- Windows helper parsing;
+- FAISReady revenue-server self-test;
+- PayFast checkout/entitlement contract;
+- edge runner secret boundary;
+- backup + restore software path;
+- FAISReady running through the native Launch Bridge;
+- public storefront smoke path without merchant secrets;
+- tampered-plan and unsafe-path rejection.
+
+## Truth boundary
+
+The software path is deliberately stronger than the commercial-readiness claim.
+
+- CI does **not** prove a real owner-controlled machine.
+- CI does **not** prove a real custom hostname or tunnel account.
+- CI does **not** prove a real PayFast merchant transaction.
+- CI does **not** prove that a real off-machine backup has been retained.
+- `independent_cloud_complete=false`.
+- `commercial_ready=false` until the real-world launch gates pass.
+
+The operating strategy is revenue first: get the first product earning safely, then fund dedicated IZAKHONO nodes, replicated storage, scheduling, failover and an increasingly independent edge with revenue instead of blocking the business until the full cloud is complete.
