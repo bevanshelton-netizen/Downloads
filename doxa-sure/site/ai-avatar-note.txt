@@ -1,0 +1,1 @@
+DOXA-SURE site uses an automated on-site Help Desk. No personal phone number is published. The human-like avatar is a visual interface; browser speech synthesis can read Help Desk replies aloud. A secure server-side generative AI model is a future upgrade and is not falsely represented as connected in this static GitHub Pages build.
