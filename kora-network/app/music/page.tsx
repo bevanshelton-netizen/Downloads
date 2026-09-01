@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { musicGenreGroups, musicPerformanceFormats } from '@/lib/music-genres';
+import { openLibraryTracks } from '@/lib/open-library';
 import styles from './music.module.css';
 
 export const metadata: Metadata = {
   title: 'Music',
-  description: 'Discover African and global music genres on KORA, from Amapiano and Gospel to Jazz, Hip-Hop, Reggae, Rock and Classical.',
+  description: 'Discover African and global music genres on KORA, including a free public-domain and CC0 listening library.',
 };
 
 const regions = [
@@ -26,7 +27,7 @@ export default function MusicPage() {
           <h1>One African stage.<br/><span>Many sounds.</span></h1>
           <p>KORA is built for the full spectrum of music: new African movements, heritage sounds, faith music and global genres. Artists do not have to fit into one box to belong here.</p>
           <div className={styles.actions}>
-            <Link className={styles.primary} href="/open-africa">Watch music free →</Link>
+            <a className={styles.primary} href="#open-library">Listen free now →</a>
             <Link className={styles.secondary} href="/artists">Discover KORA artists</Link>
             <Link className={styles.secondary} href="/perform-live">Perform live on KORA</Link>
             <Link className={styles.secondary} href="/creators">Join as an artist</Link>
@@ -40,6 +41,34 @@ export default function MusicPage() {
       <div className={styles.rail}>
         <span>AMAPIANO</span><i>◆</i><span>GOSPEL</span><i>◆</i><span>JAZZ</span><i>◆</i><span>HIP-HOP</span><i>◆</i><span>MASKANDI</span><i>◆</i><span>REGGAE</span><i>◆</i><span>CLASSICAL</span>
       </div>
+
+      <section className={styles.openLibrary} id="open-library">
+        <header className={styles.openLibraryHead}>
+          <div>
+            <div className={styles.eyebrow}>KORA OPEN LIBRARY • FREE TO LISTEN</div>
+            <h2>Music with a verified public-domain or CC0 rights trail.</h2>
+          </div>
+          <p>These launch tracks are sourced from Wikimedia Commons records that identify them as public domain or CC0. KORA keeps the provenance link with each item and does not claim ownership of the underlying works.</p>
+        </header>
+        <div className={styles.openTrackGrid}>
+          {openLibraryTracks.map((track) => (
+            <article className={styles.openTrack} key={track.id}>
+              <div className={styles.trackTop}>
+                <span className={styles.freeBadge}>FREE • {track.license}</span>
+                <span>{track.duration}</span>
+              </div>
+              <h3>{track.title}</h3>
+              <p className={styles.trackCreator}>{track.creator}</p>
+              <audio className={styles.audioPlayer} controls preload="none" src={track.mediaUrl}>
+                Your browser does not support audio playback.
+              </audio>
+              <p className={styles.provenance}>{track.provenance}</p>
+              <a className={styles.sourceLink} href={track.sourcePage} target="_blank" rel="noreferrer">View rights source ↗</a>
+            </article>
+          ))}
+        </div>
+        <div className={styles.rightsNote}><strong>KORA rights rule:</strong> public-domain/CC0 content can enter the Open Library only when a source page records the applicable rights status. If the rights record changes or becomes disputed, the item can be removed.</div>
+      </section>
 
       <section className={styles.intro} id="genre-discovery">
         <div className={styles.eyebrow}>BROWSE BY GENRE</div>
