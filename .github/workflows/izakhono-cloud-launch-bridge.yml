@@ -8,6 +8,7 @@ on:
       - 'izakhono-cloud/fixtures/launch-bridge-*'
       - 'izakhono-cloud/LAUNCH-BRIDGE-V1.17.md'
       - 'FAISReady/revenue_server.py'
+      - 'FAISReady/revenue_server_izakhono.py'
       - 'FAISReady/test_revenue_server.py'
       - 'FAISReady/edge_runner.py'
       - 'FAISReady/backup_revenue_data.py'
@@ -23,6 +24,7 @@ on:
       - 'izakhono-cloud/fixtures/launch-bridge-*'
       - 'izakhono-cloud/LAUNCH-BRIDGE-V1.17.md'
       - 'FAISReady/revenue_server.py'
+      - 'FAISReady/revenue_server_izakhono.py'
       - 'FAISReady/test_revenue_server.py'
       - 'FAISReady/edge_runner.py'
       - 'FAISReady/backup_revenue_data.py'
@@ -40,6 +42,7 @@ jobs:
           python3 -m py_compile izakhono-cloud/launch-bridge.py
           python3 -m py_compile izakhono-cloud/fixtures/launch-bridge-app.py
           python3 -m py_compile FAISReady/revenue_server.py
+          python3 -m py_compile FAISReady/revenue_server_izakhono.py
           python3 -m py_compile FAISReady/test_revenue_server.py
           python3 -m py_compile FAISReady/edge_runner.py
           python3 -m py_compile FAISReady/backup_revenue_data.py
@@ -93,6 +96,7 @@ jobs:
       - name: Self-test FAISReady revenue controls
         run: |
           python3 FAISReady/revenue_server.py --self-test
+          python3 FAISReady/revenue_server_izakhono.py --self-test
       - name: Verify PayFast and entitlement contract
         working-directory: FAISReady
         run: |
@@ -130,7 +134,7 @@ jobs:
           PORT: 18092
           FAISREADY_DATA_DIR: /tmp/faisready-smoke-data
         run: |
-          python3 FAISReady/revenue_server.py >/tmp/faisready-server.log 2>&1 &
+          python3 FAISReady/revenue_server_izakhono.py >/tmp/faisready-server.log 2>&1 &
           PID=$!
           trap 'kill $PID >/dev/null 2>&1 || true' EXIT
           for _ in $(seq 1 20); do
