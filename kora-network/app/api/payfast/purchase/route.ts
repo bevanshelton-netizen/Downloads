@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { buildPurchaseCheckout } from '@/lib/payfast';
+import { buildIzakhonoPayCheckout, useIzakhonoPay } from '@/lib/izakhono-pay';
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -50,6 +51,8 @@ export async function POST(request: Request) {
       production_id: production.id,
       amount,
       currency: 'ZAR',
+      // Keep the proven local settlement RPC contract while IZAKHONO PAY
+      // becomes the checkout/orchestration owner.
       provider: 'payfast',
       status: 'pending',
     }).select('id,amount').single();
@@ -58,6 +61,19 @@ export async function POST(request: Request) {
   }
 
   try {
+    if (useIzakhonoPay()) {
+      const safeSlug = encodeURIComponent(production.slug);
+      return NextResponse.json(await buildIzakhonoPayCheckout({
+        orderId: purchase.id,
+        email: user.email,
+        amount,
+        description: `KORA: ${production.title}`,
+        kind: 'purchase',
+        returnPath: `/watch/${safeSlug}?payment=success`,
+        cancelPath: `/watch/${safeSlug}?payment=cancelled`,
+        metadata: { production_id: production.id, slug: production.slug },
+      }));
+    }
     return NextResponse.json(buildPurchaseCheckout({
       orderId: purchase.id,
       email: user.email,
