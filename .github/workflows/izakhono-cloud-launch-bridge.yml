@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'izakhono-cloud/launch-bridge.py'
+      - 'izakhono-cloud/launch-bridge-windows.ps1'
       - 'izakhono-cloud/fixtures/launch-bridge-*'
       - 'izakhono-cloud/LAUNCH-BRIDGE-V1.17.md'
       - '.github/workflows/izakhono-cloud-launch-bridge.yml'
@@ -12,6 +13,7 @@ on:
       - 'izakhono-cloud-v1-17-launch-bridge'
     paths:
       - 'izakhono-cloud/launch-bridge.py'
+      - 'izakhono-cloud/launch-bridge-windows.ps1'
       - 'izakhono-cloud/fixtures/launch-bridge-*'
       - 'izakhono-cloud/LAUNCH-BRIDGE-V1.17.md'
       - '.github/workflows/izakhono-cloud-launch-bridge.yml'
@@ -25,6 +27,20 @@ jobs:
         run: |
           python3 -m py_compile izakhono-cloud/launch-bridge.py
           python3 -m py_compile izakhono-cloud/fixtures/launch-bridge-app.py
+      - name: Parse Windows helper
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path 'izakhono-cloud/launch-bridge-windows.ps1'),
+            [ref]$tokens,
+            [ref]$errors
+          ) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
       - name: Generate deterministic plans
         run: |
           python3 izakhono-cloud/launch-bridge.py plan izakhono-cloud/fixtures/launch-bridge-manifest.json --out /tmp/plan-a.json
