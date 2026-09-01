@@ -58,12 +58,15 @@ export async function POST(request: Request) {
   try {
     const title = `${event.title} — ${tier.name}`;
     if (useIzakhonoPay()) {
+      const safeSlug = encodeURIComponent(event.slug);
       return NextResponse.json(await buildIzakhonoPayCheckout({
         orderId: order.id,
         email: user.email,
         amount: Number(order.total_amount),
         description: `KORA Ticket: ${title}`,
         kind: 'ticket',
+        returnPath: `/tickets/${safeSlug}?payment=success`,
+        cancelPath: `/tickets/${safeSlug}?payment=cancelled`,
         metadata: { event_slug: event.slug, tier_id: order.tier_id, quantity },
       }));
     }
