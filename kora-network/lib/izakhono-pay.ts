@@ -15,9 +15,27 @@ type IntentResponse = { ok?: boolean; intent?: CheckoutIntent; error?: { message
 function config() {
   const baseUrl = process.env.IZAKHONO_PAY_URL?.trim().replace(/\/$/, '');
   const apiKey = process.env.IZAKHONO_PAY_API_KEY?.trim();
-  if (!baseUrl || !apiKey) throw new Error('IZAKHONO PAY is not configured');
-  if (!baseUrl.startsWith('https://')) throw new Error('IZAKHONO PAY must use HTTPS');
-  return { baseUrl, apiKey };
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim().replace(/\/$/, '');
+  if (!baseUrl || !apiKey || !appUrl) throw new Error('IZAKHONO PAY is not configured');
+  let portal: URL;
+  let app: URL;
+  try {
+    portal = new URL(baseUrl);
+    app = new URL(appUrl);
+  } catch {
+    throw new Error('IZAKHONO PAY URLs are invalid');
+  }
+  if (portal.protocol !== 'https:' || app.protocol !== 'https:' || portal.username || portal.password || app.username || app.password) {
+    throw new Error('IZAKHONO PAY and KORA must use HTTPS');
+  }
+  return { baseUrl: portal.origin, apiKey, appUrl: app.origin };
+}
+
+function merchantReturnUrl(appUrl: string, path: string) {
+  if (!path.startsWith('/') || path.startsWith('//')) throw new Error('Invalid KORA payment return path');
+  const url = new URL(path, appUrl);
+  if (url.origin !== appUrl) throw new Error('Unsafe KORA payment return path');
+  return url.toString();
 }
 
 export function useIzakhonoPay() {
@@ -30,10 +48,12 @@ export async function buildIzakhonoPayCheckout(input: {
   amount: number;
   description: string;
   kind: 'purchase' | 'ticket';
+  returnPath: string;
+  cancelPath: string;
   metadata?: Record<string, string | number | boolean | null>;
 }) {
   if (!Number.isFinite(input.amount) || input.amount <= 0) throw new Error('Invalid payment amount');
-  const { baseUrl, apiKey } = config();
+  const { baseUrl, apiKey, appUrl } = config();
   const idempotencyKey = `kora:${input.kind}:${input.orderId}`;
   const response = await fetch(`${baseUrl}/api/v1/intents`, {
     method: 'POST',
@@ -54,6 +74,8 @@ export async function buildIzakhonoPayCheckout(input: {
       // First KORA rollout deliberately preserves the already-proven PayFast
       // completion contract. Smart routing follows after cross-provider ledger tests.
       provider: 'payfast',
+      return_url: merchantReturnUrl(appUrl, input.returnPath),
+      cancel_url: merchantReturnUrl(appUrl, input.cancelPath),
       metadata: {
         kind: input.kind,
         order_id: input.orderId,
