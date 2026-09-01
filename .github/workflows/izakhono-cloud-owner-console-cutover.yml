@@ -1,0 +1,33 @@
+name: IZAKHONO CLOUD Owner Console Cutover
+
+on:
+  pull_request:
+    paths:
+      - 'izakhono-cloud/owner-console-cutover.py'
+      - 'izakhono-cloud/OWNER-CONSOLE-CUTOVER-V1.17.md'
+      - '.github/workflows/izakhono-cloud-owner-console-cutover.yml'
+      - 'bevan-shelton-racing/**'
+
+jobs:
+  cutover-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile cutover orchestrator
+        run: python3 -m py_compile izakhono-cloud/owner-console-cutover.py
+      - name: Exercise racing project through consolidated path
+        run: |
+          python3 izakhono-cloud/owner-console-cutover.py \
+            bevan-shelton-racing/.izakhono.json \
+            --repo-root . \
+            --ci-proof \
+            --receipt-dir /tmp/izakhono-cutover
+          python3 - <<'PY'
+          import json
+          p=json.load(open('/tmp/izakhono-cutover/owner-console-cutover-receipt.json'))
+          assert p['manifest']=='bevan-shelton-racing/.izakhono.json'
+          assert p['public_ready'] is False
+          assert p['commercial_ready'] is False
+          assert len(p['deploy_plan_sha256'])==64
+          assert len(p['deployment_receipt_sha256'])==64
+          PY
