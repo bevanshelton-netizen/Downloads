@@ -8,6 +8,7 @@ on:
       - 'izakhono-cloud/fixtures/launch-bridge-*'
       - 'izakhono-cloud/LAUNCH-BRIDGE-V1.17.md'
       - 'FAISReady/revenue_server.py'
+      - 'FAISReady/test_revenue_server.py'
       - 'FAISReady/store.html'
       - 'FAISReady/.izakhono-launch-*.json'
       - '.github/workflows/izakhono-cloud-launch-bridge.yml'
@@ -20,6 +21,7 @@ on:
       - 'izakhono-cloud/fixtures/launch-bridge-*'
       - 'izakhono-cloud/LAUNCH-BRIDGE-V1.17.md'
       - 'FAISReady/revenue_server.py'
+      - 'FAISReady/test_revenue_server.py'
       - 'FAISReady/store.html'
       - 'FAISReady/.izakhono-launch-*.json'
       - '.github/workflows/izakhono-cloud-launch-bridge.yml'
@@ -34,6 +36,7 @@ jobs:
           python3 -m py_compile izakhono-cloud/launch-bridge.py
           python3 -m py_compile izakhono-cloud/fixtures/launch-bridge-app.py
           python3 -m py_compile FAISReady/revenue_server.py
+          python3 -m py_compile FAISReady/test_revenue_server.py
       - name: Parse Windows helper
         shell: pwsh
         run: |
@@ -84,6 +87,10 @@ jobs:
       - name: Self-test FAISReady revenue controls
         run: |
           python3 FAISReady/revenue_server.py --self-test
+      - name: Verify PayFast and entitlement contract
+        working-directory: FAISReady
+        run: |
+          python3 test_revenue_server.py
       - name: Prove FAISReady on the native launch bridge
         env:
           FAISREADY_DATA_DIR: /tmp/faisready-bridge-data
