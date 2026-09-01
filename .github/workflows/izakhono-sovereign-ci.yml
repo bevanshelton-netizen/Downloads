@@ -1,0 +1,36 @@
+name: IZAKHONO Builder Sovereign Gate
+
+on:
+  push:
+    branches: [izakhono-builder-sovereign]
+    paths:
+      - 'sovereign/**'
+      - '.github/workflows/izakhono-sovereign-ci.yml'
+
+jobs:
+  validate-sovereign-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Unpack sovereign release
+        run: |
+          rm -rf /tmp/izakhono-sovereign
+          mkdir -p /tmp/izakhono-sovereign
+          unzip -q sovereign/IZAKHONO-BUILDER-SOVEREIGN-v1.0.0.zip -d /tmp/izakhono-sovereign
+      - name: Validate Node source
+        run: node --check /tmp/izakhono-sovereign/izakhono-builder-sovereign-v1.0.0/server.mjs
+      - name: Assert sovereign core
+        run: |
+          set -euo pipefail
+          ROOT=/tmp/izakhono-sovereign/izakhono-builder-sovereign-v1.0.0
+          grep -q 'SOVEREIGN · LOCAL-FIRST' "$ROOT/public/index.html"
+          grep -q '127.0.0.1' "$ROOT/server.mjs"
+          grep -q 'workspace' "$ROOT/server.mjs"
+          grep -q 'exports' "$ROOT/server.mjs"
+          ! grep -q 'wrangler' "$ROOT/server.mjs"
+          ! grep -q 'supabase' "$ROOT/server.mjs"
+          ! grep -q 'vercel' "$ROOT/server.mjs"
+          ! grep -q 'cloudflare' "$ROOT/package.json"
