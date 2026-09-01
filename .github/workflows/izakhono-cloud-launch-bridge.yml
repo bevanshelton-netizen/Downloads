@@ -7,6 +7,9 @@ on:
       - 'izakhono-cloud/launch-bridge-windows.ps1'
       - 'izakhono-cloud/fixtures/launch-bridge-*'
       - 'izakhono-cloud/LAUNCH-BRIDGE-V1.17.md'
+      - 'FAISReady/revenue_server.py'
+      - 'FAISReady/store.html'
+      - 'FAISReady/.izakhono-launch-*.json'
       - '.github/workflows/izakhono-cloud-launch-bridge.yml'
   push:
     branches:
@@ -16,6 +19,9 @@ on:
       - 'izakhono-cloud/launch-bridge-windows.ps1'
       - 'izakhono-cloud/fixtures/launch-bridge-*'
       - 'izakhono-cloud/LAUNCH-BRIDGE-V1.17.md'
+      - 'FAISReady/revenue_server.py'
+      - 'FAISReady/store.html'
+      - 'FAISReady/.izakhono-launch-*.json'
       - '.github/workflows/izakhono-cloud-launch-bridge.yml'
 
 jobs:
@@ -23,10 +29,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Compile launch bridge
+      - name: Compile launch bridge and revenue pilot
         run: |
           python3 -m py_compile izakhono-cloud/launch-bridge.py
           python3 -m py_compile izakhono-cloud/fixtures/launch-bridge-app.py
+          python3 -m py_compile FAISReady/revenue_server.py
       - name: Parse Windows helper
         shell: pwsh
         run: |
@@ -41,7 +48,7 @@ jobs:
             $errors | ForEach-Object { Write-Error $_.Message }
             exit 1
           }
-      - name: Generate deterministic plans
+      - name: Generate deterministic bridge plans
         run: |
           python3 izakhono-cloud/launch-bridge.py plan izakhono-cloud/fixtures/launch-bridge-manifest.json --out /tmp/plan-a.json
           python3 izakhono-cloud/launch-bridge.py plan izakhono-cloud/fixtures/launch-bridge-manifest.json --out /tmp/plan-b.json
@@ -74,6 +81,52 @@ jobs:
             echo 'proof process was not cleaned up' >&2
             exit 1
           fi
+      - name: Self-test FAISReady revenue controls
+        run: |
+          python3 FAISReady/revenue_server.py --self-test
+      - name: Prove FAISReady on the native launch bridge
+        env:
+          FAISREADY_DATA_DIR: /tmp/faisready-bridge-data
+        run: |
+          python3 izakhono-cloud/launch-bridge.py plan FAISReady/.izakhono-launch-linux.json --out /tmp/faisready-plan.json
+          python3 izakhono-cloud/launch-bridge.py run /tmp/faisready-plan.json --repo-root . --proof-only --receipt /tmp/faisready-receipt.json
+          python3 - <<'PY'
+          import json
+          r=json.load(open('/tmp/faisready-receipt.json'))
+          assert r['project']=='faisready'
+          assert r['local_health_passed'] is True
+          assert r['docker_used'] is False
+          assert r['public_ip_used'] is False
+          assert r['port']==18091
+          PY
+          if curl -fsS --max-time 2 http://127.0.0.1:18091/health >/dev/null 2>&1; then
+            echo 'FAISReady proof process was not cleaned up' >&2
+            exit 1
+          fi
+      - name: Smoke-test storefront without merchant secrets
+        env:
+          HOST: 127.0.0.1
+          PORT: 18092
+          FAISREADY_DATA_DIR: /tmp/faisready-smoke-data
+        run: |
+          python3 FAISReady/revenue_server.py >/tmp/faisready-server.log 2>&1 &
+          PID=$!
+          trap 'kill $PID >/dev/null 2>&1 || true' EXIT
+          for _ in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:18092/health >/tmp/health.json && break
+            sleep 0.25
+          done
+          curl -fsS http://127.0.0.1:18092/ >/tmp/store.html
+          curl -fsS http://127.0.0.1:18092/api/config >/tmp/config.json
+          grep -q 'FAISReady' /tmp/store.html
+          python3 - <<'PY'
+          import json
+          c=json.load(open('/tmp/config.json'))
+          assert c['payments_configured'] is False
+          assert c['plans']['re5']['amount']=='299.00'
+          assert c['plans']['re1']['amount']=='399.00'
+          assert c['plans']['combo']['amount']=='549.00'
+          PY
       - name: Reject tampered plan and unsafe manifest
         run: |
           python3 - <<'PY'
