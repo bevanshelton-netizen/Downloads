@@ -133,8 +133,6 @@ def build_and_probe(plan: dict, root: Path, *, timeout: float) -> dict:
             "--pids-limit", "128",
             "--memory", "512m",
             "--cpus", "1.0",
-            # Keep the image root read-only while allowing disposable runtime state
-            # commonly needed by Nginx/Node and similar containers.
             "--tmpfs", "/tmp:rw,noexec,nosuid,nodev,size=64m",
             "--tmpfs", "/run:rw,nosuid,nodev,size=16m",
             "--tmpfs", "/var/cache:rw,nosuid,nodev,size=64m",
@@ -143,6 +141,19 @@ def build_and_probe(plan: dict, root: Path, *, timeout: float) -> dict:
             image_id,
         ])
         container_id = result.stdout.strip()
+
+        # Surface an early process exit before asking Docker for the ephemeral port.
+        time.sleep(0.25)
+        initial = json.loads(run(["docker", "inspect", container_id]).stdout)[0]
+        state = initial.get("State", {})
+        if state.get("Running") is not True:
+            logs = container_logs(container_id)
+            raise RuntimeError(
+                "container exited before health probe: "
+                f"status={state.get('Status')} exit_code={state.get('ExitCode')}; "
+                f"logs: {logs or 'no container logs'}"
+            )
+
         mapping = run(["docker", "port", container_id, f"{port}/tcp"]).stdout.strip().splitlines()[0]
         host_port = mapping.rsplit(":", 1)[-1]
         url = f"http://127.0.0.1:{host_port}{health_path}"
