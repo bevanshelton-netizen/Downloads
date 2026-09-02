@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "name": "DOXA-SURE",
+  "slug": "doxa-sure",
+  "build_context": "doxa-sure",
+  "dockerfile_path": "doxa-sure/Dockerfile",
+  "container_port": 8080,
+  "health_path": "/api/health",
+  "branch": "main",
+  "alpha": {
+    "preflight": true,
+    "rehearsal": false,
+    "windows_package": false
+  }
+}

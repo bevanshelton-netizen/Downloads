@@ -30,6 +30,7 @@ jobs:
           node --check doxa-sure/leads-dashboard.js
           node --check doxa-sure/netlify/functions/izakhono-pay-callback.mjs
           node --test doxa-sure/netlify/functions/izakhono-pay-callback.test.mjs
+          python3 -m unittest discover -s doxa-sure -p 'test_owner_service.py'
       - name: Bootstrap safety gates
         shell: bash
         run: |
@@ -48,6 +49,9 @@ jobs:
           test -f doxa-sure/supabase/migrations/003_doxa_broker_network.sql
           test -f doxa-sure/supabase/migrations/004_doxa_payment_callback.sql
           test -f doxa-sure/.env.callback.example
+          test -f doxa-sure/.izakhono.json
+          test -f doxa-sure/Dockerfile
+          test -f doxa-sure/owner_service.py
           test -f doxa-sure/leads-dashboard.html
           test -f doxa-sure/site/network.html
           test -f doxa-sure/site/broker-portal.html
@@ -69,6 +73,7 @@ jobs:
           ! grep -Eq "service[_-]?role|SUPABASE_SERVICE_ROLE_KEY" doxa-sure/config.js
           grep -q 'DOXA_PAYMENT_CALLBACK_ENABLED=false' doxa-sure/.env.callback.example
           ! grep -Eq 'DOXA_(IZAKHONO_PAY_CALLBACK_SECRET|SUPABASE_SERVICE_ROLE_KEY)=.+' doxa-sure/.env.callback.example
+          grep -q 'DOXA_DATA_DIR=/var/lib/doxa-sure' doxa-sure/.env.callback.example
           ! grep -Eq "id_number|account_number|bank_password|pin_number" doxa-sure/index.html doxa-sure/app.js doxa-sure/risk-check.html doxa-sure/risk-check.js doxa-sure/pilot.html
       - name: Revenue-funnel compliance language
         shell: bash
