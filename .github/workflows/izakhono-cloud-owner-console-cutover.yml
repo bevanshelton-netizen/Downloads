@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'izakhono-cloud/owner-console-cutover.py'
+      - 'izakhono-cloud/alpha-deploy.py'
       - 'izakhono-cloud/OWNER-CONSOLE-CUTOVER-V1.17.md'
       - '.github/workflows/izakhono-cloud-owner-console-cutover.yml'
 
@@ -28,7 +29,9 @@ jobs:
           persist-credentials: false
 
       - name: Compile cutover orchestrator
-        run: python3 -m py_compile control/izakhono-cloud/owner-console-cutover.py
+        run: |
+          python3 -m py_compile control/izakhono-cloud/owner-console-cutover.py
+          python3 -m py_compile control/izakhono-cloud/alpha-deploy.py
 
       - name: Prove Racing through consolidated path
         run: |
@@ -43,6 +46,7 @@ jobs:
           root=os.environ['RECEIPT_DIR']
           cutover=json.load(open(root+'/owner-console-cutover-receipt.json'))
           deploy=json.load(open(root+'/deployment-receipt.json'))
+          runtime=deploy['execution']['runtime_isolation']
           assert cutover['manifest']==os.environ['APP_MANIFEST']
           assert cutover['deployment_health_passed'] is True
           assert cutover['public_ready'] is False
@@ -51,6 +55,10 @@ jobs:
           assert len(cutover['deployment_receipt_sha256'])==64
           assert deploy['execution']['health_passed'] is True
           assert deploy['execution']['health_url_scope']=='loopback-only'
+          assert runtime['readonly_rootfs'] is True
+          assert runtime['privileged'] is False
+          assert 'ALL' in {str(v).upper() for v in runtime['cap_drop']}
+          assert {str(v).upper() for v in runtime['cap_add']} == {'CHOWN','SETUID','SETGID'}
           PY
 
       - name: Prove current KORA through consolidated path
@@ -66,6 +74,7 @@ jobs:
           root=os.environ['RECEIPT_DIR']
           cutover=json.load(open(root+'/owner-console-cutover-receipt.json'))
           deploy=json.load(open(root+'/deployment-receipt.json'))
+          runtime=deploy['execution']['runtime_isolation']
           assert cutover['manifest']==os.environ['APP_MANIFEST']
           assert cutover['deployment_health_passed'] is True
           assert cutover['public_ready'] is False
@@ -75,6 +84,8 @@ jobs:
           assert len(cutover['deployment_receipt_sha256'])==64
           assert deploy['execution']['health_passed'] is True
           assert deploy['execution']['health_url_scope']=='loopback-only'
-          assert deploy['execution']['runtime_isolation']['readonly_rootfs'] is True
-          assert deploy['execution']['runtime_isolation']['privileged'] is False
+          assert runtime['readonly_rootfs'] is True
+          assert runtime['privileged'] is False
+          assert 'ALL' in {str(v).upper() for v in runtime['cap_drop']}
+          assert {str(v).upper() for v in runtime['cap_add']} == {'CHOWN','SETUID','SETGID'}
           PY
