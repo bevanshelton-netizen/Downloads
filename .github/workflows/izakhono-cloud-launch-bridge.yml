@@ -13,9 +13,11 @@ on:
       - 'FAISReady/edge_runner.py'
       - 'FAISReady/backup_revenue_data.py'
       - 'FAISReady/start-faisready-sandbox.ps1'
+      - 'FAISReady/start-faisready-live.ps1'
       - 'FAISReady/store.html'
       - 'FAISReady/.izakhono-launch-*.json'
       - 'START-FAISREADY-SANDBOX.cmd'
+      - 'START-FAISREADY-LIVE.cmd'
       - '.github/workflows/izakhono-cloud-launch-bridge.yml'
   push:
     branches:
@@ -31,9 +33,11 @@ on:
       - 'FAISReady/edge_runner.py'
       - 'FAISReady/backup_revenue_data.py'
       - 'FAISReady/start-faisready-sandbox.ps1'
+      - 'FAISReady/start-faisready-live.ps1'
       - 'FAISReady/store.html'
       - 'FAISReady/.izakhono-launch-*.json'
       - 'START-FAISREADY-SANDBOX.cmd'
+      - 'START-FAISREADY-LIVE.cmd'
       - '.github/workflows/izakhono-cloud-launch-bridge.yml'
 
 jobs:
@@ -55,7 +59,8 @@ jobs:
         run: |
           $files = @(
             'izakhono-cloud/launch-bridge-windows.ps1',
-            'FAISReady/start-faisready-sandbox.ps1'
+            'FAISReady/start-faisready-sandbox.ps1',
+            'FAISReady/start-faisready-live.ps1'
           )
           foreach ($file in $files) {
             $tokens = $null
@@ -70,15 +75,22 @@ jobs:
               exit 1
             }
           }
-      - name: Validate double-click launcher contract
+      - name: Validate launcher contracts
         shell: pwsh
         run: |
-          $cmd = Get-Content 'START-FAISREADY-SANDBOX.cmd' -Raw
-          if ($cmd -notmatch 'FAISReady\\start-faisready-sandbox.ps1') { throw 'CMD wrapper does not target the FAISReady PowerShell launcher' }
-          $ps = Get-Content 'FAISReady/start-faisready-sandbox.ps1' -Raw
-          if ($ps -notmatch 'Cloudflare\.cloudflared') { throw 'sandbox launcher must use the pinned winget package identifier' }
-          if ($ps -notmatch '--public-payfast-sandbox') { throw 'sandbox launcher must remain on PayFast sandbox' }
-          if ($ps -match 'PAYFAST_SANDBOX\s*=\s*false') { throw 'sandbox launcher must not enable live PayFast' }
+          $sandboxCmd = Get-Content 'START-FAISREADY-SANDBOX.cmd' -Raw
+          if ($sandboxCmd -notmatch 'FAISReady\\start-faisready-sandbox.ps1') { throw 'sandbox CMD wrapper target is incorrect' }
+          $sandboxPs = Get-Content 'FAISReady/start-faisready-sandbox.ps1' -Raw
+          if ($sandboxPs -notmatch 'Cloudflare\.cloudflared') { throw 'sandbox launcher must use the pinned winget package identifier' }
+          if ($sandboxPs -notmatch '--public-payfast-sandbox') { throw 'sandbox launcher must remain on PayFast sandbox' }
+          if ($sandboxPs -match 'PAYFAST_SANDBOX\s*=\s*false') { throw 'sandbox launcher must not enable live PayFast' }
+
+          $liveCmd = Get-Content 'START-FAISREADY-LIVE.cmd' -Raw
+          if ($liveCmd -notmatch 'FAISReady\\start-faisready-live.ps1') { throw 'live CMD wrapper target is incorrect' }
+          $livePs = Get-Content 'FAISReady/start-faisready-live.ps1' -Raw
+          if ($livePs -notmatch '--mode named') { throw 'live launcher must use named edge mode' }
+          if ($livePs -notmatch 'FAISREADY_LIVE_PAYMENTS_APPROVED') { throw 'live launcher must retain explicit payment approval gate' }
+          if ($livePs -match 'TUNNEL_TOKEN\s+--') { throw 'tunnel token must never be placed on command line' }
       - name: Generate deterministic bridge plans
         run: |
           python3 izakhono-cloud/launch-bridge.py plan izakhono-cloud/fixtures/launch-bridge-manifest.json --out /tmp/plan-a.json
