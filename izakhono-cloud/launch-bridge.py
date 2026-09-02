@@ -85,14 +85,39 @@ def build_plan(manifest: dict, manifest_path: Path) -> dict:
     startup = manifest.get("startup_timeout_seconds", 30)
     if not isinstance(startup, int) or not (1 <= startup <= 120):
         fail("startup_timeout_seconds must be 1..120")
-    source = {"manifest_path": manifest_path.as_posix(), "workdir": workdir, "command": command}
+
+    source = {
+        "manifest_path": manifest_path.as_posix(),
+        "workdir": workdir,
+        "command": command,
+    }
     normalized = {
         "schema": "izakhono.launch-bridge/v1",
         "project": project,
         "source": source,
-        "runtime": {"mode": "native_process", "listen_host": "127.0.0.1", "port": port, "health_path": health, "startup_timeout_seconds": startup, "docker_required": False, "public_ip_required": False, "inbound_firewall_opening_required": False},
-        "ingress": {"mode": "outbound_tunnel", "tunnel_credentials_in_plan": False, "custom_domain_required_for_production": True, "external_https_verification_required": True},
-        "truth_boundary": {"bootstrap_path": True, "owner_runtime_executed": False, "public_https_verified": False, "independent_cloud_complete": False, "commercial_ready": False},
+        "runtime": {
+            "mode": "native_process",
+            "listen_host": "127.0.0.1",
+            "port": port,
+            "health_path": health,
+            "startup_timeout_seconds": startup,
+            "docker_required": False,
+            "public_ip_required": False,
+            "inbound_firewall_opening_required": False,
+        },
+        "ingress": {
+            "mode": "outbound_tunnel",
+            "tunnel_credentials_in_plan": False,
+            "custom_domain_required_for_production": True,
+            "external_https_verification_required": True,
+        },
+        "truth_boundary": {
+            "bootstrap_path": True,
+            "owner_runtime_executed": False,
+            "public_https_verified": False,
+            "independent_cloud_complete": False,
+            "commercial_ready": False,
+        },
     }
     normalized["manifest_sha256"] = digest(manifest)
     normalized["plan_sha256"] = digest(normalized)
@@ -101,89 +126,172 @@ def build_plan(manifest: dict, manifest_path: Path) -> dict:
 
 def validate_plan(plan: dict) -> dict:
     expected = plan.get("plan_sha256")
-    if not isinstance(expected, str) or not SHA_RE.fullmatch(expected): fail("plan_sha256 missing or invalid")
-    body = dict(plan); body.pop("plan_sha256", None)
-    if digest(body) != expected: fail("plan_sha256 mismatch")
-    if plan.get("schema") != "izakhono.launch-bridge/v1": fail("unsupported plan schema")
+    if not isinstance(expected, str) or not SHA_RE.fullmatch(expected):
+        fail("plan_sha256 missing or invalid")
+    body = dict(plan)
+    body.pop("plan_sha256", None)
+    if digest(body) != expected:
+        fail("plan_sha256 mismatch")
+    if plan.get("schema") != "izakhono.launch-bridge/v1":
+        fail("unsupported plan schema")
     runtime = plan.get("runtime", {})
-    if runtime.get("mode") != "native_process" or runtime.get("listen_host") != "127.0.0.1": fail("native runtime must be loopback-only")
-    if runtime.get("docker_required") is not False or runtime.get("public_ip_required") is not False: fail("launch bridge invariant failed")
-    validate_command(plan.get("source", {}).get("command")); safe_relative(plan.get("source", {}).get("workdir", ""), "workdir")
+    if runtime.get("mode") != "native_process" or runtime.get("listen_host") != "127.0.0.1":
+        fail("native runtime must be loopback-only")
+    if runtime.get("docker_required") is not False or runtime.get("public_ip_required") is not False:
+        fail("launch bridge invariant failed")
+    validate_command(plan.get("source", {}).get("command"))
+    safe_relative(plan.get("source", {}).get("workdir", ""), "workdir")
     return plan
 
 
 def health_url(plan: dict) -> str:
-    r = plan["runtime"]; return f"http://127.0.0.1:{r['port']}{r['health_path']}"
+    r = plan["runtime"]
+    return f"http://127.0.0.1:{r['port']}{r['health_path']}"
 
 
 def wait_health(plan: dict, process: subprocess.Popen[bytes]) -> None:
     deadline = time.monotonic() + plan["runtime"]["startup_timeout_seconds"]
-    url = health_url(plan); last = "not attempted"
+    url = health_url(plan)
+    last = "not attempted"
     while time.monotonic() < deadline:
-        if process.poll() is not None: fail(f"child exited before health pass with code {process.returncode}")
+        if process.poll() is not None:
+            fail(f"child exited before health pass with code {process.returncode}")
         try:
             with urllib.request.urlopen(url, timeout=2) as response:
-                if 200 <= response.status < 300: return
+                if 200 <= response.status < 300:
+                    return
                 last = f"HTTP {response.status}"
-        except (urllib.error.URLError, TimeoutError, OSError) as exc: last = str(exc)
+        except (urllib.error.URLError, TimeoutError, OSError) as exc:
+            last = str(exc)
         time.sleep(0.25)
     fail(f"health check timed out: {last}")
 
 
 def start_process(plan: dict, repo_root: Path) -> subprocess.Popen[bytes]:
-    workdir = (repo_root / plan["source"]["workdir"]).resolve(); root = repo_root.resolve()
-    try: workdir.relative_to(root)
-    except ValueError: fail("resolved workdir escaped repository root")
-    if not workdir.is_dir(): fail(f"workdir does not exist: {workdir}")
-    env = os.environ.copy(); env.update({"HOST":"127.0.0.1","HOSTNAME":"127.0.0.1","PORT":str(plan["runtime"]["port"]),"IZAKHONO_PROJECT":plan["project"],"IZAKHONO_RUNTIME_MODE":"launch-bridge"})
-    creationflags = getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0) if os.name == "nt" else 0
-    kwargs = {} if os.name == "nt" else {"start_new_session": True}
-    return subprocess.Popen(plan["source"]["command"], cwd=str(workdir), env=env, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=creationflags, **kwargs)
+    workdir = (repo_root / plan["source"]["workdir"]).resolve()
+    root = repo_root.resolve()
+    try:
+        workdir.relative_to(root)
+    except ValueError:
+        fail("resolved workdir escaped repository root")
+    if not workdir.is_dir():
+        fail(f"workdir does not exist: {workdir}")
+    env = os.environ.copy()
+    env.update({
+        "HOST": "127.0.0.1",
+        "HOSTNAME": "127.0.0.1",
+        "PORT": str(plan["runtime"]["port"]),
+        "IZAKHONO_PROJECT": plan["project"],
+        "IZAKHONO_RUNTIME_MODE": "launch-bridge",
+    })
+    creationflags = 0
+    kwargs: dict = {}
+    if os.name == "nt":
+        creationflags = getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
+    else:
+        kwargs["start_new_session"] = True
+    return subprocess.Popen(
+        plan["source"]["command"],
+        cwd=str(workdir),
+        env=env,
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        creationflags=creationflags,
+        **kwargs,
+    )
 
 
 def stop_process(process: subprocess.Popen[bytes]) -> None:
-    if process.poll() is not None: return
+    if process.poll() is not None:
+        return
     try:
-        if os.name == "nt": process.send_signal(getattr(signal, "CTRL_BREAK_EVENT", signal.SIGTERM))
-        else: os.killpg(process.pid, signal.SIGTERM)
+        if os.name == "nt":
+            process.send_signal(getattr(signal, "CTRL_BREAK_EVENT", signal.SIGTERM))
+        else:
+            os.killpg(process.pid, signal.SIGTERM)
         process.wait(timeout=5)
     except Exception:
         process.kill()
-        try: process.wait(timeout=3)
-        except Exception: pass
+        try:
+            process.wait(timeout=3)
+        except Exception:
+            pass
 
 
 def receipt(plan: dict, pid: int, proof_only: bool) -> dict:
-    value = {"schema":"izakhono.launch-receipt/v1","project":plan["project"],"plan_sha256":plan["plan_sha256"],"runtime_mode":"native_process","listen_host":"127.0.0.1","port":plan["runtime"]["port"],"health_path":plan["runtime"]["health_path"],"local_health_passed":True,"docker_used":False,"public_ip_used":False,"proof_only":proof_only,"pid_recorded":pid,"public_https_verified":False,"commercial_ready":False}
-    value["receipt_sha256"] = digest(value); return value
+    value = {
+        "schema": "izakhono.launch-receipt/v1",
+        "project": plan["project"],
+        "plan_sha256": plan["plan_sha256"],
+        "runtime_mode": "native_process",
+        "listen_host": "127.0.0.1",
+        "port": plan["runtime"]["port"],
+        "health_path": plan["runtime"]["health_path"],
+        "local_health_passed": True,
+        "docker_used": False,
+        "public_ip_used": False,
+        "proof_only": proof_only,
+        "pid_recorded": pid,
+        "public_https_verified": False,
+        "commercial_ready": False,
+    }
+    value["receipt_sha256"] = digest(value)
+    return value
 
 
 def cmd_plan(args: argparse.Namespace) -> int:
-    manifest = load_json(args.manifest); plan = build_plan(manifest, args.manifest); text = json.dumps(plan, indent=2, sort_keys=True) + "\n"
-    if args.out: args.out.write_text(text, encoding="utf-8")
-    else: sys.stdout.write(text)
+    manifest = load_json(args.manifest)
+    plan = build_plan(manifest, args.manifest)
+    text = json.dumps(plan, indent=2, sort_keys=True) + "\n"
+    if args.out:
+        args.out.write_text(text, encoding="utf-8")
+    else:
+        sys.stdout.write(text)
     return 0
 
 
 def cmd_run(args: argparse.Namespace) -> int:
-    plan = validate_plan(load_json(args.plan)); process = start_process(plan, args.repo_root.resolve())
+    plan = validate_plan(load_json(args.plan))
+    repo_root = args.repo_root.resolve()
+    process = start_process(plan, repo_root)
     try:
-        wait_health(plan, process); rec = receipt(plan, process.pid, args.proof_only); text = json.dumps(rec, indent=2, sort_keys=True) + "\n"
-        if args.receipt: args.receipt.write_text(text, encoding="utf-8")
-        else: sys.stdout.write(text); sys.stdout.flush()
-        if args.proof_only: return 0
+        wait_health(plan, process)
+        rec = receipt(plan, process.pid, args.proof_only)
+        text = json.dumps(rec, indent=2, sort_keys=True) + "\n"
+        if args.receipt:
+            args.receipt.write_text(text, encoding="utf-8")
+        else:
+            sys.stdout.write(text)
+            sys.stdout.flush()
+        if args.proof_only:
+            return 0
         return process.wait()
     finally:
-        if args.proof_only: stop_process(process)
+        if args.proof_only:
+            stop_process(process)
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="IZAKHONO CLOUD zero-cost native launch bridge"); sub = parser.add_subparsers(dest="command_name", required=True)
-    p = sub.add_parser("plan"); p.add_argument("manifest", type=Path); p.add_argument("--out", type=Path); p.set_defaults(func=cmd_plan)
-    r = sub.add_parser("run"); r.add_argument("plan", type=Path); r.add_argument("--repo-root", type=Path, default=Path(".")); r.add_argument("--receipt", type=Path); r.add_argument("--proof-only", action="store_true"); r.set_defaults(func=cmd_run)
+    parser = argparse.ArgumentParser(description="IZAKHONO CLOUD zero-cost native launch bridge")
+    sub = parser.add_subparsers(dest="command_name", required=True)
+    p = sub.add_parser("plan", help="validate a launch manifest and create a deterministic plan")
+    p.add_argument("manifest", type=Path)
+    p.add_argument("--out", type=Path)
+    p.set_defaults(func=cmd_plan)
+    r = sub.add_parser("run", help="run a plan as a loopback-only native process")
+    r.add_argument("plan", type=Path)
+    r.add_argument("--repo-root", type=Path, default=Path("."))
+    r.add_argument("--receipt", type=Path)
+    r.add_argument("--proof-only", action="store_true")
+    r.set_defaults(func=cmd_run)
     args = parser.parse_args()
-    try: return args.func(args)
+    try:
+        return args.func(args)
     except (ValueError, OSError) as exc:
-        print(f"ERROR: {exc}", file=sys.stderr); return 2
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
 
-if __name__ == "__main__": raise SystemExit(main())
+
+if __name__ == "__main__":
+    raise SystemExit(main())

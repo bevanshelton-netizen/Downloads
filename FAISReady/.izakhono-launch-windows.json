@@ -1,0 +1,9 @@
+{
+  "schema": "izakhono.launch-bridge/v1",
+  "project": "faisready",
+  "workdir": "FAISReady",
+  "command": ["py", "-3", "revenue_server_izakhono.py"],
+  "port": 18091,
+  "health_path": "/health",
+  "startup_timeout_seconds": 20
+}
