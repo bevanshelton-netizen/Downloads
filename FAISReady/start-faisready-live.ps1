@@ -34,13 +34,26 @@ if (-not (Get-Command cloudflared -ErrorAction SilentlyContinue)) {
   throw 'cloudflared is required for the stable named HTTPS edge.'
 }
 
-if ($env:PAYFAST_SANDBOX -eq 'false') {
-  if (-not $env:PAYFAST_MERCHANT_ID -or -not $env:PAYFAST_MERCHANT_KEY -or -not $env:PAYFAST_PASSPHRASE) {
-    throw 'Live PayFast is selected but merchant credentials are incomplete.'
+$orchestrator = if ($env:FAISREADY_PAYMENT_ORCHESTRATOR) { $env:FAISREADY_PAYMENT_ORCHESTRATOR.ToLower() } else { 'izakhono' }
+if ($orchestrator -eq 'izakhono') {
+  $env:FAISREADY_PAYMENT_ORCHESTRATOR = 'izakhono'
+  if (-not $env:IZAKHONO_PAY_URL -or -not $env:IZAKHONO_PAY_URL.StartsWith('https://')) {
+    throw 'IZAKHONO_PAY_URL must be configured as an HTTPS origin.'
   }
-  if ($env:FAISREADY_LIVE_PAYMENTS_APPROVED -ne 'true') {
-    throw 'Live PayFast remains fail-closed. Set FAISREADY_LIVE_PAYMENTS_APPROVED=true only after merchant approval and a successful sandbox proof.'
+  if (-not $env:IZAKHONO_PAY_API_KEY -or -not $env:IZAKHONO_PAY_WEBHOOK_SECRET) {
+    throw 'IZAKHONO PAY API and webhook credentials are required for paid checkout.'
   }
+} elseif ($orchestrator -eq 'direct') {
+  if ($env:PAYFAST_SANDBOX -eq 'false') {
+    if (-not $env:PAYFAST_MERCHANT_ID -or -not $env:PAYFAST_MERCHANT_KEY -or -not $env:PAYFAST_PASSPHRASE) {
+      throw 'Direct live PayFast is selected but merchant credentials are incomplete.'
+    }
+    if ($env:FAISREADY_LIVE_PAYMENTS_APPROVED -ne 'true') {
+      throw 'Direct live PayFast remains fail-closed until the external merchant rail is approved.'
+    }
+  }
+} else {
+  throw "Unsupported FAISREADY_PAYMENT_ORCHESTRATOR: $orchestrator"
 }
 
 Push-Location $PSScriptRoot
@@ -48,10 +61,12 @@ try {
   Write-Host ''
   Write-Host 'FAISReady — IZAKHONO owner-host launch' -ForegroundColor Cyan
   Write-Host "Public URL: $env:PUBLIC_BASE_URL"
-  if ($env:PAYFAST_SANDBOX -eq 'false') {
-    Write-Host 'Payments: LIVE-approved mode' -ForegroundColor Green
+  if ($orchestrator -eq 'izakhono') {
+    Write-Host 'Payments: IZAKHONO PAY native orchestration' -ForegroundColor Green
+  } elseif ($env:PAYFAST_SANDBOX -eq 'false') {
+    Write-Host 'Payments: direct live settlement rail' -ForegroundColor Green
   } else {
-    Write-Host 'Payments: sandbox/disabled until PayFast approval' -ForegroundColor Yellow
+    Write-Host 'Payments: direct sandbox rail' -ForegroundColor Yellow
   }
   Write-Host ''
 
