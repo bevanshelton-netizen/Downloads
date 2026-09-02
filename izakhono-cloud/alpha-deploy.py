@@ -15,7 +15,6 @@ import argparse
 import hashlib
 import importlib.util
 import json
-import os
 import subprocess
 import sys
 import time
@@ -41,9 +40,14 @@ def canonical(value: object) -> bytes:
 
 
 def run(argv: list[str], *, cwd: Path | None = None, capture: bool = True) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(argv, cwd=str(cwd) if cwd else None, check=True, text=True,
-                          stdout=subprocess.PIPE if capture else None,
-                          stderr=subprocess.PIPE if capture else None)
+    return subprocess.run(
+        argv,
+        cwd=str(cwd) if cwd else None,
+        check=True,
+        text=True,
+        stdout=subprocess.PIPE if capture else None,
+        stderr=subprocess.PIPE if capture else None,
+    )
 
 
 def docker_available() -> bool:
@@ -91,6 +95,16 @@ def wait_health(url: str, timeout: float) -> tuple[bool, str]:
     return False, last
 
 
+def container_logs(container_id: str) -> str:
+    p = subprocess.run(
+        ["docker", "logs", "--tail", "120", container_id],
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
+    return (p.stdout or "").strip()[-8000:]
+
+
 def build_and_probe(plan: dict, root: Path, *, timeout: float) -> dict:
     source = plan["source"]
     build_context = ensure_inside(root, root / source["build_context"], "build_context")
@@ -113,9 +127,20 @@ def build_and_probe(plan: dict, root: Path, *, timeout: float) -> dict:
     try:
         result = run([
             "docker", "run", "-d", "--name", name,
-            "--read-only", "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
-            "--pids-limit", "128", "--memory", "512m", "--cpus", "1.0",
-            "-p", f"127.0.0.1::{port}", image_id,
+            "--read-only",
+            "--cap-drop", "ALL",
+            "--security-opt", "no-new-privileges",
+            "--pids-limit", "128",
+            "--memory", "512m",
+            "--cpus", "1.0",
+            # Keep the image root read-only while allowing disposable runtime state
+            # commonly needed by Nginx/Node and similar containers.
+            "--tmpfs", "/tmp:rw,noexec,nosuid,nodev,size=64m",
+            "--tmpfs", "/run:rw,nosuid,nodev,size=16m",
+            "--tmpfs", "/var/cache:rw,nosuid,nodev,size=64m",
+            "-e", "HOME=/tmp",
+            "-p", f"127.0.0.1::{port}",
+            image_id,
         ])
         container_id = result.stdout.strip()
         mapping = run(["docker", "port", container_id, f"{port}/tcp"]).stdout.strip().splitlines()[0]
@@ -142,6 +167,7 @@ def build_and_probe(plan: dict, root: Path, *, timeout: float) -> dict:
                 "pids_limit": host_config.get("PidsLimit"),
                 "memory": host_config.get("Memory"),
                 "nano_cpus": host_config.get("NanoCpus"),
+                "tmpfs": host_config.get("Tmpfs") or {},
             },
             "truth_boundary": {
                 "owner_node_public_https_verified": False,
@@ -151,7 +177,9 @@ def build_and_probe(plan: dict, root: Path, *, timeout: float) -> dict:
         }
         proof["proof_sha256"] = hashlib.sha256(canonical(proof)).hexdigest()
         if not passed:
-            raise RuntimeError(f"health gate failed: {detail}")
+            logs = container_logs(container_id)
+            suffix = f"; container logs: {logs}" if logs else ""
+            raise RuntimeError(f"health gate failed: {detail}{suffix}")
         return proof
     finally:
         if container_id:
