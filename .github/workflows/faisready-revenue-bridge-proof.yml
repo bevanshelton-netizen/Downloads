@@ -1,0 +1,87 @@
+name: FAISReady Revenue Bridge Proof
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'FAISReady/**'
+      - 'izakhono-cloud/launch-bridge.py'
+      - 'izakhono-cloud/launch-bridge-windows.ps1'
+      - 'START-FAISREADY-*.cmd'
+      - '.github/workflows/faisready-revenue-bridge-proof.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  revenue-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Compile revenue runtime
+        run: |
+          python3 -m py_compile izakhono-cloud/launch-bridge.py
+          python3 -m py_compile FAISReady/revenue_server.py
+          python3 -m py_compile FAISReady/revenue_server_izakhono.py
+          python3 -m py_compile FAISReady/edge_runner.py
+          python3 -m py_compile FAISReady/backup_revenue_data.py
+
+      - name: Parse Windows owner launchers
+        shell: pwsh
+        run: |
+          foreach ($file in @('izakhono-cloud/launch-bridge-windows.ps1','FAISReady/start-faisready-sandbox.ps1','FAISReady/start-faisready-live.ps1')) {
+            $tokens=$null; $errors=$null
+            [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $file),[ref]$tokens,[ref]$errors) | Out-Null
+            if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_.Message }; exit 1 }
+          }
+          if ((Get-Content START-FAISREADY-LIVE.cmd -Raw) -notmatch 'start-faisready-live.ps1') { throw 'live launcher target mismatch' }
+
+      - name: Self-test revenue and payment controls
+        run: |
+          python3 FAISReady/revenue_server.py --self-test
+          python3 FAISReady/revenue_server_izakhono.py --self-test
+          python3 FAISReady/test_revenue_server.py
+          python3 FAISReady/edge_runner.py --self-test
+          python3 FAISReady/backup_revenue_data.py --self-test
+
+      - name: Prove native owner-host runtime
+        env:
+          FAISREADY_DATA_DIR: /tmp/faisready-main-proof
+        run: |
+          python3 izakhono-cloud/launch-bridge.py plan FAISReady/.izakhono-launch-linux.json --out /tmp/faisready-plan.json
+          python3 izakhono-cloud/launch-bridge.py run /tmp/faisready-plan.json --repo-root . --proof-only --receipt /tmp/faisready-receipt.json
+          python3 - <<'PY'
+          import json
+          r=json.load(open('/tmp/faisready-receipt.json'))
+          assert r['project']=='faisready'
+          assert r['local_health_passed'] is True
+          assert r['docker_used'] is False
+          assert r['public_ip_used'] is False
+          assert r['commercial_ready'] is False
+          PY
+
+      - name: Smoke-test storefront fail-closed
+        env:
+          HOST: 127.0.0.1
+          PORT: 18092
+          FAISREADY_DATA_DIR: /tmp/faisready-main-smoke
+        run: |
+          python3 FAISReady/revenue_server_izakhono.py >/tmp/faisready.log 2>&1 &
+          PID=$!
+          trap 'kill $PID >/dev/null 2>&1 || true' EXIT
+          for _ in $(seq 1 30); do curl -fsS http://127.0.0.1:18092/health >/tmp/health.json && break; sleep .25; done
+          curl -fsS http://127.0.0.1:18092/ >/tmp/store.html
+          curl -fsS http://127.0.0.1:18092/api/config >/tmp/config.json
+          grep -q 'FAISReady' /tmp/store.html
+          python3 - <<'PY'
+          import json
+          c=json.load(open('/tmp/config.json'))
+          assert c['payments_configured'] is False
+          assert c['plans']['re5']['amount']=='299.00'
+          assert c['plans']['re1']['amount']=='399.00'
+          assert c['plans']['combo']['amount']=='549.00'
+          PY
