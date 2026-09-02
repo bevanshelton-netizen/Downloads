@@ -20,7 +20,9 @@ jobs:
           persist-credentials: false
 
       - name: Compile shared gateway
-        run: python3 -m py_compile izakhono-pay/shared_gateway.py
+        run: |
+          python3 -m py_compile izakhono-pay/shared_gateway.py
+          python3 -m py_compile izakhono-pay/bank_reconciler.py
 
       - name: Validate product registry
         run: |
@@ -36,7 +38,9 @@ jobs:
           PY
 
       - name: Self-test order and activation state machine
-        run: python3 izakhono-pay/shared_gateway.py self-test
+        run: |
+          python3 izakhono-pay/shared_gateway.py self-test
+          (cd izakhono-pay && python3 bank_reconciler.py self-test)
 
       - name: Prove secrets are not committed
         run: |
