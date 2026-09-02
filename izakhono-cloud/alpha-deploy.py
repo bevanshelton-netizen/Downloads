@@ -135,14 +135,13 @@ def build_and_probe(plan: dict, root: Path, *, timeout: float) -> dict:
             "--cpus", "1.0",
             "--tmpfs", "/tmp:rw,noexec,nosuid,nodev,size=64m",
             "--tmpfs", "/run:rw,nosuid,nodev,size=16m",
-            "--tmpfs", "/var/cache:rw,nosuid,nodev,size=64m",
+            "--tmpfs", "/var/cache/nginx:rw,nosuid,nodev,size=64m",
             "-e", "HOME=/tmp",
             "-p", f"127.0.0.1::{port}",
             image_id,
         ])
         container_id = result.stdout.strip()
 
-        # Surface an early process exit before asking Docker for the ephemeral port.
         time.sleep(0.25)
         initial = json.loads(run(["docker", "inspect", container_id]).stdout)[0]
         state = initial.get("State", {})
