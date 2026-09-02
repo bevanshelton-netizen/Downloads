@@ -1,0 +1,76 @@
+name: IZAKHONO PAY Shared Gateway Proof
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'izakhono-pay/**'
+      - '.github/workflows/izakhono-pay-shared-proof.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Compile shared gateway
+        run: python3 -m py_compile izakhono-pay/shared_gateway.py
+
+      - name: Validate product registry
+        run: |
+          python3 - <<'PY'
+          import json
+          p=json.load(open('izakhono-pay/products.json'))
+          assert p['schema']=='izakhono.pay.products/v1'
+          fr=p['platforms']['faisready']['products']
+          assert fr['re5']['amount_minor']==29900
+          assert fr['re1']['amount_minor']==39900
+          assert fr['combo']['amount_minor']==54900
+          assert fr['re5']['currency']=='ZAR'
+          PY
+
+      - name: Self-test order and activation state machine
+        run: python3 izakhono-pay/shared_gateway.py self-test
+
+      - name: Prove secrets are not committed
+        run: |
+          test -f izakhono-pay/.env.example
+          ! grep -Eq 'IZAKHONO_PAY_ACCOUNT_NUMBER=[0-9]{6,}' izakhono-pay/.env.example
+          ! grep -Eq 'replace-with-strong-random-(key|secret)$' izakhono-pay/products.json
+
+      - name: Smoke-test authenticated product and EFT order API
+        env:
+          IZAKHONO_PAY_DATA_DIR: /tmp/izakhono-pay-proof
+          IZAKHONO_PAY_APPS_JSON: '{"faisready":"ci-faisready-key"}'
+          IZAKHONO_PAY_BANK_NAME: FNB
+          IZAKHONO_PAY_ACCOUNT_NAME: IZAKHONO AFRICA TEST
+          IZAKHONO_PAY_ACCOUNT_NUMBER: '00000000000'
+          IZAKHONO_PAY_ACCOUNT_TYPE: Gold Business Account
+          IZAKHONO_PAY_BRANCH_CODE: '250655'
+        run: |
+          python3 izakhono-pay/shared_gateway.py serve --port 18100 >/tmp/izp.log 2>&1 &
+          PID=$!
+          trap 'kill $PID >/dev/null 2>&1 || true' EXIT
+          for _ in $(seq 1 30); do curl -fsS http://127.0.0.1:18100/health >/tmp/health.json && break; sleep .2; done
+          curl -fsS -H 'x-izakhono-app: faisready' -H 'x-izakhono-key: ci-faisready-key' http://127.0.0.1:18100/api/v1/products >/tmp/products.json
+          curl -fsS -X POST \
+            -H 'x-izakhono-app: faisready' \
+            -H 'x-izakhono-key: ci-faisready-key' \
+            -H 'content-type: application/json' \
+            --data '{"product_code":"re5","customer_name":"CI Learner","customer_email":"ci@example.com","customer_reference":"ci-user-1"}' \
+            http://127.0.0.1:18100/api/v1/orders >/tmp/order.json
+          python3 - <<'PY'
+          import json,re
+          h=json.load(open('/tmp/health.json')); assert h['ok'] is True and h['service']=='izakhono-pay'
+          p=json.load(open('/tmp/products.json')); assert p['products']['re5']['amount_minor']==29900
+          o=json.load(open('/tmp/order.json'))['order']
+          assert o['status']=='pending' and o['amount_minor']==29900 and o['payment_method']=='eft'
+          assert re.fullmatch(r'FAISREAD-[0-9A-F]{8}',o['payment_reference'])
+          assert o['bank']['account_number']=='00000000000'
+          PY
