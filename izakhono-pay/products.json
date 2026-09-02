@@ -1,0 +1,14 @@
+{
+  "schema": "izakhono.pay.products/v1",
+  "platforms": {
+    "faisready": {
+      "display_name": "FAISReady",
+      "callback_url": "",
+      "products": {
+        "re5": {"name": "RE5 Complete Prep", "amount_minor": 29900, "currency": "ZAR", "entitlement": {"days": 90}},
+        "re1": {"name": "RE1 Complete Prep", "amount_minor": 39900, "currency": "ZAR", "entitlement": {"days": 90}},
+        "combo": {"name": "RE5 + RE1 Complete Prep", "amount_minor": 54900, "currency": "ZAR", "entitlement": {"days": 120}}
+      }
+    }
+  }
+}
