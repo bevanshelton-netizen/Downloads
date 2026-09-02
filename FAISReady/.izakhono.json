@@ -1,6 +1,15 @@
 {
-  "build_context": ".",
-  "dockerfile_path": "Dockerfile",
+  "version": 2,
+  "name": "FAISReady",
+  "slug": "faisready",
+  "build_context": "FAISReady",
+  "dockerfile_path": "FAISReady/Dockerfile",
   "container_port": 80,
-  "health_path": "/healthz.txt"
+  "health_path": "/healthz.txt",
+  "branch": "main",
+  "alpha": {
+    "preflight": true,
+    "rehearsal": false,
+    "windows_package": false
+  }
 }
