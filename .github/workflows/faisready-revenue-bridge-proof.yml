@@ -39,6 +39,10 @@ jobs:
             if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_.Message }; exit 1 }
           }
           if ((Get-Content START-FAISREADY-LIVE.cmd -Raw) -notmatch 'start-faisready-live.ps1') { throw 'live launcher target mismatch' }
+          $envExample = Get-Content FAISReady/.env.example -Raw
+          if ($envExample -notmatch 'FAISREADY_PAYMENT_ORCHESTRATOR=izakhono') { throw 'IZAKHONO PAY must remain the default orchestrator' }
+          $live = Get-Content FAISReady/start-faisready-live.ps1 -Raw
+          if ($live -notmatch 'IZAKHONO_PAY_URL' -or $live -notmatch 'IZAKHONO_PAY_API_KEY' -or $live -notmatch 'IZAKHONO_PAY_WEBHOOK_SECRET') { throw 'live launcher must validate IZAKHONO PAY configuration' }
 
       - name: Self-test revenue and payment controls
         run: |
@@ -47,6 +51,24 @@ jobs:
           python3 FAISReady/test_revenue_server.py
           python3 FAISReady/edge_runner.py --self-test
           python3 FAISReady/backup_revenue_data.py --self-test
+
+      - name: Prove IZAKHONO PAY configuration contract
+        env:
+          FAISREADY_PAYMENT_ORCHESTRATOR: izakhono
+          IZAKHONO_PAY_URL: https://pay.izakhono.invalid
+          IZAKHONO_PAY_API_KEY: test-key
+          IZAKHONO_PAY_WEBHOOK_SECRET: test-webhook-secret
+        run: |
+          python3 - <<'PY'
+          import os, sys
+          sys.path.insert(0, 'FAISReady')
+          import revenue_server_izakhono as app
+          assert app.use_izakhono_pay() is True
+          cfg=app.izakhono_settings()
+          assert cfg['url']=='https://pay.izakhono.invalid'
+          assert cfg['key']=='test-key'
+          assert cfg['secret']=='test-webhook-secret'
+          PY
 
       - name: Prove native owner-host runtime
         env:
