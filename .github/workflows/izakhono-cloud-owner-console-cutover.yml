@@ -5,6 +5,7 @@ on:
     paths:
       - 'izakhono-cloud/owner-console-cutover.py'
       - 'izakhono-cloud/alpha-deploy.py'
+      - 'izakhono-cloud/build-kora-owner-handoff.py'
       - 'izakhono-cloud/OWNER-CONSOLE-CUTOVER-V1.17.md'
       - 'FAISReady/.izakhono.json'
       - 'FAISReady/Dockerfile'
@@ -35,6 +36,7 @@ jobs:
         run: |
           python3 -m py_compile control/izakhono-cloud/owner-console-cutover.py
           python3 -m py_compile control/izakhono-cloud/alpha-deploy.py
+          python3 -m py_compile control/izakhono-cloud/build-kora-owner-handoff.py
 
       - name: Prove Racing through consolidated path
         run: |
@@ -124,3 +126,23 @@ jobs:
           assert 'ALL' in normalize(runtime['cap_drop'])
           assert normalize(runtime['cap_add']) == {'CHOWN','SETUID','SETGID'}
           PY
+
+      - name: Build and exercise offline KORA owner-node handoff
+        run: |
+          python3 control/izakhono-cloud/build-kora-owner-handoff.py \
+            --app-root apps \
+            --control-root control \
+            --out /tmp/kora-owner-node-handoff.zip
+          rm -rf /tmp/kora-owner-handoff-test
+          mkdir -p /tmp/kora-owner-handoff-test
+          unzip -q /tmp/kora-owner-node-handoff.zip -d /tmp/kora-owner-handoff-test
+          cd /tmp/kora-owner-handoff-test/kora-owner-node-handoff
+          bash ./RUN-KORA-OWNER-PROOF.sh --ci-proof
+
+      - name: Upload KORA owner-node handoff
+        uses: actions/upload-artifact@v4
+        with:
+          name: kora-owner-node-handoff
+          path: /tmp/kora-owner-node-handoff.zip
+          if-no-files-found: error
+          retention-days: 14
