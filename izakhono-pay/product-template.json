@@ -1,0 +1,14 @@
+{
+  "platform-slug": {
+    "display_name": "Platform Name",
+    "callback_url": "https://platform.example.com/api/izakhono-pay/webhook",
+    "products": {
+      "product-code": {
+        "name": "Product Name",
+        "amount_minor": 10000,
+        "currency": "ZAR",
+        "entitlement": {"kind": "access", "days": 30}
+      }
+    }
+  }
+}
