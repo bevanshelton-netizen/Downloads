@@ -6,28 +6,75 @@ on:
       - 'izakhono-cloud/owner-console-cutover.py'
       - 'izakhono-cloud/OWNER-CONSOLE-CUTOVER-V1.17.md'
       - '.github/workflows/izakhono-cloud-owner-console-cutover.yml'
-      - 'bevan-shelton-racing/**'
+
+permissions:
+  contents: read
 
 jobs:
   cutover-gate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout reviewed IZAKHONO control plane
+        uses: actions/checkout@v4
+        with:
+          path: control
+          persist-credentials: false
+
+      - name: Checkout current application source
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: apps
+          persist-credentials: false
+
       - name: Compile cutover orchestrator
-        run: python3 -m py_compile izakhono-cloud/owner-console-cutover.py
-      - name: Exercise racing project through consolidated path
+        run: python3 -m py_compile control/izakhono-cloud/owner-console-cutover.py
+
+      - name: Prove Racing through consolidated path
         run: |
-          python3 izakhono-cloud/owner-console-cutover.py \
+          python3 control/izakhono-cloud/owner-console-cutover.py \
             bevan-shelton-racing/.izakhono.json \
-            --repo-root . \
+            --repo-root apps \
+            --control-root control \
             --ci-proof \
-            --receipt-dir /tmp/izakhono-cutover
-          python3 - <<'PY'
-          import json
-          p=json.load(open('/tmp/izakhono-cutover/owner-console-cutover-receipt.json'))
-          assert p['manifest']=='bevan-shelton-racing/.izakhono.json'
-          assert p['public_ready'] is False
-          assert p['commercial_ready'] is False
-          assert len(p['deploy_plan_sha256'])==64
-          assert len(p['deployment_receipt_sha256'])==64
+            --receipt-dir /tmp/izakhono-cutover-racing
+          APP_MANIFEST='bevan-shelton-racing/.izakhono.json' RECEIPT_DIR='/tmp/izakhono-cutover-racing' python3 - <<'PY'
+          import json, os
+          root=os.environ['RECEIPT_DIR']
+          cutover=json.load(open(root+'/owner-console-cutover-receipt.json'))
+          deploy=json.load(open(root+'/deployment-receipt.json'))
+          assert cutover['manifest']==os.environ['APP_MANIFEST']
+          assert cutover['deployment_health_passed'] is True
+          assert cutover['public_ready'] is False
+          assert cutover['commercial_ready'] is False
+          assert len(cutover['deploy_plan_sha256'])==64
+          assert len(cutover['deployment_receipt_sha256'])==64
+          assert deploy['execution']['health_passed'] is True
+          assert deploy['execution']['health_url_scope']=='loopback-only'
+          PY
+
+      - name: Prove current KORA through consolidated path
+        run: |
+          python3 control/izakhono-cloud/owner-console-cutover.py \
+            kora-network/.izakhono.json \
+            --repo-root apps \
+            --control-root control \
+            --ci-proof \
+            --receipt-dir /tmp/izakhono-cutover-kora
+          APP_MANIFEST='kora-network/.izakhono.json' RECEIPT_DIR='/tmp/izakhono-cutover-kora' python3 - <<'PY'
+          import json, os
+          root=os.environ['RECEIPT_DIR']
+          cutover=json.load(open(root+'/owner-console-cutover-receipt.json'))
+          deploy=json.load(open(root+'/deployment-receipt.json'))
+          assert cutover['manifest']==os.environ['APP_MANIFEST']
+          assert cutover['deployment_health_passed'] is True
+          assert cutover['public_ready'] is False
+          assert cutover['commercial_ready'] is False
+          assert len(cutover['source_commit'])==40
+          assert len(cutover['deploy_plan_sha256'])==64
+          assert len(cutover['deployment_receipt_sha256'])==64
+          assert deploy['execution']['health_passed'] is True
+          assert deploy['execution']['health_url_scope']=='loopback-only'
+          assert deploy['execution']['runtime_isolation']['readonly_rootfs'] is True
+          assert deploy['execution']['runtime_isolation']['privileged'] is False
           PY
