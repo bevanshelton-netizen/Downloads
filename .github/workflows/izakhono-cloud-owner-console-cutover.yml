@@ -1,0 +1,186 @@
+name: IZAKHONO CLOUD Owner Console Cutover
+
+on:
+  pull_request:
+    paths:
+      - 'izakhono-cloud/owner-console-cutover.py'
+      - 'izakhono-cloud/alpha-deploy.py'
+      - 'izakhono-cloud/build-kora-owner-handoff.py'
+      - 'izakhono-cloud/OWNER-CONSOLE-CUTOVER-V1.17.md'
+      - 'FAISReady/.izakhono.json'
+      - 'FAISReady/Dockerfile'
+      - 'FAISReady/healthz.txt'
+      - '.github/workflows/izakhono-cloud-owner-console-cutover.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  cutover-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout reviewed IZAKHONO control plane
+        uses: actions/checkout@v4
+        with:
+          path: control
+          persist-credentials: false
+
+      - name: Checkout current application source
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: apps
+          persist-credentials: false
+
+      - name: Checkout current ALLEGRO VIBEZ source
+        uses: actions/checkout@v4
+        with:
+          repository: bevanshelton-netizen/allegro-vibez
+          ref: main
+          path: allegro
+          persist-credentials: false
+
+      - name: Compile cutover orchestrator
+        run: |
+          python3 -m py_compile control/izakhono-cloud/owner-console-cutover.py
+          python3 -m py_compile control/izakhono-cloud/alpha-deploy.py
+          python3 -m py_compile control/izakhono-cloud/build-kora-owner-handoff.py
+
+      - name: Prove Racing through consolidated path
+        run: |
+          python3 control/izakhono-cloud/owner-console-cutover.py \
+            bevan-shelton-racing/.izakhono.json \
+            --repo-root apps \
+            --control-root control \
+            --ci-proof \
+            --receipt-dir /tmp/izakhono-cutover-racing
+          APP_MANIFEST='bevan-shelton-racing/.izakhono.json' RECEIPT_DIR='/tmp/izakhono-cutover-racing' python3 - <<'PY'
+          import json, os
+          root=os.environ['RECEIPT_DIR']
+          cutover=json.load(open(root+'/owner-console-cutover-receipt.json'))
+          deploy=json.load(open(root+'/deployment-receipt.json'))
+          runtime=deploy['execution']['runtime_isolation']
+          normalize=lambda values:{str(v).upper().removeprefix('CAP_') for v in values}
+          assert cutover['manifest']==os.environ['APP_MANIFEST']
+          assert cutover['deployment_health_passed'] is True
+          assert cutover['public_ready'] is False
+          assert cutover['commercial_ready'] is False
+          assert len(cutover['deploy_plan_sha256'])==64
+          assert len(cutover['deployment_receipt_sha256'])==64
+          assert deploy['execution']['health_passed'] is True
+          assert deploy['execution']['health_url_scope']=='loopback-only'
+          assert runtime['readonly_rootfs'] is True
+          assert runtime['privileged'] is False
+          assert 'ALL' in normalize(runtime['cap_drop'])
+          assert normalize(runtime['cap_add']) == {'CHOWN','SETUID','SETGID'}
+          PY
+
+      - name: Prove current KORA through consolidated path
+        run: |
+          python3 control/izakhono-cloud/owner-console-cutover.py \
+            kora-network/.izakhono.json \
+            --repo-root apps \
+            --control-root control \
+            --ci-proof \
+            --receipt-dir /tmp/izakhono-cutover-kora
+          APP_MANIFEST='kora-network/.izakhono.json' RECEIPT_DIR='/tmp/izakhono-cutover-kora' python3 - <<'PY'
+          import json, os
+          root=os.environ['RECEIPT_DIR']
+          cutover=json.load(open(root+'/owner-console-cutover-receipt.json'))
+          deploy=json.load(open(root+'/deployment-receipt.json'))
+          runtime=deploy['execution']['runtime_isolation']
+          normalize=lambda values:{str(v).upper().removeprefix('CAP_') for v in values}
+          assert cutover['manifest']==os.environ['APP_MANIFEST']
+          assert cutover['deployment_health_passed'] is True
+          assert cutover['public_ready'] is False
+          assert cutover['commercial_ready'] is False
+          assert len(cutover['source_commit'])==40
+          assert len(cutover['deploy_plan_sha256'])==64
+          assert len(cutover['deployment_receipt_sha256'])==64
+          assert deploy['execution']['health_passed'] is True
+          assert deploy['execution']['health_url_scope']=='loopback-only'
+          assert runtime['readonly_rootfs'] is True
+          assert runtime['privileged'] is False
+          assert 'ALL' in normalize(runtime['cap_drop'])
+          assert normalize(runtime['cap_add']) == {'CHOWN','SETUID','SETGID'}
+          PY
+
+      - name: Prove ALLEGRO VIBEZ through consolidated path
+        run: |
+          python3 control/izakhono-cloud/owner-console-cutover.py \
+            .izakhono.json \
+            --repo-root allegro \
+            --control-root control \
+            --ci-proof \
+            --receipt-dir /tmp/izakhono-cutover-allegro
+          APP_MANIFEST='.izakhono.json' RECEIPT_DIR='/tmp/izakhono-cutover-allegro' python3 - <<'PY'
+          import json, os
+          root=os.environ['RECEIPT_DIR']
+          cutover=json.load(open(root+'/owner-console-cutover-receipt.json'))
+          deploy=json.load(open(root+'/deployment-receipt.json'))
+          runtime=deploy['execution']['runtime_isolation']
+          normalize=lambda values:{str(v).upper().removeprefix('CAP_') for v in values}
+          assert cutover['manifest']==os.environ['APP_MANIFEST']
+          assert cutover['deployment_health_passed'] is True
+          assert cutover['public_ready'] is False
+          assert cutover['commercial_ready'] is False
+          assert len(cutover['source_commit'])==40
+          assert len(cutover['deploy_plan_sha256'])==64
+          assert len(cutover['deployment_receipt_sha256'])==64
+          assert deploy['execution']['health_passed'] is True
+          assert deploy['execution']['health_url_scope']=='loopback-only'
+          assert runtime['readonly_rootfs'] is True
+          assert runtime['privileged'] is False
+          assert 'ALL' in normalize(runtime['cap_drop'])
+          assert normalize(runtime['cap_add']) == {'CHOWN','SETUID','SETGID'}
+          PY
+
+      - name: Prove FAISReady through consolidated path
+        run: |
+          python3 control/izakhono-cloud/owner-console-cutover.py \
+            FAISReady/.izakhono.json \
+            --repo-root apps \
+            --control-root control \
+            --ci-proof \
+            --receipt-dir /tmp/izakhono-cutover-faisready
+          APP_MANIFEST='FAISReady/.izakhono.json' RECEIPT_DIR='/tmp/izakhono-cutover-faisready' python3 - <<'PY'
+          import json, os
+          root=os.environ['RECEIPT_DIR']
+          cutover=json.load(open(root+'/owner-console-cutover-receipt.json'))
+          deploy=json.load(open(root+'/deployment-receipt.json'))
+          runtime=deploy['execution']['runtime_isolation']
+          normalize=lambda values:{str(v).upper().removeprefix('CAP_') for v in values}
+          assert cutover['manifest']==os.environ['APP_MANIFEST']
+          assert cutover['deployment_health_passed'] is True
+          assert cutover['public_ready'] is False
+          assert cutover['commercial_ready'] is False
+          assert len(cutover['source_commit'])==40
+          assert len(cutover['deploy_plan_sha256'])==64
+          assert len(cutover['deployment_receipt_sha256'])==64
+          assert deploy['execution']['health_passed'] is True
+          assert deploy['execution']['health_url_scope']=='loopback-only'
+          assert runtime['readonly_rootfs'] is True
+          assert runtime['privileged'] is False
+          assert 'ALL' in normalize(runtime['cap_drop'])
+          assert normalize(runtime['cap_add']) == {'CHOWN','SETUID','SETGID'}
+          PY
+
+      - name: Build and exercise offline KORA owner-node handoff
+        run: |
+          python3 control/izakhono-cloud/build-kora-owner-handoff.py \
+            --app-root apps \
+            --control-root control \
+            --out /tmp/kora-owner-node-handoff.zip
+          rm -rf /tmp/kora-owner-handoff-test
+          mkdir -p /tmp/kora-owner-handoff-test
+          unzip -q /tmp/kora-owner-node-handoff.zip -d /tmp/kora-owner-handoff-test
+          cd /tmp/kora-owner-handoff-test/kora-owner-node-handoff
+          bash ./RUN-KORA-OWNER-PROOF.sh --ci-proof
+
+      - name: Upload KORA owner-node handoff
+        uses: actions/upload-artifact@v4
+        with:
+          name: kora-owner-node-handoff
+          path: /tmp/kora-owner-node-handoff.zip
+          if-no-files-found: error
+          retention-days: 14
