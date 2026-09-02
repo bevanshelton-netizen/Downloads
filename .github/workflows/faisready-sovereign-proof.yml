@@ -1,0 +1,77 @@
+name: FAISReady Sovereign Deployment Proof
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'FAISReady/**'
+      - '.github/workflows/faisready-sovereign-proof.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sovereign-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Validate IZAKHONO manifest
+        run: |
+          python3 - <<'PY'
+          import json
+          m=json.load(open('FAISReady/.izakhono.json'))
+          assert m['version']==2
+          assert m['slug']=='faisready'
+          assert m['build_context']=='FAISReady'
+          assert m['dockerfile_path']=='FAISReady/Dockerfile'
+          assert m['container_port']==80
+          assert m['health_path']=='/healthz.txt'
+          PY
+
+      - name: Build FAISReady image
+        run: docker build -f FAISReady/Dockerfile -t izakhono/faisready:${GITHUB_SHA} FAISReady
+
+      - name: Run with IZAKHONO isolation contract
+        run: |
+          docker run -d --name faisready-proof \
+            --read-only \
+            --cap-drop ALL \
+            --cap-add CHOWN --cap-add SETUID --cap-add SETGID \
+            --security-opt no-new-privileges \
+            --pids-limit 128 --memory 512m --cpus 1.0 \
+            --tmpfs /tmp:rw,noexec,nosuid,nodev,size=64m \
+            --tmpfs /run:rw,nosuid,nodev,size=16m \
+            --tmpfs /var/cache/nginx:rw,nosuid,nodev,size=64m \
+            -p 127.0.0.1:18081:80 \
+            izakhono/faisready:${GITHUB_SHA}
+
+      - name: Health gate
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:18081/healthz.txt | grep -q 'FAISReady OK'; then exit 0; fi
+            sleep 1
+          done
+          docker logs faisready-proof || true
+          exit 1
+
+      - name: Runtime security assertions
+        run: |
+          docker inspect faisready-proof > /tmp/inspect.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/inspect.json'))[0]['HostConfig']
+          norm=lambda a:{str(v).upper().removeprefix('CAP_') for v in (a or [])}
+          assert x['ReadonlyRootfs'] is True
+          assert x['Privileged'] is False
+          assert 'ALL' in norm(x['CapDrop'])
+          assert norm(x['CapAdd'])=={'CHOWN','SETUID','SETGID'}
+          assert any('no-new-privileges' in str(v).lower() for v in x['SecurityOpt'])
+          PY
+
+      - name: Stop proof container
+        if: always()
+        run: docker rm -f faisready-proof || true
