@@ -47,6 +47,7 @@ jobs:
           cutover=json.load(open(root+'/owner-console-cutover-receipt.json'))
           deploy=json.load(open(root+'/deployment-receipt.json'))
           runtime=deploy['execution']['runtime_isolation']
+          normalize=lambda values:{str(v).upper().removeprefix('CAP_') for v in values}
           assert cutover['manifest']==os.environ['APP_MANIFEST']
           assert cutover['deployment_health_passed'] is True
           assert cutover['public_ready'] is False
@@ -57,8 +58,8 @@ jobs:
           assert deploy['execution']['health_url_scope']=='loopback-only'
           assert runtime['readonly_rootfs'] is True
           assert runtime['privileged'] is False
-          assert 'ALL' in {str(v).upper() for v in runtime['cap_drop']}
-          assert {str(v).upper() for v in runtime['cap_add']} == {'CHOWN','SETUID','SETGID'}
+          assert 'ALL' in normalize(runtime['cap_drop'])
+          assert normalize(runtime['cap_add']) == {'CHOWN','SETUID','SETGID'}
           PY
 
       - name: Prove current KORA through consolidated path
@@ -75,6 +76,7 @@ jobs:
           cutover=json.load(open(root+'/owner-console-cutover-receipt.json'))
           deploy=json.load(open(root+'/deployment-receipt.json'))
           runtime=deploy['execution']['runtime_isolation']
+          normalize=lambda values:{str(v).upper().removeprefix('CAP_') for v in values}
           assert cutover['manifest']==os.environ['APP_MANIFEST']
           assert cutover['deployment_health_passed'] is True
           assert cutover['public_ready'] is False
@@ -86,6 +88,6 @@ jobs:
           assert deploy['execution']['health_url_scope']=='loopback-only'
           assert runtime['readonly_rootfs'] is True
           assert runtime['privileged'] is False
-          assert 'ALL' in {str(v).upper() for v in runtime['cap_drop']}
-          assert {str(v).upper() for v in runtime['cap_add']} == {'CHOWN','SETUID','SETGID'}
+          assert 'ALL' in normalize(runtime['cap_drop'])
+          assert normalize(runtime['cap_add']) == {'CHOWN','SETUID','SETGID'}
           PY
