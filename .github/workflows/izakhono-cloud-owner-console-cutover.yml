@@ -32,6 +32,14 @@ jobs:
           path: apps
           persist-credentials: false
 
+      - name: Checkout current ALLEGRO VIBEZ source
+        uses: actions/checkout@v4
+        with:
+          repository: bevanshelton-netizen/allegro-vibez
+          ref: main
+          path: allegro
+          persist-credentials: false
+
       - name: Compile cutover orchestrator
         run: |
           python3 -m py_compile control/izakhono-cloud/owner-console-cutover.py
@@ -76,6 +84,36 @@ jobs:
             --ci-proof \
             --receipt-dir /tmp/izakhono-cutover-kora
           APP_MANIFEST='kora-network/.izakhono.json' RECEIPT_DIR='/tmp/izakhono-cutover-kora' python3 - <<'PY'
+          import json, os
+          root=os.environ['RECEIPT_DIR']
+          cutover=json.load(open(root+'/owner-console-cutover-receipt.json'))
+          deploy=json.load(open(root+'/deployment-receipt.json'))
+          runtime=deploy['execution']['runtime_isolation']
+          normalize=lambda values:{str(v).upper().removeprefix('CAP_') for v in values}
+          assert cutover['manifest']==os.environ['APP_MANIFEST']
+          assert cutover['deployment_health_passed'] is True
+          assert cutover['public_ready'] is False
+          assert cutover['commercial_ready'] is False
+          assert len(cutover['source_commit'])==40
+          assert len(cutover['deploy_plan_sha256'])==64
+          assert len(cutover['deployment_receipt_sha256'])==64
+          assert deploy['execution']['health_passed'] is True
+          assert deploy['execution']['health_url_scope']=='loopback-only'
+          assert runtime['readonly_rootfs'] is True
+          assert runtime['privileged'] is False
+          assert 'ALL' in normalize(runtime['cap_drop'])
+          assert normalize(runtime['cap_add']) == {'CHOWN','SETUID','SETGID'}
+          PY
+
+      - name: Prove ALLEGRO VIBEZ through consolidated path
+        run: |
+          python3 control/izakhono-cloud/owner-console-cutover.py \
+            .izakhono.json \
+            --repo-root allegro \
+            --control-root control \
+            --ci-proof \
+            --receipt-dir /tmp/izakhono-cutover-allegro
+          APP_MANIFEST='.izakhono.json' RECEIPT_DIR='/tmp/izakhono-cutover-allegro' python3 - <<'PY'
           import json, os
           root=os.environ['RECEIPT_DIR']
           cutover=json.load(open(root+'/owner-console-cutover-receipt.json'))
