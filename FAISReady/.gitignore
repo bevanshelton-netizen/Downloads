@@ -1,0 +1,15 @@
+# Local revenue data and backups
+*.sqlite3
+*.sqlite3-shm
+*.sqlite3-wal
+backups/
+
+# Local environment and tunnel credentials
+.env
+.env.local
+*.token
+*.tunnel-token
+
+# Local proof receipts may contain deployment metadata
+*.receipt.json
+faisready-edge-proof.json

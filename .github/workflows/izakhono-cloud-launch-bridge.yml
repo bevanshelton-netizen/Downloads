@@ -1,0 +1,202 @@
+name: IZAKHONO CLOUD Launch Bridge
+
+on:
+  pull_request:
+    paths:
+      - 'izakhono-cloud/launch-bridge.py'
+      - 'izakhono-cloud/launch-bridge-windows.ps1'
+      - 'izakhono-cloud/fixtures/launch-bridge-*'
+      - 'izakhono-cloud/LAUNCH-BRIDGE-V1.17.md'
+      - 'FAISReady/revenue_server.py'
+      - 'FAISReady/revenue_server_izakhono.py'
+      - 'FAISReady/test_revenue_server.py'
+      - 'FAISReady/edge_runner.py'
+      - 'FAISReady/backup_revenue_data.py'
+      - 'FAISReady/start-faisready-sandbox.ps1'
+      - 'FAISReady/start-faisready-live.ps1'
+      - 'FAISReady/store.html'
+      - 'FAISReady/.izakhono-launch-*.json'
+      - 'START-FAISREADY-SANDBOX.cmd'
+      - 'START-FAISREADY-LIVE.cmd'
+      - '.github/workflows/izakhono-cloud-launch-bridge.yml'
+  push:
+    branches:
+      - 'izakhono-cloud-v1-17-launch-bridge'
+    paths:
+      - 'izakhono-cloud/launch-bridge.py'
+      - 'izakhono-cloud/launch-bridge-windows.ps1'
+      - 'izakhono-cloud/fixtures/launch-bridge-*'
+      - 'izakhono-cloud/LAUNCH-BRIDGE-V1.17.md'
+      - 'FAISReady/revenue_server.py'
+      - 'FAISReady/revenue_server_izakhono.py'
+      - 'FAISReady/test_revenue_server.py'
+      - 'FAISReady/edge_runner.py'
+      - 'FAISReady/backup_revenue_data.py'
+      - 'FAISReady/start-faisready-sandbox.ps1'
+      - 'FAISReady/start-faisready-live.ps1'
+      - 'FAISReady/store.html'
+      - 'FAISReady/.izakhono-launch-*.json'
+      - 'START-FAISREADY-SANDBOX.cmd'
+      - 'START-FAISREADY-LIVE.cmd'
+      - '.github/workflows/izakhono-cloud-launch-bridge.yml'
+
+jobs:
+  native-launch-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile launch bridge and revenue pilot
+        run: |
+          python3 -m py_compile izakhono-cloud/launch-bridge.py
+          python3 -m py_compile izakhono-cloud/fixtures/launch-bridge-app.py
+          python3 -m py_compile FAISReady/revenue_server.py
+          python3 -m py_compile FAISReady/revenue_server_izakhono.py
+          python3 -m py_compile FAISReady/test_revenue_server.py
+          python3 -m py_compile FAISReady/edge_runner.py
+          python3 -m py_compile FAISReady/backup_revenue_data.py
+      - name: Parse Windows helpers
+        shell: pwsh
+        run: |
+          $files = @(
+            'izakhono-cloud/launch-bridge-windows.ps1',
+            'FAISReady/start-faisready-sandbox.ps1',
+            'FAISReady/start-faisready-live.ps1'
+          )
+          foreach ($file in $files) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $file),
+              [ref]$tokens,
+              [ref]$errors
+            ) | Out-Null
+            if ($errors.Count -gt 0) {
+              $errors | ForEach-Object { Write-Error "$file : $($_.Message)" }
+              exit 1
+            }
+          }
+      - name: Validate launcher contracts
+        shell: pwsh
+        run: |
+          $sandboxCmd = Get-Content 'START-FAISREADY-SANDBOX.cmd' -Raw
+          if ($sandboxCmd -notmatch 'FAISReady\\start-faisready-sandbox.ps1') { throw 'sandbox CMD wrapper target is incorrect' }
+          $sandboxPs = Get-Content 'FAISReady/start-faisready-sandbox.ps1' -Raw
+          if ($sandboxPs -notmatch 'Cloudflare\.cloudflared') { throw 'sandbox launcher must use the pinned winget package identifier' }
+          if ($sandboxPs -notmatch '--public-payfast-sandbox') { throw 'sandbox launcher must remain on PayFast sandbox' }
+          if ($sandboxPs -match 'PAYFAST_SANDBOX\s*=\s*false') { throw 'sandbox launcher must not enable live PayFast' }
+
+          $liveCmd = Get-Content 'START-FAISREADY-LIVE.cmd' -Raw
+          if ($liveCmd -notmatch 'FAISReady\\start-faisready-live.ps1') { throw 'live CMD wrapper target is incorrect' }
+          $livePs = Get-Content 'FAISReady/start-faisready-live.ps1' -Raw
+          if ($livePs -notmatch '--mode named') { throw 'live launcher must use named edge mode' }
+          if ($livePs -notmatch 'FAISREADY_LIVE_PAYMENTS_APPROVED') { throw 'live launcher must retain explicit payment approval gate' }
+          if ($livePs -match 'TUNNEL_TOKEN\s+--') { throw 'tunnel token must never be placed on command line' }
+      - name: Generate deterministic bridge plans
+        run: |
+          python3 izakhono-cloud/launch-bridge.py plan izakhono-cloud/fixtures/launch-bridge-manifest.json --out /tmp/plan-a.json
+          python3 izakhono-cloud/launch-bridge.py plan izakhono-cloud/fixtures/launch-bridge-manifest.json --out /tmp/plan-b.json
+          cmp /tmp/plan-a.json /tmp/plan-b.json
+          python3 - <<'PY'
+          import json
+          p=json.load(open('/tmp/plan-a.json'))
+          assert p['runtime']['mode']=='native_process'
+          assert p['runtime']['listen_host']=='127.0.0.1'
+          assert p['runtime']['docker_required'] is False
+          assert p['runtime']['public_ip_required'] is False
+          assert p['runtime']['inbound_firewall_opening_required'] is False
+          assert p['ingress']['mode']=='outbound_tunnel'
+          assert p['truth_boundary']['commercial_ready'] is False
+          PY
+      - name: Prove real native process health and cleanup
+        run: |
+          python3 izakhono-cloud/launch-bridge.py run /tmp/plan-a.json --repo-root . --proof-only --receipt /tmp/receipt.json
+          python3 - <<'PY'
+          import json
+          r=json.load(open('/tmp/receipt.json'))
+          assert r['local_health_passed'] is True
+          assert r['docker_used'] is False
+          assert r['public_ip_used'] is False
+          assert r['proof_only'] is True
+          assert r['public_https_verified'] is False
+          assert r['commercial_ready'] is False
+          PY
+          if curl -fsS --max-time 2 http://127.0.0.1:18082/health >/dev/null 2>&1; then
+            echo 'proof process was not cleaned up' >&2
+            exit 1
+          fi
+      - name: Self-test FAISReady revenue controls
+        run: |
+          python3 FAISReady/revenue_server.py --self-test
+          python3 FAISReady/revenue_server_izakhono.py --self-test
+      - name: Verify PayFast and entitlement contract
+        working-directory: FAISReady
+        run: |
+          python3 test_revenue_server.py
+      - name: Verify edge runner secret boundary
+        working-directory: FAISReady
+        run: |
+          python3 edge_runner.py --self-test
+      - name: Verify backup and restore path
+        working-directory: FAISReady
+        run: |
+          python3 backup_revenue_data.py --self-test
+      - name: Prove FAISReady on the native launch bridge
+        env:
+          FAISREADY_DATA_DIR: /tmp/faisready-bridge-data
+        run: |
+          python3 izakhono-cloud/launch-bridge.py plan FAISReady/.izakhono-launch-linux.json --out /tmp/faisready-plan.json
+          python3 izakhono-cloud/launch-bridge.py run /tmp/faisready-plan.json --repo-root . --proof-only --receipt /tmp/faisready-receipt.json
+          python3 - <<'PY'
+          import json
+          r=json.load(open('/tmp/faisready-receipt.json'))
+          assert r['project']=='faisready'
+          assert r['local_health_passed'] is True
+          assert r['docker_used'] is False
+          assert r['public_ip_used'] is False
+          assert r['port']==18091
+          PY
+          if curl -fsS --max-time 2 http://127.0.0.1:18091/health >/dev/null 2>&1; then
+            echo 'FAISReady proof process was not cleaned up' >&2
+            exit 1
+          fi
+      - name: Smoke-test storefront without merchant secrets
+        env:
+          HOST: 127.0.0.1
+          PORT: 18092
+          FAISREADY_DATA_DIR: /tmp/faisready-smoke-data
+        run: |
+          python3 FAISReady/revenue_server_izakhono.py >/tmp/faisready-server.log 2>&1 &
+          PID=$!
+          trap 'kill $PID >/dev/null 2>&1 || true' EXIT
+          for _ in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:18092/health >/tmp/health.json && break
+            sleep 0.25
+          done
+          curl -fsS http://127.0.0.1:18092/ >/tmp/store.html
+          curl -fsS http://127.0.0.1:18092/api/config >/tmp/config.json
+          grep -q 'FAISReady' /tmp/store.html
+          python3 - <<'PY'
+          import json
+          c=json.load(open('/tmp/config.json'))
+          assert c['payments_configured'] is False
+          assert c['plans']['re5']['amount']=='299.00'
+          assert c['plans']['re1']['amount']=='399.00'
+          assert c['plans']['combo']['amount']=='549.00'
+          PY
+      - name: Reject tampered plan and unsafe manifest
+        run: |
+          python3 - <<'PY'
+          import json
+          p=json.load(open('/tmp/plan-a.json'))
+          p['runtime']['listen_host']='0.0.0.0'
+          json.dump(p, open('/tmp/tampered.json','w'))
+          m=json.load(open('izakhono-cloud/fixtures/launch-bridge-manifest.json'))
+          m['workdir']='../escape'
+          json.dump(m, open('/tmp/unsafe.json','w'))
+          PY
+          set +e
+          python3 izakhono-cloud/launch-bridge.py run /tmp/tampered.json --repo-root . --proof-only >/dev/null 2>&1
+          test $? -ne 0 || exit 1
+          python3 izakhono-cloud/launch-bridge.py plan /tmp/unsafe.json >/dev/null 2>&1
+          test $? -ne 0 || exit 1
+          exit 0

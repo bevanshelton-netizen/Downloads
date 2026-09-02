@@ -1,0 +1,9 @@
+{
+  "schema": "izakhono.launch-bridge/v1",
+  "project": "launch-bridge-fixture",
+  "workdir": "izakhono-cloud/fixtures",
+  "command": ["python3", "launch-bridge-app.py"],
+  "port": 18082,
+  "health_path": "/health",
+  "startup_timeout_seconds": 10
+}
