@@ -1,6 +1,11 @@
 name: IZAKHONO PAY Shared Gateway Proof
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'izakhono-pay/**'
+      - '.github/workflows/izakhono-pay-shared-proof.yml'
   push:
     branches: [main]
     paths:
@@ -35,6 +40,11 @@ jobs:
           assert fr['re1']['amount_minor']==39900
           assert fr['combo']['amount_minor']==54900
           assert fr['re5']['currency']=='ZAR'
+          doxa=p['platforms']['doxa-sure']['products']
+          assert doxa['rescue-readiness-pack']['amount_minor']==19900
+          assert doxa['rescue-readiness-pack']['currency']=='ZAR'
+          assert doxa['rescue-readiness-pack']['entitlement']['kind']=='service'
+          assert 'shield' not in doxa
           PY
 
       - name: Self-test order and activation state machine
@@ -46,12 +56,13 @@ jobs:
         run: |
           test -f izakhono-pay/.env.example
           ! grep -Eq 'IZAKHONO_PAY_ACCOUNT_NUMBER=[0-9]{6,}' izakhono-pay/.env.example
+          ! grep -Eq 'IZAKHONO_PAY_BANK_FEED_SIGNING_SECRET=.{32,}' izakhono-pay/.env.example
           ! grep -Eq 'replace-with-strong-random-(key|secret)$' izakhono-pay/products.json
 
-      - name: Smoke-test authenticated product and EFT order API
+      - name: Smoke-test authenticated multi-platform EFT order API
         env:
           IZAKHONO_PAY_DATA_DIR: /tmp/izakhono-pay-proof
-          IZAKHONO_PAY_APPS_JSON: '{"faisready":"ci-faisready-key"}'
+          IZAKHONO_PAY_APPS_JSON: '{"faisready":"ci-faisready-key","doxa-sure":"ci-doxa-key"}'
           IZAKHONO_PAY_BANK_NAME: FNB
           IZAKHONO_PAY_ACCOUNT_NAME: IZAKHONO AFRICA TEST
           IZAKHONO_PAY_ACCOUNT_NUMBER: '00000000000'
@@ -62,19 +73,87 @@ jobs:
           PID=$!
           trap 'kill $PID >/dev/null 2>&1 || true' EXIT
           for _ in $(seq 1 30); do curl -fsS http://127.0.0.1:18100/health >/tmp/health.json && break; sleep .2; done
-          curl -fsS -H 'x-izakhono-app: faisready' -H 'x-izakhono-key: ci-faisready-key' http://127.0.0.1:18100/api/v1/products >/tmp/products.json
+          curl -fsS -H 'x-izakhono-app: faisready' -H 'x-izakhono-key: ci-faisready-key' http://127.0.0.1:18100/api/v1/products >/tmp/fais-products.json
+          curl -fsS -H 'x-izakhono-app: doxa-sure' -H 'x-izakhono-key: ci-doxa-key' http://127.0.0.1:18100/api/v1/products >/tmp/doxa-products.json
           curl -fsS -X POST \
             -H 'x-izakhono-app: faisready' \
             -H 'x-izakhono-key: ci-faisready-key' \
             -H 'content-type: application/json' \
             --data '{"product_code":"re5","customer_name":"CI Learner","customer_email":"ci@example.com","customer_reference":"ci-user-1"}' \
-            http://127.0.0.1:18100/api/v1/orders >/tmp/order.json
+            http://127.0.0.1:18100/api/v1/orders >/tmp/fais-order.json
+          curl -fsS -X POST \
+            -H 'x-izakhono-app: doxa-sure' \
+            -H 'x-izakhono-key: ci-doxa-key' \
+            -H 'content-type: application/json' \
+            --data '{"product_code":"rescue-readiness-pack","customer_name":"CI Client","customer_email":"doxa@example.com","customer_reference":"ci-case-1"}' \
+            http://127.0.0.1:18100/api/v1/orders >/tmp/doxa-order.json
           python3 - <<'PY'
           import json,re
           h=json.load(open('/tmp/health.json')); assert h['ok'] is True and h['service']=='izakhono-pay'
-          p=json.load(open('/tmp/products.json')); assert p['products']['re5']['amount_minor']==29900
-          o=json.load(open('/tmp/order.json'))['order']
-          assert o['status']=='pending' and o['amount_minor']==29900 and o['payment_method']=='eft'
-          assert re.fullmatch(r'FAISREAD-[0-9A-F]{8}',o['payment_reference'])
-          assert o['bank']['account_number']=='00000000000'
+          fp=json.load(open('/tmp/fais-products.json')); assert fp['products']['re5']['amount_minor']==29900
+          dp=json.load(open('/tmp/doxa-products.json')); assert dp['products']['rescue-readiness-pack']['amount_minor']==19900
+          fo=json.load(open('/tmp/fais-order.json'))['order']
+          do=json.load(open('/tmp/doxa-order.json'))['order']
+          assert fo['status']=='pending' and fo['amount_minor']==29900 and fo['payment_method']=='eft'
+          assert do['status']=='pending' and do['amount_minor']==19900 and do['payment_method']=='eft'
+          assert re.fullmatch(r'FAISREAD-[0-9A-F]{8}',fo['payment_reference'])
+          assert re.fullmatch(r'DOXASURE-[0-9A-F]{8}',do['payment_reference'])
+          assert fo['bank']['account_number']=='00000000000'==do['bank']['account_number']
           PY
+
+      - name: Smoke-test signed zero-touch bank reconciliation push
+        env:
+          IZAKHONO_PAY_DATA_DIR: /tmp/izakhono-pay-bank-proof
+          IZAKHONO_PAY_BANK_FEED_SIGNING_SECRET: ci-bank-feed-signing-secret-0123456789
+        run: |
+          (cd izakhono-pay && python3 - <<'PY'
+          import json
+          import shared_gateway as g
+          g.init_db()
+          row=g.create_order('faisready','re5','Bank CI','bank-ci@example.com','candidate-bank-ci')
+          event={
+            'event_id':'bank_ci_evt_001',
+            'status':'settled',
+            'direction':'credit',
+            'currency':'ZAR',
+            'amount_minor':29900,
+            'reference':row['payment_reference'],
+            'bank_reference':'FNB-CI-SETTLED-001',
+            'settled_at':'2026-09-02T15:00:00Z'
+          }
+          open('/tmp/bank-event.json','w',encoding='utf-8').write(json.dumps(event,separators=(',',':'),sort_keys=True))
+          PY
+          )
+          (cd izakhono-pay && exec python3 bank_reconciler.py serve --port 18101 --no-callback) >/tmp/izp-bank.log 2>&1 &
+          PID=$!
+          trap 'kill $PID >/dev/null 2>&1 || true' EXIT
+          for _ in $(seq 1 30); do curl -fsS http://127.0.0.1:18101/health >/tmp/bank-health.json && break; sleep .2; done
+          read -r TS SIG <<< "$(python3 - <<'PY'
+          import hashlib,hmac,os,time
+          raw=open('/tmp/bank-event.json','rb').read(); ts=str(int(time.time()))
+          sig=hmac.new(os.environ['IZAKHONO_PAY_BANK_FEED_SIGNING_SECRET'].encode(),ts.encode('ascii')+b'.'+raw,hashlib.sha256).hexdigest()
+          print(ts,sig)
+          PY
+          )"
+          curl -fsS -X POST \
+            -H "x-izakhono-bank-timestamp: $TS" \
+            -H "x-izakhono-bank-signature: $SIG" \
+            -H 'content-type: application/json' \
+            --data-binary @/tmp/bank-event.json \
+            http://127.0.0.1:18101/api/v1/bank-events >/tmp/bank-result.json
+          BAD_STATUS=$(curl -sS -o /tmp/bank-bad.json -w '%{http_code}' -X POST \
+            -H "x-izakhono-bank-timestamp: $TS" \
+            -H 'x-izakhono-bank-signature: 0000000000000000000000000000000000000000000000000000000000000000' \
+            -H 'content-type: application/json' \
+            --data-binary @/tmp/bank-event.json \
+            http://127.0.0.1:18101/api/v1/bank-events)
+          test "$BAD_STATUS" = "401"
+          (cd izakhono-pay && python3 - <<'PY'
+          import json
+          import shared_gateway as g
+          h=json.load(open('/tmp/bank-health.json')); assert h['ok'] is True and h['mode']=='signed-push'
+          result=json.load(open('/tmp/bank-result.json'))['results'][0]
+          assert result['outcome']=='matched' and result['activated'] is True
+          row=g.get_order(result['order_id']); assert row is not None and row['status']=='paid'
+          PY
+          )

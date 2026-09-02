@@ -9,6 +9,18 @@
         "re1": {"name": "RE1 Complete Prep", "amount_minor": 39900, "currency": "ZAR", "entitlement": {"days": 90}},
         "combo": {"name": "RE5 + RE1 Complete Prep", "amount_minor": 54900, "currency": "ZAR", "entitlement": {"days": 120}}
       }
+    },
+    "doxa-sure": {
+      "display_name": "DOXA-SURE",
+      "callback_url": "",
+      "products": {
+        "rescue-readiness-pack": {
+          "name": "Rescue Readiness Pack",
+          "amount_minor": 19900,
+          "currency": "ZAR",
+          "entitlement": {"kind": "service", "service": "rescue-readiness-pack"}
+        }
+      }
     }
   }
 }
