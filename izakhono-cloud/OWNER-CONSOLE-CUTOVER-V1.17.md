@@ -15,20 +15,31 @@ python3 /srv/izakhono/control/izakhono-cloud/owner-console-cutover.py \
   --control-root /srv/izakhono/control
 ```
 
+Example for a separately checked-out platform such as ALLEGRO VIBEZ:
+
+```bash
+python3 /srv/izakhono/control/izakhono-cloud/owner-console-cutover.py \
+  .izakhono.json \
+  --repo-root /srv/izakhono/allegro-vibez \
+  --control-root /srv/izakhono/control
+```
+
 On a real owner READY node the command now **must** execute the local Docker build and loopback health probe. A plan-only receipt is not accepted as a completed cutover. The command records a deterministic deploy plan, immutable deployment receipt and final cutover receipt. Nothing becomes publicly reachable merely because this step passes.
 
 When a real hostname has already been assigned, add `--hostname <approved-hostname>`. This creates the v1.16 public-ingress plan but still does not apply DNS/TLS or claim public readiness.
 
 ## Current-source proof
 
-CI checks out the reviewed IZAKHONO control plane separately from the repository's current `main` application source, then proves registered applications through the same command. The cutover receipt records the application source commit when Git metadata is available.
+CI checks out the reviewed IZAKHONO control plane separately from current application source, then proves registered applications through the same command. The cutover receipt records the application source commit when Git metadata is available.
 
 Current proof targets:
 
 - `bevan-shelton-racing/.izakhono.json`
 - `kora-network/.izakhono.json`
+- ALLEGRO VIBEZ separate repository `.izakhono.json`
+- `FAISReady/.izakhono.json`
 
-For both targets CI requires an actual Docker execution receipt with a passing loopback health probe. KORA additionally verifies the read-only, non-privileged runtime isolation recorded by the deployment plane.
+Each target must produce an actual Docker execution receipt with a passing loopback health probe. The proof also verifies the read-only, non-privileged runtime isolation recorded by the deployment plane.
 
 ## Safety / truth boundary
 
