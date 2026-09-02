@@ -8,6 +8,7 @@ copying application code into an infrastructure branch.
 import argparse
 import hashlib
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -37,7 +38,16 @@ def require_inside(root: Path, candidate: Path, label: str) -> Path:
 def source_commit(root: Path):
     p = run(["git", "-C", str(root), "rev-parse", "HEAD"], check=False)
     value = p.stdout.strip() if p.returncode == 0 else ""
-    return value if len(value) == 40 else None
+    return value if re.fullmatch(r"[0-9a-f]{40}", value) else None
+
+
+def validated_commit(value: str | None):
+    if value is None:
+        return None
+    value = value.strip().lower()
+    if not re.fullmatch(r"[0-9a-f]{40}", value):
+        raise ValueError("--source-commit must be a full 40-character lowercase Git SHA")
+    return value
 
 
 def main():
@@ -45,6 +55,7 @@ def main():
     ap.add_argument("manifest")
     ap.add_argument("--repo-root", default=".", help="Application repository root")
     ap.add_argument("--control-root", help="IZAKHONO control-plane repository root; defaults to repo-root")
+    ap.add_argument("--source-commit", help="Exact application Git SHA for an offline/exported source bundle")
     ap.add_argument("--hostname")
     ap.add_argument("--receipt-dir", default="/tmp/izakhono-receipts")
     ap.add_argument("--ci-proof", action="store_true")
@@ -55,6 +66,12 @@ def main():
     manifest = require_inside(root, root / args.manifest, "manifest")
     if not manifest.is_file():
         raise ValueError(f"manifest not found: {manifest}")
+
+    explicit_source_commit = validated_commit(args.source_commit)
+    detected_source_commit = source_commit(root)
+    if explicit_source_commit and detected_source_commit and explicit_source_commit != detected_source_commit:
+        raise ValueError("--source-commit does not match the checked-out application repository")
+    recorded_source_commit = explicit_source_commit or detected_source_commit
 
     deploy_plane = control / "izakhono-cloud/deploy-plane.py"
     alpha_deploy = control / "izakhono-cloud/alpha-deploy.py"
@@ -94,7 +111,8 @@ def main():
     result = {
         "schema": "izakhono.owner-console-cutover/v1",
         "manifest": str(manifest.relative_to(root)),
-        "source_commit": source_commit(root),
+        "source_commit": recorded_source_commit,
+        "source_commit_origin": "explicit_handoff" if explicit_source_commit else ("git_checkout" if detected_source_commit else "unavailable"),
         "control_root_separate": control != root,
         "deploy_plan_sha256": sha(plan),
         "deployment_receipt_sha256": sha(receipt),
