@@ -115,6 +115,29 @@ def callback_secrets() -> dict[str, str]:
     return {str(k): str(v) for k,v in value.items() if str(v)}
 
 
+def callback_urls() -> dict[str, str]:
+    raw = os.environ.get("IZAKHONO_PAY_CALLBACK_URLS_JSON", "").strip()
+    if not raw:
+        return {}
+    value = json.loads(raw)
+    if not isinstance(value, dict):
+        raise ValueError("IZAKHONO_PAY_CALLBACK_URLS_JSON must be an object")
+    return {str(k): str(v).strip() for k,v in value.items() if str(v).strip()}
+
+
+def callback_url_for(platform: str) -> str:
+    platform_cfg = load_registry().get(platform)
+    if not isinstance(platform_cfg, dict):
+        raise ValueError("unknown platform")
+    url = callback_urls().get(platform) or str(platform_cfg.get("callback_url") or "").strip()
+    if not url:
+        return ""
+    parsed = urllib.parse.urlsplit(url)
+    if parsed.scheme != "https" or not parsed.netloc or parsed.username or parsed.password:
+        raise ValueError("callback URL must be HTTPS")
+    return url
+
+
 def bank_details() -> dict[str, str]:
     fields = {
         "bank_name": os.environ.get("IZAKHONO_PAY_BANK_NAME", "").strip(),
@@ -206,11 +229,16 @@ def confirm_order(order_id: str, bank_reference: str, path: Path | None = None) 
     return row
 
 
+def callback_event_id(order_id: str) -> str:
+    digest = hashlib.sha256(f"payment.paid:{order_id}".encode("utf-8")).hexdigest()
+    return "evt_" + digest[:40]
+
+
 def callback_payload(row: sqlite3.Row) -> bytes:
     product = product_for(row["platform"], row["product_code"])
     payload = {
         "event": "payment.paid",
-        "event_id": "evt_" + secrets.token_urlsafe(18),
+        "event_id": callback_event_id(row["order_id"]),
         "merchant": row["platform"],
         "order": {
             "id": row["order_id"],
@@ -228,13 +256,9 @@ def callback_payload(row: sqlite3.Row) -> bytes:
 
 
 def deliver_callback(row: sqlite3.Row, path: Path | None = None) -> bool:
-    platform_cfg = load_registry()[row["platform"]]
-    url = str(platform_cfg.get("callback_url") or "").strip()
+    url = callback_url_for(row["platform"])
     if not url:
         return False
-    parsed = urllib.parse.urlsplit(url)
-    if parsed.scheme != "https" or not parsed.netloc or parsed.username or parsed.password:
-        raise ValueError("callback URL must be HTTPS")
     secret = callback_secrets().get(row["platform"], "")
     if not secret:
         raise ValueError("callback secret is not configured")
@@ -335,8 +359,12 @@ def self_test() -> int:
         assert row["amount_minor"]==29900 and row["status"]=="pending"
         paid=confirm_order(row["order_id"],"BANK-SELFTEST",path)
         assert paid["status"]=="paid" and paid["bank_reference"]=="BANK-SELFTEST"
-        raw=callback_payload(paid); event=json.loads(raw)
+        raw1=callback_payload(paid); raw2=callback_payload(paid); event=json.loads(raw1)
+        assert raw1==raw2
         assert event["merchant"]=="faisready" and event["order"]["entitlement"]["days"]==90
+        doxa=create_order("doxa-sure","rescue-readiness-pack","Pilot User","pilot@example.com","case-1",path)
+        assert doxa["amount_minor"]==19900 and doxa["currency"]=="ZAR"
+        assert doxa["payment_reference"].startswith("DOXASURE-")
     print("IZAKHONO PAY shared gateway self-test: PASS")
     return 0
 
