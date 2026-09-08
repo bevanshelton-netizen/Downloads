@@ -12,7 +12,7 @@ export function createClient() {
     );
   }
 
-  const schema = process.env.NEXT_PUBLIC_KORA_DB_SCHEMA || 'public';
+  const schema = process.env.NEXT_PUBLIC_KORA_DB_SCHEMA || 'kora';
 
   return createBrowserClient(url, publishableKey, {
     db: { schema },
