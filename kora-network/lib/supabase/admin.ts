@@ -13,7 +13,7 @@ export function createAdminClient() {
   const schema =
     process.env.KORA_DB_SCHEMA ||
     process.env.NEXT_PUBLIC_KORA_DB_SCHEMA ||
-    'public';
+    'kora';
 
   return createSupabaseClient(url, secretKey, {
     db: { schema },
