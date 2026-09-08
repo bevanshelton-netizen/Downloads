@@ -14,7 +14,7 @@ export async function createClient() {
   }
 
   const cookieStore = await cookies();
-  const schema = process.env.NEXT_PUBLIC_KORA_DB_SCHEMA || 'public';
+  const schema = process.env.NEXT_PUBLIC_KORA_DB_SCHEMA || 'kora';
 
   return createServerClient(url, publishableKey, {
     db: { schema },
