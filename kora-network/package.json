@@ -17,7 +17,8 @@
     "ensure:production-db": "bash scripts/ensure-production-db.sh",
     "ensure:admin": "node scripts/ensure-first-admin.mjs",
     "preflight:production": "node scripts/preflight-production.mjs",
-    "smoke:production": "node scripts/postdeploy-smoke.mjs"
+    "smoke:production": "node scripts/postdeploy-smoke.mjs",
+    "validate:music-screen": "node scripts/validate-music-screen.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.6.1",
