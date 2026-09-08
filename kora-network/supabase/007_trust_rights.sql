@@ -106,7 +106,10 @@ begin
 
   return new;
 end;
-$$;
+$;
+
+revoke all on function public.handle_signup_legal_acceptance() from public, anon, authenticated;
+grant execute on function public.handle_signup_legal_acceptance() to service_role;
 
 drop trigger if exists zz_on_auth_legal_acceptance on auth.users;
 create trigger zz_on_auth_legal_acceptance
