@@ -16,6 +16,11 @@ function slugify(value: string) {
 }
 
 const accessModes = new Set(['free','ad_supported','premium','pay_per_view']);
+const contentTypes = new Set([
+  'series','music_video','live_session','concert_film','artist_documentary',
+  'revival_documentary','tour_diary','behind_the_scenes','music_biopic',
+  'music_movie','launch_film','interview_special'
+]);
 
 export async function createProduction(formData: FormData) {
   const supabase = await createClient();
@@ -38,6 +43,7 @@ export async function createProduction(formData: FormData) {
   const genre = String(formData.get('genre') ?? '').trim();
   const primaryLanguage = String(formData.get('primary_language') ?? '').trim();
   const ageRating = String(formData.get('age_rating') ?? 'PG').trim();
+  const contentType = String(formData.get('content_type') ?? 'series').trim();
   const accessMode = String(formData.get('access_mode') ?? 'ad_supported').trim();
   const rawPurchasePrice = String(formData.get('purchase_price') ?? '').trim();
   const purchasePrice = rawPurchasePrice ? Number(rawPurchasePrice) : null;
@@ -48,6 +54,7 @@ export async function createProduction(formData: FormData) {
   const policyConfirmed = formData.get('policy_confirmed') === 'on';
 
   if (title.length < 2) redirect('/studio/productions/new?error=Please%20enter%20a%20title');
+  if (!contentTypes.has(contentType)) redirect('/studio/productions/new?error=Choose%20a%20valid%20content%20type');
   if (!accessModes.has(accessMode)) redirect('/studio/productions/new?error=Choose%20a%20valid%20access%20model');
   if (accessMode === 'pay_per_view' && (!Number.isFinite(purchasePrice) || Number(purchasePrice) <= 0)) {
     redirect('/studio/productions/new?error=Enter%20a%20valid%20pay-per-view%20price');
@@ -65,6 +72,8 @@ export async function createProduction(formData: FormData) {
     genre: genre || null,
     primary_language: primaryLanguage || null,
     age_rating: ageRating,
+    content_type: contentType,
+    rights_clearance_status: 'review',
     access_mode: accessMode,
     purchase_price: accessMode === 'pay_per_view' ? purchasePrice : null,
     explicit_sexual_content: false,

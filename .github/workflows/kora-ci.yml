@@ -32,11 +32,12 @@ jobs:
       - run: npm run validate:money-integrity
       - run: npm run validate:public-experience
       - run: npm run validate:activation
+      - run: npm run validate:music-screen
       - run: npm run build:bootstrap-sql
       - name: Upload one-shot Supabase bootstrap SQL
         uses: actions/upload-artifact@v4
         with:
-          name: kora-production-bootstrap-schema19
+          name: kora-production-bootstrap-schema22
           path: kora-network/artifacts/kora-production-bootstrap-schema19.sql
           if-no-files-found: error
           retention-days: 14
@@ -51,6 +52,7 @@ jobs:
           node --check scripts/validate-money-integrity.mjs
           node --check scripts/validate-public-experience.mjs
           node --check scripts/validate-activation-orchestration.mjs
+          node --check scripts/validate-music-screen.mjs
           bash -n scripts/bootstrap-production-db.sh
           bash -n scripts/ensure-production-db.sh
       - run: npm run typecheck

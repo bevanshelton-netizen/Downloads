@@ -47,6 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/open-africa">Watch Free</Link>
             <Link href="/open-library">Open Library</Link>
             <Link href="/music">Music</Link>
+            <Link href="/tour2screen">Tour2Screen</Link>
             <Link href="/tickets">Tickets</Link>
             <Link href="/watch">On Demand</Link>
             <Link href="/live">Live TV</Link>

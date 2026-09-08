@@ -44,7 +44,7 @@ export default async function Studio({ searchParams }: { searchParams: Promise<{
         <div className="actions"><Link className="primary" href={creator ? '/studio/earnings' : '/creators/apply'}>{creator ? 'Deals & earnings' : 'Apply to KORA'}</Link>{creator ? <Link className="secondary" href="/studio/tickets">Ticket sales</Link> : null}<form action={signOut}><button className="secondary">Sign out</button></form></div>
       </section>
       <section className="dashboard">
-        <aside><b>Studio</b><span>Overview</span><span>Content</span><Link href="/studio/analytics">Analytics</Link><Link href="/studio/tickets">Ticket sales</Link><Link href="/studio/earnings">Revenue & payouts</Link><span>Rights</span></aside>
+        <aside><b>Studio</b><span>Overview</span><span>Content</span><Link href="/tour2screen">Tour2Screen™</Link><Link href="/studio/analytics">Analytics</Link><Link href="/studio/tickets">Ticket sales</Link><Link href="/studio/earnings">Revenue & payouts</Link><span>Rights</span></aside>
         <div className="dashMain">
           {created ? <div className="panel"><strong>Production created.</strong> It is saved as a draft until you submit it for moderation.</div> : null}
           {offeredDeals ? <div className="panel"><strong>You have a creator deal waiting.</strong> Review the percentage and revenue basis before accepting it. <Link href="/studio/earnings">Review offer →</Link></div> : null}
@@ -59,7 +59,7 @@ export default async function Studio({ searchParams }: { searchParams: Promise<{
               <div className="sectionHead"><div><h3>Your productions</h3><p>Draft, submit and publish African stories from one place.</p></div>{creator ? <Link className="primary" href="/studio/productions/new">New production</Link> : <Link className="primary" href="/creators/apply">Apply as creator</Link>}</div>
               {productions.length ? <div className="productionList">{productions.map((p) => <Link className="productionRow" key={p.id} href={`/studio/productions/${p.id}`}><strong>{p.title}</strong><span>{p.age_rating || 'Unrated'} • {p.status}</span></Link>)}</div> : <p>{creator ? 'No productions yet. Create your first one to start the publishing workflow.' : 'Apply to KORA before creating a production.'}</p>}
             </div>
-            <div className="panel"><div className="eyebrow">KORA TICKETS</div><h3>Your live-event business.</h3><p>See tickets sold, gross sales, your event share, KORA commission and settlement status without exposing fan payment data.</p>{creator ? <div className="actions"><Link className="primary" href="/studio/tickets">Open ticket dashboard</Link><Link className="secondary" href="/perform-live">Propose live event</Link></div> : <Link className="primary" href="/creators/apply">Apply first</Link>}</div>
+            <div className="panel"><div className="eyebrow">KORA TOUR2SCREEN™</div><h3>Make the tour keep earning after the encore.</h3><p>Turn tour stops into diaries, concert films, backstage episodes, sponsor inventory and a post-tour documentary.</p>{creator ? <div className="actions"><Link className="primary" href="/tour2screen">Build tour media plan</Link><Link className="secondary" href="/studio/productions/new">Create tour content</Link></div> : <Link className="primary" href="/creators/apply">Apply first</Link>}</div>
           </div>
         </div>
       </section>

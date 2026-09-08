@@ -34,6 +34,21 @@ export default async function NewProduction({ searchParams }: { searchParams: Pr
           {error ? <p role="alert">{error}</p> : null}
           <label>Title<input name="title" required minLength={2} /></label>
           <label>Synopsis<textarea name="synopsis" rows={5} /></label>
+          <label>Content type<select name="content_type" defaultValue="series">
+            <option value="series">Series / general production</option>
+            <option value="music_video">Music video</option>
+            <option value="live_session">Live session</option>
+            <option value="concert_film">Concert film</option>
+            <option value="artist_documentary">Artist documentary</option>
+            <option value="revival_documentary">Revival / comeback documentary</option>
+            <option value="tour_diary">Tour diary</option>
+            <option value="behind_the_scenes">Behind the scenes</option>
+            <option value="music_biopic">Music biopic</option>
+            <option value="music_movie">Music movie</option>
+            <option value="launch_film">Launch film</option>
+            <option value="interview_special">Interview special</option>
+          </select></label>
+          <p>Touring artist? <Link href="/tour2screen">Use Tour2Screen™</Link> to turn each city into protected, monetisable media.</p>
           <div className="formGrid">
             <label>Genre<input name="genre" list="kora-genre-options" placeholder="Drama, Amapiano, Gospel, documentary…" /></label>
             <label>Primary language<input name="primary_language" placeholder="English, isiZulu, isiXhosa…" /></label>
