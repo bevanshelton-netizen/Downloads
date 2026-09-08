@@ -10,7 +10,13 @@ export function createAdminClient() {
     );
   }
 
+  const schema =
+    process.env.KORA_DB_SCHEMA ||
+    process.env.NEXT_PUBLIC_KORA_DB_SCHEMA ||
+    'public';
+
   return createSupabaseClient(url, secretKey, {
+    db: { schema },
     auth: { persistSession: false, autoRefreshToken: false },
   });
 }
