@@ -427,7 +427,7 @@ begin
   if p_pin !~ '^[0-9]{4,6}$' then raise exception 'PIN must be 4 to 6 digits'; end if;
 
   insert into public.family_pins(owner_id, pin_hash, updated_at)
-  values(v_user, crypt(p_pin, gen_salt('bf')), now())
+  values(v_user, extensions.crypt(p_pin, extensions.gen_salt('bf')), now())
   on conflict (owner_id) do update set pin_hash = excluded.pin_hash, updated_at = now();
   return true;
 end;
@@ -441,7 +441,7 @@ security definer set search_path = public
 as $$
   select exists(
     select 1 from public.family_pins
-    where owner_id = auth.uid() and pin_hash = crypt(p_pin, pin_hash)
+    where owner_id = auth.uid() and pin_hash = extensions.crypt(p_pin, pin_hash)
   );
 $$;
 

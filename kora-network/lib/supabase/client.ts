@@ -12,5 +12,9 @@ export function createClient() {
     );
   }
 
-  return createBrowserClient(url, publishableKey);
+  const schema = process.env.NEXT_PUBLIC_KORA_DB_SCHEMA || 'kora';
+
+  return createBrowserClient(url, publishableKey, {
+    db: { schema },
+  });
 }

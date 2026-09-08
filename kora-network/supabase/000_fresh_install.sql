@@ -188,6 +188,9 @@ create trigger on_auth_user_created
 after insert on auth.users
 for each row execute procedure public.handle_new_user();
 
+revoke all on function public.handle_new_user() from public, anon, authenticated;
+grant execute on function public.handle_new_user() to service_role;
+
 create or replace function public.is_staff()
 returns boolean
 language sql
@@ -198,7 +201,10 @@ as $$
     select 1 from public.profiles
     where id = auth.uid() and role in ('moderator','admin')
   );
-$$;
+$;
+
+revoke all on function public.is_staff() from public;
+grant execute on function public.is_staff() to anon, authenticated, service_role;
 
 alter table public.live_channels enable row level security;
 alter table public.schedule_items enable row level security;

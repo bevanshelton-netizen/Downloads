@@ -6,8 +6,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..');
 const supabaseDir = join(root, 'supabase');
 const outputDir = join(root, 'artifacts');
-const outputPath = join(outputDir, 'kora-production-bootstrap-schema22.sql');
-
+const outputPath = join(outputDir, 'kora-shared-supabase-bootstrap-schema22.sql');
 const sources = [
   "000_fresh_install.sql",
   "006_broadcast_rewards.sql",
@@ -29,29 +28,38 @@ const sources = [
   "022_music_screen_release_gate.sql"
 ];
 
+function isolate(sql) {
+  return sql
+    .replaceAll('public.', 'kora.')
+    .replaceAll('on_auth_user_created', 'kora_on_auth_user_created')
+    .replaceAll('zz_on_auth_legal_acceptance', 'kora_zz_on_auth_legal_acceptance');
+}
+
 const parts = [];
-parts.push(`-- KORA NETWORK — ONE-SHOT PRODUCTION DATABASE BOOTSTRAP (SCHEMA 22)
--- GENERATED FILE. DO NOT EDIT BY HAND.
--- Use ONLY on a brand-new, empty dedicated KORA Supabase project.
--- The first guard refuses to run if public.profiles already exists.
+parts.push(`-- KORA NETWORK — SHARED SUPABASE BOOTSTRAP (SCHEMA 22)
+-- Creates KORA objects only inside schema "kora".
+-- Supabase Auth is intentionally shared as the IZAKHONO identity backbone.
+-- The Data API is NOT exposed here; exposure happens only after RLS/security verification.
+
+create schema if not exists kora;
 
 DO $$
 BEGIN
-  IF to_regclass('public.profiles') IS NOT NULL THEN
-    RAISE EXCEPTION 'KORA bootstrap refused: public.profiles already exists. Use incremental migrations instead.';
+  IF to_regclass('kora.profiles') IS NOT NULL THEN
+    RAISE EXCEPTION 'KORA shared bootstrap refused: kora.profiles already exists.';
   END IF;
 END
 $$;
 `);
 
 for (const source of sources) {
-  const sql = await readFile(join(supabaseDir, source), 'utf8');
+  const sql = isolate(await readFile(join(supabaseDir, source), 'utf8'));
   parts.push(`
 -- ============================================================
--- BEGIN CANONICAL SOURCE: ${source}
+-- BEGIN ISOLATED SOURCE: ${source}
 -- ============================================================
 ${sql.trim()}
--- END CANONICAL SOURCE: ${source}
+-- END ISOLATED SOURCE: ${source}
 `);
 }
 
@@ -59,12 +67,18 @@ parts.push(`
 DO $$
 DECLARE v_schema integer;
 BEGIN
-  SELECT schema_version INTO v_schema FROM public.platform_release_state WHERE singleton=true;
+  SELECT schema_version INTO v_schema FROM kora.platform_release_state WHERE singleton=true;
   IF COALESCE(v_schema,0) <> 22 THEN
-    RAISE EXCEPTION 'KORA bootstrap incomplete: expected schema version 22, found %', COALESCE(v_schema,0);
+    RAISE EXCEPTION 'KORA shared bootstrap incomplete: expected schema version 22, found %', COALESCE(v_schema,0);
   END IF;
 END
 $$;
+
+-- Service role access only until post-install verification deliberately exposes kora.
+grant usage on schema kora to service_role;
+grant all on all tables in schema kora to service_role;
+grant all on all routines in schema kora to service_role;
+grant all on all sequences in schema kora to service_role;
 `);
 
 await mkdir(outputDir,{recursive:true});

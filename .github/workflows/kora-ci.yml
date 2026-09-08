@@ -34,11 +34,21 @@ jobs:
       - run: npm run validate:activation
       - run: npm run validate:music-screen
       - run: npm run build:bootstrap-sql
+      - run: npm run build:shared-bootstrap-sql
+      - name: Verify shared Supabase isolation
+        run: |
+          grep -q "create schema if not exists kora" artifacts/kora-shared-supabase-bootstrap-schema22.sql
+          if grep -Eiq "create[[:space:]]+table[[:space:]]+(if[[:space:]]+not[[:space:]]+exists[[:space:]]+)?public\." artifacts/kora-shared-supabase-bootstrap-schema22.sql; then
+            echo "Shared bootstrap attempts to create a public table"
+            exit 1
+          fi
+          grep -q "kora_on_auth_user_created" artifacts/kora-shared-supabase-bootstrap-schema22.sql
+          grep -q "kora_zz_on_auth_legal_acceptance" artifacts/kora-shared-supabase-bootstrap-schema22.sql
       - name: Upload one-shot Supabase bootstrap SQL
         uses: actions/upload-artifact@v4
         with:
           name: kora-production-bootstrap-schema22
-          path: kora-network/artifacts/kora-production-bootstrap-schema19.sql
+          path: kora-network/artifacts/kora-production-bootstrap-schema22.sql
           if-no-files-found: error
           retention-days: 14
       - name: Validate deployment automation syntax
@@ -48,6 +58,7 @@ jobs:
           node --check scripts/bootstrap-admin.mjs
           node --check scripts/ensure-first-admin.mjs
           node --check scripts/build-production-bootstrap.mjs
+          node --check scripts/build-shared-supabase-bootstrap.mjs
           node --check scripts/validate-release-policy.mjs
           node --check scripts/validate-money-integrity.mjs
           node --check scripts/validate-public-experience.mjs
