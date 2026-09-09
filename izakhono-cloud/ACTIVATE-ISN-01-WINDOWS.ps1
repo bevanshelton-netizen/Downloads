@@ -11,11 +11,12 @@ $ErrorActionPreference = 'Stop'
 $NodeName = 'ISN-01'
 $Distro = 'Ubuntu-24.04'
 $RepoUrl = 'https://github.com/bevanshelton-netizen/Downloads.git'
-$PinnedControlRef = 'dab820b3b8d5bd4168f7f8f6b17325994b6b2f34'
+$PinnedControlRef = '38154dfb00a085346fa887cf414b75205eb78bea'
 $StateDir = Join-Path $env:ProgramData 'IZAKHONO\ISN-01'
 $StableScript = Join-Path $StateDir 'ACTIVATE-ISN-01-WINDOWS.ps1'
 $Log = Join-Path $StateDir 'activation.log'
 $IdentityCopy = Join-Path $StateDir 'SOVEREIGN-NODE.json'
+$RuntimeCopy = Join-Path $StateDir 'KORA-RUNTIME.json'
 $ResumeTask = 'IZAKHONO-ISN01-Resume'
 
 function Write-Step([string]$Message) {
@@ -180,16 +181,36 @@ PY
 "@
   Invoke-WslRoot $activate
 
-  Write-Step 'Copying the sovereign-node receipt to Windows'
+  Write-Step 'Starting KORA as a persistent ISN-01 loopback service'
+  $runtime = @"
+set -euo pipefail
+python3 /opt/izakhono-isn01/control/izakhono-cloud/sovereign-runtime.py deploy   kora-network/.izakhono.json   --repo-root /opt/izakhono-isn01/apps   --activation-file /var/lib/izakhono-cloud/LOCAL_READY   --host-port 18080
+python3 /opt/izakhono-isn01/control/izakhono-cloud/sovereign-runtime.py status   --project kora-network
+"@
+  Invoke-WslRoot $runtime
+
+  Write-Step 'Copying the sovereign-node and persistent-runtime receipts to Windows'
   & wsl.exe -d $Distro -u root -- cat /var/lib/izakhono-cloud/SOVEREIGN-NODE.json | Set-Content -LiteralPath $IdentityCopy -Encoding UTF8
   if ($LASTEXITCODE -ne 0 -or -not (Test-Path $IdentityCopy)) { Fail 'Could not copy SOVEREIGN-NODE.json to Windows.' }
+  & wsl.exe -d $Distro -u root -- cat /var/lib/izakhono-cloud/runtime/kora-network.json | Set-Content -LiteralPath $RuntimeCopy -Encoding UTF8
+  if ($LASTEXITCODE -ne 0 -or -not (Test-Path $RuntimeCopy)) { Fail 'Could not copy KORA runtime receipt to Windows.' }
+
+  Write-Step 'Verifying KORA from the Windows side of ISN-01'
+  $health = Invoke-WebRequest -UseBasicParsing -Uri 'http://127.0.0.1:18080/api/health' -TimeoutSec 10
+  if ($health.StatusCode -lt 200 -or $health.StatusCode -ge 400) {
+    Fail "Windows-side KORA health check failed with HTTP $($health.StatusCode)."
+  }
+  Write-Host 'Windows-side KORA health check: PASS'
 
   Remove-Resume
   @"
 IZAKHONO SOVEREIGN NODE
 node=ISN-01
 local_owner_workload_proof=verified
+persistent_runtime=kora-network
+local_url=http://127.0.0.1:18080
 identity=$IdentityCopy
+runtime_receipt=$RuntimeCopy
 public_ready=false
 commercial_ready=false
 "@ | Set-Content -LiteralPath (Join-Path $StateDir 'ISN-01-ACTIVATED.txt') -Encoding UTF8
@@ -197,7 +218,9 @@ commercial_ready=false
   Write-Host ''
   Write-Host '============================================================'
   Write-Host ' ISN-01 LOCAL OWNER-MACHINE ACTIVATION: PASS'
-  Write-Host " Receipt: $IdentityCopy"
+  Write-Host " Identity receipt: $IdentityCopy"
+  Write-Host " Runtime receipt: $RuntimeCopy"
+  Write-Host ' KORA local service: http://127.0.0.1:18080'
   Write-Host ' Public readiness: FALSE (separate external HTTPS gate remains)'
   Write-Host ' Commercial readiness: FALSE'
   Write-Host '============================================================'
