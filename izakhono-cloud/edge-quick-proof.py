@@ -135,12 +135,16 @@ def main() -> int:
     ap.add_argument("--identity", default="/var/lib/izakhono-cloud/SOVEREIGN-NODE.json")
     ap.add_argument("--runtime", default="/var/lib/izakhono-cloud/runtime/kora-network.json")
     ap.add_argument("--cloudflared", default="cloudflared")
+    ap.add_argument("--activation-file", default="/etc/izakhono-cloud/ALLOW_EDGE_QUICK_PROOF")
     ap.add_argument("--out", default="/var/lib/izakhono-cloud/edge/kora-quick-proof.json")
     ap.add_argument("--startup-timeout", type=float, default=45.0)
     ap.add_argument("--verify-timeout", type=float, default=60.0)
     args = ap.parse_args()
 
     try:
+        activation = Path(args.activation_file).resolve()
+        if not activation.is_file():
+            raise RuntimeError(f"explicit edge-proof activation marker missing: {activation}")
         identity_path = Path(args.identity).resolve()
         runtime_path = Path(args.runtime).resolve()
         identity, runtime, local_health_url = validate_receipts(identity_path, runtime_path)
