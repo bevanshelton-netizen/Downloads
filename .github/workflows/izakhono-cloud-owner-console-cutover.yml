@@ -11,6 +11,9 @@ on:
       - 'izakhono-cloud/ISN-01-ACTIVATION.md'
       - 'izakhono-cloud/ACTIVATE-ISN-01-WINDOWS.ps1'
       - 'izakhono-cloud/sovereign-runtime.py'
+      - 'izakhono-cloud/edge-quick-proof.py'
+      - 'izakhono-cloud/PROVE-ISN-01-EDGE-WINDOWS.ps1'
+      - 'START-ISN-01-EDGE-PROOF.cmd'
       - 'START-ISN-01.cmd'
       - 'FAISReady/.izakhono.json'
       - 'FAISReady/Dockerfile'
@@ -52,6 +55,46 @@ jobs:
           python3 -m py_compile control/izakhono-cloud/build-kora-owner-handoff.py
           python3 -m py_compile control/izakhono-cloud/activate-isn-01.py
           python3 -m py_compile control/izakhono-cloud/sovereign-runtime.py
+          python3 -m py_compile control/izakhono-cloud/edge-quick-proof.py
+
+      - name: Validate IZAKHONO EDGE proof contract
+        run: |
+          python3 - <<'PY'
+          import importlib.util, json, pathlib, tempfile
+          p=pathlib.Path('control/izakhono-cloud/edge-quick-proof.py')
+          spec=importlib.util.spec_from_file_location('edgeproof', p)
+          m=importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+          assert m.URL_RE.search('edge=https://abc-123.trycloudflare.com ready')
+          with tempfile.TemporaryDirectory() as td:
+              td=pathlib.Path(td)
+              identity={
+                'schema':'izakhono.sovereign-node/v1',
+                'node_name':'ISN-01',
+                'workload_project':'kora-network',
+                'workload_proof':'verified',
+                'public_ready':False,
+                'commercial_ready':False,
+              }
+              runtime={
+                'schema':'izakhono.sovereign-runtime/v1',
+                'node_name':'ISN-01',
+                'project':'kora-network',
+                'public_scope':'loopback-only',
+                'public_ready':False,
+                'commercial_ready':False,
+                'runtime':{
+                  'health_passed':True,
+                  'loopback_host':'127.0.0.1',
+                  'loopback_port':18080,
+                  'health_path':'/api/health',
+                },
+              }
+              ip=td/'identity.json'; rp=td/'runtime.json'
+              ip.write_text(json.dumps(identity)); rp.write_text(json.dumps(runtime))
+              _,_,url=m.validate_receipts(ip,rp)
+              assert url=='http://127.0.0.1:18080/api/health'
+          print('IZAKHONO EDGE CONTRACT: PASS')
+          PY
 
       - name: Prove Racing through consolidated path
         run: |
@@ -258,7 +301,12 @@ jobs:
         run: |
           $source = Get-Content 'izakhono-cloud/ACTIVATE-ISN-01-WINDOWS.ps1' -Raw
           [void][ScriptBlock]::Create($source)
+          $edge = Get-Content 'izakhono-cloud/PROVE-ISN-01-EDGE-WINDOWS.ps1' -Raw
+          [void][ScriptBlock]::Create($edge)
           if ((Get-Content 'START-ISN-01.cmd' -Raw) -notmatch 'd01aa8a5ddb7fae5f656a95dcfdf65cac3a7f37a') {
             throw 'START-ISN-01.cmd is not pinned to the reviewed Windows activator commit'
           }
-          Write-Host 'ISN-01 WINDOWS LAUNCHER SYNTAX: PASS'
+          if ((Get-Content 'START-ISN-01-EDGE-PROOF.cmd' -Raw) -notmatch '821878ac80392c79a8e1951f00182cc15ddd857c') {
+            throw 'START-ISN-01-EDGE-PROOF.cmd is not pinned to the reviewed edge-proof commit'
+          }
+          Write-Host 'ISN-01 WINDOWS + EDGE LAUNCHER SYNTAX: PASS'
