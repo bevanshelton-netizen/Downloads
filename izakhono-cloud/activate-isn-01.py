@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Activate the first IZAKHONO Sovereign Node identity without overstating readiness.
 
-Real mode requires the existing owner-node READY marker and a working Docker engine.
-The optional KORA handoff executes the already-reviewed owner-node workload proof.
+Native owner mode requires /var/lib/izakhono-cloud/READY.
+Windows/WSL local-owner mode requires /var/lib/izakhono-cloud/LOCAL_READY.
+The optional KORA handoff executes the reviewed local Docker workload proof.
 No DNS, TLS, public ingress, payments, or commercial-readiness flags are changed here.
 """
 from __future__ import annotations
@@ -21,11 +22,12 @@ PLATFORM_NAME = "IZAKHONO SOVEREIGN NODE"
 GRID_NAME = "IZAKHONO SOVEREIGN GRID"
 OWNER_CONSOLE_NAME = "IZAKHONO OWNER CONSOLE"
 REAL_READY = Path("/var/lib/izakhono-cloud/READY")
+REAL_LOCAL_READY = Path("/var/lib/izakhono-cloud/LOCAL_READY")
 REAL_IDENTITY = Path("/var/lib/izakhono-cloud/SOVEREIGN-NODE.json")
 
 
-def run(argv: list[str], check: bool = True) -> subprocess.CompletedProcess[str]:
-    p = subprocess.run(argv, text=True, capture_output=True)
+def run(argv: list[str], check: bool = True, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
+    p = subprocess.run(argv, text=True, capture_output=True, env=env)
     if check and p.returncode:
         raise RuntimeError((p.stderr or p.stdout).strip() or f"command failed: {argv}")
     return p
@@ -42,19 +44,37 @@ def utc_now() -> str:
 def main() -> int:
     ap = argparse.ArgumentParser(description="Activate IZAKHONO Sovereign Node ISN-01")
     ap.add_argument("--handoff", help="Path to extracted kora-owner-node-handoff directory")
+    ap.add_argument("--local-owner-proof", action="store_true", help="Use genuine LOCAL_READY for a Windows/WSL owner-machine proof")
     ap.add_argument("--ci-proof", action="store_true", help="CI software-path proof only; never owner-hardware proof")
-    ap.add_argument("--ready-marker", help="Override READY marker only with --ci-proof")
+    ap.add_argument("--ready-marker", help="Override activation marker only with --ci-proof")
     ap.add_argument("--identity-out", help="Override identity receipt output only with --ci-proof")
     args = ap.parse_args()
 
+    if args.ci_proof and args.local_owner_proof:
+        raise ValueError("--ci-proof and --local-owner-proof are mutually exclusive")
     if (args.ready_marker or args.identity_out) and not args.ci_proof:
         raise ValueError("--ready-marker and --identity-out overrides are CI-only")
 
-    ready = Path(args.ready_marker).resolve() if args.ci_proof and args.ready_marker else REAL_READY
+    if args.ci_proof:
+        ready = Path(args.ready_marker).resolve() if args.ready_marker else REAL_READY
+        proof_context = "ci_software_path"
+        compatibility_role = "owner_node_candidate"
+        marker_kind = "ci_override"
+    elif args.local_owner_proof:
+        ready = REAL_LOCAL_READY
+        proof_context = "owner_machine_local_candidate"
+        compatibility_role = "owner_node_local_candidate"
+        marker_kind = "LOCAL_READY"
+    else:
+        ready = REAL_READY
+        proof_context = "owner_machine_candidate"
+        compatibility_role = "owner_node_candidate"
+        marker_kind = "READY"
+
     identity_out = Path(args.identity_out).resolve() if args.ci_proof and args.identity_out else REAL_IDENTITY
 
     if not ready.is_file():
-        raise RuntimeError(f"READY marker missing: {ready}")
+        raise RuntimeError(f"{marker_kind} activation marker missing: {ready}")
 
     docker = run(["docker", "version", "--format", "{{.Server.Version}}"])
     docker_version = docker.stdout.strip()
@@ -67,13 +87,16 @@ def main() -> int:
         "platform_name": PLATFORM_NAME,
         "grid_name": GRID_NAME,
         "owner_console": OWNER_CONSOLE_NAME,
-        "compatibility_role": "owner_node_candidate",
+        "compatibility_role": compatibility_role,
+        "activation_marker": str(ready),
+        "activation_marker_kind": marker_kind,
         "ready_marker_sha256": sha256(ready),
         "docker_server_version": docker_version,
-        "machine_proof_context": "ci_software_path" if args.ci_proof else "owner_machine_candidate",
+        "machine_proof_context": proof_context,
         "workload_proof": "not_run",
         "workload_project": None,
         "workload_cutover_receipt_sha256": None,
+        "public_scope": "local-only" if args.local_owner_proof else "not-promoted",
         "public_ready": False,
         "commercial_ready": False,
         "activated_at_utc": utc_now(),
@@ -88,7 +111,9 @@ def main() -> int:
         cmd = ["bash", str(launcher)]
         if args.ci_proof:
             cmd.append("--ci-proof")
-        run(cmd)
+        env = os.environ.copy()
+        env["IZAKHONO_ACTIVATION_FILE"] = str(ready)
+        run(cmd, env=env)
         cutover = receipts / "owner-console-cutover-receipt.json"
         if not cutover.is_file():
             raise RuntimeError("KORA owner proof completed without cutover receipt")
@@ -108,6 +133,7 @@ def main() -> int:
 
     print(identity_out)
     print(f"{NODE_NAME} ACTIVATION STATE: {identity['workload_proof'].upper()}")
+    print(f"proof_context={proof_context}")
     return 0
 
 
