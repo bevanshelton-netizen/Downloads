@@ -80,6 +80,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MODE="${1:-}"
 EXPECT_CONTEXT="owner_node_candidate"
+ACTIVATION_FILE="${IZAKHONO_ACTIVATION_FILE:-/var/lib/izakhono-cloud/READY}"
 EXTRA=()
 if [[ "$MODE" == "--ci-proof" ]]; then
   EXPECT_CONTEXT="ci_software_path"
@@ -90,8 +91,8 @@ if [[ $# -ne 0 ]]; then
   echo "Usage: $0 [--ci-proof]" >&2
   exit 2
 fi
-if [[ "$EXPECT_CONTEXT" == "owner_node_candidate" && ! -f /var/lib/izakhono-cloud/READY ]]; then
-  echo "ERROR: owner-node READY marker missing: /var/lib/izakhono-cloud/READY" >&2
+if [[ "$EXPECT_CONTEXT" == "owner_node_candidate" && ! -f "$ACTIVATION_FILE" ]]; then
+  echo "ERROR: owner-node activation marker missing: $ACTIVATION_FILE" >&2
   exit 2
 fi
 command -v docker >/dev/null || { echo "ERROR: Docker is not installed" >&2; exit 2; }
@@ -106,6 +107,7 @@ python3 "$ROOT/control/izakhono-cloud/owner-console-cutover.py" \
   --control-root "$ROOT/control" \
   --source-commit "$APP_COMMIT" \
   --receipt-dir "$ROOT/receipts" \
+  --activation-file "$ACTIVATION_FILE" \
   "${EXTRA[@]}"
 python3 "$ROOT/VERIFY-KORA-OWNER-PROOF.py" \
   --bundle "$ROOT/HANDOFF.json" \
