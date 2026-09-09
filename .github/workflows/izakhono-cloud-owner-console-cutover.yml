@@ -7,6 +7,8 @@ on:
       - 'izakhono-cloud/alpha-deploy.py'
       - 'izakhono-cloud/build-kora-owner-handoff.py'
       - 'izakhono-cloud/OWNER-CONSOLE-CUTOVER-V1.17.md'
+      - 'izakhono-cloud/activate-isn-01.py'
+      - 'izakhono-cloud/ISN-01-ACTIVATION.md'
       - 'FAISReady/.izakhono.json'
       - 'FAISReady/Dockerfile'
       - 'FAISReady/healthz.txt'
@@ -45,6 +47,7 @@ jobs:
           python3 -m py_compile control/izakhono-cloud/owner-console-cutover.py
           python3 -m py_compile control/izakhono-cloud/alpha-deploy.py
           python3 -m py_compile control/izakhono-cloud/build-kora-owner-handoff.py
+          python3 -m py_compile control/izakhono-cloud/activate-isn-01.py
 
       - name: Prove Racing through consolidated path
         run: |
@@ -174,8 +177,29 @@ jobs:
           rm -rf /tmp/kora-owner-handoff-test
           mkdir -p /tmp/kora-owner-handoff-test
           unzip -q /tmp/kora-owner-node-handoff.zip -d /tmp/kora-owner-handoff-test
-          cd /tmp/kora-owner-handoff-test/kora-owner-node-handoff
-          bash ./RUN-KORA-OWNER-PROOF.sh --ci-proof
+          printf 'ci-ready-marker\n' > /tmp/isn-01-ready
+          python3 "$GITHUB_WORKSPACE/control/izakhono-cloud/activate-isn-01.py" \
+            --ci-proof \
+            --ready-marker /tmp/isn-01-ready \
+            --identity-out /tmp/isn-01-sovereign-node.json \
+            --handoff "$PWD"
+          python3 - <<'PY'
+          import json
+          p='/tmp/isn-01-sovereign-node.json'
+          data=json.load(open(p))
+          assert data['schema']=='izakhono.sovereign-node/v1'
+          assert data['node_name']=='ISN-01'
+          assert data['platform_name']=='IZAKHONO SOVEREIGN NODE'
+          assert data['grid_name']=='IZAKHONO SOVEREIGN GRID'
+          assert data['owner_console']=='IZAKHONO OWNER CONSOLE'
+          assert data['machine_proof_context']=='ci_software_path'
+          assert data['workload_project']=='kora-network'
+          assert data['workload_proof']=='verified'
+          assert data['public_ready'] is False
+          assert data['commercial_ready'] is False
+          assert len(data['workload_cutover_receipt_sha256'])==64
+          print('ISN-01 CI SOFTWARE PATH: PASS')
+          PY
 
       - name: Upload KORA owner-node handoff
         uses: actions/upload-artifact@v4
