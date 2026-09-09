@@ -226,7 +226,7 @@ jobs:
         run: |
           $source = Get-Content 'izakhono-cloud/ACTIVATE-ISN-01-WINDOWS.ps1' -Raw
           [void][ScriptBlock]::Create($source)
-          if ((Get-Content 'START-ISN-01.cmd' -Raw) -notmatch '33a66837ae4fdce500e3291be2ee9b37bf4dfd56') {
+          if ((Get-Content 'START-ISN-01.cmd' -Raw) -notmatch 'af14504b18dbd6407703253aa05bd6efc04074bd') {
             throw 'START-ISN-01.cmd is not pinned to the reviewed Windows activator commit'
           }
           Write-Host 'ISN-01 WINDOWS LAUNCHER SYNTAX: PASS'
