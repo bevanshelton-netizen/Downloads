@@ -58,6 +58,7 @@ def main():
     ap.add_argument("--source-commit", help="Exact application Git SHA for an offline/exported source bundle")
     ap.add_argument("--hostname")
     ap.add_argument("--receipt-dir", default="/tmp/izakhono-receipts")
+    ap.add_argument("--activation-file", default="/var/lib/izakhono-cloud/READY", help="Owner activation marker passed to alpha-deploy")
     ap.add_argument("--ci-proof", action="store_true")
     args = ap.parse_args()
 
@@ -98,6 +99,8 @@ def main():
         "--out",
         str(receipt),
         "--execute-local",
+        "--activation-file",
+        str(Path(args.activation_file).resolve()),
     ]
     if args.ci_proof:
         deploy.append("--ci-proof")
