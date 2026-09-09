@@ -97,9 +97,12 @@ try {
   Write-Step 'Ensuring WSL and Ubuntu 24.04'
   if (-not (Get-Command wsl.exe -ErrorAction SilentlyContinue)) {
     Register-Resume
-    & wsl.exe --install -d $Distro --no-launch
-    if ($LASTEXITCODE -ne 0) { Fail "WSL installation failed with exit code $LASTEXITCODE." }
-    Write-Host 'Windows has staged WSL. Restart Windows once; ISN-01 activation is registered to resume at sign-in.'
+    Write-Host 'WSL command is not present; enabling the required Windows features.'
+    & dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+    if ($LASTEXITCODE -notin 0,3010) { Fail "Windows Subsystem for Linux feature enable failed with exit code $LASTEXITCODE." }
+    & dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+    if ($LASTEXITCODE -notin 0,3010) { Fail "Virtual Machine Platform feature enable failed with exit code $LASTEXITCODE." }
+    Write-Host 'Windows features are staged. Restart Windows once; ISN-01 activation is registered to resume at sign-in.'
     exit 3010
   }
 
