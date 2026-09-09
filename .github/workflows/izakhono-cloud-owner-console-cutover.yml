@@ -9,6 +9,8 @@ on:
       - 'izakhono-cloud/OWNER-CONSOLE-CUTOVER-V1.17.md'
       - 'izakhono-cloud/activate-isn-01.py'
       - 'izakhono-cloud/ISN-01-ACTIVATION.md'
+      - 'izakhono-cloud/ACTIVATE-ISN-01-WINDOWS.ps1'
+      - 'START-ISN-01.cmd'
       - 'FAISReady/.izakhono.json'
       - 'FAISReady/Dockerfile'
       - 'FAISReady/healthz.txt'
@@ -177,6 +179,7 @@ jobs:
           rm -rf /tmp/kora-owner-handoff-test
           mkdir -p /tmp/kora-owner-handoff-test
           unzip -q /tmp/kora-owner-node-handoff.zip -d /tmp/kora-owner-handoff-test
+          cd /tmp/kora-owner-handoff-test/kora-owner-node-handoff
           printf 'ci-ready-marker\n' > /tmp/isn-01-ready
           python3 "$GITHUB_WORKSPACE/control/izakhono-cloud/activate-isn-01.py" \
             --ci-proof \
@@ -208,3 +211,22 @@ jobs:
           path: /tmp/kora-owner-node-handoff.zip
           if-no-files-found: error
           retention-days: 14
+
+
+  windows-launcher-syntax:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout reviewed IZAKHONO control plane
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Parse ISN-01 PowerShell without executing it
+        shell: powershell
+        run: |
+          $source = Get-Content 'izakhono-cloud/ACTIVATE-ISN-01-WINDOWS.ps1' -Raw
+          [void][ScriptBlock]::Create($source)
+          if ((Get-Content 'START-ISN-01.cmd' -Raw) -notmatch '33a66837ae4fdce500e3291be2ee9b37bf4dfd56') {
+            throw 'START-ISN-01.cmd is not pinned to the reviewed Windows activator commit'
+          }
+          Write-Host 'ISN-01 WINDOWS LAUNCHER SYNTAX: PASS'
