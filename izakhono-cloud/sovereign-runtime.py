@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
@@ -18,7 +19,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-STATE_ROOT = Path("/var/lib/izakhono-cloud/runtime")
+STATE_ROOT = Path(os.environ.get("IZAKHONO_RUNTIME_STATE_ROOT", "/var/lib/izakhono-cloud/runtime"))
 NODE_NAME = "ISN-01"
 NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]{1,62}$")
 
