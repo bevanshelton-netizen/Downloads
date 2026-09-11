@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "gateway": "izakhono-pay",
+  "mode": "sandbox",
+  "browserSecretsAllowed": false,
+  "requiredServerEnv": ["IZAKHONO_PAY_URL", "IZAKHONO_PAY_API_KEY", "IZAKHONO_PAY_APP_SLUG"],
+  "apps": [
+    {"slug":"faisready","workspacePath":"FAISReady","status":"gateway-registered"},
+    {"slug":"kora","workspacePath":"kora","status":"gateway-registered"},
+    {"slug":"doxa-sure","workspacePath":"doxa-sure","status":"gateway-registered"},
+    {"slug":"izakhono-cloud","workspacePath":"izakhono-cloud","status":"gateway-registered"},
+    {"slug":"izakhono-group","workspacePath":"izakhono-group","status":"gateway-registered"},
+    {"slug":"bevan-shelton-racing","workspacePath":"bevan-shelton-racing","status":"gateway-registered"}
+  ],
+  "liveActivation": "blocked-until-e2e-payment-acceptance"
+}
