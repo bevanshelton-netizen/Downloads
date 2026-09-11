@@ -1,0 +1,12 @@
+{
+  "app": "portfolio-migration-workspace",
+  "gateway": "izakhono-pay",
+  "currency": "ZAR",
+  "provider": "smart",
+  "mode": "sandbox",
+  "scope": "workspace",
+  "childAppsMustRegisterIndividually": true,
+  "trustedServerOnly": true,
+  "browserSecretsAllowed": false,
+  "liveActivation": "blocked-until-child-app-payment-acceptance"
+}
