@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "name": "IZAKHONO Command Center",
+  "slug": "izakhono-command-center",
+  "build_context": "ports/izakhono-command-center",
+  "dockerfile_path": "ports/izakhono-command-center/Dockerfile",
+  "container_port": 80,
+  "health_path": "/healthz.txt",
+  "branch": "main",
+  "alpha": {
+    "preflight": true,
+    "rehearsal": false,
+    "windows_package": false
+  }
+}
