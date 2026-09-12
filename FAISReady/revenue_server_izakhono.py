@@ -298,8 +298,12 @@ def run_server() -> int:
     init_izakhono_db()
     host = os.environ.get("HOST", "127.0.0.1").strip()
     port = int(os.environ.get("PORT", "18091"))
-    if host not in {"127.0.0.1", "::1", "localhost"}:
-        raise SystemExit("FAISReady revenue server refuses non-loopback HOST")
+    container_runtime = os.environ.get("IZAKHONO_CONTAINER_RUNTIME", "").strip().lower() in {"1", "true", "yes", "on"}
+    allowed_hosts = {"127.0.0.1", "::1", "localhost"}
+    if container_runtime:
+        allowed_hosts.add("0.0.0.0")
+    if host not in allowed_hosts:
+        raise SystemExit("FAISReady revenue server refuses this HOST outside explicit IZAKHONO container runtime")
     if not (1024 <= port <= 65535):
         raise SystemExit("PORT must be between 1024 and 65535")
     server = ThreadingHTTPServer((host, port), IzakhonoRevenueHandler)
