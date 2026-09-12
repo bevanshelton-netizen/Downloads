@@ -1,0 +1,43 @@
+name: IZAKHONO Engine ISN-01 Proof
+
+on:
+  pull_request:
+    paths:
+      - "START-IZAKHONO-ENGINE-ISN-01.cmd"
+      - "izakhono-cloud/PROVE-IZAKHONO-ENGINE-ISN-01.ps1"
+      - "izakhono-cloud/IZAKHONO-ENGINE-ISN01-PROOF.md"
+      - ".github/workflows/izakhono-engine-isn01-proof.yml"
+
+jobs:
+  contract:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: PowerShell syntax check
+        shell: pwsh
+        run: |
+          $errors = $null
+          [void][System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path "izakhono-cloud/PROVE-IZAKHONO-ENGINE-ISN-01.ps1"),
+            [ref]$null,
+            [ref]$errors
+          )
+          if ($errors.Count -gt 0) {
+            $errors | Format-List | Out-String | Write-Error
+            exit 1
+          }
+      - name: Verify fail-closed truth boundary
+        shell: pwsh
+        run: |
+          $script = Get-Content "izakhono-cloud/PROVE-IZAKHONO-ENGINE-ISN-01.ps1" -Raw
+          if ($script -notmatch 'public_ready.*False') { throw "Missing public_ready=false receipt contract" }
+          if ($script -notmatch 'commercial_ready.*False') { throw "Missing commercial_ready=false receipt contract" }
+          if ($script -notmatch 'SOVEREIGN-NODE.json') { throw "Sovereign node receipt gate missing" }
+          if ($script -notmatch 'nginx:alpine') { throw "Disposable workload proof missing" }
+          if ($script -notmatch 'c7af2604cfdc2f225db21c18fc7dbed266003eb1') { throw "Engine source is not pinned" }
+      - name: Launcher contract
+        shell: pwsh
+        run: |
+          $cmd = Get-Content "START-IZAKHONO-ENGINE-ISN-01.cmd" -Raw
+          if ($cmd -notmatch 'PROVE-IZAKHONO-ENGINE-ISN-01.ps1') { throw "Launcher target missing" }
+          if ($cmd -notmatch 'RunAs') { throw "Expected elevation handoff missing" }
