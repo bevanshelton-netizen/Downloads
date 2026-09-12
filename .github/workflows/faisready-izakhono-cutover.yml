@@ -1,0 +1,29 @@
+name: FAISReady IZAKHONO Owner-Host Cutover
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'FAISReady/deploy/IZAKHONO_CONTROLLED_PILOT'
+      - 'FAISReady/Dockerfile.izakhono-runtime'
+      - 'FAISReady/scripts/izakhono-production-cutover.sh'
+      - '.github/workflows/faisready-izakhono-cutover.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: faisready-izakhono-owner-host
+  cancel-in-progress: false
+
+jobs:
+  cutover:
+    runs-on: [self-hosted, linux, x64, izakhono]
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Promote controlled pilot to owner host
+        env:
+          FAISREADY_ENV_FILE: ${{ vars.FAISREADY_ENV_FILE }}
+        run: sh FAISReady/scripts/izakhono-production-cutover.sh
