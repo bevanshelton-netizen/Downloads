@@ -1,0 +1,50 @@
+name: FAISReady IZAKHONO Runtime CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'FAISReady/revenue_server.py'
+      - 'FAISReady/revenue_server_izakhono.py'
+      - 'FAISReady/Dockerfile.izakhono-runtime'
+      - '.github/workflows/faisready-izakhono-runtime.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'FAISReady/revenue_server.py'
+      - 'FAISReady/revenue_server_izakhono.py'
+      - 'FAISReady/Dockerfile.izakhono-runtime'
+      - '.github/workflows/faisready-izakhono-runtime.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python self-tests
+        working-directory: FAISReady
+        run: |
+          python3 revenue_server.py --self-test
+          python3 revenue_server_izakhono.py --self-test
+      - name: Build IZAKHONO runtime
+        run: docker build -f FAISReady/Dockerfile.izakhono-runtime -t faisready:izakhono-test FAISReady
+      - name: Prove container health with live payments locked
+        run: |
+          set -euo pipefail
+          docker run -d --name faisready-izakhono-test             -e PUBLIC_BASE_URL=https://faisready.invalid             -e FAISREADY_PAYMENT_ORCHESTRATOR=direct             -e PAYFAST_SANDBOX=true             -e FAISREADY_IZAKHONO_PAY_LIVE_APPROVED=false             -p 127.0.0.1:18098:8080 faisready:izakhono-test
+          trap 'docker logs faisready-izakhono-test || true; docker rm -f faisready-izakhono-test || true' EXIT
+          for _ in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:18098/health >/tmp/health.json && break
+            sleep 1
+          done
+          cat /tmp/health.json
+          curl -fsS http://127.0.0.1:18098/api/config >/tmp/config.json
+          python3 - <<'PY'
+          import json
+          c=json.load(open('/tmp/config.json'))
+          assert c['payments_configured'] is False
+          PY
