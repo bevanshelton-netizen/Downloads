@@ -1,0 +1,23 @@
+name: FAISReady IZAKHONO Central Alpha
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'FAISReady/**'
+      - '.github/workflows/faisready-izakhono-alpha.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'FAISReady/**'
+      - '.github/workflows/faisready-izakhono-alpha.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  alpha-core:
+    uses: bevanshelton-netizen/izakhono-builder/.github/workflows/izakhono-build-to-alpha.yml@b53395ede1fa2bf446c88e12554bfcf3c3eaa2ff
+    with:
+      manifest_path: FAISReady/.izakhono.json
