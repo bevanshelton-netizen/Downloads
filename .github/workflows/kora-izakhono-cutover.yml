@@ -1,0 +1,29 @@
+name: KORA IZAKHONO Owner-Host Cutover
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'kora-network/deploy/IZAKHONO_PRIVATE_BETA'
+      - 'kora-network/Dockerfile.izakhono-production'
+      - 'kora-network/scripts/izakhono-production-cutover.sh'
+      - '.github/workflows/kora-izakhono-cutover.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kora-izakhono-owner-host
+  cancel-in-progress: false
+
+jobs:
+  cutover:
+    runs-on: [self-hosted, linux, x64, izakhono]
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cut over guarded private beta
+        env:
+          KORA_ENV_FILE: ${{ vars.KORA_ENV_FILE }}
+        run: sh kora-network/scripts/izakhono-production-cutover.sh
