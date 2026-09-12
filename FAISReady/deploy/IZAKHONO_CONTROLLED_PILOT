@@ -1,0 +1,7 @@
+FAISReady
+requested_at=2026-09-12
+mode=CONTROLLED_PILOT
+primary_runtime=IZAKHONO
+payments_configured=false
+live_payments=false
+external_hosts=FALLBACK_ONLY
