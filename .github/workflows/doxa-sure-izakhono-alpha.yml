@@ -1,0 +1,23 @@
+name: DOXA-SURE IZAKHONO Central Alpha
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'doxa-sure/**'
+      - '.github/workflows/doxa-sure-izakhono-alpha.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'doxa-sure/**'
+      - '.github/workflows/doxa-sure-izakhono-alpha.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  alpha-core:
+    uses: bevanshelton-netizen/izakhono-builder/.github/workflows/izakhono-build-to-alpha.yml@b53395ede1fa2bf446c88e12554bfcf3c3eaa2ff
+    with:
+      manifest_path: doxa-sure/.izakhono.json
