@@ -34,10 +34,13 @@ jobs:
           if ($script -notmatch 'commercial_ready.*False') { throw "Missing commercial_ready=false receipt contract" }
           if ($script -notmatch 'SOVEREIGN-NODE.json') { throw "Sovereign node receipt gate missing" }
           if ($script -notmatch 'nginx:alpine') { throw "Disposable workload proof missing" }
-          if ($script -notmatch 'c7af2604cfdc2f225db21c18fc7dbed266003eb1') { throw "Engine source is not pinned" }
+          if ($script -notmatch '1c06c559c9bc98a85f2c7fb9134095d91f63b109') { throw "Engine source is not pinned to merged Containers" }
+          if ($script -notmatch 'IZ_ADMIN_TOKEN') { throw "Operator token is not configured" }
+          if ($script -notmatch 'x-iz-admin-token') { throw "Deployment request is not authenticated" }
       - name: Launcher contract
         shell: pwsh
         run: |
           $cmd = Get-Content "START-IZAKHONO-ENGINE-ISN-01.cmd" -Raw
           if ($cmd -notmatch 'PROVE-IZAKHONO-ENGINE-ISN-01.ps1') { throw "Launcher target missing" }
           if ($cmd -notmatch 'RunAs') { throw "Expected elevation handoff missing" }
+          if ($cmd -notmatch '/main/izakhono-cloud/') { throw "Launcher must fetch merged main proof script" }

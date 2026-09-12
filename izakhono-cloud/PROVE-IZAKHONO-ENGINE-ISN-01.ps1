@@ -4,7 +4,7 @@ $ErrorActionPreference = "Stop"
 $State = "$env:ProgramData\IZAKHONO\ISN-01"
 $Receipt = Join-Path $State "SOVEREIGN-NODE.json"
 $Result = Join-Path $State "ENGINE-PROOF.json"
-$Pinned = "c7af2604cfdc2f225db21c18fc7dbed266003eb1"
+$Pinned = "1c06c559c9bc98a85f2c7fb9134095d91f63b109"
 
 function Fail([string]$Message) {
   Write-Host "FAIL: $Message" -ForegroundColor Red
@@ -36,12 +36,14 @@ WORK="$HOME/izakhono-engine-proof"
 REPO="$WORK/izakhono-builder"
 LOG="$WORK/log"
 TOKEN_FILE="$WORK/enroll-token"
+ADMIN_FILE="$WORK/admin-token"
 mkdir -p "$WORK" "$LOG"
 
 command -v git >/dev/null || { echo "git missing"; exit 2; }
 command -v node >/dev/null || { echo "node missing"; exit 2; }
 command -v docker >/dev/null || { echo "docker missing"; exit 2; }
 command -v curl >/dev/null || { echo "curl missing"; exit 2; }
+command -v python3 >/dev/null || { echo "python3 missing"; exit 2; }
 
 docker info >/dev/null
 
@@ -63,10 +65,15 @@ python3 - <<'PY' > "$TOKEN_FILE"
 import secrets
 print(secrets.token_hex(32))
 PY
-chmod 600 "$TOKEN_FILE"
+python3 - <<'PY' > "$ADMIN_FILE"
+import secrets
+print(secrets.token_hex(32))
+PY
+chmod 600 "$TOKEN_FILE" "$ADMIN_FILE"
 TOKEN="$(cat "$TOKEN_FILE")"
+ADMIN="$(cat "$ADMIN_FILE")"
 
-IZ_NODE_ENROLL_TOKEN="$TOKEN" PORT=8080 node server.js > "$LOG/control.log" 2>&1 &
+IZ_NODE_ENROLL_TOKEN="$TOKEN" IZ_ADMIN_TOKEN="$ADMIN" PORT=8080 node server.js > "$LOG/control.log" 2>&1 &
 echo $! > "$WORK/control.pid"
 
 for i in $(seq 1 30); do
@@ -89,9 +96,11 @@ done
 
 DEPLOY_JSON=$(curl -fsS -X POST http://127.0.0.1:8080/api/deployments \
   -H 'content-type: application/json' \
+  -H "x-iz-admin-token: $ADMIN" \
   -d '{"app":"engine-proof","image":"nginx:alpine","node":"ISN-01","port":8088}')
 
 echo "$DEPLOY_JSON" > "$WORK/deployment.json"
+grep -q '"status":"queued"' "$WORK/deployment.json"
 
 for i in $(seq 1 60); do
   if curl -fsSI http://127.0.0.1:8088 >/dev/null 2>&1; then
@@ -126,6 +135,7 @@ print(json.dumps({
 }, indent=2))
 PY
 
+rm -f "$TOKEN_FILE" "$ADMIN_FILE"
 cat "$WORK/proof.json"
 '@
 
