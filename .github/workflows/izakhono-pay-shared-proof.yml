@@ -52,6 +52,56 @@ jobs:
           python3 izakhono-pay/shared_gateway.py self-test
           (cd izakhono-pay && python3 bank_reconciler.py self-test)
 
+      - name: Prove zero-touch bank settlement activates FAISReady
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, sys, tempfile
+          from pathlib import Path
+
+          sys.path.insert(0, 'FAISReady')
+          import revenue_server_izakhono as fr
+          sys.path.insert(0, 'izakhono-pay')
+          import shared_gateway as gateway
+
+          with tempfile.TemporaryDirectory(prefix='faisready-zero-touch-') as td:
+              root=Path(td)
+              fr_db=root/'faisready.sqlite3'
+              pay_db=root/'izakhono-pay.sqlite3'
+              fr.init_izakhono_db(fr_db)
+              gateway.init_db(pay_db)
+
+              local=fr.base.create_order('re5','Zero','Touch','zero@example.com',fr_db)
+              remote=gateway.create_order(
+                  'faisready','re5','Zero Touch','zero@example.com',
+                  local['order_id'],pay_db
+              )
+              paid=gateway.confirm_order(remote['order_id'],'BANK-E2E-001',pay_db)
+              payload=json.loads(gateway.callback_payload(paid).decode('utf-8'))
+              assert payload['event']=='payment.paid'
+              assert payload['merchant']=='faisready'
+              assert payload['order']['customer_reference']==local['order_id']
+              assert payload['order']['amount_minor']==29900
+
+              raw=json.dumps(payload,separators=(',',':'),sort_keys=True).encode('utf-8')
+              digest=hashlib.sha256(raw).hexdigest()
+              accepted=fr.accept_izakhono_paid_event(payload,digest,fr_db)
+              assert accepted==local['order_id']
+
+              activated=fr.base.get_order(local['order_id'],fr_db)
+              assert activated is not None
+              assert activated['status']=='paid'
+              assert activated['access_token']
+              assert activated['payfast_payment_id']=='BANK-E2E-001'
+
+              # Replay is idempotent and does not rotate the entitlement token.
+              token=activated['access_token']
+              assert fr.accept_izakhono_paid_event(payload,digest,fr_db)==local['order_id']
+              replayed=fr.base.get_order(local['order_id'],fr_db)
+              assert replayed['access_token']==token
+
+          print('FAISReady zero-touch reconciliation contract: PASS')
+          PY
+
       - name: Prove secrets are not committed
         run: |
           test -f izakhono-pay/.env.example
