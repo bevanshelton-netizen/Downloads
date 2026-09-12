@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """FAISReady revenue server with an optional IZAKHONO PAY orchestration layer.
 
-The default remains the existing direct PayFast path. When
-FAISREADY_PAYMENT_ORCHESTRATOR=izakhono, only checkout creation and the verified
-payment callback move behind IZAKHONO PAY; the existing local SQLite order and
-entitlement ledger remains authoritative.
+The existing local SQLite order and entitlement ledger remains authoritative.
+When FAISREADY_PAYMENT_ORCHESTRATOR=izakhono, FAISReady can use the native
+IZAKHONO PAY order contract for exact-reference EFT plus automatic bank
+reconciliation, while retaining the legacy hosted-intent contract as an
+explicit rollback path.
 """
 from __future__ import annotations
 
@@ -24,10 +25,18 @@ from pathlib import Path
 import revenue_server as base
 
 SAFE_EVENT_RE = re.compile(r"^evt_[A-Za-z0-9_-]{8,120}$")
+GATEWAY_ORDER_RE = re.compile(r"^izp_[A-Za-z0-9_-]{16,80}$")
 
 
 def use_izakhono_pay() -> bool:
     return os.environ.get("FAISREADY_PAYMENT_ORCHESTRATOR", "direct").strip().lower() == "izakhono"
+
+
+def izakhono_contract() -> str:
+    value = os.environ.get("IZAKHONO_PAY_CONTRACT", "orders").strip().lower()
+    if value not in {"orders", "intent"}:
+        raise ValueError("IZAKHONO_PAY_CONTRACT must be orders or intent")
+    return value
 
 
 def izakhono_settings() -> dict[str, str]:
@@ -39,7 +48,7 @@ def izakhono_settings() -> dict[str, str]:
     parsed = urllib.parse.urlsplit(url)
     if parsed.scheme != "https" or not parsed.netloc or parsed.username or parsed.password or parsed.query or parsed.fragment:
         raise ValueError("IZAKHONO_PAY_URL must be a clean HTTPS origin")
-    return {"url": url, "key": key, "secret": secret}
+    return {"url": url, "key": key, "secret": secret, "contract": izakhono_contract()}
 
 
 def init_izakhono_db(path: Path | None = None) -> None:
@@ -121,6 +130,56 @@ def build_izakhono_checkout(order: sqlite3.Row) -> tuple[str, dict[str, str], bo
     return checkout_url, fields, sandbox
 
 
+def build_izakhono_order(order: sqlite3.Row) -> dict:
+    cfg = izakhono_settings()
+    payload = {
+        "product_code": order["plan"],
+        "customer_name": f"{order['name_first']} {order['name_last']}".strip(),
+        "customer_email": order["email"],
+        "customer_reference": order["order_id"],
+    }
+    body = json.dumps(payload, separators=(",", ":")).encode("utf-8")
+    req = urllib.request.Request(
+        f"{cfg['url']}/api/v1/orders",
+        data=body,
+        headers={
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "User-Agent": "FAISReady-IZAKHONO-PAY/0.2",
+            "x-izakhono-key": cfg["key"],
+            "x-izakhono-app": "faisready",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=12) as response:
+            result = json.loads(response.read(base.MAX_BODY).decode("utf-8"))
+    except (urllib.error.URLError, TimeoutError, OSError, json.JSONDecodeError, UnicodeDecodeError) as exc:
+        raise ValueError("IZAKHONO PAY order service is temporarily unavailable") from exc
+
+    remote = result.get("order") if isinstance(result, dict) and result.get("ok") else None
+    if not isinstance(remote, dict):
+        raise ValueError("IZAKHONO PAY returned an invalid order response")
+    gateway_order_id = str(remote.get("id") or "")
+    if not GATEWAY_ORDER_RE.fullmatch(gateway_order_id):
+        raise ValueError("IZAKHONO PAY returned an invalid gateway order")
+    if remote.get("status") != "pending" or remote.get("payment_method") != "eft":
+        raise ValueError("IZAKHONO PAY returned an unsupported payment method")
+    if remote.get("product_code") != order["plan"] or remote.get("currency") != "ZAR":
+        raise ValueError("IZAKHONO PAY returned the wrong FAISReady product")
+    expected_amount = int(round(float(order["amount"]) * 100))
+    if remote.get("amount_minor") != expected_amount:
+        raise ValueError("IZAKHONO PAY returned a mismatched FAISReady amount")
+    reference = str(remote.get("payment_reference") or "").strip()
+    bank = remote.get("bank")
+    if not reference or not isinstance(bank, dict):
+        raise ValueError("IZAKHONO PAY returned incomplete EFT instructions")
+    required_bank = ("bank_name", "account_name", "account_number", "account_type", "branch_code")
+    if not all(isinstance(bank.get(key), str) and bank.get(key).strip() for key in required_bank):
+        raise ValueError("IZAKHONO PAY returned incomplete bank details")
+    return remote
+
+
 def event_already_seen(event_id: str, payload_hash: str, path: Path | None = None) -> bool:
     with base.DB_LOCK, base.connect_db(path) as conn:
         row = conn.execute(
@@ -176,53 +235,102 @@ def verify_izakhono_event(handler: base.BaseHTTPRequestHandler, raw: bytes) -> t
     return payload, hashlib.sha256(raw).hexdigest()
 
 
-def accept_izakhono_paid_event(payload: dict, payload_hash: str) -> str:
+def accept_izakhono_paid_event(payload: dict, payload_hash: str, path: Path | None = None) -> str:
     event_id = str(payload["event_id"])
-    intent = payload.get("intent")
-    if not isinstance(intent, dict) or intent.get("status") != "paid":
-        raise ValueError("payment is not marked paid")
-    if intent.get("currency") != "ZAR" or intent.get("provider") != "payfast":
-        raise ValueError("unsupported FAISReady settlement")
-    metadata = intent.get("metadata")
-    if not isinstance(metadata, dict) or metadata.get("kind") != "course_access":
-        raise ValueError("invalid FAISReady payment metadata")
-    order_id = str(metadata.get("order_id") or "")
-    plan = str(metadata.get("plan") or "")
-    order = base.get_order(order_id)
-    if order is None or order["plan"] != plan:
-        raise ValueError("unknown FAISReady order")
-    amount_minor = intent.get("amount_minor")
-    if not isinstance(amount_minor, int) or amount_minor != int(round(float(order["amount"]) * 100)):
-        raise ValueError("FAISReady payment amount mismatch")
-    intent_id = str(intent.get("id") or "")
-    provider_reference = str(intent.get("provider_reference") or "")[:100]
-    if not intent_id or not provider_reference:
-        raise ValueError("incomplete IZAKHONO payment event")
+    native_order = payload.get("order")
+    if isinstance(native_order, dict):
+        gateway_order_id = str(native_order.get("id") or "")
+        order_id = str(native_order.get("customer_reference") or "")
+        plan = str(native_order.get("product_code") or "")
+        provider_reference = str(native_order.get("bank_reference") or "")[:100]
+        if not GATEWAY_ORDER_RE.fullmatch(gateway_order_id):
+            raise ValueError("invalid IZAKHONO gateway order")
+        if native_order.get("currency") != "ZAR" or not native_order.get("paid_at"):
+            raise ValueError("native IZAKHONO order is not paid")
+        order = base.get_order(order_id, path)
+        if order is None or order["plan"] != plan:
+            raise ValueError("unknown FAISReady order")
+        amount_minor = native_order.get("amount_minor")
+        if not isinstance(amount_minor, int) or amount_minor != int(round(float(order["amount"]) * 100)):
+            raise ValueError("FAISReady payment amount mismatch")
+        if not provider_reference:
+            raise ValueError("incomplete IZAKHONO bank settlement")
+        remote_id = gateway_order_id
+    else:
+        intent = payload.get("intent")
+        if not isinstance(intent, dict) or intent.get("status") != "paid":
+            raise ValueError("payment is not marked paid")
+        if intent.get("currency") != "ZAR" or intent.get("provider") != "payfast":
+            raise ValueError("unsupported FAISReady settlement")
+        metadata = intent.get("metadata")
+        if not isinstance(metadata, dict) or metadata.get("kind") != "course_access":
+            raise ValueError("invalid FAISReady payment metadata")
+        order_id = str(metadata.get("order_id") or "")
+        plan = str(metadata.get("plan") or "")
+        order = base.get_order(order_id, path)
+        if order is None or order["plan"] != plan:
+            raise ValueError("unknown FAISReady order")
+        amount_minor = intent.get("amount_minor")
+        if not isinstance(amount_minor, int) or amount_minor != int(round(float(order["amount"]) * 100)):
+            raise ValueError("FAISReady payment amount mismatch")
+        remote_id = str(intent.get("id") or "")
+        provider_reference = str(intent.get("provider_reference") or "")[:100]
+        if not remote_id or not provider_reference:
+            raise ValueError("incomplete IZAKHONO payment event")
 
-    if event_already_seen(event_id, payload_hash):
+    if event_already_seen(event_id, payload_hash, path):
         return order_id
     record_izakhono_event(
         event_id=event_id,
         order_id=order_id,
-        intent_id=intent_id,
+        intent_id=remote_id,
         provider_reference=provider_reference,
         payload_hash=payload_hash,
         accepted=False,
+        path=path,
     )
-    base.grant_entitlement(order_id, provider_reference)
+    base.grant_entitlement(order_id, provider_reference, path)
     record_izakhono_event(
         event_id=event_id,
         order_id=order_id,
-        intent_id=intent_id,
+        intent_id=remote_id,
         provider_reference=provider_reference,
         payload_hash=payload_hash,
         accepted=True,
+        path=path,
     )
     return order_id
 
 
 class IzakhonoRevenueHandler(base.RevenueHandler):
-    server_version = "FAISReadyRevenue/1.1"
+    server_version = "FAISReadyRevenue/1.2"
+
+    def do_GET(self) -> None:  # noqa: N802
+        path, _ = self.route()
+        if path == "/api/config" and use_izakhono_pay():
+            ready = True
+            contract = "orders"
+            try:
+                cfg = izakhono_settings()
+                contract = cfg["contract"]
+            except ValueError:
+                ready = False
+            self.send_json(
+                200,
+                {
+                    "payments_configured": ready,
+                    "payment_orchestrator": "izakhono",
+                    "payment_contract": contract,
+                    "payment_method": "eft" if contract == "orders" else "form_post",
+                    "payfast_sandbox": False,
+                    "plans": {
+                        k: {"label": v["label"], "amount": v["amount"], "days": v["days"]}
+                        for k, v in base.PLANS.items()
+                    },
+                },
+            )
+            return
+        super().do_GET()
 
     def do_POST(self) -> None:  # noqa: N802
         path, _ = self.route()
@@ -253,18 +361,35 @@ class IzakhonoRevenueHandler(base.RevenueHandler):
                 email_value = base.clean_email(payload.get("email"))
                 if plan not in base.PLANS:
                     raise ValueError("unknown plan")
-                izakhono_settings()
+                cfg = izakhono_settings()
                 order = base.create_order(plan, first, last, email_value)
-                action, fields, sandbox = build_izakhono_checkout(order)
-                self.send_json(
-                    201,
-                    {
-                        "order": order["order_id"],
-                        "payment_url": action,
-                        "fields": fields,
-                        "sandbox": sandbox,
-                    },
-                )
+                if cfg["contract"] == "orders":
+                    remote = build_izakhono_order(order)
+                    self.send_json(
+                        201,
+                        {
+                            "order": order["order_id"],
+                            "gateway_order": remote["id"],
+                            "payment_method": "eft",
+                            "payment_reference": remote["payment_reference"],
+                            "amount_minor": remote["amount_minor"],
+                            "currency": remote["currency"],
+                            "bank": remote["bank"],
+                            "instructions": remote.get("instructions") or "Pay the exact amount using the unique reference. Access activates automatically after bank settlement is reconciled.",
+                        },
+                    )
+                else:
+                    action, fields, sandbox = build_izakhono_checkout(order)
+                    self.send_json(
+                        201,
+                        {
+                            "order": order["order_id"],
+                            "payment_method": "form_post",
+                            "payment_url": action,
+                            "fields": fields,
+                            "sandbox": sandbox,
+                        },
+                    )
             except (ValueError, json.JSONDecodeError, UnicodeDecodeError) as exc:
                 self.send_json(400, {"error": str(exc)})
             return
@@ -278,18 +403,31 @@ def self_test() -> int:
         init_izakhono_db(path)
         order = base.create_order("re5", "Test", "Learner", "test@example.com", path)
         assert order["status"] == "pending"
-        raw = json.dumps({"event": "payment.paid", "event_id": "evt_payment_paid_selftest", "merchant": "faisready"}, separators=(",", ":")).encode()
+        payload = {
+            "event": "payment.paid",
+            "event_id": "evt_payment_paid_selftest",
+            "merchant": "faisready",
+            "order": {
+                "id": "izp_0123456789abcdef",
+                "product_code": "re5",
+                "customer_reference": order["order_id"],
+                "payment_reference": "FAISREAD-ABCDEF12",
+                "bank_reference": "BANK-SELFTEST",
+                "amount_minor": 29900,
+                "currency": "ZAR",
+                "paid_at": "2026-09-12T19:00:00Z",
+                "entitlement": {"days": 90},
+            },
+        }
+        raw = json.dumps(payload, separators=(",", ":"), sort_keys=True).encode()
         payload_hash = hashlib.sha256(raw).hexdigest()
-        record_izakhono_event(
-            event_id="evt_payment_paid_selftest",
-            order_id=order["order_id"],
-            intent_id="pi_selftest",
-            provider_reference="PF-SELFTEST",
-            payload_hash=payload_hash,
-            accepted=True,
-            path=path,
-        )
+        accepted = accept_izakhono_paid_event(payload, payload_hash, path)
+        assert accepted == order["order_id"]
+        paid = base.get_order(order["order_id"], path)
+        assert paid is not None and paid["status"] == "paid" and paid["access_token"]
         assert event_already_seen("evt_payment_paid_selftest", payload_hash, path)
+        replay = accept_izakhono_paid_event(payload, payload_hash, path)
+        assert replay == order["order_id"]
     print("FAISReady IZAKHONO PAY wrapper self-test: PASS")
     return 0
 
