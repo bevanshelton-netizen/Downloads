@@ -1,6 +1,6 @@
 {
   "schema": "izakhono.portfolio-migration/v1",
-  "updated_at": "2026-09-12",
+  "updated_at": "2026-09-12T19:35:00+02:00",
   "policy": {
     "primary_runtime": "IZAKHONO",
     "external_hosts": "fallback-only until IZAKHONO external acceptance passes",
@@ -80,10 +80,10 @@
     },
     {
       "name": "EDU-BUILD ECD360",
-      "status": "VALIDATION_IN_PROGRESS",
+      "status": "OWNER_HOST_CONTROLLED_PILOT_QUEUED",
       "repo": "bevanshelton-netizen/edubuild-ecd360",
-      "build_gate": "PENDING_FINAL_ALPHA",
-      "notes": "Security CI + Core + Trusted Actions + Relational + Named Read RPC passed; paid traffic/real child data/payroll remain locked."
+      "build_gate": "PASS",
+      "notes": "Fresh Security CI + Core + Trusted Actions + Relational + Named Read RPC + Alpha build/health all passed; paid traffic/real child data/live payments/payroll remain locked."
     },
     {
       "name": "StudyPal",
@@ -95,7 +95,11 @@
     },
     {
       "name": "DOXA-SURE",
-      "status": "SOURCE_DISCOVERY_REQUIRED"
+      "status": "IZAKHONO_ALPHA_QUEUED",
+      "repo": "bevanshelton-netizen/Downloads",
+      "path": "doxa-sure",
+      "build_gate": "BOOTSTRAP_CI_PASS_ALPHA_PENDING",
+      "notes": "Public/demo migration only; regulated services and automated payments remain separately gated."
     },
     {
       "name": "Ubuntu Africa Cloud",
