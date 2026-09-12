@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "name": "Matric Rewrite Prep Academy",
+  "slug": "matric-rewrite",
+  "build_context": "ports/matric-rewrite",
+  "dockerfile_path": "ports/matric-rewrite/Dockerfile",
+  "container_port": 80,
+  "health_path": "/healthz.txt",
+  "branch": "main",
+  "alpha": {
+    "preflight": true,
+    "rehearsal": false,
+    "windows_package": false
+  }
+}
