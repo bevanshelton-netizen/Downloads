@@ -1,0 +1,22 @@
+FROM python:3.13-alpine
+
+WORKDIR /app
+COPY . /app
+RUN addgroup -S faisready && adduser -S -G faisready faisready \
+    && mkdir -p /var/lib/faisready \
+    && chown -R faisready:faisready /var/lib/faisready /app
+
+USER faisready
+ENV HOST=0.0.0.0 \
+    PORT=8080 \
+    IZAKHONO_CONTAINER_RUNTIME=true \
+    FAISREADY_DATA_DIR=/var/lib/faisready \
+    PAYFAST_SANDBOX=true \
+    FAISREADY_IZAKHONO_PAY_LIVE_APPROVED=false
+
+EXPOSE 8080
+VOLUME ["/var/lib/faisready"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget -qO- http://127.0.0.1:8080/health >/dev/null || exit 1
+
+CMD ["python3","revenue_server_izakhono.py"]
