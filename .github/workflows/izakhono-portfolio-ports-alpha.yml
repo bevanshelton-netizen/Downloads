@@ -1,0 +1,38 @@
+name: IZAKHONO Portfolio Ports Alpha
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'ports/**'
+      - '.github/workflows/izakhono-portfolio-ports-alpha.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'ports/**'
+      - '.github/workflows/izakhono-portfolio-ports-alpha.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  yenzanow:
+    uses: bevanshelton-netizen/izakhono-builder/.github/workflows/izakhono-build-to-alpha.yml@b53395ede1fa2bf446c88e12554bfcf3c3eaa2ff
+    with:
+      manifest_path: ports/yenzanow/.izakhono.json
+
+  matric-rewrite:
+    uses: bevanshelton-netizen/izakhono-builder/.github/workflows/izakhono-build-to-alpha.yml@b53395ede1fa2bf446c88e12554bfcf3c3eaa2ff
+    with:
+      manifest_path: ports/matric-rewrite/.izakhono.json
+
+  command-center:
+    uses: bevanshelton-netizen/izakhono-builder/.github/workflows/izakhono-build-to-alpha.yml@b53395ede1fa2bf446c88e12554bfcf3c3eaa2ff
+    with:
+      manifest_path: ports/izakhono-command-center/.izakhono.json
+
+  containers:
+    uses: bevanshelton-netizen/izakhono-builder/.github/workflows/izakhono-build-to-alpha.yml@b53395ede1fa2bf446c88e12554bfcf3c3eaa2ff
+    with:
+      manifest_path: ports/izakhono-containers/.izakhono.json
