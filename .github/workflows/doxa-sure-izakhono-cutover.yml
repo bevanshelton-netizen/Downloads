@@ -1,0 +1,25 @@
+name: DOXA-SURE IZAKHONO Controlled Pilot Cutover
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'doxa-sure/deploy/IZAKHONO_CONTROLLED_PILOT'
+      - 'doxa-sure/scripts/izakhono-production-cutover.sh'
+      - '.github/workflows/doxa-sure-izakhono-cutover.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: doxa-sure-izakhono-cutover
+  cancel-in-progress: false
+
+jobs:
+  cutover:
+    runs-on: [self-hosted, linux, x64, izakhono]
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - run: sh doxa-sure/scripts/izakhono-production-cutover.sh
