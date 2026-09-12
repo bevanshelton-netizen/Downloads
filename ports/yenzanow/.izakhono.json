@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "name": "YenZaNow",
+  "slug": "yenzanow",
+  "build_context": "ports/yenzanow",
+  "dockerfile_path": "ports/yenzanow/Dockerfile",
+  "container_port": 80,
+  "health_path": "/healthz.txt",
+  "branch": "main",
+  "alpha": {
+    "preflight": true,
+    "rehearsal": false,
+    "windows_package": false
+  }
+}
