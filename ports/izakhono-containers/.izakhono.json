@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "name": "IZAKHONO Containers",
+  "slug": "izakhono-containers",
+  "build_context": "ports/izakhono-containers",
+  "dockerfile_path": "ports/izakhono-containers/Dockerfile",
+  "container_port": 80,
+  "health_path": "/healthz.txt",
+  "branch": "main",
+  "alpha": {
+    "preflight": true,
+    "rehearsal": false,
+    "windows_package": false
+  }
+}
