@@ -1,0 +1,6 @@
+IZAKHONO PORTFOLIO CUTOVER
+requested_at=2026-09-12
+mode=IZAKHONO_PRIMARY
+projects=yenzanow,matric-rewrite,izakhono-command-center,izakhono-containers
+public_ingress=SEPARATE_GATE
+fallback_hosts=RETAIN_UNTIL_EXTERNAL_ACCEPTANCE
