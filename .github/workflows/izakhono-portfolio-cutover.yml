@@ -1,0 +1,47 @@
+name: IZAKHONO Portfolio Owner-Host Cutover
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'deploy/IZAKHONO_PORTFOLIO_CUTOVER'
+      - 'ports/**'
+      - 'scripts/izakhono/portfolio-cutover.sh'
+      - '.github/workflows/izakhono-portfolio-cutover.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: izakhono-portfolio-owner-host
+  cancel-in-progress: false
+
+jobs:
+  yenzanow:
+    runs-on: [self-hosted, linux, x64, izakhono]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - run: sh scripts/izakhono/portfolio-cutover.sh yenzanow ports/yenzanow 18101 /healthz.txt
+
+  matric-rewrite:
+    runs-on: [self-hosted, linux, x64, izakhono]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - run: sh scripts/izakhono/portfolio-cutover.sh matric-rewrite ports/matric-rewrite 18102 /healthz.txt
+
+  command-center:
+    runs-on: [self-hosted, linux, x64, izakhono]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - run: sh scripts/izakhono/portfolio-cutover.sh izakhono-command-center ports/izakhono-command-center 18103 /healthz.txt
+
+  containers:
+    runs-on: [self-hosted, linux, x64, izakhono]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - run: sh scripts/izakhono/portfolio-cutover.sh izakhono-containers ports/izakhono-containers 18104 /healthz.txt
