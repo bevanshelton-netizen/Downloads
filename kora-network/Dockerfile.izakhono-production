@@ -1,0 +1,48 @@
+FROM node:20-alpine AS build
+WORKDIR /app
+
+ARG NEXT_PUBLIC_APP_URL
+ARG NEXT_PUBLIC_SUPABASE_URL
+ARG NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY=""
+ARG NEXT_PUBLIC_OPERATOR_NAME="IZAKHONO AFRICA"
+ARG NEXT_PUBLIC_SUPPORT_EMAIL=""
+ARG NEXT_PUBLIC_PRIVACY_EMAIL=""
+ARG NEXT_PUBLIC_RIGHTS_EMAIL=""
+
+ENV NEXT_PUBLIC_APP_NAME=KORA \
+    NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL \
+    NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY \
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY \
+    NEXT_PUBLIC_OPERATOR_NAME=$NEXT_PUBLIC_OPERATOR_NAME \
+    NEXT_PUBLIC_SUPPORT_EMAIL=$NEXT_PUBLIC_SUPPORT_EMAIL \
+    NEXT_PUBLIC_PRIVACY_EMAIL=$NEXT_PUBLIC_PRIVACY_EMAIL \
+    NEXT_PUBLIC_RIGHTS_EMAIL=$NEXT_PUBLIC_RIGHTS_EMAIL
+
+COPY package.json ./
+RUN npm install --no-audit --no-fund
+COPY . .
+
+# Server-only build sentinels. Real server secrets are supplied only at runtime.
+RUN export SUPABASE_SERVICE_ROLE_KEY=build-only-placeholder-service-role-key \
+    SUPABASE_SECRET_KEY=build-only-placeholder-secret-key \
+    VIDEO_PROVIDER=mock \
+    PAYFAST_MERCHANT_ID=10000100 \
+    PAYFAST_MERCHANT_KEY=build-only-placeholder-merchant-key \
+    PAYFAST_PASSPHRASE=build-only-placeholder-passphrase \
+    PAYFAST_SANDBOX=true \
+    KORA_TICKET_CHECKOUT_MODE=off \
+    KORA_TICKET_LIVE_APPROVED=false \
+    KORA_INTERNAL_API_SECRET=build-only-placeholder-internal-secret-0123456789 \
+ && npm run typecheck \
+ && npm run build
+
+FROM node:20-alpine AS runtime
+WORKDIR /app
+ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0
+COPY --from=build /app ./
+EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD wget -qO- http://127.0.0.1:3000/api/health >/dev/null || exit 1
+CMD ["npm","start"]
