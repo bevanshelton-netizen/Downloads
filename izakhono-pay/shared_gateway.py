@@ -271,6 +271,7 @@ def deliver_callback(row: sqlite3.Row, path: Path | None = None) -> bool:
         "x-izakhono-timestamp":timestamp,
         "x-izakhono-signature":signature,
         "x-izakhono-event":"payment.paid",
+        "x-izakhono-event-id":callback_event_id(row["order_id"]),
     })
     try:
         with urllib.request.urlopen(req,timeout=12) as response:
