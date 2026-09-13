@@ -1,0 +1,63 @@
+name: ISN-01 Fleet Launcher Proof
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'START-IZAKHONO-FLEET-ON-ISN-01.cmd'
+      - 'izakhono-cloud/RUN-IZAKHONO-FLEET-ISN-01.ps1'
+      - '.github/workflows/isn01-fleet-launcher-proof.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'START-IZAKHONO-FLEET-ON-ISN-01.cmd'
+      - 'izakhono-cloud/RUN-IZAKHONO-FLEET-ISN-01.ps1'
+      - '.github/workflows/isn01-fleet-launcher-proof.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Parse fleet PowerShell
+        shell: pwsh
+        run: |
+          $tokens=$null; $errors=$null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path 'izakhono-cloud/RUN-IZAKHONO-FLEET-ISN-01.ps1'),
+            [ref]$tokens,[ref]$errors
+          ) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
+
+      - name: Guard fleet safety contract
+        shell: pwsh
+        run: |
+          $p = Get-Content 'izakhono-cloud/RUN-IZAKHONO-FLEET-ISN-01.ps1' -Raw
+          foreach ($required in @(
+            'DEPLOY-ECD360-ISN-01.ps1',
+            'DEPLOY-CHANCELLOR-ISN-01.ps1',
+            'DEPLOY-FORTRESS-ISN-01.ps1',
+            'DEPLOY-KORA-ISN-01.ps1',
+            'ENGINE-PROOF.json',
+            'FLEET-STATUS.json'
+          )) {
+            if ($p -notmatch [regex]::Escape($required)) { throw "Missing fleet contract: $required" }
+          }
+          if ($p -notmatch 'public_dns_changed = \$false') { throw 'DNS safety flag missing' }
+          if ($p -notmatch 'live_payments_changed = \$false') { throw 'payment safety flag missing' }
+          if ($p -match 'cloudflared tunnel route|route53|nameserver|dns update') { throw 'fleet launcher must not change public edge' }
+
+      - name: Validate CMD handoff
+        shell: pwsh
+        run: |
+          $c = Get-Content 'START-IZAKHONO-FLEET-ON-ISN-01.cmd' -Raw
+          if ($c -notmatch 'RUN-IZAKHONO-FLEET-ISN-01.ps1') { throw 'fleet launcher target mismatch' }
