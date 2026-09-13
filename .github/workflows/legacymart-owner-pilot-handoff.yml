@@ -1,0 +1,74 @@
+name: LegacyMart Owner Pilot Handoff Proof
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'START-LEGACYMART-ON-IZAKHONO.cmd'
+      - 'izakhono-cloud/DEPLOY-LEGACYMART-ISN-01.ps1'
+      - 'izakhono-cloud/RUN-IZAKHONO-FLEET-ISN-01.ps1'
+      - '.github/workflows/legacymart-owner-pilot-handoff.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'START-LEGACYMART-ON-IZAKHONO.cmd'
+      - 'izakhono-cloud/DEPLOY-LEGACYMART-ISN-01.ps1'
+      - 'izakhono-cloud/RUN-IZAKHONO-FLEET-ISN-01.ps1'
+      - '.github/workflows/legacymart-owner-pilot-handoff.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Parse PowerShell launcher
+        shell: pwsh
+        run: |
+          $tokens=$null; $errors=$null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path 'izakhono-cloud/DEPLOY-LEGACYMART-ISN-01.ps1'),
+            [ref]$tokens,[ref]$errors
+          ) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
+
+      - name: Guard LegacyMart private-pilot contract
+        shell: pwsh
+        run: |
+          $p = Get-Content 'izakhono-cloud/DEPLOY-LEGACYMART-ISN-01.ps1' -Raw
+          foreach ($required in @(
+            '2b2e493053e0fff4aadc64f31a73df9f528ca3d2',
+            'ENGINE-PROOF.json',
+            '127.0.0.1:18110',
+            'PAYFAST_MODE=sandbox',
+            'legacymart_data',
+            'legacymart_downloads',
+            'LEGACYMART-CUTOVER.json'
+          )) {
+            if ($p -notmatch [regex]::Escape($required)) { throw "Missing LegacyMart pilot contract: $required" }
+          }
+          if ($p -notmatch 'live_payment_validation_ready.+False') { throw 'live-payment block missing' }
+          if ($p -notmatch 'public_dns_changed.+False') { throw 'DNS safety receipt missing' }
+          if ($p -notmatch 'live_payments_changed.+False') { throw 'payment safety receipt missing' }
+          if ($p -match 'cloudflared tunnel route|route53|nameserver|dns update') { throw 'LegacyMart pilot must not modify public edge' }
+
+      - name: Guard fleet integration
+        shell: pwsh
+        run: |
+          $f = Get-Content 'izakhono-cloud/RUN-IZAKHONO-FLEET-ISN-01.ps1' -Raw
+          if ($f -notmatch 'DEPLOY-LEGACYMART-ISN-01.ps1') { throw 'LegacyMart is not registered in the ISN-01 fleet' }
+
+      - name: Validate CMD handoff
+        shell: pwsh
+        run: |
+          $c = Get-Content 'START-LEGACYMART-ON-IZAKHONO.cmd' -Raw
+          if ($c -notmatch 'DEPLOY-LEGACYMART-ISN-01.ps1') { throw 'launcher target mismatch' }
+          if ($c -notmatch 'raw.githubusercontent.com/bevanshelton-netizen/Downloads/main') { throw 'launcher must fetch merged main script' }
