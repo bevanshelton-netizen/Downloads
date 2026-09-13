@@ -1,0 +1,60 @@
+name: KORA Owner Cutover Handoff Proof
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'START-KORA-ON-IZAKHONO.cmd'
+      - 'izakhono-cloud/DEPLOY-KORA-ISN-01.ps1'
+      - '.github/workflows/kora-owner-cutover-handoff.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'START-KORA-ON-IZAKHONO.cmd'
+      - 'izakhono-cloud/DEPLOY-KORA-ISN-01.ps1'
+      - '.github/workflows/kora-owner-cutover-handoff.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Parse PowerShell launcher
+        shell: pwsh
+        run: |
+          $tokens=$null; $errors=$null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path 'izakhono-cloud/DEPLOY-KORA-ISN-01.ps1'),
+            [ref]$tokens,[ref]$errors
+          ) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
+
+      - name: Guard private-beta contract
+        shell: pwsh
+        run: |
+          $p = Get-Content 'izakhono-cloud/DEPLOY-KORA-ISN-01.ps1' -Raw
+          if ($p -notmatch '412aed59d2cd372ec243f951c466246e2c0f9338') { throw 'KORA revision is not pinned' }
+          if ($p -notmatch 'ENGINE-PROOF.json') { throw 'ISN-01 Engine proof is not required' }
+          if ($p -notmatch '127\.0\.0\.1:18107') { throw 'loopback KORA port missing' }
+          if ($p -notmatch 'PAYFAST_SANDBOX.+true') { throw 'PayFast sandbox guard missing' }
+          if ($p -notmatch 'KORA_TICKET_CHECKOUT_MODE.+off') { throw 'ticket checkout guard missing' }
+          if ($p -notmatch 'KORA_IZAKHONO_PAY_LIVE_APPROVED.+false') { throw 'IZAKHONO PAY live guard missing' }
+          if ($p -notmatch 'public_dns_changed.+False') { throw 'DNS safety receipt missing' }
+          if ($p -notmatch 'live_payments_changed.+False') { throw 'payment safety receipt missing' }
+          if ($p -match 'cloudflared tunnel route|route53|nameserver|dns update') { throw 'handoff must not modify public edge' }
+
+      - name: Validate CMD handoff
+        shell: pwsh
+        run: |
+          $c = Get-Content 'START-KORA-ON-IZAKHONO.cmd' -Raw
+          if ($c -notmatch 'DEPLOY-KORA-ISN-01.ps1') { throw 'launcher target mismatch' }
+          if ($c -notmatch 'raw.githubusercontent.com/bevanshelton-netizen/Downloads/main') { throw 'launcher must fetch merged main script' }
