@@ -1,0 +1,58 @@
+name: ECD360 Owner Cutover Handoff Proof
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'START-ECD360-ON-IZAKHONO.cmd'
+      - 'izakhono-cloud/DEPLOY-ECD360-ISN-01.ps1'
+      - '.github/workflows/ecd360-owner-cutover-handoff.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'START-ECD360-ON-IZAKHONO.cmd'
+      - 'izakhono-cloud/DEPLOY-ECD360-ISN-01.ps1'
+      - '.github/workflows/ecd360-owner-cutover-handoff.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Parse PowerShell launcher
+        shell: pwsh
+        run: |
+          $tokens=$null; $errors=$null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path 'izakhono-cloud/DEPLOY-ECD360-ISN-01.ps1'),
+            [ref]$tokens,[ref]$errors
+          ) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
+
+      - name: Guard controlled-pilot contract
+        shell: pwsh
+        run: |
+          $p = Get-Content 'izakhono-cloud/DEPLOY-ECD360-ISN-01.ps1' -Raw
+          if ($p -notmatch '2424507d2723d521346e5b07775029e2b23bf0f5') { throw 'ECD360 revision is not pinned' }
+          if ($p -notmatch 'ENGINE-PROOF.json') { throw 'ISN-01 Engine proof is not required' }
+          if ($p -notmatch 'readyForPaidTraffic":false') { throw 'paid traffic is not fail-closed' }
+          if ($p -notmatch '127\.0\.0\.1:18105') { throw 'loopback production pilot port missing' }
+          if ($p -notmatch 'public_dns_changed.+False') { throw 'DNS safety receipt missing' }
+          if ($p -notmatch 'live_payments_changed.+False') { throw 'payment safety receipt missing' }
+          if ($p -match 'cloudflared|route53|nameserver|dns update|payment.*enable') { throw 'handoff must not modify edge or payments' }
+
+      - name: Validate CMD handoff
+        shell: pwsh
+        run: |
+          $c = Get-Content 'START-ECD360-ON-IZAKHONO.cmd' -Raw
+          if ($c -notmatch 'DEPLOY-ECD360-ISN-01.ps1') { throw 'launcher target mismatch' }
+          if ($c -notmatch 'raw.githubusercontent.com/bevanshelton-netizen/Downloads/main') { throw 'launcher must fetch merged main script' }
