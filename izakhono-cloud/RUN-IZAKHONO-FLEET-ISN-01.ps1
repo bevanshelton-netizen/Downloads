@@ -31,6 +31,7 @@ $apps = @(
     @{ name="ALLEGRO VIBEZ"; script="DEPLOY-ALLEGRO-ISN-01.ps1"; receipt="ALLEGRO-CUTOVER.json"; required=$false },
     @{ name="THE CHANCELLOR"; script="DEPLOY-CHANCELLOR-ISN-01.ps1"; receipt="CHANCELLOR-CUTOVER.json"; required=$true },
     @{ name="SHELTON FORTRESS"; script="DEPLOY-FORTRESS-ISN-01.ps1"; receipt="FORTRESS-CUTOVER.json"; required=$true },
+    @{ name="LegacyMart"; script="DEPLOY-LEGACYMART-ISN-01.ps1"; receipt="LEGACYMART-CUTOVER.json"; required=$true },
     @{ name="KORA"; script="DEPLOY-KORA-ISN-01.ps1"; receipt="KORA-CUTOVER.json"; required=$false }
 )
 
