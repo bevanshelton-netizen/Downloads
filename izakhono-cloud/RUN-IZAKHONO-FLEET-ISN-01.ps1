@@ -28,6 +28,7 @@ foreach ($field in @("scheduler_dispatch","image_pull","container_start","http_h
 
 $apps = @(
     @{ name="ECD360"; script="DEPLOY-ECD360-ISN-01.ps1"; receipt="ECD360-CUTOVER.json"; required=$true },
+    @{ name="ALLEGRO VIBEZ"; script="DEPLOY-ALLEGRO-ISN-01.ps1"; receipt="ALLEGRO-CUTOVER.json"; required=$false },
     @{ name="THE CHANCELLOR"; script="DEPLOY-CHANCELLOR-ISN-01.ps1"; receipt="CHANCELLOR-CUTOVER.json"; required=$true },
     @{ name="SHELTON FORTRESS"; script="DEPLOY-FORTRESS-ISN-01.ps1"; receipt="FORTRESS-CUTOVER.json"; required=$true },
     @{ name="KORA"; script="DEPLOY-KORA-ISN-01.ps1"; receipt="KORA-CUTOVER.json"; required=$false }
@@ -35,6 +36,14 @@ $apps = @(
 
 $results = @()
 foreach ($app in $apps) {
+    if ($app.name -eq "ALLEGRO VIBEZ") {
+        $allegroEnv = Join-Path $State "ALLEGRO.env"
+        if (-not (Test-Path $allegroEnv)) {
+            Write-Host "ALLEGRO VIBEZ skipped: owner-host ALLEGRO.env is not present." -ForegroundColor Yellow
+            $results += [pscustomobject]@{ app=$app.name; status="blocked_config"; receipt=$app.receipt }
+            continue
+        }
+    }
     if ($app.name -eq "KORA") {
         $koraEnv = Join-Path $State "KORA.env"
         if (-not (Test-Path $koraEnv)) {
