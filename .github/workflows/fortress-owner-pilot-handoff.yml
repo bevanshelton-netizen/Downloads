@@ -1,0 +1,60 @@
+name: FORTRESS Owner Pilot Handoff Proof
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'START-FORTRESS-ON-IZAKHONO.cmd'
+      - 'izakhono-cloud/DEPLOY-FORTRESS-ISN-01.ps1'
+      - '.github/workflows/fortress-owner-pilot-handoff.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'START-FORTRESS-ON-IZAKHONO.cmd'
+      - 'izakhono-cloud/DEPLOY-FORTRESS-ISN-01.ps1'
+      - '.github/workflows/fortress-owner-pilot-handoff.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Parse PowerShell launcher
+        shell: pwsh
+        run: |
+          $tokens=$null; $errors=$null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path 'izakhono-cloud/DEPLOY-FORTRESS-ISN-01.ps1'),
+            [ref]$tokens,[ref]$errors
+          ) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
+
+      - name: Guard isolated pilot contract
+        shell: pwsh
+        run: |
+          $p = Get-Content 'izakhono-cloud/DEPLOY-FORTRESS-ISN-01.ps1' -Raw
+          if ($p -notmatch 'f6c8dc04153c4d8d2409019fdd7d1a810f85a9c8') { throw 'FORTRESS revision is not pinned' }
+          if ($p -notmatch 'ENGINE-PROOF.json') { throw 'ISN-01 Engine proof is not required' }
+          if ($p -notmatch '127\.0\.0\.1:18109') { throw 'loopback FORTRESS port missing' }
+          if ($p -notmatch 'fortress_isn01_pg') { throw 'dedicated pilot database volume missing' }
+          if ($p -notmatch 'AUTO_CREATE_SCHEMA=false') { throw 'explicit migration guard missing' }
+          if ($p -notmatch 'alembic.+upgrade head') { throw 'Alembic migration gate missing' }
+          if ($p -notmatch 'public_dns_changed.+False') { throw 'DNS safety receipt missing' }
+          if ($p -notmatch 'live_payments_changed.+False') { throw 'payment safety receipt missing' }
+          if ($p -match '80:80|443:443|cloudflared tunnel route|route53|nameserver|dns update') { throw 'pilot must not bind public edge' }
+
+      - name: Validate CMD handoff
+        shell: pwsh
+        run: |
+          $c = Get-Content 'START-FORTRESS-ON-IZAKHONO.cmd' -Raw
+          if ($c -notmatch 'DEPLOY-FORTRESS-ISN-01.ps1') { throw 'launcher target mismatch' }
+          if ($c -notmatch 'raw.githubusercontent.com/bevanshelton-netizen/Downloads/main') { throw 'launcher must fetch merged main script' }
