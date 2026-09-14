@@ -1,0 +1,74 @@
+{
+  "schema": "izakhono.gateway/v1",
+  "effective_at": "2026-09-14T08:23:00+02:00",
+  "mode": "TEMPORARY_GATEWAY_FIRST",
+  "primary_entrypoint": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway",
+  "policy": {
+    "target_state": "IZAKHONO_OWNER_HOST",
+    "external_hosts": "temporary runtime gateways only",
+    "customer_links": "use IZAKHONO Gateway entry points where listed",
+    "cutover_rule": "replace upstream after NODE01 acceptance without changing gateway entry point",
+    "payments": "unchanged and independently gated",
+    "sensitive_data": "unchanged and independently gated"
+  },
+  "routes": [
+    {
+      "slug": "social-command",
+      "gateway": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway?app=social-command",
+      "upstream": "IZAKHONO Supabase Edge",
+      "verified": true
+    },
+    {
+      "slug": "webstart",
+      "gateway": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway?app=webstart",
+      "upstream": "IZAKHONO Supabase Edge",
+      "verified": true
+    },
+    {
+      "slug": "kora",
+      "gateway": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway?app=kora",
+      "upstream": "https://kora-network.vercel.app",
+      "verified": true
+    },
+    {
+      "slug": "faisready",
+      "gateway": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway?app=faisready",
+      "upstream": "https://faisready-revenue.vercel.app",
+      "verified": true
+    },
+    {
+      "slug": "matric-rewrite",
+      "gateway": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway?app=matric-rewrite",
+      "upstream": "https://matric-rewrite-prep-academy.vercel.app",
+      "verified": true
+    },
+    {
+      "slug": "command-center",
+      "gateway": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway?app=command-center",
+      "upstream": "https://izakhono-command-center.vercel.app",
+      "verified": true
+    },
+    {
+      "slug": "containers",
+      "gateway": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway?app=containers",
+      "upstream": "https://izakhono-containers-alpha.vercel.app",
+      "verified": true
+    },
+    {
+      "slug": "chancellor",
+      "gateway": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway?app=chancellor",
+      "upstream": "https://the-chancellor.vercel.app",
+      "verified": true
+    }
+  ],
+  "withheld": [
+    {
+      "name": "ALLEGRO-VIBEZ",
+      "reason": "canonical Vercel production currently serves deployment probe; owner-host cutover remains queued"
+    },
+    {
+      "name": "YenZaNow",
+      "reason": "canonical Vercel production currently serves deployment test; verified build is not yet on stable public upstream"
+    }
+  ]
+}
