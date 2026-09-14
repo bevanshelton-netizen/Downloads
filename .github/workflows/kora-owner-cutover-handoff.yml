@@ -42,7 +42,7 @@ jobs:
         shell: pwsh
         run: |
           $p = Get-Content 'izakhono-cloud/DEPLOY-KORA-ISN-01.ps1' -Raw
-          if ($p -notmatch '412aed59d2cd372ec243f951c466246e2c0f9338') { throw 'KORA revision is not pinned' }
+          if ($p -notmatch '34d202a29d81971013f1908490902e43496ab014') { throw 'KORA revision is not pinned' }
           if ($p -notmatch 'ENGINE-PROOF.json') { throw 'ISN-01 Engine proof is not required' }
           if ($p -notmatch '127\.0\.0\.1:18107') { throw 'loopback KORA port missing' }
           if ($p -notmatch 'PAYFAST_SANDBOX.+true') { throw 'PayFast sandbox guard missing' }
