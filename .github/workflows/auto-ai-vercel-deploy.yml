@@ -1,0 +1,125 @@
+name: AUTO AI Vercel Production Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "auto-ai/**"
+      - ".github/workflows/auto-ai-vercel-deploy.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: auto-ai-vercel-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: kora-production
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Require existing Vercel account credentials
+        run: |
+          test -n "$VERCEL_TOKEN" || { echo "Missing VERCEL_TOKEN"; exit 1; }
+          test -n "$VERCEL_ORG_ID" || { echo "Missing VERCEL_ORG_ID"; exit 1; }
+
+      - name: Create or locate isolated AUTO AI Vercel project
+        id: project
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/auto-ai-project.json <<'JSON'
+          {
+            "name": "auto-ai",
+            "framework": null,
+            "rootDirectory": "auto-ai",
+            "gitRepository": {
+              "type": "github",
+              "repo": "bevanshelton-netizen/Downloads"
+            }
+          }
+          JSON
+
+          CODE="$(curl -sS -o /tmp/vercel-create.json -w "%{http_code}"             -X POST "https://api.vercel.com/v11/projects?teamId=$VERCEL_ORG_ID"             -H "Authorization: Bearer $VERCEL_TOKEN"             -H "Content-Type: application/json"             --data-binary @/tmp/auto-ai-project.json)"
+
+          if [[ "$CODE" =~ ^2 ]]; then
+            cp /tmp/vercel-create.json /tmp/vercel-project.json
+          elif [ "$CODE" = "409" ]; then
+            curl -fsS               "https://api.vercel.com/v9/projects/auto-ai?teamId=$VERCEL_ORG_ID"               -H "Authorization: Bearer $VERCEL_TOKEN"               > /tmp/vercel-project.json
+          else
+            echo "Vercel project creation failed with HTTP $CODE"
+            cat /tmp/vercel-create.json
+            exit 1
+          fi
+
+          PROJECT_ID="$(node -e "const fs=require('fs'); const x=JSON.parse(fs.readFileSync('/tmp/vercel-project.json','utf8')); if(!x.id) process.exit(2); process.stdout.write(x.id)")"
+          echo "project_id=$PROJECT_ID" >> "$GITHUB_OUTPUT"
+          echo "AUTO AI Vercel project: $PROJECT_ID"
+
+      - name: Link local AUTO AI root to Vercel project
+        working-directory: auto-ai
+        env:
+          PROJECT_ID: ${{ steps.project.outputs.project_id }}
+        run: |
+          mkdir -p .vercel
+          node -e "require('fs').writeFileSync('.vercel/project.json', JSON.stringify({orgId:process.env.VERCEL_ORG_ID,projectId:process.env.PROJECT_ID,projectName:'auto-ai'}))"
+
+      - name: Pull project settings
+        working-directory: auto-ai
+        run: npx --yes vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
+
+      - name: Build production artifact
+        working-directory: auto-ai
+        run: npx --yes vercel@latest build --prod --token="$VERCEL_TOKEN"
+
+      - name: Deploy production
+        id: deploy
+        working-directory: auto-ai
+        run: |
+          set -euo pipefail
+          URL="$(npx --yes vercel@latest deploy --prebuilt --prod --token="$VERCEL_TOKEN" | tail -n 1)"
+          test -n "$URL"
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "AUTO AI production URL: $URL"
+
+      - name: Smoke test public deployment
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 20); do
+            if curl -fsS "$URL/api/health" > /tmp/health.json; then break; fi
+            sleep 3
+          done
+          node -e "const x=require('/tmp/health.json'); if(x.ok!==true||x.service!=='auto-ai') process.exit(1)"
+          curl -fsS "$URL/" | grep -q "AUTO AI"
+          curl -fsS -X POST "$URL/api/fault-code"             -H "Content-Type: application/json"             -d '{"code":"P0420"}' | grep -q "Catalyst system efficiency"
+          curl -fsS -X POST "$URL/api/triage"             -H "Content-Type: application/json"             -d '{"symptoms":"My oil pressure warning is on"}' | grep -q '"urgency":"STOP"'
+          echo "AUTO AI public smoke tests passed."
+
+      - name: Publish deployment summary
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
+          PROJECT_ID: ${{ steps.project.outputs.project_id }}
+        run: |
+          {
+            echo "## AUTO AI Deploy Result"
+            echo "- URL: $URL"
+            echo "- Target: production"
+            echo "- Vercel project: $PROJECT_ID"
+            echo "- Commit: ${GITHUB_SHA::7}"
+            echo "- Health: passed"
+            echo "- Fault-code smoke test: passed"
+            echo "- Safety triage smoke test: passed"
+          } >> "$GITHUB_STEP_SUMMARY"
