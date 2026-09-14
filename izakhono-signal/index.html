@@ -30,7 +30,7 @@
 <section class="controls">
   <button id="queueAll" class="primary">Queue all RUN NOW campaigns ×3/day</button>
   <button id="todayBoard">Today's publishing board</button>
-  <button id="connectionsBtn">Connections</button>
+  <button id="videoAdsBtn">Video Ads</button><button id="connectionsBtn">Connections</button>
   <span id="queueStatus">Nothing queued on this device yet.</span>
 </section>
 
@@ -58,6 +58,12 @@
   <div class="drawer-head"><div><span class="eyebrow">TODAY</span><h2>3× Daily Publishing Board</h2></div><button data-close="board">×</button></div>
   <p class="muted">Use Share on your phone, or one-tap X/Facebook/LinkedIn/WhatsApp buttons. Instagram/TikTok direct API publishing activates when their business OAuth credentials are connected.</p>
   <div id="schedule"></div>
+</section>
+
+<section id="videoAds" class="drawer" hidden>
+  <div class="drawer-head"><div><span class="eyebrow">SHORT-FORM VIDEO</span><h2>Video Ad Studio</h2></div><button data-close="videoAds">×</button></div>
+  <p class="muted">15-second vertical masters for Instagram Reels, Facebook Reels, TikTok, YouTube Shorts and WhatsApp Status. Each RUN NOW campaign gets a hook, offer, proof/message and CTA.</p>
+  <div id="videoGrid" class="video-grid"></div>
 </section>
 
 <section id="connections" class="drawer" hidden>
