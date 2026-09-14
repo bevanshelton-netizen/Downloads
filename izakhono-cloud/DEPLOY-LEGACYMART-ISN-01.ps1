@@ -92,7 +92,9 @@ if not path.exists():
     path.chmod(0o600)
 PY
 
-grep -q '^PAYFAST_MODE=sandbox
+grep -q '^PAYFAST_MODE=sandbox$' "$ENV_FILE" || { echo "LegacyMart pilot must remain PayFast sandbox."; exit 4; }
+grep -q '^CHECKOUT_ENABLED=false$' "$ENV_FILE" || { echo "LegacyMart pilot checkout must remain disabled."; exit 4; }
+grep -q '^BASE_URL=http://127.0.0.1:18110$' "$ENV_FILE" || { echo "LegacyMart pilot BASE_URL must remain loopback."; exit 4; }
 
 IMAGE="legacymart:izakhono-$(printf '%s' "$PINNED" | cut -c1-12)"
 docker build   --label "za.co.izakhono.product=LegacyMart"   --label "za.co.izakhono.commit=$PINNED"   --label "za.co.izakhono.channel=private-pilot"   -t "$IMAGE" .
