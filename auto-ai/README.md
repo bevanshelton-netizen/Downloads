@@ -1,5 +1,22 @@
 # AUTO AI by IZAKHONO
 
+## PUBLIC BETA — LIVE
+
+AUTO AI is published as a public browser beta at:
+
+https://bevanshelton-netizen.github.io/Downloads/auto-ai/
+
+Current public-beta capabilities:
+- symptom safety triage;
+- fault-code explanation;
+- repair-quotation review;
+- used-car buyer risk screening;
+- mobile-first PWA shell.
+
+Public beta does **not** yet represent final Google Play production readiness, physical OBD connectivity, or a confirmed mechanical diagnosis.
+
+---
+
 **Understand your car before you spend.**
 
 AUTO AI is an AI-first vehicle decision-support MVP for motorists outside motor/service plans, owners seeking a second layer of understanding before repairs, and used-car buyers.
