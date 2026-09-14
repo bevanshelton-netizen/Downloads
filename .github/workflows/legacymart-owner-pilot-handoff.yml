@@ -45,7 +45,7 @@ jobs:
         run: |
           $p = Get-Content 'izakhono-cloud/DEPLOY-LEGACYMART-ISN-01.ps1' -Raw
           foreach ($required in @(
-            '580d30b8b77316e6df7c85791b0c05f7c1552c94',
+            '691cecfc4c78fb230c49020b6967eb076fae7e58',
             'ENGINE-PROOF.json',
             '127.0.0.1:18110',
             'PAYFAST_MODE=sandbox',
@@ -57,6 +57,7 @@ jobs:
             if ($p -notmatch [regex]::Escape($required)) { throw "Missing LegacyMart pilot contract: $required" }
           }
           if ($p -notmatch 'checkout_enabled.+False') { throw 'checkout-disable receipt missing' }
+          if ($p -notmatch 'IZAKHONO_ANALYTICS_URL=http://127.0.0.1:18112') { throw 'local analytics wiring missing' }
           if ($p -notmatch 'live_payment_validation_ready.+False') { throw 'live-payment block missing' }
           if ($p -notmatch 'public_dns_changed.+False') { throw 'DNS safety receipt missing' }
           if ($p -notmatch 'live_payments_changed.+False') { throw 'payment safety receipt missing' }
