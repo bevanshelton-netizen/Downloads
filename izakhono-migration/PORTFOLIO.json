@@ -1,6 +1,6 @@
 {
   "schema": "izakhono.portfolio-migration/v1",
-  "updated_at": "2026-09-14T08:23:00+02:00",
+  "updated_at": "2026-09-14T08:47:00+02:00",
   "policy": {
     "primary_runtime": "IZAKHONO",
     "external_hosts": "fallback-only until IZAKHONO external acceptance passes",
@@ -22,10 +22,10 @@
     },
     {
       "name": "ALLEGRO-VIBEZ",
-      "status": "OWNER_HOST_QUEUED_GATEWAY_WITHHELD_BAD_UPSTREAM",
+      "status": "TEMP_GATEWAY_LIVE_OWNER_HOST_QUEUED",
       "repo": "bevanshelton-netizen/allegro-vibez",
       "build_gate": "PASS",
-      "notes": "IZAKHONO production cutover queued on self-hosted linux/x64/izakhono runner."
+      "notes": "Verified production bundle live at allegro-vibez.vercel.app; creator/revenue/booking leads persist through IZAKHONO Edge endpoint; owner-host cutover remains queued."
     },
     {
       "name": "THE CHANCELLOR",
@@ -52,10 +52,11 @@
     },
     {
       "name": "YenZaNow",
-      "status": "OWNER_HOST_QUEUED_GATEWAY_WITHHELD_BAD_UPSTREAM",
+      "status": "TEMP_GATEWAY_LIVE_OWNER_HOST_QUEUED",
       "repo": "bevanshelton-netizen/Downloads",
       "path": "ports/yenzanow",
-      "build_gate": "PASS"
+      "build_gate": "PASS",
+      "notes": "Canonical Vercel production repaired with verified working build; GitHub Pages fallback also available; owner-host cutover remains queued."
     },
     {
       "name": "Matric Rewrite Prep Academy",
