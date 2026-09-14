@@ -1,6 +1,6 @@
 {
   "schema": "izakhono.portfolio-migration/v1",
-  "updated_at": "2026-09-12T19:35:00+02:00",
+  "updated_at": "2026-09-14T08:23:00+02:00",
   "policy": {
     "primary_runtime": "IZAKHONO",
     "external_hosts": "fallback-only until IZAKHONO external acceptance passes",
@@ -10,33 +10,33 @@
   "platforms": [
     {
       "name": "IZAKHONO Social Command",
-      "status": "IZAKHONO_LIVE",
+      "status": "TEMP_GATEWAY_LIVE",
       "runtime": "Supabase Edge Functions",
       "notes": "Controlled production; social API publishing permissions remain provider-gated."
     },
     {
       "name": "IZAKHONO WebStart",
-      "status": "IZAKHONO_LIVE",
+      "status": "TEMP_GATEWAY_LIVE",
       "runtime": "Supabase Edge Functions",
       "notes": "Free-route production; iKhokha activation separate."
     },
     {
       "name": "ALLEGRO-VIBEZ",
-      "status": "OWNER_HOST_CUTOVER_QUEUED",
+      "status": "OWNER_HOST_QUEUED_GATEWAY_WITHHELD_BAD_UPSTREAM",
       "repo": "bevanshelton-netizen/allegro-vibez",
       "build_gate": "PASS",
       "notes": "IZAKHONO production cutover queued on self-hosted linux/x64/izakhono runner."
     },
     {
       "name": "THE CHANCELLOR",
-      "status": "OWNER_HOST_CUTOVER_QUEUED",
+      "status": "TEMP_GATEWAY_LIVE_OWNER_HOST_QUEUED",
       "repo": "bevanshelton-netizen/the-chancellor",
       "build_gate": "PASS",
       "notes": "Production smoke PASS; owner-host cutover queued."
     },
     {
       "name": "KORA",
-      "status": "IZAKHONO_ALPHA_PASS",
+      "status": "TEMP_GATEWAY_LIVE_OWNER_HOST_QUEUED",
       "repo": "bevanshelton-netizen/Downloads",
       "path": "kora-network",
       "build_gate": "PASS",
@@ -44,7 +44,7 @@
     },
     {
       "name": "FAISReady",
-      "status": "IZAKHONO_ALPHA_PASS",
+      "status": "TEMP_GATEWAY_LIVE_OWNER_HOST_QUEUED",
       "repo": "bevanshelton-netizen/Downloads",
       "path": "FAISReady",
       "build_gate": "PASS",
@@ -52,28 +52,28 @@
     },
     {
       "name": "YenZaNow",
-      "status": "OWNER_HOST_CUTOVER_QUEUED",
+      "status": "OWNER_HOST_QUEUED_GATEWAY_WITHHELD_BAD_UPSTREAM",
       "repo": "bevanshelton-netizen/Downloads",
       "path": "ports/yenzanow",
       "build_gate": "PASS"
     },
     {
       "name": "Matric Rewrite Prep Academy",
-      "status": "OWNER_HOST_CUTOVER_QUEUED",
+      "status": "TEMP_GATEWAY_LIVE_OWNER_HOST_QUEUED",
       "repo": "bevanshelton-netizen/Downloads",
       "path": "ports/matric-rewrite",
       "build_gate": "PASS"
     },
     {
       "name": "IZAKHONO Command Center",
-      "status": "OWNER_HOST_CUTOVER_QUEUED",
+      "status": "TEMP_GATEWAY_LIVE_OWNER_HOST_QUEUED",
       "repo": "bevanshelton-netizen/Downloads",
       "path": "ports/izakhono-command-center",
       "build_gate": "PASS"
     },
     {
       "name": "IZAKHONO Containers",
-      "status": "OWNER_HOST_CUTOVER_QUEUED",
+      "status": "TEMP_GATEWAY_LIVE_OWNER_HOST_QUEUED",
       "repo": "bevanshelton-netizen/Downloads",
       "path": "ports/izakhono-containers",
       "build_gate": "PASS"
@@ -121,5 +121,7 @@
       "name": "ECD360",
       "status": "MAPPED_TO_EDUBUILD_ECD360"
     }
-  ]
+  ],
+  "gateway_registry": "izakhono-migration/GATEWAYS.json",
+  "gateway_entrypoint": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway"
 }
