@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#08111f">
 <meta name="description" content="AUTO AI by IZAKHONO helps motorists understand symptoms, fault codes, repair quotes and used-car risks.">
-<link rel="manifest" href="/manifest.webmanifest">
-<link rel="icon" href="/icon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="/styles.css">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="./styles.css">
 <title>AUTO AI by IZAKHONO</title>
 </head>
 <body>
@@ -22,16 +22,15 @@
   <p>Plain-language vehicle help for owners, motorists outside motor plan, and people buying used cars.</p>
   <div class="trust"><span>✓ Safety first</span><span>✓ No parts guessing</span><span>✓ Independent guidance</span></div>
 </section>
-<section class="status" id="statusBar"><span class="dot"></span><span>Checking AUTO AI...</span></section>
+<section class="status" id="statusBar"><span class="dot"></span><span>Starting AUTO AI...</span></section>
 <nav class="actions" aria-label="AUTO AI tools">
   <button data-panel="triage" class="action active"><span>🚘</span><b>What's wrong?</b><small>Free first assessment</small></button>
   <button data-panel="code" class="action"><span>⚠️</span><b>Fault code</b><small>Explain a code</small></button>
   <button data-panel="quote" class="action"><span>🧾</span><b>Repair quote</b><small>Check before paying</small></button>
   <button data-panel="buyer" class="action"><span>🔍</span><b>Used car</b><small>Check before buying</small></button>
 </nav>
-
 <section class="panel active" id="triage">
-  <div class="panel-head"><div><span class="kicker">FREE</span><h2>What's wrong with my car?</h2></div><span class="badge">AI + safety rules</span></div>
+  <div class="panel-head"><div><span class="kicker">FREE</span><h2>What's wrong with my car?</h2></div><span class="badge">Safety-first analysis</span></div>
   <form id="triageForm">
     <div class="grid four">
       <label>Year<input name="year" inputmode="numeric" placeholder="2018"></label>
@@ -49,7 +48,6 @@
   </form>
   <div class="result" id="triageResult" hidden></div>
 </section>
-
 <section class="panel" id="code">
   <div class="panel-head"><div><span class="kicker">FREE</span><h2>Explain my fault code</h2></div></div>
   <form id="codeForm">
@@ -58,17 +56,15 @@
   </form>
   <div class="result" id="codeResult" hidden></div>
 </section>
-
 <section class="panel" id="quote">
   <div class="panel-head"><div><span class="kicker">OWNER PROTECTION</span><h2>Check my mechanic's quote</h2></div></div>
-  <p class="note">Paste the quotation text. Photo/PDF document reading comes in the next AI layer.</p>
+  <p class="note">Paste the quotation text. Photo/PDF reading will be added as the AI service layer expands.</p>
   <form id="quoteForm">
     <label>Quotation<textarea name="quote" required placeholder="Paste parts, labour, diagnostic fees and totals here..."></textarea></label>
     <button class="primary" type="submit">Review quote</button>
   </form>
   <div class="result" id="quoteResult" hidden></div>
 </section>
-
 <section class="panel" id="buyer">
   <div class="panel-head"><div><span class="kicker">USED-CAR BUYER</span><h2>Should I investigate this car further?</h2></div><span class="badge">Screening check</span></div>
   <p class="note">Tick anything you observed. AUTO AI will calculate an initial risk screen and tell you what to verify before buying.</p>
@@ -85,13 +81,12 @@
   </form>
   <div class="result" id="buyerResult" hidden></div>
 </section>
-
 <section class="promise">
   <div><strong>Our rule:</strong> We don't earn more because your car is broken.</div>
   <p>AUTO AI separates clues from confirmed faults. Safety-critical guidance is never hidden behind a paywall.</p>
 </section>
 </main>
-<footer><span>AUTO AI by IZAKHONO</span><nav><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a></nav></footer>
-<script src="/app.js" defer></script>
+<footer><span>AUTO AI by IZAKHONO</span><nav><a href="./privacy.html">Privacy</a><a href="./terms.html">Terms</a></nav></footer>
+<script src="./app.js" defer></script>
 </body>
 </html>
