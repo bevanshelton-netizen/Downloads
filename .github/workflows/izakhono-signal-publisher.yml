@@ -1,0 +1,92 @@
+name: IZAKHONO SIGNAL Scheduled Publisher
+
+on:
+  schedule:
+    - cron: "0 6,11,17 * * *"
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: Publishing slot
+        required: false
+        type: choice
+        options: [morning, midday, evening]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: izakhono-signal-publisher
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    env:
+      SIGNAL_FACEBOOK_WEBHOOK_URL: ${{ secrets.SIGNAL_FACEBOOK_WEBHOOK_URL }}
+      SIGNAL_FACEBOOK_TOKEN: ${{ secrets.SIGNAL_FACEBOOK_TOKEN }}
+      SIGNAL_INSTAGRAM_WEBHOOK_URL: ${{ secrets.SIGNAL_INSTAGRAM_WEBHOOK_URL }}
+      SIGNAL_INSTAGRAM_TOKEN: ${{ secrets.SIGNAL_INSTAGRAM_TOKEN }}
+      SIGNAL_LINKEDIN_WEBHOOK_URL: ${{ secrets.SIGNAL_LINKEDIN_WEBHOOK_URL }}
+      SIGNAL_LINKEDIN_TOKEN: ${{ secrets.SIGNAL_LINKEDIN_TOKEN }}
+      SIGNAL_TIKTOK_WEBHOOK_URL: ${{ secrets.SIGNAL_TIKTOK_WEBHOOK_URL }}
+      SIGNAL_TIKTOK_TOKEN: ${{ secrets.SIGNAL_TIKTOK_TOKEN }}
+      SIGNAL_X_WEBHOOK_URL: ${{ secrets.SIGNAL_X_WEBHOOK_URL }}
+      SIGNAL_X_TOKEN: ${{ secrets.SIGNAL_X_TOKEN }}
+      SIGNAL_THREADS_WEBHOOK_URL: ${{ secrets.SIGNAL_THREADS_WEBHOOK_URL }}
+      SIGNAL_THREADS_TOKEN: ${{ secrets.SIGNAL_THREADS_TOKEN }}
+      SIGNAL_YOUTUBE_WEBHOOK_URL: ${{ secrets.SIGNAL_YOUTUBE_WEBHOOK_URL }}
+      SIGNAL_YOUTUBE_TOKEN: ${{ secrets.SIGNAL_YOUTUBE_TOKEN }}
+      SIGNAL_GOOGLE_BUSINESS_WEBHOOK_URL: ${{ secrets.SIGNAL_GOOGLE_BUSINESS_WEBHOOK_URL }}
+      SIGNAL_GOOGLE_BUSINESS_TOKEN: ${{ secrets.SIGNAL_GOOGLE_BUSINESS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Resolve slot
+        id: slot
+        shell: bash
+        run: |
+          if [ -n "${{ inputs.slot }}" ]; then
+            slot="${{ inputs.slot }}"
+          else
+            case "$(date -u +%H)" in
+              06) slot=morning ;;
+              11) slot=midday ;;
+              17) slot=evening ;;
+              *) slot=morning ;;
+            esac
+          fi
+          echo "value=$slot" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch portfolio campaigns
+        run: python izakhono-signal/publisher.py --slot "${{ steps.slot.outputs.value }}"
+
+      - name: Persist dispatch receipts
+        shell: bash
+        run: |
+          git config user.name "IZAKHONO SIGNAL"
+          git config user.email "signal@users.noreply.github.com"
+          git add izakhono-signal/runtime
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "SIGNAL: ${{ steps.slot.outputs.value }} dispatch receipt"
+          git push origin HEAD:main
+
+      - name: Publish summary
+        shell: bash
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          d=json.load(open("izakhono-signal/runtime/latest.json"))
+          counts={}
+          for c in d["campaigns"]:
+              for p in c["providers"]:
+                  counts[p["status"]]=counts.get(p["status"],0)+1
+          print("## IZAKHONO SIGNAL Dispatch")
+          print("- Slot:", d["slot"])
+          print("- Campaigns:", len(d["campaigns"]))
+          print("- Provider actions:", sum(counts.values()))
+          for k,v in sorted(counts.items()): print(f"- {k}: {v}")
+          PY
