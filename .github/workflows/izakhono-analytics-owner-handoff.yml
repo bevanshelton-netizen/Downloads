@@ -1,0 +1,64 @@
+name: IZAKHONO Analytics Owner Handoff Proof
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'izakhono-cloud/DEPLOY-ANALYTICS-ISN-01.ps1'
+      - 'START-ANALYTICS-ON-IZAKHONO.cmd'
+      - 'izakhono-cloud/RUN-IZAKHONO-FLEET-ISN-01.ps1'
+      - '.github/workflows/izakhono-analytics-owner-handoff.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'izakhono-cloud/DEPLOY-ANALYTICS-ISN-01.ps1'
+      - 'START-ANALYTICS-ON-IZAKHONO.cmd'
+      - 'izakhono-cloud/RUN-IZAKHONO-FLEET-ISN-01.ps1'
+      - '.github/workflows/izakhono-analytics-owner-handoff.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Parse PowerShell launcher
+        shell: pwsh
+        run: |
+          $tokens=$null; $errors=$null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path 'izakhono-cloud/DEPLOY-ANALYTICS-ISN-01.ps1'),
+            [ref]$tokens,[ref]$errors
+          ) | Out-Null
+          if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_.Message }; exit 1 }
+      - name: Guard private analytics contract
+        shell: pwsh
+        run: |
+          $p = Get-Content 'izakhono-cloud/DEPLOY-ANALYTICS-ISN-01.ps1' -Raw
+          foreach ($required in @(
+            '01c74fb780b491fb0697ebfdcd3afbcdf2c0d72f',
+            'ENGINE-PROOF.json',
+            '127.0.0.1:18112',
+            'izakhono_analytics_data',
+            'no-raw-ip-storage',
+            'ANALYTICS-CUTOVER.json'
+          )) {
+            if ($p -notmatch [regex]::Escape($required)) { throw "Missing analytics handoff contract: $required" }
+          }
+          if ($p -notmatch 'public_dns_changed.+False') { throw 'DNS safety receipt missing' }
+          if ($p -notmatch 'live_payments_changed.+False') { throw 'payment safety receipt missing' }
+          if ($p -match 'cloudflared tunnel route|route53|nameserver|dns update') { throw 'analytics private pilot must not modify public edge' }
+      - name: Guard fleet registration
+        shell: pwsh
+        run: |
+          $f = Get-Content 'izakhono-cloud/RUN-IZAKHONO-FLEET-ISN-01.ps1' -Raw
+          if ($f -notmatch 'DEPLOY-ANALYTICS-ISN-01.ps1') { throw 'Analytics is not registered in the ISN-01 fleet' }
+      - name: Validate CMD handoff
+        shell: pwsh
+        run: |
+          $c = Get-Content 'START-ANALYTICS-ON-IZAKHONO.cmd' -Raw
+          if ($c -notmatch 'DEPLOY-ANALYTICS-ISN-01.ps1') { throw 'launcher target mismatch' }
