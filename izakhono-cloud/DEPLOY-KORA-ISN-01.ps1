@@ -10,7 +10,7 @@ $EngineProof = Join-Path $State "ENGINE-PROOF.json"
 $EnvFile = Join-Path $State "KORA.env"
 $EnvTemplate = Join-Path $State "KORA.env.template"
 $Receipt = Join-Path $State "KORA-CUTOVER.json"
-$Pinned = "412aed59d2cd372ec243f951c466246e2c0f9338"
+$Pinned = "34d202a29d81971013f1908490902e43496ab014"
 
 function Fail([string]$Message) {
     Write-Host "FAIL: $Message" -ForegroundColor Red
@@ -95,6 +95,7 @@ updates={
     "KORA_TICKET_LIVE_APPROVED":"false",
     "KORA_IZAKHONO_PAY_LIVE_APPROVED":"false",
     "KORA_PRIVATE_SIGNUP_ENABLED":"true",
+    "IZAKHONO_ANALYTICS_URL":"http://127.0.0.1:18112",
 }
 lines=raw.splitlines()
 seen=set()
