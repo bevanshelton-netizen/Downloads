@@ -8,7 +8,7 @@ $ErrorActionPreference = "Stop"
 $State = Join-Path $env:ProgramData "IZAKHONO\ISN-01"
 $EngineProof = Join-Path $State "ENGINE-PROOF.json"
 $Receipt = Join-Path $State "LEGACYMART-CUTOVER.json"
-$Pinned = "580d30b8b77316e6df7c85791b0c05f7c1552c94"
+$Pinned = "691cecfc4c78fb230c49020b6967eb076fae7e58"
 $LocalOrigin = "http://127.0.0.1:18110"
 
 function Fail([string]$Message) {
@@ -104,7 +104,7 @@ for volume in "$DATA_VOL" "$DOWNLOAD_VOL" "$CANARY_DATA_VOL" "$CANARY_DOWNLOAD_V
 done
 
 docker rm -f "$CANARY" >/dev/null 2>&1 || true
-docker run -d --name "$CANARY"   --env-file "$ENV_FILE"   -e PAYFAST_MODE=sandbox   -e CHECKOUT_ENABLED=false   -e BASE_URL="http://127.0.0.1:$CANARY_PORT"   -v "$CANARY_DATA_VOL:/app/data"   -v "$CANARY_DOWNLOAD_VOL:/app/public/downloads"   -p "127.0.0.1:$CANARY_PORT:3000" "$IMAGE" >/dev/null
+docker run -d --name "$CANARY"   --env-file "$ENV_FILE"   -e PAYFAST_MODE=sandbox   -e CHECKOUT_ENABLED=false   -e IZAKHONO_ANALYTICS_URL=http://127.0.0.1:18112   -e BASE_URL="http://127.0.0.1:$CANARY_PORT"   -v "$CANARY_DATA_VOL:/app/data"   -v "$CANARY_DOWNLOAD_VOL:/app/public/downloads"   -p "127.0.0.1:$CANARY_PORT:3000" "$IMAGE" >/dev/null
 
 cleanup_canary(){ docker rm -f "$CANARY" >/dev/null 2>&1 || true; }
 trap cleanup_canary EXIT INT TERM
@@ -148,11 +148,11 @@ fi
 rollback(){
   docker rm -f "$APP" >/dev/null 2>&1 || true
   if [ -n "$old_image" ]; then
-    docker run -d --name "$APP" --restart unless-stopped       --env-file "$ENV_FILE"       -e PAYFAST_MODE=sandbox       -e CHECKOUT_ENABLED=false       -e BASE_URL="http://127.0.0.1:$PROD_PORT"       -v "$DATA_VOL:/app/data"       -v "$DOWNLOAD_VOL:/app/public/downloads"       -p "127.0.0.1:$PROD_PORT:3000" "$old_image" >/dev/null || true
+    docker run -d --name "$APP" --restart unless-stopped       --env-file "$ENV_FILE"       -e PAYFAST_MODE=sandbox       -e CHECKOUT_ENABLED=false       -e IZAKHONO_ANALYTICS_URL=http://127.0.0.1:18112       -e BASE_URL="http://127.0.0.1:$PROD_PORT"       -v "$DATA_VOL:/app/data"       -v "$DOWNLOAD_VOL:/app/public/downloads"       -p "127.0.0.1:$PROD_PORT:3000" "$old_image" >/dev/null || true
   fi
 }
 
-docker run -d --name "$APP" --restart unless-stopped   --env-file "$ENV_FILE"   -e PAYFAST_MODE=sandbox   -e CHECKOUT_ENABLED=false   -e BASE_URL="http://127.0.0.1:$PROD_PORT"   -v "$DATA_VOL:/app/data"   -v "$DOWNLOAD_VOL:/app/public/downloads"   -p "127.0.0.1:$PROD_PORT:3000" "$IMAGE" >/dev/null || { rollback; exit 6; }
+docker run -d --name "$APP" --restart unless-stopped   --env-file "$ENV_FILE"   -e PAYFAST_MODE=sandbox   -e CHECKOUT_ENABLED=false   -e IZAKHONO_ANALYTICS_URL=http://127.0.0.1:18112   -e BASE_URL="http://127.0.0.1:$PROD_PORT"   -v "$DATA_VOL:/app/data"   -v "$DOWNLOAD_VOL:/app/public/downloads"   -p "127.0.0.1:$PROD_PORT:3000" "$IMAGE" >/dev/null || { rollback; exit 6; }
 
 for _ in $(seq 1 30); do
   curl -fsS "http://127.0.0.1:$PROD_PORT/health" >/tmp/legacymart-health.json && break
