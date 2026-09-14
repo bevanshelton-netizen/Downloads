@@ -33,6 +33,8 @@ jobs:
           ANALYTICS_PORT: '18080'
           ANALYTICS_DB_PATH: /tmp/izakhono-analytics.db
           ANALYTICS_HASH_SECRET: ci-only-analytics-secret-0123456789abcdef
+          ANALYTICS_ALLOWED_ORIGINS: https://allegro.example
+          ANALYTICS_ADMIN_TOKEN: ci-only-admin-token-0123456789abcdef
         run: |
           python3 izakhono-analytics/server.py >/tmp/analytics.log 2>&1 &
           echo $! >/tmp/analytics.pid
@@ -45,7 +47,9 @@ jobs:
         run: |
           curl -fsS -X POST -H 'content-type: application/json'             --data '{"platform":"allegro-vibez","event":"pageview","path":"/artists","visitor_id":"visitor-a","session_id":"session-a"}'             http://127.0.0.1:18080/v1/hit
           curl -fsS -X POST -H 'content-type: application/json'             --data '{"platform":"allegro-vibez","event":"purchase","path":"/checkout","visitor_id":"visitor-a","session_id":"session-a","value_minor":39900}'             http://127.0.0.1:18080/v1/hit
-          curl -fsS 'http://127.0.0.1:18080/api/summary?days=1' >/tmp/summary.json
+          code=$(curl -sS -o /tmp/unauth.json -w '%{http_code}' 'http://127.0.0.1:18080/api/summary?days=1')
+          test "$code" = "401"
+          curl -fsS -H 'Authorization: Bearer ci-only-admin-token-0123456789abcdef'             'http://127.0.0.1:18080/api/summary?days=1' >/tmp/summary.json
           python3 - <<'PY'
           import json
           d=json.load(open('/tmp/summary.json'))
@@ -56,6 +60,12 @@ jobs:
           assert d['platforms'][0]['platform']=='allegro-vibez'
           print('IZAKHONO_ANALYTICS_CONTRACT=PASS')
           PY
+      - name: Prove origin allowlist
+        run: |
+          code=$(curl -sS -o /tmp/deny.json -w '%{http_code}' -X POST             -H 'Origin: https://evil.example'             -H 'content-type: application/json'             --data '{"platform":"allegro-vibez","event":"pageview","path":"/","visitor_id":"x","session_id":"y"}'             http://127.0.0.1:18080/v1/hit)
+          test "$code" = "403"
+          curl -fsS -X POST             -H 'Origin: https://allegro.example'             -H 'content-type: application/json'             --data '{"platform":"allegro-vibez","event":"pageview","path":"/allowed","visitor_id":"x2","session_id":"y2"}'             http://127.0.0.1:18080/v1/hit
+
       - name: Prove no raw IP storage contract
         run: |
           ! grep -Eiq 'x-forwarded-for|remote_address|client_address' izakhono-analytics/server.py
