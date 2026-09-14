@@ -128,3 +128,26 @@ function loadSignalEvents(){
 }
 loadSignalEvents();
 window.addEventListener("focus",loadSignalEvents);
+
+const videoScripts={
+ "auto-ai":["WARNING LIGHT? STRANGE NOISE?","ASK AUTO AI FIRST","R79 Health • R99 Quote • R149 Buyer Check","DON'T GUESS. KNOW. — AUTO AI"],
+ "doxa-sure":["ASSET UNDER PRESSURE?","ACT BEFORE THE CRISIS","Protect homes, vehicles and income","DOXA-SURE — Protect What Matters"],
+ "faisready":["RE1 OR RE5 COMING UP?","STOP STUDYING BLINDLY","Focused exam preparation","FAISREADY — PREPARE SMARTER"],
+ "fais-campaign":["READY TO PASS YOUR RE EXAM?","START A STRUCTURED PLAN","RE1 + RE5 preparation","OPEN FAISREADY TODAY"],
+ "racing":["READY TO RACE?","AFRICAN ROADS. REAL ATTITUDE.","Speed • Obstacles • Competition","BEVAN SHELTON RACING"],
+ "kora":["AFRICAN TALENT DESERVES A GLOBAL SCREEN","WATCH • LISTEN • DISCOVER","Artists, live events and creators","KORA — BUILT IN AFRICA FOR THE WORLD"],
+ "izakhono-africa":["NEED QUALITY CUSTOM CLOTHING?","SCHOOLS • TEAMS • COMPANIES","Uniforms • PPE • Sportswear • Corporate","IZAKHONO AFRICA — MADE TO WORK"],
+ "edubuild":["BUILD A CAREER IN ECD","NQF LEVEL 4 + LEVEL 5","Learn • Qualify • Serve your community","EDU-BUILD SHELTON CAMPUSES"]
+};
+function renderVideoAds(){
+ const grid=document.querySelector("#videoGrid"); if(!grid)return;
+ grid.innerHTML=live.map(c=>{
+   const s=videoScripts[c.id]||[c.tagline,c.offer,"Built for the right audience","OPEN "+c.name];
+   return `<article class="video-card"><span class="format">15 SEC • 9:16</span><h3>${c.name}</h3>
+   <ol><li><b>0–3s:</b> ${s[0]}</li><li><b>3–7s:</b> ${s[1]}</li><li><b>7–12s:</b> ${s[2]}</li><li><b>12–15s:</b> ${s[3]}</li></ol>
+   <div class="video-actions"><button class="primary-video" data-video-copy="${c.id}">Copy script</button><button data-video-share="${c.id}">Share brief</button></div></article>`;
+ }).join("");
+ qsa("[data-video-copy]").forEach(b=>b.onclick=async()=>{const c=campaigns.find(x=>x.id===b.dataset.videoCopy),s=videoScripts[c.id];const txt=`${c.name} — 15s vertical video\n0–3s: ${s[0]}\n3–7s: ${s[1]}\n7–12s: ${s[2]}\n12–15s: ${s[3]}\nCTA: ${c.url}`;await navigator.clipboard.writeText(txt);b.textContent="Copied ✓"});
+ qsa("[data-video-share]").forEach(b=>b.onclick=async()=>{const c=campaigns.find(x=>x.id===b.dataset.videoShare),s=videoScripts[c.id];const txt=`${c.name} video ad: ${s.join(" • ")}`;if(navigator.share)await navigator.share({title:c.name+" Video Ad",text:txt,url:c.url});else await navigator.clipboard.writeText(txt+"\n"+c.url)});
+}
+document.querySelector("#videoAdsBtn").onclick=()=>{renderVideoAds();qs("#videoAds").hidden=false;qs("#board").hidden=true;qs("#connections").hidden=true;qs("#videoAds").scrollIntoView({behavior:"smooth"})};
