@@ -45,6 +45,8 @@ jobs:
             '127.0.0.1:18112',
             'izakhono_analytics_data',
             'no-raw-ip-storage',
+            'ANALYTICS_ALLOWED_ORIGINS',
+            'http://127.0.0.1:18111',
             'ANALYTICS-CUTOVER.json'
           )) {
             if ($p -notmatch [regex]::Escape($required)) { throw "Missing analytics handoff contract: $required" }
