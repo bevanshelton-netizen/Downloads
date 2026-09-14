@@ -8,7 +8,7 @@ $ErrorActionPreference = "Stop"
 $State = Join-Path $env:ProgramData "IZAKHONO\ISN-01"
 $EngineProof = Join-Path $State "ENGINE-PROOF.json"
 $Receipt = Join-Path $State "ANALYTICS-CUTOVER.json"
-$Pinned = "01c74fb780b491fb0697ebfdcd3afbcdf2c0d72f"
+$Pinned = "abe9aaba714ca5b47a0c8dba7d3a610e4a57d683"
 $LocalOrigin = "http://127.0.0.1:18112"
 
 function Fail([string]$Message) {
@@ -42,6 +42,7 @@ CANARY="izakhono-analytics-canary"
 CANARY_PORT="18212"
 PROD_PORT="18112"
 DATA_VOL="izakhono_analytics_data"
+ALLOWED_ORIGINS="http://127.0.0.1:18105,http://127.0.0.1:18106,http://127.0.0.1:18107,http://127.0.0.1:18108,http://127.0.0.1:18110,http://127.0.0.1:18111"
 mkdir -p "$ROOT"
 
 for cmd in git docker curl python3; do
@@ -78,7 +79,7 @@ docker build   --label "za.co.izakhono.product=IZAKHONO Analytics"   --label "za
 docker volume inspect "$DATA_VOL" >/dev/null 2>&1 || docker volume create "$DATA_VOL" >/dev/null
 
 docker rm -f "$CANARY" >/dev/null 2>&1 || true
-docker run -d --name "$CANARY"   -e ANALYTICS_HASH_SECRET="$HASH_SECRET"   -e ANALYTICS_RETENTION_DAYS=180   -v "$DATA_VOL:/data"   -p "127.0.0.1:$CANARY_PORT:8080" "$IMAGE" >/dev/null
+docker run -d --name "$CANARY"   -e ANALYTICS_HASH_SECRET="$HASH_SECRET"   -e ANALYTICS_RETENTION_DAYS=180   -e ANALYTICS_ALLOWED_ORIGINS="$ALLOWED_ORIGINS"   -v "$DATA_VOL:/data"   -p "127.0.0.1:$CANARY_PORT:8080" "$IMAGE" >/dev/null
 
 cleanup_canary(){ docker rm -f "$CANARY" >/dev/null 2>&1 || true; }
 trap cleanup_canary EXIT INT TERM
@@ -101,11 +102,11 @@ fi
 rollback(){
   docker rm -f "$APP" >/dev/null 2>&1 || true
   if [ -n "$old_image" ]; then
-    docker run -d --name "$APP" --restart unless-stopped       -e ANALYTICS_HASH_SECRET="$HASH_SECRET"       -e ANALYTICS_RETENTION_DAYS=180       -v "$DATA_VOL:/data"       -p "127.0.0.1:$PROD_PORT:8080" "$old_image" >/dev/null || true
+    docker run -d --name "$APP" --restart unless-stopped       -e ANALYTICS_HASH_SECRET="$HASH_SECRET"       -e ANALYTICS_RETENTION_DAYS=180       -e ANALYTICS_ALLOWED_ORIGINS="$ALLOWED_ORIGINS"       -v "$DATA_VOL:/data"       -p "127.0.0.1:$PROD_PORT:8080" "$old_image" >/dev/null || true
   fi
 }
 
-docker run -d --name "$APP" --restart unless-stopped   -e ANALYTICS_HASH_SECRET="$HASH_SECRET"   -e ANALYTICS_RETENTION_DAYS=180   -v "$DATA_VOL:/data"   -p "127.0.0.1:$PROD_PORT:8080" "$IMAGE" >/dev/null || { rollback; exit 5; }
+docker run -d --name "$APP" --restart unless-stopped   -e ANALYTICS_HASH_SECRET="$HASH_SECRET"   -e ANALYTICS_RETENTION_DAYS=180   -e ANALYTICS_ALLOWED_ORIGINS="$ALLOWED_ORIGINS"   -v "$DATA_VOL:/data"   -p "127.0.0.1:$PROD_PORT:8080" "$IMAGE" >/dev/null || { rollback; exit 5; }
 
 for _ in $(seq 1 30); do
   curl -fsS "http://127.0.0.1:$PROD_PORT/healthz" >/tmp/analytics-health.json && break
