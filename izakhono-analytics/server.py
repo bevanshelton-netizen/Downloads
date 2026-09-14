@@ -20,6 +20,13 @@ PLATFORMS = {
         "ecd360,allegro-vibez,the-chancellor,shelton-fortress,legacymart,faisready,kora-network"
     ).split(",") if p.strip()
 }
+ALLOWED_ORIGINS = {
+    o.strip().rstrip("/") for o in os.environ.get(
+        "ANALYTICS_ALLOWED_ORIGINS",
+        "http://127.0.0.1:18112,http://localhost:18112"
+    ).split(",") if o.strip()
+}
+ADMIN_TOKEN = os.environ.get("ANALYTICS_ADMIN_TOKEN", "").strip()
 
 if len(HASH_SECRET) < 32:
     raise SystemExit("ANALYTICS_HASH_SECRET must be at least 32 characters")
@@ -236,7 +243,16 @@ small{color:#8390a3}
 let days=1;
 const money=n=>'R'+((n||0)/100).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
 async function load(){
- const r=await fetch('/api/summary?days='+days); const d=await r.json();
+ let token=sessionStorage.getItem('izakhono.analytics.admin')||'';
+ let r=await fetch('/api/summary?days='+days,{headers:token?{'Authorization':'Bearer '+token}:{}});
+ if(r.status===401){
+   token=prompt('IZAKHONO Analytics administrator token')||'';
+   if(!token){document.querySelector('#updated').textContent='Administrator access required';return}
+   sessionStorage.setItem('izakhono.analytics.admin',token);
+   r=await fetch('/api/summary?days='+days,{headers:{'Authorization':'Bearer '+token}});
+ }
+ if(!r.ok){document.querySelector('#updated').textContent='Analytics summary unavailable';return}
+ const d=await r.json();
  const t=d.totals;
  const cards=[['Page views',t.pageviews],['Unique visitors',t.unique_visitors],['Sessions',t.sessions],['Sign-ups',t.signups],['Checkout starts',t.checkout_starts],['Sales',t.purchases],['Revenue',money(t.revenue_minor)],['Bots filtered',t.bot_events]];
  document.querySelector('#cards').innerHTML=cards.map(x=>'<div class="card"><div class="value">'+x[1]+'</div><div class="label">'+x[0]+'</div></div>').join('');
@@ -259,16 +275,19 @@ class Handler(BaseHTTPRequestHandler):
         return
 
     def _origin_allowed(self):
-        origin = self.headers.get("Origin", "")
+        origin = self.headers.get("Origin", "").strip().rstrip("/")
         if not origin:
             return True
-        try:
-            parsed = urlparse(origin)
-            return parsed.scheme in ("http", "https") and (
-                parsed.hostname in ("127.0.0.1", "localhost") or parsed.scheme == "https"
-            )
-        except Exception:
+        return origin in ALLOWED_ORIGINS
+
+    def _admin_allowed(self):
+        if not ADMIN_TOKEN:
+            return True
+        auth = self.headers.get("Authorization", "")
+        if not auth.startswith("Bearer "):
             return False
+        supplied = auth[7:].strip()
+        return bool(supplied) and hmac.compare_digest(supplied, ADMIN_TOKEN)
 
     def _send(self, status, body, content_type="application/json; charset=utf-8", cors=False):
         data = body.encode() if isinstance(body, str) else json.dumps(body, separators=(",", ":")).encode()
@@ -278,8 +297,10 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
         if cors and self._origin_allowed():
-            self.send_header("Access-Control-Allow-Origin", self.headers.get("Origin") or "*")
-            self.send_header("Vary", "Origin")
+            origin = self.headers.get("Origin", "").strip().rstrip("/")
+            if origin:
+                self.send_header("Access-Control-Allow-Origin", origin)
+                self.send_header("Vary", "Origin")
         self.end_headers()
         self.wfile.write(data)
 
@@ -287,7 +308,10 @@ class Handler(BaseHTTPRequestHandler):
         if not self._origin_allowed():
             return self._send(403, {"error": "origin_not_allowed"})
         self.send_response(204)
-        self.send_header("Access-Control-Allow-Origin", self.headers.get("Origin", "*"))
+        origin = self.headers.get("Origin", "").strip().rstrip("/")
+        if origin:
+            self.send_header("Access-Control-Allow-Origin", origin)
+            self.send_header("Vary", "Origin")
         self.send_header("Access-Control-Allow-Methods", "POST,OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.send_header("Access-Control-Max-Age", "600")
@@ -302,7 +326,16 @@ class Handler(BaseHTTPRequestHandler):
             if platform not in PLATFORMS:
                 return self._send(404, "/* unknown platform */", "application/javascript")
             return self._send(200, BEACON_JS, "application/javascript; charset=utf-8", cors=True)
+        if url.path == "/api/config":
+            return self._send(200, {
+                "ok": True,
+                "admin_protected": bool(ADMIN_TOKEN),
+                "allowed_origin_count": len(ALLOWED_ORIGINS),
+                "retention_days": RETENTION_DAYS
+            })
         if url.path == "/api/summary":
+            if not self._admin_allowed():
+                return self._send(401, {"error": "admin_authorization_required"})
             days = parse_qs(url.query).get("days", ["1"])[0]
             try:
                 return self._send(200, summary(days))
