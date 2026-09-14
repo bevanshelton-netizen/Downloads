@@ -8,7 +8,7 @@ $ErrorActionPreference = "Stop"
 $State = Join-Path $env:ProgramData "IZAKHONO\ISN-01"
 $EngineProof = Join-Path $State "ENGINE-PROOF.json"
 $Receipt = Join-Path $State "CHANCELLOR-CUTOVER.json"
-$Pinned = "0b05fa7c3721ecb3e342a2ad2e9fcf0a4ad06fdd"
+$Pinned = "22914758d9bc24217d63c87515186f5d4a9806ab"
 
 function Fail([string]$Message) {
     Write-Host "FAIL: $Message" -ForegroundColor Red
@@ -102,7 +102,7 @@ docker volume create "$data_volume" >/dev/null
 docker volume create "$canary_volume" >/dev/null
 docker rm -f "$canary" >/dev/null 2>&1 || true
 
-docker run -d --name "$canary"   --env-file "$ENV_FILE"   -e PAYFAST_MODE=sandbox   -e PAYFAST_MERCHANT_ID=   -e PAYFAST_MERCHANT_KEY=   -e PAYFAST_PASSPHRASE=   -e IZAKHONO_RUNTIME=true   -e PERSISTENT_STORAGE=true   -v "$canary_volume:/app/data"   -p "127.0.0.1:$canary_port:3000" "$image" >/dev/null
+docker run -d --name "$canary"   --env-file "$ENV_FILE"   -e PAYFAST_MODE=sandbox   -e IZAKHONO_ANALYTICS_URL=http://127.0.0.1:18112   -e PAYFAST_MERCHANT_ID=   -e PAYFAST_MERCHANT_KEY=   -e PAYFAST_PASSPHRASE=   -e IZAKHONO_RUNTIME=true   -e PERSISTENT_STORAGE=true   -v "$canary_volume:/app/data"   -p "127.0.0.1:$canary_port:3000" "$image" >/dev/null
 
 cleanup_canary(){ docker rm -f "$canary" >/dev/null 2>&1 || true; }
 trap cleanup_canary EXIT INT TERM
@@ -129,11 +129,11 @@ fi
 rollback(){
   docker rm -f "$app" >/dev/null 2>&1 || true
   if [ -n "$old_image" ]; then
-    docker run -d --name "$app" --restart unless-stopped       --env-file "$ENV_FILE"       -e PAYFAST_MODE=sandbox       -e PAYFAST_MERCHANT_ID=       -e PAYFAST_MERCHANT_KEY=       -e PAYFAST_PASSPHRASE=       -e IZAKHONO_RUNTIME=true       -e PERSISTENT_STORAGE=true       -v "$data_volume:/app/data"       -p "127.0.0.1:$prod_port:3000" "$old_image" >/dev/null || true
+    docker run -d --name "$app" --restart unless-stopped       --env-file "$ENV_FILE"       -e PAYFAST_MODE=sandbox       -e IZAKHONO_ANALYTICS_URL=http://127.0.0.1:18112       -e PAYFAST_MERCHANT_ID=       -e PAYFAST_MERCHANT_KEY=       -e PAYFAST_PASSPHRASE=       -e IZAKHONO_RUNTIME=true       -e PERSISTENT_STORAGE=true       -v "$data_volume:/app/data"       -p "127.0.0.1:$prod_port:3000" "$old_image" >/dev/null || true
   fi
 }
 
-docker run -d --name "$app" --restart unless-stopped   --env-file "$ENV_FILE"   -e PAYFAST_MODE=sandbox   -e PAYFAST_MERCHANT_ID=   -e PAYFAST_MERCHANT_KEY=   -e PAYFAST_PASSPHRASE=   -e IZAKHONO_RUNTIME=true   -e PERSISTENT_STORAGE=true   -v "$data_volume:/app/data"   -p "127.0.0.1:$prod_port:3000" "$image" >/dev/null || { rollback; exit 5; }
+docker run -d --name "$app" --restart unless-stopped   --env-file "$ENV_FILE"   -e PAYFAST_MODE=sandbox   -e IZAKHONO_ANALYTICS_URL=http://127.0.0.1:18112   -e PAYFAST_MERCHANT_ID=   -e PAYFAST_MERCHANT_KEY=   -e PAYFAST_PASSPHRASE=   -e IZAKHONO_RUNTIME=true   -e PERSISTENT_STORAGE=true   -v "$data_volume:/app/data"   -p "127.0.0.1:$prod_port:3000" "$image" >/dev/null || { rollback; exit 5; }
 
 for _ in $(seq 1 30); do
   curl -fsS "http://127.0.0.1:$prod_port/api/health" >/dev/null && break
