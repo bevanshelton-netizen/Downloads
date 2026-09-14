@@ -88,6 +88,12 @@ function queueOne(id){
  ["08:00","13:00","19:00"].forEach((t,i)=>q.push({campaign:id,time:t,slot:["morning","midday","evening"][i],text:c.posts[i],url:utm(c,["morning","midday","evening"][i])}));
  localStorage.setItem("izakhono.signal.queue",JSON.stringify(q)); updateStatus(); showBoard();
 }
+function cashSprint(){
+ const c=campaigns.find(x=>x.id==="auto-ai"); if(!c)return;
+ const q=[];
+ ["08:00","13:00","19:00"].forEach((t,i)=>q.push({campaign:c.id,time:t,slot:["morning","midday","evening"][i],text:c.posts[i],url:utm(c,["morning_cash","midday_cash","evening_cash"][i])}));
+ localStorage.setItem("izakhono.signal.queue",JSON.stringify(q)); updateStatus(); showBoard();
+}
 function queueAll(){
  const q=[];
  live.forEach(c=>["08:00","13:00","19:00"].forEach((t,i)=>q.push({campaign:c.id,time:t,slot:["morning","midday","evening"][i],text:c.posts[i],url:utm(c,["morning","midday","evening"][i])})));
@@ -121,7 +127,7 @@ function showBoard(){
  qsa("[data-copy]").forEach(b=>b.onclick=async()=>{const item=data[Number(b.dataset.copy)];await navigator.clipboard.writeText(item.text+"\n\n"+item.url);b.textContent="Copied ✓"});
  qsa("[data-share]").forEach(b=>b.onclick=async()=>{const item=data[Number(b.dataset.share)];if(navigator.share)await navigator.share({title:"IZAKHONO SIGNAL",text:item.text,url:item.url});else await navigator.clipboard.writeText(item.text+"\n\n"+item.url)});
 }
-qs("#queueAll").onclick=queueAll; qs("#todayBoard").onclick=showBoard; qs("#connectionsBtn").onclick=()=>{qs("#connections").hidden=false;qs("#board").hidden=true;qs("#connections").scrollIntoView({behavior:"smooth"})};
+qs("#cashSprint").onclick=cashSprint; qs("#queueAll").onclick=queueAll; qs("#todayBoard").onclick=showBoard; qs("#connectionsBtn").onclick=()=>{qs("#connections").hidden=false;qs("#board").hidden=true;qs("#connections").scrollIntoView({behavior:"smooth"})};
 qsa("[data-close]").forEach(b=>b.onclick=()=>qs("#"+b.dataset.close).hidden=true);
 qsa(".filter").forEach(b=>b.onclick=()=>{qsa(".filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");render(b.dataset.filter)});
 render();updateStatus();
