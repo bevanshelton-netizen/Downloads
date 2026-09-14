@@ -72,6 +72,7 @@ function render(filter="all"){
   </div>
  </article>`).join("");
  qsa("[data-run]").forEach(b=>b.onclick=()=>queueOne(b.dataset.run));
+ qsa("[data-campaign-share]").forEach(b=>b.onclick=()=>shareCampaign(b.dataset.campaignShare));
 }
 async function shareCampaign(id){
  const c=campaigns.find(x=>x.id===id); if(!c||!c.url)return;
