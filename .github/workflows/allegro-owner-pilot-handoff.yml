@@ -50,6 +50,7 @@ jobs:
             'ALLEGRO.env',
             'VITE_IZAKHONO_CORE_URL',
             'VITE_IZAKHONO_PUBLIC_KEY',
+            'VITE_IZAKHONO_ANALYTICS_URL=http://127.0.0.1:18112',
             '127.0.0.1:18108',
             'ALLEGRO-CUTOVER.json'
           )) {
