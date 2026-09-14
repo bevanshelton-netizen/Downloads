@@ -1,6 +1,6 @@
 {
   "schema": "izakhono.gateway/v1",
-  "effective_at": "2026-09-14T08:23:00+02:00",
+  "effective_at": "2026-09-14T08:47:00+02:00",
   "mode": "TEMPORARY_GATEWAY_FIRST",
   "primary_entrypoint": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway",
   "policy": {
@@ -59,16 +59,21 @@
       "gateway": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway?app=chancellor",
       "upstream": "https://the-chancellor.vercel.app",
       "verified": true
-    }
-  ],
-  "withheld": [
-    {
-      "name": "ALLEGRO-VIBEZ",
-      "reason": "canonical Vercel production currently serves deployment probe; owner-host cutover remains queued"
     },
     {
-      "name": "YenZaNow",
-      "reason": "canonical Vercel production currently serves deployment test; verified build is not yet on stable public upstream"
+      "slug": "allegro",
+      "gateway": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway?app=allegro",
+      "upstream": "https://allegro-vibez.vercel.app",
+      "verified": true,
+      "notes": "Production bundle built from verified ALLEGRO source; persisted lead endpoint active."
+    },
+    {
+      "slug": "yenzanow",
+      "gateway": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway?app=yenzanow",
+      "upstream": "https://yenzanow.vercel.app",
+      "verified": true,
+      "secondary_fallback": "https://bevanshelton-netizen.github.io/Downloads/yenzanow/"
     }
-  ]
+  ],
+  "withheld": []
 }
