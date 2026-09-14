@@ -1,9 +1,14 @@
-name: Deploy DOXA-SURE Demo to GitHub Pages
+name: Deploy IZAKHONO Static Gateway to GitHub Pages
 
-# Pages must be enabled once by the repository owner. Keep deployment manual so
-# ordinary DOXA-SURE commits do not generate repeated failure notifications.
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'deploy/PUBLISH_STATIC_GATEWAY'
+      - 'ports/yenzanow/**'
+      - 'doxa-sure/**'
+      - '.github/workflows/doxa-sure-pages.yml'
 
 permissions:
   contents: read
@@ -11,8 +16,8 @@ permissions:
   id-token: write
 
 concurrency:
-  group: doxa-sure-pages
-  cancel-in-progress: true
+  group: izakhono-static-pages
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -22,13 +27,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
-      - name: Configure Pages
+        uses: actions/checkout@v4
+
+      - name: Assemble stable static gateway
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf _site
+          mkdir -p _site/yenzanow
+
+          # Preserve the existing DOXA-SURE demo at repository Pages root.
+          cp -R doxa-sure/. _site/
+
+          # Add the verified YenZaNow build as a stable sub-route.
+          cp ports/yenzanow/index.html _site/yenzanow/index.html
+          cp ports/yenzanow/healthz.txt _site/yenzanow/healthz.txt
+
+          touch _site/.nojekyll
+
+      - name: Configure and enable Pages
         uses: actions/configure-pages@v5
-      - name: Upload DOXA-SURE site
+        with:
+          enablement: true
+
+      - name: Upload IZAKHONO static gateway
         uses: actions/upload-pages-artifact@v4
         with:
-          path: doxa-sure
+          path: _site
+
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
