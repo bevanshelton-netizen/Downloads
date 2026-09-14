@@ -6,6 +6,7 @@ import './brand-boost.css';
 import './forms.css';
 import './workspaces.css';
 import { brand } from '@/lib/brand';
+import ShareButton from './share-button';
 
 export const dynamic = 'force-dynamic';
 
@@ -78,6 +79,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Link className="pill" href="/account">My KORA</Link>
         </header>
         <div id="page-content" tabIndex={-1}>{children}</div>
+        <ShareButton />
         <footer>
           <div className="footerBrand"><div className="footerLogo"><KoraMark /><strong>{brand.name}</strong></div><span>Family-safe creator television • No pornography or explicit sexual content.</span></div>
           <div className="footerLinks" aria-label="Legal and policy links">

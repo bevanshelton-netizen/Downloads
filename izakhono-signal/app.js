@@ -68,10 +68,19 @@ function render(filter="all"){
   <h3>${c.name}</h3><div class="tagline">${c.tagline}</div>
   <p class="aud"><strong>Audience:</strong> ${c.aud}</p><div class="offer">${c.offer}</div>
   <div class="campaign-actions">
-    ${c.status==="live"?`<button class="run" data-run="${c.id}">Add ×3 today</button><a href="${c.url}" target="_blank" rel="noopener">Open ↗</a>`:'<button disabled>Await public launch</button>'}
+    ${c.status==="live"?`<button class="run" data-run="${c.id}">Add ×3 today</button><button data-campaign-share="${c.id}">Share</button><a href="${c.url}" target="_blank" rel="noopener">Open ↗</a>`:'<button disabled>Await public launch</button>'}
   </div>
  </article>`).join("");
  qsa("[data-run]").forEach(b=>b.onclick=()=>queueOne(b.dataset.run));
+ qsa("[data-campaign-share]").forEach(b=>b.onclick=()=>shareCampaign(b.dataset.campaignShare));
+}
+async function shareCampaign(id){
+ const c=campaigns.find(x=>x.id===id); if(!c||!c.url)return;
+ const text=c.posts?.[0]||c.tagline;
+ const url=utm(c,"direct_share");
+ try{if(navigator.share){await navigator.share({title:c.name,text,url});return}}catch(e){if(e?.name==="AbortError")return}
+ if(navigator.clipboard){await navigator.clipboard.writeText(text+"\n\n"+url);alert(c.name+" share copy copied.");return}
+ prompt("Copy and share",text+"\n\n"+url);
 }
 function queueOne(id){
  const c=campaigns.find(x=>x.id===id); if(!c||c.status!=="live")return;
