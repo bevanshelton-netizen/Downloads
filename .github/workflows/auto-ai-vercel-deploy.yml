@@ -2,11 +2,6 @@ name: AUTO AI Vercel Production Deploy
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - "auto-ai/**"
-      - ".github/workflows/auto-ai-vercel-deploy.yml"
 
 permissions:
   contents: read
@@ -21,7 +16,7 @@ jobs:
     environment: kora-production
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_ORG_ID: team_XSHdQaQxmXGD1HlK2E4nehif
     steps:
       - uses: actions/checkout@v4
 
