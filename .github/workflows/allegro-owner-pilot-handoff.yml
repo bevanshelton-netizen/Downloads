@@ -45,7 +45,7 @@ jobs:
         run: |
           $p = Get-Content 'izakhono-cloud/DEPLOY-ALLEGRO-ISN-01.ps1' -Raw
           foreach ($required in @(
-            '5aa51d0bd94040f5c180418c6e1973228f5f2044',
+            '0158148cbeae8e5aa7094c0bda9649c438e61e29',
             'ENGINE-PROOF.json',
             'ALLEGRO.env',
             'VITE_IZAKHONO_CORE_URL',
