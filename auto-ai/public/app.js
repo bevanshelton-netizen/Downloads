@@ -19,3 +19,29 @@ qs("#codeForm").addEventListener("submit",async e=>{e.preventDefault();const f=e
 qs("#quoteForm").addEventListener("submit",async e=>{e.preventDefault();const f=e.currentTarget;loading(f,true);try{const r=await post("quote-review",Object.fromEntries(new FormData(f)));show(qs("#quoteResult"),"<h3>"+esc(r.result)+"</h3>"+(r.flags.length?'<p><strong>Things to clarify:</strong></p>'+list(r.flags):'<p class="good">The pasted quote contains useful itemisation, but still confirm the diagnosis.</p>')+'<p><strong>Ask the workshop:</strong></p>'+list(r.askWorkshop)+"<p><small>"+esc(r.disclaimer)+"</small></p>")}catch(err){show(qs("#quoteResult"),'<h3 class="urgent">Could not review quote</h3><p>'+esc(err.message)+"</p>")}loading(f,false)});
 qs("#buyerForm").addEventListener("submit",async e=>{e.preventDefault();const f=e.currentTarget;loading(f,true),issues=qsa("#buyerForm input[type=checkbox]").map(x=>({label:x.dataset.label,severity:x.dataset.severity,checked:x.checked}));try{const r=await post("used-car-score",{issues});show(qs("#buyerResult"),'<div class="score">'+r.score+'/100</div><h3>'+esc(r.band)+"</h3>"+(r.concerns.length?'<p><strong>Reported concerns:</strong></p>'+list(r.concerns):'<p class="good">No concerns were selected in this first screen.</p>')+'<p><strong>Before buying:</strong></p>'+list(r.next)+"<p><small>"+esc(r.disclaimer)+"</small></p>")}catch(err){show(qs("#buyerResult"),'<h3 class="urgent">Could not score vehicle</h3><p>'+esc(err.message)+"</p>")}loading(f,false)});
 let deferredPrompt;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;qs("#installBtn").hidden=false});qs("#installBtn").addEventListener("click",async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;qs("#installBtn").hidden=true});if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+
+/* IZAKHONO SIGNAL beta attribution — same-origin, privacy-light browser events */
+(function signalAttribution(){
+  try{
+    const q=new URLSearchParams(location.search);
+    const source=q.get("utm_source")||"";
+    const campaign=q.get("utm_campaign")||"";
+    const content=q.get("utm_content")||"";
+    if(source==="izakhono_signal"){
+      localStorage.setItem("izakhono.signal.last_touch",JSON.stringify({platform:"auto-ai",campaign,content,ts:Date.now()}));
+      const events=JSON.parse(localStorage.getItem("izakhono.signal.events")||"[]");
+      events.push({platform:"auto-ai",event:"landing",campaign,content,ts:Date.now()});
+      localStorage.setItem("izakhono.signal.events",JSON.stringify(events.slice(-500)));
+    }
+    document.addEventListener("click",function(e){
+      const a=e.target.closest&&e.target.closest("a");
+      if(!a)return;
+      const href=a.getAttribute("href")||"";
+      if(!href.includes("wa.me/27662982213"))return;
+      const touch=JSON.parse(localStorage.getItem("izakhono.signal.last_touch")||"{}");
+      const events=JSON.parse(localStorage.getItem("izakhono.signal.events")||"[]");
+      events.push({platform:"auto-ai",event:"checkout_start",campaign:touch.campaign||"direct",content:touch.content||"",label:(a.textContent||"").trim().slice(0,80),ts:Date.now()});
+      localStorage.setItem("izakhono.signal.events",JSON.stringify(events.slice(-500)));
+    },true);
+  }catch(_){}
+})();
