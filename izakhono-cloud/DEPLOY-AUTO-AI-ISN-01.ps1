@@ -7,6 +7,8 @@ $ErrorActionPreference = "Stop"
 
 $State = Join-Path $env:ProgramData "IZAKHONO\ISN-01"
 $EngineProof = Join-Path $State "ENGINE-PROOF.json"
+$EnvFile = Join-Path $State "AUTO-AI.env"
+$EnvTemplate = Join-Path $State "AUTO-AI.env.template"
 $Receipt = Join-Path $State "AUTO-AI-CUTOVER.json"
 $Pinned = "69ec4d0ad41edef19899e3345629cb8d6c989db9"
 
@@ -30,19 +32,46 @@ foreach ($field in @("scheduler_dispatch","image_pull","container_start","http_h
 $wsl = Get-Command wsl.exe -ErrorAction SilentlyContinue
 if (-not $wsl) { Fail "WSL is not available." }
 
+if (-not (Test-Path $EnvTemplate)) {
+    @"
+# Optional AUTO AI conversational gateway.
+# Leave AUTO-AI.env absent to run the local safety engine only.
+AI_CHAT_URL=
+AI_API_KEY=
+AI_MODEL=
+"@ | Set-Content -Path $EnvTemplate -Encoding UTF8
+}
+
+$HasAIEnv = Test-Path $EnvFile
+$linuxEnv = "/tmp/auto-ai-isn01.env"
+if ($HasAIEnv) {
+    Get-Content $EnvFile -Raw | wsl.exe -d Ubuntu-24.04 -- bash -c "umask 077; cat > $linuxEnv"
+    if ($LASTEXITCODE -ne 0) { Fail "Could not hand AUTO-AI.env into the owner-controlled WSL runtime." }
+}
+
 Write-Host "ISN-01 proof verified." -ForegroundColor Green
+if ($HasAIEnv) {
+    Write-Host "AUTO AI gateway environment detected; secrets will be passed only to the container runtime." -ForegroundColor Green
+} else {
+    Write-Host "AUTO AI will launch with its local safety engine. Optional template: $EnvTemplate" -ForegroundColor Yellow
+}
 Write-Host "Deploying AUTO AI as an owner-hosted private beta..." -ForegroundColor Cyan
 
 $bash = @'
 set -euo pipefail
 
 PINNED="__PINNED__"
+HAS_ENV="__HAS_ENV__"
 ROOT="$HOME/izakhono-fleet/auto-ai"
 REPO="$ROOT/Downloads"
 IMAGE="izakhono/auto-ai:$PINNED"
 CONTAINER="izakhono-auto-ai"
 PORT="18120"
+SOURCE_ENV="/tmp/auto-ai-isn01.env"
 mkdir -p "$ROOT"
+
+cleanup(){ rm -f "$SOURCE_ENV"; }
+trap cleanup EXIT INT TERM
 
 for cmd in git docker curl python3; do
   command -v "$cmd" >/dev/null || { echo "$cmd missing"; exit 2; }
@@ -75,7 +104,13 @@ if ss -ltn 2>/dev/null | grep -q ":$PORT "; then
   exit 4
 fi
 
-docker run -d   --name "$CONTAINER"   --restart unless-stopped   --read-only   --tmpfs /tmp:rw,noexec,nosuid,size=64m   --security-opt no-new-privileges   -p "127.0.0.1:$PORT:8080"   "$IMAGE" >/dev/null
+ENV_ARGS=()
+if [ "$HAS_ENV" = "true" ]; then
+  [ -s "$SOURCE_ENV" ] || { echo "AUTO AI environment transfer is empty"; exit 4; }
+  ENV_ARGS=(--env-file "$SOURCE_ENV")
+fi
+
+docker run -d   --name "$CONTAINER"   --restart unless-stopped   --read-only   --tmpfs /tmp:rw,noexec,nosuid,size=64m   --security-opt no-new-privileges   -p "127.0.0.1:$PORT:8080"   "${ENV_ARGS[@]}"   "$IMAGE" >/dev/null
 
 ok=false
 for i in $(seq 1 30); do
@@ -111,7 +146,7 @@ PY
 cat "$ROOT/auto-ai-cutover.json"
 '@
 
-$bash = $bash.Replace("__PINNED__", $Pinned)
+$bash = $bash.Replace("__PINNED__", $Pinned).Replace("__HAS_ENV__", $HasAIEnv.ToString().ToLowerInvariant())
 $tmp = Join-Path $env:TEMP "izakhono-auto-ai-isn01-cutover.sh"
 Set-Content -Path $tmp -Value $bash -Encoding UTF8
 $linuxTmp = "/tmp/izakhono-auto-ai-isn01-cutover.sh"
@@ -133,4 +168,5 @@ Write-Host ""
 Write-Host "AUTO AI IZAKHONO PRIVATE BETA: VERIFIED" -ForegroundColor Green
 Write-Host "Local beta: http://127.0.0.1:18120"
 Write-Host "Receipt: $Receipt"
+Write-Host ("AI gateway configured: " + $verified.ai_configured)
 Write-Host "DNS, public customer traffic and live payments remain unchanged." -ForegroundColor Yellow
