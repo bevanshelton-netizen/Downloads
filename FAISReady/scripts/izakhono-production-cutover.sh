@@ -17,7 +17,7 @@ docker volume create "$data_volume" >/dev/null
 docker volume create "$canary_volume" >/dev/null
 docker rm -f "$canary" >/dev/null 2>&1 || true
 
-run_args="--env FAISREADY_PAYMENT_ORCHESTRATOR=direct --env PAYFAST_SANDBOX=true --env FAISREADY_IZAKHONO_PAY_LIVE_APPROVED=false"
+run_args="--env FAISREADY_PAYMENT_ORCHESTRATOR=direct --env PAYFAST_SANDBOX=true --env FAISREADY_IZAKHONO_PAY_LIVE_APPROVED=false --env IZAKHONO_ANALYTICS_URL=${IZAKHONO_ANALYTICS_URL:-}"
 if [ -n "${FAISREADY_ENV_FILE:-}" ] && [ -f "$FAISREADY_ENV_FILE" ]; then
   env_file_args="--env-file $FAISREADY_ENV_FILE"
 else

@@ -186,6 +186,43 @@ def public_base_url() -> str:
     return value
 
 
+def analytics_origin() -> str:
+    value = os.environ.get("IZAKHONO_ANALYTICS_URL", "").strip().rstrip("/")
+    if not value:
+        return ""
+    parsed = urllib.parse.urlsplit(value)
+    loopback = parsed.scheme == "http" and (parsed.hostname or "").lower() in {"127.0.0.1", "localhost", "::1"}
+    if parsed.scheme != "https" and not loopback:
+        return ""
+    if not parsed.netloc or parsed.username or parsed.password or parsed.query or parsed.fragment:
+        return ""
+    if parsed.path not in ("", "/"):
+        return ""
+    return urllib.parse.urlunsplit((parsed.scheme, parsed.netloc, "", "", ""))
+
+
+def analytics_client_js() -> bytes:
+    origin = analytics_origin()
+    if not origin:
+        return b"window.izakhonoTrack=window.izakhonoTrack||(()=>{});"
+    endpoint = json.dumps(origin + "/v1/hit")
+    return f"""(()=>{{
+const endpoint={endpoint};
+const platform='faisready';
+const key='izakhono.analytics.visitor.'+platform;
+const skey='izakhono.analytics.session.'+platform;
+const rid=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random();
+let visitor=localStorage.getItem(key);if(!visitor){{visitor=rid();localStorage.setItem(key,visitor)}}
+let session=sessionStorage.getItem(skey);if(!session){{session=rid();sessionStorage.setItem(skey,session)}}
+function send(event='pageview',extra={{}}){{
+ const body=JSON.stringify({{platform,event,path:location.pathname+location.search,referrer:document.referrer||'',visitor_id:visitor,session_id:session,value_minor:Number(extra.value_minor)||0}});
+ if(navigator.sendBeacon)navigator.sendBeacon(endpoint,new Blob([body],{{type:'application/json'}}));
+ else fetch(endpoint,{{method:'POST',headers:{{'content-type':'application/json'}},body,keepalive:true}}).catch(()=>{{}});
+}}
+window.izakhonoTrack=send;send('pageview');
+}})();""".encode("utf-8")
+
+
 def payment_settings() -> dict:
     merchant_id = os.environ.get("PAYFAST_MERCHANT_ID", "").strip()
     merchant_key = os.environ.get("PAYFAST_MERCHANT_KEY", "").strip()
@@ -428,12 +465,14 @@ def record_payment_event(
 
 
 def csp() -> str:
+    analytics = analytics_origin()
+    connect = "connect-src 'self'" + (f" {analytics}" if analytics else "")
     return (
         "default-src 'self'; "
         "style-src 'self' 'unsafe-inline'; "
         "script-src 'self' 'unsafe-inline'; "
         "img-src 'self' data: https://images.unsplash.com; "
-        "connect-src 'self'; "
+        + connect + "; "
         "form-action https://www.payfast.co.za https://sandbox.payfast.co.za; "
         "frame-ancestors 'none'; base-uri 'none'; object-src 'none'"
     )
@@ -483,6 +522,9 @@ class RevenueHandler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:  # noqa: N802
         path, query = self.route()
+        if path == "/analytics.js":
+            self.send_bytes(200, analytics_client_js(), "application/javascript; charset=utf-8", cache="no-store")
+            return
         if path == "/health":
             self.send_json(200, {"ok": True, "service": "faisready-revenue", "storage": "sqlite"})
             return
