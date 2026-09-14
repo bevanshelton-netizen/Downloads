@@ -1,0 +1,12 @@
+{
+  "name":"AUTO AI by IZAKHONO",
+  "short_name":"AUTO AI",
+  "description":"Understand your car before you spend.",
+  "start_url":"/",
+  "display":"standalone",
+  "background_color":"#07101c",
+  "theme_color":"#08111f",
+  "lang":"en",
+  "categories":["auto and vehicles","utilities"],
+  "icons":[{"src":"/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}
