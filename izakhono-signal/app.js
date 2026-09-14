@@ -116,3 +116,15 @@ qs("#queueAll").onclick=queueAll; qs("#todayBoard").onclick=showBoard; qs("#conn
 qsa("[data-close]").forEach(b=>b.onclick=()=>qs("#"+b.dataset.close).hidden=true);
 qsa(".filter").forEach(b=>b.onclick=()=>{qsa(".filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");render(b.dataset.filter)});
 render();updateStatus();
+function loadSignalEvents(){
+  try{
+    const ev=JSON.parse(localStorage.getItem("izakhono.signal.events")||"[]").filter(x=>x.platform==="auto-ai");
+    const visits=ev.filter(x=>x.event==="landing").length;
+    const checkouts=ev.filter(x=>x.event==="checkout_start").length;
+    document.querySelector("#attribVisits").textContent=visits;
+    document.querySelector("#attribCheckouts").textContent=checkouts;
+    document.querySelector("#attribRate").textContent=visits?((checkouts/visits)*100).toFixed(1)+"%":"0%";
+  }catch(_){}
+}
+loadSignalEvents();
+window.addEventListener("focus",loadSignalEvents);
