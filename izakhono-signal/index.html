@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#06111c">
+<meta name="description" content="IZAKHONO SIGNAL — owner-controlled marketing intelligence and social publishing command centre.">
+<link rel="stylesheet" href="./styles.css">
+<title>IZAKHONO SIGNAL</title>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><div class="mark">S</div><div><strong>IZAKHONO SIGNAL</strong><span>Marketing Intelligence & Social Command Centre</span></div></div>
+  <div class="beta"><i></i> PUBLIC BETA</div>
+</header>
+<main>
+<section class="hero">
+  <div class="hero-copy">
+    <span class="eyebrow">OWN THE SIGNAL • OWN THE CUSTOMER</span>
+    <h1>Publish. Measure. Learn. <em>Sell.</em></h1>
+    <p>One owner-controlled marketing desk for every IZAKHONO platform — social campaigns, three-times-daily publishing, tracked links, conversion signals and revenue-focused content.</p>
+    <div class="chips"><span>3× Daily Campaigns</span><span>Multi-platform</span><span>Tracked Links</span><span>Owner Controlled</span></div>
+  </div>
+  <div class="network" aria-hidden="true">
+    <div class="rings"><b>SIGNAL</b></div>
+    <span class="node n1">f</span><span class="node n2">◎</span><span class="node n3">in</span><span class="node n4">𝕏</span><span class="node n5">▶</span><span class="node n6">G</span>
+  </div>
+</section>
+
+<section class="controls">
+  <button id="queueAll" class="primary">Queue all RUN NOW campaigns ×3/day</button>
+  <button id="todayBoard">Today's publishing board</button>
+  <button id="connectionsBtn">Connections</button>
+  <span id="queueStatus">Nothing queued on this device yet.</span>
+</section>
+
+<section class="summary">
+  <article><b id="liveCount">0</b><span>Run now</span></article>
+  <article><b id="stagedCount">0</b><span>Staged</span></article>
+  <article><b>08:00</b><span>Morning slot</span></article>
+  <article><b>13:00</b><span>Midday slot</span></article>
+  <article><b>19:00</b><span>Evening slot</span></article>
+</section>
+
+<section class="section-head">
+  <div><span class="eyebrow">IZAKHONO PORTFOLIO</span><h2>Campaign control</h2></div>
+  <div class="filters"><button class="filter active" data-filter="all">All</button><button class="filter" data-filter="live">Run now</button><button class="filter" data-filter="staged">Staged</button></div>
+</section>
+<section id="campaigns" class="campaign-grid"></section>
+
+<section id="board" class="drawer" hidden>
+  <div class="drawer-head"><div><span class="eyebrow">TODAY</span><h2>3× Daily Publishing Board</h2></div><button data-close="board">×</button></div>
+  <p class="muted">Use Share on your phone, or one-tap X/Facebook/LinkedIn/WhatsApp buttons. Instagram/TikTok direct API publishing activates when their business OAuth credentials are connected.</p>
+  <div id="schedule"></div>
+</section>
+
+<section id="connections" class="drawer" hidden>
+  <div class="drawer-head"><div><span class="eyebrow">CONNECTORS</span><h2>Publishing networks</h2></div><button data-close="connections">×</button></div>
+  <div class="connector-grid">
+    <article><b>Facebook</b><span>OAuth/API ready</span></article>
+    <article><b>Instagram</b><span>OAuth/API ready</span></article>
+    <article><b>LinkedIn</b><span>OAuth/API ready</span></article>
+    <article><b>TikTok</b><span>OAuth/API ready</span></article>
+    <article><b>X</b><span>OAuth/API ready</span></article>
+    <article><b>Threads</b><span>OAuth/API ready</span></article>
+    <article><b>Google Business</b><span>OAuth/API ready</span></article>
+    <article><b>YouTube</b><span>OAuth/API ready</span></article>
+  </div>
+  <div class="notice"><strong>Current mode:</strong> one-tap/manual publishing works now. Fully automatic posting requires each network's business OAuth/API credentials; SIGNAL never stores them in this public browser app.</div>
+</section>
+</main>
+<footer>IZAKHONO SIGNAL • An IZAKHONO AFRICA platform</footer>
+<script src="./app.js" defer></script>
+</body></html>
