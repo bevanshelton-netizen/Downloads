@@ -56,7 +56,7 @@ git fetch origin "$PINNED"
 git checkout --detach "$PINNED"
 
 unset FAISREADY_ENV_FILE
-IZAKHONO_CANARY_PORT=18211 IZAKHONO_PRODUCTION_PORT=18111 GITHUB_SHA="$PINNED" sh FAISReady/scripts/izakhono-production-cutover.sh
+IZAKHONO_CANARY_PORT=18211 IZAKHONO_PRODUCTION_PORT=18111 IZAKHONO_ANALYTICS_URL=http://127.0.0.1:18112 GITHUB_SHA="$PINNED" sh FAISReady/scripts/izakhono-production-cutover.sh
 
 HEALTH="$(curl -fsS http://127.0.0.1:18111/health)"
 CFG="$(curl -fsS http://127.0.0.1:18111/api/config)"
