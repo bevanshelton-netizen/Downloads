@@ -1,0 +1,65 @@
+name: IZAKHONO Analytics Proof
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'izakhono-analytics/**'
+      - 'izakhono-cloud/DEPLOY-ANALYTICS-ISN-01.ps1'
+      - 'START-ANALYTICS-ON-IZAKHONO.cmd'
+      - 'izakhono-cloud/RUN-IZAKHONO-FLEET-ISN-01.ps1'
+      - '.github/workflows/izakhono-analytics-proof.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'izakhono-analytics/**'
+      - 'izakhono-cloud/DEPLOY-ANALYTICS-ISN-01.ps1'
+      - 'START-ANALYTICS-ON-IZAKHONO.cmd'
+      - 'izakhono-cloud/RUN-IZAKHONO-FLEET-ISN-01.ps1'
+      - '.github/workflows/izakhono-analytics-proof.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  prove:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax
+        run: python3 -m py_compile izakhono-analytics/server.py
+      - name: Run analytics locally
+        env:
+          ANALYTICS_PORT: '18080'
+          ANALYTICS_DB_PATH: /tmp/izakhono-analytics.db
+          ANALYTICS_HASH_SECRET: ci-only-analytics-secret-0123456789abcdef
+        run: |
+          python3 izakhono-analytics/server.py >/tmp/analytics.log 2>&1 &
+          echo $! >/tmp/analytics.pid
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:18080/healthz >/tmp/health.json && break
+            sleep 1
+          done
+          grep -q '"ok":true' /tmp/health.json
+      - name: Prove hit and summary
+        run: |
+          curl -fsS -X POST -H 'content-type: application/json'             --data '{"platform":"allegro-vibez","event":"pageview","path":"/artists","visitor_id":"visitor-a","session_id":"session-a"}'             http://127.0.0.1:18080/v1/hit
+          curl -fsS -X POST -H 'content-type: application/json'             --data '{"platform":"allegro-vibez","event":"purchase","path":"/checkout","visitor_id":"visitor-a","session_id":"session-a","value_minor":39900}'             http://127.0.0.1:18080/v1/hit
+          curl -fsS 'http://127.0.0.1:18080/api/summary?days=1' >/tmp/summary.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/summary.json'))
+          assert d['totals']['pageviews']==1
+          assert d['totals']['unique_visitors']==1
+          assert d['totals']['purchases']==1
+          assert d['totals']['revenue_minor']==39900
+          assert d['platforms'][0]['platform']=='allegro-vibez'
+          print('IZAKHONO_ANALYTICS_CONTRACT=PASS')
+          PY
+      - name: Prove no raw IP storage contract
+        run: |
+          ! grep -Eiq 'x-forwarded-for|remote_address|client_address' izakhono-analytics/server.py
+          grep -q 'no-raw-ip-storage' izakhono-analytics/server.py
+      - name: Stop server
+        if: always()
+        run: kill "$(cat /tmp/analytics.pid)" 2>/dev/null || true
