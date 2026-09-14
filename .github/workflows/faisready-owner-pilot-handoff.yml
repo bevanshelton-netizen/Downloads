@@ -1,0 +1,64 @@
+name: FAISReady Owner Pilot Handoff Proof
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'START-FAISREADY-ON-IZAKHONO.cmd'
+      - 'izakhono-cloud/DEPLOY-FAISREADY-ISN-01.ps1'
+      - 'izakhono-cloud/RUN-IZAKHONO-FLEET-ISN-01.ps1'
+      - '.github/workflows/faisready-owner-pilot-handoff.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'START-FAISREADY-ON-IZAKHONO.cmd'
+      - 'izakhono-cloud/DEPLOY-FAISREADY-ISN-01.ps1'
+      - 'izakhono-cloud/RUN-IZAKHONO-FLEET-ISN-01.ps1'
+      - '.github/workflows/faisready-owner-pilot-handoff.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Parse PowerShell launcher
+        shell: pwsh
+        run: |
+          $tokens=$null; $errors=$null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path 'izakhono-cloud/DEPLOY-FAISREADY-ISN-01.ps1'),
+            [ref]$tokens,[ref]$errors
+          ) | Out-Null
+          if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_.Message }; exit 1 }
+      - name: Guard controlled-pilot contract
+        shell: pwsh
+        run: |
+          $p = Get-Content 'izakhono-cloud/DEPLOY-FAISREADY-ISN-01.ps1' -Raw
+          foreach ($required in @(
+            '79deb4dd209512e7238536d4f595301cf3acd0a9',
+            'ENGINE-PROOF.json',
+            'IZAKHONO_PRODUCTION_PORT=18111',
+            'payments_configured',
+            'FAISREADY-CUTOVER.json'
+          )) {
+            if ($p -notmatch [regex]::Escape($required)) { throw "Missing FAISReady pilot contract: $required" }
+          }
+          if ($p -notmatch 'payments_configured.+False') { throw 'payment fail-closed receipt missing' }
+          if ($p -notmatch 'public_dns_changed.+False') { throw 'DNS safety receipt missing' }
+          if ($p -notmatch 'live_payments_changed.+False') { throw 'live-payment safety receipt missing' }
+          if ($p -match 'cloudflared tunnel route|route53|nameserver|dns update') { throw 'pilot must not modify public edge' }
+      - name: Guard fleet integration
+        shell: pwsh
+        run: |
+          $f = Get-Content 'izakhono-cloud/RUN-IZAKHONO-FLEET-ISN-01.ps1' -Raw
+          if ($f -notmatch 'DEPLOY-FAISREADY-ISN-01.ps1') { throw 'FAISReady is not registered in the ISN-01 fleet' }
+      - name: Validate CMD handoff
+        shell: pwsh
+        run: |
+          $c = Get-Content 'START-FAISREADY-ON-IZAKHONO.cmd' -Raw
+          if ($c -notmatch 'DEPLOY-FAISREADY-ISN-01.ps1') { throw 'launcher target mismatch' }
