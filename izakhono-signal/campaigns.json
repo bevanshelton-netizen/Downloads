@@ -1,0 +1,90 @@
+{
+  "timezone": "Africa/Johannesburg",
+  "slots": {
+    "morning": "08:00",
+    "midday": "13:00",
+    "evening": "19:00"
+  },
+  "campaigns": [
+    {
+      "id": "auto-ai",
+      "name": "AUTO AI",
+      "url": "https://bevanshelton-netizen.github.io/Downloads/auto-ai/",
+      "posts": {
+        "morning": "Something wrong with your car? Ask AUTO AI before you start replacing parts. Free safety-first help, plain language and no workshop jargon.",
+        "midday": "Got a mechanic’s quotation and not sure what you’re paying for? AUTO AI Repair Quote Second Opinion — R99.",
+        "evening": "Buying a used car? Check the warning signs before you buy someone else’s problem. AUTO AI Used-Car Buyer Check — R149."
+      }
+    },
+    {
+      "id": "doxa-sure",
+      "name": "DOXA-SURE",
+      "url": "https://bevanshelton-netizen.github.io/Downloads/doxa-sure/site/",
+      "posts": {
+        "morning": "When a home, vehicle or income is under pressure, acting early matters. DOXA-SURE helps you understand the risk and the next step.",
+        "midday": "Financial trouble becomes more expensive when ignored. DOXA-SURE is built to help people act before essential assets are lost.",
+        "evening": "Protect what matters most. Explore DOXA-SURE’s practical early-warning and assistance pathways."
+      }
+    },
+    {
+      "id": "faisready",
+      "name": "FAISReady",
+      "url": "https://bevanshelton-netizen.github.io/Downloads/FAISReady/",
+      "posts": {
+        "morning": "Preparing for RE1 or RE5? FAISReady gives you a focused digital path to prepare with confidence.",
+        "midday": "Stop studying blindly. Use FAISReady to structure your regulatory-exam preparation around what you actually need to know.",
+        "evening": "Your next FAIS exam attempt should be your strongest one. Start with FAISReady."
+      }
+    },
+    {
+      "id": "fais-campaign",
+      "name": "FAISReady Campaign",
+      "url": "https://bevanshelton-netizen.github.io/Downloads/faisready-campaign/",
+      "posts": {
+        "morning": "RE exam coming up? Don’t leave preparation until the last minute. Start your FAISReady plan now.",
+        "midday": "RE1 and RE5 candidates: turn exam anxiety into a structured preparation plan with FAISReady.",
+        "evening": "Serious about passing? Open the FAISReady campaign and get started."
+      }
+    },
+    {
+      "id": "racing",
+      "name": "Bevan Shelton Racing",
+      "url": "https://bevanshelton-netizen.github.io/Downloads/bevan-shelton-racing/",
+      "posts": {
+        "morning": "Ready to race? Step into the Bevan Shelton Racing experience — built with African ambition.",
+        "midday": "Speed. Obstacles. African roads. Bevan Shelton Racing is building a new digital racing universe.",
+        "evening": "Gamers: take the track and see where Bevan Shelton Racing is headed next."
+      }
+    },
+    {
+      "id": "kora",
+      "name": "KORA Network",
+      "url": "https://kora-network.vercel.app/",
+      "posts": {
+        "morning": "African talent deserves a global screen. Discover KORA — Built in Africa for the world.",
+        "midday": "Artists and creators: KORA is building a home for music, live performance, audiences and opportunity.",
+        "evening": "Watch. Listen. Discover. Support African creativity on KORA."
+      }
+    },
+    {
+      "id": "izakhono-africa",
+      "name": "IZAKHONO Africa",
+      "url": "https://izakhonoafrica.co.za/",
+      "posts": {
+        "morning": "Need uniforms, sportswear, PPE or branded clothing? IZAKHONO Africa manufactures for schools, teams and organisations.",
+        "midday": "From one team to a full organisation: custom clothing and manufacturing solutions from IZAKHONO Africa.",
+        "evening": "Put your brand on quality clothing made for real work, sport and everyday wear. Talk to IZAKHONO Africa."
+      }
+    },
+    {
+      "id": "edubuild",
+      "name": "Edu-Build Shelton Campuses",
+      "url": "https://edubuildshelton.org.za/",
+      "posts": {
+        "morning": "Want a recognised path into Early Childhood Development? Explore Edu-Build Shelton Campuses.",
+        "midday": "ECD NQF Level 4 and Level 5 learning opportunities — build your skills and your future with Edu-Build.",
+        "evening": "Your community needs skilled ECD practitioners. Start your training journey with Edu-Build Shelton Campuses."
+      }
+    }
+  ]
+}
