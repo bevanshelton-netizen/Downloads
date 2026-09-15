@@ -38,5 +38,5 @@ probe RUNTIME http://127.0.0.1:8790/health
 probe OBJECT http://127.0.0.1:8800/health
 probe QUEUE http://127.0.0.1:8810/health
 probe AUTH http://127.0.0.1:8820/health
-probe ANALYTICS http://127.0.0.1:8830/health
+probe ANALYTICS http://127.0.0.1:8830/health\nprobe NOTIFY http://127.0.0.1:8840/health
 probe EDGE http://127.0.0.1:8795/health
