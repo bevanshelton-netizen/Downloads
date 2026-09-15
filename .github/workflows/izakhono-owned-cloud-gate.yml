@@ -30,6 +30,7 @@ jobs:
           bash -n izakhono-owned-cloud/provision-ai-client.sh
           bash -n izakhono-owned-cloud/provision-code-token.sh
           bash -n izakhono-owned-cloud/configure-stack-backup.sh
+          bash -n izakhono-owned-cloud/deploy-auto-ai.sh
       - name: Verify no paid provisioning commands
         run: |
           ! grep -R -E 'supabase projects create|vercel deploy|aws s3 mb|gcloud .* create' izakhono-owned-cloud
