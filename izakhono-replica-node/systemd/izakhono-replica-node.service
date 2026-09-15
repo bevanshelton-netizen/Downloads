@@ -16,11 +16,11 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/var/lib/izakhono-replica
+ReadWritePaths=/var/lib/izakhono-replica /srv/izakhono-replica-objects
 RestrictSUIDSGID=true
 LockPersonality=true
 Environment=IZAKHONO_REPLICA_DB=/var/lib/izakhono-replica/replica.sqlite
-Environment=IZAKHONO_REPLICA_ROOT=/var/lib/izakhono-replica/objects
+Environment=IZAKHONO_REPLICA_ROOT=/srv/izakhono-replica-objects
 Environment=IZAKHONO_REPLICA_SOURCE_ARCHIVE_ROOT=/var/lib/izakhono-backup/archives
 
 [Install]
