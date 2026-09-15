@@ -24,7 +24,7 @@ const ENCRYPTION_RAW=process.env.IZAKHONO_BACKUP_ENCRYPTION_KEY || "";
 const ALLOWED_SOURCE_ROOTS=(process.env.IZAKHONO_BACKUP_SOURCE_ALLOWLIST || "/etc/izakhono")
   .split(",").map(x=>resolve(x.trim())).filter(Boolean);
 const MIRROR_ROOTS=(process.env.IZAKHONO_BACKUP_MIRROR_ROOTS || "")
-  .split(",").map(x=>x.trim()).filter(Boolean).map(resolve);
+  .split(",").map(x=>x.trim()).filter(Boolean).map(x=>resolve(x));
 const INTERVAL_HOURS=Math.max(0,Number(process.env.IZAKHONO_BACKUP_INTERVAL_HOURS || 24));
 const MAX_BODY=Math.min(1024*1024,Math.max(65536,Number(process.env.IZAKHONO_BACKUP_MAX_BODY_BYTES || 262144)));
 const MAGIC=Buffer.from("IZBK1");
