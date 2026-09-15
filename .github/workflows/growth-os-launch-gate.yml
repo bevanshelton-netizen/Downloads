@@ -1,0 +1,37 @@
+name: Growth OS Launch Gate
+
+on:
+  push:
+    branches: [build/izakhono-growth-os]
+    paths:
+      - "izakhono-growth-os/**"
+      - ".github/workflows/growth-os-launch-gate.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "izakhono-growth-os/**"
+      - ".github/workflows/growth-os-launch-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: izakhono-growth-os
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install
+        run: npm install --no-audit --no-fund
+      - name: Production build
+        run: npm run build
+      - name: Verify safe-write contract
+        run: |
+          grep -q 'liveAdWrites:false' app/api/status/route.ts
+          grep -q 'create campaigns paused' app/api/plan/route.ts
