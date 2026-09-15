@@ -36,6 +36,7 @@ install_component "IZAKHONO AUTH NODE" "izakhono-auth-node"
 install_component "IZAKHONO ANALYTICS NODE" "izakhono-analytics-node"
 install_component "IZAKHONO NOTIFY NODE" "izakhono-notify-node"
 install_component "IZAKHONO AI GATEWAY NODE" "izakhono-ai-gateway-node"
+install_component "IZAKHONO CODE NODE" "izakhono-code-node"
 
 if [ -f /etc/izakhono/tls/fullchain.pem ] && [ -f /etc/izakhono/tls/privkey.pem ]; then
   install_component "IZAKHONO EDGE NODE" "izakhono-edge-node"
@@ -54,6 +55,7 @@ echo "AUTH=INSTALLED"
 echo "ANALYTICS=INSTALLED"
 echo "NOTIFY=INSTALLED"
 echo "AI_GATEWAY=INSTALLED"
+echo "CODE=INSTALLED"
 echo "EDGE=$EDGE_STATUS"
 echo
 echo "Next:"
