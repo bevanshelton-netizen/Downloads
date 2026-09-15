@@ -10,7 +10,7 @@ BANK=(ROOT/"pdeready"/"bank.js").read_text(encoding="utf-8")
 def req(v,msg):
     if not v: raise SystemExit(msg)
 
-for f in ["terms.html","privacy.html","sources.html","404.html","robots.txt","vercel.json"]:
+for f in ["terms.html","privacy.html","sources.html","404.html","robots.txt","sitemap.xml","vercel.json"]:
     req((ROOT/f).exists(),f"missing public launch file: {f}")
 
 req('href="./pdeready/"' in HOME,"umbrella must link to PDEReady")
@@ -33,6 +33,7 @@ cfg=json.loads((ROOT/"vercel.json").read_text(encoding="utf-8"))
 req(cfg.get("cleanUrls") is True,"cleanUrls must be enabled")
 headers={h["key"] for group in cfg.get("headers",[]) for h in group.get("headers",[])}
 req({"X-Content-Type-Options","Referrer-Policy","Permissions-Policy","X-Frame-Options"}.issubset(headers),"security headers incomplete")
+req("mandatory-regulatory-exams.vercel.app" in (ROOT/"sitemap.xml").read_text(encoding="utf-8"),"production sitemap host missing")
 
 terms=(ROOT/"terms.html").read_text(encoding="utf-8").lower()
 privacy=(ROOT/"privacy.html").read_text(encoding="utf-8").lower()
