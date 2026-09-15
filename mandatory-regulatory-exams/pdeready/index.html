@@ -29,15 +29,15 @@ h1{font-size:clamp(48px,7vw,82px);line-height:.95;letter-spacing:-3px;margin:10p
 .casegrid{display:grid;grid-template-columns:.85fr 1.15fr;gap:16px}.case{background:#0b2636;border:1px solid #2d5b70;border-radius:19px;padding:20px}.case textarea{width:100%;min-height:190px;background:#061d2a;color:white;border:1px solid #356075;border-radius:12px;padding:13px;font:inherit;resize:vertical}.rubric{display:grid;gap:8px}.rubric div{display:flex;justify-content:space-between;gap:10px;background:#102e40;border:1px solid #2d5366;border-radius:11px;padding:10px 12px}.rubric strong{color:#8ee8c3}
 .mock{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}.mock .card b{font-size:28px;color:var(--gold)}.timer{font-variant-numeric:tabular-nums;font-size:40px;font-weight:1000;letter-spacing:1px}
 .integrity{border:1px solid #6d5a27;background:#332a1559;border-radius:16px;padding:17px}.integrity b{color:#ffe49a}
-.hidden{display:none!important}footer{border-top:1px solid #285066;padding:23px 5vw;color:#9cb7c4;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
-@media(max-width:900px){.hero,.casegrid{grid-template-columns:1fr}.grid,.mock{grid-template-columns:1fr 1fr}.metrics{grid-template-columns:1fr 1fr}.nav{display:none}}
-@media(max-width:600px){.grid,.mock,.metrics{grid-template-columns:1fr}h1{font-size:47px}.section h2{font-size:33px}.brand b{font-size:22px}}
+.dashboard{display:grid;grid-template-columns:1.08fr .92fr;gap:16px}.dashPanel{background:linear-gradient(180deg,#102f42,#0b2534);border:1px solid var(--line);border-radius:20px;padding:20px}.dashMetrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.dashMetric{background:#081f2e;border:1px solid #2d566a;border-radius:14px;padding:14px}.dashMetric b{display:block;font-size:27px;color:var(--gold)}.dashMetric small{color:#a9c1cc}.profileLine{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}.profileLine input{flex:1;min-width:210px;padding:12px 13px;border-radius:11px;border:1px solid #386479;background:#071e2b;color:#fff}.planItem{padding:11px 12px;border-radius:12px;border:1px solid #2f586c;background:#0b2636;margin:8px 0}.planItem b{color:#8fe9c6}.topicPills{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.topicBtn{border:1px solid #356176;background:#0d2b3d;color:#dce8ed;border-radius:999px;padding:8px 11px;cursor:pointer;font-weight:800}.topicBtn:hover{border-color:#d8bd64}.history{width:100%;border-collapse:collapse;margin-top:10px}.history th,.history td{text-align:left;padding:9px;border-bottom:1px solid #294d60;font-size:13px}.history th{color:#98b5c3}.sourceNote{font-size:12px;color:#8faebb;margin-top:8px}.hidden{display:none!important}footer{border-top:1px solid #285066;padding:23px 5vw;color:#9cb7c4;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
+@media(max-width:900px){.hero,.casegrid,.dashboard{grid-template-columns:1fr}.grid,.mock{grid-template-columns:1fr 1fr}.metrics,.dashMetrics{grid-template-columns:1fr 1fr}.nav{display:none}}
+@media(max-width:600px){.grid,.mock,.metrics,.dashMetrics{grid-template-columns:1fr}h1{font-size:47px}.section h2{font-size:33px}.brand b{font-size:22px}}
 </style>
 </head>
 <body>
 <header>
   <div class="brand"><div class="mark">PDE</div><div><b>PDEReady</b><small>PDE4 & PDE5 Property Practice Preparation</small></div></div>
-  <nav class="nav"><a href="#diagnostic">Diagnostic</a><a href="#learn">Study</a><a href="#case">Case Practice</a><a href="#mock">Mock</a><a href="../mandatory-regulatory-exams/">All exams</a></nav>
+  <nav class="nav"><a href="#dashboard">Dashboard</a><a href="#diagnostic">Diagnostic</a><a href="#practice">Drills</a><a href="#case">Case Practice</a><a href="#mock">Mock</a><a href="../">All exams</a></nav>
 </header>
 <main class="wrap">
 <section class="hero">
@@ -45,7 +45,7 @@ h1{font-size:clamp(48px,7vw,82px);line-height:.95;letter-spacing:-3px;margin:10p
     <div class="eyebrow">PROPERTY PRACTICE • SOUTH AFRICA</div>
     <h1>Prepare to think like<br><span>a property professional.</span></h1>
     <p class="lead">PDEReady trains knowledge, professional judgement and case-based written responses for PDE4 and PDE5 — without reproducing confidential material or assisting anyone during a live examination.</p>
-    <div class="row"><a class="btn primary" href="#diagnostic">Start diagnostic</a><a class="btn secondary" href="#calendar">Check next sitting</a></div>
+    <div class="row"><a class="btn primary" href="#diagnostic">Start diagnostic</a><a class="btn secondary" href="#dashboard">My readiness</a><a class="btn ghost" href="#calendar">Check next sitting</a></div>
   </div>
   <aside class="examcard">
     <div class="examTop"><div class="examBadge">PDE<br>4/5</div><span class="status">2026 PATHWAY</span></div>
@@ -61,10 +61,35 @@ h1{font-size:clamp(48px,7vw,82px);line-height:.95;letter-spacing:-3px;margin:10p
 <div class="metrics">
   <div class="metric"><b>2 tracks</b><small>PDE4 + PDE5</small></div>
   <div class="metric"><b>5 hours</b><small>recent PPRA take-home window</small></div>
-  <div class="metric"><b>Case-based</b><small>train application, not rote recall</small></div>
-  <div class="metric"><b>Original</b><small>practice material, not leaked papers</small></div>
+  <div class="metric"><b>40 questions</b><small>original topic-tagged assessment bank</small></div>
+  <div class="metric"><b>12 cases</b><small>original case-response scenarios</small></div>
 </div>
 
+<section id="dashboard" class="section">
+  <div class="eyebrow">MY PDE READYROOM</div><h2>Your preparation dashboard</h2>
+  <p class="intro">Save a lightweight learner profile on this device, track attempts, see weak topics and build a study plan toward the next sitting. Cloud accounts can replace this local profile later without changing the learning model.</p>
+  <div class="dashboard">
+    <div class="dashPanel">
+      <div class="profileLine"><input id="learnerName" placeholder="Your name (stored on this device only)"><button class="btn secondary" onclick="saveProfile()">Save profile</button></div>
+      <div class="dashMetrics">
+        <div class="dashMetric"><b id="readyScore">0%</b><small>readiness indicator</small></div>
+        <div class="dashMetric"><b id="bestDiagnostic">—</b><small>best diagnostic</small></div>
+        <div class="dashMetric"><b id="caseCount">0</b><small>case practices scored</small></div>
+        <div class="dashMetric"><b id="daysToExam">—</b><small>days to 12 Nov 2026</small></div>
+      </div>
+      <div class="notice" id="countdownNote">Loading exam countdown…</div>
+      <h3>Recent attempts</h3>
+      <div id="historyWrap" class="muted">No saved attempts yet.</div>
+    </div>
+    <div class="dashPanel">
+      <span class="tag">ADAPTIVE PLAN</span><h3>What to study next</h3>
+      <div id="studyPlan"><div class="muted">Complete a diagnostic to generate your weak-area plan.</div></div>
+      <h3 style="margin-top:20px">Topic drills</h3>
+      <div id="topicPills" class="topicPills"></div>
+      <p class="sourceNote">Readiness is an internal preparation indicator only. It is not an official PPRA mark or pass prediction.</p>
+    </div>
+  </div>
+</section>
 <section id="calendar" class="section">
   <div class="eyebrow">CURRENT EXAM ROUTE</div><h2>Know which pathway you are actually on.</h2>
   <p class="intro">PPRA changed the entry architecture in 2026. PDEReady separates the existing qualification route from the newer alternative competency-based route so candidates do not study from outdated assumptions.</p>
@@ -103,8 +128,8 @@ h1{font-size:clamp(48px,7vw,82px);line-height:.95;letter-spacing:-3px;margin:10p
 </section>
 
 <section id="diagnostic" class="section">
-  <div class="eyebrow">10-MINUTE STARTING POINT</div><h2>Diagnostic assessment</h2>
-  <p class="intro">Choose your level. These are original training questions built around current PPRA examination rules and the competencies PPRA says it assesses.</p>
+  <div class="eyebrow">ADAPTIVE STARTING POINT</div><h2>10-question diagnostic</h2>
+  <p class="intro">Choose PDE4 or PDE5. Each attempt samples 10 original questions across the bank, saves topic performance on this device, and feeds your weak-area study plan.</p>
   <div class="tabs"><button class="tab active" onclick="setTrack('pde4',this)">PDE4</button><button class="tab" onclick="setTrack('pde5',this)">PDE5</button></div>
   <div class="questionBox">
     <div class="tag" id="qCounter">QUESTION 1</div>
@@ -116,6 +141,20 @@ h1{font-size:clamp(48px,7vw,82px);line-height:.95;letter-spacing:-3px;margin:10p
   </div>
 </section>
 
+
+<section id="practice" class="section">
+  <div class="eyebrow">WEAK-AREA DRILLS</div><h2>Practise one topic at a time</h2>
+  <p class="intro">After a diagnostic, PDEReady surfaces the topics where you lost the most marks. Choose any topic below for a focused drill drawn from the same original preparation bank.</p>
+  <div id="drillTopics" class="topicPills"></div>
+  <div id="drillBox" class="questionBox hidden">
+    <div class="tag" id="drillCounter">DRILL</div>
+    <div class="question" id="drillQuestion"></div>
+    <div id="drillAnswers"></div>
+    <div id="drillExplain"></div>
+    <button id="drillNext" class="btn primary hidden" onclick="nextDrill()">Next drill question</button>
+    <div id="drillResult" class="hidden"></div>
+  </div>
+</section>
 <section id="learn" class="section">
   <div class="eyebrow">STUDY MAP</div><h2>What PDEReady trains</h2>
   <div class="grid">
@@ -172,46 +211,151 @@ h1{font-size:clamp(48px,7vw,82px);line-height:.95;letter-spacing:-3px;margin:10p
 </section>
 </main>
 <footer><span>PDEReady • Part of the Mandatory Regulatory Exams Platform</span><span>Independent preparation • Not PPRA • No pass guarantee</span></footer>
+<script src="./bank.js"></script>
 <script>
-const bank={
-pde4:[
-{q:'Which statement best reflects the PPRA PDE format announced for 2026?',a:['It is an oral interview at a PPRA office','It is a take-home examination','It is only a multiple-choice online test','It is a venue-based closed-book paper'],c:1,e:'PPRA describes the PDE as a take-home examination; candidates should not report to PPRA offices to write it.'},
-{q:'From 1 August 2026, what did PPRA add for entry toward non-principal practice?',a:['A route that removes all examinations','An alternative competency-based route using an examination with the same content as PDE4','A compulsory university degree','A route available only to existing principals'],c:1,e:'PPRA added an alternative competency-based route. The examination uses the same content as PDE4 and Matric is the stated minimum educational entry requirement.'},
-{q:'A seller pressures a practitioner to conceal information that may materially affect a buyer. What is the strongest professional response?',a:['Follow the seller instruction without question','Protect the transaction at any cost','Identify the disclosure/consumer-protection issue and refuse to participate in misleading conduct','Delete the information from the file'],c:2,e:'PDE preparation should train ethical judgement: identify the issue, apply the relevant duty, protect the consumer and keep a defensible record.'},
-{q:'Why does PPRA tell candidates to use mark allocation as a guide?',a:['It indicates the expected depth and extent of an answer','It changes the candidate eligibility','It decides the exam date','It replaces the need to answer all questions'],c:0,e:'PPRA advises candidates that the marks allocated guide how extensive an answer should be.'},
-{q:'Which is the safest way to prepare for a case-based question?',a:['Memorise a paragraph and paste it into every answer','Identify issue → principle → application → conclusion','Give only a yes/no answer','Ignore the facts and recite definitions'],c:1,e:'Case work rewards visible reasoning: identify the issue, state the relevant principle, apply it to the facts and reach a justified action or conclusion.'},
-{q:'How must ordinary PDE enrolment be completed according to the current PPRA calendar guidance?',a:['By handwritten form only','Through the MyPPRA Portal','At a physical exam venue','Through an estate agency manager only'],c:1,e:'PPRA states that PDE registration/enrolment is completed online via the MyPPRA Portal.'}
-],
-pde5:[
-{q:'At principal level, a recurring compliance failure by staff is discovered. What is the strongest first management response?',a:['Ignore it if sales targets are being met','Stop/contain the risk, investigate cause, correct records/processes and strengthen supervision','Dismiss every employee immediately without review','Remove the complaint record'],c:1,e:'PDE5 preparation should emphasise accountable leadership: contain risk, establish facts, correct the problem and improve controls/supervision.'},
-{q:'Which combination best describes a strong compliance culture?',a:['High sales and no written procedures','Training, documented controls, monitoring, escalation and management accountability','Only an annual motivational meeting','Delegating all compliance responsibility externally'],c:1,e:'A principal cannot outsource accountability. Effective compliance combines competence, controls, monitoring, escalation and leadership.'},
-{q:'A business KPI system rewards only revenue. What is the main governance weakness?',a:['There is no weakness','It can incentivise sales while hiding service quality, complaints and compliance risk','KPIs are never allowed','Revenue must always be ignored'],c:1,e:'A balanced principal-level scorecard should include commercial performance plus compliance, service quality and risk indicators.'},
-{q:'What is the most defensible response to a serious client complaint?',a:['Delete correspondence once the client is angry','Preserve records, investigate objectively, respond fairly and use the outcome to improve controls','Ask sales staff to handle it verbally only','Refuse to record complaints'],c:1,e:'A defensible complaints process preserves evidence, establishes facts, communicates fairly and feeds lessons back into the control environment.'},
-{q:'What does good supervision of practitioners require?',a:['Assuming everyone knows the rules after recruitment','Clear roles, competence checks, training, monitoring and documented intervention where needed','Only checking monthly sales figures','No records of coaching or corrective action'],c:1,e:'Principal-level supervision is an ongoing governance process, not a once-off induction.'},
-{q:'In a long-form PDE5 case, what usually makes an answer stronger?',a:['Listing unrelated legislation','Connecting the facts to business risk, regulatory duty, control design and a practical management response','Writing as much as possible without structure','Avoiding a conclusion'],c:1,e:'Advanced case answers should show both professional/legal reasoning and management judgement: facts, duties, risk, controls and implementation.'}
-]};
-let track='pde4',idx=0,score=0,answered=false;
-function setTrack(t,btn){track=t;idx=0;score=0;answered=false;document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));btn.classList.add('active');document.getElementById('diagnosticResult').classList.add('hidden');renderQuestion()}
-function renderQuestion(){const q=bank[track][idx];document.getElementById('qCounter').textContent=track.toUpperCase()+' • QUESTION '+(idx+1)+' OF '+bank[track].length;document.getElementById('question').textContent=q.q;document.getElementById('answers').innerHTML=q.a.map((x,i)=>'<button class="answer" onclick="answer('+i+',this)">'+esc(x)+'</button>').join('');document.getElementById('explanation').innerHTML='';document.getElementById('nextBtn').classList.add('hidden');answered=false}
-function answer(i,el){if(answered)return;answered=true;const q=bank[track][idx];if(i===q.c)score++;document.querySelectorAll('.answer').forEach((b,n)=>{b.disabled=true;if(n===q.c)b.classList.add('good');else if(n===i)b.classList.add('bad')});document.getElementById('explanation').innerHTML='<div class="explain">'+esc(q.e)+'</div>';document.getElementById('nextBtn').classList.remove('hidden')}
-function nextQuestion(){idx++;if(idx>=bank[track].length){showResult();return}renderQuestion()}
-function showResult(){const pct=Math.round(score/bank[track].length*100);const band=pct>=80?'Strong starting point':pct>=60?'Developing readiness':'Foundation work needed';document.getElementById('answers').innerHTML='';document.getElementById('question').textContent='Diagnostic complete';document.getElementById('explanation').innerHTML='';document.getElementById('nextBtn').classList.add('hidden');const r=document.getElementById('diagnosticResult');r.classList.remove('hidden');r.innerHTML='<div class="score">'+pct+'% <small>'+band+'</small></div><p class="muted">Use the study map and case workshop next. This score measures this short diagnostic only; it is not a prediction of your official exam result.</p><button class="btn secondary" onclick="idx=0;score=0;renderQuestion();document.getElementById(\'diagnosticResult\').classList.add(\'hidden\')">Retry</button>'}
-const cases=[
-{t:'PDE4 CASE',title:'Material information under pressure',p:'A seller tells a practitioner not to mention a recurring water-ingress problem because “the buyer can inspect for themselves.” Explain how the practitioner should approach the instruction and why.'},
-{t:'PDE4 CASE',title:'Conflict of interest',p:'A practitioner is offered a private incentive by a service provider for steering every buyer to that provider. Explain the professional risks and the steps the practitioner should take.'},
-{t:'PDE5 CASE',title:'Weak supervision',p:'A principal discovers that new practitioners have been signing client-facing documents without the agency completing its normal competence and supervision checks. Set out the principal’s response.'},
-{t:'PDE5 CASE',title:'Complaint pattern',p:'Three complaints in one month allege that practitioners gave inconsistent information about fees. Explain how a principal should investigate, correct and prevent recurrence.'}
-];let ci=0;
-function newCase(){ci=(ci+1)%cases.length;const c=cases[ci];document.getElementById('caseTrack').textContent=c.t;document.getElementById('caseTitle').textContent=c.title;document.getElementById('casePrompt').textContent=c.p;document.getElementById('caseAnswer').value='';document.getElementById('caseFeedback').innerHTML=''}
-function scoreCase(){const s=document.getElementById('caseAnswer').value.trim();let pts=0;if(s.length>120)pts+=25;if(/issue|risk|problem|conflict|disclos|complaint|supervis/i.test(s))pts+=25;if(/because|therefore|facts|in this case|apply|application/i.test(s))pts+=30;if(/should|must|action|record|report|correct|refuse|investigate|monitor/i.test(s))pts+=20;const msg=pts>=80?'Strong structure. Now tighten legal references and make every point earn marks.':pts>=55?'Good base. Make the rule/principle and its application to the facts more explicit.':'Use the four-part structure: issue → principle → application → action/conclusion.';document.getElementById('caseFeedback').innerHTML='<div class="explain"><b>Structure score: '+pts+'%</b><br>'+msg+'<br><small>This is a writing-structure coach, not an official PPRA marking tool.</small></div>'}
-document.querySelectorAll('[data-check]').forEach(x=>x.addEventListener('change',()=>{const all=[...document.querySelectorAll('[data-check]')],n=all.filter(y=>y.checked).length,p=Math.round(n/all.length*100);document.getElementById('eligProgress').style.width=p+'%';document.getElementById('eligText').textContent=n+' of '+all.length+' preparation checks completed'}));
-let remain=18000,timerId=null;
+const bank=window.PDE_BANK;
+const STORE_KEY='pdeready.progress.v2';
+const EXAM_DATE=new Date('2026-11-12T08:00:00+02:00');
+const REG_OPEN=new Date('2026-10-01T00:00:00+02:00');
+const REG_CLOSE=new Date('2026-10-31T23:59:59+02:00');
+let state=loadState();
+let track=state.track||'pde4', diagnostic=[], idx=0, score=0, answered=false, topicStats={};
+let drill=[], drillIdx=0, drillScore=0, drillTopic='', drillAnswered=false;
+let ci=0,remain=18000,timerId=null;
+
+function loadState(){
+  try{return JSON.parse(localStorage.getItem(STORE_KEY))||{name:'',track:'pde4',attempts:[],cases:[],eligibility:[]}}
+  catch(e){return{name:'',track:'pde4',attempts:[],cases:[],eligibility:[]}}
+}
+function persist(){localStorage.setItem(STORE_KEY,JSON.stringify(state));renderDashboard()}
+function saveProfile(){state.name=document.getElementById('learnerName').value.trim();persist()}
+function seededSample(arr,n){
+  const copy=[...arr];
+  for(let i=copy.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[copy[i],copy[j]]=[copy[j],copy[i]]}
+  return copy.slice(0,Math.min(n,copy.length));
+}
+function startDiagnostic(){
+  diagnostic=seededSample(bank[track],10);idx=0;score=0;topicStats={};answered=false;
+  document.getElementById('diagnosticResult').classList.add('hidden');renderQuestion();
+}
+function setTrack(t,btn){
+  track=t;state.track=t;persist();
+  document.querySelectorAll('#diagnostic .tab').forEach(x=>x.classList.remove('active'));btn.classList.add('active');
+  startDiagnostic();renderTopicButtons();
+}
+function renderQuestion(){
+  const q=diagnostic[idx];
+  if(!q){startDiagnostic();return}
+  document.getElementById('qCounter').textContent=track.toUpperCase()+' • QUESTION '+(idx+1)+' OF '+diagnostic.length+' • '+q.topic.replaceAll('-',' ').toUpperCase();
+  document.getElementById('question').textContent=q.q;
+  document.getElementById('answers').innerHTML=q.a.map((x,i)=>'<button class="answer" onclick="answer('+i+',this)">'+esc(x)+'</button>').join('');
+  document.getElementById('explanation').innerHTML='';
+  document.getElementById('nextBtn').classList.add('hidden');answered=false;
+}
+function answer(i,el){
+  if(answered)return;answered=true;const q=diagnostic[idx],ok=i===q.c;
+  if(ok)score++;
+  topicStats[q.topic]=topicStats[q.topic]||{correct:0,total:0};
+  topicStats[q.topic].total++;if(ok)topicStats[q.topic].correct++;
+  document.querySelectorAll('#answers .answer').forEach((b,n)=>{b.disabled=true;if(n===q.c)b.classList.add('good');else if(n===i)b.classList.add('bad')});
+  document.getElementById('explanation').innerHTML='<div class="explain">'+esc(q.e)+'<div class="sourceNote">Source basis: '+esc(q.source||'Original preparation content')+'</div></div>';
+  document.getElementById('nextBtn').classList.remove('hidden');
+}
+function nextQuestion(){idx++;if(idx>=diagnostic.length){showResult();return}renderQuestion()}
+function showResult(){
+  const pct=Math.round(score/diagnostic.length*100),band=pct>=80?'Strong starting point':pct>=60?'Developing readiness':'Foundation work needed';
+  const misses=Object.entries(topicStats).map(([topic,v])=>({topic,missed:v.total-v.correct,total:v.total})).sort((a,b)=>b.missed-a.missed);
+  state.attempts=state.attempts||[];
+  state.attempts.unshift({date:new Date().toISOString(),track,pct,topics:topicStats});
+  state.attempts=state.attempts.slice(0,12);persist();
+  document.getElementById('answers').innerHTML='';document.getElementById('question').textContent='Diagnostic complete';
+  document.getElementById('explanation').innerHTML='';document.getElementById('nextBtn').classList.add('hidden');
+  const r=document.getElementById('diagnosticResult');r.classList.remove('hidden');
+  r.innerHTML='<div class="score">'+pct+'% <small>'+band+'</small></div><p class="muted">'+(misses[0]?.missed?'Priority topic: '+esc(misses[0].topic.replaceAll('-',' '))+'. ':'')+'Your result and topic data have been saved on this device.</p><button class="btn secondary" onclick="startDiagnostic()">New 10-question diagnostic</button>';
+}
+function aggregateTopics(){
+  const agg={};(state.attempts||[]).filter(a=>a.track===track).forEach(a=>Object.entries(a.topics||{}).forEach(([t,v])=>{agg[t]=agg[t]||{correct:0,total:0};agg[t].correct+=v.correct;agg[t].total+=v.total}));
+  return agg;
+}
+function humanTopic(t){return t.replaceAll('-',' ').replace(/\b\w/g,m=>m.toUpperCase())}
+function renderTopicButtons(){
+  const topics=[...new Set(bank[track].map(q=>q.topic))].sort();
+  const html=topics.map(t=>'<button class="topicBtn" onclick="startDrill(\''+t+'\')">'+esc(humanTopic(t))+'</button>').join('');
+  document.getElementById('topicPills').innerHTML=html;document.getElementById('drillTopics').innerHTML=html;
+}
+function startDrill(topic){
+  drillTopic=topic;drill=seededSample(bank[track].filter(q=>q.topic===topic),5);
+  if(drill.length<3) drill=seededSample(bank[track].filter(q=>q.topic===topic || q.topic==='professional-judgement' || q.topic==='governance'),5);
+  drillIdx=0;drillScore=0;document.getElementById('drillBox').classList.remove('hidden');document.getElementById('drillResult').classList.add('hidden');renderDrill();
+  document.getElementById('drillBox').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function renderDrill(){
+  const q=drill[drillIdx];drillAnswered=false;
+  document.getElementById('drillCounter').textContent=humanTopic(drillTopic)+' • '+(drillIdx+1)+' OF '+drill.length;
+  document.getElementById('drillQuestion').textContent=q.q;
+  document.getElementById('drillAnswers').innerHTML=q.a.map((x,i)=>'<button class="answer" onclick="answerDrill('+i+')">'+esc(x)+'</button>').join('');
+  document.getElementById('drillExplain').innerHTML='';document.getElementById('drillNext').classList.add('hidden');
+}
+function answerDrill(i){
+  if(drillAnswered)return;drillAnswered=true;const q=drill[drillIdx],ok=i===q.c;if(ok)drillScore++;
+  document.querySelectorAll('#drillAnswers .answer').forEach((b,n)=>{b.disabled=true;if(n===q.c)b.classList.add('good');else if(n===i)b.classList.add('bad')});
+  document.getElementById('drillExplain').innerHTML='<div class="explain">'+esc(q.e)+'</div>';document.getElementById('drillNext').classList.remove('hidden');
+}
+function nextDrill(){
+  drillIdx++;if(drillIdx>=drill.length){
+    document.getElementById('drillAnswers').innerHTML='';document.getElementById('drillQuestion').textContent='Drill complete';
+    document.getElementById('drillNext').classList.add('hidden');const pct=Math.round(drillScore/drill.length*100);
+    const r=document.getElementById('drillResult');r.classList.remove('hidden');r.innerHTML='<div class="score">'+pct+'%</div><p class="muted">'+esc(humanTopic(drillTopic))+' focused drill. Repeat until the reasoning is automatic.</p>';
+    return;
+  }renderDrill();
+}
+function newCase(){
+  const pool=bank.cases.filter(x=>x.track===track);ci=(ci+1)%pool.length;const c=pool[ci];
+  document.getElementById('caseTrack').textContent=track.toUpperCase()+' CASE • '+humanTopic(c.topic);
+  document.getElementById('caseTitle').textContent=c.title;document.getElementById('casePrompt').textContent=c.prompt;
+  document.getElementById('caseAnswer').value='';document.getElementById('caseFeedback').innerHTML='';
+}
+function scoreCase(){
+  const s=document.getElementById('caseAnswer').value.trim();let pts=0;
+  if(s.length>140)pts+=20;if(/issue|risk|problem|conflict|disclos|complaint|supervis|control|duty/i.test(s))pts+=25;
+  if(/because|therefore|facts|in this case|apply|application|given that/i.test(s))pts+=30;
+  if(/should|must|action|record|report|correct|refuse|investigate|monitor|remed/i.test(s))pts+=25;
+  const msg=pts>=80?'Strong structure. Now tighten authority/source references and make every paragraph earn marks.':pts>=55?'Good base. Make the governing principle and application to the facts more explicit.':'Use the four-part structure: issue → principle → application → action/conclusion.';
+  state.cases=state.cases||[];state.cases.unshift({date:new Date().toISOString(),track,score:pts});state.cases=state.cases.slice(0,20);persist();
+  document.getElementById('caseFeedback').innerHTML='<div class="explain"><b>Structure score: '+pts+'%</b><br>'+msg+'<br><small>This is a writing-structure coach, not an official PPRA marking tool.</small></div>';
+}
+function readiness(){
+  const attempts=(state.attempts||[]).filter(a=>a.track===track),best=attempts.length?Math.max(...attempts.map(a=>a.pct)):0;
+  const caseScores=(state.cases||[]).filter(a=>a.track===track).map(x=>x.score),caseAvg=caseScores.length?caseScores.reduce((a,b)=>a+b,0)/caseScores.length:0;
+  const elig=(state.eligibility||[]).filter(Boolean).length/9*100;
+  const breadth=Math.min(100,Object.keys(aggregateTopics()).length/Math.max(1,new Set(bank[track].map(q=>q.topic)).size)*100);
+  return Math.round(best*.6+caseAvg*.2+elig*.1+breadth*.1);
+}
+function renderDashboard(){
+  document.getElementById('learnerName').value=state.name||'';
+  const attempts=(state.attempts||[]).filter(a=>a.track===track),best=attempts.length?Math.max(...attempts.map(a=>a.pct)):null;
+  document.getElementById('bestDiagnostic').textContent=best===null?'—':best+'%';
+  document.getElementById('caseCount').textContent=(state.cases||[]).filter(x=>x.track===track).length;
+  document.getElementById('readyScore').textContent=readiness()+'%';
+  const now=new Date(),days=Math.max(0,Math.ceil((EXAM_DATE-now)/86400000));document.getElementById('daysToExam').textContent=days;
+  let note=now<REG_OPEN?'Registration opens 1 October 2026. '+Math.ceil((REG_OPEN-now)/86400000)+' days until the published registration window opens.':now<=REG_CLOSE?'The published registration window is open now and closes 31 October 2026.':now<EXAM_DATE?'The published registration window has closed. Confirm directly with PPRA whether any extension applies.':'The 12 November 2026 sitting has passed; check PPRA for the next published date.';
+  document.getElementById('countdownNote').innerHTML='<b>Next sitting:</b> 12 November 2026 • '+esc(note);
+  const recent=(state.attempts||[]).slice(0,5);
+  document.getElementById('historyWrap').innerHTML=recent.length?'<table class="history"><tr><th>Date</th><th>Track</th><th>Score</th></tr>'+recent.map(a=>'<tr><td>'+new Date(a.date).toLocaleDateString()+'</td><td>'+a.track.toUpperCase()+'</td><td>'+a.pct+'%</td></tr>').join('')+'</table>':'No saved attempts yet.';
+  const agg=aggregateTopics(),weak=Object.entries(agg).map(([t,v])=>({t,pct:Math.round(v.correct/v.total*100),n:v.total})).sort((a,b)=>a.pct-b.pct).slice(0,3);
+  document.getElementById('studyPlan').innerHTML=weak.length?weak.map((w,i)=>'<div class="planItem"><b>'+ (i+1)+'. '+esc(humanTopic(w.t))+'</b><br><span class="muted">Current topic accuracy: '+w.pct+'% across '+w.n+' diagnostic item'+(w.n===1?'':'s')+'.</span><br><button class="topicBtn" onclick="startDrill(\''+w.t+'\')">Drill this topic</button></div>').join(''):'<div class="muted">Complete a diagnostic to generate your weak-area plan.</div>';
+  renderTopicButtons();
+}
+const checks=[...document.querySelectorAll('[data-check]')];
+checks.forEach((x,i)=>{x.checked=Boolean((state.eligibility||[])[i]);x.addEventListener('change',()=>{state.eligibility=checks.map(y=>y.checked);persist();paintEligibility()})});
+function paintEligibility(){const n=checks.filter(y=>y.checked).length,p=Math.round(n/checks.length*100);document.getElementById('eligProgress').style.width=p+'%';document.getElementById('eligText').textContent=n+' of '+checks.length+' preparation checks completed'}
 function paint(){let h=Math.floor(remain/3600),m=Math.floor((remain%3600)/60),s=remain%60;document.getElementById('timer').textContent=[h,m,s].map(n=>String(n).padStart(2,'0')).join(':')}
 function startTimer(){if(timerId)return;timerId=setInterval(()=>{if(remain<=0){pauseTimer();return}remain--;paint()},1000)}
 function pauseTimer(){clearInterval(timerId);timerId=null}
 function resetTimer(){pauseTimer();remain=18000;paint()}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-renderQuestion();paint();
+document.querySelectorAll('#diagnostic .tab').forEach((b,i)=>b.classList.toggle('active',(i===0&&track==='pde4')||(i===1&&track==='pde5')));
+paintEligibility();paint();startDiagnostic();newCase();renderDashboard();
 </script>
 </body>
 </html>
