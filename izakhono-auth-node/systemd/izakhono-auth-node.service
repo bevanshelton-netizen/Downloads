@@ -1,0 +1,22 @@
+[Unit]
+Description=IZAKHONO AUTH NODE
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/izakhono-auth-node
+EnvironmentFile=/etc/izakhono/auth-node.env
+ExecStart=/usr/bin/node /opt/izakhono-auth-node/server.mjs
+Restart=always
+RestartSec=3
+User=izakhono
+Group=izakhono
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/izakhono-auth
+Environment=IZAKHONO_AUTH_DB=/var/lib/izakhono-auth/auth.sqlite
+
+[Install]
+WantedBy=multi-user.target

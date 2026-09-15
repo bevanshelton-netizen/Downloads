@@ -1,0 +1,40 @@
+name: IZAKHONO AUTH NODE Gate
+
+on:
+  push:
+    branches: [build/izakhono-auth-node]
+    paths:
+      - "izakhono-auth-node/**"
+      - ".github/workflows/izakhono-auth-node-gate.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "izakhono-auth-node/**"
+      - ".github/workflows/izakhono-auth-node-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  self-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: izakhono-auth-node
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+      - name: Verify zero runtime dependencies
+        run: test "$(node -e 'console.log(Object.keys(require("./package.json").dependencies||{}).length)')" = "0"
+      - name: Run auth end-to-end self test
+        run: npm run check
+      - name: Verify security defaults
+        run: |
+          grep -q 'HOST.*127.0.0.1' server.mjs
+          grep -q 'scryptSync' server.mjs
+          grep -q 'aes-256-gcm' server.mjs
+          grep -q 'token_hash' server.mjs
+          grep -q 'IZAKHONO_AUTH_BOOTSTRAP_KEY' server.mjs
