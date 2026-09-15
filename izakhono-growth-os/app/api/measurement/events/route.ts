@@ -1,3 +1,5 @@
+import { pushGrowthEvents } from "@/lib/data/izakhono-data";
+
 type GrowthEventName =
   | "page_view"
   | "lead"
@@ -63,19 +65,21 @@ export async function POST(request:Request){
     },{status:400});
   }
 
-  if(!process.env.MEASUREMENT_DATABASE_URL){
+  const persisted=await pushGrowthEvents(events);
+  if(!persisted.accepted){
     return Response.json({
       accepted:false,
-      code:"PERSISTENCE_NOT_CONFIGURED",
+      code:"OWNED_DATA_NODE_UNAVAILABLE",
       validated:events.length,
-      error:"Events passed validation, but persistence is intentionally locked until MEASUREMENT_DATABASE_URL is configured."
+      error:persisted.error
     },{status:503,headers:{"Cache-Control":"no-store"}});
   }
 
   return Response.json({
-    accepted:false,
-    code:"PERSISTENCE_ADAPTER_PENDING",
+    accepted:true,
+    storage:"IZAKHONO DATA NODE",
     validated:events.length,
-    error:"Database credentials exist, but the persistence adapter has not yet been activated."
-  },{status:503,headers:{"Cache-Control":"no-store"}});
+    inserted:persisted.inserted||0,
+    duplicates:persisted.duplicates||0
+  },{status:202,headers:{"Cache-Control":"no-store"}});
 }

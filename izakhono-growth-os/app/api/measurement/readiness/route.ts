@@ -1,4 +1,5 @@
 import { measurementSources } from "@/lib/measurement/registry";
+import { dataNodeHealth, dataNodeReady } from "@/lib/data/izakhono-data";
 
 export async function GET(){
   const sources=measurementSources.map(source=>{
@@ -12,14 +13,21 @@ export async function GET(){
     };
   });
 
+  const ownedData=await dataNodeHealth();
+
   return Response.json({
     sources,
     configured:sources.filter(source=>source.configured).length,
     total:sources.length,
     ingestSecretReady:Boolean(process.env.MEASUREMENT_INGEST_KEY),
-    persistenceReady:Boolean(process.env.MEASUREMENT_DATABASE_URL),
-    optimizationGate:sources.some(source=>source.configured)
-      ? "Measurement sources are partially configured. Do not auto-optimize until revenue/lead outcomes are also mapped."
-      : "No live measurement source is configured yet."
+    persistence:{
+      provider:"IZAKHONO DATA NODE",
+      configured:dataNodeReady(),
+      reachable:ownedData.reachable,
+      thirdPartyDatabaseRequired:false
+    },
+    optimizationGate:sources.some(source=>source.configured) && ownedData.reachable
+      ? "Measurement and owned persistence are partly active. Keep auto-optimization off until real lead/revenue outcomes are reconciled."
+      : "Owned persistence or live measurement sources are not fully configured yet."
   },{headers:{"Cache-Control":"no-store"}});
 }
