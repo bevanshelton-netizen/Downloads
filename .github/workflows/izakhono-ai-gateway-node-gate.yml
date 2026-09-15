@@ -1,0 +1,39 @@
+name: IZAKHONO AI GATEWAY NODE Gate
+
+on:
+  push:
+    branches: [build/izakhono-ai-gateway-node]
+    paths:
+      - "izakhono-ai-gateway-node/**"
+      - ".github/workflows/izakhono-ai-gateway-node-gate.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "izakhono-ai-gateway-node/**"
+      - ".github/workflows/izakhono-ai-gateway-node-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  self-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: izakhono-ai-gateway-node
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+      - name: Verify zero runtime dependencies
+        run: test "$(node -e 'console.log(Object.keys(require("./package.json").dependencies||{}).length)')" = "0"
+      - name: Run AI gateway end-to-end self test
+        run: npm run check
+      - name: Verify privacy and routing safeguards
+        run: |
+          grep -q 'aes-256-gcm' server.mjs
+          grep -q 'PROVIDER_HOST_NOT_ALLOWED' server.mjs
+          grep -q 'promptsPersisted:false' server.mjs
+          grep -q 'daily_tokens' server.mjs
