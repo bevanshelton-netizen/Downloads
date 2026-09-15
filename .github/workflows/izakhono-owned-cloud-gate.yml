@@ -2,7 +2,7 @@ name: IZAKHONO OWNED CLOUD Gate
 
 on:
   push:
-    branches: [build/izakhono-owned-cloud-stack, build/owned-cloud-add-auth, build/owned-cloud-add-analytics, build/owned-cloud-add-notify, build/owned-cloud-add-ai-gateway, build/owned-cloud-add-code, build/owned-cloud-add-backup, build/owned-cloud-add-ci-worker]
+    branches: [build/izakhono-owned-cloud-stack, build/owned-cloud-add-auth, build/owned-cloud-add-analytics, build/owned-cloud-add-notify, build/owned-cloud-add-ai-gateway, build/owned-cloud-add-code, build/owned-cloud-add-backup, build/owned-cloud-add-ci-worker, build/owned-cloud-add-replica-final]
     paths:
       - "izakhono-owned-cloud/**"
       - ".github/workflows/izakhono-owned-cloud-gate.yml"
@@ -31,10 +31,14 @@ jobs:
           bash -n izakhono-owned-cloud/provision-code-token.sh
           bash -n izakhono-owned-cloud/configure-stack-backup.sh
           bash -n izakhono-owned-cloud/deploy-auto-ai.sh
+          bash -n izakhono-owned-cloud/first-host-proof.sh
+          bash -n izakhono-owned-cloud/deploy-primary-node.sh
+          bash -n izakhono-owned-cloud/deploy-recovery-node.sh
+          bash -n izakhono-owned-cloud/migrate-source-to-code.sh
       - name: Verify no paid provisioning commands
         run: |
           ! grep -R -E 'supabase projects create|vercel deploy|aws s3 mb|gcloud .* create' izakhono-owned-cloud
-      - name: Verify all twelve component installers exist
+      - name: Verify all thirteen component installers exist
         run: |
           test -f izakhono-data-node/install-linux.sh
           test -f izakhono-runtime-node/install-linux.sh
@@ -48,3 +52,4 @@ jobs:
           test -f izakhono-code-node/install-linux.sh
           test -f izakhono-ci-worker-node/install-linux.sh
           test -f izakhono-backup-node/install-linux.sh
+          test -f izakhono-replica-node/install-linux.sh
