@@ -1,0 +1,21 @@
+name: Mandatory Regulatory Exams Public Launch Gate
+
+on:
+  pull_request:
+    paths:
+      - 'mandatory-regulatory-exams/**'
+      - '.github/workflows/mandatory-regulatory-public-launch.yml'
+  push:
+    branches:
+      - 'mandatory-regulatory-exams-public-launch'
+    paths:
+      - 'mandatory-regulatory-exams/**'
+      - '.github/workflows/mandatory-regulatory-public-launch.yml'
+
+jobs:
+  validate-public-launch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate public static release
+        run: python3 mandatory-regulatory-exams/test_public_launch.py
