@@ -6,10 +6,10 @@ if ! command -v node >/dev/null 2>&1; then
   exit 2
 fi
 
-sudo mkdir -p /opt/izakhono-replica-node /var/lib/izakhono-replica/objects /etc/izakhono
+sudo mkdir -p /opt/izakhono-replica-node /var/lib/izakhono-replica /srv/izakhono-replica-objects /etc/izakhono
 sudo cp server.mjs /opt/izakhono-replica-node/server.mjs
-sudo chown -R root:root /opt/izakhono-replica-node /var/lib/izakhono-replica
-sudo chmod 0700 /var/lib/izakhono-replica /var/lib/izakhono-replica/objects
+sudo chown -R root:root /opt/izakhono-replica-node /var/lib/izakhono-replica /srv/izakhono-replica-objects
+sudo chmod 0700 /var/lib/izakhono-replica /srv/izakhono-replica-objects
 
 if [ ! -f /etc/izakhono/replica-node.env ]; then
   ADMIN="$(node -e 'console.log(require("crypto").randomBytes(32).toString("hex"))')"
