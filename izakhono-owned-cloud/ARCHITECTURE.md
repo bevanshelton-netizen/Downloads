@@ -20,7 +20,8 @@
       ├─ IZAKHONO ANALYTICS NODE :8830
       ├─ IZAKHONO NOTIFY NODE    :8840
       ├─ IZAKHONO AI GATEWAY NODE :8850
-      └─ IZAKHONO CODE NODE       :8860
+      ├─ IZAKHONO CODE NODE       :8860
+      └─ IZAKHONO BACKUP NODE     :8870
 
 Control interfaces bind to loopback: RUNTIME control :8790 and EDGE control :8795.
 
@@ -46,11 +47,18 @@ ANALYTICS NODE owns consent-aware behavioral and campaign analytics. It does not
 - NOTIFY encrypts contact destinations at rest and delegates scheduling/retries to QUEUE NODE.
 - AI GATEWAY encrypts provider credentials, hashes client keys, stores no prompt/response bodies and can route to local model servers.
 - CODE stores bare Git repositories on owned disks, hashes repo tokens, and signs outbound push webhooks.
+- BACKUP encrypts snapshots before archive storage, verifies authenticated decryption, keeps its admin key private and restores only into staging.
 - Services run under a non-login `izakhono` account.
 - systemd hardening limits filesystem access.
 - No service relies on a browser-visible server secret.
 
-## Backup minimum
+## Recovery plane
+
+BACKUP NODE captures the service data directories and `/etc/izakhono` into AES-256-GCM encrypted archives. Its archive directory is not included in its own source set.
+
+At least one mirror target must be a physically separate disk, NAS or second machine for meaningful disaster resilience. The BACKUP encryption recovery key must also exist on a separate offline medium; losing both the server and that separately stored key makes the encrypted archives unrecoverable.
+
+## Backup source set
 
 Back up:
 - `/var/lib/izakhono-data`
@@ -64,10 +72,12 @@ Back up:
 - `/var/lib/izakhono-code`
 - `/etc/izakhono`
 
-Keep backups encrypted and maintain multiple physical copies.
+BACKUP NODE archive storage itself lives under `/var/lib/izakhono-backup` and is deliberately excluded from the source set.
+
+Keep encrypted archives on multiple physical devices and periodically prove restore into staging.
 
 ## Expansion path
 
-Next owned services: backup replication, CI WORKER NODE and multi-node failover.
+Next owned services: CI WORKER NODE, second-machine replication and multi-node failover.
 
 The stack remains modular so each service can later move onto its own machine without changing the application-facing API contract.
