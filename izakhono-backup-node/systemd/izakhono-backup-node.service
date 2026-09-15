@@ -1,0 +1,26 @@
+[Unit]
+Description=IZAKHONO BACKUP NODE
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/izakhono-backup-node
+EnvironmentFile=/etc/izakhono/backup-node.env
+ExecStart=/usr/bin/node /opt/izakhono-backup-node/server.mjs
+Restart=always
+RestartSec=5
+User=root
+Group=root
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/var/lib/izakhono-backup
+RestrictSUIDSGID=true
+LockPersonality=true
+Environment=IZAKHONO_BACKUP_DB=/var/lib/izakhono-backup/backup.sqlite
+Environment=IZAKHONO_BACKUP_ARCHIVE_ROOT=/var/lib/izakhono-backup/archives
+Environment=IZAKHONO_BACKUP_RESTORE_ROOT=/var/lib/izakhono-backup/restores
+
+[Install]
+WantedBy=multi-user.target
