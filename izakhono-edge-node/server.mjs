@@ -122,8 +122,11 @@ function proxy(req,res){
   },upstreamRes=>{
     const responseHeaders={...upstreamRes.headers};
     delete responseHeaders["connection"];
-    res.writeHead(upstreamRes.statusCode||502,responseHeaders);
+    for(const [name,value] of Object.entries(responseHeaders)){
+      if(value!==undefined) res.setHeader(name,value);
+    }
     securityHeaders(res);
+    res.writeHead(upstreamRes.statusCode||502);
     upstreamRes.pipe(res);
     upstreamRes.on("end",()=>{
       logAccess({ip:clientIp(req),host,method:req.method,path:req.url,status:upstreamRes.statusCode||502,durationMs:Date.now()-started});
