@@ -38,4 +38,5 @@ jobs:
           test -f izakhono-object-node/install-linux.sh
           test -f izakhono-queue-node/install-linux.sh
           test -f izakhono-auth-node/install-linux.sh
-          test -f izakhono-analytics-node/install-linux.sh\n          test -f izakhono-notify-node/install-linux.sh
+          test -f izakhono-analytics-node/install-linux.sh
+          test -f izakhono-notify-node/install-linux.sh
