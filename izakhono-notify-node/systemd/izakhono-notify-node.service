@@ -1,0 +1,23 @@
+[Unit]
+Description=IZAKHONO NOTIFY NODE
+After=network.target izakhono-queue-node.service
+Wants=izakhono-queue-node.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/izakhono-notify-node
+EnvironmentFile=/etc/izakhono/notify-node.env
+ExecStart=/usr/bin/node /opt/izakhono-notify-node/server.mjs
+Restart=always
+RestartSec=3
+User=izakhono
+Group=izakhono
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/izakhono-notify
+Environment=IZAKHONO_NOTIFY_DB=/var/lib/izakhono-notify/notify.sqlite
+
+[Install]
+WantedBy=multi-user.target
