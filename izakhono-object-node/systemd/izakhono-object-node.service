@@ -1,0 +1,24 @@
+[Unit]
+Description=IZAKHONO OBJECT NODE
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/izakhono-object-node
+EnvironmentFile=/etc/izakhono/object-node.env
+ExecStart=/usr/bin/node /opt/izakhono-object-node/server.mjs
+Restart=always
+RestartSec=3
+User=izakhono
+Group=izakhono
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/izakhono-object /var/log/izakhono-object
+Environment=IZAKHONO_OBJECT_ROOT=/var/lib/izakhono-object/objects
+Environment=IZAKHONO_OBJECT_DB=/var/lib/izakhono-object/object.sqlite
+Environment=IZAKHONO_OBJECT_TMP=/var/lib/izakhono-object/tmp
+
+[Install]
+WantedBy=multi-user.target
