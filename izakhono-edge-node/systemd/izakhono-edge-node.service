@@ -1,0 +1,25 @@
+[Unit]
+Description=IZAKHONO EDGE NODE
+After=network.target izakhono-runtime-node.service
+Wants=izakhono-runtime-node.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/izakhono-edge-node
+EnvironmentFile=/etc/izakhono/edge-node.env
+ExecStart=/usr/bin/node /opt/izakhono-edge-node/server.mjs
+Restart=always
+RestartSec=3
+User=izakhono
+Group=izakhono
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/etc/izakhono/tls
+ReadWritePaths=/var/log/izakhono-edge
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+
+[Install]
+WantedBy=multi-user.target
