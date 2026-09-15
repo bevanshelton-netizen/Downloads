@@ -22,7 +22,7 @@ for link in ["terms.html","privacy.html","sources.html"]:
 req("12 NOV 2026" in PDE and "1–31 October 2026" in PDE,"current published PDE date/registration copy missing")
 req("Official PDE calendar" in PDE and "Official eligibility" in PDE,"official PDE verification links missing")
 req("preparation product only" in PDE,"exam-integrity boundary missing")
-req("not an official PPRA mark or pass prediction" in PDE.lower(),"readiness disclaimer missing")
+req("not an official ppra mark or pass prediction" in PDE.lower(),"readiness disclaimer missing")
 
 p4=set(re.findall(r'id:"(P4-\d{3})"',BANK))
 p5=set(re.findall(r'id:"(P5-\d{3})"',BANK))
