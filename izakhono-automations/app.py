@@ -10,7 +10,8 @@ BASE=Path(__file__).resolve().parent
 DB_PATH=Path(os.getenv("IZA_AUTOMATIONS_DB", str(BASE/"data"/"automations.db")))
 HOST=os.getenv("IZA_AUTOMATIONS_HOST","0.0.0.0")
 PORT=int(os.getenv("IZA_AUTOMATIONS_PORT","8787"))
-ADMIN_TOKEN=os.getenv("IZA_AUTOMATIONS_ADMIN_TOKEN","")
+ADMIN_TOKEN=os.getenv("IZA_AUTOMATIONS_ADMIN_TOKEN") or secrets.token_urlsafe(32)
+TOKEN_WAS_GENERATED="IZA_AUTOMATIONS_ADMIN_TOKEN" not in os.environ
 DEFAULT_TZ=os.getenv("IZA_AUTOMATIONS_TZ","Africa/Johannesburg")
 TICK_SECONDS=max(5,int(os.getenv("IZA_AUTOMATIONS_TICK_SECONDS","15")))
 MAX_OUTPUT=int(os.getenv("IZA_AUTOMATIONS_MAX_OUTPUT","12000"))
@@ -325,6 +326,10 @@ def main():
     t=threading.Thread(target=scheduler_loop,name="scheduler",daemon=True); t.start()
     print(f"IZAKHONO AUTOMATIONS listening on http://{HOST}:{PORT}")
     print(f"Database: {DB_PATH}")
+    if TOKEN_WAS_GENERATED:
+        print("SECURITY: generated temporary admin token for this process:")
+        print(ADMIN_TOKEN)
+        print("Set IZA_AUTOMATIONS_ADMIN_TOKEN to a persistent secret before production use.")
     ThreadingHTTPServer((HOST,PORT),Handler).serve_forever()
 
 if __name__=="__main__":
