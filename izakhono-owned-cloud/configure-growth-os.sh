@@ -13,10 +13,10 @@ DATA_KEY="$(extract_env /etc/izakhono/data-node.env IZAKHONO_DATA_KEY)"
 OBJECT_KEY="$(extract_env /etc/izakhono/object-node.env IZAKHONO_OBJECT_KEY)"
 QUEUE_KEY="$(extract_env /etc/izakhono/queue-node.env IZAKHONO_QUEUE_KEY)"
 RUNTIME_KEY="$(extract_env /etc/izakhono/runtime-node.env IZAKHONO_RUNTIME_KEY)"
-ANALYTICS_KEY="$(extract_env /etc/izakhono/analytics-node.env IZAKHONO_ANALYTICS_ADMIN_KEY)"
+ANALYTICS_KEY="$(extract_env /etc/izakhono/analytics-node.env IZAKHONO_ANALYTICS_ADMIN_KEY)"\nNOTIFY_KEY="$(extract_env /etc/izakhono/notify-node.env IZAKHONO_NOTIFY_KEY)"
 MEASUREMENT_KEY="$(node -e 'console.log(require("crypto").randomBytes(32).toString("hex"))')"
 
-if [ -z "$DATA_KEY" ] || [ -z "$OBJECT_KEY" ] || [ -z "$QUEUE_KEY" ] || [ -z "$RUNTIME_KEY" ] || [ -z "$ANALYTICS_KEY" ]; then
+if [ -z "$DATA_KEY" ] || [ -z "$OBJECT_KEY" ] || [ -z "$QUEUE_KEY" ] || [ -z "$RUNTIME_KEY" ] || [ -z "$ANALYTICS_KEY" ] || [ -z "$NOTIFY_KEY" ]; then
   echo "One or more node keys are missing. Install the owned stack first."
   exit 5
 fi
@@ -33,7 +33,7 @@ IZAKHONO_RUNTIME_URL=http://127.0.0.1:8790
 IZAKHONO_RUNTIME_KEY=$RUNTIME_KEY
 IZAKHONO_AUTH_URL=http://127.0.0.1:8820
 IZAKHONO_ANALYTICS_URL=http://127.0.0.1:8830
-IZAKHONO_ANALYTICS_ADMIN_KEY=$ANALYTICS_KEY
+IZAKHONO_ANALYTICS_ADMIN_KEY=$ANALYTICS_KEY\nIZAKHONO_NOTIFY_URL=http://127.0.0.1:8840\nIZAKHONO_NOTIFY_KEY=$NOTIFY_KEY
 MEASUREMENT_INGEST_KEY=$MEASUREMENT_KEY
 EOF
 
