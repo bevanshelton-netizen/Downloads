@@ -10,7 +10,8 @@ Self-hosted infrastructure stack for IZAKHONO platforms.
 4. **IZAKHONO OBJECT NODE** — owned files/object storage.
 5. **IZAKHONO QUEUE NODE** — owned jobs, retries and scheduling.
 6. **IZAKHONO AUTH NODE** — owned users, sessions, roles, permissions, MFA and service identities.
-7. **IZAKHONO ANALYTICS NODE** — owned consent-aware traffic, campaign, conversion and revenue analytics.\n8. **IZAKHONO NOTIFY NODE** — owned templates, preferences, in-app inbox and delivery orchestration.
+7. **IZAKHONO ANALYTICS NODE** — owned consent-aware traffic, campaign, conversion and revenue analytics.
+8. **IZAKHONO NOTIFY NODE** — owned templates, preferences, in-app inbox and delivery orchestration.
 
 All eight services are designed to run on Linux hardware you control and use Node.js built-ins plus SQLite. They do not require hosted database, object-store, queue, authentication or analytics subscriptions.
 
