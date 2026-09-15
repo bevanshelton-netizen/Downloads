@@ -1,4 +1,31 @@
-import type { GrowthEvent, GrowthEventName } from "@/lib/measurement/types";
+type GrowthEventName =
+  | "page_view"
+  | "lead"
+  | "qualified_lead"
+  | "application"
+  | "enrolment"
+  | "order"
+  | "payment"
+  | "refund";
+
+type GrowthEvent = {
+  eventId:string;
+  eventName:GrowthEventName;
+  occurredAt:string;
+  brand:string;
+  source?:string;
+  medium?:string;
+  campaign?:string;
+  country?:string;
+  language?:string;
+  landingPage?:string;
+  leadId?:string;
+  customerId?:string;
+  orderId?:string;
+  value?:number;
+  currency?:string;
+  metadata?:Record<string,string|number|boolean|null>;
+};
 
 const allowed:GrowthEventName[]=[
   "page_view","lead","qualified_lead","application","enrolment","order","payment","refund"
@@ -7,13 +34,7 @@ const allowed:GrowthEventName[]=[
 function validEvent(value:unknown):value is GrowthEvent{
   if(!value || typeof value!=="object") return false;
   const event=value as Partial<GrowthEvent>;
-  return Boolean(
-    event.eventId &&
-    event.eventName &&
-    allowed.includes(event.eventName) &&
-    event.occurredAt &&
-    event.brand
-  );
+  return Boolean(event.eventId && event.eventName && allowed.includes(event.eventName) && event.occurredAt && event.brand);
 }
 
 export async function POST(request:Request){
