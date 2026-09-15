@@ -1,4 +1,4 @@
-import type { ProviderId } from "./types";
+import type { ProviderId } from "./registry";
 
 export type ProviderOnboarding = {
   id: ProviderId;
