@@ -25,12 +25,12 @@ const brands = [
 ];
 
 const providers = [
-  {name:"Google Ads",abbr:"G",scope:"Search · PMax · YouTube",status:"DISCONNECTED"},
-  {name:"Meta Ads",abbr:"M",scope:"Facebook · Instagram · Reels",status:"DISCONNECTED"},
-  {name:"TikTok Ads",abbr:"T",scope:"Video · Spark · Lead Gen",status:"DISCONNECTED"},
-  {name:"LinkedIn Ads",abbr:"in",scope:"B2B · Lead Gen · ABM",status:"DISCONNECTED"},
-  {name:"Amazon Ads",abbr:"a",scope:"Sponsored · Display",status:"DISCONNECTED"},
-  {name:"Microsoft Ads",abbr:"m",scope:"Search · Audience",status:"DISCONNECTED"}
+  {id:"google-ads",name:"Google Ads",abbr:"G",scope:"Search · PMax · YouTube",status:"DISCONNECTED"},
+  {id:"meta-ads",name:"Meta Ads",abbr:"M",scope:"Facebook · Instagram · Reels",status:"DISCONNECTED"},
+  {id:"tiktok-ads",name:"TikTok Ads",abbr:"T",scope:"Video · Spark · Lead Gen",status:"DISCONNECTED"},
+  {id:"linkedin-ads",name:"LinkedIn Ads",abbr:"in",scope:"B2B · Lead Gen · ABM",status:"DISCONNECTED"},
+  {id:"amazon-ads",name:"Amazon Ads",abbr:"a",scope:"Sponsored · Display",status:"DISCONNECTED"},
+  {id:"microsoft-ads",name:"Microsoft Ads",abbr:"m",scope:"Search · Audience",status:"DISCONNECTED"}
 ];
 
 const nav:[Tab,string,string][] = [
@@ -350,10 +350,10 @@ function Approvals({drafts,approve}:{drafts:Draft[];approve:(id:string)=>void}){
 
 function Connections(){
   return <div className="stack">
-    <section className="heroCard"><div><span className="kicker">SECURE PROVIDER LAYER</span><h2>Connect accounts. Never passwords.</h2><p>Growth OS will use provider OAuth and server-side secrets. Read access and write access are separated; campaign creation remains paused by default.</p></div></section>
+    <section className="heroCard"><div><span className="kicker">SECURE PROVIDER LAYER</span><h2>Connect accounts. Never passwords.</h2><p>Growth OS uses provider OAuth and server-side secrets. Read access and write access are separated; campaign creation remains paused by default.</p></div><a className="primary heroLink" href="/connect">Open connection wizard →</a></section>
     <section className="connectionGrid">
       {providers.map(p=><article className="connectionCard" key={p.name}>
-        <div className="providerIcon big">{p.abbr}</div><h3>{p.name}</h3><p>{p.scope}</p><span className="disconnected">NOT CONNECTED</span><button disabled>OAuth adapter pending</button>
+        <div className="providerIcon big">{p.abbr}</div><h3>{p.name}</h3><p>{p.scope}</p><span className="disconnected">OAUTH REQUIRED</span><a href={"/connect#"+p.id}>Configure connector →</a>
       </article>)}
     </section>
     <section className="card">
