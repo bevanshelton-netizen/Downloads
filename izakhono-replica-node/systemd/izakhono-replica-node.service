@@ -1,0 +1,27 @@
+[Unit]
+Description=IZAKHONO REPLICA NODE
+After=network.target izakhono-backup-node.service
+Wants=izakhono-backup-node.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/izakhono-replica-node
+EnvironmentFile=/etc/izakhono/replica-node.env
+ExecStart=/usr/bin/node /opt/izakhono-replica-node/server.mjs
+Restart=always
+RestartSec=5
+User=root
+Group=root
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/izakhono-replica
+RestrictSUIDSGID=true
+LockPersonality=true
+Environment=IZAKHONO_REPLICA_DB=/var/lib/izakhono-replica/replica.sqlite
+Environment=IZAKHONO_REPLICA_ROOT=/var/lib/izakhono-replica/objects
+Environment=IZAKHONO_REPLICA_SOURCE_ARCHIVE_ROOT=/var/lib/izakhono-backup/archives
+
+[Install]
+WantedBy=multi-user.target
