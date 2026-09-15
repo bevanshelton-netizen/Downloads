@@ -3,7 +3,22 @@ set -euo pipefail
 
 APP="auto-ai"
 HOSTNAME="${AUTO_AI_HOSTNAME:-autoai.izakhonoafrica.co.za}"
-REPO_URL="${IZAKHONO_CODE_REPO_URL:-https://github.com/bevanshelton-netizen/Downloads.git}"
+SOURCE_ENV="${IZAKHONO_CODE_SOURCE_ENV:-/etc/izakhono/code-source.env}"
+REPO_URL="${IZAKHONO_CODE_REPO_URL:-}"
+REPO_TOKEN="${IZAKHONO_CODE_REPO_TOKEN:-}"
+
+if [ -z "$REPO_URL" ] && [ -f "$SOURCE_ENV" ]; then
+  REPO_URL="$(sudo awk -F= '$1=="IZAKHONO_CODE_REPO_URL"{sub(/^[^=]*=/,"");print;exit}' "$SOURCE_ENV")"
+  REPO_TOKEN="$(sudo awk -F= '$1=="IZAKHONO_CODE_REPO_TOKEN"{sub(/^[^=]*=/,"");print;exit}' "$SOURCE_ENV")"
+fi
+
+if [ -z "$REPO_URL" ]; then
+  fail "Owned CODE source is not configured. Run migrate-source-to-code.sh first."
+fi
+
+if [[ "$REPO_URL" != http://127.0.0.1:8860/git/* ]] && [ "${ALLOW_EXTERNAL_SOURCE:-0}" != "1" ]; then
+  fail "External source URL refused. Set ALLOW_EXTERNAL_SOURCE=1 only for an intentional bootstrap exception."
+fi
 REVISION="${1:-main}"
 CACHE_ROOT="${IZAKHONO_SOURCE_CACHE:-/var/lib/izakhono-runtime/source}"
 RELEASE_BASE="/var/lib/izakhono-runtime/releases/$APP"
@@ -14,6 +29,18 @@ PROXY_URL="http://127.0.0.1:8080"
 
 fail(){ echo "FAIL: $*" >&2; exit 2; }
 need(){ command -v "$1" >/dev/null 2>&1 || fail "$1 is required"; }
+
+GIT_AUTH=""
+if [ -n "$REPO_TOKEN" ]; then
+  GIT_AUTH="$(node -e 'process.stdout.write(Buffer.from("git:"+process.argv[1]).toString("base64"))' "$REPO_TOKEN")"
+fi
+git_source(){
+  if [ -n "$GIT_AUTH" ]; then
+    sudo env GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=http.extraHeader GIT_CONFIG_VALUE_0="Authorization: Basic $GIT_AUTH" git "$@"
+  else
+    sudo git "$@"
+  fi
+}
 
 for cmd in git curl node; do need "$cmd"; done
 [ -f "$RUNTIME_ENV" ] || fail "IZAKHONO RUNTIME NODE environment not found: $RUNTIME_ENV"
@@ -27,13 +54,14 @@ sudo mkdir -p "$CACHE_ROOT" "$RELEASE_BASE"
 CACHE="$CACHE_ROOT/Downloads"
 
 if [ ! -d "$CACHE/.git" ]; then
-  sudo git clone --filter=blob:none "$REPO_URL" "$CACHE"
+  git_source clone --filter=blob:none "$REPO_URL" "$CACHE"
 else
-  sudo git -C "$CACHE" remote set-url origin "$REPO_URL"
+  git_source -C "$CACHE" remote set-url origin "$REPO_URL"
 fi
 
-sudo git -C "$CACHE" fetch --prune origin "$REVISION"
+git_source -C "$CACHE" fetch --prune origin "$REVISION"
 RESOLVED="$(sudo git -C "$CACHE" rev-parse FETCH_HEAD)"
+unset REPO_TOKEN GIT_AUTH
 RELEASE="$RELEASE_BASE/$RESOLVED"
 
 if [ ! -d "$RELEASE" ]; then
