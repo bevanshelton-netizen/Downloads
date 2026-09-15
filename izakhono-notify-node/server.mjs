@@ -463,7 +463,7 @@ const server=createServer(async(req,res)=>{
       if(!preferenceEnabled(recipient,body.channel)) state="suppressed";
       const dest=destination(recipient,body.channel);
       if(body.channel!=="in_app" && !dest) return json(res,409,{error:"Recipient channel is not configured"});
-      if(dest && suppressed(body.channel,dest.hash)) state="suppressed";
+      if(body.channel!=="in_app" && dest && suppressed(body.channel,dest.hash)) state="suppressed";
 
       const id=randomUUID();
       const subject=render(template.subject,vars).slice(0,500);
