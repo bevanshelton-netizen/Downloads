@@ -257,7 +257,7 @@ function CampaignBuilder({brand,form,setForm,plan,planning,buildPlan,saveDraft}:
       {!plan&&<div className="emptyPlan"><div>◎</div><p>Growth OS will create a channel mix, budget allocation and compliance preflight without spending anything.</p></div>}
       {plan&&<>
         <div className="allocation">
-          {plan.allocations.map(a=><div key={a.channel}><div className="allocLabel"><b>{a.channel}</b><span>{a.percent}% · {money(a.amount)}</span></div><div className="bar"><i style={{width:a.percent+"%"}}/></div></div>)}
+          {plan.allocations.map((a:{channel:string;percent:number;amount:number})=><div key={a.channel}><div className="allocLabel"><b>{a.channel}</b><span>{a.percent}% · {money(a.amount)}</span></div><div className="bar"><i style={{width:a.percent+"%"}}/></div></div>)}
         </div>
         <div className="preflight"><b>Preflight</b>{plan.preflight.map((x:string)=><p key={x}>✓ {x}</p>)}</div>
         <p className="plannerNote">{plan.note}</p>
