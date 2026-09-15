@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IZAKHONO AUTOMATIONS</title>
+<style>
+:root{--bg:#06111b;--panel:#0d2535;--panel2:#123247;--line:#28546a;--text:#f7fbff;--muted:#abc0cb;--aqua:#51e2d0;--gold:#efc75e;--green:#7cdf9c;--red:#ff9292}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 90% 0,#174c5e 0,transparent 25%),linear-gradient(180deg,#06111b,#071925);color:var(--text);font:15px/1.5 Inter,system-ui,Segoe UI,sans-serif}
+.wrap{max-width:1280px;margin:auto;padding:28px 20px 60px}.top{display:flex;justify-content:space-between;gap:18px;align-items:center;flex-wrap:wrap}.brand{font-size:30px;font-weight:1000}.brand span{color:var(--aqua)}.badge{padding:6px 9px;border:1px solid #347063;border-radius:999px;color:#aaf0c2;background:#103b2d;font-size:11px;font-weight:900}
+.grid{display:grid;grid-template-columns:1fr 1.35fr;gap:16px;margin-top:22px}.panel{background:linear-gradient(180deg,#0e293b,#0a2130);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 20px 60px #0003}
+h1,h2,h3{margin-top:0}h2{font-size:27px}.muted{color:var(--muted)}label{display:block;font-weight:800;font-size:12px;margin:10px 0 5px}input,select,textarea{width:100%;padding:11px 12px;border:1px solid #356278;background:#071d2b;color:#fff;border-radius:10px;font:inherit}textarea{min-height:84px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.btn{border:0;border-radius:10px;padding:10px 13px;font-weight:900;cursor:pointer}.primary{background:linear-gradient(135deg,var(--gold),#ffe69c);color:#352800}.secondary{background:#12374a;border:1px solid #3a687d;color:#fff}.danger{background:#401f29;border:1px solid #7b3d4a;color:#ffd9df}
+.task{border:1px solid #2f596c;background:#0a2231;border-radius:15px;padding:15px;margin:10px 0}.taskTop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.task h3{margin:0 0 5px}.status{font-size:10px;font-weight:900;border:1px solid #376b57;border-radius:999px;padding:5px 8px;color:#9ce8b4;background:#113526}.off{color:#c2c9ce;border-color:#53606a;background:#222c32}.error{color:#ffc3c3}.meta{font-size:12px;color:#9fb8c5}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px 0}.metric{padding:15px;border:1px solid #2d586c;background:#0b2636;border-radius:15px}.metric b{display:block;font-size:28px;color:var(--aqua)}.toolbar{display:flex;gap:8px;align-items:center}.toolbar input{width:260px}.run{padding:11px;border-bottom:1px solid #23495b}.run:last-child{border:0}.ok{color:#93e9af}.fail{color:#ffadad}
+pre{white-space:pre-wrap;word-break:break-word;background:#071a26;border:1px solid #294d5f;padding:10px;border-radius:10px;color:#cde0e8}.hidden{display:none}
+@media(max-width:900px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.toolbar{width:100%;flex-wrap:wrap}.toolbar input{width:100%}}@media(max-width:520px){.row,.stats{grid-template-columns:1fr}}
+</style></head>
+<body><div class="wrap">
+<div class="top"><div><div class="brand">IZAKHONO <span>AUTOMATIONS</span></div><div class="muted">Owner-controlled task engine • no artificial task-slot limit</div></div><span class="badge" id="health">CHECKING ENGINE</span></div>
+<div class="stats"><div class="metric"><b id="mTotal">0</b><span>Tasks</span></div><div class="metric"><b id="mOn">0</b><span>Enabled</span></div><div class="metric"><b id="mRuns">0</b><span>Recent runs</span></div><div class="metric"><b id="mErrors">0</b><span>Errors</span></div></div>
+<div class="grid">
+<section class="panel"><h2>Create automation</h2>
+<label>Admin token</label><input id="token" type="password" placeholder="Set from IZA_AUTOMATIONS_ADMIN_TOKEN">
+<div class="row"><div><label>Task name</label><input id="title" placeholder="e.g. Check PayFast status"></div><div><label>Mode</label><select id="mode" onchange="paintMode()"><option value="interval">Every N minutes</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="once">Once</option><option value="condition">Condition watch</option><option value="webhook">Incoming webhook</option></select></div></div>
+<div id="intervalFields"><label>Interval minutes</label><input id="interval" type="number" min="1" value="60"></div>
+<div id="timeFields" class="hidden"><div class="row"><div><label>Time</label><input id="time" type="time" value="08:00"></div><div><label>Timezone</label><input id="timezone" value="Africa/Johannesburg"></div></div></div>
+<div id="weeklyFields" class="hidden"><label>Weekdays (0=Mon … 6=Sun)</label><input id="days" value="0"></div>
+<div id="onceFields" class="hidden"><label>Run at (ISO timestamp)</label><input id="runAt" placeholder="2026-09-16T09:00:00+02:00"></div>
+<div id="conditionFields" class="hidden"><label>Condition URL</label><input id="conditionUrl" placeholder="https://example.com/status"><div class="row"><div><label>Expected HTTP status</label><input id="expectStatus" type="number" value="200"></div><div><label>Page must contain</label><input id="contains" placeholder="READY"></div></div></div>
+<label>Action</label><select id="actionType" onchange="paintAction()"><option value="log">Record a message</option><option value="http">Call a webhook / API</option></select>
+<div id="logAction"><label>Message</label><textarea id="message" placeholder="Automation fired successfully."></textarea></div>
+<div id="httpAction" class="hidden"><label>Action URL</label><input id="actionUrl" placeholder="https://hooks.example.com/..."><div class="row"><div><label>Method</label><select id="method"><option>POST</option><option>GET</option><option>PUT</option><option>PATCH</option></select></div><div><label>JSON body</label><input id="body" placeholder='{"event":"matched"}'></div></div></div>
+<div class="buttons"><button class="btn primary" onclick="createTask()">Create automation</button><button class="btn secondary" onclick="saveToken()">Save token in this tab</button></div><p class="muted" id="formMsg"></p>
+</section>
+<section class="panel"><div class="top"><div><h2 style="margin:0">Automation control</h2><div class="muted">Pause, run, inspect and remove tasks.</div></div><div class="toolbar"><input id="search" placeholder="Search tasks" oninput="renderTasks()"><button class="btn secondary" onclick="refresh()">Refresh</button></div></div><div id="tasks"></div></section>
+</div>
+<section class="panel" style="margin-top:16px"><h2>Run history</h2><div id="runs"></div></section>
+</div>
+<script>
+let tasks=[],runs=[];
+const $=id=>document.getElementById(id);
+function token(){return $('token').value||sessionStorage.getItem('iza-token')||''}
+function saveToken(){sessionStorage.setItem('iza-token',$('token').value);refresh()}
+async function api(path,opts={}){
+  opts.headers={...(opts.headers||{}),'Authorization':'Bearer '+token()};
+  if(opts.body && typeof opts.body!=='string'){opts.headers['Content-Type']='application/json';opts.body=JSON.stringify(opts.body)}
+  const r=await fetch(path,opts);const j=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(j.error||('HTTP '+r.status));return j
+}
+function paintMode(){
+  const m=$('mode').value;
+  $('intervalFields').classList.toggle('hidden',!['interval','condition'].includes(m));
+  $('timeFields').classList.toggle('hidden',!['daily','weekly'].includes(m));
+  $('weeklyFields').classList.toggle('hidden',m!=='weekly');
+  $('onceFields').classList.toggle('hidden',m!=='once');
+  $('conditionFields').classList.toggle('hidden',m!=='condition');
+}
+function paintAction(){const h=$('actionType').value==='http';$('httpAction').classList.toggle('hidden',!h);$('logAction').classList.toggle('hidden',h)}
+function scheduleFor(m){
+  if(['interval','condition'].includes(m))return {interval_minutes:+$('interval').value||60,timezone:$('timezone').value||'Africa/Johannesburg'};
+  if(m==='daily')return {time:$('time').value||'08:00',timezone:$('timezone').value||'Africa/Johannesburg'};
+  if(m==='weekly')return {time:$('time').value||'08:00',timezone:$('timezone').value||'Africa/Johannesburg',days:$('days').value.split(',').map(x=>+x.trim()).filter(x=>x>=0&&x<=6)};
+  if(m==='once')return {run_at:$('runAt').value};
+  return {};
+}
+function actionFor(){
+  if($('actionType').value==='log')return {type:'log',message:$('message').value||$('title').value};
+  let body=null;try{body=$('body').value?JSON.parse($('body').value):null}catch(e){throw new Error('Action JSON body is invalid')}
+  return {type:'http',url:$('actionUrl').value,method:$('method').value,body};
+}
+async function createTask(){
+  try{
+    const mode=$('mode').value;let condition={};
+    if(mode==='condition')condition={type:'http',url:$('conditionUrl').value,expect_status:+$('expectStatus').value||200,contains:$('contains').value||undefined};
+    const item={title:$('title').value,mode,schedule:scheduleFor(mode),condition,action:actionFor()};
+    await api('/api/tasks',{method:'POST',body:item});$('formMsg').textContent='Created.';$('title').value='';await refresh()
+  }catch(e){$('formMsg').textContent=e.message}
+}
+async function toggleTask(id,on){await api('/api/tasks/'+id,{method:'PATCH',body:{enabled:on}});refresh()}
+async function runTask(id){await api('/api/tasks/'+id+'/run',{method:'POST'});refresh()}
+async function deleteTask(id){if(!confirm('Delete this automation and its run history?'))return;await api('/api/tasks/'+id,{method:'DELETE'});refresh()}
+function fmt(s){return s?new Date(s).toLocaleString():'—'}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function renderTasks(){
+  const q=$('search').value.toLowerCase(),list=tasks.filter(t=>t.title.toLowerCase().includes(q));
+  $('tasks').innerHTML=list.length?list.map(t=>`<div class="task"><div class="taskTop"><div><h3>${esc(t.title)}</h3><div class="meta">${esc(t.mode.toUpperCase())} • Next: ${fmt(t.next_run)}</div></div><span class="status ${t.enabled?'':'off'}">${t.enabled?'ENABLED':'PAUSED'}</span></div><div class="meta" style="margin-top:8px">Last: ${fmt(t.last_run)} • <span class="${t.last_status==='error'?'error':''}">${esc(t.last_status||'never run')}</span> • ${esc(t.last_message||'')}</div>${t.mode==='webhook'?'<div class="meta">Webhook: <code>/hook/'+esc(t.webhook_token)+'</code></div>':''}<div class="buttons"><button class="btn secondary" onclick="runTask('${t.id}')">Run now</button><button class="btn secondary" onclick="toggleTask('${t.id}',${!t.enabled})">${t.enabled?'Pause':'Resume'}</button><button class="btn danger" onclick="deleteTask('${t.id}')">Delete</button></div></div>`).join(''):'<p class="muted">No automations yet.</p>';
+}
+function renderRuns(){
+  $('runs').innerHTML=runs.length?runs.slice(0,50).map(r=>`<div class="run"><b class="${r.status==='success'?'ok':r.status==='error'?'fail':''}">${esc(r.status.toUpperCase())}</b> • Task ${esc(r.task_id)} • ${fmt(r.started_at)}<div class="muted">${esc(r.message||'')}</div>${r.status==='error'?'<pre>'+esc(r.output||'')+'</pre>':''}</div>`).join(''):'<p class="muted">No runs yet.</p>';
+}
+async function refresh(){
+  try{
+    const [a,b]=await Promise.all([api('/api/tasks'),api('/api/runs')]);tasks=a.tasks;runs=b.runs;
+    $('mTotal').textContent=tasks.length;$('mOn').textContent=tasks.filter(x=>x.enabled).length;$('mRuns').textContent=runs.length;$('mErrors').textContent=runs.filter(x=>x.status==='error').length;
+    renderTasks();renderRuns()
+  }catch(e){$('tasks').innerHTML='<p class="error">'+esc(e.message)+'</p>'}
+}
+async function health(){try{const r=await fetch('/health');if(r.ok){$('health').textContent='ENGINE ONLINE'}}catch(e){$('health').textContent='ENGINE OFFLINE';$('health').classList.add('off')}}
+$('token').value=sessionStorage.getItem('iza-token')||'';paintMode();paintAction();health();if(token())refresh();setInterval(()=>{if(token())refresh()},15000);
+</script></body></html>
