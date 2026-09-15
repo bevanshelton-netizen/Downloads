@@ -21,8 +21,14 @@
       "sector": "Property",
       "body": "Property Practitioners Regulatory Authority (PPRA)",
       "exam_codes": ["PDE4", "PDE5"],
-      "status": "build_next",
-      "official_source": "https://theppra.org.za/education/pde/pde-questions-papers-pde4-pde5/"
+      "status": "prep_engine_ready",
+      "product_name": "PDEReady",
+      "internal_path": "./pdeready/",
+      "next_exam_date": "2026-11-12",
+      "registration_opens": "2026-10-01",
+      "registration_closes": "2026-10-31",
+      "official_source": "https://theppra.org.za/education/pde/",
+      "alternative_route_source": "https://theppra.org.za/ppra-introduces-an-alternative-competency-based-pathway-to-the-pde-4-while-retaining-existing-nqf-level-4-and-nqf-level-5-qualification-routes/"
     },
     {
       "id": "saica",

@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="PDEReady — preparation for South African PDE4 and PDE5 property-practitioner examinations.">
+<title>PDEReady — PDE4 & PDE5 Preparation</title>
+<style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+:root{--bg:#07131d;--panel:#0d2939;--panel2:#12384a;--line:#2d5b70;--text:#f7fbff;--muted:#b8cbd5;--aqua:#4ce6d4;--gold:#f1cb66;--green:#82e5a4;--sky:#78c9ff;--red:#ff9c9c}
+body{margin:0;background:radial-gradient(circle at 90% 0,#1b596c 0,transparent 26%),radial-gradient(circle at 0 22%,#264c35 0,transparent 22%),linear-gradient(180deg,#07131d,#06101a 70%,#091b26);color:var(--text);font:15px/1.55 Inter,system-ui,-apple-system,Segoe UI,sans-serif}
+a{color:inherit}.wrap{max-width:1220px;margin:auto;padding:0 22px}
+header{position:sticky;top:0;z-index:30;background:#07131de9;backdrop-filter:blur(15px);border-bottom:1px solid #285066;display:flex;justify-content:space-between;align-items:center;padding:13px 5vw;gap:18px}
+.brand{display:flex;align-items:center;gap:12px}.mark{width:52px;height:52px;border-radius:17px;display:grid;place-items:center;background:linear-gradient(135deg,var(--gold),#fff0b5);color:#362800;font-weight:1000}.brand b{display:block;font-size:26px;line-height:1}.brand small{color:#afc6d0}
+.nav{display:flex;gap:8px;flex-wrap:wrap}.nav a{text-decoration:none;padding:8px 11px;border-radius:999px;color:#d6e5ec}.nav a:hover{background:#123347}
+.hero{padding:65px 0 35px;display:grid;grid-template-columns:1.1fr .9fr;gap:30px;align-items:center}.eyebrow{font-size:11px;font-weight:950;letter-spacing:1.9px;color:var(--aqua)}
+h1{font-size:clamp(48px,7vw,82px);line-height:.95;letter-spacing:-3px;margin:10px 0 18px}h1 span{background:linear-gradient(90deg,var(--gold),var(--aqua),var(--sky));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font-size:19px;color:#d1e0e7;max-width:700px}.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.btn{border:0;border-radius:12px;padding:12px 17px;font-weight:900;text-decoration:none;cursor:pointer;display:inline-block}.primary{background:linear-gradient(135deg,var(--gold),#ffe59a);color:#352700}.secondary{background:#12364b;border:1px solid #39677c;color:white}.ghost{background:transparent;border:1px solid #386278;color:#dfeaf0}
+.examcard{background:linear-gradient(180deg,#12384b,#0b2636);border:1px solid #396779;border-radius:24px;padding:22px;box-shadow:0 24px 65px #0004}.examTop{display:flex;justify-content:space-between;align-items:center;gap:10px}.examBadge{width:90px;height:90px;border-radius:24px;display:grid;place-items:center;font-size:29px;font-weight:1000;background:#fff4cf;color:#3f3000}.status{font-size:10px;font-weight:950;padding:6px 9px;border-radius:999px;background:#143e31;border:1px solid #39765a;color:#9ff0bb}.date{font-size:34px;font-weight:1000;margin:12px 0 2px}.muted{color:var(--muted)}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:4px 0 20px}.metric{background:#0b2636;border:1px solid #2c5669;border-radius:16px;padding:15px}.metric b{display:block;font-size:21px;color:var(--aqua)}.metric small{color:#abc1cc}
+.section{padding:40px 0}.section h2{font-size:40px;line-height:1.05;margin:5px 0 12px}.intro{max-width:820px;color:#bad0da;font-size:17px}
+.tabs{display:flex;gap:9px;flex-wrap:wrap;margin:22px 0}.tab{padding:11px 15px;border-radius:999px;border:1px solid #356176;background:#0d2b3d;color:white;font-weight:900;cursor:pointer}.tab.active{background:linear-gradient(135deg,var(--gold),#ffe59a);color:#362800;border-color:transparent}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.card{background:linear-gradient(180deg,#102f42,#0b2534);border:1px solid var(--line);border-radius:20px;padding:20px}.card h3{margin:6px 0 8px;font-size:23px}.card p,.card li{color:#b9ccd6}.tag{display:inline-block;font-size:10px;font-weight:950;letter-spacing:.8px;border-radius:999px;padding:5px 8px;background:#173f50;color:#9cebdd}.warn{color:#ffe7a2;background:#3b3117}
+.check{display:flex;gap:9px;align-items:flex-start;margin:11px 0}.check input{margin-top:4px;accent-color:#7be0a0}.check label{color:#c9d9e0}
+.notice{padding:15px 16px;border-left:3px solid var(--gold);background:#392f174a;border-radius:10px;color:#d5e2e8;margin:17px 0}
+.questionBox{max-width:850px;background:#0d2b3d;border:1px solid #356176;border-radius:20px;padding:22px}.question{font-size:21px;font-weight:850;margin:12px 0}.answer{display:block;width:100%;text-align:left;padding:12px 13px;margin:8px 0;border-radius:11px;border:1px solid #38677b;background:#081f2d;color:white;cursor:pointer}.answer.good{border-color:#70d99d;background:#13382b}.answer.bad{border-color:#e28585;background:#3b2027}.explain{margin-top:12px;padding:13px;border-radius:10px;background:#132f3c;color:#d8e6ec}
+.progress{height:10px;background:#071b28;border:1px solid #28536a;border-radius:999px;overflow:hidden}.progress>span{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--aqua));width:0}
+.score{font-size:54px;font-weight:1000;line-height:1}.score small{font-size:15px;color:#a9c1cc}
+.casegrid{display:grid;grid-template-columns:.85fr 1.15fr;gap:16px}.case{background:#0b2636;border:1px solid #2d5b70;border-radius:19px;padding:20px}.case textarea{width:100%;min-height:190px;background:#061d2a;color:white;border:1px solid #356075;border-radius:12px;padding:13px;font:inherit;resize:vertical}.rubric{display:grid;gap:8px}.rubric div{display:flex;justify-content:space-between;gap:10px;background:#102e40;border:1px solid #2d5366;border-radius:11px;padding:10px 12px}.rubric strong{color:#8ee8c3}
+.mock{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}.mock .card b{font-size:28px;color:var(--gold)}.timer{font-variant-numeric:tabular-nums;font-size:40px;font-weight:1000;letter-spacing:1px}
+.integrity{border:1px solid #6d5a27;background:#332a1559;border-radius:16px;padding:17px}.integrity b{color:#ffe49a}
+.hidden{display:none!important}footer{border-top:1px solid #285066;padding:23px 5vw;color:#9cb7c4;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
+@media(max-width:900px){.hero,.casegrid{grid-template-columns:1fr}.grid,.mock{grid-template-columns:1fr 1fr}.metrics{grid-template-columns:1fr 1fr}.nav{display:none}}
+@media(max-width:600px){.grid,.mock,.metrics{grid-template-columns:1fr}h1{font-size:47px}.section h2{font-size:33px}.brand b{font-size:22px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="mark">PDE</div><div><b>PDEReady</b><small>PDE4 & PDE5 Property Practice Preparation</small></div></div>
+  <nav class="nav"><a href="#diagnostic">Diagnostic</a><a href="#learn">Study</a><a href="#case">Case Practice</a><a href="#mock">Mock</a><a href="../mandatory-regulatory-exams/">All exams</a></nav>
+</header>
+<main class="wrap">
+<section class="hero">
+  <div>
+    <div class="eyebrow">PROPERTY PRACTICE • SOUTH AFRICA</div>
+    <h1>Prepare to think like<br><span>a property professional.</span></h1>
+    <p class="lead">PDEReady trains knowledge, professional judgement and case-based written responses for PDE4 and PDE5 — without reproducing confidential material or assisting anyone during a live examination.</p>
+    <div class="row"><a class="btn primary" href="#diagnostic">Start diagnostic</a><a class="btn secondary" href="#calendar">Check next sitting</a></div>
+  </div>
+  <aside class="examcard">
+    <div class="examTop"><div class="examBadge">PDE<br>4/5</div><span class="status">2026 PATHWAY</span></div>
+    <div class="date">12 NOV 2026</div>
+    <div class="muted">Next scheduled ordinary PDE sitting</div>
+    <hr style="border:0;border-top:1px solid #31586b;margin:18px 0">
+    <b>Registration:</b> 1–31 October 2026<br>
+    <b>Mode:</b> Take-home examination<br>
+    <b>Preparation focus:</b> application, ethics, compliance, consumer protection and professional judgement
+  </aside>
+</section>
+
+<div class="metrics">
+  <div class="metric"><b>2 tracks</b><small>PDE4 + PDE5</small></div>
+  <div class="metric"><b>5 hours</b><small>recent PPRA take-home window</small></div>
+  <div class="metric"><b>Case-based</b><small>train application, not rote recall</small></div>
+  <div class="metric"><b>Original</b><small>practice material, not leaked papers</small></div>
+</div>
+
+<section id="calendar" class="section">
+  <div class="eyebrow">CURRENT EXAM ROUTE</div><h2>Know which pathway you are actually on.</h2>
+  <p class="intro">PPRA changed the entry architecture in 2026. PDEReady separates the existing qualification route from the newer alternative competency-based route so candidates do not study from outdated assumptions.</p>
+  <div class="grid">
+    <article class="card"><span class="tag">PDE4 EXISTING ROUTE</span><h3>Non-principal pathway</h3><p>Use the official PPRA portal eligibility rules for your status. The current requirements include approved practical-training/qualification information on the PPRA system and other eligibility controls.</p></article>
+    <article class="card"><span class="tag">NEW FROM 1 AUG 2026</span><h3>Alternative PPRA Examination</h3><p>PPRA introduced an additional competency-based route with Matric as the minimum educational entry requirement. The examination uses the same content as PDE4, followed by six prescribed practical training modules. This route does not confer the PPRE professional designation.</p></article>
+    <article class="card"><span class="tag">PDE5</span><h3>Principal progression</h3><p>PDE5 remains the advanced route associated with principal-level professional competence. Confirm your current NQF Level 5 / exemption and Full Status FFC eligibility directly with PPRA before enrolment.</p></article>
+  </div>
+  <div class="notice"><b>Next ordinary sitting:</b> 12 November 2026. MyPPRA registration opens 1 October and closes 31 October 2026. Always confirm late changes or extensions on the official PPRA site before paying.</div>
+</section>
+
+<section id="eligibility" class="section">
+  <div class="eyebrow">PRE-FLIGHT CHECK</div><h2>Eligibility checklist</h2>
+  <p class="intro">This does not determine legal eligibility; it helps a candidate identify what to verify on MyPPRA before registering.</p>
+  <div class="grid">
+    <div class="card">
+      <span class="tag">PDE4 / EXISTING ROUTE</span>
+      <div class="check"><input type="checkbox" data-check><label>I have checked that my current FFC/status permits PDE registration.</label></div>
+      <div class="check"><input type="checkbox" data-check><label>My required qualification / exemption information is correctly reflected on the PPRA portal.</label></div>
+      <div class="check"><input type="checkbox" data-check><label>My required practical-training record/form is submitted and approved where applicable.</label></div>
+    </div>
+    <div class="card">
+      <span class="tag">ALTERNATIVE COMPETENCY ROUTE</span>
+      <div class="check"><input type="checkbox" data-check><label>I hold at least a National Senior Certificate (Matric) and have checked the new PPRA route requirements.</label></div>
+      <div class="check"><input type="checkbox" data-check><label>I understand the PPRA Examination uses PDE4 content but does not itself confer the PPRE designation.</label></div>
+      <div class="check"><input type="checkbox" data-check><label>I understand the six prescribed practical training modules remain part of this route.</label></div>
+    </div>
+    <div class="card">
+      <span class="tag">PDE5</span>
+      <div class="check"><input type="checkbox" data-check><label>My NQF Level 5 qualification / recognised exemption is correctly recorded where required.</label></div>
+      <div class="check"><input type="checkbox" data-check><label>I hold the required Full Status Fidelity Fund Certificate and have confirmed current PPRA eligibility.</label></div>
+      <div class="check"><input type="checkbox" data-check><label>I have enrolled on MyPPRA before making the examination payment.</label></div>
+    </div>
+  </div>
+  <div style="margin-top:15px"><div class="progress"><span id="eligProgress"></span></div><p id="eligText" class="muted">0 of 9 preparation checks completed</p></div>
+</section>
+
+<section id="diagnostic" class="section">
+  <div class="eyebrow">10-MINUTE STARTING POINT</div><h2>Diagnostic assessment</h2>
+  <p class="intro">Choose your level. These are original training questions built around current PPRA examination rules and the competencies PPRA says it assesses.</p>
+  <div class="tabs"><button class="tab active" onclick="setTrack('pde4',this)">PDE4</button><button class="tab" onclick="setTrack('pde5',this)">PDE5</button></div>
+  <div class="questionBox">
+    <div class="tag" id="qCounter">QUESTION 1</div>
+    <div class="question" id="question"></div>
+    <div id="answers"></div>
+    <div id="explanation"></div>
+    <button id="nextBtn" class="btn primary hidden" onclick="nextQuestion()">Next</button>
+    <div id="diagnosticResult" class="hidden"></div>
+  </div>
+</section>
+
+<section id="learn" class="section">
+  <div class="eyebrow">STUDY MAP</div><h2>What PDEReady trains</h2>
+  <div class="grid">
+    <article class="card"><span class="tag">MODULE 1</span><h3>Legislative framework</h3><p>Property Practitioners Act framework, regulatory duties, mandates, records and the role of the regulator.</p></article>
+    <article class="card"><span class="tag">MODULE 2</span><h3>Ethics & consumer protection</h3><p>Conflicts, disclosure, truthful marketing, fair treatment, material information and defensible professional judgement.</p></article>
+    <article class="card"><span class="tag">MODULE 3</span><h3>Transaction discipline</h3><p>Client onboarding, instructions, property information, offers, leases, documentation, record integrity and escalation.</p></article>
+    <article class="card"><span class="tag">MODULE 4</span><h3>Compliance & fiduciary duties</h3><p>Handling entrusted interests, governance, controls, risk awareness, reporting and protecting client funds and information.</p></article>
+    <article class="card"><span class="tag">PDE5 ADVANCED</span><h3>Principal leadership</h3><p>Supervision, compliance culture, staff competence, risk management, business controls, complaints and accountability.</p></article>
+    <article class="card"><span class="tag">EXAM SKILL</span><h3>Case-response writing</h3><p>Identify the issue, apply the rule/principle, explain the action and justify the outcome in proportion to the marks available.</p></article>
+  </div>
+</section>
+
+<section id="case" class="section">
+  <div class="eyebrow">CASE WORKSHOP</div><h2>Practise the skill the take-home format actually tests.</h2>
+  <div class="casegrid">
+    <div class="case">
+      <span class="tag" id="caseTrack">PDE4 CASE</span>
+      <h3 id="caseTitle">Material information under pressure</h3>
+      <p id="casePrompt" class="muted">A seller tells a practitioner not to mention a recurring water-ingress problem because “the buyer can inspect for themselves.” Explain how the practitioner should approach the instruction and why.</p>
+      <button class="btn secondary" onclick="newCase()">Load another case</button>
+    </div>
+    <div class="case">
+      <label for="caseAnswer"><b>Your structured answer</b></label>
+      <textarea id="caseAnswer" placeholder="1. Identify the issue&#10;2. State the relevant professional/legal principle&#10;3. Apply it to the facts&#10;4. State the action and reason"></textarea>
+      <div class="row"><button class="btn primary" onclick="scoreCase()">Self-check response</button><button class="btn ghost" onclick="document.getElementById('caseAnswer').value=''">Clear</button></div>
+      <div id="caseFeedback"></div>
+    </div>
+  </div>
+  <div class="rubric" style="margin-top:14px">
+    <div><span>Issue identified clearly</span><strong>25%</strong></div>
+    <div><span>Relevant rule / professional principle</span><strong>25%</strong></div>
+    <div><span>Applied to the facts</span><strong>30%</strong></div>
+    <div><span>Practical conclusion / action</span><strong>20%</strong></div>
+  </div>
+</section>
+
+<section id="mock" class="section">
+  <div class="eyebrow">TAKE-HOME SIMULATOR</div><h2>Build five-hour exam stamina before exam day.</h2>
+  <div class="mock">
+    <div class="card"><span class="tag">PHASE 1</span><b>30 min</b><h3>Read & plan</h3><p>Scan the full mock, allocate time by marks, flag source material and sequence your answers.</p></div>
+    <div class="card"><span class="tag">PHASE 2</span><b>240 min</b><h3>Write & apply</h3><p>Answer every question. Use mark allocation to determine depth. Keep reasoning visible.</p></div>
+    <div class="card"><span class="tag">PHASE 3</span><b>30 min</b><h3>Quality control</h3><p>Check completeness, file integrity, candidate details, citations where needed and submission readiness.</p></div>
+  </div>
+  <div class="questionBox" style="margin-top:16px">
+    <div class="eyebrow">PRACTICE TIMER</div><div class="timer" id="timer">05:00:00</div>
+    <div class="row"><button class="btn primary" onclick="startTimer()">Start 5-hour mock</button><button class="btn secondary" onclick="pauseTimer()">Pause</button><button class="btn ghost" onclick="resetTimer()">Reset</button></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="integrity">
+    <b>Exam integrity boundary:</b> PPRA's 2026 take-home instructions state that AI tools such as ChatGPT are prohibited during the live examination and warn against collusion/plagiarism. PDEReady is therefore a preparation product only. It is designed for learning, drills and mock practice before the examination — not for generating or supplying answers during a live PDE sitting.
+  </div>
+</section>
+</main>
+<footer><span>PDEReady • Part of the Mandatory Regulatory Exams Platform</span><span>Independent preparation • Not PPRA • No pass guarantee</span></footer>
+<script>
+const bank={
+pde4:[
+{q:'Which statement best reflects the PPRA PDE format announced for 2026?',a:['It is an oral interview at a PPRA office','It is a take-home examination','It is only a multiple-choice online test','It is a venue-based closed-book paper'],c:1,e:'PPRA describes the PDE as a take-home examination; candidates should not report to PPRA offices to write it.'},
+{q:'From 1 August 2026, what did PPRA add for entry toward non-principal practice?',a:['A route that removes all examinations','An alternative competency-based route using an examination with the same content as PDE4','A compulsory university degree','A route available only to existing principals'],c:1,e:'PPRA added an alternative competency-based route. The examination uses the same content as PDE4 and Matric is the stated minimum educational entry requirement.'},
+{q:'A seller pressures a practitioner to conceal information that may materially affect a buyer. What is the strongest professional response?',a:['Follow the seller instruction without question','Protect the transaction at any cost','Identify the disclosure/consumer-protection issue and refuse to participate in misleading conduct','Delete the information from the file'],c:2,e:'PDE preparation should train ethical judgement: identify the issue, apply the relevant duty, protect the consumer and keep a defensible record.'},
+{q:'Why does PPRA tell candidates to use mark allocation as a guide?',a:['It indicates the expected depth and extent of an answer','It changes the candidate eligibility','It decides the exam date','It replaces the need to answer all questions'],c:0,e:'PPRA advises candidates that the marks allocated guide how extensive an answer should be.'},
+{q:'Which is the safest way to prepare for a case-based question?',a:['Memorise a paragraph and paste it into every answer','Identify issue → principle → application → conclusion','Give only a yes/no answer','Ignore the facts and recite definitions'],c:1,e:'Case work rewards visible reasoning: identify the issue, state the relevant principle, apply it to the facts and reach a justified action or conclusion.'},
+{q:'How must ordinary PDE enrolment be completed according to the current PPRA calendar guidance?',a:['By handwritten form only','Through the MyPPRA Portal','At a physical exam venue','Through an estate agency manager only'],c:1,e:'PPRA states that PDE registration/enrolment is completed online via the MyPPRA Portal.'}
+],
+pde5:[
+{q:'At principal level, a recurring compliance failure by staff is discovered. What is the strongest first management response?',a:['Ignore it if sales targets are being met','Stop/contain the risk, investigate cause, correct records/processes and strengthen supervision','Dismiss every employee immediately without review','Remove the complaint record'],c:1,e:'PDE5 preparation should emphasise accountable leadership: contain risk, establish facts, correct the problem and improve controls/supervision.'},
+{q:'Which combination best describes a strong compliance culture?',a:['High sales and no written procedures','Training, documented controls, monitoring, escalation and management accountability','Only an annual motivational meeting','Delegating all compliance responsibility externally'],c:1,e:'A principal cannot outsource accountability. Effective compliance combines competence, controls, monitoring, escalation and leadership.'},
+{q:'A business KPI system rewards only revenue. What is the main governance weakness?',a:['There is no weakness','It can incentivise sales while hiding service quality, complaints and compliance risk','KPIs are never allowed','Revenue must always be ignored'],c:1,e:'A balanced principal-level scorecard should include commercial performance plus compliance, service quality and risk indicators.'},
+{q:'What is the most defensible response to a serious client complaint?',a:['Delete correspondence once the client is angry','Preserve records, investigate objectively, respond fairly and use the outcome to improve controls','Ask sales staff to handle it verbally only','Refuse to record complaints'],c:1,e:'A defensible complaints process preserves evidence, establishes facts, communicates fairly and feeds lessons back into the control environment.'},
+{q:'What does good supervision of practitioners require?',a:['Assuming everyone knows the rules after recruitment','Clear roles, competence checks, training, monitoring and documented intervention where needed','Only checking monthly sales figures','No records of coaching or corrective action'],c:1,e:'Principal-level supervision is an ongoing governance process, not a once-off induction.'},
+{q:'In a long-form PDE5 case, what usually makes an answer stronger?',a:['Listing unrelated legislation','Connecting the facts to business risk, regulatory duty, control design and a practical management response','Writing as much as possible without structure','Avoiding a conclusion'],c:1,e:'Advanced case answers should show both professional/legal reasoning and management judgement: facts, duties, risk, controls and implementation.'}
+]};
+let track='pde4',idx=0,score=0,answered=false;
+function setTrack(t,btn){track=t;idx=0;score=0;answered=false;document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));btn.classList.add('active');document.getElementById('diagnosticResult').classList.add('hidden');renderQuestion()}
+function renderQuestion(){const q=bank[track][idx];document.getElementById('qCounter').textContent=track.toUpperCase()+' • QUESTION '+(idx+1)+' OF '+bank[track].length;document.getElementById('question').textContent=q.q;document.getElementById('answers').innerHTML=q.a.map((x,i)=>'<button class="answer" onclick="answer('+i+',this)">'+esc(x)+'</button>').join('');document.getElementById('explanation').innerHTML='';document.getElementById('nextBtn').classList.add('hidden');answered=false}
+function answer(i,el){if(answered)return;answered=true;const q=bank[track][idx];if(i===q.c)score++;document.querySelectorAll('.answer').forEach((b,n)=>{b.disabled=true;if(n===q.c)b.classList.add('good');else if(n===i)b.classList.add('bad')});document.getElementById('explanation').innerHTML='<div class="explain">'+esc(q.e)+'</div>';document.getElementById('nextBtn').classList.remove('hidden')}
+function nextQuestion(){idx++;if(idx>=bank[track].length){showResult();return}renderQuestion()}
+function showResult(){const pct=Math.round(score/bank[track].length*100);const band=pct>=80?'Strong starting point':pct>=60?'Developing readiness':'Foundation work needed';document.getElementById('answers').innerHTML='';document.getElementById('question').textContent='Diagnostic complete';document.getElementById('explanation').innerHTML='';document.getElementById('nextBtn').classList.add('hidden');const r=document.getElementById('diagnosticResult');r.classList.remove('hidden');r.innerHTML='<div class="score">'+pct+'% <small>'+band+'</small></div><p class="muted">Use the study map and case workshop next. This score measures this short diagnostic only; it is not a prediction of your official exam result.</p><button class="btn secondary" onclick="idx=0;score=0;renderQuestion();document.getElementById(\'diagnosticResult\').classList.add(\'hidden\')">Retry</button>'}
+const cases=[
+{t:'PDE4 CASE',title:'Material information under pressure',p:'A seller tells a practitioner not to mention a recurring water-ingress problem because “the buyer can inspect for themselves.” Explain how the practitioner should approach the instruction and why.'},
+{t:'PDE4 CASE',title:'Conflict of interest',p:'A practitioner is offered a private incentive by a service provider for steering every buyer to that provider. Explain the professional risks and the steps the practitioner should take.'},
+{t:'PDE5 CASE',title:'Weak supervision',p:'A principal discovers that new practitioners have been signing client-facing documents without the agency completing its normal competence and supervision checks. Set out the principal’s response.'},
+{t:'PDE5 CASE',title:'Complaint pattern',p:'Three complaints in one month allege that practitioners gave inconsistent information about fees. Explain how a principal should investigate, correct and prevent recurrence.'}
+];let ci=0;
+function newCase(){ci=(ci+1)%cases.length;const c=cases[ci];document.getElementById('caseTrack').textContent=c.t;document.getElementById('caseTitle').textContent=c.title;document.getElementById('casePrompt').textContent=c.p;document.getElementById('caseAnswer').value='';document.getElementById('caseFeedback').innerHTML=''}
+function scoreCase(){const s=document.getElementById('caseAnswer').value.trim();let pts=0;if(s.length>120)pts+=25;if(/issue|risk|problem|conflict|disclos|complaint|supervis/i.test(s))pts+=25;if(/because|therefore|facts|in this case|apply|application/i.test(s))pts+=30;if(/should|must|action|record|report|correct|refuse|investigate|monitor/i.test(s))pts+=20;const msg=pts>=80?'Strong structure. Now tighten legal references and make every point earn marks.':pts>=55?'Good base. Make the rule/principle and its application to the facts more explicit.':'Use the four-part structure: issue → principle → application → action/conclusion.';document.getElementById('caseFeedback').innerHTML='<div class="explain"><b>Structure score: '+pts+'%</b><br>'+msg+'<br><small>This is a writing-structure coach, not an official PPRA marking tool.</small></div>'}
+document.querySelectorAll('[data-check]').forEach(x=>x.addEventListener('change',()=>{const all=[...document.querySelectorAll('[data-check]')],n=all.filter(y=>y.checked).length,p=Math.round(n/all.length*100);document.getElementById('eligProgress').style.width=p+'%';document.getElementById('eligText').textContent=n+' of '+all.length+' preparation checks completed'}));
+let remain=18000,timerId=null;
+function paint(){let h=Math.floor(remain/3600),m=Math.floor((remain%3600)/60),s=remain%60;document.getElementById('timer').textContent=[h,m,s].map(n=>String(n).padStart(2,'0')).join(':')}
+function startTimer(){if(timerId)return;timerId=setInterval(()=>{if(remain<=0){pauseTimer();return}remain--;paint()},1000)}
+function pauseTimer(){clearInterval(timerId);timerId=null}
+function resetTimer(){pauseTimer();remain=18000;paint()}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+renderQuestion();paint();
+</script>
+</body>
+</html>
