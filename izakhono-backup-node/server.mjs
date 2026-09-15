@@ -179,7 +179,7 @@ function mirrorSnapshot(setName,archivePath,sha){
 }
 
 function pruneRetention(set){
-  const rows=db.prepare("SELECT * FROM snapshots WHERE set_id=? AND state='complete' ORDER BY created_at DESC").all(set.id);
+  const rows=db.prepare("SELECT * FROM snapshots WHERE set_id=? AND state='complete' ORDER BY datetime(created_at) DESC, rowid DESC").all(set.id);
   const old=rows.slice(Number(set.retention_count));
   for(const snap of old){
     try{if(snap.archive_path && existsSync(snap.archive_path)) unlinkSync(snap.archive_path);}catch{}
