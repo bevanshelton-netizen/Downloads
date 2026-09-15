@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Mandatory Regulatory Exams Platform — one place to discover and prepare for South African professional and regulatory examinations.">
+<title>Mandatory Regulatory Exams Platform</title>
+<style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+:root{--ink:#07111f;--navy:#071827;--navy2:#0c2437;--panel:#0f2d43;--line:#28536d;--text:#f7fbff;--muted:#b7c9d4;--cyan:#40e0d0;--sky:#6ecbff;--gold:#f5c95f;--green:#7ee0a3;--red:#ff8c8c}
+body{margin:0;background:
+radial-gradient(circle at 90% 0,#154b67 0,transparent 29%),
+radial-gradient(circle at 0 18%,#153f3f 0,transparent 23%),
+linear-gradient(180deg,var(--navy),#06101b 62%,#081725);color:var(--text);font:15px/1.55 Inter,system-ui,-apple-system,Segoe UI,sans-serif}
+a{color:inherit}
+header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:14px 5vw;background:#071827e8;backdrop-filter:blur(16px);border-bottom:1px solid #234a61}
+.brand{display:flex;align-items:center;gap:12px}.brandmark{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--sky));color:#062633;font-weight:1000;letter-spacing:-1px;box-shadow:0 10px 30px #40e0d033}.brand b{display:block;font-size:22px;line-height:1.08}.brand small{color:#a9c2cf}
+.nav{display:flex;gap:10px;flex-wrap:wrap}.nav a{text-decoration:none;padding:9px 12px;border-radius:999px;color:#dceaf1}.nav a:hover{background:#12344b}
+.wrap{max-width:1240px;margin:auto;padding:0 22px}.hero{display:grid;grid-template-columns:1.08fr .92fr;gap:38px;align-items:center;padding:74px 0 46px}
+.eyebrow{font-size:11px;font-weight:950;letter-spacing:2px;color:var(--cyan)}
+h1{font-size:clamp(46px,7vw,84px);line-height:.94;letter-spacing:-3px;margin:10px 0 22px}
+h1 span{background:linear-gradient(90deg,var(--cyan),var(--green),var(--gold),var(--sky));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font-size:20px;color:#d5e4eb;max-width:760px}.row{display:flex;gap:11px;flex-wrap:wrap;margin-top:22px}
+.btn{display:inline-block;text-decoration:none;border:0;border-radius:13px;padding:13px 18px;font-weight:900;cursor:pointer}
+.primary{background:linear-gradient(135deg,var(--cyan),var(--green));color:#052b31;box-shadow:0 12px 28px #40e0d026}.secondary{background:#11354d;border:1px solid #35627b;color:#fff}
+.heroPanel{border:1px solid #38677f;border-radius:26px;padding:18px;background:linear-gradient(180deg,#113a50,#0a2434);box-shadow:0 28px 70px #0005}
+.heroPanel h3{margin:4px 0 14px}.logoWall{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.identity{min-height:124px;border-radius:18px;padding:16px;border:1px solid #35647d;background:#092334;position:relative;overflow:hidden}
+.identity:after{content:"";position:absolute;inset:auto -30px -50px auto;width:110px;height:110px;border-radius:50%;background:#40e0d012}
+.idTop{display:flex;align-items:center;justify-content:space-between;gap:10px}.badge{width:58px;height:58px;border-radius:17px;display:grid;place-items:center;font-weight:1000;font-size:18px;background:linear-gradient(135deg,#dffcff,#72e9dc);color:#06313b}.identity:nth-child(2) .badge{background:linear-gradient(135deg,#fff6d4,#f5c95f)}.identity:nth-child(3) .badge{background:linear-gradient(135deg,#e5efff,#72b6ff)}.identity:nth-child(4) .badge{background:linear-gradient(135deg,#ebffe9,#7ee0a3)}
+.identity b{display:block;font-size:18px}.identity small{color:#abc3cf}.mini{font-size:10px;font-weight:900;color:#8feadf;border:1px solid #2f726c;border-radius:999px;padding:4px 7px}
+.section{padding:42px 0}.section h2{font-size:42px;line-height:1.03;margin:7px 0 12px}.sectionIntro{color:#bcd0da;max-width:820px;font-size:17px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}.card{background:linear-gradient(180deg,#102f45,#0a2536);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:0 18px 46px #0002;display:flex;flex-direction:column;min-height:330px}
+.card.live{outline:2px solid #6ae0a0}.head{display:flex;align-items:center;justify-content:space-between;gap:12px}.examLogo{width:74px;height:74px;border-radius:22px;display:grid;place-items:center;font-size:23px;font-weight:1000;background:#eafcff;color:#063240;box-shadow:inset 0 0 0 1px #b9e6ee}.examLogo.property{background:#fff5d2;color:#3b2d00}.examLogo.accounting{background:#e9f1ff;color:#082953}.examLogo.legal{background:#f0ecff;color:#2a1d60}.examLogo.health{background:#e8fff0;color:#113c24}
+.status{font-size:10px;font-weight:950;letter-spacing:.8px;border-radius:999px;padding:6px 9px;background:#163e37;color:#90f2bc;border:1px solid #316a58}.soon{background:#3a311a;color:#ffe18b;border-color:#78632c}.research{background:#25364c;color:#b5d7ff;border-color:#3b6086}
+.card h3{font-size:25px;line-height:1.07;margin:18px 0 8px}.card p{color:#bcd0da}.examCodes{display:flex;gap:7px;flex-wrap:wrap;margin:5px 0 12px}.code{font-weight:950;font-size:12px;padding:6px 9px;border-radius:9px;background:#143b52;border:1px solid #315d73}.card .foot{margin-top:auto;padding-top:16px}
+.notice{margin:18px 0 0;padding:14px 16px;border-left:3px solid var(--gold);background:#392f164f;color:#d9e3e8;border-radius:9px}
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:22px}.step{border:1px solid #2b5770;border-radius:17px;padding:17px;background:#0c2739}.step b{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:#16445a;color:var(--cyan);margin-bottom:10px}.step strong{display:block}.step small{color:#aac3cf}
+.searchbar{display:flex;gap:10px;margin:18px 0 0}.searchbar input{flex:1;padding:14px 16px;border-radius:13px;background:#081f2e;border:1px solid #35627b;color:#fff;font-size:16px}.searchbar input::placeholder{color:#7897a8}
+.disclaimer{margin:42px 0 55px;padding:18px;border-radius:14px;background:#0c2230;border:1px solid #2d5267;color:#bcd0da}.disclaimer b{color:#f7fbff}
+footer{border-top:1px solid #234a61;padding:24px 5vw;color:#9eb8c5;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.hide{display:none!important}
+@media(max-width:980px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}.flow{grid-template-columns:1fr 1fr}.nav{display:none}}
+@media(max-width:650px){.grid,.logoWall,.flow{grid-template-columns:1fr}h1{font-size:48px;letter-spacing:-2px}.section h2{font-size:34px}.brand b{font-size:18px}.brandmark{width:46px;height:46px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="brandmark">MRE</div><div><b>MANDATORY REGULATORY EXAMS</b><small>South African preparation platform</small></div></div>
+  <nav class="nav"><a href="#exams">Find an exam</a><a href="#how">How it works</a><a href="#faisready">FAISReady</a></nav>
+</header>
+
+<main class="wrap">
+<section class="hero">
+  <div>
+    <div class="eyebrow">ONE UMBRELLA • MANY PROFESSIONS</div>
+    <h1>Find your exam.<br><span>Prepare to pass.</span></h1>
+    <p class="lead">A single preparation hub for South Africans who must pass regulatory, admission or professional competency examinations to work, practise or progress in their field.</p>
+    <div class="row"><a class="btn primary" href="#exams">Find my exam</a><a class="btn secondary" href="#faisready">Open FAISReady</a></div>
+  </div>
+  <aside class="heroPanel">
+    <div class="eyebrow">RECOGNISE YOUR PATHWAY FAST</div><h3>Exam identity wall</h3>
+    <div class="logoWall">
+      <div class="identity"><div class="idTop"><div class="badge">RE</div><span class="mini">FINANCIAL</span></div><b>RE1 • RE3 • RE4 • RE5</b><small>FAIS / Financial Services</small></div>
+      <div class="identity"><div class="idTop"><div class="badge">PDE</div><span class="mini">PROPERTY</span></div><b>PDE4 • PDE5</b><small>Property Practice</small></div>
+      <div class="identity"><div class="idTop"><div class="badge">IAC</div><span class="mini">ACCOUNTING</span></div><b>IAC • APC • PE</b><small>Professional Accounting</small></div>
+      <div class="identity"><div class="idTop"><div class="badge">LPC</div><span class="mini">LEGAL</span></div><b>Admission • Conveyancing</b><small>Legal Practice</small></div>
+    </div>
+  </aside>
+</section>
+
+<section id="exams" class="section">
+  <div class="eyebrow">CHOOSE YOUR PROFESSION</div>
+  <h2>Your exam should be obvious the moment you arrive.</h2>
+  <p class="sectionIntro">Large exam abbreviations, profession names and regulator/body names make each pathway immediately recognisable. Search by exam code, profession or body.</p>
+  <div class="searchbar"><input id="search" type="search" placeholder="Try: RE5, PDE4, SAICA, legal, accounting…" oninput="filterCards()"></div>
+
+  <div class="grid" id="examGrid">
+    <article class="card live" id="faisready" data-search="fais faisready fsca financial services re1 re3 re4 re5 representative key individual">
+      <div class="head"><div class="examLogo">FR</div><span class="status">LIVE PATHWAY</span></div>
+      <h3>FAISReady</h3>
+      <div class="examCodes"><span class="code">RE1</span><span class="code">RE3</span><span class="code">RE4</span><span class="code">RE5</span></div>
+      <p>Financial-services regulatory-exam preparation. FAISReady remains its own standalone product and is also the financial-services pathway inside this umbrella platform.</p>
+      <p><strong>Official regulatory body:</strong> Financial Sector Conduct Authority (FSCA)</p>
+      <div class="foot"><a class="btn primary" href="https://faisready-revenue.vercel.app/" target="_blank" rel="noopener">Open FAISReady</a></div>
+    </article>
+
+    <article class="card" data-search="property ppra pde4 pde5 estate agent property practitioner">
+      <div class="head"><div class="examLogo property">PDE</div><span class="status soon">BUILD NEXT</span></div>
+      <h3>Property Practice</h3>
+      <div class="examCodes"><span class="code">PDE4</span><span class="code">PDE5</span></div>
+      <p>Preparation pathway for Property Practitioner professional designation examinations.</p>
+      <p><strong>Official body:</strong> Property Practitioners Regulatory Authority (PPRA)</p>
+      <div class="foot"><a class="btn secondary" href="#join">Join launch list</a></div>
+    </article>
+
+    <article class="card" data-search="saica accounting chartered accountant ca sa iac apc initial assessment professional competence">
+      <div class="head"><div class="examLogo accounting">IAC</div><span class="status soon">BUILD QUEUE</span></div>
+      <h3>Chartered Accountancy</h3>
+      <div class="examCodes"><span class="code">IAC</span><span class="code">APC</span></div>
+      <p>Structured preparation for the Initial Assessment of Competence and Assessment of Professional Competence.</p>
+      <p><strong>Professional body:</strong> SAICA</p>
+      <div class="foot"><a class="btn secondary" href="#join">Register interest</a></div>
+    </article>
+
+    <article class="card" data-search="saipa professional evaluation pe accounting accountant">
+      <div class="head"><div class="examLogo accounting">PE</div><span class="status soon">BUILD QUEUE</span></div>
+      <h3>Professional Accounting</h3>
+      <div class="examCodes"><span class="code">SAIPA PE</span></div>
+      <p>Preparation pathway for SAIPA's Professional Evaluation.</p>
+      <p><strong>Professional body:</strong> SAIPA</p>
+      <div class="foot"><a class="btn secondary" href="#join">Register interest</a></div>
+    </article>
+
+    <article class="card" data-search="legal practice council lpc attorney advocate admission conveyancing notarial practice law">
+      <div class="head"><div class="examLogo legal">LPC</div><span class="status research">RESEARCHING</span></div>
+      <h3>Legal Practice</h3>
+      <div class="examCodes"><span class="code">ATTORNEY</span><span class="code">ADVOCATE</span><span class="code">CONVEYANCING</span><span class="code">NOTARIAL</span></div>
+      <p>Preparation architecture for competency-based admission and specialist legal-practice examinations.</p>
+      <p><strong>Official body:</strong> Legal Practice Council (LPC)</p>
+      <div class="foot"><a class="btn secondary" href="#join">Register interest</a></div>
+    </article>
+
+    <article class="card" data-search="health healthcare hpcsa board examination medical dental practitioner professional">
+      <div class="head"><div class="examLogo health">HLTH</div><span class="status research">RESEARCHING</span></div>
+      <h3>Health Professions</h3>
+      <div class="examCodes"><span class="code">BOARD / REGISTRATION</span></div>
+      <p>Reserved pathway for profession-specific registration and board-assessment preparation where a validated exam structure and lawful preparation scope are confirmed.</p>
+      <p><strong>Sector:</strong> South African health professions</p>
+      <div class="foot"><a class="btn secondary" href="#join">Register interest</a></div>
+    </article>
+  </div>
+
+  <div class="notice"><strong>Availability matters:</strong> “Live”, “Build next”, “Build queue” and “Researching” are deliberately visible so candidates are never misled into thinking an unfinished exam course is available.</div>
+</section>
+
+<section id="how" class="section">
+  <div class="eyebrow">ONE LEARNING ENGINE</div><h2>The same preparation journey for every exam.</h2>
+  <div class="flow">
+    <div class="step"><b>1</b><strong>Choose exam</strong><small>Select profession and exact exam code.</small></div>
+    <div class="step"><b>2</b><strong>Diagnostic</strong><small>Measure readiness before studying.</small></div>
+    <div class="step"><b>3</b><strong>AI study plan</strong><small>Focus study on weak areas and exam date.</small></div>
+    <div class="step"><b>4</b><strong>Mocks & drills</strong><small>Timed practice, explanations and revision loops.</small></div>
+    <div class="step"><b>5</b><strong>Readiness score</strong><small>Track mastery until exam day.</small></div>
+  </div>
+</section>
+
+<section id="join" class="section">
+  <div class="eyebrow">EXPANSION PIPELINE</div><h2>Don't see your exam yet?</h2>
+  <p class="sectionIntro">The platform is designed to add new regulated professions without rebuilding the learning engine. New pathways should only go live after the current official syllabus, exam format and source material have been validated.</p>
+  <div class="row"><a class="btn primary" href="mailto:info@izakhonoafrica.co.za?subject=Mandatory%20Regulatory%20Exams%20-%20Exam%20Request">Request an exam pathway</a></div>
+</section>
+
+<div class="disclaimer">
+  <b>Independent preparation platform.</b> Regulator and professional-body names are displayed only to help candidates identify the relevant examination pathway. This platform does not claim affiliation with, endorsement by, or authority from those bodies. Official third-party logos are not reproduced unless their owner permits that use. In particular, the FSCA states that its logo may not be used by third parties, so the platform uses clear text identification and its own RE/FAISReady exam identity instead.
+</div>
+</main>
+
+<footer><span>MANDATORY REGULATORY EXAMS PLATFORM • South Africa</span><span>FAISReady remains available as a standalone financial-services product.</span></footer>
+<script>
+function filterCards(){
+ const q=document.getElementById('search').value.trim().toLowerCase();
+ document.querySelectorAll('#examGrid .card').forEach(card=>{
+   const text=(card.dataset.search+' '+card.innerText).toLowerCase();
+   card.classList.toggle('hide',q && !text.includes(q));
+ });
+}
+</script>
+</body>
+</html>
