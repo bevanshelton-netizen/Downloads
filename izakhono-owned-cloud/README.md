@@ -14,8 +14,9 @@ Self-hosted infrastructure stack for IZAKHONO platforms.
 8. **IZAKHONO NOTIFY NODE** — owned templates, preferences, in-app inbox and delivery orchestration.
 9. **IZAKHONO AI GATEWAY NODE** — owned local-first model routing, failover, quotas and AI governance.
 10. **IZAKHONO CODE NODE** — owned Git repositories, clone/fetch/push, scoped tokens and signed push webhooks.
+11. **IZAKHONO BACKUP NODE** — encrypted snapshots, retention, mirror copies, verification and staged restore.
 
-All ten services are designed to run on Linux hardware you control and use Node.js built-ins plus SQLite. They do not require hosted database, object-store, queue, authentication or analytics subscriptions.
+All eleven services are designed to run on Linux hardware you control and use Node.js built-ins plus SQLite. They do not require hosted database, object-store, queue, authentication or analytics subscriptions.
 
 ## Install
 
@@ -24,7 +25,7 @@ From the repository root:
     cd izakhono-owned-cloud
     sudo bash install-owned-stack.sh
 
-The installer validates Node 22.13+, installs DATA, RUNTIME, OBJECT, QUEUE, AUTH, ANALYTICS, NOTIFY, AI GATEWAY and CODE, and installs EDGE only when a TLS certificate/key already exist. It never creates paid cloud resources and never prints generated service secrets.
+The installer validates Node 22.13+, installs DATA, RUNTIME, OBJECT, QUEUE, AUTH, ANALYTICS, NOTIFY, AI GATEWAY, CODE and BACKUP, and installs EDGE only when a TLS certificate/key already exist. It never creates paid cloud resources and never prints generated service secrets.
 
 ## TLS
 
@@ -49,7 +50,7 @@ After installation:
 
     sudo bash configure-growth-os.sh
 
-This creates `/etc/izakhono/apps/growth-os.env`, points Growth OS to the owned nodes, and generates a separate measurement-ingest key. AUTH NODE is exposed through its loopback URL; ANALYTICS NODE is available through its loopback URL and private admin key; NOTIFY NODE is available through its loopback URL and service key. AI GATEWAY is exposed by URL only until a limited app client key is provisioned. CODE NODE is exposed by URL only until a repository-scoped Git token is provisioned.
+This creates `/etc/izakhono/apps/growth-os.env`, points Growth OS to the owned nodes, and generates a separate measurement-ingest key. AUTH NODE is exposed through its loopback URL; ANALYTICS NODE is available through its loopback URL and private admin key; NOTIFY NODE is available through its loopback URL and service key. AI GATEWAY is exposed by URL only until a limited app client key is provisioned. CODE NODE is exposed by URL only until a repository-scoped Git token is provisioned. BACKUP NODE is exposed by URL only; its admin and recovery secrets remain server-side.
 
 ## AI client provisioning
 
@@ -67,10 +68,26 @@ After a repository exists in CODE NODE:
 
 The script reads the CODE admin key internally, creates a repository-scoped Git token, stores it directly in the protected application environment file, and never prints the secret.
 
+## Stack backups
+
+After installation:
+
+    sudo bash configure-stack-backup.sh
+
+This registers the core stack state under `/etc/izakhono` and the owned service data directories as one encrypted backup set. BACKUP NODE's own archive directory is intentionally excluded to prevent recursion.
+
+The installer creates the encrypted primary backup store, but **a backup on the same physical disk is not disaster recovery**. Mount a separate disk or NAS below `/var/lib/izakhono-backup/mirrors/`, add that mount to `IZAKHONO_BACKUP_MIRROR_ROOTS`, and restart BACKUP NODE.
+
+Export the recovery key to a separate offline medium:
+
+    sudo bash ../izakhono-backup-node/export-recovery-key.sh /media/offline/izakhono-backup-recovery.env
+
+Never store that recovery-key file only on the server being backed up.
+
 ## Status
 
     sudo bash stack-status.sh
 
-Owned Cloud eliminates the software subscription requirement for these ten infrastructure layers, but running infrastructure still requires hardware, disks, backups, power and internet connectivity.
+Owned Cloud eliminates the software subscription requirement for these eleven infrastructure layers, but running infrastructure still requires hardware, disks, backups, power and internet connectivity.
 
 Public DNS registration, a certificate authority relationship, upstream ISP connectivity and large-scale DDoS scrubbing remain external network realities.
