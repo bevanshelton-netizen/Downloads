@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { request as httpRequest } from "node:http";
 import { mkdirSync,rmSync,writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { randomBytes } from "node:crypto";
@@ -72,9 +73,24 @@ async function deploy(path){
 }
 
 async function routed(){
-  const response=await fetch(`http://127.0.0.1:${proxyPort}/`,{headers:{host:"demo.local"}});
-  if(!response.ok) throw new Error("Proxy route failed");
-  return response.text();
+  return new Promise((resolve,reject)=>{
+    const req=httpRequest({
+      hostname:"127.0.0.1",
+      port:proxyPort,
+      path:"/",
+      method:"GET",
+      headers:{Host:"demo.local"}
+    },res=>{
+      const chunks=[];
+      res.on("data",chunk=>chunks.push(chunk));
+      res.on("end",()=>{
+        if((res.statusCode||500)>=400) return reject(new Error("Proxy route failed: "+res.statusCode+" "+Buffer.concat(chunks).toString("utf8")));
+        resolve(Buffer.concat(chunks).toString("utf8"));
+      });
+    });
+    req.on("error",reject);
+    req.end();
+  });
 }
 
 try{
