@@ -1,0 +1,25 @@
+[Unit]
+Description=IZAKHONO RUNTIME NODE
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/izakhono-runtime-node
+EnvironmentFile=/etc/izakhono/runtime-node.env
+ExecStart=/usr/bin/node /opt/izakhono-runtime-node/server.mjs
+Restart=always
+RestartSec=3
+User=izakhono
+Group=izakhono
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/izakhono-runtime /var/log/izakhono-runtime
+Environment=IZAKHONO_RELEASE_ROOT=/var/lib/izakhono-runtime/releases
+Environment=IZAKHONO_RUNTIME_DB=/var/lib/izakhono-runtime/runtime.sqlite
+Environment=IZAKHONO_RUNTIME_LOG_ROOT=/var/log/izakhono-runtime
+Environment=IZAKHONO_ENV_ROOT=/etc/izakhono/apps
+
+[Install]
+WantedBy=multi-user.target
