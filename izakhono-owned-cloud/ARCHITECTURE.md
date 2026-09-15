@@ -22,7 +22,8 @@
       ├─ IZAKHONO AI GATEWAY NODE :8850
       ├─ IZAKHONO CODE NODE       :8860
       ├─ IZAKHONO BACKUP NODE     :8870
-      └─ IZAKHONO CI WORKER NODE  :8880
+      ├─ IZAKHONO CI WORKER NODE  :8880
+      └─ IZAKHONO REPLICA NODE    :8890
 
 Control interfaces bind to loopback: RUNTIME control :8790 and EDGE control :8795.
 
@@ -50,6 +51,7 @@ ANALYTICS NODE owns consent-aware behavioral and campaign analytics. It does not
 - CODE stores bare Git repositories on owned disks, hashes repo tokens, and signs outbound push webhooks.
 - BACKUP encrypts snapshots before archive storage, verifies authenticated decryption, keeps its admin key private and restores only into staging.
 - CI WORKER keeps repository clone tokens encrypted, strips infrastructure secrets from build environments, rejects non-allowlisted executables and defaults production builds to a systemd sandbox.
+- REPLICA streams already-encrypted BACKUP archives to approved peers, verifies SHA-256 on receipt, stores immutable objects separately from replica metadata and never requires the BACKUP recovery key.
 - Services run under a non-login `izakhono` account.
 - systemd hardening limits filesystem access.
 - No service relies on a browser-visible server secret.
@@ -73,14 +75,17 @@ Back up:
 - `/var/lib/izakhono-ai-gateway`
 - `/var/lib/izakhono-code`
 - `/var/lib/izakhono-ci`
+- `/var/lib/izakhono-replica` (metadata only)
 - `/etc/izakhono`
 
 BACKUP NODE archive storage itself lives under `/var/lib/izakhono-backup` and is deliberately excluded from the source set.
+
+REPLICA received archive objects live under `/srv/izakhono-replica-objects` and are also excluded. Only REPLICA metadata under `/var/lib/izakhono-replica` is included.
 
 Keep encrypted archives on multiple physical devices and periodically prove restore into staging.
 
 ## Expansion path
 
-Next owned services: second-machine replication, owned package cache/mirror and multi-node failover.
+Next owned services: owned package cache/mirror, multi-node failover and public DNS/TLS automation under domains you control.
 
 The stack remains modular so each service can later move onto its own machine without changing the application-facing API contract.
