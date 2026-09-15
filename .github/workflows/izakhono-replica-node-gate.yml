@@ -1,0 +1,43 @@
+name: IZAKHONO REPLICA NODE Gate
+
+on:
+  push:
+    branches: [build/izakhono-replica-node]
+    paths:
+      - "izakhono-replica-node/**"
+      - ".github/workflows/izakhono-replica-node-gate.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "izakhono-replica-node/**"
+      - ".github/workflows/izakhono-replica-node-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  self-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: izakhono-replica-node
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+      - name: Verify zero runtime dependencies
+        run: test "$(node -e 'console.log(Object.keys(require("./package.json").dependencies||{}).length)')" = "0"
+      - name: Validate shell scripts
+        run: |
+          bash -n install-linux.sh
+          bash -n export-receiver-credential.sh
+      - name: Run two-node replication self test
+        run: npm run check
+      - name: Verify replication safeguards
+        run: |
+          grep -q 'ARCHIVE_OUTSIDE_SOURCE_ROOT' server.mjs
+          grep -q 'IMMUTABLE_OBJECT_CONFLICT' server.mjs
+          grep -q 'EXTERNAL_PEER_REQUIRES_HTTPS' server.mjs
+          grep -q 'backupRecoveryKeyRequiredForReplication:false' server.mjs
