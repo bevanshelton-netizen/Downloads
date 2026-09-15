@@ -2,7 +2,7 @@ name: IZAKHONO OWNED CLOUD Gate
 
 on:
   push:
-    branches: [build/izakhono-owned-cloud-stack, build/owned-cloud-add-auth]
+    branches: [build/izakhono-owned-cloud-stack, build/owned-cloud-add-auth, build/owned-cloud-add-analytics]
     paths:
       - "izakhono-owned-cloud/**"
       - ".github/workflows/izakhono-owned-cloud-gate.yml"
@@ -30,7 +30,7 @@ jobs:
       - name: Verify no paid provisioning commands
         run: |
           ! grep -R -E 'supabase projects create|vercel deploy|aws s3 mb|gcloud .* create' izakhono-owned-cloud
-      - name: Verify all six component installers exist
+      - name: Verify all seven component installers exist
         run: |
           test -f izakhono-data-node/install-linux.sh
           test -f izakhono-runtime-node/install-linux.sh
@@ -38,3 +38,4 @@ jobs:
           test -f izakhono-object-node/install-linux.sh
           test -f izakhono-queue-node/install-linux.sh
           test -f izakhono-auth-node/install-linux.sh
+          test -f izakhono-analytics-node/install-linux.sh
