@@ -1,0 +1,22 @@
+name: IZAKHONO Automations
+
+on:
+  pull_request:
+    paths:
+      - 'izakhono-automations/**'
+      - '.github/workflows/izakhono-automations.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: izakhono-automations
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax check
+        run: python3 -m py_compile app.py
+      - name: Unit tests
+        run: python3 -m unittest -v test_app.py
+      - name: Verify no external Python dependencies
+        run: test ! -f requirements.txt
