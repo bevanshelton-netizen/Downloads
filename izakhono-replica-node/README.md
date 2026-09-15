@@ -43,6 +43,8 @@ The primary host reads encrypted archives from:
 
 A peer's receive credential is AES-256-GCM encrypted in REPLICA NODE metadata.
 
+Replica metadata is stored under /var/lib/izakhono-replica. Received encrypted archive objects are stored separately under /srv/izakhono-replica-objects so the metadata can be backed up without recursively backing up replicated archives.
+
 POST /v1/peers/:id/sync scans all local .izbk archives and sends them to the selected recovery host. Already-present archives return as duplicates rather than being overwritten.
 
 ## Physical boundary
