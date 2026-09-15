@@ -1,0 +1,43 @@
+name: IZAKHONO CODE NODE Gate
+
+on:
+  push:
+    branches: [build/izakhono-code-node]
+    paths:
+      - "izakhono-code-node/**"
+      - ".github/workflows/izakhono-code-node-gate.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "izakhono-code-node/**"
+      - ".github/workflows/izakhono-code-node-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  self-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: izakhono-code-node
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+      - name: Verify Git backend
+        run: |
+          command -v git
+          test -x "$(git --exec-path)/git-http-backend"
+      - name: Verify zero runtime dependencies
+        run: test "$(node -e 'console.log(Object.keys(require("./package.json").dependencies||{}).length)')" = "0"
+      - name: Run Git smart-HTTP end-to-end self test
+        run: npm run check
+      - name: Verify source-control safeguards
+        run: |
+          grep -q 'token_hash' server.mjs
+          grep -q 'git-http-backend' server.mjs
+          grep -q 'WEBHOOK_HOST_NOT_ALLOWED' server.mjs
+          grep -q 'HOST.*127.0.0.1' server.mjs
