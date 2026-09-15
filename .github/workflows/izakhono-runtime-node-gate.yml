@@ -1,0 +1,39 @@
+name: IZAKHONO RUNTIME NODE Gate
+
+on:
+  push:
+    branches: [build/izakhono-runtime-node]
+    paths:
+      - "izakhono-runtime-node/**"
+      - ".github/workflows/izakhono-runtime-node-gate.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "izakhono-runtime-node/**"
+      - ".github/workflows/izakhono-runtime-node-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  self-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: izakhono-runtime-node
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+      - name: Verify no external runtime dependencies
+        run: |
+          test "$(node -e 'console.log(Object.keys(require("./package.json").dependencies||{}).length)')" = "0"
+      - name: Run deploy-route-rollback self test
+        run: npm run check
+      - name: Verify runtime safety defaults
+        run: |
+          grep -q 'CONTROL_HOST.*127.0.0.1' server.mjs
+          grep -q 'COMMAND_NOT_ALLOWED' server.mjs
+          grep -q 'RELEASE_OUTSIDE_ROOT' server.mjs
