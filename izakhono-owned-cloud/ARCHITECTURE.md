@@ -19,7 +19,8 @@
       ├─ IZAKHONO AUTH NODE      :8820
       ├─ IZAKHONO ANALYTICS NODE :8830
       ├─ IZAKHONO NOTIFY NODE    :8840
-      └─ IZAKHONO AI GATEWAY NODE :8850
+      ├─ IZAKHONO AI GATEWAY NODE :8850
+      └─ IZAKHONO CODE NODE       :8860
 
 Control interfaces bind to loopback: RUNTIME control :8790 and EDGE control :8795.
 
@@ -44,6 +45,7 @@ ANALYTICS NODE owns consent-aware behavioral and campaign analytics. It does not
 - ANALYTICS avoids raw IP storage and requires consent in the supplied tracker.
 - NOTIFY encrypts contact destinations at rest and delegates scheduling/retries to QUEUE NODE.
 - AI GATEWAY encrypts provider credentials, hashes client keys, stores no prompt/response bodies and can route to local model servers.
+- CODE stores bare Git repositories on owned disks, hashes repo tokens, and signs outbound push webhooks.
 - Services run under a non-login `izakhono` account.
 - systemd hardening limits filesystem access.
 - No service relies on a browser-visible server secret.
@@ -59,12 +61,13 @@ Back up:
 - `/var/lib/izakhono-analytics`
 - `/var/lib/izakhono-notify`
 - `/var/lib/izakhono-ai-gateway`
+- `/var/lib/izakhono-code`
 - `/etc/izakhono`
 
 Keep backups encrypted and maintain multiple physical copies.
 
 ## Expansion path
 
-Next owned services: CODE NODE expansion, backup replication and multi-node failover.
+Next owned services: backup replication, CI WORKER NODE and multi-node failover.
 
 The stack remains modular so each service can later move onto its own machine without changing the application-facing API contract.
