@@ -11,6 +11,7 @@ services=(
   izakhono-notify-node
   izakhono-ai-gateway-node
   izakhono-code-node
+  izakhono-ci-worker-node
   izakhono-backup-node
   izakhono-edge-node
 )
@@ -47,4 +48,5 @@ probe NOTIFY http://127.0.0.1:8840/health
 probe AI_GATEWAY http://127.0.0.1:8850/health
 probe CODE http://127.0.0.1:8860/health
 probe BACKUP http://127.0.0.1:8870/health
+probe CI_WORKER http://127.0.0.1:8880/health
 probe EDGE http://127.0.0.1:8795/health
