@@ -1,0 +1,23 @@
+[Unit]
+Description=IZAKHONO CODE NODE
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/izakhono-code-node
+EnvironmentFile=/etc/izakhono/code-node.env
+ExecStart=/usr/bin/node /opt/izakhono-code-node/server.mjs
+Restart=always
+RestartSec=3
+User=izakhono
+Group=izakhono
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/izakhono-code
+Environment=IZAKHONO_CODE_DB=/var/lib/izakhono-code/code.sqlite
+Environment=IZAKHONO_CODE_REPO_ROOT=/var/lib/izakhono-code/repos
+
+[Install]
+WantedBy=multi-user.target
