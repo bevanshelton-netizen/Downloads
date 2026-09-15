@@ -209,7 +209,7 @@ function CommandCentre({brand,connected,drafts,readyScore,demo,setTab}:{brand:st
       <div className="card">
         <div className="cardHead"><div><span className="kicker">GROWTH COPILOT</span><h3>What should happen next?</h3></div></div>
         <div className="recommendations">
-          <article><span>01</span><div><b>Connect measurement first</b><p>Link GA4/pixels/conversion APIs before asking the system to optimize spend.</p></div><button>Queue</button></article>
+          <article><span>01</span><div><b>Connect measurement first</b><p>Link GA4, conversion APIs and revenue outcomes before asking the system to optimize spend.</p></div><a className="recLink" href="/measure">Open</a></article>
           <article><span>02</span><div><b>Build localized campaign packs</b><p>Create language + country variants from one approved master brief.</p></div><button onClick={()=>setTab("creative")}>Open</button></article>
           <article><span>03</span><div><b>Approve before activation</b><p>Every new paid campaign remains paused until its preflight and budget are approved.</p></div><button onClick={()=>setTab("approvals")}>Review</button></article>
         </div>
@@ -316,7 +316,7 @@ function LeadsRevenue({demo}:{demo:boolean}){
         <div className="attribution"><p><b>Meta</b><span>38%</span></p><p><b>Google</b><span>32%</span></p><p><b>Organic</b><span>18%</span></p><p><b>TikTok</b><span>12%</span></p></div>
       </div>
     </section>
-    <section className="card"><span className="kicker">INTEGRATION TARGETS</span><h3>Close the measurement loop</h3><div className="rules"><span>GA4</span><span>Meta Pixel / CAPI</span><span>Google Ads conversions</span><span>CRM</span><span>Payment gateway</span><span>Email/SMS</span></div></section>
+    <section className="card"><div className="cardHead"><div><span className="kicker">INTEGRATION TARGETS</span><h3>Close the measurement loop</h3></div><a className="primary miniCta" href="/measure">Open measurement control →</a></div><div className="rules"><span>GA4</span><span>Meta Pixel / CAPI</span><span>Google Ads conversions</span><span>TikTok Events API</span><span>CRM</span><span>Payment gateway</span></div></section>
   </div>;
 }
 
