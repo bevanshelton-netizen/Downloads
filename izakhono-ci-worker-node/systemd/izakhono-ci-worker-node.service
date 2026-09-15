@@ -1,0 +1,27 @@
+[Unit]
+Description=IZAKHONO CI WORKER NODE
+After=network.target izakhono-queue-node.service izakhono-code-node.service
+Wants=izakhono-queue-node.service izakhono-code-node.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/izakhono-ci-worker-node
+EnvironmentFile=/etc/izakhono/ci-worker-node.env
+ExecStart=/usr/bin/node /opt/izakhono-ci-worker-node/server.mjs
+Restart=always
+RestartSec=3
+User=root
+Group=root
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/izakhono-ci
+RestrictSUIDSGID=true
+LockPersonality=true
+Environment=IZAKHONO_CI_DB=/var/lib/izakhono-ci/ci.sqlite
+Environment=IZAKHONO_CI_WORKSPACE_ROOT=/var/lib/izakhono-ci/workspaces
+Environment=IZAKHONO_CI_LOG_ROOT=/var/lib/izakhono-ci/logs
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,47 @@
+name: IZAKHONO CI WORKER NODE Gate
+
+on:
+  push:
+    branches: [build/izakhono-ci-worker-node]
+    paths:
+      - "izakhono-ci-worker-node/**"
+      - ".github/workflows/izakhono-ci-worker-node-gate.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "izakhono-ci-worker-node/**"
+      - ".github/workflows/izakhono-ci-worker-node-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  self-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: izakhono-ci-worker-node
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+      - name: Verify host tools
+        run: |
+          command -v git
+          command -v systemd-run
+      - name: Verify zero runtime dependencies
+        run: test "$(node -e 'console.log(Object.keys(require("./package.json").dependencies||{}).length)')" = "0"
+      - name: Validate installer
+        run: bash -n install-linux.sh
+      - name: Run CODE + QUEUE + CI end-to-end self test
+        run: npm run check
+      - name: Verify production sandbox safeguards
+        run: |
+          grep -q 'IZAKHONO_CI_EXECUTOR || "systemd"' server.mjs
+          grep -q 'PrivateNetwork=yes' server.mjs
+          grep -q 'NoNewPrivileges=yes' server.mjs
+          grep -q 'ProtectSystem=strict' server.mjs
+          grep -q 'COMMAND_NOT_ALLOWED' server.mjs
+          grep -q 'direct-test executor is forbidden' server.mjs
