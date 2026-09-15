@@ -220,10 +220,11 @@ const server=createServer(async(req,res)=>{
       const incoming=Array.isArray(body)?body:[body];
       if(incoming.length===0 || incoming.length>100) return json(res,400,{error:"Batch must contain 1-100 events."});
 
-      const tx=db.transaction((items)=>{
-        let inserted=0;
-        let duplicates=0;
-        for(const raw of items){
+      let inserted=0;
+      let duplicates=0;
+      db.exec("BEGIN IMMEDIATE");
+      try{
+        for(const raw of incoming){
           const e=normalizeEvent(raw);
           const result=insertEvent.run(
             e.eventId,e.eventName,e.occurredAt,e.brand,e.source,e.medium,e.campaign,e.country,e.language,
@@ -231,10 +232,13 @@ const server=createServer(async(req,res)=>{
           );
           if(Number(result.changes||0)>0) inserted++; else duplicates++;
         }
-        return {inserted,duplicates};
-      });
+        db.exec("COMMIT");
+      }catch(error){
+        db.exec("ROLLBACK");
+        throw error;
+      }
 
-      const result=tx(incoming);
+      const result={inserted,duplicates};
       insertLedger.run("system","growth-os","events.ingest",null,null,null,"executed",JSON.stringify(result));
       return json(res,202,{accepted:true,...result});
     }
