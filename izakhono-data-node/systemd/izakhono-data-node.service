@@ -1,0 +1,22 @@
+[Unit]
+Description=IZAKHONO DATA NODE
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/izakhono-data-node
+EnvironmentFile=/etc/izakhono/data-node.env
+ExecStart=/usr/bin/node /opt/izakhono-data-node/server.mjs
+Restart=always
+RestartSec=3
+User=izakhono
+Group=izakhono
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/izakhono-data
+Environment=IZAKHONO_DATA_DB=/var/lib/izakhono-data/izakhono-data.sqlite
+
+[Install]
+WantedBy=multi-user.target
