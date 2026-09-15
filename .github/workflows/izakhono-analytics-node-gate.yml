@@ -1,0 +1,39 @@
+name: IZAKHONO ANALYTICS NODE Gate
+
+on:
+  push:
+    branches: [build/izakhono-analytics-node]
+    paths:
+      - "izakhono-analytics-node/**"
+      - ".github/workflows/izakhono-analytics-node-gate.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "izakhono-analytics-node/**"
+      - ".github/workflows/izakhono-analytics-node-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  self-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: izakhono-analytics-node
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+      - name: Verify zero runtime dependencies
+        run: test "$(node -e 'console.log(Object.keys(require("./package.json").dependencies||{}).length)')" = "0"
+      - name: Run analytics end-to-end self test
+        run: npm run check
+      - name: Verify privacy and safety defaults
+        run: |
+          grep -q 'HOST.*127.0.0.1' server.mjs
+          grep -q 'storesRawIp:false' server.mjs
+          grep -q 'SENSITIVE_PROPERTY' server.mjs
+          grep -q 'consent' server.mjs
