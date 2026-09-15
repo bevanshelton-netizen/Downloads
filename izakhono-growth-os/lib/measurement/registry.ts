@@ -1,4 +1,4 @@
-import type { MeasurementSourceState } from "./types";
+type MeasurementSourceState = "not-configured" | "credentials-ready" | "connected" | "verification-required";
 
 export type MeasurementSource = {
   id:string;
