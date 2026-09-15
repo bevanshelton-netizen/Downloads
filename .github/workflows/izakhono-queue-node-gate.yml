@@ -1,0 +1,38 @@
+name: IZAKHONO QUEUE NODE Gate
+
+on:
+  push:
+    branches: [build/izakhono-queue-node]
+    paths:
+      - "izakhono-queue-node/**"
+      - ".github/workflows/izakhono-queue-node-gate.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "izakhono-queue-node/**"
+      - ".github/workflows/izakhono-queue-node-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  self-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: izakhono-queue-node
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+      - name: Verify zero runtime dependencies
+        run: test "$(node -e 'console.log(Object.keys(require("./package.json").dependencies||{}).length)')" = "0"
+      - name: Run queue self test
+        run: npm run check
+      - name: Verify queue safety defaults
+        run: |
+          grep -q 'HOST.*127.0.0.1' server.mjs
+          grep -q 'IZAKHONO_QUEUE_KEY' server.mjs
+          grep -q 'PRAGMA journal_mode=WAL' server.mjs
