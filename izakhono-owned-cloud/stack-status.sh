@@ -10,6 +10,7 @@ services=(
   izakhono-analytics-node
   izakhono-notify-node
   izakhono-ai-gateway-node
+  izakhono-code-node
   izakhono-edge-node
 )
 
@@ -43,4 +44,5 @@ probe AUTH http://127.0.0.1:8820/health
 probe ANALYTICS http://127.0.0.1:8830/health
 probe NOTIFY http://127.0.0.1:8840/health
 probe AI_GATEWAY http://127.0.0.1:8850/health
+probe CODE http://127.0.0.1:8860/health
 probe EDGE http://127.0.0.1:8795/health
