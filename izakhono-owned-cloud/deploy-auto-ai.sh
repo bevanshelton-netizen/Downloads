@@ -3,6 +3,9 @@ set -euo pipefail
 
 APP="auto-ai"
 HOSTNAME="${AUTO_AI_HOSTNAME:-autoai.izakhonoafrica.co.za}"
+
+fail(){ echo "FAIL: $*" >&2; exit 2; }
+need(){ command -v "$1" >/dev/null 2>&1 || fail "$1 is required"; }
 SOURCE_ENV="${IZAKHONO_CODE_SOURCE_ENV:-/etc/izakhono/code-source.env}"
 REPO_URL="${IZAKHONO_CODE_REPO_URL:-}"
 REPO_TOKEN="${IZAKHONO_CODE_REPO_TOKEN:-}"
@@ -26,9 +29,6 @@ RUNTIME_ENV="/etc/izakhono/runtime-node.env"
 APP_ENV="/etc/izakhono/apps/auto-ai.env"
 CONTROL_URL="http://127.0.0.1:8790"
 PROXY_URL="http://127.0.0.1:8080"
-
-fail(){ echo "FAIL: $*" >&2; exit 2; }
-need(){ command -v "$1" >/dev/null 2>&1 || fail "$1 is required"; }
 
 GIT_AUTH=""
 if [ -n "$REPO_TOKEN" ]; then
