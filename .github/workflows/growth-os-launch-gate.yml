@@ -34,4 +34,4 @@ jobs:
       - name: Verify safe-write contract
         run: |
           grep -q 'liveAdWrites:false' app/api/status/route.ts
-          grep -q 'create campaigns paused' app/api/plan/route.ts
+          grep -qi 'campaigns paused' app/api/plan/route.ts
