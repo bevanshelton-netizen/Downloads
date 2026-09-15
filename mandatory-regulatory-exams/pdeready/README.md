@@ -3,6 +3,13 @@
 PDEReady is the Property Practice pathway inside the Mandatory Regulatory Exams Platform.
 
 ## Current 2026 product scope
+- 40 original topic-tagged preparation questions (20 PDE4 + 20 PDE5)
+- 12 original case-response scenarios
+- persistent on-device learner profile and attempt history
+- adaptive 10-question diagnostics
+- weak-area study plan and focused topic drills
+- case-response structure scoring
+- internal readiness indicator and exam countdown
 - PDE4 diagnostic and study map
 - PDE5 diagnostic and principal-level study map
 - eligibility pre-flight checklist
@@ -44,9 +51,9 @@ PDEReady is independent preparation material. It must not:
 PPRA's 2026 take-home instructions state that AI tools such as ChatGPT are prohibited during the live examination. PDEReady is therefore deliberately a **pre-exam learning and mock-practice product**, not a live-exam answering service.
 
 ## Next build gates
-1. expand the original question bank substantially for PDE4 and PDE5;
+1. expand the original bank beyond the current 40 questions toward commercial depth;
 2. map every item to a validated competency/source;
-3. add saved learner progress and readiness history;
-4. add paid entitlement only after content QA;
-5. conduct property-practitioner / legal-content review;
+3. conduct property-practitioner / legal-content review;
+4. replace device-local profiles with authenticated cloud accounts when the chosen backend is connected;
+5. add paid entitlement only after content QA;
 6. deploy publicly and verify mobile + desktop flows.

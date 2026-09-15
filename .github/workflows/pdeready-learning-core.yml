@@ -1,0 +1,21 @@
+name: PDEReady Learning Core
+
+on:
+  pull_request:
+    paths:
+      - 'mandatory-regulatory-exams/pdeready/**'
+      - '.github/workflows/pdeready-learning-core.yml'
+  push:
+    branches:
+      - 'pdeready-learning-core-v2'
+    paths:
+      - 'mandatory-regulatory-exams/pdeready/**'
+      - '.github/workflows/pdeready-learning-core.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate PDEReady bank and learner contract
+        run: python3 mandatory-regulatory-exams/pdeready/test_pdeready.py
