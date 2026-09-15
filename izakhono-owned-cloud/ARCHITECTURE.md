@@ -17,7 +17,8 @@
       ├─ IZAKHONO OBJECT NODE    :8800
       ├─ IZAKHONO QUEUE NODE     :8810
       ├─ IZAKHONO AUTH NODE      :8820
-      ├─ IZAKHONO ANALYTICS NODE :8830\n      └─ IZAKHONO NOTIFY NODE    :8840
+      ├─ IZAKHONO ANALYTICS NODE :8830
+      └─ IZAKHONO NOTIFY NODE    :8840
 
 Control interfaces bind to loopback: RUNTIME control :8790 and EDGE control :8795.
 
@@ -39,7 +40,8 @@ ANALYTICS NODE owns consent-aware behavioral and campaign analytics. It does not
 - RUNTIME only launches allowlisted commands from a confined release root.
 - DATA, OBJECT and QUEUE use authenticated private APIs.
 - AUTH hashes passwords and sessions and encrypts TOTP secrets.
-- ANALYTICS avoids raw IP storage and requires consent in the supplied tracker.\n- NOTIFY encrypts contact destinations at rest and delegates scheduling/retries to QUEUE NODE.
+- ANALYTICS avoids raw IP storage and requires consent in the supplied tracker.
+- NOTIFY encrypts contact destinations at rest and delegates scheduling/retries to QUEUE NODE.
 - Services run under a non-login `izakhono` account.
 - systemd hardening limits filesystem access.
 - No service relies on a browser-visible server secret.
@@ -52,7 +54,8 @@ Back up:
 - `/var/lib/izakhono-queue`
 - `/var/lib/izakhono-runtime`
 - `/var/lib/izakhono-auth`
-- `/var/lib/izakhono-analytics`\n- `/var/lib/izakhono-notify`
+- `/var/lib/izakhono-analytics`
+- `/var/lib/izakhono-notify`
 - `/etc/izakhono`
 
 Keep backups encrypted and maintain multiple physical copies.
