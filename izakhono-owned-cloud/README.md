@@ -15,9 +15,9 @@ Self-hosted infrastructure stack for IZAKHONO platforms.
 9. **IZAKHONO AI GATEWAY NODE** — owned local-first model routing, failover, quotas and AI governance.
 10. **IZAKHONO CODE NODE** — owned Git repositories, clone/fetch/push, scoped tokens and signed push webhooks.
 11. **IZAKHONO BACKUP NODE** — encrypted snapshots, retention, mirror copies, verification and staged restore.
-12. **IZAKHONO CI WORKER NODE** — owned CODE/QUEUE build execution with commit pinning, signed triggers and production sandbox policy.
+12. **IZAKHONO CI WORKER NODE** — owned CODE/QUEUE build execution with commit pinning, signed triggers and production sandbox policy.\n13. **IZAKHONO REPLICA NODE** — second-host streaming replication for already-encrypted BACKUP archives.
 
-All twelve services are designed to run on Linux hardware you control and use Node.js built-ins plus SQLite. They do not require hosted database, object-store, queue, authentication or analytics subscriptions.
+All thirteen services are designed to run on Linux hardware you control and use Node.js built-ins plus SQLite. They do not require hosted database, object-store, queue, authentication or analytics subscriptions.
 
 ## Install
 
@@ -26,7 +26,7 @@ From the repository root:
     cd izakhono-owned-cloud
     sudo bash install-owned-stack.sh
 
-The installer validates Node 22.13+, installs DATA, RUNTIME, OBJECT, QUEUE, AUTH, ANALYTICS, NOTIFY, AI GATEWAY, CODE, CI WORKER and BACKUP, and installs EDGE only when a TLS certificate/key already exist. It never creates paid cloud resources and never prints generated service secrets.
+The installer validates Node 22.13+, installs DATA, RUNTIME, OBJECT, QUEUE, AUTH, ANALYTICS, NOTIFY, AI GATEWAY, CODE, CI WORKER, BACKUP and REPLICA, and installs EDGE only when a TLS certificate/key already exist. It never creates paid cloud resources and never prints generated service secrets.
 
 ## TLS
 
@@ -51,7 +51,7 @@ After installation:
 
     sudo bash configure-growth-os.sh
 
-This creates `/etc/izakhono/apps/growth-os.env`, points Growth OS to the owned nodes, and generates a separate measurement-ingest key. AUTH NODE is exposed through its loopback URL; ANALYTICS NODE is available through its loopback URL and private admin key; NOTIFY NODE is available through its loopback URL and service key. AI GATEWAY is exposed by URL only until a limited app client key is provisioned. CODE NODE is exposed by URL only until a repository-scoped Git token is provisioned. BACKUP NODE is exposed by URL only; its admin and recovery secrets remain server-side. CI WORKER is exposed by URL only; pipeline administration stays private.
+This creates `/etc/izakhono/apps/growth-os.env`, points Growth OS to the owned nodes, and generates a separate measurement-ingest key. AUTH NODE is exposed through its loopback URL; ANALYTICS NODE is available through its loopback URL and private admin key; NOTIFY NODE is available through its loopback URL and service key. AI GATEWAY is exposed by URL only until a limited app client key is provisioned. CODE NODE is exposed by URL only until a repository-scoped Git token is provisioned. BACKUP NODE is exposed by URL only; its admin and recovery secrets remain server-side. CI WORKER is exposed by URL only; pipeline administration stays private. REPLICA NODE is exposed by URL only; peer administration and receiver credentials remain server-side.
 
 ## AI client provisioning
 
@@ -91,10 +91,27 @@ Export the recovery key to a separate offline medium:
 
 Never store that recovery-key file only on the server being backed up.
 
+## Replica recovery host
+
+Primary-node installation includes REPLICA NODE, but true disaster recovery requires a physically separate Linux host.
+
+On the recovery host install REPLICA NODE only, bind it to an approved private/VPN interface or hardened HTTPS ingress, export its receive credential, and register that peer on the primary node. REPLICA transfers encrypted .izbk files only; it never needs the BACKUP decryption key.
+
+Replica metadata under /var/lib/izakhono-replica is included in the core backup. Replicated archive objects live separately under /srv/izakhono-replica-objects and are deliberately excluded from the backup source set.
+
+## One-command primary deployment
+
+From the repository root on the primary Linux server:
+
+    cd izakhono-owned-cloud
+    sudo bash deploy-primary-node.sh
+
+That installs the full stack, configures Growth OS, creates the encrypted core backup set, runs the first-host production proof and prints a deployment report. Public DNS/TLS activation remains separate because it requires your actual domain/network authority.
+
 ## Status
 
     sudo bash stack-status.sh
 
-Owned Cloud eliminates the software subscription requirement for these twelve infrastructure layers, but running infrastructure still requires hardware, disks, backups, power and internet connectivity.
+Owned Cloud eliminates the software subscription requirement for these thirteen infrastructure layers, but running infrastructure still requires hardware, disks, backups, power and internet connectivity.
 
 Public DNS registration, a certificate authority relationship, upstream ISP connectivity and large-scale DDoS scrubbing remain external network realities.
