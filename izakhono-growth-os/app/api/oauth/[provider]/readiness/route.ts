@@ -1,4 +1,5 @@
 import { getProviderOnboarding } from "@/lib/providers/onboarding";
+import { isTokenVaultReady } from "@/lib/security/token-vault";
 
 export async function GET(
   _request: Request,
@@ -23,6 +24,7 @@ export async function GET(
     authModel:config.authModel,
     scopes:config.scopes,
     callbackUrl:"https://izakhono-growth-os.vercel.app"+config.callbackPath,
+    tokenVaultReady:isTokenVaultReady(),
     liveWritesEnabled:false,
     nextAction:missing.length
       ? "Add the missing credentials as server-side production environment variables."
