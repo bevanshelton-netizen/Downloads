@@ -1,0 +1,63 @@
+{
+  "platform": "Mandatory Regulatory Exams Platform",
+  "country": "South Africa",
+  "updated": "2026-09-15",
+  "pathways": [
+    {
+      "id": "faisready",
+      "name": "FAISReady",
+      "sector": "Financial Services",
+      "body": "Financial Sector Conduct Authority (FSCA)",
+      "exam_codes": ["RE1", "RE3", "RE4", "RE5"],
+      "status": "live_pathway",
+      "standalone_url": "https://faisready-revenue.vercel.app/",
+      "official_source": "https://www.fsca.co.za/Regulatory-Examinations-FAQ/",
+      "official_logo_allowed": false,
+      "logo_note": "FSCA states that third parties may not use its logo. Use platform-owned RE/FAISReady identity plus text identification."
+    },
+    {
+      "id": "ppra-pde",
+      "name": "Property Practice",
+      "sector": "Property",
+      "body": "Property Practitioners Regulatory Authority (PPRA)",
+      "exam_codes": ["PDE4", "PDE5"],
+      "status": "build_next",
+      "official_source": "https://theppra.org.za/education/pde/pde-questions-papers-pde4-pde5/"
+    },
+    {
+      "id": "saica",
+      "name": "Chartered Accountancy",
+      "sector": "Accounting",
+      "body": "SAICA",
+      "exam_codes": ["IAC", "APC"],
+      "status": "build_queue",
+      "official_source": "https://www.saica.org.za/become-a-member/future-members/exam-information/"
+    },
+    {
+      "id": "saipa-pe",
+      "name": "Professional Accounting",
+      "sector": "Accounting",
+      "body": "SAIPA",
+      "exam_codes": ["PE"],
+      "status": "build_queue",
+      "official_source": "https://www.saipa.co.za/become-a-member/trainee-overview/professional-evaluation/"
+    },
+    {
+      "id": "lpc",
+      "name": "Legal Practice",
+      "sector": "Legal",
+      "body": "Legal Practice Council (LPC)",
+      "exam_codes": ["Attorney Admission", "Advocate Admission", "Conveyancing", "Notarial Practice"],
+      "status": "researching",
+      "official_source": "https://lpc.org.za/"
+    },
+    {
+      "id": "health",
+      "name": "Health Professions",
+      "sector": "Healthcare",
+      "body": "Profession-specific regulator / board",
+      "exam_codes": ["Board / Registration assessments"],
+      "status": "researching"
+    }
+  ]
+}
