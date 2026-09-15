@@ -1,0 +1,22 @@
+[Unit]
+Description=IZAKHONO QUEUE NODE
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/izakhono-queue-node
+EnvironmentFile=/etc/izakhono/queue-node.env
+ExecStart=/usr/bin/node /opt/izakhono-queue-node/server.mjs
+Restart=always
+RestartSec=3
+User=izakhono
+Group=izakhono
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/izakhono-queue
+Environment=IZAKHONO_QUEUE_DB=/var/lib/izakhono-queue/queue.sqlite
+
+[Install]
+WantedBy=multi-user.target
