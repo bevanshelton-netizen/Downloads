@@ -34,6 +34,7 @@ install_component "IZAKHONO OBJECT NODE" "izakhono-object-node"
 install_component "IZAKHONO QUEUE NODE" "izakhono-queue-node"
 install_component "IZAKHONO AUTH NODE" "izakhono-auth-node"
 install_component "IZAKHONO ANALYTICS NODE" "izakhono-analytics-node"
+install_component "IZAKHONO NOTIFY NODE" "izakhono-notify-node"
 
 if [ -f /etc/izakhono/tls/fullchain.pem ] && [ -f /etc/izakhono/tls/privkey.pem ]; then
   install_component "IZAKHONO EDGE NODE" "izakhono-edge-node"
@@ -50,6 +51,7 @@ echo "OBJECT=INSTALLED"
 echo "QUEUE=INSTALLED"
 echo "AUTH=INSTALLED"
 echo "ANALYTICS=INSTALLED"
+echo "NOTIFY=INSTALLED"
 echo "EDGE=$EDGE_STATUS"
 echo
 echo "Next:"
