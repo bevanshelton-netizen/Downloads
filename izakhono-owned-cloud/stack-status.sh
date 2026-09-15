@@ -6,6 +6,7 @@ services=(
   izakhono-runtime-node
   izakhono-object-node
   izakhono-queue-node
+  izakhono-auth-node
   izakhono-edge-node
 )
 
@@ -35,4 +36,5 @@ probe DATA http://127.0.0.1:8787/health
 probe RUNTIME http://127.0.0.1:8790/health
 probe OBJECT http://127.0.0.1:8800/health
 probe QUEUE http://127.0.0.1:8810/health
+probe AUTH http://127.0.0.1:8820/health
 probe EDGE http://127.0.0.1:8795/health

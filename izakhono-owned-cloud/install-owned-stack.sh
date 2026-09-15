@@ -32,6 +32,7 @@ install_component "IZAKHONO DATA NODE" "izakhono-data-node"
 install_component "IZAKHONO RUNTIME NODE" "izakhono-runtime-node"
 install_component "IZAKHONO OBJECT NODE" "izakhono-object-node"
 install_component "IZAKHONO QUEUE NODE" "izakhono-queue-node"
+install_component "IZAKHONO AUTH NODE" "izakhono-auth-node"
 
 if [ -f /etc/izakhono/tls/fullchain.pem ] && [ -f /etc/izakhono/tls/privkey.pem ]; then
   install_component "IZAKHONO EDGE NODE" "izakhono-edge-node"
@@ -46,6 +47,9 @@ echo "DATA=INSTALLED"
 echo "RUNTIME=INSTALLED"
 echo "OBJECT=INSTALLED"
 echo "QUEUE=INSTALLED"
+echo "AUTH=INSTALLED"
 echo "EDGE=$EDGE_STATUS"
 echo
-echo "Next: sudo bash $HERE/configure-growth-os.sh"
+echo "Next:"
+echo "  sudo bash $HERE/bootstrap-owner.sh"
+echo "  sudo bash $HERE/configure-growth-os.sh"
