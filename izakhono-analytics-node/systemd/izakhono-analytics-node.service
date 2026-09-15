@@ -1,0 +1,22 @@
+[Unit]
+Description=IZAKHONO ANALYTICS NODE
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/izakhono-analytics-node
+EnvironmentFile=/etc/izakhono/analytics-node.env
+ExecStart=/usr/bin/node /opt/izakhono-analytics-node/server.mjs
+Restart=always
+RestartSec=3
+User=izakhono
+Group=izakhono
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/izakhono-analytics
+Environment=IZAKHONO_ANALYTICS_DB=/var/lib/izakhono-analytics/analytics.sqlite
+
+[Install]
+WantedBy=multi-user.target
