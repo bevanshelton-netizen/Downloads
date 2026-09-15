@@ -1,0 +1,38 @@
+name: IZAKHONO EDGE NODE Gate
+
+on:
+  push:
+    branches: [build/izakhono-edge-node]
+    paths:
+      - "izakhono-edge-node/**"
+      - ".github/workflows/izakhono-edge-node-gate.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "izakhono-edge-node/**"
+      - ".github/workflows/izakhono-edge-node-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  self-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: izakhono-edge-node
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+      - name: Verify zero runtime dependencies
+        run: test "$(node -e 'console.log(Object.keys(require("./package.json").dependencies||{}).length)')" = "0"
+      - name: Run HTTPS edge self test
+        run: npm run check
+      - name: Verify edge safety defaults
+        run: |
+          grep -q 'CONTROL_HOST.*127.0.0.1' server.mjs
+          grep -q 'strict-transport-security' server.mjs
+          grep -q 'request body too large' server.mjs
