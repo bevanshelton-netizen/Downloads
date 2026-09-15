@@ -1,4 +1,12 @@
-import type { ConnectionState, ProviderId } from "./types";
+export type ProviderId =
+  | "google-ads"
+  | "meta-ads"
+  | "tiktok-ads"
+  | "linkedin-ads"
+  | "amazon-ads"
+  | "microsoft-ads";
+
+export type ConnectionState = "disconnected" | "oauth-required" | "connected-readonly" | "connected-write";
 
 export type ProviderDefinition = {
   id: ProviderId;
