@@ -88,6 +88,7 @@ try{
   x=await post("/v1/templates",{name:"inbox-note",channel:"in_app",subject:"Action",body:"Review campaign {{campaign}}"});
   const inAppTemplate=x.body.template.id;
   x=await post("/v1/send",{recipientRef:"user-1",channel:"in_app",templateId:inAppTemplate,variables:{campaign:"Launch"}});
+  if(!x.r.ok || !x.body.message) throw new Error("In-app enqueue failed: "+JSON.stringify(x.body));
   const inAppId=x.body.message.id;
   await waitMessage(inAppId,"delivered");
 
