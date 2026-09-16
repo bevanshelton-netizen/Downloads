@@ -1,0 +1,39 @@
+name: IZAKHONO PACKAGE NODE Gate
+
+on:
+  push:
+    branches: [build/izakhono-package-node]
+    paths:
+      - "izakhono-package-node/**"
+      - ".github/workflows/izakhono-package-node-gate.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "izakhono-package-node/**"
+      - ".github/workflows/izakhono-package-node-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  self-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: izakhono-package-node
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+      - name: Verify zero runtime dependencies
+        run: test "$(node -e 'console.log(Object.keys(require("./package.json").dependencies||{}).length)')" = "0"
+      - name: Run package mirror self test
+        run: npm run check
+      - name: Verify package-node safety defaults
+        run: |
+          grep -q 'HOST.*127.0.0.1' server.mjs
+          grep -q 'GET and HEAD only' server.mjs
+          grep -q 'IZAKHONO_PACKAGE_KEY' server.mjs
+          grep -q 'journal_mode=WAL' server.mjs

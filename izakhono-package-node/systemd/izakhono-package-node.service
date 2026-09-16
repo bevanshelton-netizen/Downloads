@@ -1,0 +1,24 @@
+[Unit]
+Description=IZAKHONO PACKAGE NODE
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/izakhono-package-node
+EnvironmentFile=/etc/izakhono/package-node.env
+ExecStart=/usr/bin/node /opt/izakhono-package-node/server.mjs
+Restart=always
+RestartSec=3
+User=izakhono
+Group=izakhono
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/izakhono-package
+Environment=IZAKHONO_PACKAGE_CACHE=/var/lib/izakhono-package/cache
+Environment=IZAKHONO_PACKAGE_DB=/var/lib/izakhono-package/package.sqlite
+Environment=IZAKHONO_PACKAGE_TMP=/var/lib/izakhono-package/tmp
+
+[Install]
+WantedBy=multi-user.target
