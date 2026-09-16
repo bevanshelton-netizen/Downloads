@@ -1,16 +1,53 @@
 {
-  "version": 1,
+  "version": 2,
   "gateway": "izakhono-pay",
-  "mode": "sandbox",
+  "primaryProvider": "ikhokha",
+  "fallbackProvider": "eft",
+  "currency": "ZAR",
+  "mode": "live-when-provider-credentials-present",
   "browserSecretsAllowed": false,
-  "requiredServerEnv": ["IZAKHONO_PAY_URL", "IZAKHONO_PAY_API_KEY", "IZAKHONO_PAY_APP_SLUG"],
-  "apps": [
-    {"slug":"faisready","workspacePath":"FAISReady","status":"gateway-registered"},
-    {"slug":"kora","workspacePath":"kora","status":"gateway-registered"},
-    {"slug":"doxa-sure","workspacePath":"doxa-sure","status":"gateway-registered"},
-    {"slug":"izakhono-cloud","workspacePath":"izakhono-cloud","status":"gateway-registered"},
-    {"slug":"izakhono-group","workspacePath":"izakhono-group","status":"gateway-registered"},
-    {"slug":"bevan-shelton-racing","workspacePath":"bevan-shelton-racing","status":"gateway-registered"}
+  "providerCredentials": "central-server-only",
+  "requiredChildServerEnv": [
+    "IZAKHONO_PAY_URL",
+    "IZAKHONO_PAY_API_KEY",
+    "IZAKHONO_PAY_APP_SLUG"
   ],
-  "liveActivation": "blocked-until-e2e-payment-acceptance"
+  "requiredGatewayServerEnv": [
+    "IKHOKHA_APP_ID",
+    "IKHOKHA_APP_SECRET",
+    "IZAKHONO_PAY_PUBLIC_BASE_URL"
+  ],
+  "apps": [
+    {
+      "slug": "faisready",
+      "workspacePath": "FAISReady",
+      "status": "gateway-registered"
+    },
+    {
+      "slug": "kora",
+      "workspacePath": "kora-network",
+      "status": "ikhokha-direct-and-shared-gateway-compatible"
+    },
+    {
+      "slug": "doxa-sure",
+      "workspacePath": "doxa-sure",
+      "status": "gateway-registered"
+    },
+    {
+      "slug": "izakhono-cloud",
+      "workspacePath": "izakhono-cloud",
+      "status": "gateway-registration-pending-products"
+    },
+    {
+      "slug": "izakhono-group",
+      "workspacePath": "izakhono-group",
+      "status": "gateway-registration-pending-products"
+    },
+    {
+      "slug": "bevan-shelton-racing",
+      "workspacePath": "bevan-shelton-racing",
+      "status": "gateway-registration-pending-products"
+    }
+  ],
+  "liveActivation": "publish-only-after-e2e-payment-acceptance"
 }
