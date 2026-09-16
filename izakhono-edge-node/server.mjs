@@ -19,10 +19,15 @@ const ACCESS_LOG=resolve(process.env.IZAKHONO_EDGE_ACCESS_LOG || "./logs/access.
 const MAX_BODY=Number(process.env.IZAKHONO_EDGE_MAX_BODY_BYTES || 5*1024*1024);
 const RATE_PER_MIN=Number(process.env.IZAKHONO_EDGE_RATE_PER_MIN || 180);
 const RATE_BURST=Number(process.env.IZAKHONO_EDGE_RATE_BURST || 60);
+const FORTRESS_PROTECTOR=process.env.FORTRESS_PROTECTOR_MODE !== "off";
+const FORTRESS_SENSITIVE_RATE_PER_MIN=Number(process.env.FORTRESS_SENSITIVE_RATE_PER_MIN || 60);
+const FORTRESS_SENSITIVE_BURST=Number(process.env.FORTRESS_SENSITIVE_BURST || 20);
+const FORTRESS_SENSITIVE_MAX_BODY=Number(process.env.FORTRESS_SENSITIVE_MAX_BODY_BYTES || 256*1024);
 
 mkdirSync(dirname(ACCESS_LOG),{recursive:true});
 
 const buckets=new Map();
+const fortressBuckets=new Map();
 
 function secureEqual(a,b){
   const aa=Buffer.from(typeof a==="string"?a:"");
@@ -41,26 +46,57 @@ function normalizedHost(req){
   return host;
 }
 
-function rateAllowed(req,host){
+function consumeBucket(store,key,ratePerMin,burst){
   const now=Date.now();
-  const key=clientIp(req)+"|"+host;
-  const refillPerMs=RATE_PER_MIN/60000;
-  const current=buckets.get(key) || {tokens:RATE_BURST,at:now};
-  current.tokens=Math.min(RATE_BURST,current.tokens+(now-current.at)*refillPerMs);
+  const refillPerMs=ratePerMin/60000;
+  const current=store.get(key) || {tokens:burst,at:now};
+  current.tokens=Math.min(burst,current.tokens+(now-current.at)*refillPerMs);
   current.at=now;
   if(current.tokens<1){
-    buckets.set(key,current);
+    store.set(key,current);
     return false;
   }
   current.tokens-=1;
-  buckets.set(key,current);
+  store.set(key,current);
   return true;
+}
+
+function rateAllowed(req,host){
+  return consumeBucket(buckets,clientIp(req)+"|"+host,RATE_PER_MIN,RATE_BURST);
+}
+
+function fortressSensitivePath(path){
+  return path==="/api/v1/orders"
+    || path.startsWith("/api/v1/orders/")
+    || path.startsWith("/api/v1/providers/")
+    || path.startsWith("/api/ikhokha")
+    || path.startsWith("/api/izakhono-pay")
+    || path.startsWith("/api/payfast");
+}
+
+function fortressJsonWritePath(path){
+  return path==="/api/v1/orders"
+    || path.startsWith("/api/v1/providers/ikhokha/")
+    || path.startsWith("/api/ikhokha");
+}
+
+function fortressAllowed(req,host,path){
+  if(!FORTRESS_PROTECTOR || !fortressSensitivePath(path)) return true;
+  return consumeBucket(
+    fortressBuckets,
+    clientIp(req)+"|"+host+"|payment",
+    FORTRESS_SENSITIVE_RATE_PER_MIN,
+    FORTRESS_SENSITIVE_BURST
+  );
 }
 
 function cleanupBuckets(){
   const stale=Date.now()-10*60*1000;
   for(const [key,value] of buckets){
     if(value.at<stale) buckets.delete(key);
+  }
+  for(const [key,value] of fortressBuckets){
+    if(value.at<stale) fortressBuckets.delete(key);
   }
 }
 setInterval(cleanupBuckets,60_000).unref();
@@ -71,6 +107,7 @@ function securityHeaders(res){
   res.setHeader("permissions-policy","camera=(), microphone=(), geolocation=()");
   res.setHeader("strict-transport-security","max-age=31536000; includeSubDomains");
   res.setHeader("x-izakhono-edge","1");
+  res.setHeader("x-fortress-protector",FORTRESS_PROTECTOR?"active":"off");
 }
 
 function logAccess(entry){
@@ -92,6 +129,14 @@ function proxy(req,res){
     return send(res,400,"IZAKHONO EDGE: invalid host");
   }
 
+  const path=(req.url||"/").split("?")[0];
+
+  if(["TRACE","CONNECT"].includes((req.method||"GET").toUpperCase())){
+    securityHeaders(res);
+    logAccess({ip:clientIp(req),host,method:req.method,path:req.url,status:405,fortress:true,durationMs:Date.now()-started});
+    return send(res,405,"FORTRESS: method blocked");
+  }
+
   if(!rateAllowed(req,host)){
     securityHeaders(res);
     res.setHeader("retry-after","60");
@@ -99,11 +144,35 @@ function proxy(req,res){
     return send(res,429,"IZAKHONO EDGE: rate limit exceeded");
   }
 
+  if(!fortressAllowed(req,host,path)){
+    securityHeaders(res);
+    res.setHeader("retry-after","60");
+    logAccess({ip:clientIp(req),host,method:req.method,path:req.url,status:429,fortress:true,durationMs:Date.now()-started});
+    return send(res,429,"FORTRESS: sensitive-route rate limit exceeded");
+  }
+
   const declared=Number(req.headers["content-length"] || 0);
   if(declared>MAX_BODY){
     securityHeaders(res);
     logAccess({ip:clientIp(req),host,method:req.method,path:req.url,status:413,durationMs:Date.now()-started});
     return send(res,413,"IZAKHONO EDGE: request body too large");
+  }
+
+  if(FORTRESS_PROTECTOR && fortressSensitivePath(path) && declared>FORTRESS_SENSITIVE_MAX_BODY){
+    securityHeaders(res);
+    logAccess({ip:clientIp(req),host,method:req.method,path:req.url,status:413,fortress:true,durationMs:Date.now()-started});
+    return send(res,413,"FORTRESS: sensitive request body too large");
+  }
+
+  if(
+    FORTRESS_PROTECTOR
+    && ["POST","PUT","PATCH"].includes((req.method||"").toUpperCase())
+    && fortressJsonWritePath(path)
+    && !(req.headers["content-type"]||"").toLowerCase().startsWith("application/json")
+  ){
+    securityHeaders(res);
+    logAccess({ip:clientIp(req),host,method:req.method,path:req.url,status:415,fortress:true,durationMs:Date.now()-started});
+    return send(res,415,"FORTRESS: JSON content type required");
   }
 
   const headers={...req.headers,host};
@@ -187,6 +256,9 @@ const control=createHttpServer((req,res)=>{
       tls:true,
       rateLimitPerMinute:RATE_PER_MIN,
       maxBodyBytes:MAX_BODY,
+      fortressProtector:FORTRESS_PROTECTOR,
+      fortressSensitiveRatePerMinute:FORTRESS_SENSITIVE_RATE_PER_MIN,
+      fortressSensitiveMaxBodyBytes:FORTRESS_SENSITIVE_MAX_BODY,
       thirdPartyEdgeRequired:false
     });
     res.writeHead(200,{"content-type":"application/json","content-length":Buffer.byteLength(payload),"cache-control":"no-store"});
