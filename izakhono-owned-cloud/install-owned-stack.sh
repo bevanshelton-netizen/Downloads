@@ -41,11 +41,14 @@ install_component "IZAKHONO CI WORKER NODE" "izakhono-ci-worker-node"
 install_component "IZAKHONO BACKUP NODE" "izakhono-backup-node"
 install_component "IZAKHONO REPLICA NODE" "izakhono-replica-node"
 
-if [ -f /etc/izakhono/tls/fullchain.pem ] && [ -f /etc/izakhono/tls/privkey.pem ]; then
+if [ "${IZAKHONO_EDGE_MODE:-direct}" = "tunnel" ]; then
+  (cd "$ROOT/izakhono-edge-node" && IZAKHONO_EDGE_MODE=tunnel bash install-linux.sh)
+  EDGE_STATUS="INSTALLED_TUNNEL_ORIGIN"
+elif [ -f /etc/izakhono/tls/fullchain.pem ] && [ -f /etc/izakhono/tls/privkey.pem ]; then
   install_component "IZAKHONO EDGE NODE" "izakhono-edge-node"
-  EDGE_STATUS="INSTALLED"
+  EDGE_STATUS="INSTALLED_DIRECT_TLS"
 else
-  EDGE_STATUS="EDGE_PENDING_TLS"
+  EDGE_STATUS="EDGE_PENDING_TLS_OR_TUNNEL"
 fi
 
 echo
