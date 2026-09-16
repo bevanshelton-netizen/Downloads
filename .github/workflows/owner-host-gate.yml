@@ -1,0 +1,85 @@
+name: IZAKHONO Accessible Owner Host Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'owner-host/**'
+      - 'START-IZAKHONO-OWNER-HOST.cmd'
+      - 'izakhono-edge-node/**'
+      - 'izakhono-owned-cloud/**'
+      - 'izakhono-cloud/DEPLOY-KORA-ISN-01.ps1'
+      - '.github/workflows/owner-host-gate.yml'
+  push:
+    branches: [build/accessible-owner-host]
+    paths:
+      - 'owner-host/**'
+      - 'START-IZAKHONO-OWNER-HOST.cmd'
+      - 'izakhono-edge-node/**'
+      - 'izakhono-owned-cloud/**'
+      - 'izakhono-cloud/DEPLOY-KORA-ISN-01.ps1'
+      - '.github/workflows/owner-host-gate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+      - name: Syntax-check owner-host shell
+        run: |
+          bash -n owner-host/bootstrap-linux.sh
+          bash -n owner-host/install-cloudflare-tunnel.sh
+          bash -n owner-host/status.sh
+          bash -n izakhono-owned-cloud/install-owned-stack.sh
+          bash -n izakhono-owned-cloud/first-host-proof.sh
+          bash -n izakhono-edge-node/install-linux.sh
+          node --check izakhono-edge-node/server.mjs
+          node -e 'JSON.parse(require("fs").readFileSync("owner-host/platforms.json","utf8"))'
+      - name: Run existing EDGE and FORTRESS self-test
+        working-directory: izakhono-edge-node
+        run: npm run check
+      - name: Verify tunnel safety contract
+        run: |
+          grep -q 'TUNNEL_HOST.*127.0.0.1' izakhono-edge-node/server.mjs
+          grep -q 'IZAKHONO_EDGE_MODE=tunnel' owner-host/bootstrap-linux.sh
+          grep -q 'token-file /etc/izakhono/cloudflare-tunnel.token' owner-host/install-cloudflare-tunnel.sh
+          ! grep -R -E 'eyJ[a-zA-Z0-9_-]{30,}' owner-host
+          grep -q 'FORTRESS_PROTECTOR_MODE=active' izakhono-edge-node/install-linux.sh
+
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse owner-host PowerShell
+        shell: pwsh
+        run: |
+          $paths = @(
+            'owner-host/START-IZAKHONO-OWNER-HOST.ps1',
+            'izakhono-cloud/DEPLOY-KORA-ISN-01.ps1'
+          )
+          foreach ($path in $paths) {
+            $tokens=$null; $errors=$null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $path), [ref]$tokens, [ref]$errors
+            ) | Out-Null
+            if ($errors.Count -gt 0) {
+              $errors | ForEach-Object { Write-Error "$path : $($_.Message)" }
+              exit 1
+            }
+          }
+      - name: Verify one-click handoff
+        shell: pwsh
+        run: |
+          $cmd = Get-Content 'START-IZAKHONO-OWNER-HOST.cmd' -Raw
+          if ($cmd -notmatch 'START-IZAKHONO-OWNER-HOST.ps1') { throw 'CMD launcher target mismatch' }
+          $ps = Get-Content 'owner-host/START-IZAKHONO-OWNER-HOST.ps1' -Raw
+          if ($ps -notmatch 'Ubuntu-24.04') { throw 'Ubuntu owner-host target missing' }
+          if ($ps -notmatch 'bootstrap-linux.sh') { throw 'Linux bootstrap handoff missing' }
