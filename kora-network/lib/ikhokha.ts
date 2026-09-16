@@ -2,9 +2,8 @@ import 'server-only';
 
 import { createHmac, timingSafeEqual } from 'node:crypto';
 
-const IKHOKHA_PAYMENT_ENDPOINT = 'https://api.ikhokha.com/public-api/v1/api/payment';
-
-type PaymentKind = 'purchase' | 'ticket';
+const IKHOKHA_API_BASE = 'https://api.ikhokha.com/public-api/v1/api';
+const IKHOKHA_PAYMENT_ENDPOINT = `${IKHOKHA_API_BASE}/payment`;
 
 type CreatePaymentLinkResponse = {
   responseCode?: string;
@@ -12,6 +11,14 @@ type CreatePaymentLinkResponse = {
   paylinkUrl?: string;
   paylinkID?: string;
   externalTransactionID?: string;
+};
+
+export type IkhokhaPaymentStatus = {
+  paylinkID?: string;
+  status?: string;
+  createdAt?: string;
+  amount?: number;
+  description?: string;
 };
 
 function credentials() {
@@ -48,7 +55,6 @@ export async function createIkhokhaPaymentLink(input: {
   orderId: string;
   amount: number;
   description: string;
-  kind: PaymentKind;
   successPath: string;
   failurePath: string;
   cancelPath: string;
@@ -60,7 +66,6 @@ export async function createIkhokhaPaymentLink(input: {
   const { appId, appSecret, appUrl } = credentials();
   const endpoint = new URL(IKHOKHA_PAYMENT_ENDPOINT);
   const callback = new URL('/api/ikhokha/webhook', appUrl);
-  callback.searchParams.set('kind', input.kind);
   callback.searchParams.set('order', input.orderId);
 
   const success = new URL(input.successPath, appUrl);
@@ -116,6 +121,34 @@ export async function createIkhokhaPaymentLink(input: {
     paylinkId: payload.paylinkID,
     externalTransactionId: payload.externalTransactionID || input.orderId,
   };
+}
+
+export async function getIkhokhaPaymentStatus(paylinkId: string) {
+  const cleanId = paylinkId.trim();
+  if (!/^[A-Za-z0-9_-]+$/.test(cleanId)) throw new Error('Invalid iKhokha payment-link ID');
+
+  const { appId, appSecret } = credentials();
+  const endpoint = new URL(`${IKHOKHA_API_BASE}/getStatus/${encodeURIComponent(cleanId)}`);
+  const signature = signatureFor(endpoint.pathname, '', appSecret);
+  const response = await fetch(endpoint, {
+    method: 'GET',
+    cache: 'no-store',
+    redirect: 'error',
+    headers: {
+      accept: 'application/json',
+      'IK-APPID': appId,
+      'IK-SIGN': signature,
+    },
+  });
+
+  const payload = await response.json().catch(() => null) as IkhokhaPaymentStatus | null;
+  if (!response.ok || !payload) {
+    throw new Error(`iKhokha status check failed (${response.status})`);
+  }
+  if (payload.paylinkID && payload.paylinkID !== cleanId) {
+    throw new Error('iKhokha status response did not match the payment link');
+  }
+  return payload;
 }
 
 export function verifyIkhokhaWebhook(input: {
