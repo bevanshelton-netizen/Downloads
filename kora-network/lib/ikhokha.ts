@@ -125,6 +125,10 @@ export async function createIkhokhaPaymentLink(input: {
     throw new Error(payload?.message || `iKhokha checkout failed (${response.status})`);
   }
 
+  if (payload.externalTransactionID && payload.externalTransactionID !== input.orderId) {
+    throw new Error('iKhokha checkout reference mismatch');
+  }
+
   const paylinkId = cleanPaylinkId(payload.paylinkID);
   const paylink = new URL(payload.paylinkUrl);
   if (paylink.protocol !== 'https:' || paylink.hostname !== 'securepay.ikhokha.red') {
@@ -158,8 +162,11 @@ export async function getIkhokhaPaymentStatus(paylinkId: string) {
   if (!response.ok || !payload) {
     throw new Error(`iKhokha status check failed (${response.status})`);
   }
-  if (payload.paylinkID && payload.paylinkID !== cleanId) {
+  if (!payload.paylinkID || payload.paylinkID !== cleanId) {
     throw new Error('iKhokha status response did not match the payment link');
+  }
+  if (!Number.isFinite(Number(payload.amount))) {
+    throw new Error('iKhokha status response did not contain a valid amount');
   }
   return payload;
 }
