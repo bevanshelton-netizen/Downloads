@@ -3,14 +3,14 @@
 
 Purpose:
 - one payment/product API for all Izakhono platforms;
-- keep bank and API secrets out of source control;
-- create unique EFT references and pending orders;
-- confirm received EFTs only from an owner-side CLI command;
+- keep provider, bank and API secrets out of source control;
+- use iKhokha iK Pay API as the primary one-time online payment rail;
+- retain direct merchant EFT as a controlled fallback;
+- verify provider settlement before activating a platform entitlement;
 - emit a signed platform callback after confirmed receipt.
 
-This service is non-custodial orchestration. Money settles directly into the
-configured merchant bank account. Card/acquirer rails can be added behind the
-same order contract later without changing platform integrations.
+This service is non-custodial orchestration. Money settles through the configured
+merchant provider/account; IZAKHONO PAY never captures card data.
 """
 from __future__ import annotations
 
@@ -29,6 +29,8 @@ import urllib.request
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+
+import ikhokha_provider as ik
 
 APP_DIR = Path(__file__).resolve().parent
 REGISTRY_PATH = APP_DIR / "products.json"
@@ -81,11 +83,21 @@ def init_db(path: Path | None = None) -> None:
           created_at TEXT NOT NULL,
           paid_at TEXT,
           bank_reference TEXT,
-          callback_delivered_at TEXT
+          callback_delivered_at TEXT,
+          provider TEXT NOT NULL DEFAULT 'eft',
+          provider_payment_id TEXT,
+          provider_status TEXT
         );
         CREATE INDEX IF NOT EXISTS orders_platform_idx ON orders(platform,created_at);
         CREATE INDEX IF NOT EXISTS orders_reference_idx ON orders(payment_reference,status);
         """)
+        columns = {row["name"] for row in c.execute("PRAGMA table_info(orders)").fetchall()}
+        if "provider" not in columns:
+            c.execute("ALTER TABLE orders ADD COLUMN provider TEXT NOT NULL DEFAULT 'eft'")
+        if "provider_payment_id" not in columns:
+            c.execute("ALTER TABLE orders ADD COLUMN provider_payment_id TEXT")
+        if "provider_status" not in columns:
+            c.execute("ALTER TABLE orders ADD COLUMN provider_status TEXT")
 
 
 def load_registry() -> dict:
@@ -136,6 +148,43 @@ def callback_url_for(platform: str) -> str:
     if parsed.scheme != "https" or not parsed.netloc or parsed.username or parsed.password:
         raise ValueError("callback URL must be HTTPS")
     return url
+
+
+def public_base_url() -> str:
+    raw = os.environ.get("IZAKHONO_PAY_PUBLIC_BASE_URL", "").strip().rstrip("/")
+    if not raw:
+        raise ValueError("IZAKHONO_PAY_PUBLIC_BASE_URL is not configured")
+    parsed = urllib.parse.urlsplit(raw)
+    if parsed.scheme != "https" or not parsed.netloc or parsed.username or parsed.password or parsed.query or parsed.fragment:
+        raise ValueError("IZAKHONO PAY public base URL must be HTTPS")
+    return raw
+
+
+def return_urls() -> dict[str, str]:
+    raw = os.environ.get("IZAKHONO_PAY_RETURN_URLS_JSON", "").strip()
+    if not raw:
+        return {}
+    value = json.loads(raw)
+    if not isinstance(value, dict):
+        raise ValueError("IZAKHONO_PAY_RETURN_URLS_JSON must be an object")
+    return {str(k): str(v).strip() for k, v in value.items() if str(v).strip()}
+
+
+def return_url_for(platform: str, order_id: str, status: str) -> str:
+    target = return_urls().get(platform, "")
+    if target:
+        parsed = urllib.parse.urlsplit(target)
+        if parsed.scheme != "https" or not parsed.netloc or parsed.username or parsed.password:
+            raise ValueError("platform return URL must be HTTPS")
+        query = urllib.parse.parse_qsl(parsed.query, keep_blank_values=True)
+        query.extend([("order", order_id), ("payment", status)])
+        return urllib.parse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path, urllib.parse.urlencode(query), ""))
+    base = public_base_url()
+    return f"{base}/payment/return?{urllib.parse.urlencode({'order': order_id, 'payment': status})}"
+
+
+def eft_fallback_enabled() -> bool:
+    return os.environ.get("IZAKHONO_PAY_EFT_FALLBACK", "true").strip().lower() in {"1", "true", "yes", "on"}
 
 
 def bank_details() -> dict[str, str]:
@@ -218,6 +267,8 @@ def confirm_order(order_id: str, bank_reference: str, path: Path | None = None) 
             row = c.execute("SELECT * FROM orders WHERE order_id=?",(order_id,)).fetchone()
             if row is None:
                 raise ValueError("order not found")
+            if row["provider"] != "eft":
+                raise ValueError("manual confirmation is only allowed for EFT orders")
             if row["status"] != "paid":
                 c.execute("UPDATE orders SET status='paid',paid_at=?,bank_reference=? WHERE order_id=?",(iso(),bank_reference,order_id))
             row = c.execute("SELECT * FROM orders WHERE order_id=?",(order_id,)).fetchone()
@@ -227,6 +278,91 @@ def confirm_order(order_id: str, bank_reference: str, path: Path | None = None) 
             raise
     assert row is not None
     return row
+
+
+def set_order_provider(order_id: str, provider: str, provider_payment_id: str = "", provider_status: str = "", path: Path | None = None) -> sqlite3.Row:
+    with connect(path) as c:
+        c.execute(
+            "UPDATE orders SET provider=?,provider_payment_id=?,provider_status=? WHERE order_id=? AND status='pending'",
+            (provider, provider_payment_id or None, provider_status or None, order_id),
+        )
+        row = c.execute("SELECT * FROM orders WHERE order_id=?", (order_id,)).fetchone()
+    if row is None:
+        raise ValueError("order not found")
+    return row
+
+
+def mark_ikhokha_failed(order_id: str, paylink_id: str, path: Path | None = None) -> sqlite3.Row:
+    with connect(path) as c:
+        c.execute(
+            "UPDATE orders SET status='failed',provider_status='FAILURE' "
+            "WHERE order_id=? AND provider='ikhokha' AND provider_payment_id=? AND status='pending'",
+            (order_id, paylink_id),
+        )
+        row = c.execute("SELECT * FROM orders WHERE order_id=?", (order_id,)).fetchone()
+    if row is None:
+        raise ValueError("order not found")
+    return row
+
+
+def mark_ikhokha_paid(order_id: str, paylink_id: str, path: Path | None = None) -> sqlite3.Row:
+    with connect(path) as c:
+        c.execute("BEGIN IMMEDIATE")
+        try:
+            row = c.execute("SELECT * FROM orders WHERE order_id=?", (order_id,)).fetchone()
+            if row is None:
+                raise ValueError("order not found")
+            if row["provider"] != "ikhokha" or row["provider_payment_id"] != paylink_id:
+                raise ValueError("iKhokha payment-link mismatch")
+            if row["status"] == "pending":
+                c.execute(
+                    "UPDATE orders SET status='paid',paid_at=?,bank_reference=?,provider_status='PAID' WHERE order_id=?",
+                    (iso(), f"IKHOKHA:{paylink_id}", order_id),
+                )
+            row = c.execute("SELECT * FROM orders WHERE order_id=?", (order_id,)).fetchone()
+            c.execute("COMMIT")
+        except Exception:
+            c.execute("ROLLBACK")
+            raise
+    assert row is not None
+    return row
+
+
+def reconcile_ikhokha_order(row: sqlite3.Row, path: Path | None = None) -> sqlite3.Row:
+    if row["provider"] != "ikhokha" or not row["provider_payment_id"] or row["status"] != "pending":
+        return row
+    status = ik.get_payment_status(row["provider_payment_id"])
+    if status["amount_minor"] != row["amount_minor"]:
+        raise ValueError("iKhokha payment amount mismatch")
+    if status["status"] == "PAID":
+        paid = mark_ikhokha_paid(row["order_id"], row["provider_payment_id"], path)
+        try:
+            deliver_callback(paid, path)
+        except Exception:
+            pass
+        return paid
+    with connect(path) as c:
+        c.execute("UPDATE orders SET provider_status=? WHERE order_id=?", (status["status"] or None, row["order_id"]))
+        refreshed = c.execute("SELECT * FROM orders WHERE order_id=?", (row["order_id"],)).fetchone()
+    assert refreshed is not None
+    return refreshed
+
+
+def create_ikhokha_checkout(row: sqlite3.Row, path: Path | None = None) -> tuple[sqlite3.Row, dict]:
+    product = product_for(row["platform"], row["product_code"])
+    base = public_base_url()
+    callback = f"{base}/api/v1/providers/ikhokha/webhook?{urllib.parse.urlencode({'order': row['order_id']})}"
+    checkout = ik.create_payment_link(
+        order_id=row["order_id"],
+        amount_minor=row["amount_minor"],
+        description=f"{load_registry()[row['platform']].get('display_name') or row['platform']}: {product.get('name') or row['product_code']}",
+        callback_url=callback,
+        success_url=return_url_for(row["platform"], row["order_id"], "success"),
+        failure_url=return_url_for(row["platform"], row["order_id"], "failed"),
+        cancel_url=return_url_for(row["platform"], row["order_id"], "cancelled"),
+    )
+    linked = set_order_provider(row["order_id"], "ikhokha", checkout["paylink_id"], "CREATED", path)
+    return linked, checkout
 
 
 def callback_event_id(order_id: str) -> str:
@@ -296,12 +432,24 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("X-Content-Type-Options","nosniff")
         self.end_headers(); self.wfile.write(raw)
 
-    def read_json(self) -> dict:
+    def read_raw(self) -> bytes:
         n=int(self.headers.get("Content-Length","0") or "0")
         if n<=0 or n>MAX_BODY: raise ValueError("invalid request body")
-        value=json.loads(self.rfile.read(n).decode())
+        return self.rfile.read(n)
+
+    def read_json(self) -> dict:
+        value=json.loads(self.read_raw().decode())
         if not isinstance(value,dict): raise ValueError("JSON object required")
         return value
+
+    def send_html(self,status:int,body:str) -> None:
+        raw=body.encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type","text/html; charset=utf-8")
+        self.send_header("Content-Length",str(len(raw)))
+        self.send_header("Cache-Control","no-store")
+        self.send_header("X-Content-Type-Options","nosniff")
+        self.end_headers(); self.wfile.write(raw)
 
     def authenticate(self) -> str:
         platform=self.headers.get("x-izakhono-app","").strip().lower()
@@ -314,7 +462,14 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):  # noqa: N802
         parsed=urllib.parse.urlsplit(self.path)
         if parsed.path=="/health":
-            self.send_json(200,{"ok":True,"service":"izakhono-pay","mode":"shared-group-gateway"}); return
+            self.send_json(200,{"ok":True,"service":"izakhono-pay","mode":"shared-group-gateway","primary_provider":"ikhokha" if ik.configured() else "eft"}); return
+        if parsed.path=="/payment/return":
+            q=urllib.parse.parse_qs(parsed.query)
+            status=(q.get("payment") or ["pending"])[0]
+            order=(q.get("order") or [""])[0]
+            headline={"success":"Payment submitted","failed":"Payment was not completed","cancelled":"Checkout cancelled"}.get(status,"Payment status")
+            note="Your platform will unlock the purchase only after secure provider confirmation." if status=="success" else "You can return to the platform and try again."
+            self.send_html(200,f"<!doctype html><html><head><meta name='viewport' content='width=device-width,initial-scale=1'><title>IZAKHONO PAY</title></head><body style='font-family:system-ui;max-width:680px;margin:12vh auto;padding:24px'><h1>{headline}</h1><p>{note}</p><p><small>Order {order}</small></p></body></html>"); return
         if parsed.path=="/api/v1/products":
             try:
                 platform=self.authenticate(); cfg=load_registry()[platform]
@@ -327,14 +482,55 @@ class Handler(BaseHTTPRequestHandler):
                 platform=self.authenticate(); q=urllib.parse.parse_qs(parsed.query); order_id=(q.get("order") or [""])[0]
                 row=get_order(order_id)
                 if row is None or row["platform"]!=platform: raise ValueError("order not found")
-                self.send_json(200,{"ok":True,"order":{"id":row["order_id"],"status":row["status"],"product_code":row["product_code"],"amount_minor":row["amount_minor"],"currency":row["currency"],"payment_reference":row["payment_reference"]}})
+                if row["provider"]=="ikhokha" and row["status"]=="pending":
+                    try: row=reconcile_ikhokha_order(row)
+                    except (ik.IkhokhaError,ValueError): pass
+                if row["status"]=="paid" and not row["callback_delivered_at"]:
+                    try: deliver_callback(row)
+                    except Exception: pass
+                self.send_json(200,{"ok":True,"order":{"id":row["order_id"],"status":row["status"],"product_code":row["product_code"],"amount_minor":row["amount_minor"],"currency":row["currency"],"payment_reference":row["payment_reference"],"provider":row["provider"],"provider_status":row["provider_status"]}})
             except PermissionError as exc: self.send_json(401,{"error":str(exc)})
             except ValueError as exc: self.send_json(404,{"error":str(exc)})
             return
         self.send_json(404,{"error":"not found"})
 
     def do_POST(self):  # noqa: N802
-        if urllib.parse.urlsplit(self.path).path!="/api/v1/orders":
+        parsed=urllib.parse.urlsplit(self.path)
+        if parsed.path=="/api/v1/providers/ikhokha/webhook":
+            try:
+                raw=self.read_raw()
+                if not ik.verify_webhook(
+                    request_path=parsed.path,
+                    raw_body=raw,
+                    app_id_header=self.headers.get("IK-APPID"),
+                    signature_header=self.headers.get("IK-SIGN"),
+                ):
+                    self.send_json(403,{"error":"invalid iKhokha signature"}); return
+                payload=json.loads(raw.decode("utf-8"))
+                if not isinstance(payload,dict): raise ValueError("invalid callback payload")
+                order_id=(urllib.parse.parse_qs(parsed.query).get("order") or [""])[0]
+                row=get_order(order_id)
+                if row is None or row["provider"]!="ikhokha": raise ValueError("unknown order")
+                paylink_id=str(payload.get("paylinkID") or "")
+                external_id=str(payload.get("externalTransactionID") or "")
+                if paylink_id!=row["provider_payment_id"] or external_id!=order_id:
+                    raise ValueError("iKhokha callback reference mismatch")
+                provider_status=str(payload.get("status") or "").upper()
+                if provider_status=="SUCCESS":
+                    status=ik.get_payment_status(paylink_id)
+                    if status["paylink_id"]!=paylink_id or status["amount_minor"]!=row["amount_minor"] or status["status"]!="PAID":
+                        self.send_json(409,{"error":"payment not yet confirmed"}); return
+                    paid=mark_ikhokha_paid(order_id,paylink_id)
+                    try: deliver_callback(paid)
+                    except Exception: pass
+                    self.send_json(200,{"ok":True}); return
+                if provider_status=="FAILURE":
+                    mark_ikhokha_failed(order_id,paylink_id)
+                    self.send_json(200,{"ok":True}); return
+                raise ValueError("unsupported iKhokha payment status")
+            except (ik.IkhokhaError,ValueError,json.JSONDecodeError) as exc:
+                self.send_json(400,{"error":str(exc)}); return
+        if parsed.path!="/api/v1/orders":
             self.send_json(404,{"error":"not found"}); return
         try:
             platform=self.authenticate(); body=self.read_json()
@@ -343,8 +539,18 @@ class Handler(BaseHTTPRequestHandler):
             email=clean_email(body.get("customer_email"))
             ref=str(body.get("customer_reference") or "").strip()[:100]
             row=create_order(platform,product_code,name,email,ref)
+            if ik.configured():
+                try:
+                    linked,checkout=create_ikhokha_checkout(row)
+                    self.send_json(201,{"ok":True,"order":{"id":linked["order_id"],"status":"pending","product_code":linked["product_code"],"amount_minor":linked["amount_minor"],"currency":linked["currency"],"payment_method":"ikhokha","provider":"ikhokha","provider_payment_id":linked["provider_payment_id"],"redirect_url":checkout["redirect_url"],"instructions":"Continue to iKhokha secure checkout. Access/service activation occurs only after verified provider confirmation."}}); return
+                except (ik.IkhokhaError,ValueError):
+                    if not eft_fallback_enabled():
+                        set_order_provider(row["order_id"],"ikhokha","","ERROR")
+                        with connect() as c: c.execute("UPDATE orders SET status='failed' WHERE order_id=?",(row["order_id"],))
+                        self.send_json(502,{"error":"secure online checkout is temporarily unavailable"}); return
+                    row=set_order_provider(row["order_id"],"eft","","FALLBACK")
             bank=bank_details()
-            self.send_json(201,{"ok":True,"order":{"id":row["order_id"],"status":"pending","product_code":row["product_code"],"amount_minor":row["amount_minor"],"currency":row["currency"],"payment_method":"eft","payment_reference":row["payment_reference"],"bank":bank,"instructions":"Pay the exact amount using the unique payment reference. Access/service activation occurs only after bank receipt verification."}})
+            self.send_json(201,{"ok":True,"order":{"id":row["order_id"],"status":"pending","product_code":row["product_code"],"amount_minor":row["amount_minor"],"currency":row["currency"],"payment_method":"eft","provider":"eft","payment_reference":row["payment_reference"],"bank":bank,"instructions":"Pay the exact amount using the unique payment reference. Access/service activation occurs only after bank receipt verification."}})
         except PermissionError as exc: self.send_json(401,{"error":str(exc)})
         except (ValueError,json.JSONDecodeError) as exc: self.send_json(400,{"error":str(exc)})
 
