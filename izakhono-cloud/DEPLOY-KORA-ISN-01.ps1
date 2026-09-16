@@ -10,7 +10,7 @@ $EngineProof = Join-Path $State "ENGINE-PROOF.json"
 $EnvFile = Join-Path $State "KORA.env"
 $EnvTemplate = Join-Path $State "KORA.env.template"
 $Receipt = Join-Path $State "KORA-CUTOVER.json"
-$Pinned = "412aed59d2cd372ec243f951c466246e2c0f9338"
+$SourceRef = "main"
 
 function Fail([string]$Message) {
     Write-Host "FAIL: $Message" -ForegroundColor Red
@@ -33,7 +33,7 @@ if ($proof.public_ready -ne $false -or $proof.commercial_ready -ne $false) {
 }
 
 if (-not (Test-Path $EnvFile)) {
-    Invoke-WebRequest -UseBasicParsing "https://raw.githubusercontent.com/bevanshelton-netizen/Downloads/$Pinned/kora-network/.env.example" -OutFile $EnvTemplate
+    Invoke-WebRequest -UseBasicParsing "https://raw.githubusercontent.com/bevanshelton-netizen/Downloads/main/kora-network/.env.example" -OutFile $EnvTemplate
     Write-Host "KORA owner-host environment is not present." -ForegroundColor Yellow
     Write-Host "A secret-free template was written to: $EnvTemplate"
     Write-Host "Create $EnvFile from that template using the already-approved KORA runtime values, then rerun this launcher."
@@ -53,7 +53,7 @@ Write-Host "Deploying KORA as an owner-hosted private beta with live-money gates
 $bash = @'
 set -euo pipefail
 
-PINNED="__PINNED__"
+SOURCE_REF="__SOURCE_REF__"
 ROOT="$HOME/izakhono-fleet"
 REPO="$ROOT/Downloads"
 SOURCE_ENV="/tmp/kora-isn01-owner.env"
@@ -79,8 +79,15 @@ if [ -n "$(git status --porcelain)" ]; then
   exit 3
 fi
 
-git fetch origin "$PINNED"
-git checkout --detach "$PINNED"
+git fetch origin "$SOURCE_REF"
+RESOLVED="$(git rev-parse "origin/$SOURCE_REF")"
+git checkout --detach "$RESOLVED"
+
+cd "$REPO/kora-network"
+npm install --no-audit --no-fund
+npm run typecheck
+npm run build
+cd "$REPO"
 
 python3 - "$SOURCE_ENV" "$SAFE_ENV" <<'PY'
 from pathlib import Path
@@ -115,12 +122,12 @@ target.write_text("\n".join(out)+"\n",encoding="utf-8")
 target.chmod(0o600)
 PY
 
-KORA_ENV_FILE="$SAFE_ENV" GITHUB_SHA="$PINNED" sh kora-network/scripts/izakhono-production-cutover.sh
+KORA_ENV_FILE="$SAFE_ENV" GITHUB_SHA="$RESOLVED" sh kora-network/scripts/izakhono-production-cutover.sh
 
 HEALTH="$(curl -fsS http://127.0.0.1:18107/api/health)"
 printf '%s' "$HEALTH" | grep -q '"ok":true'
 
-python3 - "$PINNED" "$HEALTH" <<'PY' > "$ROOT/kora-cutover.json"
+python3 - "$RESOLVED" "$HEALTH" <<'PY' > "$ROOT/kora-cutover.json"
 import datetime, json, sys
 health=json.loads(sys.argv[2])
 print(json.dumps({
@@ -144,7 +151,7 @@ PY
 cat "$ROOT/kora-cutover.json"
 '@
 
-$bash = $bash.Replace("__PINNED__", $Pinned)
+$bash = $bash.Replace("__SOURCE_REF__", $SourceRef)
 $tmp = Join-Path $env:TEMP "izakhono-kora-isn01-cutover.sh"
 Set-Content -Path $tmp -Value $bash -Encoding UTF8
 $linuxTmp = "/tmp/izakhono-kora-isn01-cutover.sh"
