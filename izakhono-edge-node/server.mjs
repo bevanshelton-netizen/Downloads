@@ -4,8 +4,11 @@ import { appendFileSync, mkdirSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { timingSafeEqual } from "node:crypto";
 
+const INGRESS_MODE=(process.env.IZAKHONO_EDGE_MODE || "direct").toLowerCase();
 const HTTP_HOST=process.env.HTTP_HOST || "0.0.0.0";
 const HTTP_PORT=Number(process.env.HTTP_PORT || 80);
+const TUNNEL_HOST=process.env.TUNNEL_HOST || "127.0.0.1";
+const TUNNEL_PORT=Number(process.env.TUNNEL_PORT || 8780);
 const HTTPS_HOST=process.env.HTTPS_HOST || "0.0.0.0";
 const HTTPS_PORT=Number(process.env.HTTPS_PORT || 443);
 const CONTROL_HOST=process.env.CONTROL_HOST || "127.0.0.1";
@@ -37,6 +40,10 @@ function secureEqual(a,b){
 }
 
 function clientIp(req){
+  if(INGRESS_MODE==="tunnel"){
+    const cf=req.headers["cf-connecting-ip"];
+    if(typeof cf==="string" && /^[0-9a-f:.]+$/i.test(cf)) return cf;
+  }
   return req.socket.remoteAddress || "unknown";
 }
 
@@ -235,16 +242,26 @@ function loadTls(){
   return {cert:readFileSync(TLS_CERT),key:readFileSync(TLS_KEY),minVersion:"TLSv1.2"};
 }
 
-const httpsServer=createHttpsServer(loadTls(),proxy);
+let httpsServer=null;
+let httpServer=null;
+let tunnelServer=null;
 
-const httpServer=createHttpServer((req,res)=>{
-  const host=normalizedHost(req);
-  if(!host) return send(res,400,"IZAKHONO EDGE: invalid host");
-  const port=HTTPS_PORT===443?"":":"+HTTPS_PORT;
-  const location="https://"+host+port+(req.url||"/");
-  res.writeHead(308,{location,"cache-control":"no-store"});
-  res.end();
-});
+if(INGRESS_MODE==="tunnel"){
+  tunnelServer=createHttpServer(proxy);
+  tunnelServer.listen(TUNNEL_PORT,TUNNEL_HOST,()=>console.log(`IZAKHONO EDGE tunnel origin: http://${TUNNEL_HOST}:${TUNNEL_PORT}`));
+}else{
+  httpsServer=createHttpsServer(loadTls(),proxy);
+  httpServer=createHttpServer((req,res)=>{
+    const host=normalizedHost(req);
+    if(!host) return send(res,400,"IZAKHONO EDGE: invalid host");
+    const port=HTTPS_PORT===443?"":":"+HTTPS_PORT;
+    const location="https://"+host+port+(req.url||"/");
+    res.writeHead(308,{location,"cache-control":"no-store"});
+    res.end();
+  });
+  httpsServer.listen(HTTPS_PORT,HTTPS_HOST,()=>console.log(`IZAKHONO EDGE HTTPS: ${HTTPS_HOST}:${HTTPS_PORT}`));
+  httpServer.listen(HTTP_PORT,HTTP_HOST,()=>console.log(`IZAKHONO EDGE HTTP redirect: ${HTTP_HOST}:${HTTP_PORT}`));
+}
 
 const control=createHttpServer((req,res)=>{
   const url=new URL(req.url||"/","http://localhost");
@@ -253,7 +270,9 @@ const control=createHttpServer((req,res)=>{
       product:"IZAKHONO EDGE NODE",
       status:"healthy",
       runtimeUpstream:`${RUNTIME_HOST}:${RUNTIME_PORT}`,
-      tls:true,
+      tls:INGRESS_MODE!=="tunnel",
+      ingressMode:INGRESS_MODE,
+      tunnelOrigin:INGRESS_MODE==="tunnel"?`http://${TUNNEL_HOST}:${TUNNEL_PORT}`:null,
       rateLimitPerMinute:RATE_PER_MIN,
       maxBodyBytes:MAX_BODY,
       fortressProtector:FORTRESS_PROTECTOR,
@@ -270,6 +289,7 @@ const control=createHttpServer((req,res)=>{
   }
 
   if(req.method==="POST" && url.pathname==="/v1/reload-tls"){
+    if(INGRESS_MODE==="tunnel" || !httpsServer) return send(res,409,"TLS is terminated by the configured tunnel ingress");
     try{
       httpsServer.setSecureContext(loadTls());
       return send(res,200,"TLS reloaded");
@@ -282,6 +302,4 @@ const control=createHttpServer((req,res)=>{
   return send(res,404,"Not found");
 });
 
-httpsServer.listen(HTTPS_PORT,HTTPS_HOST,()=>console.log(`IZAKHONO EDGE HTTPS: ${HTTPS_HOST}:${HTTPS_PORT}`));
-httpServer.listen(HTTP_PORT,HTTP_HOST,()=>console.log(`IZAKHONO EDGE HTTP redirect: ${HTTP_HOST}:${HTTP_PORT}`));
 control.listen(CONTROL_PORT,CONTROL_HOST,()=>console.log(`IZAKHONO EDGE control: ${CONTROL_HOST}:${CONTROL_PORT}`));
