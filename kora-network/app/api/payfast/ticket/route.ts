@@ -3,7 +3,6 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { buildTicketCheckout } from '@/lib/payfast';
 import { buildIzakhonoPayCheckout, useIzakhonoPay } from '@/lib/izakhono-pay';
-import { createIkhokhaPaymentLink, useIkhokha } from '@/lib/ikhokha';
 
 export async function POST(request: Request) {
   const mode = process.env.KORA_TICKET_CHECKOUT_MODE || 'off';
@@ -22,9 +21,7 @@ export async function POST(request: Request) {
     }
   }
 
-  const useLiveIkhokha = mode === 'live' && useIkhokha();
-
-  if (mode === 'live' && !useLiveIkhokha) {
+  if (mode === 'live') {
     if (useIzakhonoPay()) {
       if (process.env.KORA_IZAKHONO_PAY_LIVE_APPROVED !== 'true') {
         return NextResponse.json({ error: 'IZAKHONO PAY live ticket payments are not approved' }, { status: 503 });
@@ -46,18 +43,6 @@ export async function POST(request: Request) {
   }
 
   const admin = createAdminClient();
-
-  if (useLiveIkhokha) {
-    const providerUpdate = await admin.from('ticket_orders')
-      .update({ provider: 'ikhokha' })
-      .eq('id', reserved.data)
-      .eq('status', 'pending');
-    if (providerUpdate.error) {
-      await admin.rpc('release_ticket_order', { p_order_id: reserved.data, p_status: 'cancelled' });
-      return NextResponse.json({ error: 'Could not prepare iKhokha ticket checkout' }, { status: 500 });
-    }
-  }
-
   const { data: order } = await admin.from('ticket_orders')
     .select('id,total_amount,event_id,tier_id')
     .eq('id', reserved.data)
@@ -72,21 +57,8 @@ export async function POST(request: Request) {
 
   try {
     const title = `${event.title} — ${tier.name}`;
-    const safeSlug = encodeURIComponent(event.slug);
-
-    if (useLiveIkhokha) {
-      return NextResponse.json(await createIkhokhaPaymentLink({
-        orderId: order.id,
-        amount: Number(order.total_amount),
-        description: `KORA Ticket: ${title}`,
-        kind: 'ticket',
-        successPath: `/tickets/${safeSlug}?payment=success`,
-        failurePath: `/tickets/${safeSlug}?payment=failed`,
-        cancelPath: `/tickets/${safeSlug}?payment=cancelled`,
-      }));
-    }
-
     if (useIzakhonoPay()) {
+      const safeSlug = encodeURIComponent(event.slug);
       return NextResponse.json(await buildIzakhonoPayCheckout({
         orderId: order.id,
         email: user.email,
@@ -98,7 +70,6 @@ export async function POST(request: Request) {
         metadata: { event_slug: event.slug, tier_id: order.tier_id, quantity },
       }));
     }
-
     return NextResponse.json(buildTicketCheckout({
       orderId: order.id,
       email: user.email,
