@@ -1,0 +1,14 @@
+{
+  "schema": "izakhono.owner-host-platforms/v1",
+  "edgeOrigin": "http://127.0.0.1:8780",
+  "routing": "hostname-through-IZAKHONO-EDGE-to-RUNTIME",
+  "platforms": [
+    {"id":"kora-network","hostnameEnv":"KORA_PUBLIC_HOST","deploy":"izakhono-cloud/DEPLOY-KORA-ISN-01.ps1"},
+    {"id":"auto-ai","hostnameEnv":"AUTO_AI_PUBLIC_HOST","deploy":"izakhono-owned-cloud/deploy-auto-ai.sh"},
+    {"id":"faisready","hostnameEnv":"FAISREADY_PUBLIC_HOST","deploy":"izakhono-cloud/DEPLOY-FAISREADY-ISN-01.ps1"},
+    {"id":"ecd360","hostnameEnv":"ECD360_PUBLIC_HOST","deploy":"izakhono-cloud/DEPLOY-ECD360-ISN-01.ps1"},
+    {"id":"allegro-vibez","hostnameEnv":"ALLEGRO_PUBLIC_HOST","deploy":"izakhono-cloud/DEPLOY-ALLEGRO-ISN-01.ps1"},
+    {"id":"the-chancellor","hostnameEnv":"CHANCELLOR_PUBLIC_HOST","deploy":"izakhono-cloud/DEPLOY-CHANCELLOR-ISN-01.ps1"},
+    {"id":"izakhono-pay","hostnameEnv":"IZAKHONO_PAY_PUBLIC_HOST","deploy":"izakhono-owned-cloud/go-live-izakhono-pay.sh"}
+  ]
+}
