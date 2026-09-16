@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { brand } from '@/lib/brand';
 import { featured, channels } from '@/lib/catalog';
@@ -10,6 +11,13 @@ const genres = [
   ['⚽', 'Sport & Culture'],
   ['✨', 'Faith & Family'],
   ['🌍', 'African Stories'],
+];
+
+const programmeArt = [
+  '/images/kora-original-drama.webp',
+  '/images/kora-programme-montage.webp',
+  '/images/kora-live-music.webp',
+  '/images/kora-hero-entertainment.webp',
 ];
 
 export default function Home() {
@@ -29,7 +37,15 @@ export default function Home() {
           </div>
         </div>
         <div className={styles.stage} aria-label="KORA entertainment universe">
-          <div className={styles.orb} aria-hidden="true" />
+          <Image
+            src="/images/kora-hero-entertainment.webp"
+            alt="African actors, musicians, creators and a family enjoying the KORA entertainment experience"
+            fill
+            priority
+            sizes="(max-width: 980px) 94vw, 48vw"
+            className={styles.heroImage}
+          />
+          <div className={styles.heroShade} aria-hidden="true" />
           <div className={`${styles.floatCard} ${styles.one}`}><small>KORA ORIGINALS</small><strong>Stories that feel like home.</strong></div>
           <div className={`${styles.floatCard} ${styles.two}`}><small>LIVE & LOUD</small><strong>Africa&apos;s sound. One stage.</strong></div>
           <div className={`${styles.floatCard} ${styles.three}`}><small>CREATOR TV</small><strong>Publish. Grow. Participate.</strong></div>
@@ -48,7 +64,7 @@ export default function Home() {
 
       <section className={styles.section}>
         <header className={styles.sectionHead}><div className={styles.eyebrow}>FEATURED NOW</div><h2>Big feeling. New voices.</h2><p>Discover the mix KORA is built for—from short drama and music to faith, family and creator-led entertainment.</p></header>
-        <div className={styles.showGrid}>{featured.map((show) => <article className={styles.show} key={show.title}>{show.badge ? <small>{show.badge}</small> : <small>{show.genre}</small>}<h3>{show.title}</h3><p>{show.description}</p></article>)}</div>
+        <div className={styles.showGrid}>{featured.map((show, index) => <article className={styles.show} key={show.title}><Image src={programmeArt[index]} alt="" fill sizes="(max-width: 580px) 92vw, (max-width: 980px) 46vw, 23vw" className={styles.showImage} /><div className={styles.showShade} /><div className={styles.showCopy}>{show.badge ? <small>{show.badge}</small> : <small>{show.genre}</small>}<h3>{show.title}</h3><p>{show.description}</p><span>{show.format} • {show.language}</span></div></article>)}</div>
         <div className={styles.actions}><Link className={styles.primary} href="/watch">Browse On Demand</Link></div>
       </section>
 
