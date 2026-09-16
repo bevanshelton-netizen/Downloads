@@ -52,3 +52,4 @@ probe BACKUP http://127.0.0.1:8870/health
 probe CI_WORKER http://127.0.0.1:8880/health
 probe REPLICA http://127.0.0.1:8890/health
 probe EDGE http://127.0.0.1:8795/health
+probe FORTRESS http://127.0.0.1:18109/health
