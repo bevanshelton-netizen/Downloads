@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { buildPurchaseCheckout } from '@/lib/payfast';
 import { buildIzakhonoPayCheckout, useIzakhonoPay } from '@/lib/izakhono-pay';
 import { createIkhokhaPaymentLink, useIkhokha } from '@/lib/ikhokha';
+import { reconcileIkhokhaPurchase } from '@/lib/ikhokha-purchase';
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -40,9 +41,10 @@ export async function POST(request: Request) {
 
   if (complete) return NextResponse.json({ alreadyOwned: true, redirect: `/watch/${production.slug}` });
 
-  const paymentProvider = useIkhokha() ? 'ikhokha' : 'payfast';
+  const ikhokhaEnabled = useIkhokha();
+  const paymentProvider = ikhokhaEnabled ? 'ikhokha' : 'payfast';
   const { data: existingPending } = await admin.from('purchases')
-    .select('id,amount,provider')
+    .select('id,amount,provider,provider_payment_id')
     .eq('user_id', user.id)
     .eq('production_id', production.id)
     .eq('status', 'pending')
@@ -50,9 +52,30 @@ export async function POST(request: Request) {
     .limit(1)
     .maybeSingle();
 
+  if (
+    ikhokhaEnabled &&
+    existingPending?.provider === 'ikhokha' &&
+    existingPending.provider_payment_id
+  ) {
+    try {
+      if (await reconcileIkhokhaPurchase(existingPending.id)) {
+        return NextResponse.json({ alreadyOwned: true, redirect: `/watch/${production.slug}` });
+      }
+    } catch {
+      // A stale/incomplete paylink should not block a fresh checkout attempt.
+    }
+
+    await admin.from('purchases')
+      .update({ status: 'failed' })
+      .eq('id', existingPending.id)
+      .eq('provider', 'ikhokha')
+      .eq('status', 'pending');
+  }
+
   let purchase = existingPending;
   if (
     !purchase ||
+    (ikhokhaEnabled && Boolean(purchase.provider_payment_id)) ||
     purchase.provider !== paymentProvider ||
     Math.abs(Number(purchase.amount) - amount) > 0.01
   ) {
@@ -63,7 +86,7 @@ export async function POST(request: Request) {
       currency: 'ZAR',
       provider: paymentProvider,
       status: 'pending',
-    }).select('id,amount,provider').single();
+    }).select('id,amount,provider,provider_payment_id').single();
 
     if (created.error || !created.data) {
       return NextResponse.json({ error: created.error?.message || 'Could not create purchase' }, { status: 500 });
@@ -74,16 +97,29 @@ export async function POST(request: Request) {
   try {
     const safeSlug = encodeURIComponent(production.slug);
 
-    if (useIkhokha()) {
-      return NextResponse.json(await createIkhokhaPaymentLink({
+    if (ikhokhaEnabled) {
+      const checkout = await createIkhokhaPaymentLink({
         orderId: purchase.id,
         amount,
         description: `KORA: ${production.title}`,
-        kind: 'purchase',
         successPath: `/watch/${safeSlug}?payment=success`,
         failurePath: `/watch/${safeSlug}?payment=failed`,
         cancelPath: `/watch/${safeSlug}?payment=cancelled`,
-      }));
+      });
+
+      const { data: linked, error: linkError } = await admin.from('purchases')
+        .update({ provider_payment_id: checkout.paylinkId })
+        .eq('id', purchase.id)
+        .eq('provider', 'ikhokha')
+        .eq('status', 'pending')
+        .select('id')
+        .maybeSingle();
+
+      if (linkError || !linked) {
+        throw new Error('Could not bind the iKhokha payment link to this purchase');
+      }
+
+      return NextResponse.json(checkout);
     }
 
     if (useIzakhonoPay()) {
