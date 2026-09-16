@@ -1,4 +1,5 @@
 #requires -Version 5.1
+# Source policy: resolve current main to an exact commit and validate it locally before cutover.
 [CmdletBinding()]
 param()
 
