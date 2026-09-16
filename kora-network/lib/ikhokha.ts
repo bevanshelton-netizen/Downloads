@@ -4,6 +4,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 
 const IKHOKHA_API_BASE = 'https://api.ikhokha.com/public-api/v1/api';
 const IKHOKHA_PAYMENT_ENDPOINT = `${IKHOKHA_API_BASE}/payment`;
+const IKHOKHA_SECUREPAY_BASE = 'https://securepay.ikhokha.red';
 
 type CreatePaymentLinkResponse = {
   responseCode?: string;
@@ -20,6 +21,12 @@ export type IkhokhaPaymentStatus = {
   amount?: number;
   description?: string;
 };
+
+function cleanPaylinkId(paylinkId: string) {
+  const cleanId = paylinkId.trim();
+  if (!/^[A-Za-z0-9_-]+$/.test(cleanId)) throw new Error('Invalid iKhokha payment-link ID');
+  return cleanId;
+}
 
 function credentials() {
   const appId = process.env.IKHOKHA_APP_ID?.trim();
@@ -49,6 +56,11 @@ function signatureFor(path: string, body: string, secret: string) {
 
 export function useIkhokha() {
   return Boolean(process.env.IKHOKHA_APP_ID?.trim() && process.env.IKHOKHA_APP_SECRET?.trim());
+}
+
+export function getIkhokhaHostedPaylinkUrl(paylinkId: string) {
+  const cleanId = cleanPaylinkId(paylinkId);
+  return `${IKHOKHA_SECUREPAY_BASE}/${encodeURIComponent(cleanId)}`;
 }
 
 export async function createIkhokhaPaymentLink(input: {
@@ -113,20 +125,21 @@ export async function createIkhokhaPaymentLink(input: {
     throw new Error(payload?.message || `iKhokha checkout failed (${response.status})`);
   }
 
+  const paylinkId = cleanPaylinkId(payload.paylinkID);
   const paylink = new URL(payload.paylinkUrl);
-  if (paylink.protocol !== 'https:') throw new Error('Unsafe iKhokha payment URL');
+  if (paylink.protocol !== 'https:' || paylink.hostname !== 'securepay.ikhokha.red') {
+    throw new Error('Unsafe iKhokha payment URL');
+  }
 
   return {
     redirectUrl: paylink.toString(),
-    paylinkId: payload.paylinkID,
+    paylinkId,
     externalTransactionId: payload.externalTransactionID || input.orderId,
   };
 }
 
 export async function getIkhokhaPaymentStatus(paylinkId: string) {
-  const cleanId = paylinkId.trim();
-  if (!/^[A-Za-z0-9_-]+$/.test(cleanId)) throw new Error('Invalid iKhokha payment-link ID');
-
+  const cleanId = cleanPaylinkId(paylinkId);
   const { appId, appSecret } = credentials();
   const endpoint = new URL(`${IKHOKHA_API_BASE}/getStatus/${encodeURIComponent(cleanId)}`);
   const signature = signatureFor(endpoint.pathname, '', appSecret);
@@ -162,7 +175,9 @@ export function verifyIkhokhaWebhook(input: {
   if (!input.signatureHeader) return false;
 
   const url = new URL(input.requestUrl);
-  const expected = signatureFor(url.pathname + url.search, input.rawBody, appSecret);
+  // iKhokha's webhook example signs callback pathname + raw JSON body.
+  // The signed externalTransactionID in the body is separately matched to our order query parameter.
+  const expected = signatureFor(url.pathname, input.rawBody, appSecret);
   const received = input.signatureHeader.trim().toLowerCase();
 
   if (!/^[0-9a-f]{64}$/.test(received) || expected.length !== received.length) return false;
