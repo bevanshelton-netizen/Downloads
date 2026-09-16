@@ -28,6 +28,8 @@ All source, installers and CI gates are green and merged.
 
 Reached only after deploy-primary-node.sh runs successfully on an IZAKHONO-controlled Linux host and first-host-proof.sh passes:
 
+- SHELTON FORTRESS — THEE PROTECTOR is healthy on private loopback and its safety receipt proves no public bind, no public DNS change and no payment credentials stored;
+
 - all private services healthy;
 - CI WORKER reports production systemd mode;
 - transient systemd build sandbox proof passes;
@@ -36,6 +38,10 @@ Reached only after deploy-primary-node.sh runs successfully on an IZAKHONO-contr
 - encrypted BACKUP snapshot completes;
 - authenticated-decryption + SHA verification passes;
 - source migration points deployment at IZAKHONO CODE.
+
+### FORTRESS_PROTECTOR_ACTIVE
+
+Reached as part of PRIMARY_NODE_PROVED only when the pinned FORTRESS defensive control plane is healthy on `127.0.0.1:18109`, uses a dedicated database volume, and remains non-public. This state is an internal defensive deployment and is not a claim that the separate FORTRESS commercial release gate has been completed.
 
 ### PUBLIC_EDGE_READY
 

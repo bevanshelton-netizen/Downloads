@@ -42,3 +42,10 @@ Certificates can come from your chosen CA. The private key never belongs in GitH
 Internet → IZAKHONO EDGE NODE :443 → IZAKHONO RUNTIME NODE :8080 → app process
 
 Control APIs bind to loopback and are separate from public application traffic.
+
+
+## FORTRESS — THEE PROTECTOR policy
+
+FORTRESS protection is active by default at the edge. Sensitive payment routes such as IZAKHONO PAY and iKhokha webhooks receive a separate rate bucket, a smaller request-body limit, unsafe-method blocking and JSON enforcement where applicable. The edge adds `x-fortress-protector: active` to responses so the active defensive policy can be verified without exposing any secret.
+
+The FORTRESS application itself remains private on the owner host; the edge does not expose the FORTRESS dashboard or its database to public traffic.

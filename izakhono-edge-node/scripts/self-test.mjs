@@ -49,7 +49,11 @@ const child=spawn(process.execPath,["server.mjs"],{
     IZAKHONO_EDGE_ACCESS_LOG:logs,
     IZAKHONO_EDGE_RATE_PER_MIN:"2",
     IZAKHONO_EDGE_RATE_BURST:"2",
-    IZAKHONO_EDGE_MAX_BODY_BYTES:"128"
+    IZAKHONO_EDGE_MAX_BODY_BYTES:"128",
+    FORTRESS_PROTECTOR_MODE:"active",
+    FORTRESS_SENSITIVE_RATE_PER_MIN:"1",
+    FORTRESS_SENSITIVE_BURST:"1",
+    FORTRESS_SENSITIVE_MAX_BODY_BYTES:"64"
   },
   stdio:["ignore","pipe","pipe"]
 });
@@ -67,24 +71,34 @@ async function waitHealth(){
   throw new Error("Edge health did not become ready");
 }
 
-function secureGet(path="/"){
+function secureRequest({path="/",method="GET",host="demo.local",headers={},body=""}={}){
   return new Promise((resolve,reject)=>{
+    const payload=Buffer.from(body);
+    const requestHeaders={Host:host,...headers};
+    if(payload.length>0 && requestHeaders["content-length"]==null && requestHeaders["Content-Length"]==null){
+      requestHeaders["content-length"]=String(payload.length);
+    }
     const req=httpsRequest({
       hostname:"127.0.0.1",
       port:httpsPort,
       path,
-      method:"GET",
+      method,
       servername:"demo.local",
       rejectUnauthorized:false,
-      headers:{Host:"demo.local"}
+      headers:requestHeaders
     },res=>{
       const chunks=[];
       res.on("data",chunk=>chunks.push(chunk));
       res.on("end",()=>resolve({status:res.statusCode,headers:res.headers,body:Buffer.concat(chunks).toString("utf8")}));
     });
     req.on("error",reject);
+    if(payload.length) req.write(payload);
     req.end();
   });
+}
+
+function secureGet(path="/"){
+  return secureRequest({path});
 }
 
 try{
@@ -107,7 +121,54 @@ try{
   const limited=await secureGet("/third");
   if(limited.status!==429) throw new Error("Rate limit test failed: "+limited.status);
 
-  console.log("IZAKHONO EDGE NODE SELF TEST: PASS");
+  const protectedFirst=await secureRequest({
+    path:"/api/ikhokha/webhook",
+    method:"POST",
+    host:"payments.local",
+    headers:{"content-type":"application/json"},
+    body:"{}"
+  });
+  if(protectedFirst.status!==200) throw new Error("FORTRESS protected payment request failed: "+protectedFirst.status);
+  if(protectedFirst.headers["x-fortress-protector"]!=="active") throw new Error("FORTRESS response header missing");
+
+  const protectedLimited=await secureRequest({
+    path:"/api/ikhokha/webhook",
+    method:"POST",
+    host:"payments.local",
+    headers:{"content-type":"application/json"},
+    body:"{}"
+  });
+  if(protectedLimited.status!==429 || !protectedLimited.body.includes("FORTRESS")) {
+    throw new Error("FORTRESS sensitive-route limit failed: "+protectedLimited.status);
+  }
+
+  const protectedOversize=await secureRequest({
+    path:"/api/v1/orders",
+    method:"POST",
+    host:"oversize.local",
+    headers:{"content-type":"application/json"},
+    body:JSON.stringify({payload:"x".repeat(80)})
+  });
+  if(protectedOversize.status!==413 || !protectedOversize.body.includes("FORTRESS")) {
+    throw new Error("FORTRESS sensitive body limit failed: "+protectedOversize.status);
+  }
+
+  const protectedType=await secureRequest({
+    path:"/api/v1/orders",
+    method:"POST",
+    host:"type.local",
+    body:"{}"
+  });
+  if(protectedType.status!==415 || !protectedType.body.includes("FORTRESS")) {
+    throw new Error("FORTRESS content-type guard failed: "+protectedType.status);
+  }
+
+  const blockedMethod=await secureRequest({path:"/",method:"TRACE",host:"method.local"});
+  if(blockedMethod.status!==405 || !blockedMethod.body.includes("FORTRESS")) {
+    throw new Error("FORTRESS method guard failed: "+blockedMethod.status);
+  }
+
+  console.log("IZAKHONO EDGE NODE + FORTRESS PROTECTOR SELF TEST: PASS");
 }finally{
   child.kill("SIGTERM");
   runtime.close();
