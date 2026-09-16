@@ -6,8 +6,13 @@ if ! command -v node >/dev/null 2>&1; then
   exit 2
 fi
 
-if [ ! -f /etc/izakhono/tls/fullchain.pem ] || [ ! -f /etc/izakhono/tls/privkey.pem ]; then
-  echo "Install a valid TLS certificate at /etc/izakhono/tls/fullchain.pem and privkey.pem first."
+MODE="${IZAKHONO_EDGE_MODE:-direct}"
+if [ "$MODE" != "direct" ] && [ "$MODE" != "tunnel" ]; then
+  echo "IZAKHONO_EDGE_MODE must be direct or tunnel."
+  exit 4
+fi
+if [ "$MODE" = "direct" ] && { [ ! -f /etc/izakhono/tls/fullchain.pem ] || [ ! -f /etc/izakhono/tls/privkey.pem ]; }; then
+  echo "Direct EDGE mode requires /etc/izakhono/tls/fullchain.pem and privkey.pem."
   exit 4
 fi
 
@@ -15,16 +20,21 @@ sudo useradd --system --home /nonexistent --shell /usr/sbin/nologin izakhono 2>/
 sudo mkdir -p /opt/izakhono-edge-node /var/log/izakhono-edge /etc/izakhono
 sudo cp server.mjs /opt/izakhono-edge-node/server.mjs
 sudo chown -R izakhono:izakhono /opt/izakhono-edge-node /var/log/izakhono-edge
-sudo chown root:izakhono /etc/izakhono/tls/fullchain.pem /etc/izakhono/tls/privkey.pem
-sudo chmod 640 /etc/izakhono/tls/fullchain.pem /etc/izakhono/tls/privkey.pem
+if [ "$MODE" = "direct" ]; then
+  sudo chown root:izakhono /etc/izakhono/tls/fullchain.pem /etc/izakhono/tls/privkey.pem
+  sudo chmod 640 /etc/izakhono/tls/fullchain.pem /etc/izakhono/tls/privkey.pem
+fi
 
 if [ ! -f /etc/izakhono/edge-node.env ]; then
   KEY="$(node -e 'console.log(require("crypto").randomBytes(32).toString("hex"))')"
   sudo tee /etc/izakhono/edge-node.env >/dev/null <<EOF
+IZAKHONO_EDGE_MODE=$MODE
 HTTP_HOST=0.0.0.0
 HTTP_PORT=80
 HTTPS_HOST=0.0.0.0
 HTTPS_PORT=443
+TUNNEL_HOST=127.0.0.1
+TUNNEL_PORT=8780
 CONTROL_HOST=127.0.0.1
 CONTROL_PORT=8795
 RUNTIME_HOST=127.0.0.1
