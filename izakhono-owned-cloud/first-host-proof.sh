@@ -98,11 +98,18 @@ node -e 'const x=JSON.parse(process.argv[1]);if(x.verified!==true||!/^[0-9a-f]{6
 unset BACKUP_KEY
 ok "encrypted snapshot authenticated-decryption and SHA verification passed"
 
-if [ -f /etc/izakhono/tls/fullchain.pem ] && [ -f /etc/izakhono/tls/privkey.pem ]; then
+EDGE_MODE="$(awk -F= '$1=="IZAKHONO_EDGE_MODE"{print $2;exit}' /etc/izakhono/edge-node.env 2>/dev/null || true)"
+if [ "$EDGE_MODE" = "tunnel" ]; then
+  systemctl is-active --quiet izakhono-edge-node || fail "EDGE NODE should be active in tunnel mode"
+  probe_json EDGE http://127.0.0.1:8795/health "IZAKHONO EDGE NODE"
+  EDGE_HEALTH="$(curl -fsS http://127.0.0.1:8795/health)"
+  node -e 'const x=JSON.parse(process.argv[1]); if(x.ingressMode!=="tunnel"||x.tls!==false||x.fortressProtector!==true) process.exit(2)' "$EDGE_HEALTH"     || fail "EDGE tunnel safety state invalid"
+  ok "EDGE tunnel origin healthy and FORTRESS policy active"
+elif [ -f /etc/izakhono/tls/fullchain.pem ] && [ -f /etc/izakhono/tls/privkey.pem ]; then
   systemctl is-active --quiet izakhono-edge-node || fail "EDGE NODE should be active when TLS material exists"
   probe_json EDGE http://127.0.0.1:8795/health "IZAKHONO EDGE NODE"
 else
-  note "EDGE pending TLS material; internal owned cloud is healthy"
+  note "EDGE pending TLS material or tunnel mode; internal owned cloud is healthy"
 fi
 
 if [ -f /etc/izakhono/code-source.env ]; then
@@ -115,7 +122,13 @@ fi
 {
   echo "STATUS=PASS"
   echo "PROVED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-  echo "EDGE=$([ -f /etc/izakhono/tls/fullchain.pem ] && echo CONFIGURED || echo PENDING_TLS)"
+  if [ "$EDGE_MODE" = "tunnel" ]; then
+    echo "EDGE=CONFIGURED_TUNNEL_ORIGIN"
+  elif [ -f /etc/izakhono/tls/fullchain.pem ]; then
+    echo "EDGE=CONFIGURED_DIRECT_TLS"
+  else
+    echo "EDGE=PENDING_TLS_OR_TUNNEL"
+  fi
 } >>"$REPORT"
 
 echo
