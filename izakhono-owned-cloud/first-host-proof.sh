@@ -44,6 +44,15 @@ probe_json CODE http://127.0.0.1:8860/health "IZAKHONO CODE NODE"
 probe_json BACKUP http://127.0.0.1:8870/health "IZAKHONO BACKUP NODE"
 probe_json CI_WORKER http://127.0.0.1:8880/health "IZAKHONO CI WORKER NODE"
 probe_json REPLICA http://127.0.0.1:8890/health "IZAKHONO REPLICA NODE"
+probe_json FORTRESS http://127.0.0.1:18109/health "FORTRESS"
+FORTRESS_RECEIPT=/var/lib/izakhono-deploy/fortress-protector.json
+[ -f "$FORTRESS_RECEIPT" ] || fail "FORTRESS Protector receipt missing"
+node - "$FORTRESS_RECEIPT" <<'NODE' || fail "FORTRESS Protector safety receipt invalid"
+const fs=require("fs");
+const x=JSON.parse(fs.readFileSync(process.argv[2],"utf8"));
+if(x.role!=="THEE PROTECTOR"||x.health_passed!==true||x.public_bind!==false||x.public_dns_changed!==false||x.payment_credentials_stored!==false||x.commercial_release_claimed!==false) process.exit(2);
+NODE
+ok "FORTRESS Protector private defensive boundary verified"
 
 CI_HEALTH="$(curl -fsS http://127.0.0.1:8880/health)"
 node -e 'const x=JSON.parse(process.argv[1]); if(x.executor!=="systemd"||x.productionSandboxRequired!==true)process.exit(2)' "$CI_HEALTH"   || fail "CI WORKER is not in production systemd mode"
