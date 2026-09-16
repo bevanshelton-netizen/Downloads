@@ -27,6 +27,7 @@ jobs:
       - name: Compile shared gateway
         run: |
           python3 -m py_compile izakhono-pay/shared_gateway.py
+          python3 -m py_compile izakhono-pay/ikhokha_provider.py
           python3 -m py_compile izakhono-pay/bank_reconciler.py
 
       - name: Validate product registry
@@ -51,6 +52,64 @@ jobs:
         run: |
           python3 izakhono-pay/shared_gateway.py self-test
           (cd izakhono-pay && python3 bank_reconciler.py self-test)
+
+      - name: Prove iKhokha hosted checkout signing contract
+        env:
+          IKHOKHA_APP_ID: ci-app-id
+          IKHOKHA_APP_SECRET: ci-app-secret
+          IKHOKHA_MODE: live
+        run: |
+          python3 - <<'PY'
+          import json, os, sys
+          sys.path.insert(0, 'izakhono-pay')
+          import ikhokha_provider as ik
+
+          class FakeResponse:
+              status=200
+              def __enter__(self): return self
+              def __exit__(self,*args): return False
+              def read(self,limit=-1):
+                  return json.dumps({
+                      'responseCode':'00',
+                      'paylinkID':'ci_paylink_123',
+                      'paylinkUrl':'https://securepay.ikhokha.red/ci_paylink_123',
+                      'externalTransactionID':'izp_CIorder1234567890'
+                  }).encode()
+
+          seen={}
+          def fake_open(request,timeout=0):
+              seen['headers']={k.lower():v for k,v in request.header_items()}
+              seen['body']=(request.data or b'').decode()
+              return FakeResponse()
+
+          ik.urllib.request.urlopen=fake_open
+          checkout=ik.create_payment_link(
+              order_id='izp_CIorder1234567890',
+              amount_minor=9900,
+              description='CI product',
+              callback_url='https://pay.example.com/api/v1/providers/ikhokha/webhook?order=izp_CIorder1234567890',
+              success_url='https://pay.example.com/payment/return?payment=success',
+              failure_url='https://pay.example.com/payment/return?payment=failed',
+              cancel_url='https://pay.example.com/payment/return?payment=cancelled',
+          )
+          assert checkout['paylink_id']=='ci_paylink_123'
+          assert checkout['redirect_url']=='https://securepay.ikhokha.red/ci_paylink_123'
+          assert seen['headers']['ik-appid']=='ci-app-id'
+          assert len(seen['headers']['ik-sign'])==64
+          body=json.loads(seen['body'])
+          assert body['amount']==9900 and body['currency']=='ZAR'
+          assert body['externalTransactionID']=='izp_CIorder1234567890'
+
+          raw=b'{"paylinkID":"ci_paylink_123","status":"SUCCESS","externalTransactionID":"izp_CIorder1234567890"}'
+          sig=ik.signature_for('/api/v1/providers/ikhokha/webhook',raw.decode(),os.environ['IKHOKHA_APP_SECRET'])
+          assert ik.verify_webhook(
+              request_path='/api/v1/providers/ikhokha/webhook',
+              raw_body=raw,
+              app_id_header='ci-app-id',
+              signature_header=sig,
+          )
+          print('iKhokha signing and hosted checkout contract: PASS')
+          PY
 
       - name: Prove zero-touch bank settlement activates FAISReady
         run: |
@@ -106,6 +165,8 @@ jobs:
         run: |
           test -f izakhono-pay/.env.example
           ! grep -Eq 'IZAKHONO_PAY_ACCOUNT_NUMBER=[0-9]{6,}' izakhono-pay/.env.example
+          ! grep -Eq 'IKHOKHA_APP_ID=.{8,}' izakhono-pay/.env.example
+          ! grep -Eq 'IKHOKHA_APP_SECRET=.{8,}' izakhono-pay/.env.example
           ! grep -Eq 'IZAKHONO_PAY_BANK_FEED_SIGNING_SECRET=.{32,}' izakhono-pay/.env.example
           ! grep -Eq 'replace-with-strong-random-(key|secret)$' izakhono-pay/products.json
 

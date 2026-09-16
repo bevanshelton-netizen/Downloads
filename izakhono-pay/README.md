@@ -1,12 +1,30 @@
 # IZAKHONO PAY — Shared Group Payment Backbone
 
-IZAKHONO PAY provides one payment contract for Izakhono platforms while keeping settlement credentials and bank-account details on the owner-controlled host.
+IZAKHONO PAY provides one payment contract for Izakhono platforms while keeping payment-provider credentials, callback secrets and settlement details on trusted server infrastructure.
 
-## Current production-safe rail
+## Primary online rail: iKhokha
 
-The first rail is direct merchant EFT. IZAKHONO PAY creates a pending order with a unique payment reference. Money settles directly into the configured Izakhono Africa business bank account. The customer receives access/service only after the matching credit is verified.
+For one-time online purchases, IZAKHONO PAY uses the iKhokha iK Pay API when `IKHOKHA_APP_ID` and `IKHOKHA_APP_SECRET` are configured.
 
-This is non-custodial orchestration. IZAKHONO PAY does not hold customer funds and does not capture card data.
+The customer is redirected to iKhokha's hosted secure checkout. IZAKHONO PAY does not capture card details, PINs, CVVs, banking passwords or OTPs.
+
+A purchase is activated only after:
+
+1. iKhokha sends a signed callback;
+2. IZAKHONO PAY verifies the callback signature;
+3. the order and payment-link references match;
+4. IZAKHONO PAY independently checks the payment-link status with iKhokha;
+5. the confirmed amount exactly matches the server-controlled product price;
+6. the canonical order is marked paid idempotently;
+7. a signed `payment.paid` event is sent to the originating platform.
+
+Browser return alone never unlocks a product.
+
+## EFT fallback
+
+Direct merchant EFT remains available as a controlled fallback when `IZAKHONO_PAY_EFT_FALLBACK=true`. EFT orders use a unique reference and can only be confirmed by the owner-side reconciliation path. Manual confirmation is intentionally refused for iKhokha orders.
+
+This keeps the existing bank-settlement route available without weakening the iKhokha confirmation path.
 
 ## Platform integration
 
@@ -31,15 +49,17 @@ Body:
 }
 ```
 
-The response contains the canonical order ID, exact amount, unique EFT payment reference and runtime bank-payment instructions.
+With iKhokha enabled, the response contains a hosted `redirect_url`. With EFT fallback, it contains the exact amount, unique payment reference and runtime bank-payment instructions.
 
 Order status:
 
 `GET /api/v1/orders/status?order=<order-id>` with the same application headers.
 
-## Activation event
+Pending iKhokha orders are securely reconciled against the provider status during status checks, so a delayed webhook does not permanently block a valid purchase.
 
-After a bank credit is verified, the owner-side confirmation command marks the canonical order paid and sends a signed `payment.paid` callback to that platform's configured HTTPS callback URL. Platforms use that event to activate subscriptions, courses, tickets, downloads, bookings or other entitlements.
+## Platform activation event
+
+After verified settlement, IZAKHONO PAY sends a signed `payment.paid` callback to the platform's configured HTTPS callback URL.
 
 Callback verification uses HMAC-SHA256 over:
 
@@ -47,9 +67,9 @@ Callback verification uses HMAC-SHA256 over:
 
 with the platform-specific callback secret.
 
-## Owner-side confirmation
+## Owner-side EFT confirmation
 
-Until an authorised FNB/open-banking feed is connected, confirmation is deliberately local-only:
+Until an authorised bank feed is connected, EFT confirmation remains local-only:
 
 ```bash
 python3 shared_gateway.py confirm <order-id> --bank-reference <verified-bank-reference>
@@ -57,25 +77,15 @@ python3 shared_gateway.py confirm <order-id> --bank-reference <verified-bank-ref
 
 There is intentionally no public `mark paid` endpoint.
 
-## Automatic reconciliation target
-
-The zero-touch production target is:
-
-1. bank feed reports a settled incoming credit;
-2. reconciliation matches exact amount + unique IZAKHONO PAY reference;
-3. order changes from `pending` to `paid` idempotently;
-4. signed `payment.paid` callback is delivered;
-5. destination platform grants the registered product entitlement;
-6. retries and audit records remain available if callback delivery fails.
-
-Automatic reconciliation must remain disabled until an authorised banking-data/acquiring connection and credentials are available.
-
 ## Adding another Izakhono platform
 
 1. Add the platform and products to `products.json` using `product-template.json`.
-2. Generate a strong platform API key and callback signing secret; store both only in owner-host environment configuration.
-3. Add an HTTPS callback URL implemented by the platform.
-4. Create orders through `/api/v1/orders`.
-5. Verify signed `payment.paid` events and activate only the product referenced by the event.
+2. Generate a strong platform API key and callback signing secret; store both only in trusted server configuration.
+3. Add its HTTPS entitlement callback URL.
+4. Optionally configure its post-payment return URL through `IZAKHONO_PAY_RETURN_URLS_JSON`.
+5. Create orders through `/api/v1/orders`.
+6. Verify signed `payment.paid` events and activate only the referenced product.
 
-Never put the real bank account number, API keys, callback secrets, tunnel tokens or provider credentials in GitHub.
+The iKhokha App ID and App Secret are shared at the central gateway and are not copied into every child platform.
+
+Never commit real iKhokha credentials, bank account numbers, API keys, callback secrets, tunnel tokens or provider credentials to GitHub.
