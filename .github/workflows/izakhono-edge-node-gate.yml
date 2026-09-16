@@ -36,3 +36,6 @@ jobs:
           grep -q 'CONTROL_HOST.*127.0.0.1' server.mjs
           grep -q 'strict-transport-security' server.mjs
           grep -q 'request body too large' server.mjs
+          grep -q 'FORTRESS_PROTECTOR_MODE' install-linux.sh
+          grep -q 'x-fortress-protector' server.mjs
+          grep -q 'sensitive-route rate limit exceeded' server.mjs
