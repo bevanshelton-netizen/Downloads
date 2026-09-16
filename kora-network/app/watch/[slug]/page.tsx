@@ -50,7 +50,7 @@ export default async function WatchShow({
       .maybeSingle();
     if (!purchase) {
       const price = Number(production.purchase_price || 0);
-      return <main><section className="subHero"><div className="eyebrow">PREMIUM PREMIERE</div><h1>{production.title}</h1><p>This title is a one-time paid unlock. Access is granted only after KORA receives and verifies PayFast's server-to-server payment confirmation.</p><PurchaseGate productionId={production.id} price={price} paymentStatus={payment}/><div className="actions"><Link className="secondary" href="/watch">← Back to catalogue</Link></div></section></main>;
+      return <main><section className="subHero"><div className="eyebrow">PREMIUM PREMIERE</div><h1>{production.title}</h1><p>This title is a one-time paid unlock. Access is granted only after KORA securely verifies the payment provider's server confirmation.</p><PurchaseGate productionId={production.id} price={price} paymentStatus={payment}/><div className="actions"><Link className="secondary" href="/watch">← Back to catalogue</Link></div></section></main>;
     }
   }
 
