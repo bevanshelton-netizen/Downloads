@@ -15,10 +15,18 @@ export default function PurchaseButton({ productionId, label }: { productionId: 
       });
       const checkout = await response.json();
       if (!response.ok) throw new Error(checkout.error || 'Checkout unavailable');
+
       if (checkout.alreadyOwned && checkout.redirect) {
         window.location.assign(checkout.redirect);
         return;
       }
+
+      if (checkout.redirectUrl) {
+        window.location.assign(checkout.redirectUrl);
+        return;
+      }
+
+      if (!checkout.action || !checkout.fields) throw new Error('Checkout unavailable');
 
       const form = document.createElement('form');
       form.method = 'POST';
@@ -38,5 +46,9 @@ export default function PurchaseButton({ productionId, label }: { productionId: 
     }
   }
 
-  return <button className="primary" type="button" onClick={purchase} disabled={busy}>{busy ? 'Opening PayFast…' : label}</button>;
+  return (
+    <button className="primary" type="button" onClick={purchase} disabled={busy}>
+      {busy ? 'Opening secure checkout…' : label}
+    </button>
+  );
 }
