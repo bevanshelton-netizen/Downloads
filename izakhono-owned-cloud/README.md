@@ -2,6 +2,12 @@
 
 Self-hosted infrastructure stack for IZAKHONO platforms.
 
+## SHELTON FORTRESS — THEE PROTECTOR
+
+FORTRESS is now the mandatory private defensive control plane for the primary owner node. It runs on loopback only, with its own PostgreSQL volume and generated secrets. It is not exposed directly to customers and does not store iKhokha credentials. IZAKHONO EDGE remains the public ingress and enforces the FORTRESS sensitive-route policy for payment APIs, including stricter rate limits, smaller request bodies and method/content-type guards.
+
+This integration uses FORTRESS as an internal protection and incident-readiness layer while its separate commercial release gates remain intact.
+
 ## Included services
 
 1. **IZAKHONO DATA NODE** — owned application/event persistence.
@@ -105,6 +111,8 @@ From the repository root on the primary Linux server:
 
     cd izakhono-owned-cloud
     sudo bash deploy-primary-node.sh
+
+That command now deploys and health-gates the private FORTRESS Protector before the first-host proof can pass.
 
 That installs the full stack, configures Growth OS, creates the encrypted core backup set, runs the first-host production proof and prints a deployment report. Public DNS/TLS activation remains separate because it requires your actual domain/network authority.
 
