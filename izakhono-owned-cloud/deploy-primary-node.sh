@@ -15,6 +15,7 @@ echo "IZAKHONO OWNED CLOUD PRIMARY DEPLOYMENT" | tee "$REPORT"
 echo "Started: $(date -u +%Y-%m-%dT%H:%M:%SZ)" | tee -a "$REPORT"
 
 bash "$HERE/install-owned-stack.sh" | tee -a "$REPORT"
+bash "$HERE/deploy-fortress-protector.sh" | tee -a "$REPORT"
 bash "$HERE/configure-growth-os.sh" | tee -a "$REPORT"
 bash "$HERE/configure-stack-backup.sh" | tee -a "$REPORT"
 
@@ -33,6 +34,7 @@ bash "$HERE/stack-status.sh" | tee -a "$REPORT"
 {
   echo
   echo "DEPLOYMENT_STATE=PRIMARY_NODE_PROVED"
+  echo "FORTRESS_PROTECTOR=ACTIVE_PRIVATE_CONTROL_PLANE"
   echo "GITHUB_RUNTIME_DEPENDENCY=NO"
   echo "VERCEL_RUNTIME_DEPENDENCY=NO"
   echo "PUBLIC_EDGE=$([ -f /etc/izakhono/tls/fullchain.pem ] && echo READY_FOR_DNS || echo PENDING_TLS)"
