@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { buildPurchaseCheckout } from '@/lib/payfast';
 import { buildIzakhonoPayCheckout, useIzakhonoPay } from '@/lib/izakhono-pay';
+import { createIkhokhaPaymentLink, useIkhokha } from '@/lib/ikhokha';
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -22,8 +23,11 @@ export async function POST(request: Request) {
   if (!production || production.access_mode !== 'pay_per_view') {
     return NextResponse.json({ error: 'Title is not available for pay-per-view' }, { status: 409 });
   }
+
   const amount = Number(production.purchase_price);
-  if (!Number.isFinite(amount) || amount <= 0) return NextResponse.json({ error: 'Purchase price is not configured' }, { status: 409 });
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return NextResponse.json({ error: 'Purchase price is not configured' }, { status: 409 });
+  }
 
   const admin = createAdminClient();
   const { data: complete } = await admin.from('purchases')
@@ -33,10 +37,12 @@ export async function POST(request: Request) {
     .eq('status', 'complete')
     .limit(1)
     .maybeSingle();
+
   if (complete) return NextResponse.json({ alreadyOwned: true, redirect: `/watch/${production.slug}` });
 
+  const paymentProvider = useIkhokha() ? 'ikhokha' : 'payfast';
   const { data: existingPending } = await admin.from('purchases')
-    .select('id,amount')
+    .select('id,amount,provider')
     .eq('user_id', user.id)
     .eq('production_id', production.id)
     .eq('status', 'pending')
@@ -45,24 +51,42 @@ export async function POST(request: Request) {
     .maybeSingle();
 
   let purchase = existingPending;
-  if (!purchase || Math.abs(Number(purchase.amount) - amount) > 0.01) {
+  if (
+    !purchase ||
+    purchase.provider !== paymentProvider ||
+    Math.abs(Number(purchase.amount) - amount) > 0.01
+  ) {
     const created = await admin.from('purchases').insert({
       user_id: user.id,
       production_id: production.id,
       amount,
       currency: 'ZAR',
-      // Keep the proven local settlement RPC contract while IZAKHONO PAY
-      // becomes the checkout/orchestration owner.
-      provider: 'payfast',
+      provider: paymentProvider,
       status: 'pending',
-    }).select('id,amount').single();
-    if (created.error || !created.data) return NextResponse.json({ error: created.error?.message || 'Could not create purchase' }, { status: 500 });
+    }).select('id,amount,provider').single();
+
+    if (created.error || !created.data) {
+      return NextResponse.json({ error: created.error?.message || 'Could not create purchase' }, { status: 500 });
+    }
     purchase = created.data;
   }
 
   try {
+    const safeSlug = encodeURIComponent(production.slug);
+
+    if (useIkhokha()) {
+      return NextResponse.json(await createIkhokhaPaymentLink({
+        orderId: purchase.id,
+        amount,
+        description: `KORA: ${production.title}`,
+        kind: 'purchase',
+        successPath: `/watch/${safeSlug}?payment=success`,
+        failurePath: `/watch/${safeSlug}?payment=failed`,
+        cancelPath: `/watch/${safeSlug}?payment=cancelled`,
+      }));
+    }
+
     if (useIzakhonoPay()) {
-      const safeSlug = encodeURIComponent(production.slug);
       return NextResponse.json(await buildIzakhonoPayCheckout({
         orderId: purchase.id,
         email: user.email,
@@ -74,6 +98,7 @@ export async function POST(request: Request) {
         metadata: { production_id: production.id, slug: production.slug },
       }));
     }
+
     return NextResponse.json(buildPurchaseCheckout({
       orderId: purchase.id,
       email: user.email,
@@ -83,6 +108,8 @@ export async function POST(request: Request) {
       amount,
     }));
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'Checkout unavailable' }, { status: 500 });
+    return NextResponse.json({
+      error: error instanceof Error ? error.message : 'Checkout unavailable',
+    }, { status: 500 });
   }
 }
