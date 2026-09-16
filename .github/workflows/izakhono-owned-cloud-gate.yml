@@ -34,6 +34,7 @@ jobs:
           bash -n izakhono-owned-cloud/first-host-proof.sh
           bash -n izakhono-owned-cloud/deploy-primary-node.sh
           bash -n izakhono-owned-cloud/deploy-fortress-protector.sh
+          bash -n izakhono-owned-cloud/go-live-izakhono-pay.sh
           bash -n izakhono-owned-cloud/deploy-recovery-node.sh
           bash -n izakhono-owned-cloud/migrate-source-to-code.sh
       - name: Verify no paid provisioning commands

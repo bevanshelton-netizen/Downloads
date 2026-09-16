@@ -1,0 +1,6 @@
+IZAKHONO PAY GO-LIVE REQUEST
+Approved by owner: yes
+Primary payment provider: iKhokha
+Protection layer: SHELTON FORTRESS — THEE PROTECTOR
+Public hostname: pay.izakhonoafrica.co.za
+Activation policy: fail closed unless runtime, FORTRESS, TLS, provider secrets and public HTTPS proof all pass.

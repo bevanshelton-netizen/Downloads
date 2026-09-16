@@ -29,6 +29,7 @@ jobs:
           python3 -m py_compile izakhono-pay/shared_gateway.py
           python3 -m py_compile izakhono-pay/ikhokha_provider.py
           python3 -m py_compile izakhono-pay/bank_reconciler.py
+          node --check izakhono-pay/runtime.mjs
 
       - name: Validate product registry
         run: |
@@ -167,6 +168,7 @@ jobs:
           ! grep -Eq 'IZAKHONO_PAY_ACCOUNT_NUMBER=[0-9]{6,}' izakhono-pay/.env.example
           ! grep -Eq 'IKHOKHA_APP_ID=.{8,}' izakhono-pay/.env.example
           ! grep -Eq 'IKHOKHA_APP_SECRET=.{8,}' izakhono-pay/.env.example
+          ! grep -R -E 'IKHOKHA_APP_SECRET=[^[:space:]]{8,}' izakhono-pay/deploy izakhono-owned-cloud/go-live-izakhono-pay.sh 2>/dev/null
           ! grep -Eq 'IZAKHONO_PAY_BANK_FEED_SIGNING_SECRET=.{32,}' izakhono-pay/.env.example
           ! grep -Eq 'replace-with-strong-random-(key|secret)$' izakhono-pay/products.json
 
