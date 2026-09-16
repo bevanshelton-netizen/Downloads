@@ -32,7 +32,7 @@ export default function PurchaseGate({
           }
         }
       } catch {
-        // PayFast ITN can arrive shortly after browser return; keep polling briefly.
+        // Provider confirmation can arrive shortly after browser return; keep polling briefly.
       }
       if (!cancelled && attempts < 12) window.setTimeout(check, 2500);
       else if (!cancelled) {
@@ -45,11 +45,14 @@ export default function PurchaseGate({
     return () => { cancelled = true; };
   }, [paymentStatus, productionId]);
 
-  if (waiting) return <div className="panel"><strong>Payment returned successfully.</strong><p>Waiting for PayFast's secure server confirmation before unlocking the programme…</p></div>;
+  if (waiting) {
+    return <div className="panel"><strong>Payment returned successfully.</strong><p>Waiting for secure server confirmation before unlocking the programme…</p></div>;
+  }
 
   return <div className="panel formPanel">
     {paymentStatus === 'cancelled' ? <p><strong>Checkout was cancelled.</strong> No entitlement has been granted.</p> : null}
-    {timedOut ? <p><strong>We have not received final PayFast confirmation yet.</strong> You can safely check again later; KORA will not unlock or record revenue until the verified ITN arrives.</p> : null}
+    {paymentStatus === 'failed' ? <p><strong>The payment was not completed.</strong> You can try again safely.</p> : null}
+    {timedOut ? <p><strong>We have not received final payment confirmation yet.</strong> You can safely check again later; KORA will not unlock or record revenue until the provider confirms the payment.</p> : null}
     <PurchaseButton productionId={productionId} label={`Unlock for R${price.toFixed(2)}`} />
     <small>Price and entitlement are verified server-side. Never enter an Internet-banking password, card PIN, CVV or OTP into KORA itself.</small>
   </div>;
