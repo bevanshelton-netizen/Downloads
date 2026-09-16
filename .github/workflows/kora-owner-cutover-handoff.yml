@@ -42,7 +42,10 @@ jobs:
         shell: pwsh
         run: |
           $p = Get-Content 'izakhono-cloud/DEPLOY-KORA-ISN-01.ps1' -Raw
-          if ($p -notmatch '412aed59d2cd372ec243f951c466246e2c0f9338') { throw 'KORA revision is not pinned' }
+          if ($p -notmatch '\$SourceRef\s*=\s*"main"') { throw 'KORA source ref must be current main' }
+          if ($p -notmatch 'git rev-parse "origin/\$SOURCE_REF"') { throw 'KORA main must resolve to an exact commit before deployment' }
+          if ($p -notmatch 'npm run typecheck') { throw 'KORA local typecheck gate missing' }
+          if ($p -notmatch 'npm run build') { throw 'KORA local build gate missing' }
           if ($p -notmatch 'ENGINE-PROOF.json') { throw 'ISN-01 Engine proof is not required' }
           if ($p -notmatch '127\.0\.0\.1:18107') { throw 'loopback KORA port missing' }
           if ($p -notmatch 'PAYFAST_SANDBOX.+true') { throw 'PayFast sandbox guard missing' }
