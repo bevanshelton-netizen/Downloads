@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { buildPurchaseCheckout } from '@/lib/payfast';
 import { buildIzakhonoPayCheckout, useIzakhonoPay } from '@/lib/izakhono-pay';
-import { createIkhokhaPaymentLink, useIkhokha } from '@/lib/ikhokha';
+import { createIkhokhaPaymentLink, getIkhokhaHostedPaylinkUrl, useIkhokha } from '@/lib/ikhokha';
 import { reconcileIkhokhaPurchase } from '@/lib/ikhokha-purchase';
 
 export async function POST(request: Request) {
@@ -55,27 +55,27 @@ export async function POST(request: Request) {
   if (
     ikhokhaEnabled &&
     existingPending?.provider === 'ikhokha' &&
-    existingPending.provider_payment_id
+    existingPending.provider_payment_id &&
+    Math.abs(Number(existingPending.amount) - amount) <= 0.01
   ) {
     try {
       if (await reconcileIkhokhaPurchase(existingPending.id)) {
         return NextResponse.json({ alreadyOwned: true, redirect: `/watch/${production.slug}` });
       }
     } catch {
-      // A stale/incomplete paylink should not block a fresh checkout attempt.
+      // Keep the original paylink available; provider reconciliation can be retried later.
     }
 
-    await admin.from('purchases')
-      .update({ status: 'failed' })
-      .eq('id', existingPending.id)
-      .eq('provider', 'ikhokha')
-      .eq('status', 'pending');
+    return NextResponse.json({
+      redirectUrl: getIkhokhaHostedPaylinkUrl(existingPending.provider_payment_id),
+      paylinkId: existingPending.provider_payment_id,
+      externalTransactionId: existingPending.id,
+    });
   }
 
   let purchase = existingPending;
   if (
     !purchase ||
-    (ikhokhaEnabled && Boolean(purchase.provider_payment_id)) ||
     purchase.provider !== paymentProvider ||
     Math.abs(Number(purchase.amount) - amount) > 0.01
   ) {
