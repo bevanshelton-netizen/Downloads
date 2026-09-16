@@ -51,8 +51,36 @@ FORTRESS_SENSITIVE_RATE_PER_MIN=60
 FORTRESS_SENSITIVE_BURST=20
 FORTRESS_SENSITIVE_MAX_BODY_BYTES=262144
 EOF
-  sudo chmod 600 /etc/izakhono/edge-node.env
+else
+  sudo python3 - /etc/izakhono/edge-node.env "$MODE" <<'PY'
+from pathlib import Path
+import sys
+path=Path(sys.argv[1])
+mode=sys.argv[2]
+updates={
+  "IZAKHONO_EDGE_MODE":mode,
+  "TUNNEL_HOST":"127.0.0.1",
+  "TUNNEL_PORT":"8780",
+  "FORTRESS_PROTECTOR_MODE":"active",
+}
+lines=path.read_text(encoding="utf-8").splitlines()
+seen=set()
+out=[]
+for line in lines:
+    if "=" in line and not line.lstrip().startswith("#"):
+        key=line.split("=",1)[0].strip()
+        if key in updates:
+            out.append(f"{key}={updates[key]}")
+            seen.add(key)
+            continue
+    out.append(line)
+for key,value in updates.items():
+    if key not in seen:
+        out.append(f"{key}={value}")
+path.write_text("\n".join(out)+"\n",encoding="utf-8")
+PY
 fi
+sudo chmod 600 /etc/izakhono/edge-node.env
 
 sudo cp systemd/izakhono-edge-node.service /etc/systemd/system/izakhono-edge-node.service
 sudo systemctl daemon-reload
