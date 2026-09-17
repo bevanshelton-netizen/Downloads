@@ -14,3 +14,4 @@ function mount(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
 })();
+// production rollout trigger: direct iKhokha checkout build
