@@ -11,12 +11,12 @@ ENV HOST=0.0.0.0 \
     PORT=8080 \
     IZAKHONO_CONTAINER_RUNTIME=true \
     FAISREADY_DATA_DIR=/var/lib/faisready \
-    PAYFAST_SANDBOX=true \
-    FAISREADY_IZAKHONO_PAY_LIVE_APPROVED=false
+    FAISREADY_PAYMENT_ORCHESTRATOR=izakhono \
+    IZAKHONO_PAY_CONTRACT=orders
 
 EXPOSE 8080
 VOLUME ["/var/lib/faisready"]
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD wget -qO- http://127.0.0.1:8080/health >/dev/null || exit 1
 
-CMD ["python3","revenue_server_izakhono.py"]
+CMD ["python3","revenue_server_ikhokha.py"]
