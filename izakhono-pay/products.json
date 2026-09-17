@@ -55,7 +55,16 @@
     "allegro-vibez": {
       "display_name": "ALLEGRO VIBEZ",
       "callback_url": "",
-      "products": {}
+      "products": {
+        "creator-launch": {"name": "Creator Launch Pack", "amount_minor": 29900, "currency": "ZAR", "entitlement": {"kind": "service", "service": "creator-launch"}},
+        "featured-artist": {"name": "Featured Artist Launch", "amount_minor": 59900, "currency": "ZAR", "entitlement": {"kind": "service", "service": "featured-artist"}},
+        "business-sponsor": {"name": "Launch Sponsor", "amount_minor": 150000, "currency": "ZAR", "entitlement": {"kind": "service", "service": "business-sponsor"}},
+        "founding-partner": {"name": "Founding Partner", "amount_minor": 500000, "currency": "ZAR", "entitlement": {"kind": "service", "service": "founding-partner"}},
+        "radio-try": {"name": "Try ALLEGRO Radio", "amount_minor": 75000, "currency": "ZAR", "entitlement": {"kind": "service", "service": "radio-try"}},
+        "radio-grow": {"name": "Grow with ALLEGRO", "amount_minor": 150000, "currency": "ZAR", "entitlement": {"kind": "service", "service": "radio-grow"}},
+        "radio-daypart": {"name": "Own the Daypart", "amount_minor": 350000, "currency": "ZAR", "entitlement": {"kind": "service", "service": "radio-daypart"}},
+        "radio-show-partner": {"name": "Founding Show Partner", "amount_minor": 750000, "currency": "ZAR", "entitlement": {"kind": "service", "service": "radio-show-partner"}}
+      }
     },
     "kora": {
       "display_name": "KORA",
