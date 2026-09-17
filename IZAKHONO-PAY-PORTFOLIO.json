@@ -1,8 +1,10 @@
 {
-  "version": 3,
+  "version": 4,
   "gateway": "izakhono-pay",
   "primaryProvider": "ikhokha",
   "primaryProviderStatus": "merchant-live",
+  "deploymentDirective": "deploy-payment-capable-platforms-now",
+  "deploymentDirectiveDate": "2026-09-17",
   "fallbackProvider": "eft",
   "currency": "ZAR",
   "legalMerchant": "IZAKHONO AFRICA (PTY) LTD",
@@ -23,63 +25,71 @@
     {
       "slug": "faisready",
       "workspacePath": "FAISReady",
-      "status": "gateway-registered-adapter-upgrade-required-for-ikhokha-redirect"
+      "status": "deploy-now-adapter-upgrade-required-for-ikhokha-redirect"
     },
     {
       "slug": "mandatory-regulatory-exams",
       "workspacePath": "mandatory-regulatory-exams",
-      "status": "gateway-registration-ready"
+      "status": "deploy-now-gateway-registration-ready"
     },
     {
       "slug": "edubuild-ecd360",
       "workspacePath": "edubuild-ecd360",
-      "status": "gateway-registration-ready-e2e-required"
+      "status": "deploy-now-gateway-registration-ready-e2e-required"
     },
     {
       "slug": "studypal-welearn",
       "workspacePath": "studypal-welearn",
-      "status": "canonical-source-recovery-required-before-payment-cutover"
+      "status": "blocked-canonical-source-recovery-required-before-payment-cutover"
     },
     {
       "slug": "allegro-vibez",
       "workspacePath": "allegro-vibez",
-      "status": "gateway-registration-pending-fixed-products"
+      "status": "deploy-after-fixed-products-registered"
     },
     {
       "slug": "kora",
       "workspacePath": "kora-network",
-      "status": "ikhokha-direct-and-shared-gateway-compatible"
+      "status": "deploy-now-ikhokha-direct-and-shared-gateway-compatible"
     },
     {
       "slug": "auto-ai",
       "workspacePath": "auto-ai",
-      "status": "gateway-registration-ready"
+      "status": "deploy-now-gateway-registration-ready"
     },
     {
       "slug": "matric-rewrite",
       "workspacePath": "matric-rewrite",
-      "status": "gateway-registration-pending-final-price"
+      "status": "deploy-after-final-price-confirmed"
     },
     {
       "slug": "the-chancellor",
       "workspacePath": "the-chancellor",
-      "status": "gateway-registration-pending-fixed-products"
+      "status": "deploy-after-fixed-products-registered"
     },
     {
       "slug": "doxa-sure",
       "workspacePath": "doxa-sure",
-      "status": "gateway-registered-nonregulated-services-only"
+      "status": "deploy-now-gateway-registered-nonregulated-services-only"
     },
     {
       "slug": "bevan-shelton",
       "workspacePath": "bevan-shelton",
-      "status": "gateway-registration-pending-product-catalogue"
+      "status": "deploy-after-product-catalogue-registered"
     },
     {
       "slug": "izakhono-group",
       "workspacePath": "izakhono-group",
-      "status": "gateway-registration-pending-products"
+      "status": "deploy-after-products-registered"
     }
   ],
-  "liveActivation": "publish-only-after-child-app-e2e-payment-acceptance"
+  "liveActivation": "publish-child-app-after-e2e-payment-acceptance",
+  "rolloutPriority": [
+    "kora",
+    "auto-ai",
+    "faisready",
+    "mandatory-regulatory-exams",
+    "doxa-sure",
+    "edubuild-ecd360"
+  ]
 }
