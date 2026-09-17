@@ -1,0 +1,27 @@
+name: PDEReady iKhokha Revenue Gate
+
+on:
+  pull_request:
+    paths:
+      - 'mandatory-regulatory-exams/api/**'
+      - 'mandatory-regulatory-exams/lib/**'
+      - 'mandatory-regulatory-exams/pdeready/**'
+      - 'mandatory-regulatory-exams/terms.html'
+      - 'mandatory-regulatory-exams/privacy.html'
+      - 'mandatory-regulatory-exams/refunds.html'
+      - 'mandatory-regulatory-exams/test_ikhokha_revenue.py'
+      - '.github/workflows/pdeready-ikhokha-revenue.yml'
+  push:
+    branches:
+      - 'pdeready-ikhokha-release'
+    paths:
+      - 'mandatory-regulatory-exams/**'
+      - '.github/workflows/pdeready-ikhokha-revenue.yml'
+
+jobs:
+  validate-revenue-path:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate iKhokha checkout and entitlement contract
+        run: python3 mandatory-regulatory-exams/test_ikhokha_revenue.py
