@@ -6,6 +6,7 @@ on:
     paths:
       - 'owner-host/**'
       - 'START-IZAKHONO-OWNER-HOST.cmd'
+      - 'START-IZAKHONO-DOMAINS-OWNER-HOST.cmd'
       - 'izakhono-edge-node/**'
       - 'izakhono-owned-cloud/**'
       - 'izakhono-cloud/DEPLOY-KORA-ISN-01.ps1'
@@ -15,6 +16,7 @@ on:
     paths:
       - 'owner-host/**'
       - 'START-IZAKHONO-OWNER-HOST.cmd'
+      - 'START-IZAKHONO-DOMAINS-OWNER-HOST.cmd'
       - 'izakhono-edge-node/**'
       - 'izakhono-owned-cloud/**'
       - 'izakhono-cloud/DEPLOY-KORA-ISN-01.ps1'
@@ -39,9 +41,10 @@ jobs:
           bash -n owner-host/status.sh
           bash -n izakhono-owned-cloud/install-owned-stack.sh
           bash -n izakhono-owned-cloud/first-host-proof.sh
+          bash -n izakhono-owned-cloud/deploy-izakhono-domains.sh
           bash -n izakhono-edge-node/install-linux.sh
           node --check izakhono-edge-node/server.mjs
-          node -e 'JSON.parse(require("fs").readFileSync("owner-host/platforms.json","utf8"))'
+          node -e 'const x=JSON.parse(require("fs").readFileSync("owner-host/platforms.json","utf8"));if(!x.platforms.some(p=>p.id==="izakhono-domains"&&p.defaultHostname==="domains.izakhonoafrica.co.za"))process.exit(2)'
       - name: Run existing EDGE and FORTRESS self-test
         working-directory: izakhono-edge-node
         run: npm run check
@@ -52,6 +55,9 @@ jobs:
           grep -q 'token-file /etc/izakhono/cloudflare-tunnel.token' owner-host/install-cloudflare-tunnel.sh
           ! grep -R -E 'eyJ[a-zA-Z0-9_-]{30,}' owner-host
           grep -q 'FORTRESS_PROTECTOR_MODE=active' izakhono-edge-node/install-linux.sh
+          grep -q 'SOURCE=IZAKHONO_CODE' izakhono-owned-cloud/deploy-izakhono-domains.sh
+          grep -q 'REGISTRATION_LIVE' izakhono-owned-cloud/deploy-izakhono-domains.sh
+          grep -q 'Checkout safety gate did not fail closed' izakhono-owned-cloud/deploy-izakhono-domains.sh
 
   windows:
     runs-on: windows-latest
@@ -83,3 +89,7 @@ jobs:
           $ps = Get-Content 'owner-host/START-IZAKHONO-OWNER-HOST.ps1' -Raw
           if ($ps -notmatch 'Ubuntu-24.04') { throw 'Ubuntu owner-host target missing' }
           if ($ps -notmatch 'bootstrap-linux.sh') { throw 'Linux bootstrap handoff missing' }
+          $domains = Get-Content 'START-IZAKHONO-DOMAINS-OWNER-HOST.cmd' -Raw
+          if ($domains -notmatch 'Ubuntu-24.04') { throw 'Domains launcher WSL target missing' }
+          if ($domains -notmatch 'deploy-izakhono-domains.sh') { throw 'Domains deployment handoff missing' }
+          if ($domains -notmatch 'domains.izakhonoafrica.co.za') { throw 'Domains public hostname missing' }
