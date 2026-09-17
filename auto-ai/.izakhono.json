@@ -1,0 +1,28 @@
+{
+  "version": 2,
+  "name": "AUTO AI",
+  "slug": "auto-ai",
+  "build_context": "auto-ai",
+  "dockerfile_path": "auto-ai/Dockerfile",
+  "container_port": 8080,
+  "health_path": "/api/health",
+  "branch": "main",
+  "runtime": {
+    "required_server_env": ["IZAKHONO_PAY_URL", "IZAKHONO_PAY_API_KEY"],
+    "optional_server_env": ["AI_CHAT_URL", "AI_API_KEY", "AI_MODEL"],
+    "browser_secrets_allowed": false
+  },
+  "payments": {
+    "gateway": "izakhono-pay",
+    "primary_provider": "ikhokha",
+    "fallback_provider": "eft",
+    "legal_merchant": "IZAKHONO AFRICA (PTY) LTD",
+    "registered_products": ["vehicle-health-report", "repair-second-opinion", "used-car-buyer-check"],
+    "production_cutover": "requires-e2e-paid-order-proof"
+  },
+  "alpha": {
+    "preflight": true,
+    "rehearsal": true,
+    "windows_package": false
+  }
+}
