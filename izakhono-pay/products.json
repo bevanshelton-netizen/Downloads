@@ -1,5 +1,6 @@
 {
   "schema": "izakhono.pay.products/v1",
+  "legal_merchant": "IZAKHONO AFRICA (PTY) LTD",
   "platforms": {
     "faisready": {
       "display_name": "FAISReady",
@@ -8,6 +9,28 @@
         "re5": {"name": "RE5 Complete Prep", "amount_minor": 29900, "currency": "ZAR", "entitlement": {"days": 90}},
         "re1": {"name": "RE1 Complete Prep", "amount_minor": 39900, "currency": "ZAR", "entitlement": {"days": 90}},
         "combo": {"name": "RE5 + RE1 Complete Prep", "amount_minor": 54900, "currency": "ZAR", "entitlement": {"days": 120}}
+      }
+    },
+    "edubuild-ecd360": {
+      "display_name": "Edu-Build Institute – Shelton Campuses",
+      "callback_url": "",
+      "products": {
+        "ecd-nqf4": {"name": "ECD NQF Level 4", "amount_minor": 1300000, "currency": "ZAR", "entitlement": {"kind": "course", "course": "ecd-nqf4"}},
+        "ecd-nqf5": {"name": "ECD NQF Level 5", "amount_minor": 1500000, "currency": "ZAR", "entitlement": {"kind": "course", "course": "ecd-nqf5"}}
+      }
+    },
+    "studypal-welearn": {
+      "display_name": "StudyPal / WeLearn",
+      "callback_url": "",
+      "products": {
+        "monthly": {"name": "AI Learning Monthly Access", "amount_minor": 9900, "currency": "ZAR", "entitlement": {"days": 30}}
+      }
+    },
+    "auto-ai": {
+      "display_name": "AUTO AI",
+      "callback_url": "",
+      "products": {
+        "repair-second-opinion": {"name": "Repair Quote Second Opinion", "amount_minor": 9900, "currency": "ZAR", "entitlement": {"kind": "service", "service": "repair-second-opinion"}}
       }
     },
     "doxa-sure": {
@@ -21,6 +44,26 @@
           "entitlement": {"kind": "service", "service": "rescue-readiness-pack"}
         }
       }
+    },
+    "mandatory-regulatory-exams": {
+      "display_name": "Mandatory Regulatory Exams Platform",
+      "callback_url": "",
+      "products": {}
+    },
+    "allegro-vibez": {
+      "display_name": "ALLEGRO VIBEZ",
+      "callback_url": "",
+      "products": {}
+    },
+    "kora": {
+      "display_name": "KORA",
+      "callback_url": "",
+      "products": {}
+    },
+    "the-chancellor": {
+      "display_name": "The Chancellor",
+      "callback_url": "",
+      "products": {}
     }
   }
 }
