@@ -3,12 +3,14 @@
   "gateway": "izakhono-pay",
   "currency": "ZAR",
   "provider": "ikhokha",
+  "providerStatus": "merchant-live",
   "fallbackProvider": "eft",
-  "mode": "live-when-provider-credentials-present",
+  "mode": "live-primary-provider",
   "scope": "workspace",
+  "legalMerchant": "IZAKHONO AFRICA (PTY) LTD",
   "childAppsMustRegisterIndividually": true,
   "providerCredentialsCentralOnly": true,
   "trustedServerOnly": true,
   "browserSecretsAllowed": false,
-  "liveActivation": "blocked-until-child-app-payment-acceptance"
+  "liveActivation": "child-app-e2e-acceptance-required"
 }
