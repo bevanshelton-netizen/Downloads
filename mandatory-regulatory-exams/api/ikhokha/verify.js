@@ -56,10 +56,11 @@ module.exports = async function handler(req, res) {
   }
 
   const token = issueEntitlement(product, ref, appSecret);
+  res.setHeader('Set-Cookie', `pdeready_entitlement=${encodeURIComponent(token)}; Max-Age=${product.days * 86400}; Path=/; HttpOnly; Secure; SameSite=Lax`);
   return res.status(200).json({
     paid: true,
     status: providerStatus,
-    token,
+    accessUrl: '/api/pdeready/access',
     product: { id: product.id, label: product.label, days: product.days }
   });
 };
