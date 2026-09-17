@@ -1,0 +1,45 @@
+name: Deploy Mandatory Regulatory Exams Production
+
+on:
+  push:
+    branches:
+      - deploy-mandatory-regulatory-exams-prod
+    paths:
+      - 'mandatory-regulatory-exams/**'
+      - '.github/workflows/deploy-mandatory-regulatory-exams-prod.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify deployment token exists
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "VERCEL_TOKEN secret is not configured in this repository."
+            exit 41
+          fi
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@50.12.0
+
+      - name: Link exact existing production project
+        working-directory: mandatory-regulatory-exams
+        run: |
+          mkdir -p .vercel
+          printf '%s\n' '{"orgId":"team_XSHdQaQxmXGD1HlK2E4nehif","projectId":"prj_ZZvwpq9vhxQ9SrYeBJpZpbw8NUKF"}' > .vercel/project.json
+
+      - name: Pull production project settings
+        working-directory: mandatory-regulatory-exams
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+
+      - name: Deploy merged release to production
+        working-directory: mandatory-regulatory-exams
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: vercel deploy --prod --yes --token="$VERCEL_TOKEN"
