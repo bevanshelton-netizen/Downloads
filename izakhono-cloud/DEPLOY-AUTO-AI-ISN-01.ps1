@@ -10,7 +10,8 @@ $EngineProof = Join-Path $State "ENGINE-PROOF.json"
 $EnvFile = Join-Path $State "AUTO-AI.env"
 $EnvTemplate = Join-Path $State "AUTO-AI.env.template"
 $Receipt = Join-Path $State "AUTO-AI-CUTOVER.json"
-$Pinned = "69ec4d0ad41edef19899e3345629cb8d6c989db9"
+# Exact AUTO AI revision that passed the IZAKHONO Central Alpha build/health gate.
+$Pinned = "f33e99793cd53b6b5a468727351724256fea412f"
 
 function Fail([string]$Message) {
     Write-Host "FAIL: $Message" -ForegroundColor Red
@@ -34,34 +35,38 @@ if (-not $wsl) { Fail "WSL is not available." }
 
 if (-not (Test-Path $EnvTemplate)) {
     @"
-# Optional AUTO AI conversational gateway.
-# Leave AUTO-AI.env absent to run the local safety engine only.
+# AUTO AI owner-host runtime. Keep this file only on ISN-01.
+# iKhokha is reached through central IZAKHONO PAY; these two values are required.
+IZAKHONO_PAY_URL=
+IZAKHONO_PAY_API_KEY=
+
+# Optional AUTO AI conversational gateway. The local safety engine works without these.
 AI_CHAT_URL=
 AI_API_KEY=
 AI_MODEL=
 "@ | Set-Content -Path $EnvTemplate -Encoding UTF8
 }
 
-$HasAIEnv = Test-Path $EnvFile
-$linuxEnv = "/tmp/auto-ai-isn01.env"
-if ($HasAIEnv) {
-    Get-Content $EnvFile -Raw | wsl.exe -d Ubuntu-24.04 -- bash -c "umask 077; cat > $linuxEnv"
-    if ($LASTEXITCODE -ne 0) { Fail "Could not hand AUTO-AI.env into the owner-controlled WSL runtime." }
+if (-not (Test-Path $EnvFile)) {
+    Fail "AUTO-AI.env is required for the payment-enabled deployment. Template: $EnvTemplate"
 }
 
+$envText = Get-Content $EnvFile -Raw
+if ($envText -notmatch '(?m)^IZAKHONO_PAY_URL=\S+') { Fail "AUTO-AI.env is missing IZAKHONO_PAY_URL." }
+if ($envText -notmatch '(?m)^IZAKHONO_PAY_API_KEY=\S+') { Fail "AUTO-AI.env is missing IZAKHONO_PAY_API_KEY." }
+
+$linuxEnv = "/tmp/auto-ai-isn01.env"
+$envText | wsl.exe -d Ubuntu-24.04 -- bash -c "umask 077; cat > $linuxEnv"
+if ($LASTEXITCODE -ne 0) { Fail "Could not hand AUTO-AI.env into the owner-controlled WSL runtime." }
+
 Write-Host "ISN-01 proof verified." -ForegroundColor Green
-if ($HasAIEnv) {
-    Write-Host "AUTO AI gateway environment detected; secrets will be passed only to the container runtime." -ForegroundColor Green
-} else {
-    Write-Host "AUTO AI will launch with its local safety engine. Optional template: $EnvTemplate" -ForegroundColor Yellow
-}
-Write-Host "Deploying AUTO AI as an owner-hosted private beta..." -ForegroundColor Cyan
+Write-Host "Central IZAKHONO PAY configuration detected; secrets will be passed only to the container runtime." -ForegroundColor Green
+Write-Host "Deploying payment-enabled AUTO AI private beta..." -ForegroundColor Cyan
 
 $bash = @'
 set -euo pipefail
 
 PINNED="__PINNED__"
-HAS_ENV="__HAS_ENV__"
 ROOT="$HOME/izakhono-fleet/auto-ai"
 REPO="$ROOT/Downloads"
 IMAGE="izakhono/auto-ai:$PINNED"
@@ -94,46 +99,59 @@ git checkout --detach "$PINNED"
 test -f auto-ai/Dockerfile
 test -f auto-ai/server.mjs
 test -f auto-ai/public/index.html
+test -s "$SOURCE_ENV"
 
 docker build -t "$IMAGE" auto-ai
 
 docker rm -f "$CONTAINER" >/dev/null 2>&1 || true
-
 if ss -ltn 2>/dev/null | grep -q ":$PORT "; then
   echo "Port $PORT is already in use after removing the prior AUTO AI container." >&2
   exit 4
 fi
 
-ENV_ARGS=()
-if [ "$HAS_ENV" = "true" ]; then
-  [ -s "$SOURCE_ENV" ] || { echo "AUTO AI environment transfer is empty"; exit 4; }
-  ENV_ARGS=(--env-file "$SOURCE_ENV")
-fi
-
-docker run -d   --name "$CONTAINER"   --restart unless-stopped   --read-only   --tmpfs /tmp:rw,noexec,nosuid,size=64m   --security-opt no-new-privileges   -p "127.0.0.1:$PORT:8080"   "${ENV_ARGS[@]}"   "$IMAGE" >/dev/null
+docker run -d \
+  --name "$CONTAINER" \
+  --restart unless-stopped \
+  --read-only \
+  --tmpfs /tmp:rw,noexec,nosuid,size=64m \
+  --security-opt no-new-privileges \
+  --env-file "$SOURCE_ENV" \
+  -p "127.0.0.1:$PORT:8080" \
+  "$IMAGE" >/dev/null
 
 ok=false
+HEALTH=""
 for i in $(seq 1 30); do
   if HEALTH="$(curl -fsS "http://127.0.0.1:$PORT/api/health" 2>/dev/null)"; then
-    printf '%s' "$HEALTH" | grep -q '"ok":true' && { ok=true; break; }
+    if python3 - "$HEALTH" <<'PY'
+import json,sys
+h=json.loads(sys.argv[1])
+assert h.get('ok') is True
+assert h.get('service') == 'auto-ai'
+assert h.get('paymentsConfigured') is True
+PY
+    then ok=true; break; fi
   fi
   sleep 1
 done
-[ "$ok" = true ] || { docker logs "$CONTAINER" --tail 100; exit 5; }
+[ "$ok" = true ] || { docker logs "$CONTAINER" --tail 100; echo "AUTO AI did not prove payment-ready health." >&2; exit 5; }
 
 python3 - "$PINNED" "$HEALTH" "$PORT" <<'PY' > "$ROOT/auto-ai-cutover.json"
 import datetime, json, sys
 revision, health_raw, port = sys.argv[1:4]
 health=json.loads(health_raw)
 print(json.dumps({
-  "schema":"izakhono.owner-cutover/v1",
+  "schema":"izakhono.owner-cutover/v2",
   "node_name":"ISN-01",
   "app":"auto-ai",
   "revision":revision,
-  "runtime":"docker-loopback-private-beta",
+  "runtime":"docker-loopback-payment-beta",
   "local_url":f"http://127.0.0.1:{port}",
   "health_passed":bool(health.get("ok")),
   "ai_configured":bool(health.get("aiConfigured")),
+  "payment_gateway_configured":bool(health.get("paymentsConfigured")),
+  "payment_provider":"ikhokha-via-izakhono-pay",
+  "legal_merchant":"IZAKHONO AFRICA (PTY) LTD",
   "public_dns_changed":False,
   "public_traffic_changed":False,
   "live_payments_changed":False,
@@ -146,27 +164,29 @@ PY
 cat "$ROOT/auto-ai-cutover.json"
 '@
 
-$bash = $bash.Replace("__PINNED__", $Pinned).Replace("__HAS_ENV__", $HasAIEnv.ToString().ToLowerInvariant())
+$bash = $bash.Replace("__PINNED__", $Pinned)
 $tmp = Join-Path $env:TEMP "izakhono-auto-ai-isn01-cutover.sh"
 Set-Content -Path $tmp -Value $bash -Encoding UTF8
 $linuxTmp = "/tmp/izakhono-auto-ai-isn01-cutover.sh"
 Get-Content $tmp -Raw | wsl.exe -d Ubuntu-24.04 -- bash -c "cat > $linuxTmp"
 wsl.exe -d Ubuntu-24.04 -- bash $linuxTmp
-if ($LASTEXITCODE -ne 0) { Fail "AUTO AI private-beta cutover failed inside WSL." }
+if ($LASTEXITCODE -ne 0) { Fail "AUTO AI payment-enabled private-beta cutover failed inside WSL." }
 
 $linuxReceipt = wsl.exe -d Ubuntu-24.04 -- bash -lc "cat ~/izakhono-fleet/auto-ai/auto-ai-cutover.json"
 $linuxReceipt | Set-Content -Path $Receipt -Encoding UTF8
 
 $verified = Get-Content $Receipt -Raw | ConvertFrom-Json
 if ($verified.health_passed -ne $true) { Fail "AUTO AI health proof was not recorded." }
+if ($verified.payment_gateway_configured -ne $true) { Fail "AUTO AI did not prove the central iKhokha payment bridge." }
 if ($verified.public_ready -ne $false -or $verified.commercial_ready -ne $false) { Fail "AUTO AI readiness boundary was violated." }
 if ($verified.public_dns_changed -ne $false -or $verified.public_traffic_changed -ne $false -or $verified.live_payments_changed -ne $false) {
     Fail "AUTO AI receipt violated the private-beta safety boundary."
 }
 
 Write-Host ""
-Write-Host "AUTO AI IZAKHONO PRIVATE BETA: VERIFIED" -ForegroundColor Green
+Write-Host "AUTO AI IZAKHONO PAYMENT BETA: VERIFIED" -ForegroundColor Green
 Write-Host "Local beta: http://127.0.0.1:18120"
 Write-Host "Receipt: $Receipt"
 Write-Host ("AI gateway configured: " + $verified.ai_configured)
-Write-Host "DNS, public customer traffic and live payments remain unchanged." -ForegroundColor Yellow
+Write-Host "Central iKhokha bridge: configured and health-verified" -ForegroundColor Green
+Write-Host "DNS and public customer traffic remain unchanged until end-to-end paid-order proof passes." -ForegroundColor Yellow
