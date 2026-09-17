@@ -7,6 +7,25 @@
   "container_port": 3000,
   "health_path": "/api/health",
   "branch": "main",
+  "runtime": {
+    "required_server_env": [],
+    "optional_server_env": [
+      "IKHOKHA_APP_ID",
+      "IKHOKHA_APP_SECRET",
+      "IZAKHONO_PAY_URL",
+      "IZAKHONO_PAY_API_KEY",
+      "IZAKHONO_PAY_WEBHOOK_SECRET"
+    ],
+    "browser_secrets_allowed": false
+  },
+  "payments": {
+    "primary_provider": "ikhokha",
+    "shared_gateway": "izakhono-pay",
+    "legal_merchant": "IZAKHONO AFRICA (PTY) LTD",
+    "one_time_purchases": "deploy-wave-enabled",
+    "recurring_and_ticket_paths": "retain-proven-paths-until-separate-gates-pass",
+    "production_cutover": "requires-kora-live-approvals-and-e2e-payment-proof"
+  },
   "alpha": {
     "preflight": true,
     "rehearsal": false,
