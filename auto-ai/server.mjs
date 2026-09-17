@@ -9,6 +9,10 @@ const HOST = process.env.HOST || "0.0.0.0";
 const AI_CHAT_URL = process.env.AI_CHAT_URL || "";
 const AI_API_KEY = process.env.AI_API_KEY || "";
 const AI_MODEL = process.env.AI_MODEL || "";
+const IZAKHONO_PAY_URL = String(process.env.IZAKHONO_PAY_URL || "").trim().replace(/\/$/, "");
+const IZAKHONO_PAY_API_KEY = String(process.env.IZAKHONO_PAY_API_KEY || "").trim();
+const IZAKHONO_PAY_APP_SLUG = "auto-ai";
+const PAY_PRODUCTS = new Set(["vehicle-health-report", "repair-second-opinion", "used-car-buyer-check"]);
 
 const mime = {
   ".html":"text/html; charset=utf-8",
@@ -52,7 +56,7 @@ function securityHeaders(extra={}) {
     "X-Content-Type-Options":"nosniff",
     "Referrer-Policy":"strict-origin-when-cross-origin",
     "Permissions-Policy":"camera=(self), microphone=(self), geolocation=()",
-    "Content-Security-Policy":"default-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self'; script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+    "Content-Security-Policy":"default-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
   },extra);
 }
 function sendJson(res,status,data){
@@ -73,6 +77,74 @@ function findPattern(text, patterns){
   const lower=text.toLowerCase();
   return patterns.find(function(item){ return lower.includes(item[0]); });
 }
+function validEmail(value){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value||"").trim()); }
+function paymentConfigured(){ return Boolean(IZAKHONO_PAY_URL && IZAKHONO_PAY_API_KEY); }
+function validateGatewayOrigin(){
+  if(!paymentConfigured()) throw new Error("Secure iKhokha checkout is not configured on this AUTO AI server.");
+  const u=new URL(IZAKHONO_PAY_URL);
+  const local=u.protocol==="http:" && ["127.0.0.1","localhost","::1"].includes(u.hostname);
+  if(u.protocol!=="https:" && !local) throw new Error("IZAKHONO PAY must use HTTPS or owner-node loopback.");
+  if(u.username||u.password||u.search||u.hash) throw new Error("Invalid IZAKHONO PAY origin.");
+}
+async function gatewayFetch(path, options={}){
+  validateGatewayOrigin();
+  const r=await fetch(IZAKHONO_PAY_URL+path,{
+    ...options,
+    headers:{
+      "Accept":"application/json",
+      "x-izakhono-app":IZAKHONO_PAY_APP_SLUG,
+      "x-izakhono-key":IZAKHONO_PAY_API_KEY,
+      ...(options.body?{"Content-Type":"application/json"}:{}),
+      ...(options.headers||{})
+    },
+    signal:AbortSignal.timeout(15000)
+  });
+  let data={};
+  try{ data=await r.json(); }catch{}
+  if(!r.ok) throw new Error(data.error||"Secure payment service is temporarily unavailable.");
+  return data;
+}
+async function createPayment(input){
+  const product=txt(input.product).toLowerCase();
+  const name=txt(input.name).replace(/\s+/g," ").slice(0,120);
+  const email=txt(input.email).toLowerCase().slice(0,120);
+  if(!PAY_PRODUCTS.has(product)) throw new Error("Unknown AUTO AI product.");
+  if(name.length<2) throw new Error("Enter your name.");
+  if(!validEmail(email)) throw new Error("Enter a valid email address.");
+  const reference="autoai-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,8);
+  const data=await gatewayFetch("/api/v1/orders",{
+    method:"POST",
+    body:JSON.stringify({product_code:product,customer_name:name,customer_email:email,customer_reference:reference})
+  });
+  const order=data&&data.order;
+  if(!order||!order.id||order.product_code!==product||order.currency!=="ZAR") throw new Error("Invalid payment response.");
+  const method=String(order.payment_method||"").toLowerCase();
+  if(method==="ikhokha"){
+    const redirect=String(order.redirect_url||"");
+    const u=new URL(redirect);
+    if(u.protocol!=="https:") throw new Error("Unsafe checkout URL returned.");
+    return {ok:true,order:{id:order.id,status:order.status,product_code:order.product_code,amount_minor:order.amount_minor,currency:order.currency,payment_method:"ikhokha",provider:"ikhokha",redirect_url:redirect}};
+  }
+  if(method==="eft"){
+    return {ok:true,order:{id:order.id,status:order.status,product_code:order.product_code,amount_minor:order.amount_minor,currency:order.currency,payment_method:"eft",provider:"eft",payment_reference:order.payment_reference,bank:order.bank,instructions:order.instructions}};
+  }
+  throw new Error("Unsupported payment method returned.");
+}
+async function paymentStatus(orderId){
+  const id=txt(orderId);
+  if(!/^izp_[A-Za-z0-9_-]{16,80}$/.test(id)) throw new Error("Invalid payment order.");
+  const data=await gatewayFetch("/api/v1/orders/status?"+new URLSearchParams({order:id}),{method:"GET"});
+  const order=data&&data.order;
+  if(!order||order.id!==id) throw new Error("Payment order was not found.");
+  return {id:order.id,status:order.status,product_code:order.product_code,amount_minor:order.amount_minor,currency:order.currency,provider:order.provider,provider_status:order.provider_status};
+}
+async function requirePaid(orderId, product){
+  const order=await paymentStatus(orderId);
+  if(order.product_code!==product) throw new Error("Payment does not match this AUTO AI service.");
+  if(order.status!=="paid") throw new Error("Payment is not confirmed yet.");
+  return order;
+}
+
 function baseReport(input){
   const symptoms=txt(input.symptoms);
   const stop=findPattern(symptoms,stopPatterns);
@@ -174,12 +246,20 @@ function usedCarScore(input){
 
 async function api(req,res,url){
   if(req.method==="GET" && url.pathname==="/api/health"){
-    return sendJson(res,200,{ok:true,service:"auto-ai",version:"0.1.0",aiConfigured:Boolean(AI_CHAT_URL && AI_API_KEY && AI_MODEL)});
+    return sendJson(res,200,{ok:true,service:"auto-ai",version:"0.2.0",aiConfigured:Boolean(AI_CHAT_URL && AI_API_KEY && AI_MODEL),paymentsConfigured:paymentConfigured(),paymentProvider:"ikhokha",legalMerchant:"IZAKHONO AFRICA (PTY) LTD"});
+  }
+  if(req.method==="GET" && url.pathname==="/api/payment/status"){
+    try{return sendJson(res,200,{ok:true,order:await paymentStatus(url.searchParams.get("order"))});}
+    catch(e){return sendJson(res,400,{error:e.message});}
   }
   if(req.method!=="POST") return sendJson(res,405,{error:"Method not allowed"});
   let input;
   try{ input=await readJson(req); }catch(e){ return sendJson(res,400,{error:e.message}); }
 
+  if(url.pathname==="/api/payment/create"){
+    try{return sendJson(res,201,await createPayment(input));}
+    catch(e){return sendJson(res,400,{error:e.message});}
+  }
   if(url.pathname==="/api/triage"){
     const fallback=baseReport(input);
     try{
@@ -205,6 +285,15 @@ async function api(req,res,url){
     });
   }
   if(url.pathname==="/api/quote-review") return sendJson(res,200,quoteReview(input));
+  if(url.pathname==="/api/paid/quote-review"){
+    try{
+      await requirePaid(input.order_id,"repair-second-opinion");
+      const result=quoteReview(input);
+      result.paid=true;
+      result.service="Repair Quote Second Opinion";
+      return sendJson(res,200,result);
+    }catch(e){return sendJson(res,402,{error:e.message});}
+  }
   if(url.pathname==="/api/used-car-score") return sendJson(res,200,usedCarScore(input));
   return sendJson(res,404,{error:"Not found"});
 }
