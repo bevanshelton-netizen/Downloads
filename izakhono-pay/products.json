@@ -30,7 +30,9 @@
       "display_name": "AUTO AI",
       "callback_url": "",
       "products": {
-        "repair-second-opinion": {"name": "Repair Quote Second Opinion", "amount_minor": 9900, "currency": "ZAR", "entitlement": {"kind": "service", "service": "repair-second-opinion"}}
+        "vehicle-health-report": {"name": "Vehicle Health Report", "amount_minor": 7900, "currency": "ZAR", "entitlement": {"kind": "service", "service": "vehicle-health-report"}},
+        "repair-second-opinion": {"name": "Repair Quote Second Opinion", "amount_minor": 9900, "currency": "ZAR", "entitlement": {"kind": "service", "service": "repair-second-opinion"}},
+        "used-car-buyer-check": {"name": "Used-Car Buyer Check", "amount_minor": 14900, "currency": "ZAR", "entitlement": {"kind": "service", "service": "used-car-buyer-check"}}
       }
     },
     "doxa-sure": {
