@@ -2,6 +2,11 @@ name: AUTO AI Vercel Production Deploy
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'auto-ai/share-widget.js'
 
 permissions:
   contents: read
@@ -46,12 +51,19 @@ jobs:
           }
           JSON
 
-          CODE="$(curl -sS -o /tmp/vercel-create.json -w "%{http_code}"             -X POST "https://api.vercel.com/v11/projects?teamId=$VERCEL_ORG_ID"             -H "Authorization: Bearer $VERCEL_TOKEN"             -H "Content-Type: application/json"             --data-binary @/tmp/auto-ai-project.json)"
+          CODE="$(curl -sS -o /tmp/vercel-create.json -w "%{http_code}" \
+            -X POST "https://api.vercel.com/v11/projects?teamId=$VERCEL_ORG_ID" \
+            -H "Authorization: Bearer $VERCEL_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data-binary @/tmp/auto-ai-project.json)"
 
           if [[ "$CODE" =~ ^2 ]]; then
             cp /tmp/vercel-create.json /tmp/vercel-project.json
           elif [ "$CODE" = "409" ]; then
-            curl -fsS               "https://api.vercel.com/v9/projects/auto-ai?teamId=$VERCEL_ORG_ID"               -H "Authorization: Bearer $VERCEL_TOKEN"               > /tmp/vercel-project.json
+            curl -fsS \
+              "https://api.vercel.com/v9/projects/auto-ai?teamId=$VERCEL_ORG_ID" \
+              -H "Authorization: Bearer $VERCEL_TOKEN" \
+              > /tmp/vercel-project.json
           else
             echo "Vercel project creation failed with HTTP $CODE"
             cat /tmp/vercel-create.json
@@ -99,8 +111,12 @@ jobs:
           done
           node -e "const x=require('/tmp/health.json'); if(x.ok!==true||x.service!=='auto-ai') process.exit(1)"
           curl -fsS "$URL/" | grep -q "AUTO AI"
-          curl -fsS -X POST "$URL/api/fault-code"             -H "Content-Type: application/json"             -d '{"code":"P0420"}' | grep -q "Catalyst system efficiency"
-          curl -fsS -X POST "$URL/api/triage"             -H "Content-Type: application/json"             -d '{"symptoms":"My oil pressure warning is on"}' | grep -q '"urgency":"STOP"'
+          curl -fsS -X POST "$URL/api/fault-code" \
+            -H "Content-Type: application/json" \
+            -d '{"code":"P0420"}' | grep -q "Catalyst system efficiency"
+          curl -fsS -X POST "$URL/api/triage" \
+            -H "Content-Type: application/json" \
+            -d '{"symptoms":"My oil pressure warning is on"}' | grep -q '"urgency":"STOP"'
           echo "AUTO AI public smoke tests passed."
 
       - name: Publish deployment summary
