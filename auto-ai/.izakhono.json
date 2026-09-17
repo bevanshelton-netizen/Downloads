@@ -22,7 +22,7 @@
   },
   "alpha": {
     "preflight": true,
-    "rehearsal": true,
+    "rehearsal": false,
     "windows_package": false
   }
 }
