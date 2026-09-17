@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - 'feature/izakhono-studio-*'
+      - 'feature/studio-*'
     paths:
       - 'IZAKHONO-STUDIO/**'
       - '.github/workflows/izakhono-studio-ci.yml'
