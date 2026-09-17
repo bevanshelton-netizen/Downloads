@@ -1,10 +1,12 @@
 {
-  "version": 2,
+  "version": 3,
   "gateway": "izakhono-pay",
   "primaryProvider": "ikhokha",
+  "primaryProviderStatus": "merchant-live",
   "fallbackProvider": "eft",
   "currency": "ZAR",
-  "mode": "live-when-provider-credentials-present",
+  "legalMerchant": "IZAKHONO AFRICA (PTY) LTD",
+  "mode": "live-primary-provider-child-gated",
   "browserSecretsAllowed": false,
   "providerCredentials": "central-server-only",
   "requiredChildServerEnv": [
@@ -21,7 +23,27 @@
     {
       "slug": "faisready",
       "workspacePath": "FAISReady",
-      "status": "gateway-registered"
+      "status": "gateway-registered-adapter-upgrade-required-for-ikhokha-redirect"
+    },
+    {
+      "slug": "mandatory-regulatory-exams",
+      "workspacePath": "mandatory-regulatory-exams",
+      "status": "gateway-registration-ready"
+    },
+    {
+      "slug": "edubuild-ecd360",
+      "workspacePath": "edubuild-ecd360",
+      "status": "gateway-registration-ready-e2e-required"
+    },
+    {
+      "slug": "studypal-welearn",
+      "workspacePath": "studypal-welearn",
+      "status": "canonical-source-recovery-required-before-payment-cutover"
+    },
+    {
+      "slug": "allegro-vibez",
+      "workspacePath": "allegro-vibez",
+      "status": "gateway-registration-pending-fixed-products"
     },
     {
       "slug": "kora",
@@ -29,25 +51,35 @@
       "status": "ikhokha-direct-and-shared-gateway-compatible"
     },
     {
-      "slug": "doxa-sure",
-      "workspacePath": "doxa-sure",
-      "status": "gateway-registered"
+      "slug": "auto-ai",
+      "workspacePath": "auto-ai",
+      "status": "gateway-registration-ready"
     },
     {
-      "slug": "izakhono-cloud",
-      "workspacePath": "izakhono-cloud",
-      "status": "gateway-registration-pending-products"
+      "slug": "matric-rewrite",
+      "workspacePath": "matric-rewrite",
+      "status": "gateway-registration-pending-final-price"
+    },
+    {
+      "slug": "the-chancellor",
+      "workspacePath": "the-chancellor",
+      "status": "gateway-registration-pending-fixed-products"
+    },
+    {
+      "slug": "doxa-sure",
+      "workspacePath": "doxa-sure",
+      "status": "gateway-registered-nonregulated-services-only"
+    },
+    {
+      "slug": "bevan-shelton",
+      "workspacePath": "bevan-shelton",
+      "status": "gateway-registration-pending-product-catalogue"
     },
     {
       "slug": "izakhono-group",
       "workspacePath": "izakhono-group",
       "status": "gateway-registration-pending-products"
-    },
-    {
-      "slug": "bevan-shelton-racing",
-      "workspacePath": "bevan-shelton-racing",
-      "status": "gateway-registration-pending-products"
     }
   ],
-  "liveActivation": "publish-only-after-e2e-payment-acceptance"
+  "liveActivation": "publish-only-after-child-app-e2e-payment-acceptance"
 }
