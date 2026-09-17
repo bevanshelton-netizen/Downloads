@@ -1,20 +1,14 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { toBlob, toPng } from 'html-to-image';
+import { PORTFOLIO, CAMPAIGN_LEVELS, CAMPAIGN_FORMATS } from './portfolio.js';
+import { FORMAT_SIZES, buildSuperCampaignPack, downloadBlob } from './campaignEngine.js';
 
-const PRESETS = {
-  'Instagram Post': [1080, 1080],
-  'Story / Reel': [1080, 1920],
-  'Facebook Post': [1200, 630],
-  'LinkedIn Post': [1200, 627],
-  'YouTube Thumbnail': [1280, 720],
-  'A4 Flyer': [1240, 1754],
-};
-
+const PRESETS = FORMAT_SIZES;
 const FONTS = ['Bebas Neue', 'Montserrat', 'Oswald', 'Playfair Display', 'Poppins', 'Archivo Black'];
 
 const starter = [
-  { id: 1, type: 'text', text: 'MAKE IT IMPOSSIBLE TO IGNORE', x: 80, y: 130, w: 760, fontSize: 88, fontFamily: 'Bebas Neue', fontWeight: 700, color: '#ffffff', align: 'left' },
-  { id: 2, type: 'text', text: 'Design fast. Brand loud. Share anywhere.', x: 84, y: 350, w: 650, fontSize: 34, fontFamily: 'Montserrat', fontWeight: 700, color: '#b8ff3d', align: 'left' },
+  { id: 1, type: 'text', text: 'ONE BRIEF. THE WHOLE PORTFOLIO.', x: 80, y: 130, w: 780, fontSize: 88, fontFamily: 'Bebas Neue', fontWeight: 700, color: '#ffffff', align: 'left' },
+  { id: 2, type: 'text', text: 'Generate campaigns at portfolio scale.', x: 84, y: 350, w: 650, fontSize: 34, fontFamily: 'Montserrat', fontWeight: 700, color: '#b8ff3d', align: 'left' },
 ];
 
 function App() {
@@ -28,9 +22,16 @@ function App() {
   const [brandColor, setBrandColor] = useState('#b8ff3d');
   const [zoom, setZoom] = useState(0.55);
   const [drag, setDrag] = useState(null);
+  const [superBrief, setSuperBrief] = useState('Drive qualified traffic to every live IZAKHONO portfolio platform. Make the offer instantly clear and give people one obvious action.');
+  const [superOffer, setSuperOffer] = useState('');
+  const [campaignBusy, setCampaignBusy] = useState(false);
+  const [campaignProgress, setCampaignProgress] = useState(null);
+  const [lastPack, setLastPack] = useState(null);
 
   const [width, height] = PRESETS[sizeName];
   const selected = elements.find((el) => el.id === selectedId);
+  const totalCreatives = PORTFOLIO.length * CAMPAIGN_LEVELS.length * CAMPAIGN_FORMATS.length;
+  const totalCaptionRows = totalCreatives * 6;
 
   const templates = useMemo(() => [
     { name: 'Launch', bg: '#0b0f18', accent: '#b8ff3d', headline: 'YOUR NEXT BIG THING STARTS HERE' },
@@ -94,6 +95,32 @@ function App() {
     applyTemplate({ ...t, headline: prompt.trim() ? prompt.trim().toUpperCase().slice(0, 80) : t.headline });
   };
 
+  const generatePortfolioCampaign = async () => {
+    if (campaignBusy) return;
+    setCampaignBusy(true);
+    setLastPack(null);
+    setCampaignProgress({ completed: 0, total: totalCreatives, brand: 'Starting', level: '', format: '' });
+    try {
+      const blob = await buildSuperCampaignPack({
+        brands: PORTFOLIO,
+        levels: CAMPAIGN_LEVELS,
+        formats: CAMPAIGN_FORMATS,
+        brief: superBrief,
+        offer: superOffer,
+        onProgress: setCampaignProgress,
+      });
+      const stamp = new Date().toISOString().slice(0, 10);
+      const filename = `izakhono-super-campaign-${stamp}.zip`;
+      downloadBlob(blob, filename);
+      setLastPack({ filename, creatives: totalCreatives, captions: totalCaptionRows });
+    } catch (error) {
+      console.error(error);
+      setCampaignProgress({ error: error?.message || 'Campaign generation failed.' });
+    } finally {
+      setCampaignBusy(false);
+    }
+  };
+
   const exportPng = async () => {
     if (!stageRef.current) return;
     const dataUrl = await toPng(stageRef.current, { cacheBust: true, pixelRatio: 1 });
@@ -134,22 +161,70 @@ function App() {
     <main className="app-shell" onPointerMove={pointerMove} onPointerUp={() => setDrag(null)}>
       <header className="topbar">
         <div className="brand-wrap">
-          <div className="brand-kicker">CREATE • BRAND • SHARE</div>
+          <div className="brand-kicker">PORTFOLIO CREATIVE OPERATING SYSTEM</div>
           <div className="brand-name">IZAKHONO <span>STUDIO</span></div>
         </div>
         <div className="top-actions">
-          <button className="ghost" onClick={shareDesign}>Share</button>
-          <button className="primary" onClick={exportPng}>Export PNG</button>
+          <button className="ghost" onClick={shareDesign}>Share Current</button>
+          <button className="primary" onClick={exportPng}>Export Current</button>
         </div>
       </header>
 
-      <section className="hero-strip">
+      <section className="hero-strip super-hero">
         <div>
-          <h1>Design fast. <em>Brand loud.</em> Share anywhere.</h1>
-          <p>Create social posts, posters, stories, flyers and branded content directly in your browser.</p>
+          <div className="super-badge">SUPER PLATFORM • {PORTFOLIO.length} PORTFOLIO BRANDS CONNECTED</div>
+          <h1>One brief. <em>Every platform.</em> Full campaign.</h1>
+          <p>Generate portfolio-wide advertising at every level IZAKHONO STUDIO supports — automatically, in all major creative sizes, with social copy included.</p>
+        </div>
+        <div className="super-stats">
+          <div><strong>{PORTFOLIO.length}</strong><span>brands</span></div>
+          <div><strong>{CAMPAIGN_LEVELS.length}</strong><span>campaign levels</span></div>
+          <div><strong>{CAMPAIGN_FORMATS.length}</strong><span>creative formats</span></div>
+          <div><strong>{totalCreatives}</strong><span>creatives / run</span></div>
+        </div>
+      </section>
+
+      <section className="super-engine">
+        <div className="engine-copy">
+          <span className="eyebrow">PORTFOLIO CAMPAIGN ENGINE</span>
+          <h2>Generate the whole advertising machine.</h2>
+          <p>Studio automatically applies each platform's identity, audience, promise, CTA, visual direction, campaign stage and format. You do not design individual adverts.</p>
+          <div className="coverage-chips">
+            {PORTFOLIO.map((brand) => <span key={brand.id}>{brand.name}</span>)}
+          </div>
+        </div>
+        <div className="engine-controls">
+          <label>Master campaign brief<textarea value={superBrief} onChange={(e) => setSuperBrief(e.target.value)} /></label>
+          <label>Portfolio-wide offer or message <input value={superOffer} onChange={(e) => setSuperOffer(e.target.value)} placeholder="Optional — leave blank to use each platform's core offer" /></label>
+          <div className="engine-includes">
+            <span>Awareness</span><span>Benefits</span><span>Offers</span><span>Conversion</span><span>Retargeting</span><span>Shareable</span>
+          </div>
+          <button className="super-button" onClick={generatePortfolioCampaign} disabled={campaignBusy}>
+            {campaignBusy ? `GENERATING ${campaignProgress?.completed || 0}/${campaignProgress?.total || totalCreatives}` : `GENERATE FULL PORTFOLIO CAMPAIGN • ${totalCreatives} CREATIVES`}
+          </button>
+          {campaignBusy && <div className="progress-wrap"><div className="progress-bar" style={{ width: `${Math.round(((campaignProgress?.completed || 0) / totalCreatives) * 100)}%` }} /><small>{campaignProgress?.brand} • {campaignProgress?.level} • {campaignProgress?.format}</small></div>}
+          {campaignProgress?.error && <p className="error-text">{campaignProgress.error}</p>}
+          {lastPack && <div className="success-box"><b>Campaign pack generated.</b><span>{lastPack.creatives} graphics + {lastPack.captions} social-caption placements + manifest packaged in {lastPack.filename}.</span></div>}
+        </div>
+      </section>
+
+      <section className="automation-ribbon">
+        <b>ONE RUN CREATES:</b>
+        <span>Feed ads</span><span>Stories</span><span>Reels/TikTok art</span><span>Facebook link ads</span><span>LinkedIn creatives</span><span>YouTube thumbnails</span><span>6 social-network copy sets</span><span>Campaign manifest</span>
+      </section>
+
+      <section className="editor-heading">
+        <span className="eyebrow">OPTIONAL MANUAL STUDIO</span>
+        <h2>Fine-tune only when you want to.</h2>
+      </section>
+
+      <section className="hero-strip compact-hero">
+        <div>
+          <h2>Manual creative editor</h2>
+          <p>The bulk engine handles scale. This editor remains available for exceptional campaigns or one-off refinements.</p>
         </div>
         <div className="magic-box">
-          <input value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Describe what you want to create…" />
+          <input value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Describe a one-off creative…" />
           <button onClick={smartDesign}>Instant Design</button>
         </div>
       </section>
@@ -160,12 +235,10 @@ function App() {
           <div className="template-grid">
             {templates.map((t) => <button key={t.name} className="template-card" style={{ background: t.bg, borderColor: t.accent }} onClick={() => applyTemplate(t)}><b>{t.name}</b><span style={{ color: t.accent }}>{t.headline}</span></button>)}
           </div>
-
           <h3>Canvas</h3>
           <select value={sizeName} onChange={(e) => setSizeName(e.target.value)}>{Object.keys(PRESETS).map((key) => <option key={key}>{key}</option>)}</select>
           <label>Background <input type="color" value={background} onChange={(e) => setBackground(e.target.value)} /></label>
           <label>Zoom <input type="range" min="0.28" max="0.8" step="0.01" value={zoom} onChange={(e) => setZoom(Number(e.target.value))} /></label>
-
           <h3>Add</h3>
           <button onClick={addText}>+ Text</button>
           <label className="upload-btn">+ Upload image<input hidden type="file" accept="image/*" onChange={(e) => addImage(e.target.files?.[0])} /></label>
@@ -177,17 +250,8 @@ function App() {
               <div className="accent-orb" style={{ background: brandColor }} />
               <div className="watermark">IZAKHONO STUDIO</div>
               {elements.map((el) => (
-                <div
-                  key={el.id}
-                  onPointerDown={(e) => pointerDown(e, el)}
-                  className={`design-element ${selectedId === el.id ? 'selected' : ''}`}
-                  style={{ left: el.x, top: el.y, width: el.w, height: el.h || 'auto' }}
-                >
-                  {el.type === 'text' ? (
-                    <div style={{ fontFamily: el.fontFamily, fontSize: el.fontSize, fontWeight: el.fontWeight, color: el.color, textAlign: el.align, lineHeight: 0.95, textTransform: 'uppercase' }}>{el.text}</div>
-                  ) : (
-                    <img src={el.src} alt="Uploaded design element" draggable="false" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: el.radius }} />
-                  )}
+                <div key={el.id} onPointerDown={(e) => pointerDown(e, el)} className={`design-element ${selectedId === el.id ? 'selected' : ''}`} style={{ left: el.x, top: el.y, width: el.w, height: el.h || 'auto' }}>
+                  {el.type === 'text' ? <div style={{ fontFamily: el.fontFamily, fontSize: el.fontSize, fontWeight: el.fontWeight, color: el.color, textAlign: el.align, lineHeight: 0.95, textTransform: 'uppercase' }}>{el.text}</div> : <img src={el.src} alt="Uploaded design element" draggable="false" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: el.radius }} />}
                 </div>
               ))}
             </div>
@@ -198,7 +262,6 @@ function App() {
           <h3>Brand Kit</h3>
           <label>Brand name<input value={brandName} onChange={(e) => setBrandName(e.target.value)} /></label>
           <label>Accent<input type="color" value={brandColor} onChange={(e) => setBrandColor(e.target.value)} /></label>
-
           <h3>Selected</h3>
           {!selected && <p className="muted">Tap an element to edit it.</p>}
           {selected?.type === 'text' && <>
