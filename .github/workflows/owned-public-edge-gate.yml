@@ -1,0 +1,127 @@
+name: IZAKHONO Owned Public Edge Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'izakhono-dns-node/**'
+      - 'izakhono-owned-cloud/activate-owned-public-edge.sh'
+      - 'izakhono-owned-cloud/install-owned-stack.sh'
+      - 'izakhono-owned-cloud/stack-status.sh'
+      - 'owner-host/START-IZAKHONO-PUBLIC-EDGE.ps1'
+      - 'START-IZAKHONO-PUBLIC-EDGE.cmd'
+      - '.github/workflows/owned-public-edge-gate.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'izakhono-dns-node/**'
+      - 'izakhono-owned-cloud/activate-owned-public-edge.sh'
+      - 'izakhono-owned-cloud/install-owned-stack.sh'
+      - 'izakhono-owned-cloud/stack-status.sh'
+      - 'owner-host/START-IZAKHONO-PUBLIC-EDGE.ps1'
+      - 'START-IZAKHONO-PUBLIC-EDGE.cmd'
+      - '.github/workflows/owned-public-edge-gate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.1'
+
+      - name: Syntax checks
+        run: |
+          node --check izakhono-dns-node/server.mjs
+          bash -n izakhono-dns-node/install-linux.sh
+          bash -n izakhono-owned-cloud/activate-owned-public-edge.sh
+          bash -n izakhono-owned-cloud/install-owned-stack.sh
+          bash -n izakhono-owned-cloud/stack-status.sh
+
+      - name: Functional authoritative DNS proof
+        run: |
+          cat > /tmp/izakhono-zone.json <<'JSON'
+          {
+            "zone":"domains.izakhonoafrica.co.za.",
+            "ttl":60,
+            "soa":{"mname":"ns1.izakhonoafrica.co.za.","rname":"hostmaster.izakhonoafrica.co.za.","serial":2026091801,"refresh":3600,"retry":600,"expire":1209600,"minimum":60},
+            "records":[
+              {"name":"@","type":"NS","value":"ns1.izakhonoafrica.co.za.","ttl":60},
+              {"name":"@","type":"A","value":"203.0.113.10","ttl":60}
+            ]
+          }
+          JSON
+          IZAKHONO_DNS_HOST=127.0.0.1           IZAKHONO_DNS_PORT=15353           IZAKHONO_DNS_CONTROL_PORT=18900           IZAKHONO_DNS_ZONE=/tmp/izakhono-zone.json           node izakhono-dns-node/server.mjs >/tmp/izakhono-dns.log 2>&1 &
+          echo $! >/tmp/izakhono-dns.pid
+          trap 'kill $(cat /tmp/izakhono-dns.pid) 2>/dev/null || true' EXIT
+          for i in 1 2 3 4 5; do curl -fsS http://127.0.0.1:18900/health && break || sleep 1; done
+          node <<'NODE'
+          const d=require('dgram');
+          function query(name,type=1){
+            return new Promise((resolve,reject)=>{
+              const labels=name.replace(/\.$/,'').split('.');
+              const q=Buffer.concat([
+                Buffer.from([0x22,0x22,0x01,0x00,0x00,0x01,0,0,0,0,0,0]),
+                ...labels.flatMap(x=>[Buffer.from([Buffer.byteLength(x)]),Buffer.from(x)]),
+                Buffer.from([0,(type>>8)&255,type&255,0,1])
+              ]);
+              const s=d.createSocket('udp4');
+              const t=setTimeout(()=>{s.close();reject(new Error('timeout '+name));},2000);
+              s.on('message',m=>{clearTimeout(t);s.close();resolve({rcode:m.readUInt16BE(2)&15,answers:m.readUInt16BE(6),aa:Boolean(m.readUInt16BE(2)&0x0400),ra:Boolean(m.readUInt16BE(2)&0x0080)});});
+              s.send(q,15353,'127.0.0.1');
+            });
+          }
+          (async()=>{
+            const owned=await query('domains.izakhonoafrica.co.za');
+            if(owned.rcode!==0||owned.answers<1||!owned.aa||owned.ra) throw new Error('owned-zone authoritative answer failed '+JSON.stringify(owned));
+            const foreign=await query('example.com');
+            if(foreign.rcode!==5||foreign.answers!==0||foreign.ra) throw new Error('recursion refusal failed '+JSON.stringify(foreign));
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
+          curl -fsS http://127.0.0.1:18900/health | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const x=JSON.parse(s);if(x.authoritative!==true||x.recursive!==false||x.zone!=="domains.izakhonoafrica.co.za.")process.exit(1)})'
+
+      - name: Guard cutover safety contract
+        run: |
+          grep -q 'domains.izakhonoafrica.co.za' izakhono-owned-cloud/activate-owned-public-edge.sh
+          grep -q 'resolveNs' izakhono-owned-cloud/activate-owned-public-edge.sh
+          grep -q 'certbot certonly' izakhono-owned-cloud/activate-owned-public-edge.sh
+          grep -q 'IZAKHONO_EDGE_MODE=direct' izakhono-owned-cloud/activate-owned-public-edge.sh
+          grep -q '53/udp' izakhono-owned-cloud/activate-owned-public-edge.sh
+          grep -q 'cloudflare_tunnel_required:false' izakhono-owned-cloud/activate-owned-public-edge.sh
+          if grep -Eq 'cloudflared tunnel route|Cloudflare API token|CLOUDFLARE_API_TOKEN' izakhono-owned-cloud/activate-owned-public-edge.sh; then
+            echo "Owned public edge must not depend on Cloudflare control APIs."
+            exit 1
+          fi
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Parse PowerShell launcher
+        shell: pwsh
+        run: |
+          $tokens=$null; $errors=$null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path 'owner-host/START-IZAKHONO-PUBLIC-EDGE.ps1'),
+            [ref]$tokens,[ref]$errors
+          ) | Out-Null
+          if($errors.Count -gt 0){
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
+      - name: Verify one-click handoff
+        shell: pwsh
+        run: |
+          $cmd=Get-Content 'START-IZAKHONO-PUBLIC-EDGE.cmd' -Raw
+          if($cmd -notmatch 'START-IZAKHONO-PUBLIC-EDGE.ps1'){ throw 'CMD target mismatch' }
+          $ps=Get-Content 'owner-host/START-IZAKHONO-PUBLIC-EDGE.ps1' -Raw
+          if($ps -notmatch 'Ubuntu-24.04'){ throw 'WSL target missing' }
+          if($ps -notmatch 'activate-owned-public-edge.sh'){ throw 'cutover handoff missing' }

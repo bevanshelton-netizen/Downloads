@@ -21,9 +21,9 @@ This integration uses FORTRESS as an internal protection and incident-readiness 
 9. **IZAKHONO AI GATEWAY NODE** — owned local-first model routing, failover, quotas and AI governance.
 10. **IZAKHONO CODE NODE** — owned Git repositories, clone/fetch/push, scoped tokens and signed push webhooks.
 11. **IZAKHONO BACKUP NODE** — encrypted snapshots, retention, mirror copies, verification and staged restore.
-12. **IZAKHONO CI WORKER NODE** — owned CODE/QUEUE build execution with commit pinning, signed triggers and production sandbox policy.\n13. **IZAKHONO REPLICA NODE** — second-host streaming replication for already-encrypted BACKUP archives.
+12. **IZAKHONO CI WORKER NODE** — owned CODE/QUEUE build execution with commit pinning, signed triggers and production sandbox policy.\n13. **IZAKHONO REPLICA NODE** — second-host streaming replication for already-encrypted BACKUP archives.\n14. **IZAKHONO DNS NODE** — owned authoritative DNS for delegated IZAKHONO zones, with recursion disabled.
 
-All thirteen services are designed to run on Linux hardware you control and use Node.js built-ins plus SQLite. They do not require hosted database, object-store, queue, authentication or analytics subscriptions.
+All fourteen services are designed to run on Linux hardware you control and use Node.js built-ins plus SQLite. They do not require hosted database, object-store, queue, authentication or analytics subscriptions.
 
 ## Install
 
@@ -122,4 +122,4 @@ That installs the full stack, configures Growth OS, creates the encrypted core b
 
 Owned Cloud eliminates the software subscription requirement for these thirteen infrastructure layers, but running infrastructure still requires hardware, disks, backups, power and internet connectivity.
 
-Public DNS registration, a certificate authority relationship, upstream ISP connectivity and large-scale DDoS scrubbing remain external network realities.
+IZAKHONO DNS NODE can own authoritative DNS after the parent/registrar delegates a zone to it. Public domain registration/delegation authority, a trusted certificate authority relationship, upstream ISP connectivity and large-scale DDoS scrubbing remain external network realities. The first safe cutover uses the child zone domains.izakhonoafrica.co.za so existing apex mail/TXT/web records are not disturbed.

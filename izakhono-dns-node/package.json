@@ -1,0 +1,8 @@
+{
+  "name": "izakhono-dns-node",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {"check":"node --check server.mjs"},
+  "engines": {"node":">=22.13.0"}
+}
