@@ -1,0 +1,29 @@
+name: AUTO AI Owned Cloud E2E
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "auto-ai/**"
+      - "izakhono-runtime-node/**"
+      - "izakhono-edge-node/**"
+      - "izakhono-owned-cloud/**"
+      - ".github/workflows/auto-ai-owned-cloud-e2e.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prove-owned-hosting:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.13.1"
+      - name: Validate test harness
+        run: bash -n izakhono-owned-cloud/test-auto-ai-e2e.sh
+      - name: Prove AUTO AI on IZAKHONO Runtime + Edge
+        run: bash izakhono-owned-cloud/test-auto-ai-e2e.sh
