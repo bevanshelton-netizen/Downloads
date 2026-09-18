@@ -1,8 +1,8 @@
 {
-  "version": 1,
+  "version": 2,
   "updated": "2026-09-18",
-  "mode": "always-on-owned-media",
-  "slotMinutes": 10,
+  "mode": "always-on-owned-media-aggressive",
+  "slotMinutes": 5,
   "paidSpendZAR": 0,
   "priority": "revenue-first",
   "rotation": [
@@ -28,20 +28,51 @@
     },
     {
       "slot": 5,
+      "brand": "Learner Driver SA",
+      "offer": "Codes 08, 10, 14 + motorcycles"
+    },
+    {
+      "slot": 6,
+      "brand": "AUTO AI",
+      "offer": "R99 Repair Quote Second Opinion"
+    },
+    {
+      "slot": 7,
       "brand": "FAISReady",
       "offer": "RE5 from R299"
     },
     {
-      "slot": 6,
+      "slot": 8,
+      "brand": "AUTO AI",
+      "offer": "R99 Repair Quote Second Opinion"
+    },
+    {
+      "slot": 9,
+      "brand": "Mandatory Regulatory Exams",
+      "offer": "RE1 + RE5 bundle R549"
+    },
+    {
+      "slot": 10,
+      "brand": "FAISReady",
+      "offer": "RE5 from R299"
+    },
+    {
+      "slot": 11,
       "brand": "Learner Driver SA",
       "offer": "Codes 08, 10, 14 + motorcycles"
+    },
+    {
+      "slot": 12,
+      "brand": "AUTO AI",
+      "offer": "R99 Repair Quote Second Opinion"
     }
   ],
   "rules": [
-    "Run continuously 24 hours a day.",
-    "A new owned-media slot becomes active every 10 minutes.",
-    "Paid advertiser creative takes priority when eligible; otherwise use the current house-ad slot.",
-    "Never spend on external paid media without explicit budget approval.",
-    "Use tracked destination links and keep unavailable products out of the rotation."
+    "Run continuously 24 hours a day, 365 days a year.",
+    "Advance the owned-media rotation every 5 minutes.",
+    "Keep AUTO AI and FAISReady weighted most heavily for immediate revenue.",
+    "Paid advertiser creative takes priority when eligible; otherwise use the current owned house-ad slot.",
+    "Keep external paid-media spend at R0 unless explicitly approved.",
+    "Use tracked destination links and only advertise currently available offers."
   ]
 }
