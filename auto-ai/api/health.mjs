@@ -8,6 +8,7 @@ export default function handler(req,res){
     runtime:"vercel",
     aiConfigured:Boolean(process.env.AI_CHAT_URL&&process.env.AI_API_KEY&&process.env.AI_MODEL),
     paymentsConfigured:paymentsConfigured(),
+    checkoutMode:paymentsConfigured()?"automated-ikhokha":"whatsapp-ikhokha-fallback",
     paymentProvider:"ikhokha",
     legalMerchant:"IZAKHONO AFRICA (PTY) LTD"
   });
