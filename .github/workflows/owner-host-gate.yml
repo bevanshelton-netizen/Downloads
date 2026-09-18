@@ -97,5 +97,6 @@ jobs:
           if ($domainsPs -notmatch 'Ubuntu-24.04') { throw 'Domains launcher WSL target missing' }
           if ($domainsPs -notmatch 'deploy-izakhono-domains.sh') { throw 'Domains deployment handoff missing' }
           if ($domainsPs -notmatch 'domains.izakhonoafrica.co.za') { throw 'Domains public hostname missing' }
-          if ($domainsPs -notmatch '127.0.0.1:8780') { throw 'Domains tunnel origin missing' }
-          if ($domainsPs -notmatch 'PUBLIC CUTOVER: LIVE AND VERIFIED') { throw 'Domains public verification gate missing' }
+          if ($domainsPs -notmatch 'activate-owned-public-edge.sh') { throw 'Domains owned public-edge handoff missing' }
+          if ($domainsPs -notmatch 'IZAKHONO OWNED PUBLIC EDGE: LIVE AND VERIFIED') { throw 'Domains owned public verification gate missing' }
+          if ($domainsPs -match 'Cloudflare Tunnel public hostname') { throw 'Domains launcher must prefer IZAKHONO owned public edge' }
