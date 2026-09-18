@@ -20,8 +20,9 @@ type Plan = {
 };
 
 const brands = [
-  "NexAI Global Markets","Edu-Build Institute","FAISReady","KORA Network",
-  "DOXA-SURE","BEVAN SHELTON","Izakhono Africa"
+  "KORA Network","AUTO AI","FAISReady","Mandatory Regulatory Exams",
+  "DOXA-SURE","Edu-Build ECD360","NexAI Global Markets",
+  "BEVAN SHELTON","Izakhono Africa"
 ];
 
 const providers = [
