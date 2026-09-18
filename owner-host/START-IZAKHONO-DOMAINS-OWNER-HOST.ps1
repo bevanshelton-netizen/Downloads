@@ -70,11 +70,37 @@ try {
         exit 0
     }
 } catch {
-    Write-Host "PUBLIC CUTOVER: hostname is not routed to the owner tunnel yet." -ForegroundColor Yellow
+    Write-Host "PUBLIC CUTOVER: not verified yet. Activating IZAKHONO-owned DNS and PUBLIC EDGE..." -ForegroundColor Yellow
 }
 
-Write-Host ""
-Write-Host "ONE EXTERNAL MAPPING REMAINS:" -ForegroundColor Yellow
-Write-Host "Cloudflare Tunnel public hostname: domains.izakhonoafrica.co.za" -ForegroundColor Yellow
-Write-Host "Service/origin: http://127.0.0.1:8780" -ForegroundColor Yellow
-Write-Host "After adding that mapping, rerun this same launcher; it will verify and open the live site." -ForegroundColor Yellow
+& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "set -euo pipefail; cd /opt/izakhono-source/Downloads; bash izakhono-owned-cloud/activate-owned-public-edge.sh"
+$edgeCode = $LASTEXITCODE
+if ($edgeCode -eq 20) {
+    Write-Host ""
+    Write-Host "IZAKHONO-owned DNS and PUBLIC EDGE are installed locally." -ForegroundColor Green
+    Write-Host "Use the exact parent-DNS delegation and router-forward values printed above, then rerun this same launcher." -ForegroundColor Yellow
+    exit 20
+}
+if ($edgeCode -eq 21) {
+    Write-Host ""
+    Write-Host "Owned DNS delegation is visible. Public TCP 80/443 or trusted TLS still needs to complete." -ForegroundColor Yellow
+    exit 21
+}
+if ($edgeCode -ne 0) {
+    throw "IZAKHONO-owned public-edge activation failed (code $edgeCode)."
+}
+
+try {
+    $public = Invoke-WebRequest -UseBasicParsing -TimeoutSec 12 "https://domains.izakhonoafrica.co.za/health"
+    $health = $public.Content | ConvertFrom-Json
+    if ($health.ok -eq $true -and $health.service -eq "IZAKHONO DOMAINS") {
+        Write-Host "IZAKHONO OWNED PUBLIC EDGE: LIVE AND VERIFIED" -ForegroundColor Green
+        Write-Host "Cloudflare Tunnel is not required for IZAKHONO DOMAINS." -ForegroundColor Green
+        Start-Process "https://domains.izakhonoafrica.co.za"
+        exit 0
+    }
+} catch {
+    throw "Owned public-edge activation passed locally, but the public health endpoint is still not reachable."
+}
+
+throw "Owned public-edge activation returned without a verified IZAKHONO DOMAINS health response."
