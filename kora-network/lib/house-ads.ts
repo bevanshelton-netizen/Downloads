@@ -9,6 +9,14 @@ export type HouseAd = {
 
 export const houseAds: HouseAd[] = [
   {
+    id: 'learner-driver-sa',
+    name: 'Learner Driver SA',
+    body: 'Prepare for motorcycles, Code 08, Code 10 and Code 14 with mock tests, road signs, live simulators and 12 official languages.',
+    cta: 'START PREPARING',
+    clickUrl: 'https://learner-driver-sa-bevan2.vercel.app/?utm_source=kora&utm_medium=owned_network&utm_campaign=learner_driver_sa_launch&utm_content=house_ad',
+    accent: '#18c98b',
+  },
+  {
     id: 'auto-ai',
     name: 'AUTO AI',
     body: 'Got a repair quote or a car problem? Get clearer vehicle guidance before you spend.',
