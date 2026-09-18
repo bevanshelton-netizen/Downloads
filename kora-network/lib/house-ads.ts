@@ -42,8 +42,17 @@ export const houseAds: HouseAd[] = [
   },
 ];
 
+const ROTATION_MINUTES = 10;
+const ROTATION = ['auto-ai','faisready','auto-ai','mandatory-regulatory-exams','faisready','learner-driver-sa'] as const;
+
+export function currentHouseAd(date = new Date()) {
+  const slot = Math.floor(date.getTime() / (ROTATION_MINUTES * 60_000));
+  const id = ROTATION[slot % ROTATION.length];
+  return houseAds.find((ad) => ad.id === id) || houseAds[0];
+}
+
 export function houseAdDecision() {
-  const item = houseAds[Math.floor(Math.random() * houseAds.length)];
+  const item = currentHouseAd();
   return {
     deliveryId: `house:${item.id}`,
     campaignId: 'izakhono-owned-network',
