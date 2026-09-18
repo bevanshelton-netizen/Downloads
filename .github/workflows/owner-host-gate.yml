@@ -92,9 +92,9 @@ jobs:
           if ($ps -notmatch 'Ubuntu-24.04') { throw 'Ubuntu owner-host target missing' }
           if ($ps -notmatch 'bootstrap-linux.sh') { throw 'Linux bootstrap handoff missing' }
           $domains = Get-Content 'START-IZAKHONO-DOMAINS-OWNER-HOST.cmd' -Raw
-          if ($domains -notmatch 'Ubuntu-24.04') { throw 'Domains launcher WSL target missing' }
           if ($domains -notmatch 'START-IZAKHONO-DOMAINS-OWNER-HOST.ps1') { throw 'Domains PowerShell handoff missing' }
           $domainsPs = Get-Content 'owner-host/START-IZAKHONO-DOMAINS-OWNER-HOST.ps1' -Raw
+          if ($domainsPs -notmatch 'Ubuntu-24.04') { throw 'Domains launcher WSL target missing' }
           if ($domainsPs -notmatch 'deploy-izakhono-domains.sh') { throw 'Domains deployment handoff missing' }
           if ($domainsPs -notmatch 'domains.izakhonoafrica.co.za') { throw 'Domains public hostname missing' }
           if ($domainsPs -notmatch '127.0.0.1:8780') { throw 'Domains tunnel origin missing' }
