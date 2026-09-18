@@ -18,12 +18,39 @@ const offers = [
   },
 ];
 
+const shareText = [
+  'Useful services open now:',
+  'AUTO AI — R99 Repair Quote Second Opinion: https://auto-ai-eosin.vercel.app/?utm_source=kora&utm_medium=share_offers&utm_campaign=push_push_push#pricing',
+  'FAISReady — RE5 from R299: https://faisready-revenue.vercel.app/?utm_source=kora&utm_medium=share_offers&utm_campaign=push_push_push#courses',
+  'Mandatory Regulatory Exams — RE1 + RE5 bundle R549: https://mandatory-regulatory-exams.vercel.app/?utm_source=kora&utm_medium=share_offers&utm_campaign=push_push_push#faisready',
+].join('\n');
+
 export default function AutoAiPromo() {
+  async function shareOffers() {
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'Useful services from our network', text: shareText });
+        return;
+      }
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareText);
+        window.alert('Offer links copied. Share them anywhere.');
+        return;
+      }
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') return;
+    }
+    window.prompt('Copy and share these offers:', shareText);
+  }
+
   return (
     <aside className="autoAiPromo" aria-label="Useful services from our network">
       <div className="autoAiPromoHead">
-        <strong>USEFUL SERVICES • OPEN NOW</strong>
-        <span>Tap straight into the service you need.</span>
+        <div>
+          <strong>USEFUL SERVICES • OPEN NOW</strong>
+          <span>Tap straight into the service you need.</span>
+        </div>
+        <button type="button" onClick={() => void shareOffers()}>↗ Share offers</button>
       </div>
       <div className="autoAiPromoLinks">
         {offers.map((offer) => (
