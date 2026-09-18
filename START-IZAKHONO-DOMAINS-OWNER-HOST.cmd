@@ -1,14 +1,12 @@
 @echo off
 setlocal
-set "DISTRO=Ubuntu-24.04"
-echo IZAKHONO DOMAINS - OWNER HOST DEPLOYMENT
-wsl.exe -d %DISTRO% -u root -- bash -lc "set -euo pipefail; cd /opt/izakhono-source/Downloads; if [ -n \"$(git status --porcelain)\" ]; then echo 'Owner-host source checkout has local changes; refusing to overwrite.' >&2; exit 3; fi; git fetch origin main; git checkout main; git reset --hard origin/main; bash izakhono-owned-cloud/deploy-izakhono-domains.sh"
+set "STATE=%ProgramData%\IZAKHONO\OWNER-HOST"
+set "SCRIPT=%STATE%\START-IZAKHONO-DOMAINS-OWNER-HOST.ps1"
+if not exist "%STATE%" mkdir "%STATE%"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; Invoke-WebRequest -UseBasicParsing 'https://raw.githubusercontent.com/bevanshelton-netizen/Downloads/main/owner-host/START-IZAKHONO-DOMAINS-OWNER-HOST.ps1' -OutFile '%SCRIPT%'; Start-Process powershell.exe -Verb RunAs -ArgumentList '-NoProfile','-ExecutionPolicy','Bypass','-File','\"%SCRIPT%\"'"
 if errorlevel 1 (
-  echo.
-  echo IZAKHONO DOMAINS deployment did not complete. Review the message above.
+  echo IZAKHONO DOMAINS launcher could not start.
   exit /b 1
 )
-echo.
-echo IZAKHONO DOMAINS has passed the owner-host deployment gates.
-echo Public hostname target: domains.izakhonoafrica.co.za
-endlocal
+echo IZAKHONO DOMAINS setup has been handed to the Administrator PowerShell window.
+exit /b 0
