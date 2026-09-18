@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "updated": "2026-09-18",
+  "mode": "always-on-owned-media",
+  "slotMinutes": 10,
+  "paidSpendZAR": 0,
+  "priority": "revenue-first",
+  "rotation": [
+    {
+      "slot": 1,
+      "brand": "AUTO AI",
+      "offer": "R99 Repair Quote Second Opinion"
+    },
+    {
+      "slot": 2,
+      "brand": "FAISReady",
+      "offer": "RE5 from R299"
+    },
+    {
+      "slot": 3,
+      "brand": "AUTO AI",
+      "offer": "R99 Repair Quote Second Opinion"
+    },
+    {
+      "slot": 4,
+      "brand": "Mandatory Regulatory Exams",
+      "offer": "RE1 + RE5 bundle R549"
+    },
+    {
+      "slot": 5,
+      "brand": "FAISReady",
+      "offer": "RE5 from R299"
+    },
+    {
+      "slot": 6,
+      "brand": "Learner Driver SA",
+      "offer": "Codes 08, 10, 14 + motorcycles"
+    }
+  ],
+  "rules": [
+    "Run continuously 24 hours a day.",
+    "A new owned-media slot becomes active every 10 minutes.",
+    "Paid advertiser creative takes priority when eligible; otherwise use the current house-ad slot.",
+    "Never spend on external paid media without explicit budget approval.",
+    "Use tracked destination links and keep unavailable products out of the rotation."
+  ]
+}
