@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import ShareButton from "./share-button";
 
 export const metadata: Metadata = {
   title:"IZAKHONO GROWTH OS",
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({children}:{children:React.ReactNode}) {
-  return <html lang="en"><body>{children}</body></html>;
+  return <html lang="en"><body>{children}<ShareButton /></body></html>;
 }
