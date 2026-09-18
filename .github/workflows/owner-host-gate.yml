@@ -7,6 +7,7 @@ on:
       - 'owner-host/**'
       - 'START-IZAKHONO-OWNER-HOST.cmd'
       - 'START-IZAKHONO-DOMAINS-OWNER-HOST.cmd'
+      - 'owner-host/START-IZAKHONO-DOMAINS-OWNER-HOST.ps1'
       - 'izakhono-edge-node/**'
       - 'izakhono-owned-cloud/**'
       - 'izakhono-cloud/DEPLOY-KORA-ISN-01.ps1'
@@ -69,6 +70,7 @@ jobs:
         run: |
           $paths = @(
             'owner-host/START-IZAKHONO-OWNER-HOST.ps1',
+            'owner-host/START-IZAKHONO-DOMAINS-OWNER-HOST.ps1',
             'izakhono-cloud/DEPLOY-KORA-ISN-01.ps1'
           )
           foreach ($path in $paths) {
@@ -91,5 +93,9 @@ jobs:
           if ($ps -notmatch 'bootstrap-linux.sh') { throw 'Linux bootstrap handoff missing' }
           $domains = Get-Content 'START-IZAKHONO-DOMAINS-OWNER-HOST.cmd' -Raw
           if ($domains -notmatch 'Ubuntu-24.04') { throw 'Domains launcher WSL target missing' }
-          if ($domains -notmatch 'deploy-izakhono-domains.sh') { throw 'Domains deployment handoff missing' }
-          if ($domains -notmatch 'domains.izakhonoafrica.co.za') { throw 'Domains public hostname missing' }
+          if ($domains -notmatch 'START-IZAKHONO-DOMAINS-OWNER-HOST.ps1') { throw 'Domains PowerShell handoff missing' }
+          $domainsPs = Get-Content 'owner-host/START-IZAKHONO-DOMAINS-OWNER-HOST.ps1' -Raw
+          if ($domainsPs -notmatch 'deploy-izakhono-domains.sh') { throw 'Domains deployment handoff missing' }
+          if ($domainsPs -notmatch 'domains.izakhonoafrica.co.za') { throw 'Domains public hostname missing' }
+          if ($domainsPs -notmatch '127.0.0.1:8780') { throw 'Domains tunnel origin missing' }
+          if ($domainsPs -notmatch 'PUBLIC CUTOVER: LIVE AND VERIFIED') { throw 'Domains public verification gate missing' }
