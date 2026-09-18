@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { brand } from '@/lib/brand';
 import { featured, channels } from '@/lib/catalog';
 import styles from './home.module.css';
+import { houseAds } from '@/lib/house-ads';
 
 const genres = [
   ['🎬', 'Drama & Film'],
@@ -56,6 +57,22 @@ export default function Home() {
         <span>LIVE TV</span><span>SHORT DRAMA</span><span>MUSIC</span><span>COMEDY</span><span>FAITH</span><span>KIDS</span><span>CREATOR TV</span>
         <span>LIVE TV</span><span>SHORT DRAMA</span><span>MUSIC</span><span>COMEDY</span><span>FAITH</span><span>KIDS</span><span>CREATOR TV</span>
       </div></div>
+
+      <section className={styles.networkOffers} aria-label="Useful services from the IZAKHONO network">
+        <header className={styles.sectionHead}>
+          <div className={styles.eyebrow}>USEFUL SERVICES FROM OUR NETWORK</div>
+          <h2>Need help beyond entertainment?</h2>
+          <p>Open practical services from the wider network. Each link goes straight to the service.</p>
+        </header>
+        <div className={styles.offerGrid}>
+          {houseAds.map((offer) => <a key={offer.id} className={styles.offerCard} href={offer.clickUrl} target="_blank" rel="noopener noreferrer" style={{'--offer-accent': offer.accent} as React.CSSProperties}>
+            <small>IZAKHONO NETWORK</small>
+            <h3>{offer.name}</h3>
+            <p>{offer.body}</p>
+            <span>{offer.cta} →</span>
+          </a>)}
+        </div>
+      </section>
 
       <section className={styles.section}>
         <header className={styles.sectionHead}><div className={styles.eyebrow}>WHATEVER YOUR VIBE</div><h2>There is a place for it on KORA.</h2><p>Built to feel fresh for younger viewers, familiar for families, and proudly African for audiences everywhere.</p></header>

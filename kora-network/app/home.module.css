@@ -112,3 +112,14 @@
 .show p{margin:0 0 12px}
 .showCopy>span{font-size:11px;color:#bffaf4;font-weight:800;letter-spacing:.05em}
 @media(max-width:580px){.stage{min-height:430px}.heroImage{object-position:64% center}.show{min-height:390px}}
+
+
+.networkOffers{padding:58px 6vw 28px;background:linear-gradient(180deg,#0b0b3b66,#15104f44)}
+.offerGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.offerCard{--offer-accent:#70fff1;display:flex;min-height:285px;flex-direction:column;padding:26px;border-radius:26px;text-decoration:none;border:1px solid color-mix(in srgb,var(--offer-accent) 48%,#ffffff20);background:radial-gradient(circle at 88% 10%,color-mix(in srgb,var(--offer-accent) 25%,transparent),transparent 30%),linear-gradient(145deg,#ffffff12,#ffffff06);box-shadow:0 20px 55px #09062f45;transition:transform .2s ease,border-color .2s ease}
+.offerCard:hover{transform:translateY(-5px);border-color:var(--offer-accent)}
+.offerCard small{font-size:10px;letter-spacing:.15em;font-weight:1000;color:var(--offer-accent)}
+.offerCard h3{font-size:clamp(30px,3.2vw,48px);line-height:.95;margin:16px 0 12px}
+.offerCard p{color:#e3e6fb;line-height:1.55;margin:0 0 28px}
+.offerCard span{margin-top:auto;font-size:13px;font-weight:1000;letter-spacing:.06em;color:var(--offer-accent)}
+@media(max-width:900px){.offerGrid{grid-template-columns:1fr}}

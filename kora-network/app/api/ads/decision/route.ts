@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { houseAdDecision } from '@/lib/house-ads';
 
 const placementTypes = new Set(['pre_roll','mid_roll','post_roll','sponsored_unlock','display']);
 
@@ -45,7 +46,7 @@ export async function POST(request: Request) {
     const cost = Number(c.media_cpm || 0) / 1000;
     return cost > 0 && Number(c.media_spend || 0) + cost <= Math.max(Number(c.budget || 0) - Number(c.reward_pool || 0), 0);
   });
-  if (!eligibleCampaigns.length) return new NextResponse(null, { status: 204 });
+  if (!eligibleCampaigns.length) return NextResponse.json(houseAdDecision());
   const campaignById = new Map(eligibleCampaigns.map(c => [c.id, c]));
 
   let creativeQuery = admin
@@ -56,7 +57,7 @@ export async function POST(request: Request) {
 
   if (viewerProfile?.profile_kind === 'child') creativeQuery = creativeQuery.eq('family_safe', true);
   const { data: creatives } = await creativeQuery.limit(50);
-  if (!creatives?.length) return new NextResponse(null, { status: 204 });
+  if (!creatives?.length) return NextResponse.json(houseAdDecision());
 
   // Selection is contextual, never behavioural. Shuffle candidates so one campaign does not
   // permanently occupy the first slot, then let the database atomically reserve media spend.
@@ -97,5 +98,5 @@ export async function POST(request: Request) {
     });
   }
 
-  return new NextResponse(null, { status: 204 });
+  return NextResponse.json(houseAdDecision());
 }

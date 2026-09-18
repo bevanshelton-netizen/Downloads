@@ -11,7 +11,11 @@ type AdDecision = {
     mediaUrl: string;
     clickUrl: string | null;
     durationSeconds: number;
+    body?: string;
+    cta?: string;
+    accent?: string;
   };
+  house?: boolean;
   rewardEligible: boolean;
   rewardAmount: number;
   targeting: 'contextual';
@@ -36,7 +40,7 @@ export default function AdSupportedPlayer({
   const sessionId = useRef(typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`);
 
   async function recordAdEvent(eventType: 'impression' | 'click' | 'complete') {
-    if (!ad?.deliveryId) return;
+    if (!ad?.deliveryId || ad.house || ad.deliveryId.startsWith('house:')) return;
     try {
       await fetch('/api/ads/event', {
         method: 'POST',
@@ -122,6 +126,20 @@ export default function AdSupportedPlayer({
 
   if (!contentUrl) return <div className="playerPlaceholder"><strong>Video is processing or playback credentials are not active yet.</strong></div>;
   if (loading) return <div className="playerPlaceholder"><strong>Preparing your programme…</strong></div>;
+
+  if (ad && !showContent && ad.house) {
+    return <div className="adStage" style={{ minHeight: 360, display: 'grid', placeItems: 'center', padding: 24, background: 'radial-gradient(circle at 80% 20%, rgba(112,255,241,.18), transparent 30%), linear-gradient(135deg,#17114f,#25186d 55%,#11103f)' }}>
+      <div style={{ maxWidth: 760, width: '100%', textAlign: 'center', padding: '38px 28px', border: '1px solid rgba(255,255,255,.25)', borderRadius: 28, background: 'rgba(255,255,255,.06)', boxShadow: '0 24px 70px rgba(0,0,0,.25)' }}>
+        <span className="adBadge">FROM OUR NETWORK</span>
+        <h3 style={{ fontSize: 'clamp(34px,6vw,64px)', margin: '18px 0 10px', lineHeight: .95 }}>{ad.creative.name}</h3>
+        <p style={{ color: '#e4e7ff', fontSize: 18, lineHeight: 1.55, margin: '0 auto 26px', maxWidth: 620 }}>{ad.creative.body}</p>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
+          {ad.creative.clickUrl ? <button className="secondary" type="button" onClick={() => void clickAd()}>{ad.creative.cta || 'Open'}</button> : null}
+          <button className="secondary" type="button" onClick={() => { setShowContent(true); void recordWatchStart(); }}>Continue to KORA</button>
+        </div>
+      </div>
+    </div>;
+  }
 
   if (ad && !showContent) {
     return <div className="adStage">
