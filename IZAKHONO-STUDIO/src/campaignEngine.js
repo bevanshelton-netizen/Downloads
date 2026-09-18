@@ -1,5 +1,6 @@
 import JSZip from 'jszip';
 import { CAMPAIGN_FORMATS } from './portfolio.js';
+import { placementsFor } from './placementPlan.js';
 
 export const FORMAT_SIZES = {
   'Instagram Post': [1080, 1080],
@@ -207,10 +208,24 @@ export async function buildSuperCampaignPack({ brands, levels, formats = CAMPAIG
   const zip = new JSZip();
   const manifest = [];
   const captions = [['brand', 'campaign_level', 'network', 'format', 'destination', 'caption']];
+  const placements = [['brand', 'objective', 'audience', 'owned_placements', 'external_organic_targets', 'message', 'cta', 'status']];
   const total = brands.length * levels.length * formats.length;
   let completed = 0;
 
   for (const brand of brands) {
+    const placement = placementsFor(brand.id);
+    if (placement) {
+      placements.push([
+        brand.name,
+        placement.objective,
+        placement.audience.join(' | '),
+        placement.ownedPlacements.join(' | '),
+        placement.externalOrganicTargets.join(' | '),
+        placement.message,
+        placement.cta,
+        placement.status,
+      ]);
+    }
     for (const level of levels) {
       const networkCopy = socialCopy({ brand, level, brief, offer, destination: destinations[brand.id] || '' });
       for (const format of formats) {
@@ -227,8 +242,15 @@ export async function buildSuperCampaignPack({ brands, levels, formats = CAMPAIG
     }
   }
 
-  zip.file('campaign-manifest.json', JSON.stringify({ generatedAt: new Date().toISOString(), brief, offer, assets: manifest }, null, 2));
+  zip.file('campaign-manifest.json', JSON.stringify({
+    generatedAt: new Date().toISOString(),
+    brief,
+    offer,
+    assets: manifest,
+    placements: brands.map((brand) => placementsFor(brand.id)).filter(Boolean),
+  }, null, 2));
   zip.file('social-captions.csv', captions.map((row) => row.map(escapeCsv).join(',')).join('\n'));
+  zip.file('placement-plan.csv', placements.map((row) => row.map(escapeCsv).join(',')).join('\n'));
   zip.file('README.txt', [
     'IZAKHONO STUDIO — SUPER CAMPAIGN PACK',
     '',
@@ -238,6 +260,8 @@ export async function buildSuperCampaignPack({ brands, levels, formats = CAMPAIG
     `Creative files: ${total}`,
     '',
     'The social-captions.csv file contains network-specific copy for Facebook, Instagram, LinkedIn, X, TikTok and YouTube.',
+    'The placement-plan.csv file positions each priority platform in the owned and external organic spaces that match its audience.',
+    'Owned-media placement is the first priority. External network publishing still requires authorised account connections.',
     'Replace any [ADD LIVE PLATFORM URL] placeholders with the canonical live destination before publishing.',
     'Paid media budgets and account publishing are intentionally not activated by this export; connect authorised social publishing accounts before distribution.',
   ].join('\n'));
