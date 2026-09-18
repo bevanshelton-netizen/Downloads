@@ -31,6 +31,7 @@ jobs:
           bash -n izakhono-owned-cloud/provision-code-token.sh
           bash -n izakhono-owned-cloud/configure-stack-backup.sh
           bash -n izakhono-owned-cloud/deploy-auto-ai.sh
+          bash -n izakhono-owned-cloud/configure-auto-ai-tunnel.sh
           bash -n izakhono-owned-cloud/first-host-proof.sh
           bash -n izakhono-owned-cloud/deploy-primary-node.sh
           bash -n izakhono-owned-cloud/deploy-fortress-protector.sh
