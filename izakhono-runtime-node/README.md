@@ -41,3 +41,16 @@ It replaces the basic application-runtime portion of a hosted deployment platfor
 ## Cost model
 
 The software has no hosted-platform subscription. Running it still requires hardware, electricity, connectivity, backups and operational maintenance.
+
+
+## Witness lease guard
+
+RUNTIME supports three witness modes:
+
+- `off` — no witness activity.
+- `observe` — acquire and cryptographically verify WITNESS leases, expose lease/fencing status and forward the fencing token, but never block application traffic.
+- `enforce` — all observe behavior plus fail-closed blocking of POST/PUT/PATCH/DELETE when a valid signed lease is absent or expired.
+
+The Linux installer defaults to `IZAKHONO_WITNESS_MODE=observe`. It does not configure a witness credential automatically. This keeps the current single-host runtime unchanged while allowing a primary/standby host to be enrolled explicitly later.
+
+A verified fencing token is propagated downstream as `x-izakhono-fencing-token`. Applications must treat GET/HEAD/OPTIONS as read-only for enforcement semantics to remain valid.
