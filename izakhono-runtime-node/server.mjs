@@ -4,6 +4,7 @@ import { createWriteStream, existsSync, mkdirSync, readFileSync } from "node:fs"
 import { dirname, isAbsolute, resolve, sep } from "node:path";
 import { randomUUID, timingSafeEqual } from "node:crypto";
 import { DatabaseSync } from "node:sqlite";
+import { createWitnessLeaseGuard, isWriteMethod } from "./witness-lease.mjs";
 
 const CONTROL_HOST=process.env.CONTROL_HOST || "127.0.0.1";
 const CONTROL_PORT=Number(process.env.CONTROL_PORT || 8790);
@@ -15,6 +16,8 @@ const DB_PATH=resolve(process.env.IZAKHONO_RUNTIME_DB || "./data/runtime.sqlite"
 const LOG_ROOT=resolve(process.env.IZAKHONO_RUNTIME_LOG_ROOT || "./logs");
 const ENV_ROOT=resolve(process.env.IZAKHONO_ENV_ROOT || "./env");
 const START_PORT=Number(process.env.IZAKHONO_APP_PORT_START || 12000);
+const witness=createWitnessLeaseGuard("runtime");
+witness.start();
 
 mkdirSync(RELEASE_ROOT,{recursive:true});
 mkdirSync(dirname(DB_PATH),{recursive:true});
@@ -322,7 +325,8 @@ const control=createServer(async(req,res)=>{
         proxyPort:PROXY_PORT,
         apps:Number(db.prepare("SELECT count(*) AS count FROM apps").get()?.count||0),
         active:Number(db.prepare("SELECT count(*) AS count FROM deployments WHERE state='active'").get()?.count||0),
-        thirdPartyRuntimeRequired:false
+        thirdPartyRuntimeRequired:false,
+        witness:witness.snapshot()
       });
     }
 
@@ -382,6 +386,12 @@ const control=createServer(async(req,res)=>{
 
 const proxy=createServer((req,res)=>{
   const rawHost=(req.headers.host||"").split(":")[0].toLowerCase();
+  if(isWriteMethod(req.method) && !witness.canWrite()){
+    witness.applyResponseHeaders(res);
+    res.writeHead(503,{"content-type":"text/plain; charset=utf-8","retry-after":"5"});
+    ledger("witness.write.block",rawHost||null,null,"blocked",witness.snapshot());
+    return res.end("IZAKHONO RUNTIME: write blocked because witness leadership lease is not valid");
+  }
   const route=activeRoute(rawHost);
   if(!route){
     res.writeHead(404,{"content-type":"text/plain; charset=utf-8"});
@@ -393,9 +403,13 @@ const proxy=createServer((req,res)=>{
     port:Number(route.port),
     method:req.method,
     path:req.url,
-    headers:{...req.headers,host:rawHost,"x-izakhono-app":route.name}
+    headers:{...req.headers,...witness.requestHeaders(),host:rawHost,"x-izakhono-app":route.name}
   },upstreamRes=>{
-    res.writeHead(upstreamRes.statusCode||502,upstreamRes.headers);
+    for(const [name,value] of Object.entries(upstreamRes.headers)){
+      if(value!==undefined) res.setHeader(name,value);
+    }
+    witness.applyResponseHeaders(res);
+    res.writeHead(upstreamRes.statusCode||502);
     upstreamRes.pipe(res);
   });
 
