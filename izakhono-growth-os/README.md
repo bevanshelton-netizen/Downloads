@@ -1,4 +1,4 @@
-# IZAKHONO GROWTH OS
+# IZAKHONO GROWTH OS v2
 
 **One command centre. Every growth channel.**
 
@@ -38,4 +38,12 @@ Each provider implements the same internal adapter contract:
 
 ## Current launch state
 
-The V1 UI and planner work without ad credentials. Provider cards remain disconnected until OAuth/app credentials are configured.
+Growth OS v2 is the production application. The UI, planner, provider readiness APIs, measurement ingestion and owned DATA integration run together in this Next.js application. Provider cards remain disconnected until each provider's OAuth/app credentials and approvals are configured.
+
+The production target is the IZAKHONO owner-controlled stack:
+
+```text
+ISN-01 -> IZAKHONO CODE -> IZAKHONO RUNTIME -> IZAKHONO EDGE -> growth.izakhonoafrica.co.za
+```
+
+Run `START-GROWTH-OS-V2-ON-IZAKHONO.cmd` on the owner machine. The deployment is health-gated at `/api/health`, preserves the approval-before-write policy, and records a deployment receipt. Vercel is not required.
