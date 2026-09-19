@@ -8,6 +8,7 @@ on:
       - 'deploy/PUBLISH_STATIC_GATEWAY'
       - 'ports/yenzanow/**'
       - 'doxa-sure/**'
+      - 'ports/izakhono-one/**'
       - '.github/workflows/doxa-sure-pages.yml'
 
 permissions:
@@ -35,6 +36,7 @@ jobs:
           set -euo pipefail
           rm -rf _site
           mkdir -p _site/yenzanow
+          mkdir -p _site/izakhono-one/health-check
 
           # Preserve the existing DOXA-SURE demo at repository Pages root.
           cp -R doxa-sure/. _site/
@@ -42,6 +44,11 @@ jobs:
           # Add the verified YenZaNow build as a stable sub-route.
           cp ports/yenzanow/index.html _site/yenzanow/index.html
           cp ports/yenzanow/healthz.txt _site/yenzanow/healthz.txt
+
+          # Add IZAKHONO ONE as the public business operating-system route.
+          cp ports/izakhono-one/index.html _site/izakhono-one/index.html
+          cp ports/izakhono-one/health-check/index.html _site/izakhono-one/health-check/index.html
+          cp ports/izakhono-one/healthz.txt _site/izakhono-one/healthz.txt
 
           touch _site/.nojekyll
 
