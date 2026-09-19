@@ -39,3 +39,7 @@ jobs:
           grep -q 'service:"growth-os-v2"' app/api/health/route.ts
           grep -q 'GROWTH_OS_PUBLIC_BASE_URL' 'app/api/oauth/[provider]/readiness/route.ts'
           ! grep -R -n 'izakhono-growth-os.vercel.app' app lib
+          grep -q 'growth.write' app/api/approvals/route.ts
+          grep -q 'growth.write' 'app/api/approvals/[id]/decision/route.ts'
+          grep -q 'growth.read' app/api/stats/route.ts
+          grep -q 'httpOnly:true' app/api/auth/login/route.ts
