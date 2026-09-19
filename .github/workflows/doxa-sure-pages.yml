@@ -9,6 +9,7 @@ on:
       - 'ports/yenzanow/**'
       - 'doxa-sure/**'
       - 'ports/izakhono-one/**'
+      - 'portfolio-growth/**'
       - '.github/workflows/doxa-sure-pages.yml'
 
 permissions:
@@ -37,6 +38,7 @@ jobs:
           rm -rf _site
           mkdir -p _site/yenzanow
           mkdir -p _site/izakhono-one
+          mkdir -p _site/portfolio-growth
 
           # Preserve the existing DOXA-SURE demo at repository Pages root.
           cp -R doxa-sure/. _site/
@@ -44,6 +46,9 @@ jobs:
           # Add the verified YenZaNow build as a stable sub-route.
           cp ports/yenzanow/index.html _site/yenzanow/index.html
           cp ports/yenzanow/healthz.txt _site/yenzanow/healthz.txt
+
+          # Publish the shared portfolio growth bridge.
+          cp portfolio-growth/bridge.js _site/portfolio-growth/bridge.js
 
           # Add the full IZAKHONO ONE public frontend and campaign routes.
           cp -R ports/izakhono-one/. _site/izakhono-one/
