@@ -1,77 +1,79 @@
 {
-  "version": 3,
+  "version": 4,
   "updated": "2026-09-19",
-  "mode": "always-on-owned-media-aggressive",
+  "mode": "cash-first-owned-media",
   "slotMinutes": 5,
   "paidSpendZAR": 0,
-  "priority": "revenue-first",
+  "priority": "verified-live-revenue-first",
   "rotation": [
     {
       "slot": 1,
-      "brand": "IZAKHONO AI",
-      "offer": "Launch membership R199/month"
+      "brand": "FAISReady",
+      "offer": "RE1 + RE5 Complete Bundle — R549 direct iKhokha checkout"
     },
     {
       "slot": 2,
-      "brand": "AUTO AI",
-      "offer": "R99 Repair Quote Second Opinion"
+      "brand": "FAISReady",
+      "offer": "RE5 Complete Prep — R299 direct iKhokha checkout"
     },
     {
       "slot": 3,
-      "brand": "FAISReady",
-      "offer": "RE5 from R299"
-    },
-    {
-      "slot": 4,
-      "brand": "IZAKHONO AI",
-      "offer": "Launch membership R199/month"
-    },
-    {
-      "slot": 5,
-      "brand": "Learner Driver SA",
-      "offer": "Codes 08, 10, 14 + motorcycles"
-    },
-    {
-      "slot": 6,
       "brand": "AUTO AI",
       "offer": "R99 Repair Quote Second Opinion"
     },
     {
+      "slot": 4,
+      "brand": "FAISReady",
+      "offer": "RE1 + RE5 Complete Bundle — R549 direct iKhokha checkout"
+    },
+    {
+      "slot": 5,
+      "brand": "IZAKHONO Business Growth Desk",
+      "offer": "High-ticket business solutions assessment"
+    },
+    {
+      "slot": 6,
+      "brand": "FAISReady",
+      "offer": "RE5 Complete Prep — R299 direct iKhokha checkout"
+    },
+    {
       "slot": 7,
-      "brand": "IZAKHONO AI",
-      "offer": "12 specialists from one shared core"
+      "brand": "FAISReady",
+      "offer": "RE1 + RE5 Complete Bundle — R549 direct iKhokha checkout"
     },
     {
       "slot": 8,
-      "brand": "FAISReady",
-      "offer": "RE5 from R299"
-    },
-    {
-      "slot": 9,
       "brand": "Mandatory Regulatory Exams",
       "offer": "Find the exam that applies to your field"
     },
     {
-      "slot": 10,
-      "brand": "IZAKHONO AI",
-      "offer": "Launch R199 · Pro R499 · Team R999"
-    },
-    {
-      "slot": 11,
+      "slot": 9,
       "brand": "AUTO AI",
       "offer": "R99 Repair Quote Second Opinion"
     },
     {
+      "slot": 10,
+      "brand": "FAISReady",
+      "offer": "RE5 Complete Prep — R299 direct iKhokha checkout"
+    },
+    {
+      "slot": 11,
+      "brand": "IZAKHONO Business Growth Desk",
+      "offer": "High-ticket business solutions assessment"
+    },
+    {
       "slot": 12,
-      "brand": "Learner Driver SA",
-      "offer": "Codes 08, 10, 14 + motorcycles"
+      "brand": "FAISReady",
+      "offer": "RE1 + RE5 Complete Bundle — R549 direct iKhokha checkout"
     }
   ],
   "rules": [
     "Run continuously 24 hours a day, 365 days a year.",
     "Advance the owned-media rotation every 5 minutes.",
-    "Weight IZAKHONO AI, AUTO AI and FAISReady most heavily for immediate revenue.",
-    "Use IZAKHONO AI membership as the ecosystem cross-sell destination.",
+    "Give highest weight to verified direct-checkout offers while the owned public hostname is unavailable.",
+    "Do not rotate traffic to unresolved or unverified public destinations.",
+    "Restore IZAKHONO AI membership to rotation only after its public DNS and HTTPS endpoint are independently verified.",
+    "Use the public Business Growth Desk for high-ticket opportunity capture.",
     "Paid advertiser creative takes priority when eligible; otherwise use the current owned house-ad slot.",
     "Keep external paid-media spend at R0 unless explicitly approved.",
     "Use tracked destination links and only advertise currently available offers."
