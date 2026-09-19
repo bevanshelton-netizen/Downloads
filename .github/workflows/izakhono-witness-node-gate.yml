@@ -1,0 +1,41 @@
+name: IZAKHONO WITNESS NODE Gate
+
+on:
+  push:
+    branches: [build/izakhono-witness-node]
+    paths:
+      - "izakhono-witness-node/**"
+      - ".github/workflows/izakhono-witness-node-gate.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "izakhono-witness-node/**"
+      - ".github/workflows/izakhono-witness-node-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  self-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: izakhono-witness-node
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+      - name: Verify zero runtime dependencies
+        run: test "$(node -e 'console.log(Object.keys(require("./package.json").dependencies||{}).length)')" = "0"
+      - name: Run witness lease/fencing self test
+        run: npm run check
+      - name: Verify witness safety defaults
+        run: |
+          grep -q 'PORT || 8930' server.mjs
+          grep -q 'synchronous=FULL' server.mjs
+          grep -q 'fencing_token' server.mjs
+          grep -q 'Ed25519' server.mjs
+          grep -q 'automaticFailover:false' server.mjs
+          grep -q 'independentFailureDomainRequired:true' server.mjs
