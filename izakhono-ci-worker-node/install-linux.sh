@@ -17,6 +17,10 @@ if [ ! -f /etc/izakhono/code-node.env ]; then
   echo "Install IZAKHONO CODE NODE first."
   exit 4
 fi
+if [ ! -f /etc/izakhono/package-node.env ]; then
+  echo "Install IZAKHONO PACKAGE NODE first."
+  exit 5
+fi
 
 sudo useradd --system --home /nonexistent --shell /usr/sbin/nologin izakhono-ci 2>/dev/null || true
 sudo mkdir -p /opt/izakhono-ci-worker-node /var/lib/izakhono-ci/workspaces /var/lib/izakhono-ci/logs /etc/izakhono
@@ -35,6 +39,7 @@ IZAKHONO_CI_ENCRYPTION_KEY=$ENC
 IZAKHONO_QUEUE_URL=http://127.0.0.1:8810
 IZAKHONO_QUEUE_KEY=$QUEUE_KEY
 IZAKHONO_CODE_GIT_BASE=http://127.0.0.1:8860/git
+IZAKHONO_PACKAGE_URL=http://127.0.0.1:8900/
 IZAKHONO_CI_EXECUTOR=systemd
 IZAKHONO_CI_POLL_MS=750
 IZAKHONO_CI_COMMAND_ALLOWLIST=node,npm,python3,make
