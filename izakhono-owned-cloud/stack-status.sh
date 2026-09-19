@@ -11,6 +11,7 @@ services=(
   izakhono-notify-node
   izakhono-ai-gateway-node
   izakhono-code-node
+  izakhono-package-node
   izakhono-ci-worker-node
   izakhono-backup-node
   izakhono-replica-node
@@ -48,6 +49,7 @@ probe ANALYTICS http://127.0.0.1:8830/health
 probe NOTIFY http://127.0.0.1:8840/health
 probe AI_GATEWAY http://127.0.0.1:8850/health
 probe CODE http://127.0.0.1:8860/health
+probe PACKAGE http://127.0.0.1:8900/health
 probe BACKUP http://127.0.0.1:8870/health
 probe CI_WORKER http://127.0.0.1:8880/health
 probe REPLICA http://127.0.0.1:8890/health
