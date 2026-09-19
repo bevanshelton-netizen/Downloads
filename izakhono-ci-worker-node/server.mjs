@@ -24,6 +24,7 @@ const ENCRYPTION_RAW=process.env.IZAKHONO_CI_ENCRYPTION_KEY || "";
 const QUEUE_URL=(process.env.IZAKHONO_QUEUE_URL || "http://127.0.0.1:8810").replace(/\/$/,"");
 const QUEUE_KEY=process.env.IZAKHONO_QUEUE_KEY || "";
 const CODE_BASE=(process.env.IZAKHONO_CODE_GIT_BASE || "http://127.0.0.1:8860/git").replace(/\/$/,"");
+const PACKAGE_URL=(process.env.IZAKHONO_PACKAGE_URL || "").replace(/\/$/,"");
 const WORKER_ID=process.env.IZAKHONO_CI_WORKER_ID || "ci-worker";
 const POLL_MS=Math.min(5000,Math.max(100,Number(process.env.IZAKHONO_CI_POLL_MS || 750)));
 const EXECUTOR=process.env.IZAKHONO_CI_EXECUTOR || "systemd";
@@ -202,7 +203,8 @@ function sanitizedBuildEnv(workspace){
     HOME:home,
     LANG:"C.UTF-8",
     CI:"true",
-    IZAKHONO_CI:"1"
+    IZAKHONO_CI:"1",
+    ...(PACKAGE_URL?{NPM_CONFIG_REGISTRY:PACKAGE_URL+"/"}:{})
   };
 }
 
@@ -254,7 +256,9 @@ async function runStep(command,repoDir,workspace,pipeline,logPath){
   args.push("--working-directory="+repoDir);
   args.push("--setenv=PATH=/usr/local/bin:/usr/bin:/bin");
   args.push("--setenv=HOME="+join(workspace,"home"));
-  args.push("--setenv=CI=true","--setenv=IZAKHONO_CI=1","--");
+  args.push("--setenv=CI=true","--setenv=IZAKHONO_CI=1");
+  if(PACKAGE_URL) args.push("--setenv=NPM_CONFIG_REGISTRY="+PACKAGE_URL+"/");
+  args.push("--");
   args.push(...command);
   return runProcess("systemd-run",args,{
     cwd:"/",env:{PATH:process.env.PATH||"/usr/local/bin:/usr/bin:/bin",LANG:"C.UTF-8"},
@@ -347,6 +351,7 @@ const server=createServer(async(req,res)=>{
         pipelines:Number(db.prepare("SELECT count(*) AS count FROM pipelines WHERE enabled=1").get()?.count||0),
         running:Number(db.prepare("SELECT count(*) AS count FROM runs WHERE state IN ('cloning','running')").get()?.count||0),
         queueConfigured:Boolean(QUEUE_KEY),
+        packageMirrorConfigured:Boolean(PACKAGE_URL),
         productionSandboxRequired:EXECUTOR==="systemd",
         thirdPartyCIRequired:false
       });
