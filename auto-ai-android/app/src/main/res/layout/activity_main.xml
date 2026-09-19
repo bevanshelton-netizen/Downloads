@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootScroll"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/auto_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="18dp"
+        android:paddingTop="22dp"
+        android:paddingRight="18dp"
+        android:paddingBottom="32dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:contentDescription="@string/app_name"
+                android:src="@drawable/ic_auto_ai" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:paddingLeft="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="AUTO AI"
+                    android:textColor="@color/auto_ink"
+                    android:textSize="27sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="YOUR CAR. EXPLAINED."
+                    android:textColor="@color/auto_gold"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvConnection"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CONNECTING"
+                android:textColor="@color/auto_teal"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="26dp"
+            android:text="Understand your car
+before you spend."
+            android:textColor="@color/auto_ink"
+            android:textSize="36sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Warning lights • Diagnostics • Repair quotes • Used-car checks"
+            android:textColor="@color/auto_muted"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_marginTop="8dp"
+            android:contentDescription="Modern vehicle graphic"
+            android:scaleType="fitCenter"
+            android:src="@drawable/hero_car" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/tabSymptoms"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="8dp"
+                    android:background="@drawable/bg_tab"
+                    android:text="⚠ Symptoms"
+                    android:textAllCaps="false"
+                    android:textColor="@color/auto_ink" />
+
+                <Button
+                    android:id="@+id/tabCode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="8dp"
+                    android:background="@drawable/bg_tab"
+                    android:text="⌁ Fault Code"
+                    android:textAllCaps="false"
+                    android:textColor="@color/auto_ink" />
+
+                <Button
+                    android:id="@+id/tabQuote"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="8dp"
+                    android:background="@drawable/bg_tab"
+                    android:text="🔧 Quote Review"
+                    android:textAllCaps="false"
+                    android:textColor="@color/auto_ink" />
+
+                <Button
+                    android:id="@+id/tabUsed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_tab"
+                    android:text="🚘 Used Car"
+                    android:textAllCaps="false"
+                    android:textColor="@color/auto_ink" />
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <LinearLayout
+            android:id="@+id/panelSymptoms"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="What's wrong with my car?"
+                android:textColor="@color/auto_ink"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Describe what the vehicle is doing. AUTO AI starts with safety."
+                android:textColor="@color/auto_muted"
+                android:textSize="13sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/edYear"
+                    android:layout_width="86dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="8dp"
+                    android:background="@drawable/bg_input"
+                    android:hint="Year"
+                    android:inputType="number"
+                    android:textColor="@color/auto_ink"
+                    android:textColorHint="@color/auto_muted" />
+
+                <EditText
+                    android:id="@+id/edMake"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_input"
+                    android:hint="Make"
+                    android:inputType="textCapWords"
+                    android:textColor="@color/auto_ink"
+                    android:textColorHint="@color/auto_muted" />
+
+                <EditText
+                    android:id="@+id/edModel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_input"
+                    android:hint="Model"
+                    android:inputType="textCapWords"
+                    android:textColor="@color/auto_ink"
+                    android:textColorHint="@color/auto_muted" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/edSymptoms"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_input"
+                android:gravity="top|start"
+                android:hint="Example: Engine shakes at idle, loses power uphill, and the engine light is flashing."
+                android:inputType="textCapSentences|textMultiLine"
+                android:padding="12dp"
+                android:textColor="@color/auto_ink"
+                android:textColorHint="@color/auto_muted" />
+
+            <EditText
+                android:id="@+id/edWarning"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_input"
+                android:hint="Warning lights or dashboard message"
+                android:inputType="textCapSentences"
+                android:textColor="@color/auto_ink"
+                android:textColorHint="@color/auto_muted" />
+
+            <Button
+                android:id="@+id/btnAnalyse"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:background="@drawable/bg_gold"
+                android:text="CHECK MY CAR"
+                android:textAllCaps="false"
+                android:textColor="#091421"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/resultSymptoms"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:textColor="@color/auto_ink"
+                android:textIsSelectable="true"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/panelCode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fault code explained"
+                android:textColor="@color/auto_ink"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/edCode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_input"
+                android:hint="Example: P0420"
+                android:inputType="textCapCharacters"
+                android:textColor="@color/auto_ink"
+                android:textColorHint="@color/auto_muted" />
+
+            <Button
+                android:id="@+id/btnExplainCode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_gold"
+                android:text="EXPLAIN CODE"
+                android:textAllCaps="false"
+                android:textColor="#091421"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/resultCode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:textColor="@color/auto_ink"
+                android:textIsSelectable="true"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/panelQuote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Repair quote second opinion"
+                android:textColor="@color/auto_ink"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/edQuote"
+                android:layout_width="match_parent"
+                android:layout_height="190dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_input"
+                android:gravity="top|start"
+                android:hint="Paste the workshop quotation here..."
+                android:inputType="textCapSentences|textMultiLine"
+                android:padding="12dp"
+                android:textColor="@color/auto_ink"
+                android:textColorHint="@color/auto_muted" />
+
+            <Button
+                android:id="@+id/btnReviewQuote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_gold"
+                android:text="REVIEW THIS QUOTE"
+                android:textAllCaps="false"
+                android:textColor="#091421"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/resultQuote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:textColor="@color/auto_ink"
+                android:textIsSelectable="true"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/panelUsed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Used-car buyer check"
+                android:textColor="@color/auto_ink"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Tick the concerns you found during inspection or test drive."
+                android:textColor="@color/auto_muted"
+                android:textSize="13sp" />
+
+            <CheckBox
+                android:id="@+id/chkWarnings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Dashboard warning lights"
+                android:textColor="@color/auto_ink" />
+
+            <CheckBox
+                android:id="@+id/chkOverheat"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Overheating, smoke or fluid leak"
+                android:textColor="@color/auto_ink" />
+
+            <CheckBox
+                android:id="@+id/chkAccident"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Possible accident repair or uneven panels"
+                android:textColor="@color/auto_ink" />
+
+            <CheckBox
+                android:id="@+id/chkVibration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Vibration, pulling or abnormal noise"
+                android:textColor="@color/auto_ink" />
+
+            <CheckBox
+                android:id="@+id/chkHistory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No credible service history"
+                android:textColor="@color/auto_ink" />
+
+            <CheckBox
+                android:id="@+id/chkDocs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="VIN or ownership/document concern"
+                android:textColor="@color/auto_ink" />
+
+            <Button
+                android:id="@+id/btnUsedCheck"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_gold"
+                android:text="CHECK THIS CAR"
+                android:textAllCaps="false"
+                android:textColor="#091421"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/resultUsed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:textColor="@color/auto_ink"
+                android:textIsSelectable="true"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/bg_card"
+            android:text="@string/safety_note"
+            android:textColor="@color/auto_muted"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:gravity="center"
+            android:text="AUTO AI • Launch Edition • No advertising ID • No location permission"
+            android:textColor="@color/auto_muted"
+            android:textSize="10sp" />
+    </LinearLayout>
+</ScrollView>
