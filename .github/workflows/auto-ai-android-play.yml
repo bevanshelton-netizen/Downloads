@@ -39,12 +39,16 @@ jobs:
           gradle-version: "8.13"
 
       - name: Prepare Play upload signing when configured
-        if: ${{ secrets.AUTO_AI_KEYSTORE_B64 != '' }}
         env:
           AUTO_AI_KEYSTORE_B64: ${{ secrets.AUTO_AI_KEYSTORE_B64 }}
         run: |
-          printf '%s' "$AUTO_AI_KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/auto-ai-upload.jks"
-          chmod 600 "$RUNNER_TEMP/auto-ai-upload.jks"
+          if [ -n "$AUTO_AI_KEYSTORE_B64" ]; then
+            printf '%s' "$AUTO_AI_KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/auto-ai-upload.jks"
+            chmod 600 "$RUNNER_TEMP/auto-ai-upload.jks"
+            echo "Play upload signing material prepared."
+          else
+            echo "No Play upload keystore configured; release bundle will be validation-only."
+          fi
 
       - name: Build APK and App Bundle
         working-directory: auto-ai-android
