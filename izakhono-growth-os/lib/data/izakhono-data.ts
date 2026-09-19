@@ -5,37 +5,96 @@ export type IzakhonoDataResult = {
   error?:string;
 };
 
-export function dataNodeReady(){
-  return Boolean(process.env.IZAKHONO_DATA_URL && process.env.IZAKHONO_DATA_KEY);
+function dataBase(){
+  return process.env.IZAKHONO_DATA_URL?.replace(/\/$/,"");
 }
 
-export async function pushGrowthEvents(events:unknown[]):Promise<IzakhonoDataResult>{
-  const base=process.env.IZAKHONO_DATA_URL?.replace(/\/$/,"");
-  const key=process.env.IZAKHONO_DATA_KEY;
-  if(!base || !key){
-    return {accepted:false,error:"IZAKHONO DATA NODE is not configured."};
-  }
+function dataKey(){
+  return process.env.IZAKHONO_DATA_KEY;
+}
 
-  const response=await fetch(base+"/v1/events",{
-    method:"POST",
-    headers:{
-      "content-type":"application/json",
-      "x-izakhono-key":key
-    },
-    body:JSON.stringify(events),
+export function dataNodeReady(){
+  return Boolean(dataBase() && dataKey());
+}
+
+async function dataNodeRequest(path:string,init:RequestInit={}){
+  const base=dataBase();
+  const key=dataKey();
+  if(!base || !key) throw new Error("IZAKHONO DATA NODE is not configured.");
+
+  const headers=new Headers(init.headers);
+  headers.set("x-izakhono-key",key);
+  if(init.body && !headers.has("content-type")) headers.set("content-type","application/json");
+
+  return fetch(base+path,{
+    ...init,
+    headers,
     cache:"no-store",
     signal:AbortSignal.timeout(12000)
   });
+}
 
-  const payload=await response.json().catch(()=>({}));
-  if(!response.ok){
-    return {accepted:false,error:payload?.error || "IZAKHONO DATA NODE rejected the event batch."};
+export async function pushGrowthEvents(events:unknown[]):Promise<IzakhonoDataResult>{
+  try{
+    const response=await dataNodeRequest("/v1/events",{
+      method:"POST",
+      body:JSON.stringify(events)
+    });
+    const payload=await response.json().catch(()=>({}));
+    if(!response.ok) return {accepted:false,error:payload?.error || "IZAKHONO DATA NODE rejected the event batch."};
+    return payload as IzakhonoDataResult;
+  }catch(error){
+    return {accepted:false,error:error instanceof Error?error.message:"IZAKHONO DATA NODE request failed."};
   }
-  return payload as IzakhonoDataResult;
+}
+
+export async function getGrowthStats(){
+  const response=await dataNodeRequest("/v1/stats");
+  const payload=await response.json().catch(()=>({}));
+  if(!response.ok) throw new Error(payload?.error || "Could not read Growth OS stats.");
+  return payload;
+}
+
+export async function listGrowthApprovals(){
+  const response=await dataNodeRequest("/v1/approvals");
+  const payload=await response.json().catch(()=>({}));
+  if(!response.ok) throw new Error(payload?.error || "Could not read Growth OS approvals.");
+  return payload;
+}
+
+export async function createGrowthApproval(input:{
+  id?:string;
+  actionType:string;
+  provider?:string|null;
+  externalAccountId?:string|null;
+  campaignRef?:string|null;
+  requestedPayload:unknown;
+}){
+  const response=await dataNodeRequest("/v1/approvals",{
+    method:"POST",
+    body:JSON.stringify(input)
+  });
+  const payload=await response.json().catch(()=>({}));
+  if(!response.ok) throw new Error(payload?.error || "Could not create Growth OS approval.");
+  return payload;
+}
+
+export async function decideGrowthApproval(id:string,input:{
+  status:"approved"|"rejected"|"cancelled";
+  note?:string|null;
+  actorRef?:string|null;
+}){
+  const response=await dataNodeRequest(`/v1/approvals/${encodeURIComponent(id)}/decision`,{
+    method:"POST",
+    body:JSON.stringify(input)
+  });
+  const payload=await response.json().catch(()=>({}));
+  if(!response.ok) throw new Error(payload?.error || "Could not decide Growth OS approval.");
+  return payload;
 }
 
 export async function dataNodeHealth(){
-  const base=process.env.IZAKHONO_DATA_URL?.replace(/\/$/,"");
+  const base=dataBase();
   if(!base) return {configured:false,reachable:false};
   try{
     const response=await fetch(base+"/health",{cache:"no-store",signal:AbortSignal.timeout(5000)});
