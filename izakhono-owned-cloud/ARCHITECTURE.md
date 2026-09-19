@@ -21,6 +21,7 @@
       ├─ IZAKHONO NOTIFY NODE    :8840
       ├─ IZAKHONO AI GATEWAY NODE :8850
       ├─ IZAKHONO CODE NODE       :8860
+      ├─ IZAKHONO PACKAGE NODE    :8900
       ├─ IZAKHONO BACKUP NODE     :8870
       ├─ IZAKHONO CI WORKER NODE  :8880
       └─ IZAKHONO REPLICA NODE    :8890
@@ -49,6 +50,7 @@ ANALYTICS NODE owns consent-aware behavioral and campaign analytics. It does not
 - NOTIFY encrypts contact destinations at rest and delegates scheduling/retries to QUEUE NODE.
 - AI GATEWAY encrypts provider credentials, hashes client keys, stores no prompt/response bodies and can route to local model servers.
 - CODE stores bare Git repositories on owned disks, hashes repo tokens, and signs outbound push webhooks.
+- PACKAGE caches npm metadata and tarballs on owned storage and pins the upstream registry host.
 - BACKUP encrypts snapshots before archive storage, verifies authenticated decryption, keeps its admin key private and restores only into staging.
 - CI WORKER keeps repository clone tokens encrypted, strips infrastructure secrets from build environments, rejects non-allowlisted executables and defaults production builds to a systemd sandbox.
 - REPLICA streams already-encrypted BACKUP archives to approved peers, verifies SHA-256 on receipt, stores immutable objects separately from replica metadata and never requires the BACKUP recovery key.
@@ -74,6 +76,7 @@ Back up:
 - `/var/lib/izakhono-notify`
 - `/var/lib/izakhono-ai-gateway`
 - `/var/lib/izakhono-code`
+- `/var/lib/izakhono-package`
 - `/var/lib/izakhono-ci`
 - `/var/lib/izakhono-replica` (metadata only)
 - `/etc/izakhono`
@@ -86,6 +89,6 @@ Keep encrypted archives on multiple physical devices and periodically prove rest
 
 ## Expansion path
 
-Next owned services: owned package cache/mirror, multi-node failover and public DNS/TLS automation under domains you control.
+Next owned services: multi-node failover and public DNS/TLS automation under domains you control.
 
 The stack remains modular so each service can later move onto its own machine without changing the application-facing API contract.

@@ -2,7 +2,7 @@ name: IZAKHONO CI WORKER NODE Gate
 
 on:
   push:
-    branches: [build/izakhono-ci-worker-node]
+    branches: [build/izakhono-ci-worker-node, build/owned-cloud-package-node-final]
     paths:
       - "izakhono-ci-worker-node/**"
       - ".github/workflows/izakhono-ci-worker-node-gate.yml"
@@ -45,3 +45,5 @@ jobs:
           grep -q 'ProtectSystem=strict' server.mjs
           grep -q 'COMMAND_NOT_ALLOWED' server.mjs
           grep -q 'direct-test executor is forbidden' server.mjs
+          grep -q 'NPM_CONFIG_REGISTRY' server.mjs
+          grep -q 'IZAKHONO_PACKAGE_URL' install-linux.sh

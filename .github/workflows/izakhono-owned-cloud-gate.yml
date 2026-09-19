@@ -2,7 +2,7 @@ name: IZAKHONO OWNED CLOUD Gate
 
 on:
   push:
-    branches: [build/izakhono-owned-cloud-stack, build/owned-cloud-add-auth, build/owned-cloud-add-analytics, build/owned-cloud-add-notify, build/owned-cloud-add-ai-gateway, build/owned-cloud-add-code, build/owned-cloud-add-backup, build/owned-cloud-add-ci-worker, build/owned-cloud-add-replica-final]
+    branches: [build/izakhono-owned-cloud-stack, build/owned-cloud-add-auth, build/owned-cloud-add-analytics, build/owned-cloud-add-notify, build/owned-cloud-add-ai-gateway, build/owned-cloud-add-code, build/owned-cloud-add-backup, build/owned-cloud-add-ci-worker, build/owned-cloud-add-replica-final, build/owned-cloud-package-node-final]
     paths:
       - "izakhono-owned-cloud/**"
       - ".github/workflows/izakhono-owned-cloud-gate.yml"
@@ -43,7 +43,7 @@ jobs:
           ! grep -R -E 'supabase projects create|vercel deploy|aws s3 mb|gcloud .* create' izakhono-owned-cloud
           grep -q '127.0.0.1:\$PORT:8000' izakhono-owned-cloud/deploy-fortress-protector.sh
           grep -q 'payment_credentials_stored.*False' izakhono-owned-cloud/deploy-fortress-protector.sh
-      - name: Verify all thirteen component installers exist
+      - name: Verify all fifteen component installers exist
         run: |
           test -f izakhono-data-node/install-linux.sh
           test -f izakhono-runtime-node/install-linux.sh
@@ -55,6 +55,8 @@ jobs:
           test -f izakhono-notify-node/install-linux.sh
           test -f izakhono-ai-gateway-node/install-linux.sh
           test -f izakhono-code-node/install-linux.sh
+          test -f izakhono-package-node/install-linux.sh
           test -f izakhono-ci-worker-node/install-linux.sh
           test -f izakhono-backup-node/install-linux.sh
           test -f izakhono-replica-node/install-linux.sh
+          test -f izakhono-dns-node/install-linux.sh
