@@ -33,3 +33,58 @@
 .measurePage{max-width:1360px;margin:auto;padding:0 28px 70px}.measurementSummary{margin:5px 0 20px}.measurementSourceGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.measurementSource{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}.measurementSource h2{font-size:22px;margin:7px 0}.measurementSource>p{color:var(--muted);font-size:11px;line-height:1.5;min-height:50px}.measurementVars{margin:14px 0}.measurementVars code{display:block;overflow-wrap:anywhere;background:#081219;border:1px solid var(--line);border-radius:8px;padding:8px;margin:5px 0;color:#b8d1df;font-size:8px}.measurementNotes{display:grid;gap:6px}.measurementNotes span{font-size:9px;line-height:1.4;color:#a9b7be}.eventModel{margin-top:20px}.eventModel h2{font-size:34px;margin:7px 0 20px}.eventRows{display:grid;grid-template-columns:1fr 1fr;gap:7px}.eventRows>div{display:grid;grid-template-columns:145px 1fr;gap:12px;align-items:center;background:#09141b;border:1px solid #172934;border-radius:10px;padding:10px}.eventRows code{color:var(--gold);font-size:10px}.eventRows span{font-size:10px;color:#aebbc2}.measurementCopy{font-size:12px!important;color:#aebbc2!important;line-height:1.6!important}
 @media(max-width:900px){.measurementSourceGrid{grid-template-columns:1fr 1fr}.eventRows{grid-template-columns:1fr}}
 @media(max-width:560px){.measurePage{padding:0 16px 45px}.measurementSourceGrid{grid-template-columns:1fr}.eventRows>div{grid-template-columns:1fr}}
+
+
+/* Growth OS v2 premium production polish */
+body{
+  background:
+    linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px),
+    radial-gradient(circle at 78% -5%,rgba(74,214,179,.16),transparent 32%),
+    radial-gradient(circle at 48% 10%,rgba(111,138,255,.10),transparent 28%),
+    #061018;
+  background-size:42px 42px,42px 42px,auto,auto,auto;
+}
+.logoMark{
+  background:linear-gradient(135deg,#58e6c1 0%,#d8b35f 48%,#f4df9f 100%);
+  box-shadow:0 12px 35px rgba(88,230,193,.18);
+}
+.heroCard{
+  position:relative;
+  background:
+    radial-gradient(circle at 86% 12%,rgba(88,230,193,.17),transparent 28%),
+    radial-gradient(circle at 60% 110%,rgba(122,100,255,.13),transparent 34%),
+    linear-gradient(135deg,#112733,#09141c 72%);
+  box-shadow:0 24px 70px rgba(0,0,0,.23);
+}
+.heroCard:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  border-radius:inherit;
+  background:linear-gradient(110deg,rgba(255,255,255,.035),transparent 35%);
+}
+.heroCard h2{
+  background:linear-gradient(90deg,#fff 0%,#d6fff4 48%,#e8c873 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.card,.metric,.creativeCard,.connectionCard{
+  box-shadow:0 14px 45px rgba(0,0,0,.12);
+  transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
+}
+.card:hover,.metric:hover,.creativeCard:hover,.connectionCard:hover{
+  transform:translateY(-2px);
+  border-color:#31505d;
+  box-shadow:0 20px 52px rgba(0,0,0,.18);
+}
+.primary,.newCampaign{
+  background:linear-gradient(135deg,#61e8c5,#d8b35f)!important;
+  box-shadow:0 10px 30px rgba(88,230,193,.13);
+}
+.primary:hover,.newCampaign:hover{filter:brightness(1.05);transform:translateY(-1px)}
+.sideNav button.active{box-shadow:inset 3px 0 0 #58e6c1}
+.kicker{color:#e5c66f}
+.safety{color:#65e6bc}

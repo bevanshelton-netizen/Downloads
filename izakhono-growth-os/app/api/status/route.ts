@@ -1,8 +1,11 @@
 export async function GET() {
   return Response.json({
     product:"IZAKHONO GROWTH OS",
-    status:"public-beta",
+    version:"2.0",
+    status:"owner-host-ready",
     mode:"safe-command-centre",
+    runtime:"IZAKHONO OWNED CLOUD",
+    publicBaseUrl:process.env.GROWTH_OS_PUBLIC_BASE_URL || null,
     liveAdWrites:false,
     connectorPolicy:"read first, draft paused, explicit approval before write",
     persistence:{

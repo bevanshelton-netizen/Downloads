@@ -1,13 +1,13 @@
 import { providerOnboarding } from "@/lib/providers/onboarding";
 import Link from "next/link";
 
-const base="https://izakhono-growth-os.vercel.app";
+const base=(process.env.GROWTH_OS_PUBLIC_BASE_URL || "https://growth.izakhonoafrica.co.za").replace(/\/$/,"");
 
 export default function ConnectPage(){
   return <main className="connectPage">
     <header className="connectTop">
       <Link href="/">← Command Centre</Link>
-      <span>IZAKHONO GROWTH OS</span>
+      <span>IZAKHONO GROWTH OS v2 · OWNED INFRASTRUCTURE</span>
     </header>
 
     <section className="connectHero">
