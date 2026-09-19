@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 
 type Tab = "command" | "build" | "creative" | "organic" | "leads" | "compliance" | "approvals" | "connections";
 type Draft = {
@@ -159,6 +160,7 @@ export default function GrowthOS(){
           <h1>{nav.find(n=>n[0]===tab)?.[1]}</h1>
         </div>
         <div className="topActions">
+          <Link className="ownerLogin" href="/login">Owner access</Link>
           <button className={demo?"demoOn":"demoOff"} onClick={()=>setDemo(v=>!v)}>{demo?"DEMO WORKSPACE":"LIVE DATA ONLY"}</button>
           <button className="newCampaign" onClick={()=>setTab("build")}>＋ New campaign</button>
         </div>

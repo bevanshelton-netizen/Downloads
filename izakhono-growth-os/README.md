@@ -47,3 +47,10 @@ ISN-01 -> IZAKHONO CODE -> IZAKHONO RUNTIME -> IZAKHONO EDGE -> growth.izakhonoa
 ```
 
 Run `START-GROWTH-OS-V2-ON-IZAKHONO.cmd` on the owner machine. The deployment is health-gated at `/api/health`, preserves the approval-before-write policy, and records a deployment receipt. Vercel is not required.
+
+
+## Owner authentication and approvals
+
+Growth OS v2 uses IZAKHONO AUTH NODE for owner/admin sessions. Browser credentials are posted to the Growth OS server, which forwards them to AUTH NODE and stores the returned opaque session only in an HttpOnly cookie. Sensitive Growth OS APIs check `growth.read` or `growth.write` before reading owned stats or creating/deciding approval records in IZAKHONO DATA NODE.
+
+Protected routes include `/api/stats`, `/api/approvals` and `/api/approvals/[id]/decision`. Approval decisions remain separate from provider execution; live ad writes stay disabled until the provider adapter and execution gate are explicitly enabled.
