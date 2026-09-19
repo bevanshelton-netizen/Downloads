@@ -1,0 +1,128 @@
+name: IZAKHONO Growth OS v2 Vercel Production Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'growth-os-v2/**'
+      - '.github/workflows/growth-os-v2-vercel-deploy.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: growth-os-v2-vercel-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: kora-production
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: team_XSHdQaQxmXGD1HlK2E4nehif
+      PROJECT_NAME: izakhono-growth-os-v2
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Require existing Vercel account credentials
+        run: |
+          test -n "$VERCEL_TOKEN" || { echo "Missing VERCEL_TOKEN"; exit 1; }
+          test -n "$VERCEL_ORG_ID" || { echo "Missing VERCEL_ORG_ID"; exit 1; }
+
+      - name: Create or locate isolated Growth OS v2 project
+        id: project
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cat > /tmp/growth-os-project.json <<JSON
+          {
+            "name": "$PROJECT_NAME",
+            "framework": null,
+            "rootDirectory": "growth-os-v2",
+            "gitRepository": {
+              "type": "github",
+              "repo": "bevanshelton-netizen/Downloads"
+            }
+          }
+          JSON
+
+          CODE="$(curl -sS -o /tmp/vercel-create.json -w "%{http_code}" \
+            -X POST "https://api.vercel.com/v11/projects?teamId=$VERCEL_ORG_ID" \
+            -H "Authorization: Bearer $VERCEL_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data-binary @/tmp/growth-os-project.json)"
+
+          if [[ "$CODE" =~ ^2 ]]; then
+            cp /tmp/vercel-create.json /tmp/vercel-project.json
+          elif [ "$CODE" = "409" ]; then
+            curl -fsS \
+              "https://api.vercel.com/v9/projects/$PROJECT_NAME?teamId=$VERCEL_ORG_ID" \
+              -H "Authorization: Bearer $VERCEL_TOKEN" \
+              > /tmp/vercel-project.json
+          else
+            echo "Vercel project creation failed with HTTP $CODE"
+            cat /tmp/vercel-create.json
+            exit 1
+          fi
+
+          PROJECT_ID="$(node -e "const fs=require('fs'); const x=JSON.parse(fs.readFileSync('/tmp/vercel-project.json','utf8')); if(!x.id) process.exit(2); process.stdout.write(x.id)")"
+          echo "project_id=$PROJECT_ID" >> "$GITHUB_OUTPUT"
+          echo "Growth OS v2 Vercel project: $PROJECT_ID"
+
+      - name: Link Growth OS v2 to Vercel project
+        working-directory: growth-os-v2
+        env:
+          PROJECT_ID: ${{ steps.project.outputs.project_id }}
+        run: |
+          mkdir -p .vercel
+          node -e "require('fs').writeFileSync('.vercel/project.json', JSON.stringify({orgId:process.env.VERCEL_ORG_ID,projectId:process.env.PROJECT_ID,projectName:process.env.PROJECT_NAME}))"
+
+      - name: Pull production settings
+        working-directory: growth-os-v2
+        run: npx --yes vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
+
+      - name: Deploy production
+        id: deploy
+        working-directory: growth-os-v2
+        run: |
+          set -euo pipefail
+          URL="$(npx --yes vercel@latest deploy --prod --yes --token="$VERCEL_TOKEN" | tail -n 1)"
+          test -n "$URL"
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Growth OS v2 production URL: $URL"
+
+      - name: Smoke test public deployment
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 20); do
+            if curl -fsS "$URL/" > /tmp/growth-os-home.html; then break; fi
+            sleep 3
+          done
+          grep -q "IZAKHONO GROWTH OS" /tmp/growth-os-home.html
+          grep -q "Create, launch, follow up" /tmp/growth-os-home.html || grep -q "paying customer" /tmp/growth-os-home.html
+          echo "Growth OS v2 public smoke test passed."
+
+      - name: Publish deployment summary
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
+          PROJECT_ID: ${{ steps.project.outputs.project_id }}
+        run: |
+          {
+            echo "## IZAKHONO Growth OS v2 Deploy Result"
+            echo "- URL: $URL"
+            echo "- Target: production"
+            echo "- Vercel project: $PROJECT_ID"
+            echo "- Commit: ${GITHUB_SHA::7}"
+            echo "- Smoke test: passed"
+          } >> "$GITHUB_STEP_SUMMARY"
