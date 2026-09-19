@@ -1,0 +1,22 @@
+[Unit]
+Description=IZAKHONO FAILOVER NODE
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/izakhono-failover-node
+EnvironmentFile=/etc/izakhono/failover-node.env
+ExecStart=/usr/bin/node /opt/izakhono-failover-node/server.mjs
+Restart=always
+RestartSec=3
+User=izakhono
+Group=izakhono
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/izakhono-failover
+Environment=IZAKHONO_FAILOVER_DB=/var/lib/izakhono-failover/failover.sqlite
+
+[Install]
+WantedBy=multi-user.target

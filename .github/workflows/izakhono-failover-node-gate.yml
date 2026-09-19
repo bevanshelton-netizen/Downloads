@@ -1,0 +1,41 @@
+name: IZAKHONO FAILOVER NODE Gate
+
+on:
+  push:
+    branches: [build/izakhono-failover-node]
+    paths:
+      - "izakhono-failover-node/**"
+      - ".github/workflows/izakhono-failover-node-gate.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "izakhono-failover-node/**"
+      - ".github/workflows/izakhono-failover-node-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  self-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: izakhono-failover-node
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+      - name: Verify zero runtime dependencies
+        run: test "$(node -e 'console.log(Object.keys(require("./package.json").dependencies||{}).length)')" = "0"
+      - name: Run failover state-machine self test
+        run: npm run check
+      - name: Verify safety defaults
+        run: |
+          grep -q 'PORT || 8920' server.mjs
+          grep -q 'automaticPromotion:false' server.mjs
+          grep -q 'fence-required' server.mjs
+          grep -q 'manual-route-switch-required' server.mjs
+          grep -q 'activeFenced' server.mjs
+          ! grep -q 'auto.*dns' server.mjs
