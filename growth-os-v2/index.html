@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>IZAKHONO GROWTH OS v2</title>
+  <meta name="description" content="AI growth engine for ads, content, leads, landing pages, payments and revenue tracking."/>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">IG</div>
+        <div><strong>IZAKHONO</strong><span>GROWTH OS v2</span></div>
+      </div>
+      <div class="brand-switcher">
+        <label>ACTIVE BRAND</label>
+        <select id="brandSelect">
+          <option>Izakhono Africa</option>
+          <option>Edu-Build Institute</option>
+          <option>FAISReady</option>
+          <option>KORA Network</option>
+          <option>DOXA-SURE</option>
+          <option>BEVAN SHELTON</option>
+        </select>
+      </div>
+      <nav id="nav">
+        <button class="active" data-page="command">⌁ Command Centre</button>
+        <button data-page="campaign">✦ AI Campaign Studio</button>
+        <button data-page="creative">◈ Creative Factory</button>
+        <button data-page="social">◎ Social Autopilot</button>
+        <button data-page="landing">▱ Landing Pages</button>
+        <button data-page="leads">↗ Leads & CRM</button>
+        <button data-page="revenue">R Revenue Desk</button>
+        <button data-page="connections">⌘ Connections</button>
+      </nav>
+      <div class="guardrail">
+        <div><span class="pulse"></span> APPROVAL GUARDRAIL ON</div>
+        <small>No paid campaign publishes without owner approval.</small>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">ONE BUSINESS PROFILE → EVERY GROWTH CHANNEL</p>
+          <h1 id="pageTitle">Command Centre</h1>
+        </div>
+        <div class="top-actions">
+          <button class="ghost" id="shareBtn">Share</button>
+          <button class="primary" id="newCampaignBtn">+ New campaign</button>
+        </div>
+      </header>
+
+      <section class="page active" id="command">
+        <div class="hero card">
+          <div>
+            <span class="pill">AI GROWTH ENGINE</span>
+            <h2>Create, launch, follow up and measure from one place.</h2>
+            <p>Turn a product, service or website link into ad concepts, social content, a landing page, a lead funnel and a revenue campaign.</p>
+            <div class="hero-actions">
+              <button class="primary" data-open="campaign">Build campaign</button>
+              <button class="secondary" id="scanBrandBtn">Scan brand</button>
+            </div>
+          </div>
+          <div class="score-card">
+            <div class="score">82</div>
+            <b>Launch readiness</b>
+            <small>Creative, offer and funnel are ready. Connect channels to publish.</small>
+          </div>
+        </div>
+
+        <div class="metrics">
+          <article class="metric card"><span>Draft campaigns</span><strong id="draftCount">4</strong><small>2 ready for approval</small></article>
+          <article class="metric card"><span>Leads this month</span><strong id="leadCount">187</strong><small>+23% vs previous period</small></article>
+          <article class="metric card"><span>Attributed revenue</span><strong>R64 820</strong><small>Demo until analytics is connected</small></article>
+          <article class="metric card"><span>Follow-ups due</span><strong>31</strong><small>WhatsApp + email queue</small></article>
+        </div>
+
+        <div class="grid-2">
+          <section class="card">
+            <div class="section-head"><div><p class="eyebrow">GROWTH COPILOT</p><h3>What should happen next?</h3></div><button class="text-btn">Refresh</button></div>
+            <div class="tasks">
+              <article><span>01</span><div><b>Launch a R99 entry offer</b><p>Use a low-friction offer to create first-party leads, then upsell.</p></div><button data-open="campaign">Build</button></article>
+              <article><span>02</span><div><b>Create 6 creative variants</b><p>Test hook, proof, price, urgency, founder story and customer outcome.</p></div><button data-open="creative">Generate</button></article>
+              <article><span>03</span><div><b>Connect measurement</b><p>Link Meta, Google, TikTok, analytics and payments before auto-optimizing spend.</p></div><button data-open="connections">Connect</button></article>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="section-head"><div><p class="eyebrow">AUTOPILOT</p><h3>Campaign machine</h3></div><span class="status">SAFE MODE</span></div>
+            <div class="autopilot-list">
+              <div><span>Daily content generation</span><b>ON</b></div>
+              <div><span>Lead-response drafts</span><b>ON</b></div>
+              <div><span>Budget reallocation</span><b>APPROVAL</b></div>
+              <div><span>Paid publishing</span><b>APPROVAL</b></div>
+              <div><span>Compliance preflight</span><b>ON</b></div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="page" id="campaign">
+        <div class="grid-2">
+          <section class="card form-card">
+            <p class="eyebrow">AI CAMPAIGN STUDIO</p>
+            <h2>One brief. Full campaign pack.</h2>
+            <label>What are you selling?</label>
+            <input id="offerInput" value="Affordable AI-powered business growth service"/>
+            <label>Primary goal</label>
+            <select id="goalInput"><option>Generate leads</option><option>Drive sales</option><option>Website traffic</option><option>Bookings</option></select>
+            <div class="row">
+              <div><label>Offer price</label><input id="priceInput" value="R199"/></div>
+              <div><label>Daily budget</label><input id="budgetInput" value="R150"/></div>
+            </div>
+            <label>Target customer</label>
+            <textarea id="audienceInput">South African small businesses that need more customers but do not have an internal marketing team.</textarea>
+            <button class="primary wide" id="generateCampaign">Generate campaign pack</button>
+          </section>
+          <section class="card output-card">
+            <div class="section-head"><div><p class="eyebrow">OUTPUT</p><h3>Campaign Pack</h3></div><span class="status" id="campaignStatus">READY</span></div>
+            <div id="campaignOutput" class="campaign-output">
+              <h4>Hook</h4><p>Stop guessing what to post. Turn your business into a 24/7 customer-generation machine.</p>
+              <h4>Primary copy</h4><p>Get ads, content, leads and follow-up in one simple growth system built for busy business owners.</p>
+              <h4>CTA</h4><p>Start your growth campaign</p>
+              <div class="variant-tags"><span>Founder-led</span><span>Problem/Solution</span><span>Offer-led</span><span>Testimonial</span><span>Urgency</span><span>Educational</span></div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="page" id="creative">
+        <section class="card">
+          <div class="section-head"><div><p class="eyebrow">CREATIVE FACTORY</p><h2>Generate a week of creatives at once.</h2></div><button class="primary" id="generateCreatives">Generate batch</button></div>
+          <div class="creative-grid" id="creativeGrid">
+            <article class="creative c1"><span>STATIC</span><h3>Stop scrolling.<br/>Start selling.</h3><p>AI campaign launch in minutes.</p><button>Use creative</button></article>
+            <article class="creative c2"><span>REEL</span><h3>Your business deserves a marketing team.</h3><p>Now it can have one.</p><button>Build reel</button></article>
+            <article class="creative c3"><span>UGC SCRIPT</span><h3>“I used to waste hours making ads…”</h3><p>15-second talking-avatar script</p><button>Open script</button></article>
+            <article class="creative c4"><span>OFFER</span><h3>Launch. Learn. Scale.</h3><p>One system for growth.</p><button>Use offer</button></article>
+          </div>
+        </section>
+      </section>
+
+      <section class="page" id="social">
+        <section class="card">
+          <div class="section-head"><div><p class="eyebrow">SOCIAL AUTOPILOT</p><h2>30-day content machine</h2></div><button class="primary" id="buildCalendar">Build calendar</button></div>
+          <div class="calendar" id="calendar">
+            <article><b>MON</b><span>Problem/solution reel</span><small>Instagram · TikTok · Facebook</small></article>
+            <article><b>TUE</b><span>Customer outcome post</span><small>Facebook · LinkedIn</small></article>
+            <article><b>WED</b><span>Founder video</span><small>Instagram · TikTok</small></article>
+            <article><b>THU</b><span>Offer + CTA</span><small>All channels</small></article>
+            <article><b>FRI</b><span>FAQ carousel</span><small>Instagram · Facebook</small></article>
+          </div>
+        </section>
+      </section>
+
+      <section class="page" id="landing">
+        <section class="card landing-preview">
+          <div><p class="eyebrow">AI LANDING PAGE BUILDER</p><h2>Every campaign gets its own conversion page.</h2><p>Headline, offer, proof, CTA, WhatsApp lead capture and checkout are assembled from the same campaign brief.</p><button class="primary" id="generateLanding">Generate page</button></div>
+          <div class="phone">
+            <div class="phone-bar"></div>
+            <span class="pill">LIMITED OFFER</span>
+            <h3>Grow your business without hiring a marketing team.</h3>
+            <p>Ads + content + leads + follow-up in one place.</p>
+            <button>Get started</button>
+            <small>iKhokha checkout-ready</small>
+          </div>
+        </section>
+      </section>
+
+      <section class="page" id="leads">
+        <section class="card">
+          <div class="section-head"><div><p class="eyebrow">LEADS & CRM</p><h2>Every enquiry becomes a follow-up task.</h2></div><button class="primary" id="addLead">+ Add demo lead</button></div>
+          <div class="lead-table" id="leadTable">
+            <div class="lead-row head"><span>Name</span><span>Source</span><span>Stage</span><span>Next action</span></div>
+            <div class="lead-row"><span>Nandi M.</span><span>Instagram</span><span class="stage hot">HOT</span><span>WhatsApp now</span></div>
+            <div class="lead-row"><span>Thabo K.</span><span>Landing page</span><span class="stage warm">WARM</span><span>Send offer</span></div>
+            <div class="lead-row"><span>Ayesha P.</span><span>Facebook</span><span class="stage new">NEW</span><span>Qualify</span></div>
+          </div>
+        </section>
+      </section>
+
+      <section class="page" id="revenue">
+        <div class="metrics">
+          <article class="metric card"><span>Ad spend</span><strong>R12 600</strong><small>Demo data</small></article>
+          <article class="metric card"><span>Revenue</span><strong>R64 820</strong><small>5.1x attributed ROAS</small></article>
+          <article class="metric card"><span>Cost per lead</span><strong>R67.38</strong><small>Target: under R85</small></article>
+          <article class="metric card"><span>Lead-to-sale</span><strong>14.4%</strong><small>Improve follow-up speed</small></article>
+        </div>
+        <section class="card">
+          <p class="eyebrow">REVENUE COPILOT</p><h2>Spend only when the numbers make sense.</h2>
+          <div class="insight"><b>Recommended move</b><p>Keep the current daily budget capped until conversion tracking and payment attribution are verified. Then scale only winning audiences and creatives.</p></div>
+        </section>
+      </section>
+
+      <section class="page" id="connections">
+        <section class="card">
+          <p class="eyebrow">CONNECTIONS</p><h2>Connect the channels that power the machine.</h2>
+          <div class="connections">
+            <article><div class="icon">M</div><div><b>Meta</b><small>Facebook · Instagram</small></div><button>Connect</button></article>
+            <article><div class="icon">G</div><div><b>Google Ads</b><small>Search · YouTube · PMax</small></div><button>Connect</button></article>
+            <article><div class="icon">T</div><div><b>TikTok</b><small>Organic · Paid · Leads</small></div><button>Connect</button></article>
+            <article><div class="icon">in</div><div><b>LinkedIn</b><small>Organic · B2B Ads</small></div><button>Connect</button></article>
+            <article><div class="icon">W</div><div><b>WhatsApp Business</b><small>Lead capture · Follow-up</small></div><button>Connect</button></article>
+            <article><div class="icon">iK</div><div><b>iKhokha</b><small>Payments · Conversion revenue</small></div><button>Connect</button></article>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>
