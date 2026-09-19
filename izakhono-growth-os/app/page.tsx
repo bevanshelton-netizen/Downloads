@@ -20,10 +20,9 @@ type Plan = {
   note:string;
 };
 
-const brands = [
-  "KORA Network","AUTO AI","FAISReady","Mandatory Regulatory Exams",
-  "DOXA-SURE","Edu-Build ECD360","NexAI Global Markets",
-  "BEVAN SHELTON","Izakhono Africa"
+const fallbackBrands = [
+  "KORA","AUTO AI","FAISReady","Mandatory Regulatory Exams Platform",
+  "DOXA-SURE","Edu-Build Institute – Shelton Campuses","IZAKHONO ONE","Izakhono Africa"
 ];
 
 const providers = [
@@ -70,7 +69,8 @@ function money(v:number){ return "R"+v.toLocaleString("en-ZA"); }
 
 export default function GrowthOS(){
   const [tab,setTab]=useState<Tab>("command");
-  const [brand,setBrand]=useState(brands[0]);
+  const [brands,setBrands]=useState<string[]>(fallbackBrands);
+  const [brand,setBrand]=useState(fallbackBrands[0]);
   const [drafts,setDrafts]=useState<Draft[]>([]);
   const [demo,setDemo]=useState(true);
   const [plan,setPlan]=useState<Plan|null>(null);
@@ -87,6 +87,11 @@ export default function GrowthOS(){
   useEffect(()=>{
     const raw=localStorage.getItem("growth-os-drafts");
     if(raw){ try{setDrafts(JSON.parse(raw));}catch{} }
+    fetch("https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-portfolio-growth-api?list=1")
+      .then(r=>r.json()).then(d=>{
+        const names=(d.platforms||[]).filter((p:any)=>p.status==="active"||p.status==="building").map((p:any)=>String(p.display_name||"")).filter(Boolean);
+        if(names.length){setBrands(names);setBrand(v=>names.includes(v)?v:names[0]);}
+      }).catch(()=>{});
   },[]);
 
   useEffect(()=>{
@@ -166,7 +171,7 @@ export default function GrowthOS(){
         </div>
       </header>
 
-      {tab==="command"&&<CommandCentre brand={brand} connected={connected} drafts={drafts} readyScore={readyScore} demo={demo} setTab={setTab}/>}
+      {tab==="command"&&<CommandCentre brand={brand} brands={brands} connected={connected} drafts={drafts} readyScore={readyScore} demo={demo} setTab={setTab}/>}
       {tab==="build"&&<CampaignBuilder brand={brand} form={form} setForm={setForm} plan={plan} planning={planning} buildPlan={buildPlan} saveDraft={saveDraft}/>}
       {tab==="creative"&&<CreativeLab brand={brand}/>}
       {tab==="organic"&&<OrganicSocial brand={brand}/>}
@@ -178,7 +183,7 @@ export default function GrowthOS(){
   </main>;
 }
 
-function CommandCentre({brand,connected,drafts,readyScore,demo,setTab}:{brand:string;connected:number;drafts:Draft[];readyScore:number;demo:boolean;setTab:(t:Tab)=>void}){
+function CommandCentre({brand,brands,connected,drafts,readyScore,demo,setTab}:{brand:string;brands:string[];connected:number;drafts:Draft[];readyScore:number;demo:boolean;setTab:(t:Tab)=>void}){
   const demoSpend=demo?18450:0;
   return <div className="stack">
     <section className="heroCard">
