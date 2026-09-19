@@ -2,7 +2,7 @@ import { getProviderOnboarding } from "@/lib/providers/onboarding";
 import { isTokenVaultReady } from "@/lib/security/token-vault";
 
 export async function GET(
-  _request: Request,
+  request: Request,
   {params}:{params:Promise<{provider:string}>}
 ){
   const {provider} = await params;
@@ -13,6 +13,8 @@ export async function GET(
 
   const env = Object.fromEntries(config.env.map(name=>[name,Boolean(process.env[name])]));
   const missing = config.env.filter(name=>!process.env[name]);
+  const requestOrigin = new URL(request.url).origin;
+  const publicBase = (process.env.GROWTH_OS_PUBLIC_BASE_URL || requestOrigin).replace(/\/$/,"");
 
   return Response.json({
     provider:config.id,
@@ -23,11 +25,11 @@ export async function GET(
     approval:config.approval,
     authModel:config.authModel,
     scopes:config.scopes,
-    callbackUrl:"https://izakhono-growth-os.vercel.app"+config.callbackPath,
+    callbackUrl:publicBase+config.callbackPath,
     tokenVaultReady:isTokenVaultReady(),
     liveWritesEnabled:false,
     nextAction:missing.length
-      ? "Add the missing credentials as server-side production environment variables."
+      ? "Add the missing credentials to the protected Growth OS server environment."
       : "Credentials are present. Complete provider approval and callback exchange before enabling account access."
   },{headers:{"Cache-Control":"no-store"}});
 }
