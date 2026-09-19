@@ -132,3 +132,19 @@ IZAKHONO DNS NODE can own authoritative DNS after the parent/registrar delegates
 FAILOVER NODE listens on loopback port 8920. It automatically observes primary and standby health and can create a failover candidate after repeated primary failures, but it deliberately refuses silent promotion.
 
 A promotion requires the old primary to be fenced, explicit `PROMOTE` confirmation, and later explicit `ROUTE_SWITCHED` evidence. This reduces split-brain risk until a separate witness/quorum node and two physical production hosts have been proven.
+
+
+## Independent witness host
+
+WITNESS NODE is an HA companion, **not** part of the primary-node sixteen-service install. Putting it on the primary would destroy its arbitration value.
+
+On a separate Linux host/failure domain:
+
+    export IZAKHONO_WITNESS_BIND=<private-or-vpn-ip>
+    cd izakhono-owned-cloud
+    sudo bash deploy-witness-node.sh
+    sudo bash bootstrap-ha-cluster.sh
+
+The deployment script refuses a normal production install when DATA, RUNTIME or EDGE are already active on the same host. The cluster bootstrap creates separate primary and standby member credentials without printing their secrets.
+
+WITNESS uses exclusive 15-second leases, monotonic fencing tokens and Ed25519-signed lease receipts. Automatic failover still remains disabled until the primary and standby RUNTIME/EDGE layers enforce witness lease expiry/fencing on real physical hosts.
