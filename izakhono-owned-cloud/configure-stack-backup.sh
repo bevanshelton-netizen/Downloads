@@ -24,6 +24,7 @@ sources=(
   /var/lib/izakhono-notify
   /var/lib/izakhono-ai-gateway
   /var/lib/izakhono-code
+  /var/lib/izakhono-package
   /var/lib/izakhono-ci
   /var/lib/izakhono-replica
 )
