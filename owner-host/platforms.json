@@ -55,6 +55,12 @@
       "hostnameEnv": "IZAKHONO_DOMAINS_PUBLIC_HOST",
       "defaultHostname": "domains.izakhonoafrica.co.za",
       "deploy": "izakhono-owned-cloud/deploy-izakhono-domains.sh"
+    },
+    {
+      "id": "memory-mania",
+      "hostnameEnv": "MEMORY_MANIA_PUBLIC_HOST",
+      "defaultHostname": "memorymania.izakhonoafrica.co.za",
+      "deploy": "izakhono-owned-cloud/deploy-memory-mania.sh"
     }
   ]
 }
