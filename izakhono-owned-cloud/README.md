@@ -22,8 +22,9 @@ This integration uses FORTRESS as an internal protection and incident-readiness 
 10. **IZAKHONO CODE NODE** — owned Git repositories, clone/fetch/push, scoped tokens and signed push webhooks.
 11. **IZAKHONO BACKUP NODE** — encrypted snapshots, retention, mirror copies, verification and staged restore.
 12. **IZAKHONO CI WORKER NODE** — owned CODE/QUEUE build execution with commit pinning, signed triggers and production sandbox policy.\n13. **IZAKHONO REPLICA NODE** — second-host streaming replication for already-encrypted BACKUP archives.
+14. **IZAKHONO PACKAGE NODE** — owned npm-compatible metadata/tarball cache and build mirror.
 
-All thirteen services are designed to run on Linux hardware you control and use Node.js built-ins plus SQLite. They do not require hosted database, object-store, queue, authentication or analytics subscriptions.
+All fourteen services are designed to run on Linux hardware you control and use Node.js built-ins plus SQLite. They do not require hosted database, object-store, queue, authentication or analytics subscriptions.
 
 ## Install
 
@@ -32,7 +33,7 @@ From the repository root:
     cd izakhono-owned-cloud
     sudo bash install-owned-stack.sh
 
-The installer validates Node 22.13+, installs DATA, RUNTIME, OBJECT, QUEUE, AUTH, ANALYTICS, NOTIFY, AI GATEWAY, CODE, CI WORKER, BACKUP and REPLICA, and installs EDGE only when a TLS certificate/key already exist. It never creates paid cloud resources and never prints generated service secrets.
+The installer validates Node 22.13+, installs DATA, RUNTIME, OBJECT, QUEUE, AUTH, ANALYTICS, NOTIFY, AI GATEWAY, CODE, PACKAGE, CI WORKER, BACKUP and REPLICA, and installs EDGE only when a TLS certificate/key already exist. It never creates paid cloud resources and never prints generated service secrets.
 
 ## TLS
 
@@ -57,7 +58,7 @@ After installation:
 
     sudo bash configure-growth-os.sh
 
-This creates `/etc/izakhono/apps/growth-os.env`, points Growth OS to the owned nodes, and generates a separate measurement-ingest key. AUTH NODE is exposed through its loopback URL; ANALYTICS NODE is available through its loopback URL and private admin key; NOTIFY NODE is available through its loopback URL and service key. AI GATEWAY is exposed by URL only until a limited app client key is provisioned. CODE NODE is exposed by URL only until a repository-scoped Git token is provisioned. BACKUP NODE is exposed by URL only; its admin and recovery secrets remain server-side. CI WORKER is exposed by URL only; pipeline administration stays private. REPLICA NODE is exposed by URL only; peer administration and receiver credentials remain server-side.
+This creates `/etc/izakhono/apps/growth-os.env`, points Growth OS to the owned nodes, and generates a separate measurement-ingest key. AUTH NODE is exposed through its loopback URL; ANALYTICS NODE is available through its loopback URL and private admin key; NOTIFY NODE is available through its loopback URL and service key. AI GATEWAY is exposed by URL only until a limited app client key is provisioned. CODE NODE is exposed by URL only until a repository-scoped Git token is provisioned. BACKUP NODE is exposed by URL only; its admin and recovery secrets remain server-side. PACKAGE NODE is the owned npm registry cache for builds. CI WORKER directs npm-compatible build traffic to it whenever the pipeline has network access. CI WORKER is exposed by URL only; pipeline administration stays private. REPLICA NODE is exposed by URL only; peer administration and receiver credentials remain server-side.
 
 ## AI client provisioning
 
@@ -120,6 +121,6 @@ That installs the full stack, configures Growth OS, creates the encrypted core b
 
     sudo bash stack-status.sh
 
-Owned Cloud eliminates the software subscription requirement for these thirteen infrastructure layers, but running infrastructure still requires hardware, disks, backups, power and internet connectivity.
+Owned Cloud eliminates the software subscription requirement for these fourteen infrastructure layers, but running infrastructure still requires hardware, disks, backups, power and internet connectivity.
 
 Public DNS registration, a certificate authority relationship, upstream ISP connectivity and large-scale DDoS scrubbing remain external network realities.
