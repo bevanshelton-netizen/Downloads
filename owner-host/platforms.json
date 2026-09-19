@@ -10,6 +10,12 @@
       "deploy": "izakhono-owned-cloud/deploy-izakhono-flagship.sh"
     },
     {
+      "id": "growth-os-v2",
+      "hostnameEnv": "GROWTH_OS_V2_PUBLIC_HOST",
+      "defaultHostname": "growth.izakhonoafrica.co.za",
+      "deploy": "izakhono-owned-cloud/deploy-growth-os-v2.sh"
+    },
+    {
       "id": "kora-network",
       "hostnameEnv": "KORA_PUBLIC_HOST",
       "deploy": "izakhono-cloud/DEPLOY-KORA-ISN-01.ps1"

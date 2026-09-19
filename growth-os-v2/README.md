@@ -25,3 +25,13 @@ This prototype intentionally does not embed secrets or pretend third-party APIs 
 
 ## Folder
 `growth-os-v2/`
+
+## IZAKHONO owned-infrastructure deployment
+
+Growth OS v2 is deployed through the owner-controlled stack, not Vercel:
+
+```text
+ISN-01 -> IZAKHONO CODE -> IZAKHONO RUNTIME -> IZAKHONO EDGE -> growth.izakhonoafrica.co.za
+```
+
+On the owner Windows machine, run `START-GROWTH-OS-V2-ON-IZAKHONO.cmd`. The launcher refreshes the current source into IZAKHONO CODE, deploys a health-gated release to RUNTIME, verifies the local EDGE route, records a deployment receipt, and only reports public HTTPS as verified when the real hostname answers successfully. It does not force a DNS cutover.
