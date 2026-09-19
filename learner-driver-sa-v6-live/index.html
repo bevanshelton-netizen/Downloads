@@ -769,5 +769,6 @@ function share(){if(document.querySelector('[data-ldsa-share]'))return;const b=d
 function wire(){share();track('page_view');document.addEventListener('click',e=>{const el=e.target.closest('button,a');if(!el)return;if(el.id==='startNowBtn'||el.matches('[data-mode="rules"],[data-mode="signs"],[data-mode="controls"]'))track('start_learning');if(el.id==='heroMockBtn'||el.matches('[data-mode="mock"]'))track('mock_test');if(el.matches('.sim-tab,[data-scroll="simulatorPanel"]')||el.id==='simNext')track('simulator');if(el.id==='schoolJoinBtn'||el.id==='schoolJoinTop')track('driving_school_join');if(el.id==='installBtn')track('install_app')})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire,{once:true});else wire();
 })();
-</script></body>
+</script><script src="https://bevanshelton-netizen.github.io/Downloads/portfolio-growth/bridge.js" data-platform="learner-driver" defer></script>
+</body>
 </html>
