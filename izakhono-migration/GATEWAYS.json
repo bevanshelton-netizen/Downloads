@@ -1,6 +1,6 @@
 {
   "schema": "izakhono.gateway/v1",
-  "effective_at": "2026-09-14T08:47:00+02:00",
+  "effective_at": "2026-09-19T20:06:00+02:00",
   "mode": "TEMPORARY_GATEWAY_FIRST",
   "primary_entrypoint": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway",
   "policy": {
@@ -75,5 +75,17 @@
       "secondary_fallback": "https://bevanshelton-netizen.github.io/Downloads/yenzanow/"
     }
   ],
-  "withheld": []
+  "withheld": [],
+  "gateway_version": 3,
+  "capabilities": {
+    "share_buttons": true,
+    "privacy_safe_telemetry": true,
+    "tracked_events": [
+      "gateway_view",
+      "platform_open",
+      "platform_share"
+    ],
+    "stores_ip_addresses": false,
+    "device_fingerprinting": false
+  }
 }
