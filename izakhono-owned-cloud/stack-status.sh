@@ -15,6 +15,7 @@ services=(
   izakhono-ci-worker-node
   izakhono-backup-node
   izakhono-replica-node
+  izakhono-failover-node
   izakhono-edge-node
 )
 
@@ -53,5 +54,6 @@ probe PACKAGE http://127.0.0.1:8910/health
 probe BACKUP http://127.0.0.1:8870/health
 probe CI_WORKER http://127.0.0.1:8880/health
 probe REPLICA http://127.0.0.1:8890/health
+probe FAILOVER http://127.0.0.1:8920/health
 probe EDGE http://127.0.0.1:8795/health
 probe FORTRESS http://127.0.0.1:18109/health
