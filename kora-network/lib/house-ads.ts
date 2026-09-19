@@ -9,6 +9,14 @@ export type HouseAd = {
 
 export const houseAds: HouseAd[] = [
   {
+    id: 'izakhono-ai',
+    name: 'IZAKHONO AI',
+    body: 'One login. Twelve specialist lanes for business, money, work, learning, compliance, mobility and media. Launch membership starts at R199/month.',
+    cta: 'OPEN MY AI TEAM',
+    clickUrl: 'https://ai.izakhono.co.za/?utm_source=kora&utm_medium=owned_house_ad&utm_campaign=ai_core_membership_launch#membership',
+    accent: '#c9ff4e',
+  },
+  {
     id: 'learner-driver-sa',
     name: 'Learner Driver SA',
     body: 'Prepare for motorcycles, Code 08, Code 10 and Code 14 with mock tests, road signs, live simulators and 12 official languages.',
@@ -43,7 +51,7 @@ export const houseAds: HouseAd[] = [
 ];
 
 const ROTATION_MINUTES = 5;
-const ROTATION = ['learner-driver-sa','auto-ai','learner-driver-sa','faisready','learner-driver-sa','mandatory-regulatory-exams','learner-driver-sa','auto-ai','learner-driver-sa','faisready','learner-driver-sa','mandatory-regulatory-exams'] as const;
+const ROTATION = ['izakhono-ai','auto-ai','faisready','izakhono-ai','learner-driver-sa','auto-ai','izakhono-ai','faisready','mandatory-regulatory-exams','izakhono-ai','auto-ai','learner-driver-sa'] as const;
 
 export function currentHouseAd(date = new Date()) {
   const slot = Math.floor(date.getTime() / (ROTATION_MINUTES * 60_000));
