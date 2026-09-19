@@ -23,11 +23,11 @@ Owned package-cache/mirror for IZAKHONO builds.
 
 On an owned build worker:
 
-    npm config set registry http://127.0.0.1:8900/
+    npm config set registry http://127.0.0.1:8910/
 
 or set:
 
-    npm_config_registry=http://127.0.0.1:8900/
+    npm_config_registry=http://127.0.0.1:8910/
 
 The first request may still need the public upstream. Subsequent cached package metadata/tarballs come from owned storage.
 
