@@ -1,6 +1,13 @@
 name: AUTO AI Google Play Internal Release
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "auto-ai-android/**"
+      - "izakhono-cloud/PREPARE-AUTO-AI-PLAY-SIGNING.ps1"
+      - "PREPARE-AUTO-AI-PLAY-SIGNING.cmd"
+      - ".github/workflows/auto-ai-google-play-internal.yml"
   workflow_dispatch:
     inputs:
       release_status:
@@ -16,7 +23,32 @@ permissions:
   contents: read
 
 jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate PowerShell signing bootstrap
+        shell: pwsh
+        run: |
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path "izakhono-cloud/PREPARE-AUTO-AI-PLAY-SIGNING.ps1"),
+            [ref]$null,
+            [ref]$errors
+          ) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
+      - name: Validate Play package and release notes
+        run: |
+          grep -q 'applicationId "za.co.autoai.app"' auto-ai-android/app/build.gradle
+          test -s auto-ai-android/distribution/whatsnew/whatsnew-en-US
+
   publish-internal:
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
