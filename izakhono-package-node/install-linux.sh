@@ -11,9 +11,9 @@ if [ ! -f /etc/izakhono/package-node.env ]; then
   KEY="$(node -e 'console.log(require("crypto").randomBytes(32).toString("hex"))')"
   sudo tee /etc/izakhono/package-node.env >/dev/null <<EOF
 HOST=127.0.0.1
-PORT=8900
+PORT=8910
 IZAKHONO_PACKAGE_UPSTREAM=https://registry.npmjs.org
-IZAKHONO_PACKAGE_PUBLIC_URL=http://127.0.0.1:8900
+IZAKHONO_PACKAGE_PUBLIC_URL=http://127.0.0.1:8910
 IZAKHONO_PACKAGE_KEY=$KEY
 IZAKHONO_PACKAGE_MAX_BYTES=536870912
 IZAKHONO_PACKAGE_METADATA_TTL_SECONDS=300
