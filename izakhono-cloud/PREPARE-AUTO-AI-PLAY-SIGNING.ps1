@@ -66,7 +66,7 @@ AUTO_AI_KEY_PASSWORD=$KeyPass
 "@ | Set-Content -Path $Secrets -Encoding UTF8
 
 icacls $State /inheritance:r | Out-Null
-icacls $State /grant:r "$env:USERNAME:(OI)(CI)F" "SYSTEM:(OI)(CI)F" | Out-Null
+icacls $State /grant:r "${env:USERNAME}:(OI)(CI)F" "SYSTEM:(OI)(CI)F" | Out-Null
 
 $fingerprint = & $keytool.Source -list -v -keystore $KeyStore -alias $Alias -storepass $StorePass | Select-String "SHA256:" | Select-Object -First 1
 
