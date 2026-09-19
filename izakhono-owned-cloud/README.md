@@ -148,3 +148,20 @@ On a separate Linux host/failure domain:
 The deployment script refuses a normal production install when DATA, RUNTIME or EDGE are already active on the same host. The cluster bootstrap creates separate primary and standby member credentials without printing their secrets.
 
 WITNESS uses exclusive 15-second leases, monotonic fencing tokens and Ed25519-signed lease receipts. Automatic failover still remains disabled until the primary and standby RUNTIME/EDGE layers enforce witness lease expiry/fencing on real physical hosts.
+
+
+## Enrol a primary or standby with the witness
+
+After the witness host has created the HA cluster, securely transfer only the matching member credential and the witness public-key JSON to each application host. Then run:
+
+    sudo bash configure-witness-member.sh primary /secure/primary.env /secure/public-key.json
+
+or on the standby:
+
+    sudo bash configure-witness-member.sh standby /secure/standby.env /secure/public-key.json
+
+The script pins the Ed25519 public key, validates the member credential, configures both RUNTIME and EDGE in **observe mode**, restarts them, and records a proof report without printing the member secret.
+
+Production enrollment rejects localhost/co-located witness URLs. The primary must prove that both RUNTIME and EDGE have the same valid fencing token. The standby is not required to hold the leadership lease while the primary is healthy.
+
+This script **does not enable write fencing or automatic failover**.
