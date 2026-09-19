@@ -90,8 +90,20 @@ REPLICA received archive objects live under `/srv/izakhono-replica-objects` and 
 
 Keep encrypted archives on multiple physical devices and periodically prove restore into staging.
 
+## Independent witness plane
+
+WITNESS NODE runs on a third failure domain, not inside the primary service plane:
+
+    Primary host ─┐
+                  ├── private/VPN network ── IZAKHONO WITNESS NODE :8930
+    Standby host ─┘
+
+The witness grants one short leadership lease at a time and signs lease receipts with Ed25519. Each leadership transfer increments a fencing token. The private signing key remains on the witness; application hosts only need the public key plus their own member credential.
+
+The witness alone does not make failover automatic. An old primary must be forced to stop writes when its lease expires, so RUNTIME/EDGE enforcement and physical multi-host proof remain required.
+
 ## Expansion path
 
-Next owned availability step: a separate WITNESS/QUORUM NODE plus two physically distinct production hosts, followed by controlled DNS/route automation.
+Next owned availability step: enforce witness leases/fencing in RUNTIME and EDGE on two physically distinct production hosts, then prove controlled DNS/route automation.
 
 The stack remains modular so each service can later move onto its own machine without changing the application-facing API contract.
