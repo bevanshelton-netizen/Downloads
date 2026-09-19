@@ -31,7 +31,11 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Production build
         run: npm run build
-      - name: Verify safe-write contract
+      - name: Verify owned-v2 and safe-write contract
         run: |
           grep -q 'liveAdWrites:false' app/api/status/route.ts
+          grep -q 'runtime:"IZAKHONO OWNED CLOUD"' app/api/status/route.ts
           grep -qi 'campaigns paused' app/api/plan/route.ts
+          grep -q 'service:"growth-os-v2"' app/api/health/route.ts
+          grep -q 'GROWTH_OS_PUBLIC_BASE_URL' 'app/api/oauth/[provider]/readiness/route.ts'
+          ! grep -R -n 'izakhono-growth-os.vercel.app' app lib
