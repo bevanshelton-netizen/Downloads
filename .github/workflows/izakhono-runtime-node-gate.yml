@@ -2,7 +2,7 @@ name: IZAKHONO RUNTIME NODE Gate
 
 on:
   push:
-    branches: [build/izakhono-runtime-node]
+    branches: [build/izakhono-runtime-node, build/witness-observe-enforcement]
     paths:
       - "izakhono-runtime-node/**"
       - ".github/workflows/izakhono-runtime-node-gate.yml"
@@ -37,3 +37,6 @@ jobs:
           grep -q 'CONTROL_HOST.*127.0.0.1' server.mjs
           grep -q 'COMMAND_NOT_ALLOWED' server.mjs
           grep -q 'RELEASE_OUTSIDE_ROOT' server.mjs
+          grep -q 'IZAKHONO_WITNESS_MODE=observe' install-linux.sh
+          grep -q 'x-izakhono-fencing-token' witness-lease.mjs
+          grep -q 'write blocked because witness leadership lease is not valid' server.mjs
