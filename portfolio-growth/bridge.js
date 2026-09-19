@@ -41,6 +41,9 @@
       website:clean(data.website,120)
     },attr));
   }
+  function referralUrl(code){
+    var x=new URL(location.href);if(code)x.searchParams.set("ref",clean(code,40));return x.toString();
+  }
   function share(network,text,url){
     var target=url||location.href;
     var t=encodeURIComponent(text||document.title),u=encodeURIComponent(target),x="";
@@ -51,7 +54,7 @@
     track("share",{platform:network,page:location.pathname});
     if(x)window.open(x,"_blank","noopener,noreferrer");
   }
-  window.IZGrowth={platform:platform,track:track,lead:lead,share:share,attribution:attr};
+  window.IZGrowth={platform:platform,track:track,lead:lead,share:share,referralUrl:referralUrl,attribution:attr};
 
   var cashPlatforms={"kora":1,"auto-ai":1,"faisready":1,"mandatory-regulatory-exams":1,"learner-driver-sa":1};
   function addCashLauncher(){
@@ -85,6 +88,16 @@
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",addCashLauncher,{once:true});else addCashLauncher();
 
   track("page_view",{page:location.pathname});
+  fetch(API+"?platform="+encodeURIComponent(platform)).then(function(r){return r.json()}).then(function(d){
+    var p=d&&d.platform;if(!p)return;window.IZGrowth.config=p;
+    if(p.share_enabled&&!document.querySelector("[data-growth-share],.share-widget,[class*='shareWidget'],[id*='shareWidget']")){
+      var b=document.createElement("button");b.type="button";b.setAttribute("data-growth-share","auto");b.textContent="Share";
+      b.setAttribute("aria-label","Share "+p.display_name);
+      b.style.cssText="position:fixed;right:16px;bottom:16px;z-index:2147483000;border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:10px 14px;background:#071019;color:#fff;font:700 13px system-ui;box-shadow:0 8px 28px rgba(0,0,0,.28);cursor:pointer";
+      b.onclick=function(){track("share",{platform:"native",page:location.pathname});if(navigator.share){navigator.share({title:document.title,text:p.primary_goal,url:location.href}).catch(function(){})}else{share("whatsapp",document.title,location.href)}};
+      document.body.appendChild(b);
+    }
+  }).catch(function(){});
 
   document.addEventListener("click",function(e){
     var el=e.target&&e.target.closest?e.target.closest("a,button"):null;if(!el)return;
