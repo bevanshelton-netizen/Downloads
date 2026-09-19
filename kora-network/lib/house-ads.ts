@@ -9,14 +9,6 @@ export type HouseAd = {
 
 export const houseAds: HouseAd[] = [
   {
-    id: 'izakhono-ai',
-    name: 'IZAKHONO AI',
-    body: 'One login. Twelve specialist lanes for business, money, work, learning, compliance, mobility and media. Launch membership starts at R199/month.',
-    cta: 'OPEN MY AI TEAM',
-    clickUrl: 'https://ai.izakhono.co.za/?utm_source=kora&utm_medium=owned_house_ad&utm_campaign=ai_core_membership_launch#membership',
-    accent: '#c9ff4e',
-  },
-  {
     id: 'faisready-bundle-direct',
     name: 'FAISReady',
     body: 'Prepare for RE1 and RE5 together. The Complete Bundle is R549 with direct iKhokha checkout.',
