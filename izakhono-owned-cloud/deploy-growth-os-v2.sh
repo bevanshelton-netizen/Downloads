@@ -2,6 +2,7 @@
 set -euo pipefail
 
 APP="growth-os-v2"
+SOURCE_DIR="izakhono-growth-os"
 HOSTNAME="${GROWTH_OS_V2_HOSTNAME:-growth.izakhonoafrica.co.za}"
 REVISION="${1:-main}"
 SOURCE_ENV="${IZAKHONO_CODE_SOURCE_ENV:-/etc/izakhono/code-source.env}"
@@ -30,7 +31,7 @@ if [[ "$REPO_URL" != http://127.0.0.1:8860/git/* ]] && [ "${ALLOW_EXTERNAL_SOURC
   fail "External source refused. Growth OS v2 must deploy from IZAKHONO CODE."
 fi
 
-for cmd in git curl node tar; do need "$cmd"; done
+for cmd in git curl node npm tar; do need "$cmd"; done
 [ -f "$RUNTIME_ENV" ] || fail "IZAKHONO RUNTIME NODE is not installed."
 curl -fsS "$CONTROL_URL/health" >/dev/null || fail "IZAKHONO RUNTIME NODE is not healthy."
 
@@ -67,16 +68,21 @@ RELEASE="$RELEASE_BASE/$RESOLVED"
 if [ ! -d "$RELEASE" ]; then
   TMP="$(mktemp -d)"
   trap 'rm -rf "$TMP"' EXIT
-  sudo git -C "$CACHE" archive "$RESOLVED" growth-os-v2 | tar -x -C "$TMP"
+  sudo git -C "$CACHE" archive "$RESOLVED" "$SOURCE_DIR" | tar -x -C "$TMP"
   sudo mkdir -p "$RELEASE"
-  sudo cp -a "$TMP/growth-os-v2/." "$RELEASE/"
+  sudo cp -a "$TMP/$SOURCE_DIR/." "$RELEASE/"
   sudo chown -R izakhono:izakhono "$RELEASE"
 fi
 
-test -f "$RELEASE/server.mjs" || fail "server.mjs missing from release."
-test -f "$RELEASE/index.html" || fail "index.html missing from release."
-test -f "$RELEASE/styles.css" || fail "styles.css missing from release."
-test -f "$RELEASE/app.js" || fail "app.js missing from release."
+test -f "$RELEASE/package.json" || fail "Growth OS package.json missing from release."
+test -f "$RELEASE/app/page.tsx" || fail "Growth OS app page missing from release."
+
+if [ ! -d "$RELEASE/.next" ]; then
+  echo "Building Growth OS v2 on IZAKHONO-owned compute..."
+  sudo -u izakhono env     HOME="$RELEASE"     NEXT_TELEMETRY_DISABLED=1     npm_config_cache="$RELEASE/.npm-cache"     bash -lc "cd '$RELEASE' && npm install --no-audit --no-fund && npm run build"
+fi
+
+test -d "$RELEASE/.next" || fail "Growth OS production build did not produce .next."
 
 ENV_JSON="null"
 if [ -f "$APP_ENV" ]; then
@@ -90,9 +96,9 @@ process.stdout.write(JSON.stringify({
   app,
   hostname,
   releasePath,
-  command:["node","server.mjs"],
+  command:["npm","start"],
   envFile,
-  healthPath:"/health"
+  healthPath:"/api/health"
 }));
 NODE
 )"
@@ -101,13 +107,13 @@ RESPONSE="$(curl -fsS -X POST "$CONTROL_URL/v1/deployments"   -H "content-type: 
 
 DEPLOYMENT_ID="$(node -e 'const x=JSON.parse(process.argv[1]);if(!x.id)process.exit(2);process.stdout.write(x.id)' "$RESPONSE")"
 
-HEALTH="$(curl -fsS -H "Host: $HOSTNAME" "$PROXY_URL/health")"
-node -e 'const x=JSON.parse(process.argv[1]);if(x.ok!==true||x.service!=="growth-os-v2")process.exit(2)' "$HEALTH"
-curl -fsS -H "Host: $HOSTNAME" "$PROXY_URL/" | grep -q "IZAKHONO GROWTH OS"
+HEALTH="$(curl -fsS -H "Host: $HOSTNAME" "$PROXY_URL/api/health")"
+node -e 'const x=JSON.parse(process.argv[1]);if(x.ok!==true||x.service!=="growth-os-v2"||x.runtime!=="izakhono-owned")process.exit(2)' "$HEALTH"
+curl -fsS -H "Host: $HOSTNAME" "$PROXY_URL/" | grep -q "IZAKHONO"
 
 EDGE="NOT_RUNNING"
 if systemctl is-active --quiet izakhono-edge-node 2>/dev/null; then
-  if curl -fsS -H "Host: $HOSTNAME" "$EDGE_URL/health" >/tmp/growth-os-v2-edge-health.json 2>/dev/null; then
+  if curl -fsS -H "Host: $HOSTNAME" "$EDGE_URL/api/health" >/tmp/growth-os-v2-edge-health.json 2>/dev/null; then
     node -e 'const x=require("/tmp/growth-os-v2-edge-health.json");if(x.ok!==true||x.service!=="growth-os-v2")process.exit(2)'
     EDGE="VERIFIED"
   else
@@ -116,7 +122,7 @@ if systemctl is-active --quiet izakhono-edge-node 2>/dev/null; then
 fi
 
 PUBLIC_HTTPS="NOT_VERIFIED"
-if curl -fsS --max-time 8 "https://$HOSTNAME/health" >/tmp/growth-os-v2-public-health.json 2>/dev/null; then
+if curl -fsS --max-time 8 "https://$HOSTNAME/api/health" >/tmp/growth-os-v2-public-health.json 2>/dev/null; then
   if node -e 'const x=require("/tmp/growth-os-v2-public-health.json");if(x.ok!==true||x.service!=="growth-os-v2")process.exit(2)' 2>/dev/null; then
     PUBLIC_HTTPS="VERIFIED"
   fi
@@ -127,8 +133,10 @@ node - "$TMP_REPORT" "$HOSTNAME" "$RESOLVED" "$DEPLOYMENT_ID" "$EDGE" "$PUBLIC_H
 const fs=require("fs");
 const [path,hostname,revision,deploymentId,edge,publicHttps]=process.argv.slice(2);
 fs.writeFileSync(path,JSON.stringify({
-  schema:"izakhono.growth-os-v2-deployment/v1",
+  schema:"izakhono.growth-os-v2-deployment/v2",
   app:"growth-os-v2",
+  product:"IZAKHONO GROWTH OS",
+  source_directory:"izakhono-growth-os",
   hostname,
   revision,
   deployment_id:deploymentId,
@@ -136,6 +144,8 @@ fs.writeFileSync(path,JSON.stringify({
   runtime:"IZAKHONO_RUNTIME",
   edge,
   public_https:publicHttps,
+  live_ad_writes:false,
+  approval_required:true,
   vercel_required:false,
   generated_at:new Date().toISOString()
 },null,2)+"\n");
@@ -150,9 +160,11 @@ HOSTNAME=$HOSTNAME
 REVISION=$RESOLVED
 DEPLOYMENT_ID=$DEPLOYMENT_ID
 SOURCE=IZAKHONO_CODE
+APPLICATION=izakhono-growth-os
 RUNTIME_HEALTH=VERIFIED
 EDGE=$EDGE
 PUBLIC_HTTPS=$PUBLIC_HTTPS
+SAFE_WRITE_MODE=ON
 RECEIPT=$REPORT
 VERCEL_REQUIRED=NO
 EOF
