@@ -100,7 +100,7 @@ WITNESS NODE runs on a third failure domain, not inside the primary service plan
 
 The witness grants one short leadership lease at a time and signs lease receipts with Ed25519. Each leadership transfer increments a fencing token. The private signing key remains on the witness; application hosts only need the public key plus their own member credential.
 
-The witness alone does not make failover automatic. An old primary must be forced to stop writes when its lease expires, so RUNTIME/EDGE enforcement and physical multi-host proof remain required.
+The witness alone does not make failover automatic. RUNTIME and EDGE now support signed-lease verification in `observe` and `enforce` modes. Production enrollment starts in `observe`, where the fencing token is verified and propagated but traffic is not blocked. An old primary must eventually be switched to `enforce` so mutating traffic stops after lease expiry; that mode remains gated on physical multi-host proof.
 
 ## Expansion path
 
