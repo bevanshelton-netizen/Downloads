@@ -65,3 +65,21 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Verify IZAKHONO ONE public routes
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://bevanshelton-netizen.github.io/Downloads/izakhono-one/"
+          HEALTH="https://bevanshelton-netizen.github.io/Downloads/izakhono-one/health-check/"
+          ok=0
+          for i in $(seq 1 12); do
+            if curl -fsSL "$BASE" | grep -q 'IZAKHONO ONE' && curl -fsSL "$HEALTH" | grep -q 'FREE 3-MINUTE BUSINESS HEALTH CHECK'; then
+              ok=1
+              break
+            fi
+            sleep 5
+          done
+          test "$ok" -eq 1
+          curl -fsSI "$BASE" | grep -qi '^content-type: text/html'
+          curl -fsSI "$HEALTH" | grep -qi '^content-type: text/html'
