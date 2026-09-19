@@ -1,0 +1,12 @@
+<resources>
+    <color name="auto_bg">#07101C</color>
+    <color name="auto_card">#0E1B2B</color>
+    <color name="auto_card_2">#13243A</color>
+    <color name="auto_ink">#F6F8FB</color>
+    <color name="auto_muted">#9EB0C5</color>
+    <color name="auto_line">#243750</color>
+    <color name="auto_gold">#FFCC4D</color>
+    <color name="auto_blue">#2B9CFF</color>
+    <color name="auto_teal">#32E0C4</color>
+    <color name="auto_danger">#FF5D64</color>
+</resources>
