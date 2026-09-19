@@ -1,0 +1,59 @@
+name: IZAKHONO Flagship Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "izakhono-group/**"
+      - "izakhono-owned-cloud/deploy-izakhono-flagship.sh"
+      - "owner-host/START-IZAKHONO-FLAGSHIP.ps1"
+      - "START-IZAKHONO-FLAGSHIP.cmd"
+      - "owner-host/platforms.json"
+      - ".github/workflows/izakhono-flagship-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prove:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.13.1"
+      - name: Validate scripts
+        shell: pwsh
+        run: |
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path "owner-host/START-IZAKHONO-FLAGSHIP.ps1"),
+            [ref]$null,
+            [ref]$errors
+          ) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
+      - name: Validate shell deployment
+        run: bash -n izakhono-owned-cloud/deploy-izakhono-flagship.sh
+      - name: Start flagship
+        working-directory: izakhono-group
+        run: |
+          HOST=127.0.0.1 PORT=18330 node server.mjs > /tmp/izakhono-flagship.log 2>&1 &
+          echo $! > /tmp/izakhono-flagship.pid
+      - name: Verify health and homepage
+        run: |
+          for i in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:18330/health >/tmp/health.json && break
+            sleep .25
+          done
+          node -e 'const x=require("/tmp/health.json");if(x.ok!==true||x.service!=="IZAKHONO FLAGSHIP"||x.hostname!=="izakhono.co.za")process.exit(2)'
+          curl -fsS http://127.0.0.1:18330/ | grep -q "WE BUILD"
+          curl -fsS http://127.0.0.1:18330/ | grep -q "AUTO AI"
+          curl -fsS http://127.0.0.1:18330/ | grep -q "KORA"
+      - name: Stop flagship
+        if: always()
+        run: kill "$(cat /tmp/izakhono-flagship.pid)" 2>/dev/null || true
