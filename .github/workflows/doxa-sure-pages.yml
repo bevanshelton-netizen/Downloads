@@ -36,7 +36,7 @@ jobs:
           set -euo pipefail
           rm -rf _site
           mkdir -p _site/yenzanow
-          mkdir -p _site/izakhono-one/health-check
+          mkdir -p _site/izakhono-one
 
           # Preserve the existing DOXA-SURE demo at repository Pages root.
           cp -R doxa-sure/. _site/
@@ -45,10 +45,8 @@ jobs:
           cp ports/yenzanow/index.html _site/yenzanow/index.html
           cp ports/yenzanow/healthz.txt _site/yenzanow/healthz.txt
 
-          # Add IZAKHONO ONE as the public business operating-system route.
-          cp ports/izakhono-one/index.html _site/izakhono-one/index.html
-          cp ports/izakhono-one/health-check/index.html _site/izakhono-one/health-check/index.html
-          cp ports/izakhono-one/healthz.txt _site/izakhono-one/healthz.txt
+          # Add the full IZAKHONO ONE public frontend and campaign routes.
+          cp -R ports/izakhono-one/. _site/izakhono-one/
 
           touch _site/.nojekyll
 
