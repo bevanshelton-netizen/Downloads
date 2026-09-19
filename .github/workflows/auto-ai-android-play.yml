@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   build:
@@ -54,6 +55,8 @@ jobs:
           fi
 
       - name: Build APK and App Bundle
+        id: android_build
+        continue-on-error: true
         working-directory: auto-ai-android
         env:
           AUTO_AI_API_BASE: ${{ vars.AUTO_AI_API_BASE }}
@@ -62,7 +65,24 @@ jobs:
           AUTO_AI_KEY_ALIAS: ${{ secrets.AUTO_AI_KEY_ALIAS }}
           AUTO_AI_KEY_PASSWORD: ${{ secrets.AUTO_AI_KEY_PASSWORD }}
         run: |
-          gradle --no-daemon clean lintDebug assembleDebug bundleRelease
+          set -o pipefail
+          gradle --no-daemon clean lintDebug assembleDebug bundleRelease 2>&1 | tee android-build.log
+
+      - name: Report Android build failure to PR
+        if: steps.android_build.outcome == 'failure' && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const p = 'auto-ai-android/android-build.log';
+            const lines = fs.existsSync(p) ? fs.readFileSync(p,'utf8').split('\n').slice(-160).join('\n') : 'Build log unavailable';
+            const fence = String.fromCharCode(96,96,96);
+            const body = 'AUTO AI Android build diagnostic:\n\n' + fence + 'text\n' + lines.slice(-50000) + '\n' + fence;
+            await github.rest.issues.createComment({owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number, body});
+
+      - name: Enforce Android build success
+        if: steps.android_build.outcome == 'failure'
+        run: exit 1
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
