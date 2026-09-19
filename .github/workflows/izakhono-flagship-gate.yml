@@ -38,7 +38,9 @@ jobs:
             exit 1
           }
       - name: Validate shell deployment
-        run: bash -n izakhono-owned-cloud/deploy-izakhono-flagship.sh
+        run: |
+          bash -n izakhono-owned-cloud/deploy-izakhono-flagship.sh
+          bash -n izakhono-owned-cloud/verify-izakhono-public-tls.sh
       - name: Start flagship
         working-directory: izakhono-group
         run: |
