@@ -17,6 +17,30 @@ export const houseAds: HouseAd[] = [
     accent: '#c9ff4e',
   },
   {
+    id: 'faisready-bundle-direct',
+    name: 'FAISReady',
+    body: 'Prepare for RE1 and RE5 together. The Complete Bundle is R549 with direct iKhokha checkout.',
+    cta: 'BUY RE1 + RE5 — R549',
+    clickUrl: 'https://pay.ikhokha.com/izakhono/buy/re5-and-re1-complete-p',
+    accent: '#f4bd39',
+  },
+  {
+    id: 'faisready-re5-direct',
+    name: 'FAISReady',
+    body: 'RE5 Complete Prep is R299 once off. Go straight to the live iKhokha checkout.',
+    cta: 'BUY RE5 — R299',
+    clickUrl: 'https://pay.ikhokha.com/izakhono/buy/re5completeprepara',
+    accent: '#18cf72',
+  },
+  {
+    id: 'growth-desk',
+    name: 'IZAKHONO Business Growth Desk',
+    body: 'Need AI automation, cybersecurity, BPO, procurement, training or commercial solutions? Start a 60-second business assessment.',
+    cta: 'REQUEST ASSESSMENT',
+    clickUrl: 'https://izakhono-revenue-desk.vercel.app/?utm_source=kora&utm_medium=owned_house_ad&utm_campaign=cash_first_growth_desk#assessment',
+    accent: '#b7ff2a',
+  },
+  {
     id: 'learner-driver-sa',
     name: 'Learner Driver SA',
     body: 'Prepare for motorcycles, Code 08, Code 10 and Code 14 with mock tests, road signs, live simulators and 12 official languages.',
@@ -29,7 +53,7 @@ export const houseAds: HouseAd[] = [
     name: 'AUTO AI',
     body: 'Got a repair quote or a car problem? Get clearer vehicle guidance before you spend.',
     cta: 'CHECK MY CAR',
-    clickUrl: 'https://auto-ai-eosin.vercel.app/?utm_source=kora&utm_medium=owned_house_ad&utm_campaign=revenue_drive#triage',
+    clickUrl: 'https://auto-ai-eosin.vercel.app/?utm_source=kora&utm_medium=owned_house_ad&utm_campaign=revenue_drive#pricing',
     accent: '#ff7a18',
   },
   {
@@ -51,7 +75,20 @@ export const houseAds: HouseAd[] = [
 ];
 
 const ROTATION_MINUTES = 5;
-const ROTATION = ['izakhono-ai','auto-ai','faisready','izakhono-ai','learner-driver-sa','auto-ai','izakhono-ai','faisready','mandatory-regulatory-exams','izakhono-ai','auto-ai','learner-driver-sa'] as const;
+const ROTATION = [
+  'faisready-bundle-direct',
+  'faisready-re5-direct',
+  'auto-ai',
+  'faisready-bundle-direct',
+  'growth-desk',
+  'faisready-re5-direct',
+  'faisready-bundle-direct',
+  'mandatory-regulatory-exams',
+  'auto-ai',
+  'faisready-re5-direct',
+  'growth-desk',
+  'faisready-bundle-direct',
+] as const;
 
 export function currentHouseAd(date = new Date()) {
   const slot = Math.floor(date.getTime() / (ROTATION_MINUTES * 60_000));
