@@ -7,7 +7,7 @@ import { pipeline } from "node:stream/promises";
 import { DatabaseSync } from "node:sqlite";
 
 const HOST=process.env.HOST || "127.0.0.1";
-const PORT=Number(process.env.PORT || 8900);
+const PORT=Number(process.env.PORT || 8910);
 const ORIGIN_RAW=process.env.IZAKHONO_PACKAGE_UPSTREAM || "https://registry.npmjs.org";
 const PUBLIC_URL=(process.env.IZAKHONO_PACKAGE_PUBLIC_URL || `http://127.0.0.1:${PORT}`).replace(/\/$/,"");
 const ADMIN_KEY=process.env.IZAKHONO_PACKAGE_KEY || "";
