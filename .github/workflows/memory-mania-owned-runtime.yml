@@ -1,0 +1,48 @@
+name: Memory Mania IZAKHONO Owned Runtime
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'memory-mania/**'
+      - 'izakhono-owned-cloud/deploy-memory-mania.sh'
+      - 'owner-host/START-MEMORY-MANIA-ON-IZAKHONO.ps1'
+      - 'START-MEMORY-MANIA-ON-IZAKHONO.cmd'
+      - 'owner-host/platforms.json'
+      - '.github/workflows/memory-mania-owned-runtime.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'memory-mania/**'
+      - 'izakhono-owned-cloud/deploy-memory-mania.sh'
+      - 'owner-host/START-MEMORY-MANIA-ON-IZAKHONO.ps1'
+      - 'START-MEMORY-MANIA-ON-IZAKHONO.cmd'
+      - 'owner-host/platforms.json'
+      - '.github/workflows/memory-mania-owned-runtime.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.1'
+      - name: Static checks
+        run: |
+          node --check memory-mania/server.mjs
+          bash -n izakhono-owned-cloud/deploy-memory-mania.sh
+          node -e 'const x=JSON.parse(require("fs").readFileSync("owner-host/platforms.json","utf8"));if(!x.platforms.some(p=>p.id==="memory-mania"&&p.defaultHostname==="memorymania.izakhonoafrica.co.za"))process.exit(2)'
+      - name: Live local game health proof
+        run: |
+          HOST=127.0.0.1 PORT=18077 node memory-mania/server.mjs >/tmp/memory-mania.log 2>&1 &
+          PID=$!
+          trap 'kill $PID 2>/dev/null || true' EXIT
+          for i in $(seq 1 20); do curl -fsS http://127.0.0.1:18077/health >/tmp/mm-health.json && break; sleep .25; done
+          node -e 'const x=require("/tmp/mm-health.json");if(x.ok!==true||x.service!=="memory-mania"||x.runtime!=="izakhono-owned")process.exit(2)'
+          curl -fsS http://127.0.0.1:18077/ | grep -q 'MEMORY'
