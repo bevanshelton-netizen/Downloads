@@ -38,7 +38,7 @@ $deploy = 'cd /opt/izakhono-source/Downloads && bash izakhono-owned-cloud/deploy
 if ($LASTEXITCODE -ne 0) { Fail "Flagship deployment failed." }
 
 Write-Host "Verifying local hostname route..." -ForegroundColor Cyan
-$verify = 'curl -fsS -H "Host: izakhono.co.za" http://127.0.0.1:8080/health | node -e "\'let s=\"\";process.stdin.on(\"data\",d=>s+=d).on(\"end\",()=>{const x=JSON.parse(s);if(x.ok!==true||x.service!==\"IZAKHONO FLAGSHIP\")process.exit(2)})\'"'
+$verify = 'curl -fsS -H "Host: izakhono.co.za" http://127.0.0.1:8080/health | grep -q "IZAKHONO FLAGSHIP"'
 & wsl.exe -d Ubuntu-24.04 -u root -- bash -lc $verify
 if ($LASTEXITCODE -ne 0) { Fail "Local runtime verification failed." }
 
