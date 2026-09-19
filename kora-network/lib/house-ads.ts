@@ -43,7 +43,7 @@ export const houseAds: HouseAd[] = [
 ];
 
 const ROTATION_MINUTES = 5;
-const ROTATION = ['auto-ai','faisready','auto-ai','mandatory-regulatory-exams','learner-driver-sa','auto-ai','faisready','auto-ai','mandatory-regulatory-exams','faisready','learner-driver-sa','auto-ai'] as const;
+const ROTATION = ['learner-driver-sa','auto-ai','learner-driver-sa','faisready','learner-driver-sa','mandatory-regulatory-exams','learner-driver-sa','auto-ai','learner-driver-sa','faisready','learner-driver-sa','mandatory-regulatory-exams'] as const;
 
 export function currentHouseAd(date = new Date()) {
   const slot = Math.floor(date.getTime() / (ROTATION_MINUTES * 60_000));
