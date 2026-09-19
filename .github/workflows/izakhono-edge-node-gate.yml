@@ -2,7 +2,7 @@ name: IZAKHONO EDGE NODE Gate
 
 on:
   push:
-    branches: [build/izakhono-edge-node]
+    branches: [build/izakhono-edge-node, build/witness-observe-enforcement]
     paths:
       - "izakhono-edge-node/**"
       - ".github/workflows/izakhono-edge-node-gate.yml"
@@ -39,3 +39,6 @@ jobs:
           grep -q 'FORTRESS_PROTECTOR_MODE' install-linux.sh
           grep -q 'x-fortress-protector' server.mjs
           grep -q 'sensitive-route rate limit exceeded' server.mjs
+          grep -q 'IZAKHONO_WITNESS_MODE=observe' install-linux.sh
+          grep -q 'x-izakhono-fencing-token' witness-lease.mjs
+          grep -q 'write blocked because witness leadership lease is not valid' server.mjs

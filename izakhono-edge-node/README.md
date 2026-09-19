@@ -49,3 +49,12 @@ Control APIs bind to loopback and are separate from public application traffic.
 FORTRESS protection is active by default at the edge. Sensitive payment routes such as IZAKHONO PAY and iKhokha webhooks receive a separate rate bucket, a smaller request-body limit, unsafe-method blocking and JSON enforcement where applicable. The edge adds `x-fortress-protector: active` to responses so the active defensive policy can be verified without exposing any secret.
 
 The FORTRESS application itself remains private on the owner host; the edge does not expose the FORTRESS dashboard or its database to public traffic.
+
+
+## Witness lease guard
+
+EDGE defaults to `IZAKHONO_WITNESS_MODE=observe`. When witness credentials are configured it acquires and verifies Ed25519-signed leadership receipts, reports lease state in `/health`, and forwards the current fencing token toward RUNTIME.
+
+`enforce` mode additionally blocks POST/PUT/PATCH/DELETE with HTTP 503 after the verified lease expires. Observe mode never blocks traffic, so it is the safe first rollout state for the current single-host production path.
+
+EDGE and RUNTIME independently verify the witness receipt. This avoids relying on only one layer to fence an old primary.

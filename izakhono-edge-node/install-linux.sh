@@ -18,7 +18,7 @@ fi
 
 sudo useradd --system --home /nonexistent --shell /usr/sbin/nologin izakhono 2>/dev/null || true
 sudo mkdir -p /opt/izakhono-edge-node /var/log/izakhono-edge /etc/izakhono
-sudo cp server.mjs /opt/izakhono-edge-node/server.mjs
+sudo cp server.mjs witness-lease.mjs /opt/izakhono-edge-node/
 sudo chown -R izakhono:izakhono /opt/izakhono-edge-node /var/log/izakhono-edge
 if [ "$MODE" = "direct" ]; then
   sudo chown root:izakhono /etc/izakhono/tls/fullchain.pem /etc/izakhono/tls/privkey.pem
@@ -50,6 +50,13 @@ FORTRESS_PROTECTOR_MODE=active
 FORTRESS_SENSITIVE_RATE_PER_MIN=60
 FORTRESS_SENSITIVE_BURST=20
 FORTRESS_SENSITIVE_MAX_BODY_BYTES=262144
+IZAKHONO_WITNESS_MODE=observe
+IZAKHONO_WITNESS_URL=
+IZAKHONO_WITNESS_CLUSTER_ID=
+IZAKHONO_WITNESS_MEMBER_ID=
+IZAKHONO_WITNESS_MEMBER_KEY=
+IZAKHONO_WITNESS_PUBLIC_KEY_FILE=/etc/izakhono/witness-member/public.pem
+IZAKHONO_WITNESS_RENEW_MS=5000
 EOF
 else
   sudo python3 - /etc/izakhono/edge-node.env "$MODE" <<'PY'
@@ -62,6 +69,7 @@ updates={
   "TUNNEL_HOST":"127.0.0.1",
   "TUNNEL_PORT":"8780",
   "FORTRESS_PROTECTOR_MODE":"active",
+  "IZAKHONO_WITNESS_MODE":"observe",
 }
 lines=path.read_text(encoding="utf-8").splitlines()
 seen=set()

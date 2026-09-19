@@ -3,6 +3,7 @@ import { createServer as createHttpsServer } from "node:https";
 import { appendFileSync, mkdirSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { timingSafeEqual } from "node:crypto";
+import { createWitnessLeaseGuard, isWriteMethod } from "./witness-lease.mjs";
 
 const INGRESS_MODE=(process.env.IZAKHONO_EDGE_MODE || "direct").toLowerCase();
 const HTTP_HOST=process.env.HTTP_HOST || "0.0.0.0";
@@ -26,6 +27,8 @@ const FORTRESS_PROTECTOR=process.env.FORTRESS_PROTECTOR_MODE !== "off";
 const FORTRESS_SENSITIVE_RATE_PER_MIN=Number(process.env.FORTRESS_SENSITIVE_RATE_PER_MIN || 60);
 const FORTRESS_SENSITIVE_BURST=Number(process.env.FORTRESS_SENSITIVE_BURST || 20);
 const FORTRESS_SENSITIVE_MAX_BODY=Number(process.env.FORTRESS_SENSITIVE_MAX_BODY_BYTES || 256*1024);
+const witness=createWitnessLeaseGuard("edge");
+witness.start();
 
 mkdirSync(dirname(ACCESS_LOG),{recursive:true});
 
@@ -115,6 +118,7 @@ function securityHeaders(res){
   res.setHeader("strict-transport-security","max-age=31536000; includeSubDomains");
   res.setHeader("x-izakhono-edge","1");
   res.setHeader("x-fortress-protector",FORTRESS_PROTECTOR?"active":"off");
+  witness.applyResponseHeaders(res);
 }
 
 function logAccess(entry){
@@ -137,6 +141,12 @@ function proxy(req,res){
   }
 
   const path=(req.url||"/").split("?")[0];
+
+  if(isWriteMethod(req.method) && !witness.canWrite()){
+    securityHeaders(res);
+    logAccess({ip:clientIp(req),host,method:req.method,path:req.url,status:503,witness:true,durationMs:Date.now()-started});
+    return send(res,503,"IZAKHONO EDGE: write blocked because witness leadership lease is not valid",{"retry-after":"5"});
+  }
 
   if(["TRACE","CONNECT"].includes((req.method||"GET").toUpperCase())){
     securityHeaders(res);
@@ -188,6 +198,7 @@ function proxy(req,res){
   headers["x-forwarded-proto"]="https";
   headers["x-forwarded-host"]=host;
   headers["x-forwarded-for"]=clientIp(req);
+  Object.assign(headers,witness.requestHeaders());
 
   const upstream=httpRequest({
     hostname:RUNTIME_HOST,
@@ -278,7 +289,8 @@ const control=createHttpServer((req,res)=>{
       fortressProtector:FORTRESS_PROTECTOR,
       fortressSensitiveRatePerMinute:FORTRESS_SENSITIVE_RATE_PER_MIN,
       fortressSensitiveMaxBodyBytes:FORTRESS_SENSITIVE_MAX_BODY,
-      thirdPartyEdgeRequired:false
+      thirdPartyEdgeRequired:false,
+      witness:witness.snapshot()
     });
     res.writeHead(200,{"content-type":"application/json","content-length":Buffer.byteLength(payload),"cache-control":"no-store"});
     return res.end(payload);
