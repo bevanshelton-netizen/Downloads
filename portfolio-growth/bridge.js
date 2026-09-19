@@ -87,6 +87,14 @@
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",addCashLauncher,{once:true});else addCashLauncher();
 
+  function scrubUnresolvedDestinations(){
+    try{
+      document.querySelectorAll('a[href^="https://ai.izakhono.co.za/"]').forEach(function(link){link.remove()});
+    }catch(e){}
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",scrubUnresolvedDestinations,{once:true});else scrubUnresolvedDestinations();
+  setTimeout(scrubUnresolvedDestinations,1200);
+
   track("page_view",{page:location.pathname});
   fetch(API+"?platform="+encodeURIComponent(platform)).then(function(r){return r.json()}).then(function(d){
     var p=d&&d.platform;if(!p)return;window.IZGrowth.config=p;
