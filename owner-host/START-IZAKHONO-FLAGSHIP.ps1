@@ -45,20 +45,37 @@ if ($LASTEXITCODE -ne 0) { Fail "Local runtime verification failed." }
 Write-Host ""
 Write-Host "IZAKHONO FLAGSHIP: VERIFIED ON OWNER HOST" -ForegroundColor Green
 
-try {
-    $public = Invoke-WebRequest -UseBasicParsing -TimeoutSec 12 "https://izakhono.co.za/health"
-    $health = $public.Content | ConvertFrom-Json
-    if ($health.ok -eq $true -and $health.service -eq "IZAKHONO FLAGSHIP") {
-        Write-Host "PUBLIC WEBSITE: LIVE" -ForegroundColor Green
+Write-Host "Checking public TLS and flagship identity..." -ForegroundColor Cyan
+$publicVerify = 'cd /opt/izakhono-source/Downloads && bash izakhono-owned-cloud/verify-izakhono-public-tls.sh'
+& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc $publicVerify
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "PUBLIC WEBSITE: LIVE AND TLS VERIFIED" -ForegroundColor Green
+    Start-Process "https://izakhono.co.za"
+    exit 0
+}
+
+Write-Host ""
+Write-Host "Public TLS is not valid yet. Checking the existing IZAKHONO tunnel..." -ForegroundColor Yellow
+$tunnelRepair = 'set -euo pipefail; cd /opt/izakhono-source/Downloads; if [ -s /etc/izakhono/cloudflare-tunnel.token ]; then bash owner-host/install-cloudflare-tunnel.sh; else exit 12; fi'
+& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc $tunnelRepair
+$tunnelCode = $LASTEXITCODE
+
+if ($tunnelCode -eq 0) {
+    Start-Sleep -Seconds 4
+    & wsl.exe -d Ubuntu-24.04 -u root -- bash -lc $publicVerify
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "PUBLIC WEBSITE: LIVE AND TLS VERIFIED" -ForegroundColor Green
         Start-Process "https://izakhono.co.za"
         exit 0
     }
-} catch {}
+}
 
 Write-Host ""
-Write-Host "PUBLIC DOMAIN ROUTE STILL REQUIRED" -ForegroundColor Yellow
-Write-Host "In the active IZAKHONO Cloudflare Tunnel, add:" -ForegroundColor Yellow
+Write-Host "DO NOT bypass the browser security warning." -ForegroundColor Red
+Write-Host "One public hostname route still needs to be set on the tunnel:" -ForegroundColor Yellow
 Write-Host "  Hostname: izakhono.co.za"
 Write-Host "  Service:  http://localhost:8780"
-Write-Host "Then rerun this launcher. It will verify HTTPS before opening the site."
+Write-Host ""
+Write-Host "After that route is added, rerun START-IZAKHONO-FLAGSHIP.cmd." -ForegroundColor Yellow
+Write-Host "The launcher will refuse to open the site until the certificate is valid." -ForegroundColor Yellow
 exit 20
