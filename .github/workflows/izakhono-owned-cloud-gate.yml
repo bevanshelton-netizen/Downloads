@@ -2,7 +2,7 @@ name: IZAKHONO OWNED CLOUD Gate
 
 on:
   push:
-    branches: [build/izakhono-owned-cloud-stack, build/owned-cloud-add-auth, build/owned-cloud-add-analytics, build/owned-cloud-add-notify, build/owned-cloud-add-ai-gateway, build/owned-cloud-add-code, build/owned-cloud-add-backup, build/owned-cloud-add-ci-worker, build/owned-cloud-add-replica-final, build/owned-cloud-package-node-final]
+    branches: [build/izakhono-owned-cloud-stack, build/owned-cloud-add-auth, build/owned-cloud-add-analytics, build/owned-cloud-add-notify, build/owned-cloud-add-ai-gateway, build/owned-cloud-add-code, build/owned-cloud-add-backup, build/owned-cloud-add-ci-worker, build/owned-cloud-add-replica-final, build/owned-cloud-package-node-final, build/owned-cloud-add-failover]
     paths:
       - "izakhono-owned-cloud/**"
       - ".github/workflows/izakhono-owned-cloud-gate.yml"
@@ -46,7 +46,10 @@ jobs:
           grep -q 'IZAKHONO_DNS_CONTROL_PORT || 8900' izakhono-dns-node/server.mjs
           grep -q 'process.env.PORT || 8910' izakhono-package-node/server.mjs
           grep -q 'IZAKHONO_PACKAGE_URL=http://127.0.0.1:8910/' izakhono-ci-worker-node/install-linux.sh
-      - name: Verify all fifteen component installers exist
+          grep -q 'PORT || 8920' izakhono-failover-node/server.mjs
+          grep -q 'automaticPromotion:false' izakhono-failover-node/server.mjs
+          grep -q 'fence-required' izakhono-failover-node/server.mjs
+      - name: Verify all sixteen component installers exist
         run: |
           test -f izakhono-data-node/install-linux.sh
           test -f izakhono-runtime-node/install-linux.sh
@@ -63,3 +66,4 @@ jobs:
           test -f izakhono-backup-node/install-linux.sh
           test -f izakhono-replica-node/install-linux.sh
           test -f izakhono-dns-node/install-linux.sh
+          test -f izakhono-failover-node/install-linux.sh

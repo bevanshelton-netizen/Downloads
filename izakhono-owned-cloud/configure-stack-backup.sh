@@ -27,6 +27,7 @@ sources=(
   /var/lib/izakhono-package
   /var/lib/izakhono-ci
   /var/lib/izakhono-replica
+  /var/lib/izakhono-failover
 )
 
 for source in "${sources[@]}"; do

@@ -23,8 +23,9 @@ This integration uses FORTRESS as an internal protection and incident-readiness 
 11. **IZAKHONO BACKUP NODE** — encrypted snapshots, retention, mirror copies, verification and staged restore.
 12. **IZAKHONO CI WORKER NODE** — owned CODE/QUEUE build execution with commit pinning, signed triggers and production sandbox policy.\n13. **IZAKHONO REPLICA NODE** — second-host streaming replication for already-encrypted BACKUP archives.\n14. **IZAKHONO DNS NODE** — owned authoritative DNS for delegated IZAKHONO zones, with recursion disabled.
 15. **IZAKHONO PACKAGE NODE** — owned npm-compatible package metadata/tarball cache for builds.
+16. **IZAKHONO FAILOVER NODE** — owned active/standby monitoring and fenced promotion control.
 
-All fifteen services are designed to run on Linux hardware you control and use Node.js built-ins plus SQLite. They do not require hosted database, object-store, queue, authentication or analytics subscriptions.
+All sixteen services are designed to run on Linux hardware you control and use Node.js built-ins plus SQLite. They do not require hosted database, object-store, queue, authentication or analytics subscriptions.
 
 ## Install
 
@@ -33,7 +34,7 @@ From the repository root:
     cd izakhono-owned-cloud
     sudo bash install-owned-stack.sh
 
-The installer validates Node 22.13+, installs DATA, RUNTIME, OBJECT, QUEUE, AUTH, ANALYTICS, NOTIFY, AI GATEWAY, CODE, PACKAGE, CI WORKER, BACKUP and REPLICA, and installs EDGE only when a TLS certificate/key already exist. It never creates paid cloud resources and never prints generated service secrets.
+The installer validates Node 22.13+, installs DATA, RUNTIME, OBJECT, QUEUE, AUTH, ANALYTICS, NOTIFY, AI GATEWAY, CODE, PACKAGE, CI WORKER, BACKUP, REPLICA and FAILOVER, and installs EDGE only when a TLS certificate/key already exist. It never creates paid cloud resources and never prints generated service secrets.
 
 ## TLS
 
@@ -58,7 +59,7 @@ After installation:
 
     sudo bash configure-growth-os.sh
 
-This creates `/etc/izakhono/apps/growth-os.env`, points Growth OS to the owned nodes, and generates a separate measurement-ingest key. AUTH NODE is exposed through its loopback URL; ANALYTICS NODE is available through its loopback URL and private admin key; NOTIFY NODE is available through its loopback URL and service key. AI GATEWAY is exposed by URL only until a limited app client key is provisioned. CODE NODE is exposed by URL only until a repository-scoped Git token is provisioned. BACKUP NODE is exposed by URL only; its admin and recovery secrets remain server-side. PACKAGE NODE provides the owned npm registry cache used by network-enabled CI builds. CI WORKER is exposed by URL only; pipeline administration stays private. REPLICA NODE is exposed by URL only; peer administration and receiver credentials remain server-side.
+This creates `/etc/izakhono/apps/growth-os.env`, points Growth OS to the owned nodes, and generates a separate measurement-ingest key. AUTH NODE is exposed through its loopback URL; ANALYTICS NODE is available through its loopback URL and private admin key; NOTIFY NODE is available through its loopback URL and service key. AI GATEWAY is exposed by URL only until a limited app client key is provisioned. CODE NODE is exposed by URL only until a repository-scoped Git token is provisioned. BACKUP NODE is exposed by URL only; its admin and recovery secrets remain server-side. PACKAGE NODE provides the owned npm registry cache used by network-enabled CI builds. CI WORKER is exposed by URL only; pipeline administration stays private. REPLICA NODE is exposed by URL only; peer administration and receiver credentials remain server-side. FAILOVER NODE monitors configured active/standby services but never promotes or changes DNS automatically in V1; fencing evidence and explicit route-switch confirmation are mandatory.
 
 ## AI client provisioning
 
@@ -121,6 +122,13 @@ That installs the full stack, configures Growth OS, creates the encrypted core b
 
     sudo bash stack-status.sh
 
-Owned Cloud eliminates the software subscription requirement for these fifteen infrastructure layers, but running infrastructure still requires hardware, disks, backups, power and internet connectivity.
+Owned Cloud eliminates the software subscription requirement for these sixteen infrastructure layers, but running infrastructure still requires hardware, disks, backups, power and internet connectivity.
 
 IZAKHONO DNS NODE can own authoritative DNS after the parent/registrar delegates a zone to it. Public domain registration/delegation authority, a trusted certificate authority relationship, upstream ISP connectivity and large-scale DDoS scrubbing remain external network realities. The first safe cutover uses the child zone domains.izakhonoafrica.co.za so existing apex mail/TXT/web records are not disturbed.
+
+
+## Live failover safety
+
+FAILOVER NODE listens on loopback port 8920. It automatically observes primary and standby health and can create a failover candidate after repeated primary failures, but it deliberately refuses silent promotion.
+
+A promotion requires the old primary to be fenced, explicit `PROMOTE` confirmation, and later explicit `ROUTE_SWITCHED` evidence. This reduces split-brain risk until a separate witness/quorum node and two physical production hosts have been proven.

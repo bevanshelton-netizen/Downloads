@@ -41,6 +41,7 @@ install_component "IZAKHONO PACKAGE NODE" "izakhono-package-node"
 install_component "IZAKHONO CI WORKER NODE" "izakhono-ci-worker-node"
 install_component "IZAKHONO BACKUP NODE" "izakhono-backup-node"
 install_component "IZAKHONO REPLICA NODE" "izakhono-replica-node"
+install_component "IZAKHONO FAILOVER NODE" "izakhono-failover-node"
 
 if [ "${IZAKHONO_EDGE_MODE:-direct}" = "tunnel" ]; then
   (cd "$ROOT/izakhono-edge-node" && IZAKHONO_EDGE_MODE=tunnel bash install-linux.sh)
@@ -67,6 +68,7 @@ echo "PACKAGE=INSTALLED"
 echo "CI_WORKER=INSTALLED"
 echo "BACKUP=INSTALLED"
 echo "REPLICA=INSTALLED"
+echo "FAILOVER=INSTALLED"
 echo "EDGE=$EDGE_STATUS"
 echo
 echo "Next:"
