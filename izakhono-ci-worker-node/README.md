@@ -55,6 +55,10 @@ The repository self-test uses an explicit `direct-test` executor because GitHub-
 
 The **production installer never enables direct-test mode**. Final systemd sandbox proof must be performed on the first IZAKHONO-controlled Linux node.
 
+## PACKAGE NODE integration
+
+When `IZAKHONO_PACKAGE_URL` is configured, CI injects `NPM_CONFIG_REGISTRY` into build steps. npm commands in network-enabled pipelines resolve package metadata and tarballs through IZAKHONO PACKAGE NODE. Fully network-isolated pipelines remain isolated and cannot reach the host-local mirror.
+
 ## Boundaries
 
-V1 is CI, not a public multi-tenant build farm. Treat pipeline creation as an administrative operation. Network-enabled builds should be exceptional until an owned package mirror/cache layer exists.
+V1 is CI, not a public multi-tenant build farm. Treat pipeline creation as an administrative operation. Network-enabled builds remain explicit because PACKAGE NODE reduces registry dependence but does not itself firewall every other outbound destination.
