@@ -43,6 +43,9 @@ jobs:
           ! grep -R -E 'supabase projects create|vercel deploy|aws s3 mb|gcloud .* create' izakhono-owned-cloud
           grep -q '127.0.0.1:\$PORT:8000' izakhono-owned-cloud/deploy-fortress-protector.sh
           grep -q 'payment_credentials_stored.*False' izakhono-owned-cloud/deploy-fortress-protector.sh
+          grep -q 'IZAKHONO_DNS_CONTROL_PORT || 8900' izakhono-dns-node/server.mjs
+          grep -q 'process.env.PORT || 8910' izakhono-package-node/server.mjs
+          grep -q 'IZAKHONO_PACKAGE_URL=http://127.0.0.1:8910/' izakhono-ci-worker-node/install-linux.sh
       - name: Verify all fifteen component installers exist
         run: |
           test -f izakhono-data-node/install-linux.sh
