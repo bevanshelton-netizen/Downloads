@@ -1,0 +1,8 @@
+AUTO AI 1.0 — Launch Edition
+
+• Vehicle symptom and warning-light triage
+• Diagnostic fault-code explanations
+• Repair-quote second opinion
+• Used-car risk screening
+• Safety-first guidance for critical vehicle symptoms
+• Native Android experience with HTTPS-only connectivity

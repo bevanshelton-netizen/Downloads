@@ -1,0 +1,86 @@
+name: AUTO AI Android Play Build
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "auto-ai-android/**"
+      - ".github/workflows/auto-ai-android-play.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install Android 16 SDK
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -n 1)"
+          fi
+          test -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-36" "build-tools;35.0.0"
+
+      - name: Set up Gradle 8.13
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.13"
+
+      - name: Prepare Play upload signing when configured
+        env:
+          AUTO_AI_KEYSTORE_B64: ${{ secrets.AUTO_AI_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$AUTO_AI_KEYSTORE_B64" ]; then
+            printf '%s' "$AUTO_AI_KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/auto-ai-upload.jks"
+            chmod 600 "$RUNNER_TEMP/auto-ai-upload.jks"
+            echo "Play upload signing material prepared."
+          else
+            echo "No Play upload keystore configured; release bundle will be validation-only."
+          fi
+
+      - name: Build APK and App Bundle
+        working-directory: auto-ai-android
+        env:
+          AUTO_AI_API_BASE: ${{ vars.AUTO_AI_API_BASE }}
+          AUTO_AI_KEYSTORE_PATH: ${{ runner.temp }}/auto-ai-upload.jks
+          AUTO_AI_KEYSTORE_PASSWORD: ${{ secrets.AUTO_AI_KEYSTORE_PASSWORD }}
+          AUTO_AI_KEY_ALIAS: ${{ secrets.AUTO_AI_KEY_ALIAS }}
+          AUTO_AI_KEY_PASSWORD: ${{ secrets.AUTO_AI_KEY_PASSWORD }}
+        run: |
+          gradle --no-daemon clean lintDebug assembleDebug bundleRelease
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: auto-ai-android-debug
+          path: auto-ai-android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
+      - name: Upload Play App Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: auto-ai-play-bundle
+          path: auto-ai-android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+
+      - name: Upload lint report
+        uses: actions/upload-artifact@v4
+        with:
+          name: auto-ai-android-lint
+          path: auto-ai-android/app/build/reports/lint-results-debug.html
+          if-no-files-found: warn
