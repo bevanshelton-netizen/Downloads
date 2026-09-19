@@ -446,10 +446,52 @@ before you spend."
             android:textColor="@color/auto_muted"
             android:textSize="12sp" />
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnShare"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_tab"
+                android:text="Share"
+                android:textAllCaps="false"
+                android:textColor="@color/auto_ink" />
+
+            <Button
+                android:id="@+id/btnPrivacy"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_tab"
+                android:text="Privacy"
+                android:textAllCaps="false"
+                android:textColor="@color/auto_ink" />
+
+            <Button
+                android:id="@+id/btnTerms"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_tab"
+                android:text="Terms"
+                android:textAllCaps="false"
+                android:textColor="@color/auto_ink" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:gravity="center"
             android:text="AUTO AI • Launch Edition • No advertising ID • No location permission"
             android:textColor="@color/auto_muted"

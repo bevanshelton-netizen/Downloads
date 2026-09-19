@@ -1,7 +1,9 @@
 package za.co.autoai.app;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -56,6 +58,7 @@ public class MainActivity extends Activity {
         bindViews();
         bindTabs();
         bindActions();
+        bindUtilityActions();
         showPanel(panelSymptoms);
         checkHealth();
     }
@@ -105,6 +108,26 @@ public class MainActivity extends Activity {
         explain.setOnClickListener(v -> explainCode(explain));
         quote.setOnClickListener(v -> reviewQuote(quote));
         used.setOnClickListener(v -> checkUsedCar(used));
+    }
+
+    private void bindUtilityActions() {
+        findViewById(R.id.btnShare).setOnClickListener(v -> shareAutoAi());
+        findViewById(R.id.btnPrivacy).setOnClickListener(v -> openWeb(BuildConfig.PUBLIC_SITE + "privacy.html"));
+        findViewById(R.id.btnTerms).setOnClickListener(v -> openWeb(BuildConfig.PUBLIC_SITE + "terms.html"));
+    }
+
+    private void shareAutoAi() {
+        Intent share = new Intent(Intent.ACTION_SEND);
+        share.setType("text/plain");
+        share.putExtra(Intent.EXTRA_SUBJECT, "AUTO AI");
+        share.putExtra(Intent.EXTRA_TEXT,
+                "AUTO AI — Understand your car before you spend.\n" + BuildConfig.PUBLIC_SITE);
+        startActivity(Intent.createChooser(share, "Share AUTO AI"));
+    }
+
+    private void openWeb(String url) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        startActivity(intent);
     }
 
     private void showPanel(View selected) {
