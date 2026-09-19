@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">AUTO AI</string>
+    <string name="tagline">Understand your car before you spend.</string>
+    <string name="safety_note">AUTO AI is decision support, not a confirmed mechanical diagnosis. If braking, steering, fire, fuel leak, oil pressure, overheating or another immediate danger is involved, stop safely and seek qualified help.</string>
+</resources>
