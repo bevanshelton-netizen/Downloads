@@ -1,0 +1,25 @@
+[Unit]
+Description=IZAKHONO WITNESS NODE
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/izakhono-witness-node
+EnvironmentFile=/etc/izakhono/witness-node.env
+ExecStart=/usr/bin/node /opt/izakhono-witness-node/server.mjs
+Restart=always
+RestartSec=3
+User=izakhono
+Group=izakhono
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/etc/izakhono/witness
+ReadWritePaths=/var/lib/izakhono-witness
+Environment=IZAKHONO_WITNESS_DB=/var/lib/izakhono-witness/witness.sqlite
+Environment=IZAKHONO_WITNESS_PRIVATE_KEY_FILE=/etc/izakhono/witness/private.pem
+Environment=IZAKHONO_WITNESS_PUBLIC_KEY_FILE=/etc/izakhono/witness/public.pem
+
+[Install]
+WantedBy=multi-user.target
