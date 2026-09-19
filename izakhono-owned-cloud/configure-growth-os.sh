@@ -43,6 +43,8 @@ IZAKHONO_BACKUP_URL=http://127.0.0.1:8870
 IZAKHONO_CI_URL=http://127.0.0.1:8880
 IZAKHONO_REPLICA_URL=http://127.0.0.1:8890
 MEASUREMENT_INGEST_KEY=$MEASUREMENT_KEY
+GROWTH_OS_PUBLIC_BASE_URL=${GROWTH_OS_PUBLIC_BASE_URL:-https://growth.izakhonoafrica.co.za}
+NEXT_TELEMETRY_DISABLED=1
 EOF
 
 sudo install -o root -g izakhono -m 0640 "$TMP" /etc/izakhono/apps/growth-os.env
