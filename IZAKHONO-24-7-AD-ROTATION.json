@@ -1,6 +1,6 @@
 {
-  "version": 2,
-  "updated": "2026-09-18",
+  "version": 3,
+  "updated": "2026-09-19",
   "mode": "always-on-owned-media-aggressive",
   "slotMinutes": 5,
   "paidSpendZAR": 0,
@@ -8,23 +8,23 @@
   "rotation": [
     {
       "slot": 1,
+      "brand": "IZAKHONO AI",
+      "offer": "Launch membership R199/month"
+    },
+    {
+      "slot": 2,
       "brand": "AUTO AI",
       "offer": "R99 Repair Quote Second Opinion"
     },
     {
-      "slot": 2,
+      "slot": 3,
       "brand": "FAISReady",
       "offer": "RE5 from R299"
     },
     {
-      "slot": 3,
-      "brand": "AUTO AI",
-      "offer": "R99 Repair Quote Second Opinion"
-    },
-    {
       "slot": 4,
-      "brand": "Mandatory Regulatory Exams",
-      "offer": "RE1 + RE5 bundle R549"
+      "brand": "IZAKHONO AI",
+      "offer": "Launch membership R199/month"
     },
     {
       "slot": 5,
@@ -38,39 +38,40 @@
     },
     {
       "slot": 7,
-      "brand": "FAISReady",
-      "offer": "RE5 from R299"
+      "brand": "IZAKHONO AI",
+      "offer": "12 specialists from one shared core"
     },
     {
       "slot": 8,
-      "brand": "AUTO AI",
-      "offer": "R99 Repair Quote Second Opinion"
+      "brand": "FAISReady",
+      "offer": "RE5 from R299"
     },
     {
       "slot": 9,
       "brand": "Mandatory Regulatory Exams",
-      "offer": "RE1 + RE5 bundle R549"
+      "offer": "Find the exam that applies to your field"
     },
     {
       "slot": 10,
-      "brand": "FAISReady",
-      "offer": "RE5 from R299"
+      "brand": "IZAKHONO AI",
+      "offer": "Launch R199 · Pro R499 · Team R999"
     },
     {
       "slot": 11,
-      "brand": "Learner Driver SA",
-      "offer": "Codes 08, 10, 14 + motorcycles"
+      "brand": "AUTO AI",
+      "offer": "R99 Repair Quote Second Opinion"
     },
     {
       "slot": 12,
-      "brand": "AUTO AI",
-      "offer": "R99 Repair Quote Second Opinion"
+      "brand": "Learner Driver SA",
+      "offer": "Codes 08, 10, 14 + motorcycles"
     }
   ],
   "rules": [
     "Run continuously 24 hours a day, 365 days a year.",
     "Advance the owned-media rotation every 5 minutes.",
-    "Keep AUTO AI and FAISReady weighted most heavily for immediate revenue.",
+    "Weight IZAKHONO AI, AUTO AI and FAISReady most heavily for immediate revenue.",
+    "Use IZAKHONO AI membership as the ecosystem cross-sell destination.",
     "Paid advertiser creative takes priority when eligible; otherwise use the current owned house-ad slot.",
     "Keep external paid-media spend at R0 unless explicitly approved.",
     "Use tracked destination links and only advertise currently available offers."
