@@ -1,0 +1,45 @@
+name: KORA KIDS Portable Build
+
+on:
+  push:
+    paths:
+      - "ports/kora-kids/**"
+      - ".github/workflows/kora-kids-portable.yml"
+  pull_request:
+    paths:
+      - "ports/kora-kids/**"
+      - ".github/workflows/kora-kids-portable.yml"
+
+jobs:
+  portable-health:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ports/kora-kids
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Validate runtime syntax
+        run: node --check server.mjs
+      - name: Start portable server
+        run: |
+          node server.mjs > /tmp/kora-kids.log 2>&1 &
+          echo $! > /tmp/kora-kids.pid
+      - name: Verify dynamic health and pilot
+        run: |
+          for i in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:8080/health > /tmp/health.json; then break; fi
+            sleep 1
+          done
+          node -e 'const x=require("/tmp/health.json"); if(x.ok!==true||x.service!=="kora-kids"||x.runtime!=="izakhono-owned") process.exit(2)'
+          curl -fsS http://127.0.0.1:8080/ | grep -q "TUMI"
+          curl -fsS http://127.0.0.1:8080/ | grep -q "KORA KIDS"
+      - name: Validate static mirror marker
+        run: |
+          node -e 'const x=require("./health.json"); if(x.ok!==true||x.service!=="kora-kids") process.exit(2)'
+      - name: Stop server
+        if: always()
+        run: |
+          test ! -f /tmp/kora-kids.pid || kill "$(cat /tmp/kora-kids.pid)" || true
