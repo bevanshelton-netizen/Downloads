@@ -17,6 +17,7 @@ export default function GospelPage() {
         <h1 style={{fontSize:'clamp(3.4rem,8vw,7.2rem)',lineHeight:.86,letterSpacing:'-.065em',margin:'20px 0 18px',maxWidth:980}}>KORA<br/><span style={{color:'#f5c451'}}>GOSPEL TV</span></h1>
         <p style={{fontSize:'clamp(1rem,2vw,1.2rem)',lineHeight:1.65,maxWidth:820,color:'#dbe4f1'}}>Faith. Worship. Word. Africa to the World. The channel is owned and controlled on IZAKHONO infrastructure, while KORA, Vercel and GitHub Pages remain active as distribution and resilience layers.</p>
         <GospelDistribution primaryUrl={primaryUrl} pagesUrl={pagesUrl} />
+        <div style={{marginTop:12}}><a href="/gospel/distribution" style={{color:'#ffe29a',fontWeight:900,textDecoration:'none'}}>View distribution map →</a></div>
       </section>
 
       <section style={{width:'min(1180px,92vw)',margin:'0 auto',padding:'24px 0 70px'}}>
