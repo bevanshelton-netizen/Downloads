@@ -48,7 +48,7 @@ jobs:
       - name: Start isolated Gospel TV runtime
         run: |
           mkdir -p "$RUNNER_TEMP/kora-gospel-tv"
-          GOSPEL_TV_DATA_DIR="$RUNNER_TEMP/kora-gospel-tv" HOST=127.0.0.1 PORT=8188 node ports/kora-gospel-tv/server.mjs >"$RUNNER_TEMP/kora-gospel-tv.log" 2>&1 &
+          GOSPEL_TV_DATA_DIR="$RUNNER_TEMP/kora-gospel-tv" GOSPEL_TV_CONTROL_TOKEN="ci-owner-control-token-1234567890" HOST=127.0.0.1 PORT=8188 node ports/kora-gospel-tv/server.mjs >"$RUNNER_TEMP/kora-gospel-tv.log" 2>&1 &
           echo $! > "$RUNNER_TEMP/kora-gospel-tv.pid"
           for i in {1..20}; do
             curl -fsS http://127.0.0.1:8188/health && exit 0
@@ -65,6 +65,16 @@ jobs:
           curl -fsS http://127.0.0.1:8188/api/channel | grep -q '"policy":"owned-primary-external-distribution"'
           curl -fsS http://127.0.0.1:8188/api/channel | grep -q '"provider":"KORA/Vercel"'
 
+      - name: Verify owner control room boundary
+        run: |
+          test "$(curl -sS -o /tmp/control-noauth.json -w '%{http_code}' http://127.0.0.1:8188/api/control/status)" = "401"
+          grep -q '"error":"Owner authorization required."' /tmp/control-noauth.json
+          curl -fsS http://127.0.0.1:8188/api/control/status             -H 'authorization: Bearer ci-owner-control-token-1234567890' | tee /tmp/control-status.json | grep -q '"service":"kora-gospel-tv-control"'
+          grep -q '"sponsorship_inventory"' /tmp/control-status.json
+          grep -q '"rights_workflow"' /tmp/control-status.json
+          curl -fsS http://127.0.0.1:8188/control.html | grep -q "GOSPEL TV"
+          ! grep -R "ci-owner-control-token-1234567890" ports/kora-gospel-tv/control.html ports/kora-gospel-tv/control-room.json
+
       - name: Verify safe submission path
         run: |
           RESPONSE="$(curl -fsS -X POST http://127.0.0.1:8188/api/submissions             -H 'content-type: application/json'             --data '{"category":"prayer","message":"Please pray for our community","onAir":false}')"
@@ -72,6 +82,7 @@ jobs:
           test -s "$RUNNER_TEMP/kora-gospel-tv/submissions.ndjson"
           grep -q '"category":"prayer"' "$RUNNER_TEMP/kora-gospel-tv/submissions.ndjson"
           grep -q '"on_air":false' "$RUNNER_TEMP/kora-gospel-tv/submissions.ndjson"
+          curl -fsS 'http://127.0.0.1:8188/api/control/submissions?limit=5'             -H 'authorization: Bearer ci-owner-control-token-1234567890' | grep -q '"category":"prayer"'
 
       - name: Stop runtime
         if: always()
