@@ -61,6 +61,12 @@
       "hostnameEnv": "MEMORY_MANIA_PUBLIC_HOST",
       "defaultHostname": "memorymania.domains.izakhonoafrica.co.za",
       "deploy": "izakhono-owned-cloud/deploy-memory-mania.sh"
+    },
+    {
+      "id": "crowne-hair",
+      "hostnameEnv": "CROWNE_HAIR_PUBLIC_HOST",
+      "defaultHostname": "hair.domains.izakhonoafrica.co.za",
+      "deploy": "izakhono-owned-cloud/deploy-crowne-hair.sh"
     }
   ]
 }
