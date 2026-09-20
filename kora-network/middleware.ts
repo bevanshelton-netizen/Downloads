@@ -44,6 +44,7 @@ export async function middleware(request: NextRequest) {
 
   // Public-beta discovery routes stay informational/free; payment, private and readiness gates stay intact.
   const alwaysPublic = pathname === '/'
+    || pathname === '/learner-driver'
     || pathname === '/coming-soon'
     || pathname === '/open-africa'
     || pathname === '/open-library'
