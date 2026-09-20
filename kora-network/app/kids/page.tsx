@@ -41,6 +41,15 @@ export default async function Kids({ searchParams }: { searchParams: Promise<{ e
         {exitError ? <p role="alert"><strong>{exitError}</strong></p> : null}
       </section>
       <section>
+        <div className="sectionHead"><h2>Featured KORA KIDS Original</h2><span>New pilot</span></div>
+        <Link className="panel" href="/kids/tumi-tala" style={{display:'block',textDecoration:'none'}}>
+          <span className="badge">AGES 2–6 • ORIGINAL PILOT</span>
+          <h3>Tumi & Tala — Good Morning, Rainbow Town!</h3>
+          <p>Meet Tumi, Tala, Piko and Busi Bus in an original musical learning adventure with counting, routines, kindness and South African voice playback.</p>
+          <strong>Play the interactive pilot →</strong>
+        </Link>
+      </section>
+      <section>
         <div className="sectionHead"><h2>KORA Kids</h2><span>Human-approved titles only</span></div>
         <div className="grid three">{(productions ?? []).length ? (productions ?? []).map((item, index) => <Link className={`card poster p${index % 4}`} href={`/kids/watch/${item.slug}`} key={item.id}><span className="badge">{item.age_rating} • KIDS APPROVED</span><div className="cardBottom"><small>{item.genre || 'Family'} • {item.primary_language || 'Multilingual'}</small><h3>{item.title}</h3><p>{item.synopsis}</p></div></Link>) : <article className="panel" style={{gridColumn:'1/-1'}}><h3>Kids catalogue is being curated.</h3><p>Titles will appear here only after publication and a separate KORA Kids approval. We deliberately do not fill this area with unreviewed general catalogue content.</p></article>}</div>
       </section>
