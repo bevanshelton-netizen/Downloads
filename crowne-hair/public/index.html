@@ -12,7 +12,7 @@
 <header class="site-header">
 <a class="brand" href="#top"><span class="brand-mark">C</span><span class="brand-copy"><strong>CROWNE HAIR BY NETTY</strong></span></a>
 <button class="menu-toggle" id="menuToggle" aria-expanded="false">Menu</button>
-<nav id="mainNav" class="main-nav"><a href="#showroom">Rotating showroom</a><a href="#shop">Shop hair</a><a href="#salon">Salon</a><a href="#shop">Shop Hair</a><a href="#lifestyle">Lifestyle</a><a href="#experience">Pop-Up</a><a href="#textures">Textures</a><a href="#inclusivity">All crowns</a><a href="#concierge">Concierge</a></nav>
+<nav id="mainNav" class="main-nav"><a href="#showroom">Rotating showroom</a><a href="#bundle-builder">Bundle builder</a><a href="#shop">Shop hair</a><a href="#salon">Salon</a><a href="#shop">Shop Hair</a><a href="#lifestyle">Lifestyle</a><a href="#experience">Pop-Up</a><a href="#textures">Textures</a><a href="#inclusivity">All crowns</a><a href="#concierge">Concierge</a></nav>
 <button class="bag-button" id="openBag">Bag <span id="bagCount">0</span></button>
 </header>
 <main id="top">
@@ -41,6 +41,58 @@
 <article class="spin-card"><img src="https://images.pexels.com/photos/14730867/pexels-photo-14730867.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Hair extension bundles"><div><span>04</span><h3>Bundle Bar</h3><p>Mix, match and build your look</p></div></article>
 <article class="spin-card"><img src="https://images.pexels.com/photos/5254288/pexels-photo-5254288.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Diverse women with textured hair"><div><span>05</span><h3>Texture Edit</h3><p>Coils · curls · waves · sleek</p></div></article>
 </div></div><button class="spin-control next" id="spinNext">›</button><div class="spin-status"><span class="pulse"></span> Auto-rotating · touch to explore</div></div>
+</section>
+<section id="bundle-builder" class="section bundle-builder-section">
+  <div class="section-heading">
+    <div><p class="eyebrow">BUILD YOUR CROWN</p><h2>Create your <em>bundle set.</em></h2></div>
+    <p>Choose your origin, length, texture and bundle quantity. Stock, supplier provenance, weight/grade, delivery and final price are confirmed before payment.</p>
+  </div>
+  <div class="bundle-builder">
+    <div class="bundle-builder-copy">
+      <p class="eyebrow">THE CROWNÉ BUNDLE BAR</p>
+      <h3>Vietnamese. Brazilian. Peruvian.</h3>
+      <p>Lengths run from 8&quot; to 32&quot; in 2-inch increments. Build the exact combination you want and send it straight into your reservation.</p>
+      <div class="bundle-proof"><span>8–32 inch</span><span>1–6 bundles</span><span>Texture choice</span><span>Reservation first</span></div>
+    </div>
+    <form id="bundleBuilderForm" class="bundle-builder-form">
+      <label>Origin
+        <select id="bundleOrigin" required>
+          <option value="">Choose origin</option>
+          <option value="CRN-BUNDLE-VN">Vietnamese</option>
+          <option value="CRN-BUNDLE-BR">Brazilian</option>
+          <option value="CRN-BUNDLE-PE">Peruvian</option>
+        </select>
+      </label>
+      <label>Length
+        <select id="bundleLength" required>
+          <option value="">Choose length</option>
+          <option>8 inch</option><option>10 inch</option><option>12 inch</option><option>14 inch</option><option>16 inch</option><option>18 inch</option><option>20 inch</option><option>22 inch</option><option>24 inch</option><option>26 inch</option><option>28 inch</option><option>30 inch</option><option>32 inch</option>
+        </select>
+      </label>
+      <label>Texture
+        <select id="bundleTexture" required>
+          <option value="">Choose texture</option>
+          <option>Straight</option>
+          <option>Body wave</option>
+          <option>Loose wave</option>
+          <option>Deep wave</option>
+          <option>Curly</option>
+        </select>
+      </label>
+      <label>Bundles
+        <select id="bundleQty" required>
+          <option value="1">1 bundle</option>
+          <option value="2">2 bundles</option>
+          <option value="3" selected>3 bundles</option>
+          <option value="4">4 bundles</option>
+          <option value="5">5 bundles</option>
+          <option value="6">6 bundles</option>
+        </select>
+      </label>
+      <button class="button button-gold full" type="submit">Reserve this bundle set</button>
+      <p class="bundle-builder-note">No payment is taken at this stage. CROWNÉ confirms the exact specification, verified supplier, stock and final price first.</p>
+    </form>
+  </div>
 </section>
 <section id="shop" class="section shop-section"><div class="section-heading"><div><p class="eyebrow">SHOP THE CROWN ROOM</p><h2>Choose your <em>energy.</em></h2></div><p>Now featuring Vietnamese, Brazilian and Peruvian bundle collections from 8&quot; to 32&quot;. Origin, supplier provenance, exact specification and final price are confirmed before payment.</p></div><div class="filters" id="filters"></div><div class="product-grid" id="productGrid"></div></section>
 <section id="lifestyle" class="section lifestyle-shop">
@@ -141,6 +193,6 @@
 <section id="concierge" class="concierge-section"><p class="eyebrow">CROWNE HAIR BY NETTY CONCIERGE</p><h2>Not sure what to wear?</h2><p>Tell us your preferred length, texture, colour, budget and how much styling you want to do. The store is ready for a guided hair-match flow as the catalogue expands.</p><div class="quiz-row"><button class="quiz-chip" data-answer="Beginner friendly">Beginner friendly</button><button class="quiz-chip" data-answer="Maximum glamour">Maximum glamour</button><button class="quiz-chip" data-answer="Protective style">Protective style</button><button class="quiz-chip" data-answer="Everyday luxury">Everyday luxury</button></div><p class="quiz-result" id="quizResult"></p></section>
 </main>
 <footer><div class="brand footer-brand"><span class="brand-mark">C</span><span class="brand-copy"><strong>CROWNE HAIR BY NETTY</strong></span></div><p>Every shade. Every texture. Every crown.</p><p class="legal">CROWNE HAIR BY NETTY is Netty’s independent hair business. IZAKHONO AFRICA (PTY) LTD provides website and technology services and is not the seller. Product specifications, stock, delivery terms and final prices are confirmed before payment.</p><p class="legal-links"><a href="./terms.html">Terms</a> · <a href="./privacy.html">Privacy</a> · <a href="./returns.html">Returns</a> · <a href="./delivery.html">Delivery</a></p></footer>
-<aside class="bag-drawer" id="bagDrawer" aria-hidden="true"><div class="bag-head"><div><p class="eyebrow">YOUR CROWN ROOM</p><h2>Shopping bag</h2></div><button id="closeBag">×</button></div><div id="bagItems" class="bag-items"></div><div class="bag-foot"><div class="bag-total"><span>Guide price</span><strong id="bagTotal">R0</strong></div><div class="checkout-fields"><label>Name<input id="customerName" autocomplete="name" placeholder="Your name"></label><label>Email<input id="customerEmail" type="email" autocomplete="email" placeholder="you@example.com"></label><label>Phone<input id="customerPhone" autocomplete="tel" placeholder="+27 …"></label><label class="hair-only">Preferred length<select id="preferredLength"><option value="">Choose length</option><option>8 inch</option><option>10 inch</option><option>12 inch</option><option>14 inch</option><option>16 inch</option><option>18 inch</option><option>20 inch</option><option>22 inch</option><option>24 inch</option><option>26 inch</option><option>28 inch</option><option>30 inch</option><option>32 inch</option></select></label><label>Preferred colour<input id="preferredColour" placeholder="e.g. natural black"></label><label class="hair-only">Preferred texture<input id="preferredTexture" placeholder="e.g. body wave"></label><label id="preferredSizeWrap" hidden>Preferred size<select id="preferredSize"><option value="">Choose size</option><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>2XL</option><option>3XL</option><option>4XL</option><option>5XL</option><option>6XL</option></select></label><label class="full-field">Notes<textarea id="customerNotes" rows="3" placeholder="Hair specification, shirt fit, occasion or anything else"></textarea></label><label class="consent full-field"><input id="marketingConsent" type="checkbox"> Keep me updated about CROWNE HAIR BY NETTY launches and offers.</label></div><p id="paymentNote" class="payment-note">Reserve now. Stock, exact specification, delivery and final price are confirmed before payment.</p><button id="checkoutButton" class="button button-gold full">Reserve this crown</button></div></aside><div class="scrim" id="scrim"></div>
+<aside class="bag-drawer" id="bagDrawer" aria-hidden="true"><div class="bag-head"><div><p class="eyebrow">YOUR CROWN ROOM</p><h2>Shopping bag</h2></div><button id="closeBag">×</button></div><div id="bagItems" class="bag-items"></div><div class="bag-foot"><div class="bag-total"><span>Guide price</span><strong id="bagTotal">R0</strong></div><div class="checkout-fields"><label>Name<input id="customerName" autocomplete="name" placeholder="Your name"></label><label>Email<input id="customerEmail" type="email" autocomplete="email" placeholder="you@example.com"></label><label>Phone<input id="customerPhone" autocomplete="tel" placeholder="+27 …"></label><label class="hair-only">Preferred length<select id="preferredLength"><option value="">Choose length</option><option>8 inch</option><option>10 inch</option><option>12 inch</option><option>14 inch</option><option>16 inch</option><option>18 inch</option><option>20 inch</option><option>22 inch</option><option>24 inch</option><option>26 inch</option><option>28 inch</option><option>30 inch</option><option>32 inch</option></select></label><label>Preferred colour<input id="preferredColour" placeholder="e.g. natural black"></label><label class="hair-only">Preferred texture<input id="preferredTexture" placeholder="e.g. body wave"></label><label id="bundleCountWrap" class="hair-only" hidden>Bundle quantity<select id="bundleCount"><option value="">Choose quantity</option><option value="1">1 bundle</option><option value="2">2 bundles</option><option value="3">3 bundles</option><option value="4">4 bundles</option><option value="5">5 bundles</option><option value="6">6 bundles</option></select></label><label id="preferredSizeWrap" hidden>Preferred size<select id="preferredSize"><option value="">Choose size</option><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>2XL</option><option>3XL</option><option>4XL</option><option>5XL</option><option>6XL</option></select></label><label class="full-field">Notes<textarea id="customerNotes" rows="3" placeholder="Hair specification, shirt fit, occasion or anything else"></textarea></label><label class="consent full-field"><input id="marketingConsent" type="checkbox"> Keep me updated about CROWNE HAIR BY NETTY launches and offers.</label></div><p id="paymentNote" class="payment-note">Reserve now. Stock, exact specification, delivery and final price are confirmed before payment.</p><button id="checkoutButton" class="button button-gold full">Reserve this crown</button></div></aside><div class="scrim" id="scrim"></div>
 <script src="https://bevanshelton-netizen.github.io/Downloads/portfolio-growth/bridge.js" data-platform="crowne-hair"></script>
 </body></html>
