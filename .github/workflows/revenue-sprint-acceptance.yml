@@ -1,0 +1,43 @@
+name: Revenue Sprint Public Acceptance
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'ports/revenue-sprint/**'
+      - '.github/workflows/revenue-sprint-acceptance.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify rendered Revenue Sprint and checkout routing
+        shell: bash
+        run: |
+          set -euo pipefail
+          PAGE="https://bevanshelton-netizen.github.io/Downloads/revenue/"
+          TRACK="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-revenue"
+
+          ok=0
+          for i in $(seq 1 24); do
+            rm -f /tmp/revenue.html /tmp/revenue.h /tmp/health.json /tmp/re5.h
+            if curl -fsSL -D /tmp/revenue.h -o /tmp/revenue.html "$PAGE" &&
+               curl -fsSL -o /tmp/health.json "$TRACK?health=1" &&
+               curl -sS -D /tmp/re5.h -o /dev/null "$TRACK?offer=fais-re5&utm_source=ci-acceptance&utm_medium=system&utm_campaign=revenue-v2" &&
+               grep -q 'IZAKHONO Revenue Sprint' /tmp/revenue.html &&
+               grep -q 'Built enough.' /tmp/revenue.html &&
+               grep -q 'Now we convert.' /tmp/revenue.html &&
+               grep -q 'fais-re5' /tmp/health.json &&
+               grep -qi '^content-type: text/html' /tmp/revenue.h &&
+               grep -qi '^location: https://pay.ikhokha.com/izakhono/buy/re5completeprepara' /tmp/re5.h; then
+              ok=1
+              break
+            fi
+            sleep 5
+          done
+          test "$ok" -eq 1
+          echo "[PASS] Revenue Sprint V2 is rendered publicly and its live checkout route is intact."
