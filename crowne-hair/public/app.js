@@ -16,12 +16,13 @@ const products=[
 const LEAD_URL="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/crowne-hair-lead";
 const money=n=>new Intl.NumberFormat("en-ZA",{style:"currency",currency:"ZAR",maximumFractionDigits:0}).format(n);
 const priceLabel=p=>Number.isFinite(p.price)?"guide from "+money(p.price):"price on confirmation";
+const isBundleProduct=p=>Boolean(p)&&p.sku.startsWith("CRN-BUNDLE-");
 let active="All",cart=[];
 const $=s=>document.querySelector(s);
 const filters=$("#filters"),grid=$("#productGrid"),bagDrawer=$("#bagDrawer"),scrim=$("#scrim"),bagItems=$("#bagItems"),bagCount=$("#bagCount"),bagTotal=$("#bagTotal"),paymentNote=$("#paymentNote"),checkoutButton=$("#checkoutButton");
 function renderFilters(){const hairProducts=products.filter(p=>p.category!=="CROWNÉ Lifestyle");const cats=["All",...new Set(hairProducts.map(p=>p.category))];filters.innerHTML=cats.map(c=>'<button class="filter '+(c===active?'active':'')+'" data-filter="'+c+'">'+c+'</button>').join("");filters.querySelectorAll("button").forEach(b=>b.onclick=()=>{active=b.dataset.filter;renderFilters();renderProducts()})}
 function renderProducts(){const hairProducts=products.filter(p=>p.category!=="CROWNÉ Lifestyle");const list=active==="All"?hairProducts:hairProducts.filter(p=>p.category===active);grid.innerHTML=list.map(p=>'<article class="product-card"><figure><img loading="lazy" src="'+p.image+'" alt="'+p.name+' hair style"></figure><div class="product-info"><div class="product-meta"><span>'+p.category+'</span><span>'+p.texture+'</span></div><h3>'+p.name+'</h3><p>'+p.note+'</p><div class="product-buy"><strong>'+priceLabel(p)+'</strong><button class="add-btn" data-add="'+p.sku+'">Reserve options</button></div></div></article>').join("");grid.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>addToBag(b.dataset.add))}
-function addToBag(sku){const p=products.find(x=>x.sku===sku);if(!p)return;cart=[p];renderBag();const apparel=p.category==="CROWNÉ Lifestyle";document.querySelectorAll(".hair-only").forEach(el=>el.hidden=apparel);$("#preferredSizeWrap").hidden=!apparel;if(apparel){$("#preferredLength").value="";$("#preferredTexture").value="";$("#preferredColour").value=p.sku==="CRN-GOLF-LADIES"?"Cream / Black / Gold":"";paymentNote.textContent=p.sku==="CRN-TEE-LADIES"?"Select your size and enter Black, Champagne, Cream or Black / Gold Accent as your preferred colour. Stock and final price are confirmed before payment.":"Select your size. Garment specification, stock and final price are confirmed before payment."}else{$("#preferredSize").value="";paymentNote.textContent="One style per reservation during launch. We confirm stock, exact specification, delivery and final price before payment."}openBag()}
+function addToBag(sku){const p=products.find(x=>x.sku===sku);if(!p)return;cart=[p];renderBag();const apparel=p.category==="CROWNÉ Lifestyle",bundle=isBundleProduct(p);document.querySelectorAll(".hair-only").forEach(el=>el.hidden=apparel);$("#preferredSizeWrap").hidden=!apparel;$("#bundleCountWrap").hidden=!bundle;if(apparel){$("#preferredLength").value="";$("#preferredTexture").value="";$("#bundleCount").value="";$("#preferredColour").value=p.sku==="CRN-GOLF-LADIES"?"Cream / Black / Gold":"";paymentNote.textContent=p.sku==="CRN-TEE-LADIES"?"Select your size and enter Black, Champagne, Cream or Black / Gold Accent as your preferred colour. Stock and final price are confirmed before payment.":"Select your size. Garment specification, stock and final price are confirmed before payment."}else{$("#preferredSize").value="";if(!bundle)$("#bundleCount").value="";paymentNote.textContent=bundle?"Choose the bundle quantity, length and texture. Supplier provenance, stock, exact specification, delivery and final price are confirmed before payment.":"One style per reservation during launch. We confirm stock, exact specification, delivery and final price before payment."}openBag()}
 function removeFromBag(){cart=[];renderBag()}
 function renderBag(){bagCount.textContent=cart.length;bagItems.innerHTML=cart.length?cart.map(p=>'<div class="bag-item"><img src="'+p.image+'" alt=""><div><h4>'+p.name+'</h4><small>'+p.category+' · '+priceLabel(p)+'</small></div><button data-remove="1" aria-label="Remove '+p.name+'">×</button></div>').join(""):'<p class="bag-empty">Your bag is waiting for its first crown.</p>';bagTotal.textContent=cart.length?(Number.isFinite(cart[0].price)?money(cart[0].price):"On confirmation"):money(0);bagItems.querySelectorAll("[data-remove]").forEach(b=>b.onclick=removeFromBag)}
 function openBag(){bagDrawer.classList.add("open");scrim.classList.add("open");bagDrawer.setAttribute("aria-hidden","false")}
@@ -34,19 +35,36 @@ document.querySelectorAll(".quiz-chip").forEach(b=>b.onclick=()=>{$("#quizResult
 checkoutButton.onclick=async()=>{
   if(!cart.length){paymentNote.textContent="Choose one crown first.";return}
   const name=$("#customerName").value.trim(),email=$("#customerEmail").value.trim(),phone=$("#customerPhone").value.trim();
-  const length=$("#preferredLength").value.trim(),colour=$("#preferredColour").value.trim(),texture=$("#preferredTexture").value.trim(),size=$("#preferredSize").value.trim(),notes=$("#customerNotes").value.trim(),marketing=$("#marketingConsent").checked;
+  const length=$("#preferredLength").value.trim(),colour=$("#preferredColour").value.trim(),texture=$("#preferredTexture").value.trim(),size=$("#preferredSize").value.trim(),bundleCountRaw=$("#bundleCount").value.trim(),bundleCount=bundleCountRaw?Number(bundleCountRaw):null,notes=$("#customerNotes").value.trim(),marketing=$("#marketingConsent").checked;
   if(!name||!email||!phone){paymentNote.textContent="Enter your name, email and phone number.";return}
   checkoutButton.disabled=true;checkoutButton.textContent="Reserving…";paymentNote.textContent="Saving your request securely for stock and specification confirmation.";
   try{
     const p=cart[0];
-    const r=await fetch(LEAD_URL,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({customer_name:name,customer_email:email,customer_phone:phone,product_code:p.sku,product_name:p.name,preferred_length:length,preferred_colour:colour,preferred_texture:texture||p.texture,preferred_size:size,customer_notes:notes,marketing_consent:marketing,source:location.host||"crowne-hair-web",website:""})});
+    const r=await fetch(LEAD_URL,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({customer_name:name,customer_email:email,customer_phone:phone,product_code:p.sku,product_name:p.name,preferred_length:length,preferred_colour:colour,preferred_texture:texture||p.texture,preferred_size:size,bundle_count:bundleCount,customer_notes:notes,marketing_consent:marketing,source:location.host||"crowne-hair-web",website:""})});
     const data=await r.json();if(!r.ok)throw new Error(data.error||"Could not save request");
     paymentNote.textContent="Reserved ✓ Reference "+data.reference+". We will use this request to confirm stock, exact options, delivery and the secure iKhokha payment step.";
     checkoutButton.textContent="Reserved ✓";
-    if(window.IZGrowth)window.IZGrowth.track("lead_submitted",{reference:data.reference,product_code:p.sku});
+    if(window.IZGrowth)window.IZGrowth.track("lead_submitted",{reference:data.reference,product_code:p.sku,bundle_count:bundleCount||undefined});
   }catch(err){paymentNote.textContent=String(err.message||"We could not save the request just now. Please try again.");checkoutButton.textContent="Reserve this crown"}
   finally{checkoutButton.disabled=false}
 };
+
+const bundleBuilderForm=$("#bundleBuilderForm");
+if(bundleBuilderForm){
+  bundleBuilderForm.addEventListener("submit",e=>{
+    e.preventDefault();
+    const sku=$("#bundleOrigin").value,length=$("#bundleLength").value,texture=$("#bundleTexture").value,qty=$("#bundleQty").value;
+    if(!sku||!length||!texture||!qty)return;
+    addToBag(sku);
+    $("#preferredLength").value=length;
+    $("#preferredTexture").value=texture;
+    $("#bundleCount").value=qty;
+    const p=products.find(x=>x.sku===sku);
+    paymentNote.textContent=(p?.name||"Bundle set")+" · "+length+" · "+texture+" · "+qty+" bundle"+(qty==="1"?"":"s")+". We confirm verified supplier provenance, stock, weight/grade, delivery and final price before payment.";
+    if(window.IZGrowth)window.IZGrowth.track("bundle_builder_selected",{product_code:sku,length,texture,bundle_count:Number(qty)});
+  });
+}
+
 renderFilters();renderProducts();renderBag();
 const ring=$("#spinRing"),viewport=$("#spinViewport"),cards=[...ring.children],step=360/cards.length;let angle=0,timer,dragging=false,startX=0,startAngle=0;
 function update(){ring.style.transform="rotateY("+angle+"deg)"}function layout(){const radius=Math.min(380,Math.max(230,viewport.clientWidth*.33));cards.forEach((card,i)=>card.style.transform="rotateY("+(i*step)+"deg) translateZ("+radius+"px)");update()}function rotate(dir=1){angle-=step*dir;update();restart()}function restart(){clearInterval(timer);timer=setInterval(()=>rotate(1),3200)}
