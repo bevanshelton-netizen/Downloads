@@ -1,6 +1,6 @@
 {
   "schema": "izakhono.gateway/v1",
-  "effective_at": "2026-09-19T20:06:00+02:00",
+  "effective_at": "2026-09-20T07:52:00+02:00",
   "mode": "TEMPORARY_GATEWAY_FIRST",
   "primary_entrypoint": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway",
   "policy": {
@@ -76,7 +76,7 @@
     }
   ],
   "withheld": [],
-  "gateway_version": 3,
+  "gateway_version": 4,
   "capabilities": {
     "share_buttons": true,
     "privacy_safe_telemetry": true,
@@ -86,6 +86,22 @@
       "platform_share"
     ],
     "stores_ip_addresses": false,
-    "device_fingerprinting": false
-  }
+    "device_fingerprinting": false,
+    "revenue_sprint": true,
+    "direct_checkout": [
+      "FAISReady RE5",
+      "FAISReady RE1 + RE5 Bundle"
+    ],
+    "customer_journeys": [
+      "WebStart onboarding",
+      "ALLEGRO reservations",
+      "YenZaNow bookings"
+    ],
+    "prelaunch_only": [
+      "Matric Rewrite Prep Academy"
+    ]
+  },
+  "launch_mode": "REVENUE_FIRST",
+  "feature_freeze": true,
+  "revenue_sprint": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-revenue"
 }
