@@ -94,7 +94,7 @@ jobs:
           echo "=== GitHub Pages bridge ==="
           curl -sSIL --max-time 15 https://bevanshelton-netizen.github.io/Downloads/memory-mania/ || true
           echo "=== Content marker ==="
-          curl -sSL --max-time 15 https://bevanshelton-netizen.github.io/Downloads/memory-mania/ | grep -E -m1 'MEMORY|grep -E -m1 'Train brighter minds together|fonts.googleapis.com' || true
+          curl -fsSL --max-time 15 https://bevanshelton-netizen.github.io/Downloads/memory-mania/public/ | grep -E -m1 'Train brighter minds together|fonts.googleapis.com'
       - name: Probe HTTPS
         shell: bash
         run: |
