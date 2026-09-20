@@ -12,7 +12,8 @@ const products=[
 {sku:"CRN-TEXTURE",name:"Texture Edit",category:"Extensions",texture:"Coil / curl",price:649,image:"https://images.pexels.com/photos/5254288/pexels-photo-5254288.jpeg?auto=compress&cs=tinysrgb&w=900",note:"Texture-forward pieces for fullness and blending."}
 ];
 const LEAD_URL="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/crowne-hair-lead";
-const money=n=>new Intl.NumberFormat("en-ZA",{style:"currency",currency:"ZAR",maximumFractionDigits:0}).format(n);\nconst priceLabel=p=>Number.isFinite(p.price)?"guide from "+money(p.price):"price on confirmation";
+const money=n=>new Intl.NumberFormat("en-ZA",{style:"currency",currency:"ZAR",maximumFractionDigits:0}).format(n);
+const priceLabel=p=>Number.isFinite(p.price)?"guide from "+money(p.price):"price on confirmation";
 let active="All",cart=[];
 const $=s=>document.querySelector(s);
 const filters=$("#filters"),grid=$("#productGrid"),bagDrawer=$("#bagDrawer"),scrim=$("#scrim"),bagItems=$("#bagItems"),bagCount=$("#bagCount"),bagTotal=$("#bagTotal"),paymentNote=$("#paymentNote"),checkoutButton=$("#checkoutButton");
