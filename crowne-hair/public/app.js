@@ -26,7 +26,7 @@ function closeBag(){bagDrawer.classList.remove("open");scrim.classList.remove("o
 $("#openBag").onclick=openBag;$("#closeBag").onclick=closeBag;scrim.onclick=closeBag;
 $("#menuToggle").onclick=e=>{const open=$("#mainNav").classList.toggle("open");e.currentTarget.setAttribute("aria-expanded",String(open))};
 document.querySelectorAll(".main-nav a").forEach(a=>a.onclick=()=>$("#mainNav").classList.remove("open"));
-$("#shareSite").onclick=async()=>{const share={title:"CROWNÉ Hair",text:"Every shade. Every texture. Every crown.",url:location.href};if(navigator.share){try{await navigator.share(share)}catch{}}else{await navigator.clipboard?.writeText(location.href);$("#shareSite").textContent="Link copied ✓"}};
+$("#shareSite").onclick=async()=>{const share={title:"Crowne by Netty",text:"Every shade. Every texture. Every crown.",url:location.href};if(navigator.share){try{await navigator.share(share)}catch{}}else{await navigator.clipboard?.writeText(location.href);$("#shareSite").textContent="Link copied ✓"}};
 document.querySelectorAll(".quiz-chip").forEach(b=>b.onclick=()=>{$("#quizResult").textContent=b.dataset.answer+" selected — add a style to your reservation and include this preference in your notes."});
 checkoutButton.onclick=async()=>{
   if(!cart.length){paymentNote.textContent="Choose one crown first.";return}
