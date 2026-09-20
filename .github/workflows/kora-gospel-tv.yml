@@ -12,6 +12,8 @@ on:
       - "izakhono-owned-cloud/kora-gospel-tv-simulcast.env.example"
       - "kora-network/app/gospel/**"
       - "kora-network/public/gospel-syndication.json"
+      - "kora-network/public/gospel-global.json"
+      - "ports/kora-gospel-tv/WORLDWIDE.md"
       - ".github/workflows/kora-gospel-tv.yml"
   push:
     branches: [main]
@@ -39,6 +41,9 @@ jobs:
           bash -n izakhono-owned-cloud/deploy-kora-gospel-tv.sh
           bash -n izakhono-owned-cloud/kora-gospel-tv-simulcast.sh
           ! grep -R --line-number -E '(stream[_ -]?key|secret).{0,20}(=|:).{3,}' izakhono-owned-cloud/kora-gospel-tv-simulcast.env.example | grep -v 'REPLACE-WITH'
+          grep -q '"authoritative_origin": "IZAKHONO"' kora-network/public/gospel-global.json
+          grep -q '"name": "Europe"' kora-network/public/gospel-global.json
+          grep -q '"name": "Spanish"' kora-network/public/gospel-global.json
 
       - name: Start isolated Gospel TV runtime
         run: |
