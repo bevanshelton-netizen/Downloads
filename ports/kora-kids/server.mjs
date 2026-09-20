@@ -45,7 +45,7 @@ createServer(async (req,res)=>{
       service:"kora-kids",
       product:"KORA KIDS — Tumi & Tala",
       runtime:"izakhono-owned",
-      version:"pilot-1"
+      version:"season-1-engine"
     }),"application/json; charset=utf-8");
   }
   if(!["GET","HEAD"].includes(req.method || "GET")) return send(res,405,"Method not allowed");
