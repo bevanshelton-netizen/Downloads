@@ -35,6 +35,25 @@ jobs:
               except Exception as e:
                   print("RESOLVE_FAIL", h, repr(e))
           PY
+      - name: Query CO.ZA registry WHOIS
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import socket
+          host="coza-whois.registry.net.za"
+          query="izakhonoafrica.co.za\r\n".encode()
+          try:
+              with socket.create_connection((host,43),timeout=10) as s:
+                  s.sendall(query)
+                  out=b""
+                  while True:
+                      c=s.recv(65536)
+                      if not c: break
+                      out+=c
+              print(out.decode("utf-8","replace")[:20000])
+          except Exception as e:
+              print("WHOIS_FAIL",repr(e))
+          PY
       - name: Probe HTTPS
         shell: bash
         run: |
