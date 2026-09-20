@@ -116,6 +116,12 @@
     if(explicit||/(buy|pay|start|join|apply|enrol|book|quote|register|sign up|listen|watch|learn|request|get|find|open|try|check|upload|advertise|sell)/i.test(label)){
       track("cta_click",{cta:label,page:location.pathname,source_page:href});
     }
+    if(/^https:\/\/pay\.ikhokha\.com\//i.test(href)){
+      var amount=0,offer="ikhokha_checkout";
+      if(/re5-and-re1-complete-p/i.test(href)){amount=54900;offer="re1_re5_bundle"}
+      else if(/re5completeprepara/i.test(href)){amount=29900;offer="re5_complete"}
+      track("checkout_start",{offer:offer,cta:label,page:location.pathname,checkout_host:"pay.ikhokha.com"},amount,"ZAR");
+    }
   },true);
 
   document.addEventListener("submit",function(e){
