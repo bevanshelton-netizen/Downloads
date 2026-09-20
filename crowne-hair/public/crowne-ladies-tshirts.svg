@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e7cf99"/></linearGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#7b5417"/><stop offset=".33" stop-color="#f8df8b"/><stop offset=".68" stop-color="#b98527"/><stop offset="1" stop-color="#f6e2a1"/></linearGradient>
+  <filter id="sh"><feDropShadow dx="0" dy="18" stdDeviation="16" flood-opacity=".25"/></filter>
+</defs>
+<rect width="1400" height="900" rx="42" fill="url(#bg)"/>
+<g transform="translate(80 110)" filter="url(#sh)">
+ <path d="M65 90 L185 20 305 90 260 205 220 178 215 610 35 610 30 178 -10 205Z" fill="#0a0a0a" stroke="#b98527" stroke-width="8"/>
+ <path d="M102 142 Q150 103 198 142" fill="none" stroke="url(#gold)" stroke-width="8"/>
+ <text x="150" y="270" text-anchor="middle" font-family="Georgia,serif" font-size="64" fill="url(#gold)">♛</text>
+ <text x="150" y="335" text-anchor="middle" font-family="Georgia,serif" font-size="56" font-weight="700" fill="url(#gold)">CROWNÉ</text>
+ <text x="150" y="375" text-anchor="middle" font-family="Georgia,serif" font-size="22" letter-spacing="4" fill="#f2d27c">HAIR BY NETTY</text>
+</g>
+<g transform="translate(400 110)" filter="url(#sh)">
+ <path d="M65 90 L185 20 305 90 260 205 220 178 215 610 35 610 30 178 -10 205Z" fill="#d7b980" stroke="#9b6a1e" stroke-width="8"/>
+ <path d="M102 142 Q150 103 198 142" fill="none" stroke="#fff6dd" stroke-width="8"/>
+ <text x="150" y="270" text-anchor="middle" font-family="Georgia,serif" font-size="64" fill="#20130d">♛</text>
+ <text x="150" y="335" text-anchor="middle" font-family="Georgia,serif" font-size="56" font-weight="700" fill="#20130d">CROWNÉ</text>
+ <text x="150" y="375" text-anchor="middle" font-family="Georgia,serif" font-size="22" letter-spacing="4" fill="#5d4018">HAIR BY NETTY</text>
+</g>
+<g transform="translate(720 110)" filter="url(#sh)">
+ <path d="M65 90 L185 20 305 90 260 205 220 178 215 610 35 610 30 178 -10 205Z" fill="#fff9ed" stroke="#b98527" stroke-width="8"/>
+ <path d="M102 142 Q150 103 198 142" fill="none" stroke="#1b120c" stroke-width="8"/>
+ <text x="150" y="270" text-anchor="middle" font-family="Georgia,serif" font-size="64" fill="#b98527">♛</text>
+ <text x="150" y="335" text-anchor="middle" font-family="Georgia,serif" font-size="56" font-weight="700" fill="#17110d">CROWNÉ</text>
+ <text x="150" y="375" text-anchor="middle" font-family="Georgia,serif" font-size="22" letter-spacing="4" fill="#8b6425">HAIR BY NETTY</text>
+</g>
+<g transform="translate(1040 110)" filter="url(#sh)">
+ <path d="M65 90 L185 20 305 90 260 205 220 178 215 610 35 610 30 178 -10 205Z" fill="#0a0a0a" stroke="#f2d27c" stroke-width="8"/>
+ <path d="M102 142 Q150 103 198 142" fill="none" stroke="url(#gold)" stroke-width="10"/>
+ <path d="M38 190 H215" stroke="url(#gold)" stroke-width="8"/>
+ <text x="150" y="270" text-anchor="middle" font-family="Georgia,serif" font-size="64" fill="url(#gold)">♛</text>
+ <text x="150" y="335" text-anchor="middle" font-family="Georgia,serif" font-size="56" font-weight="700" fill="url(#gold)">CROWNÉ</text>
+ <text x="150" y="375" text-anchor="middle" font-family="Georgia,serif" font-size="22" letter-spacing="4" fill="#f2d27c">HAIR BY NETTY</text>
+</g>
+<g font-family="Arial,sans-serif" text-anchor="middle" font-size="21" font-weight="700" fill="#2a1b12">
+ <text x="230" y="785">BLACK</text><text x="550" y="785">CHAMPAGNE</text><text x="870" y="785">CREAM</text><text x="1190" y="785">BLACK / GOLD</text>
+</g>
+</svg>

@@ -118,3 +118,21 @@ footer{background:linear-gradient(135deg,#020202,#0d0d0d);border-top-color:rgba(
 .salon-booking-status{min-height:36px;color:#bfb59d;font-size:11px;line-height:1.55;margin:18px 0}.salon-booking-status.success{color:#f2d27c}.salon-booking-status.error{color:#ffb5b5}
 @media(max-width:980px){.salon-capacity{grid-template-columns:repeat(2,1fr)}.salon-zones{grid-template-columns:repeat(2,1fr)}.salon-service-layout{grid-template-columns:1fr}}
 @media(max-width:620px){.salon-hero-visual{border-radius:20px}.salon-capacity,.salon-zones,.salon-form-grid,.service-list{grid-template-columns:1fr}.salon-full{grid-column:auto}.salon-services,.salon-booking{padding:24px}}
+
+/* Approved CROWNÉ landing hero */
+.landing-hero{background:#f4ead8;border-bottom:1px solid rgba(232,198,106,.38)}
+.landing-hero img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;object-position:center}
+@media(max-width:700px){.landing-hero img{aspect-ratio:auto;min-height:0;object-fit:contain;background:#f4ead8}}
+
+/* Expanded CROWNÉ Lifestyle Shop */
+.lifestyle-grid{position:relative;z-index:1;display:grid;gap:42px}
+.lifestyle-feature{display:grid;grid-template-columns:1.05fr .95fr;gap:5vw;align-items:center;padding-bottom:42px;border-bottom:1px solid rgba(139,99,31,.18)}
+.lifestyle-feature:last-child{padding-bottom:0;border-bottom:0}
+.lifestyle-feature-reverse .lifestyle-art{order:2}
+.lifestyle-feature-reverse .lifestyle-copy{order:1}
+.lifestyle-feature-reverse .lifestyle-art img{aspect-ratio:14/9;object-fit:cover}
+.lifestyle-shop>.lifestyle-note{position:relative;z-index:1;text-align:center;margin:28px auto 0;max-width:900px;color:#6f5847!important}
+@media(max-width:900px){
+  .lifestyle-feature{grid-template-columns:1fr;gap:28px}
+  .lifestyle-feature-reverse .lifestyle-art,.lifestyle-feature-reverse .lifestyle-copy{order:initial}
+}
