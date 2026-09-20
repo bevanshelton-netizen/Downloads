@@ -10,6 +10,7 @@ on:
       - 'ports/revenue-sprint/**'
       - 'doxa-sure/**'
       - 'ports/izakhono-one/**'
+      - 'ports/kora-kids/**'
       - 'portfolio-growth/**'
       - '.github/workflows/doxa-sure-pages.yml'
 
@@ -40,6 +41,7 @@ jobs:
           mkdir -p _site/doxa-sure _site/yenzanow
           mkdir -p _site/izakhono-one
           mkdir -p _site/portfolio-growth
+          mkdir -p _site/kora-kids
 
           # Revenue Sprint is the production front door at the Pages root.
           cp ports/revenue-sprint/index.html _site/index.html
@@ -56,6 +58,9 @@ jobs:
 
           # Add the full IZAKHONO ONE public frontend and campaign routes.
           cp -R ports/izakhono-one/. _site/izakhono-one/
+
+          # Publish the original KORA KIDS Tumi & Tala prototype.
+          cp -R ports/kora-kids/. _site/kora-kids/
 
           touch _site/.nojekyll
 
@@ -109,3 +114,18 @@ jobs:
           curl -fsSL "$CONTRACTORS" | grep -q 'Contractors'
           curl -fsSL "$PORTFOLIO" | grep -q 'IZAKHONO PORTFOLIO'
           curl -fsSL "$LAUNCH" | grep -q 'IZAKHONO PORTFOLIO'
+
+      - name: Verify KORA KIDS public route
+        shell: bash
+        run: |
+          set -euo pipefail
+          KIDS="https://bevanshelton-netizen.github.io/Downloads/kora-kids/"
+          ok=0
+          for i in $(seq 1 24); do
+            if curl -fsSL "$KIDS" | grep -q 'TUMI' && curl -fsSL "$KIDS" | grep -q 'KORA KIDS'; then
+              ok=1
+              break
+            fi
+            sleep 5
+          done
+          test "$ok" -eq 1
