@@ -1,0 +1,47 @@
+name: Memory Mania Public Internet Probe
+on:
+  push:
+    branches: [diag/memory-mania-public-probe]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe parent and Memory Mania DNS
+        shell: bash
+        run: |
+          set +e
+          echo "=== resolv.conf ==="
+          cat /etc/resolv.conf
+          echo "=== parent root domain ==="
+          getent ahostsv4 izakhonoafrica.co.za || true
+          echo "=== owned zone ==="
+          getent ahostsv4 domains.izakhonoafrica.co.za || true
+          echo "=== owned nameserver ==="
+          getent ahostsv4 ns1.izakhonoafrica.co.za || true
+          echo "=== memory mania ==="
+          getent ahostsv4 memorymania.domains.izakhonoafrica.co.za || true
+          python3 - <<'PY'
+          import socket
+          for h in [
+            "izakhonoafrica.co.za",
+            "domains.izakhonoafrica.co.za",
+            "ns1.izakhonoafrica.co.za",
+            "memorymania.domains.izakhonoafrica.co.za",
+          ]:
+              try:
+                  print("RESOLVE", h, sorted({x[4][0] for x in socket.getaddrinfo(h,443,type=socket.SOCK_STREAM)}))
+              except Exception as e:
+                  print("RESOLVE_FAIL", h, repr(e))
+          PY
+      - name: Probe HTTPS
+        shell: bash
+        run: |
+          set +e
+          echo "=== zone health ==="
+          curl -sv --max-time 10 https://domains.izakhonoafrica.co.za/health -o /tmp/zone.out 2>&1
+          cat /tmp/zone.out 2>/dev/null || true
+          echo "=== memory mania health ==="
+          curl -sv --max-time 10 https://memorymania.domains.izakhonoafrica.co.za/health -o /tmp/mm.out 2>&1
+          cat /tmp/mm.out 2>/dev/null || true
