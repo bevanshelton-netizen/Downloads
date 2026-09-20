@@ -1,0 +1,49 @@
+name: IZAKHONO Domains Diagnostic Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'owner-host/DIAGNOSE-IZAKHONO-DOMAINS.ps1'
+      - 'DIAGNOSE-IZAKHONO-DOMAINS.cmd'
+      - '.github/workflows/domains-diagnostic-gate.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'owner-host/DIAGNOSE-IZAKHONO-DOMAINS.ps1'
+      - 'DIAGNOSE-IZAKHONO-DOMAINS.cmd'
+      - '.github/workflows/domains-diagnostic-gate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Parse diagnostic PowerShell
+        shell: pwsh
+        run: |
+          $tokens=$null; $errors=$null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path 'owner-host/DIAGNOSE-IZAKHONO-DOMAINS.ps1'),
+            [ref]$tokens,[ref]$errors
+          ) | Out-Null
+          if($errors.Count -gt 0){
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
+      - name: Verify diagnostic contract
+        shell: pwsh
+        run: |
+          $p=Get-Content 'owner-host/DIAGNOSE-IZAKHONO-DOMAINS.ps1' -Raw
+          if($p -notmatch 'domains\.izakhonoafrica\.co\.za'){ throw 'target hostname missing' }
+          if($p -notmatch '127\.0\.0\.1:8795'){ throw 'EDGE health probe missing' }
+          if($p -notmatch '127\.0\.0\.1:8900'){ throw 'DNS health probe missing' }
+          if($p -notmatch '127\.0\.0\.1:8080'){ throw 'runtime health probe missing' }
+          if($p -notmatch 'IZAKHONO-DOMAINS-CUTOVER-REPORT\.txt'){ throw 'report output missing' }
+          $c=Get-Content 'DIAGNOSE-IZAKHONO-DOMAINS.cmd' -Raw
+          if($c -notmatch 'DIAGNOSE-IZAKHONO-DOMAINS\.ps1'){ throw 'CMD handoff missing' }
