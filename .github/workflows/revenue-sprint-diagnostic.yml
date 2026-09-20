@@ -1,0 +1,29 @@
+name: Revenue Sprint Route Diagnostic
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/revenue-sprint-diagnostic.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe Revenue Sprint routes
+        shell: bash
+        run: |
+          set -u
+          for URL in             "https://bevanshelton-netizen.github.io/Downloads/"             "https://bevanshelton-netizen.github.io/Downloads/revenue/"             "https://bevanshelton-netizen.github.io/Downloads/revenue/index.html"             "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-revenue?health=1"
+          do
+            echo "=== $URL ==="
+            curl -sS -L -D /tmp/h -o /tmp/b -w 'STATUS=%{http_code}\nFINAL=%{url_effective}\n' "$URL" || true
+            grep -iE '^(content-type|location):' /tmp/h || true
+            head -c 240 /tmp/b || true
+            echo
+            echo
+          done
