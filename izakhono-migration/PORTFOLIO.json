@@ -1,6 +1,6 @@
 {
   "schema": "izakhono.portfolio-migration/v1",
-  "updated_at": "2026-09-20T08:18:00+02:00",
+  "updated_at": "2026-09-20T22:11:30+02:00",
   "policy": {
     "primary_runtime": "IZAKHONO",
     "external_hosts": "fallback-only until IZAKHONO external acceptance passes",
@@ -125,14 +125,16 @@
   ],
   "gateway_registry": "izakhono-migration/GATEWAYS.json",
   "gateway_entrypoint": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway",
-  "operating_mode": "LAUNCH_SELL_MIGRATE_STABILISE",
+  "operating_mode": "LIVE_LAUNCH_SELL_MIGRATE_STABILISE",
   "feature_freeze": true,
-  "revenue_sprint": "https://bevanshelton-netizen.github.io/Downloads/revenue.html",
+  "revenue_sprint": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-revenue",
   "revenue_priority": [
     "FAISReady direct checkout",
     "IZAKHONO WebStart onboarding",
     "ALLEGRO paid reservations",
     "YenZaNow service bookings"
   ],
-  "revenue_sprint_status": "PUBLISHED_V2"
+  "revenue_sprint_status": "PUBLISHED_V2",
+  "revenue_public_frontend": "https://izakhono-revenue-desk.vercel.app",
+  "launch_status": "LIVE_VERIFIED"
 }
