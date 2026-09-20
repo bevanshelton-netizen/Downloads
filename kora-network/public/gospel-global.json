@@ -1,0 +1,239 @@
+{
+  "schema": "kora.gospel-tv.global/v1",
+  "authoritative_origin": "IZAKHONO",
+  "brand": "KORA GOSPEL TV",
+  "promise": "Faith. Worship. Word. Africa to the World.",
+  "operating_model": "global network with one owned control plane and region-specific distribution, language, scheduling and compliance layers",
+  "regions": [
+    {
+      "id": "africa",
+      "name": "Africa",
+      "anchor_timezones": [
+        "Africa/Johannesburg",
+        "Africa/Lagos",
+        "Africa/Nairobi"
+      ],
+      "status": "launch-region"
+    },
+    {
+      "id": "europe",
+      "name": "Europe",
+      "anchor_timezones": [
+        "Europe/London",
+        "Europe/Paris"
+      ],
+      "status": "distribution-ready"
+    },
+    {
+      "id": "north-america",
+      "name": "North America",
+      "anchor_timezones": [
+        "America/New_York",
+        "America/Chicago",
+        "America/Los_Angeles"
+      ],
+      "status": "distribution-ready"
+    },
+    {
+      "id": "latin-america",
+      "name": "Latin America & Caribbean",
+      "anchor_timezones": [
+        "America/Sao_Paulo",
+        "America/Mexico_City"
+      ],
+      "status": "distribution-ready"
+    },
+    {
+      "id": "asia-pacific",
+      "name": "Asia-Pacific",
+      "anchor_timezones": [
+        "Asia/Kolkata",
+        "Asia/Singapore",
+        "Australia/Sydney"
+      ],
+      "status": "distribution-ready"
+    },
+    {
+      "id": "middle-east",
+      "name": "Middle East",
+      "anchor_timezones": [
+        "Asia/Dubai"
+      ],
+      "status": "rights-regulatory-review-required"
+    }
+  ],
+  "languages": [
+    {
+      "code": "en",
+      "name": "English",
+      "priority": 1,
+      "modes": [
+        "original",
+        "dub",
+        "subtitles"
+      ]
+    },
+    {
+      "code": "fr",
+      "name": "French",
+      "priority": 1,
+      "modes": [
+        "dub",
+        "subtitles"
+      ]
+    },
+    {
+      "code": "pt",
+      "name": "Portuguese",
+      "priority": 1,
+      "modes": [
+        "dub",
+        "subtitles"
+      ]
+    },
+    {
+      "code": "es",
+      "name": "Spanish",
+      "priority": 1,
+      "modes": [
+        "dub",
+        "subtitles"
+      ]
+    },
+    {
+      "code": "sw",
+      "name": "Swahili",
+      "priority": 1,
+      "modes": [
+        "dub",
+        "subtitles"
+      ]
+    },
+    {
+      "code": "zu",
+      "name": "isiZulu",
+      "priority": 1,
+      "modes": [
+        "dub",
+        "subtitles"
+      ]
+    },
+    {
+      "code": "xh",
+      "name": "isiXhosa",
+      "priority": 1,
+      "modes": [
+        "dub",
+        "subtitles"
+      ]
+    },
+    {
+      "code": "ar",
+      "name": "Arabic",
+      "priority": 2,
+      "modes": [
+        "dub",
+        "subtitles"
+      ]
+    },
+    {
+      "code": "hi",
+      "name": "Hindi",
+      "priority": 2,
+      "modes": [
+        "dub",
+        "subtitles"
+      ]
+    },
+    {
+      "code": "id",
+      "name": "Indonesian",
+      "priority": 2,
+      "modes": [
+        "dub",
+        "subtitles"
+      ]
+    },
+    {
+      "code": "zh-Hans",
+      "name": "Simplified Chinese",
+      "priority": 2,
+      "modes": [
+        "subtitles"
+      ]
+    },
+    {
+      "code": "yo",
+      "name": "Yoruba",
+      "priority": 2,
+      "modes": [
+        "dub",
+        "subtitles"
+      ]
+    },
+    {
+      "code": "ha",
+      "name": "Hausa",
+      "priority": 2,
+      "modes": [
+        "dub",
+        "subtitles"
+      ]
+    }
+  ],
+  "global_rules": [
+    "IZAKHONO remains the authoritative origin and editorial control plane.",
+    "Regional distribution may use external CDNs, social platforms, OTT partners and smart-TV apps.",
+    "Every territory must pass rights, platform-policy and local regulatory review before targeted distribution.",
+    "Language versions must preserve the original meaning and may not alter doctrine, testimony, attribution or rights metadata.",
+    "Viewer data must be minimized and handled according to the applicable territory and platform requirements.",
+    "External platform outages degrade reach only; they do not replace or override the owned master channel."
+  ],
+  "phases": [
+    {
+      "phase": 1,
+      "name": "Global web reach",
+      "includes": [
+        "IZAKHONO web",
+        "KORA web",
+        "Vercel",
+        "GitHub Pages",
+        "YouTube",
+        "Facebook"
+      ]
+    },
+    {
+      "phase": 2,
+      "name": "Multilingual expansion",
+      "includes": [
+        "priority-1 dubbing",
+        "subtitles",
+        "regional programme clocks",
+        "global contributor onboarding"
+      ]
+    },
+    {
+      "phase": 3,
+      "name": "Living-room distribution",
+      "includes": [
+        "Android TV",
+        "Google TV",
+        "Fire TV",
+        "Samsung/LG partner paths",
+        "Roku/OTT where commercially appropriate"
+      ]
+    },
+    {
+      "phase": 4,
+      "name": "Regional partnerships",
+      "includes": [
+        "church networks",
+        "Gospel labels",
+        "concert promoters",
+        "Christian broadcasters",
+        "mobile/telco bundles",
+        "FAST/CTV partners"
+      ]
+    }
+  ]
+}
