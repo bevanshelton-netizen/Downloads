@@ -21,3 +21,48 @@
 .product-card{position:relative}.product-card:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,var(--royal),var(--gold),var(--garnet));z-index:2;opacity:.85}
 
 .checkout-fields select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--gold) 50%),linear-gradient(135deg,var(--gold) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 12px) 50%;background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:36px}
+
+
+/* Crowne by Netty — black and gold couture direction */
+:root{--ink:#030303;--ink2:#0b0b0b;--royal:#111;--plum:#151515;--garnet:#1b1b1b;--ruby:#202020;--sapphire:#111;--emerald:#111;--cream:#080808;--pearl:#0d0d0d;--gold:#e8c66a;--gold2:#a97818;--line:rgba(232,198,106,.3);--muted:#c9c1ad}
+body{background:#030303;color:#fffdf7}
+.announcement{background:linear-gradient(90deg,#030303 0%,#151006 45%,#a97818 100%);color:#fff8df}
+.site-header{background:rgba(3,3,3,.94)}
+.brand-mark{color:#f4da8a;border-color:#c99a32;background:radial-gradient(circle at 32% 26%,rgba(255,229,148,.22),transparent 45%);box-shadow:0 0 0 5px rgba(232,198,106,.05),0 12px 36px rgba(0,0,0,.7)}
+.brand-copy strong{color:#f4da8a;letter-spacing:.045em}
+.main-nav a{color:#eee8da}
+.bag-button span{background:linear-gradient(135deg,#f7dfa0,#b88721);color:#080808}
+.hero{background:radial-gradient(circle at 18% 20%,rgba(232,198,106,.16),transparent 28%),radial-gradient(circle at 82% 72%,rgba(169,120,24,.10),transparent 26%),linear-gradient(135deg,#030303 0%,#090909 55%,#161006 100%)}
+.hero-lede,.hero-proof{color:#d2cbbc}
+.button-gold{background:linear-gradient(135deg,#fff1b8 0%,#e8c66a 45%,#a97818 100%);color:#050505;box-shadow:0 10px 32px rgba(169,120,24,.22)}
+.button-ghost{background:rgba(255,255,255,.025);border-color:rgba(232,198,106,.44)}
+.hero-seal{background:conic-gradient(from 210deg,#fff0ae,#d9b34e,#8d6212,#f3da8e,#fff0ae);color:#080808;box-shadow:0 20px 58px rgba(0,0,0,.65)}
+.ticker{background:linear-gradient(90deg,#8d6212,#f3da8e 45%,#fff1b8 55%,#8d6212);color:#080808;border-color:#b88925}
+.showroom-section{background:linear-gradient(180deg,#030303,#0b0b0b 55%,#020202)}
+.showroom-shell{background:radial-gradient(circle at 50% 36%,rgba(232,198,106,.14),transparent 38%),#070707}
+.spin-card{background:#0b0b0b;border-color:rgba(232,198,106,.42)}
+.spin-card>div{background:linear-gradient(135deg,#17130a,#090909 62%,#030303)}
+.spin-card p,.spin-status{color:#c9c1ad}
+.shop-section{background:linear-gradient(180deg,#080808,#030303);color:#fffdf7}
+.shop-section .section-heading>p{color:#c9c1ad}.shop-section .eyebrow{color:#e8c66a}
+.filter{border-color:rgba(232,198,106,.28);background:#101010;color:#e9e2d2}
+.filter.active{background:linear-gradient(135deg,#f1d986,#a97818);color:#080808;border-color:#e8c66a}
+.product-card{background:linear-gradient(180deg,#121212,#080808);border-color:rgba(232,198,106,.22);box-shadow:0 12px 34px rgba(0,0,0,.42)}
+.product-card:before{background:linear-gradient(90deg,transparent,#e8c66a,transparent)}
+.product-card figure{background:#111}.product-meta{color:#baaa82}.product-info h3,.product-buy strong{color:#fff8e7}.product-info p{color:#bbb3a3}
+.add-btn{background:linear-gradient(135deg,#efd47a,#a97818);color:#070707}
+.product-card:hover{box-shadow:0 20px 48px rgba(169,120,24,.2);border-color:rgba(232,198,106,.5)}
+.texture-section{background:radial-gradient(circle at 15% 20%,rgba(232,198,106,.12),transparent 28%),linear-gradient(135deg,#030303,#111 55%,#171108)}
+.texture-copy p:last-child,.texture-list small{color:#c9c1ad}
+.inclusivity-section{background:radial-gradient(circle at 88% 18%,rgba(232,198,106,.10),transparent 28%),linear-gradient(135deg,#030303,#0d0d0d)}
+.concierge-section{background:radial-gradient(circle at 50% 28%,rgba(232,198,106,.15),transparent 28%),linear-gradient(135deg,#030303,#111 55%,#171108)}
+.concierge-section>p{color:#c9c1ad}
+.quiz-chip{background:#0d0d0d;border-color:rgba(232,198,106,.36)}
+.quiz-chip:hover{background:linear-gradient(135deg,#f4dd91,#a97818);color:#080808}
+footer{background:linear-gradient(135deg,#020202,#0d0d0d);border-top-color:rgba(232,198,106,.3)}
+.legal{color:#a9a18f}
+.bag-drawer{background:linear-gradient(180deg,#111,#030303);border-left-color:rgba(232,198,106,.34)}
+.bag-empty,.bag-item small,.payment-note{color:#bdb4a2}
+.checkout-fields label{color:#c9c1ad}
+.checkout-fields input,.checkout-fields textarea,.checkout-fields select{background:linear-gradient(135deg,#090909,#141414);border-color:rgba(232,198,106,.26);color:#fffdf7}
+@media(max-width:980px){.main-nav{background:#050505}}
