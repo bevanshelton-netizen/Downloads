@@ -54,6 +54,39 @@ jobs:
           except Exception as e:
               print("WHOIS_FAIL",repr(e))
           PY
+      - name: Probe alternative owned domains
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import socket
+          domains=[
+            "izakhono.co.za",
+            "faisready.co.za",
+            "doxahosting.co.za",
+            "edubuildshelton.org.za",
+          ]
+          for h in domains:
+              try:
+                  print("ALT_RESOLVE",h,sorted({x[4][0] for x in socket.getaddrinfo(h,443,type=socket.SOCK_STREAM)}))
+              except Exception as e:
+                  print("ALT_RESOLVE_FAIL",h,repr(e))
+          def whois(server,name):
+              try:
+                  with socket.create_connection((server,43),timeout=10) as s:
+                      s.sendall((name+"\r\n").encode())
+                      out=b""
+                      while True:
+                          c=s.recv(65536)
+                          if not c: break
+                          out+=c
+                  text=out.decode("utf-8","replace")
+                  print("\nWHOIS",name,"\n",text[:8000])
+              except Exception as e:
+                  print("WHOIS_FAIL",name,repr(e))
+          for d in ["izakhono.co.za","faisready.co.za","doxahosting.co.za"]:
+              whois("coza-whois.registry.net.za",d)
+          whois("org-whois.registry.net.za","edubuildshelton.org.za")
+          PY
       - name: Probe HTTPS
         shell: bash
         run: |
