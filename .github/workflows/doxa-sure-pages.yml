@@ -7,6 +7,7 @@ on:
     paths:
       - 'deploy/PUBLISH_STATIC_GATEWAY'
       - 'ports/yenzanow/**'
+      - 'ports/revenue-sprint/**'
       - 'doxa-sure/**'
       - 'ports/izakhono-one/**'
       - 'portfolio-growth/**'
@@ -36,7 +37,7 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf _site
-          mkdir -p _site/yenzanow
+          mkdir -p _site/yenzanow _site/revenue
           mkdir -p _site/izakhono-one
           mkdir -p _site/portfolio-growth
 
