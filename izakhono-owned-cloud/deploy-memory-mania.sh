@@ -3,7 +3,7 @@ set -euo pipefail
 
 APP="memory-mania"
 SOURCE_DIR="memory-mania"
-HOSTNAME="${MEMORY_MANIA_HOSTNAME:-memorymania.izakhonoafrica.co.za}"
+HOSTNAME="${MEMORY_MANIA_HOSTNAME:-memorymania.domains.izakhonoafrica.co.za}"
 REVISION="${1:-main}"
 SOURCE_ENV="${IZAKHONO_CODE_SOURCE_ENV:-/etc/izakhono/code-source.env}"
 REPO_URL="${IZAKHONO_CODE_REPO_URL:-}"
