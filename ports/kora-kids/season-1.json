@@ -1,0 +1,139 @@
+{
+  "schema": "kora-kids.season/v1",
+  "series": "Tumi & Tala",
+  "season": 1,
+  "audience": "2-6",
+  "format": "7-minute musical learning adventures",
+  "episodes": [
+    {
+      "number": 1,
+      "slug": "good-morning-rainbow-town",
+      "title": "Good Morning, Rainbow Town!",
+      "theme": "Morning routines",
+      "learning": [
+        "Counting 1–5",
+        "Greetings",
+        "Self-care"
+      ],
+      "status": "pilot-live",
+      "emoji": "🌞"
+    },
+    {
+      "number": 2,
+      "slug": "colours-at-the-market",
+      "title": "Colours at the Market",
+      "theme": "Colours and food",
+      "learning": [
+        "Colour recognition",
+        "Healthy foods",
+        "Turn-taking"
+      ],
+      "status": "planned",
+      "emoji": "🌈"
+    },
+    {
+      "number": 3,
+      "slug": "busi-bus-counts-the-animals",
+      "title": "Busi Bus Counts the Animals",
+      "theme": "Animals and numbers",
+      "learning": [
+        "Counting",
+        "Animal sounds",
+        "Observation"
+      ],
+      "status": "planned",
+      "emoji": "🚌"
+    },
+    {
+      "number": 4,
+      "slug": "pikos-lost-word",
+      "title": "Piko’s Lost Word",
+      "theme": "Language and listening",
+      "learning": [
+        "New words",
+        "Listening",
+        "Helping friends"
+      ],
+      "status": "planned",
+      "emoji": "🐦"
+    },
+    {
+      "number": 5,
+      "slug": "rainy-day-rhythm",
+      "title": "Rainy Day Rhythm",
+      "theme": "Music and weather",
+      "learning": [
+        "Rhythm",
+        "Weather",
+        "Creative movement"
+      ],
+      "status": "planned",
+      "emoji": "🌧️"
+    },
+    {
+      "number": 6,
+      "slug": "safe-steps-to-school",
+      "title": "Safe Steps to School",
+      "theme": "Road safety",
+      "learning": [
+        "Safe crossing",
+        "Traffic lights",
+        "Awareness"
+      ],
+      "status": "planned",
+      "emoji": "🚦"
+    },
+    {
+      "number": 7,
+      "slug": "talas-big-feelings",
+      "title": "Tala’s Big Feelings",
+      "theme": "Emotional literacy",
+      "learning": [
+        "Naming feelings",
+        "Calming down",
+        "Empathy"
+      ],
+      "status": "planned",
+      "emoji": "💛"
+    },
+    {
+      "number": 8,
+      "slug": "tumi-builds-a-beat",
+      "title": "Tumi Builds a Beat",
+      "theme": "Making and music",
+      "learning": [
+        "Patterns",
+        "Problem solving",
+        "Music"
+      ],
+      "status": "planned",
+      "emoji": "🥁"
+    },
+    {
+      "number": 9,
+      "slug": "the-rainbow-garden",
+      "title": "The Rainbow Garden",
+      "theme": "Nature and care",
+      "learning": [
+        "Plants",
+        "Responsibility",
+        "Colours"
+      ],
+      "status": "planned",
+      "emoji": "🌱"
+    },
+    {
+      "number": 10,
+      "slug": "goodnight-rainbow-town",
+      "title": "Goodnight, Rainbow Town",
+      "theme": "Bedtime and calm",
+      "learning": [
+        "Bedtime routine",
+        "Reflection",
+        "Rest"
+      ],
+      "status": "planned",
+      "emoji": "🌙"
+    }
+  ]
+}
