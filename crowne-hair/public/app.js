@@ -8,54 +8,40 @@ const products=[
 {sku:"CRN-PONY",name:"Power Pony",category:"Ponytails",texture:"Sleek / wave",price:599,image:"https://images.pexels.com/photos/9167117/pexels-photo-9167117.jpeg?auto=compress&cs=tinysrgb&w=900",note:"Fast glam for high ponytails, low ponies and updos."},
 {sku:"CRN-TEXTURE",name:"Texture Edit",category:"Extensions",texture:"Coil / curl",price:649,image:"https://images.pexels.com/photos/5254288/pexels-photo-5254288.jpeg?auto=compress&cs=tinysrgb&w=900",note:"Texture-forward pieces for fullness and blending."}
 ];
+const LEAD_URL="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/crowne-hair-lead";
 const money=n=>new Intl.NumberFormat("en-ZA",{style:"currency",currency:"ZAR",maximumFractionDigits:0}).format(n);
-let active="All",cart=[],checkoutConfigured=false;\nconst LEAD_URL="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/crowne-hair-lead";
-const filters=document.querySelector("#filters"),grid=document.querySelector("#productGrid"),bagDrawer=document.querySelector("#bagDrawer"),scrim=document.querySelector("#scrim"),bagItems=document.querySelector("#bagItems"),bagCount=document.querySelector("#bagCount"),bagTotal=document.querySelector("#bagTotal"),paymentNote=document.querySelector("#paymentNote"),checkoutButton=document.querySelector("#checkoutButton"),customerName=document.querySelector("#customerName"),customerEmail=document.querySelector("#customerEmail");
-function renderFilters(){const cats=["All"].concat(Array.from(new Set(products.map(p=>p.category))));filters.innerHTML=cats.map(c=>'<button class="filter '+(c===active?'active':'')+'" data-filter="'+c+'">'+c+'</button>').join("");filters.querySelectorAll("button").forEach(b=>b.onclick=()=>{active=b.dataset.filter;renderFilters();renderProducts()})}
-function renderProducts(){const list=active==="All"?products:products.filter(p=>p.category===active);grid.innerHTML=list.map(p=>'<article class="product-card"><figure><img loading="lazy" src="'+p.image+'" alt="'+p.name+' hair style"></figure><div class="product-info"><div class="product-meta"><span>'+p.category+'</span><span>'+p.texture+'</span></div><h3>'+p.name+'</h3><p>'+p.note+'</p><div class="product-buy"><strong>from '+money(p.price)+'</strong><button class="add-btn" data-add="'+p.sku+'">Add to bag</button></div></div></article>').join("");grid.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>addToBag(b.dataset.add))}
-function addToBag(sku){const p=products.find(x=>x.sku===sku);if(!p)return;cart.push(p);renderBag();openBag()}
-function removeFromBag(i){cart.splice(i,1);renderBag()}
-function renderBag(){bagCount.textContent=cart.length;bagItems.innerHTML=cart.length?cart.map((p,i)=>'<div class="bag-item"><img src="'+p.image+'" alt=""><div><h4>'+p.name+'</h4><small>'+p.category+' · '+money(p.price)+'</small></div><button data-remove="'+i+'" aria-label="Remove '+p.name+'">×</button></div>').join(""):'<p class="bag-empty">Your bag is waiting for its first crown.</p>';bagTotal.textContent=money(cart.reduce((s,p)=>s+p.price,0));bagItems.querySelectorAll("[data-remove]").forEach(b=>b.onclick=()=>removeFromBag(Number(b.dataset.remove)))}
+let active="All",cart=[];
+const $=s=>document.querySelector(s);
+const filters=$("#filters"),grid=$("#productGrid"),bagDrawer=$("#bagDrawer"),scrim=$("#scrim"),bagItems=$("#bagItems"),bagCount=$("#bagCount"),bagTotal=$("#bagTotal"),paymentNote=$("#paymentNote"),checkoutButton=$("#checkoutButton");
+function renderFilters(){const cats=["All",...new Set(products.map(p=>p.category))];filters.innerHTML=cats.map(c=>'<button class="filter '+(c===active?'active':'')+'" data-filter="'+c+'">'+c+'</button>').join("");filters.querySelectorAll("button").forEach(b=>b.onclick=()=>{active=b.dataset.filter;renderFilters();renderProducts()})}
+function renderProducts(){const list=active==="All"?products:products.filter(p=>p.category===active);grid.innerHTML=list.map(p=>'<article class="product-card"><figure><img loading="lazy" src="'+p.image+'" alt="'+p.name+' hair style"></figure><div class="product-info"><div class="product-meta"><span>'+p.category+'</span><span>'+p.texture+'</span></div><h3>'+p.name+'</h3><p>'+p.note+'</p><div class="product-buy"><strong>guide from '+money(p.price)+'</strong><button class="add-btn" data-add="'+p.sku+'">Reserve options</button></div></div></article>').join("");grid.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>addToBag(b.dataset.add))}
+function addToBag(sku){const p=products.find(x=>x.sku===sku);if(!p)return;cart=[p];renderBag();openBag();paymentNote.textContent="One style per reservation during launch. We confirm stock, exact specification, delivery and final price before payment."}
+function removeFromBag(){cart=[];renderBag()}
+function renderBag(){bagCount.textContent=cart.length;bagItems.innerHTML=cart.length?cart.map(p=>'<div class="bag-item"><img src="'+p.image+'" alt=""><div><h4>'+p.name+'</h4><small>'+p.category+' · guide '+money(p.price)+'</small></div><button data-remove="1" aria-label="Remove '+p.name+'">×</button></div>').join(""):'<p class="bag-empty">Your bag is waiting for its first crown.</p>';bagTotal.textContent=cart.length?money(cart[0].price):money(0);bagItems.querySelectorAll("[data-remove]").forEach(b=>b.onclick=removeFromBag)}
 function openBag(){bagDrawer.classList.add("open");scrim.classList.add("open");bagDrawer.setAttribute("aria-hidden","false")}
 function closeBag(){bagDrawer.classList.remove("open");scrim.classList.remove("open");bagDrawer.setAttribute("aria-hidden","true")}
-document.querySelector("#openBag").onclick=openBag;document.querySelector("#closeBag").onclick=closeBag;scrim.onclick=closeBag;
-document.querySelector("#menuToggle").onclick=e=>{const open=document.querySelector("#mainNav").classList.toggle("open");e.currentTarget.setAttribute("aria-expanded",String(open))};
-document.querySelectorAll(".main-nav a").forEach(a=>a.onclick=()=>document.querySelector("#mainNav").classList.remove("open"));
-document.querySelector("#shareSite").onclick=async()=>{const share={title:"CROWNÉ Hair",text:"Every shade. Every texture. Every crown.",url:location.href};if(navigator.share){try{await navigator.share(share)}catch{}}else{await navigator.clipboard?.writeText(location.href);document.querySelector("#shareSite").textContent="Link copied ✓"}};
-document.querySelectorAll(".quiz-chip").forEach(b=>b.onclick=()=>{document.querySelector("#quizResult").textContent=b.dataset.answer+" selected — your personalised hair-match flow is ready for catalogue linking."});
+$("#openBag").onclick=openBag;$("#closeBag").onclick=closeBag;scrim.onclick=closeBag;
+$("#menuToggle").onclick=e=>{const open=$("#mainNav").classList.toggle("open");e.currentTarget.setAttribute("aria-expanded",String(open))};
+document.querySelectorAll(".main-nav a").forEach(a=>a.onclick=()=>$("#mainNav").classList.remove("open"));
+$("#shareSite").onclick=async()=>{const share={title:"CROWNÉ Hair",text:"Every shade. Every texture. Every crown.",url:location.href};if(navigator.share){try{await navigator.share(share)}catch{}}else{await navigator.clipboard?.writeText(location.href);$("#shareSite").textContent="Link copied ✓"}};
+document.querySelectorAll(".quiz-chip").forEach(b=>b.onclick=()=>{$("#quizResult").textContent=b.dataset.answer+" selected — add a style to your reservation and include this preference in your notes."});
 checkoutButton.onclick=async()=>{
-  if(!cart.length){paymentNote.textContent="Add at least one crown to your bag first.";return}
-  const name=customerName.value.trim(),email=customerEmail.value.trim();
-  if(!name||!email){paymentNote.textContent="Enter your name and email first.";return}
-  checkoutButton.disabled=true;
-  if(checkoutConfigured){
-    checkoutButton.textContent="Opening secure checkout…";paymentNote.textContent="Creating your protected order through IZAKHONO PAY.";
-    try{
-      const r=await fetch("/api/checkout",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({sku:cart[0].sku,customer_name:name,customer_email:email})});
-      const data=await r.json();
-      if(!r.ok)throw new Error(data.error||"Checkout failed");
-      if(data.redirect_url){location.href=data.redirect_url;return}
-      if(data.payment_reference){let msg="Order created. Payment reference: "+data.payment_reference+".";if(data.bank_details){msg+=" EFT: "+[data.bank_details.bank_name,data.bank_details.account_name,data.bank_details.account_number,"branch "+data.bank_details.branch_code].filter(Boolean).join(" · ");}paymentNote.textContent=msg;return}
-      paymentNote.textContent="Order created. Follow the payment instructions returned by IZAKHONO PAY.";
-    }catch(err){paymentNote.textContent=String(err.message||err)}
-    finally{checkoutButton.disabled=false;checkoutButton.textContent="Secure checkout"}
-    return;
-  }
-  checkoutButton.textContent="Reserving…";paymentNote.textContent="Saving your Crown Room request so we can confirm stock, final options and secure payment.";
+  if(!cart.length){paymentNote.textContent="Choose one crown first.";return}
+  const name=$("#customerName").value.trim(),email=$("#customerEmail").value.trim(),phone=$("#customerPhone").value.trim();
+  const length=$("#preferredLength").value.trim(),colour=$("#preferredColour").value.trim(),texture=$("#preferredTexture").value.trim(),notes=$("#customerNotes").value.trim(),marketing=$("#marketingConsent").checked;
+  if(!name||!email||!phone){paymentNote.textContent="Enter your name, email and phone number.";return}
+  checkoutButton.disabled=true;checkoutButton.textContent="Reserving…";paymentNote.textContent="Saving your request securely for stock and specification confirmation.";
   try{
     const p=cart[0];
-    const r=await fetch(LEAD_URL,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({customer_name:name,customer_email:email,product_code:p.sku,product_name:p.name,source:location.host,website:""})});
-    const data=await r.json();
-    if(!r.ok)throw new Error(data.error||"Could not save request");
-    paymentNote.textContent="Reserved ✓ Reference "+data.reference+". We have your request and can complete stock confirmation and secure payment next.";
+    const r=await fetch(LEAD_URL,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({customer_name:name,customer_email:email,customer_phone:phone,product_code:p.sku,product_name:p.name,preferred_length:length,preferred_colour:colour,preferred_texture:texture||p.texture,customer_notes:notes,marketing_consent:marketing,source:location.host||"crowne-hair-web",website:""})});
+    const data=await r.json();if(!r.ok)throw new Error(data.error||"Could not save request");
+    paymentNote.textContent="Reserved ✓ Reference "+data.reference+". We will use this request to confirm stock, exact options, delivery and the secure iKhokha payment step.";
     checkoutButton.textContent="Reserved ✓";
-  }catch(err){
-    paymentNote.textContent="We could not save the request just now. Please try again.";
-    checkoutButton.textContent="Reserve this crown";
-  }finally{checkoutButton.disabled=false}
+    if(window.IZGrowth)window.IZGrowth.track("lead_submitted",{reference:data.reference,product_code:p.sku});
+  }catch(err){paymentNote.textContent=String(err.message||"We could not save the request just now. Please try again.");checkoutButton.textContent="Reserve this crown"}
+  finally{checkoutButton.disabled=false}
 };
-fetch("/api/config").then(r=>{if(!r.ok)throw new Error("no local checkout");return r.json()}).then(cfg=>{checkoutConfigured=Boolean(cfg.checkoutConfigured);if(checkoutConfigured){paymentNote.textContent="Secure payment powered by iKhokha through IZAKHONO PAY.";checkoutButton.textContent="Secure checkout"}else{paymentNote.textContent="Reserve your crown now; secure payment is completed after stock confirmation.";checkoutButton.textContent="Reserve this crown"}}).catch(()=>{checkoutConfigured=false;paymentNote.textContent="Reserve your crown now; secure payment is completed after stock confirmation.";checkoutButton.textContent="Reserve this crown"});
 renderFilters();renderProducts();renderBag();
-const ring=document.querySelector("#spinRing"),viewport=document.querySelector("#spinViewport"),cards=[...ring.children],step=360/cards.length;let angle=0,timer,dragging=false,startX=0,startAngle=0;
+const ring=$("#spinRing"),viewport=$("#spinViewport"),cards=[...ring.children],step=360/cards.length;let angle=0,timer,dragging=false,startX=0,startAngle=0;
 function update(){ring.style.transform="rotateY("+angle+"deg)"}function layout(){const radius=Math.min(380,Math.max(230,viewport.clientWidth*.33));cards.forEach((card,i)=>card.style.transform="rotateY("+(i*step)+"deg) translateZ("+radius+"px)");update()}function rotate(dir=1){angle-=step*dir;update();restart()}function restart(){clearInterval(timer);timer=setInterval(()=>rotate(1),3200)}
-document.querySelector("#spinPrev").onclick=()=>rotate(-1);document.querySelector("#spinNext").onclick=()=>rotate(1);viewport.addEventListener("pointerdown",e=>{dragging=true;startX=e.clientX;startAngle=angle;viewport.setPointerCapture(e.pointerId);clearInterval(timer)});viewport.addEventListener("pointermove",e=>{if(dragging){angle=startAngle+(e.clientX-startX)*.32;update()}});viewport.addEventListener("pointerup",()=>{dragging=false;angle=Math.round(angle/step)*step;update();restart()});window.addEventListener("resize",layout);layout();restart();
+$("#spinPrev").onclick=()=>rotate(-1);$("#spinNext").onclick=()=>rotate(1);viewport.addEventListener("pointerdown",e=>{dragging=true;startX=e.clientX;startAngle=angle;viewport.setPointerCapture(e.pointerId);clearInterval(timer)});viewport.addEventListener("pointermove",e=>{if(dragging){angle=startAngle+(e.clientX-startX)*.32;update()}});viewport.addEventListener("pointerup",()=>{dragging=false;angle=Math.round(angle/step)*step;update();restart()});window.addEventListener("resize",layout);layout();restart();

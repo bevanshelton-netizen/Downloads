@@ -8,7 +8,7 @@ const PORT=Number(process.env.PORT||8080);
 const ROOT=resolve(new URL("./public/",import.meta.url).pathname);
 const PAY_ORIGIN=process.env.IZAKHONO_PAY_ORIGIN||"http://127.0.0.1:8080";
 const PAY_HOST=process.env.IZAKHONO_PAY_HOST||"pay.izakhonoafrica.co.za";
-const PAY_KEY=process.env.IZAKHONO_PAY_APP_KEY||"";
+const PAY_KEY=process.env.IZAKHONO_PAY_APP_KEY||"";\nconst DIRECT_CHECKOUT=/^(1|true|yes|on)$/i.test(process.env.CROWNE_HAIR_DIRECT_CHECKOUT||"false");
 const APP_SLUG="crowne-hair";
 const skuMap={
   "CRN-VELVET-CURL":"velvet-curl",
@@ -44,10 +44,10 @@ function cleanEmail(v){const x=typeof v==="string"?v.trim().toLowerCase():"";ret
 
 createServer(async(req,res)=>{
   const url=new URL(req.url||"/","http://localhost");
-  if(url.pathname==="/health"||url.pathname==="/api/health")return sendJson(res,200,{ok:true,service:"crowne-hair",product:"CROWNÉ Hair",runtime:"izakhono-owned",checkoutConfigured:Boolean(PAY_KEY),paymentBackbone:"IZAKHONO PAY",version:"1.1.0"});
-  if(url.pathname==="/api/config")return sendJson(res,200,{checkoutConfigured:Boolean(PAY_KEY),paymentProvider:PAY_KEY?"iKhokha via IZAKHONO PAY":null});
+  if(url.pathname==="/health"||url.pathname==="/api/health")return sendJson(res,200,{ok:true,service:"crowne-hair",product:"CROWNÉ Hair",runtime:"izakhono-owned",checkoutConfigured:Boolean(PAY_KEY&&DIRECT_CHECKOUT),paymentBackbone:"IZAKHONO PAY",version:"1.2.0"});
+  if(url.pathname==="/api/config")return sendJson(res,200,{checkoutConfigured:Boolean(PAY_KEY&&DIRECT_CHECKOUT),paymentProvider:PAY_KEY&&DIRECT_CHECKOUT?"iKhokha via IZAKHONO PAY":null,reservationFirst:!DIRECT_CHECKOUT});\n  if(url.pathname==="/payment/return"){const order=(url.searchParams.get("order")||"").replace(/[^A-Za-z0-9_-]/g,"").slice(0,100),payment=(url.searchParams.get("payment")||"pending").replace(/[^a-z]/gi,"").slice(0,20);const msg=payment==="success"?"Payment submitted. We will complete the order only after secure provider confirmation.":payment==="failed"?"Payment was not completed. No order will be fulfilled until payment is verified.":payment==="cancelled"?"Checkout was cancelled. You can return to CROWNÉ and try again.":"Payment status received.";return send(res,200,`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CROWNÉ Hair | Payment</title></head><body style="margin:0;background:#140a10;color:#fff;font-family:system-ui"><main style="max-width:720px;margin:12vh auto;padding:32px"><p style="color:#f4d69b;letter-spacing:.14em;font-weight:800">CROWNÉ HAIR</p><h1 style="font-family:Georgia,serif;font-size:48px">${msg}</h1><p>Order reference: ${order||"not supplied"}</p><p><a href="/" style="color:#f4d69b">Return to CROWNÉ Hair</a></p></main></body></html>`,"text/html; charset=utf-8")};
   if(url.pathname==="/api/checkout"&&req.method==="POST"){
-    if(!PAY_KEY)return sendJson(res,503,{error:"CROWNÉ Hair payment key is not configured on the owner host"});
+    if(!PAY_KEY)return sendJson(res,503,{error:"CROWNÉ Hair payment key is not configured on the owner host"});\n    if(!DIRECT_CHECKOUT)return sendJson(res,409,{error:"Direct checkout is paused until stock, specification, delivery and final price are confirmed"});
     try{
       const body=await readJson(req),product_code=skuMap[String(body.sku||"")],customer_name=cleanName(body.customer_name),customer_email=cleanEmail(body.customer_email);
       if(!product_code)return sendJson(res,400,{error:"Unknown product"});

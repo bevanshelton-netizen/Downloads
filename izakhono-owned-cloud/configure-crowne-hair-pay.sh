@@ -34,7 +34,7 @@ os.replace(tmp,pay_env)
 open(hair_env,"w",encoding="utf-8").write(
     "IZAKHONO_PAY_ORIGIN=http://127.0.0.1:8080\n"
     "IZAKHONO_PAY_HOST=pay.izakhonoafrica.co.za\n"
-    "IZAKHONO_PAY_APP_KEY="+key+"\n"
+    "IZAKHONO_PAY_APP_KEY="+key+"\n"\n    "CROWNE_HAIR_DIRECT_CHECKOUT=false\n"
 )
 print("CROWNÉ Hair payment identity configured locally; secret not printed.")
 PY
