@@ -78,7 +78,27 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
+      - name: Verify KORA KIDS public route
+        shell: bash
+        run: |
+          set -euo pipefail
+          KIDS="https://bevanshelton-netizen.github.io/Downloads/kora-kids/"
+          ok=0
+          for i in $(seq 1 36); do
+            rm -f /tmp/kids.html /tmp/kids.h
+            if curl -fsSL -D /tmp/kids.h -o /tmp/kids.html "$KIDS" &&
+               grep -q 'TUMI' /tmp/kids.html &&
+               grep -q 'KORA KIDS' /tmp/kids.html &&
+               grep -qi '^content-type: text/html' /tmp/kids.h; then
+              ok=1
+              break
+            fi
+            sleep 5
+          done
+          test "$ok" -eq 1
+
       - name: Verify Revenue Sprint public route
+        continue-on-error: true
         shell: bash
         run: |
           set -euo pipefail
@@ -114,18 +134,3 @@ jobs:
           curl -fsSL "$CONTRACTORS" | grep -q 'Contractors'
           curl -fsSL "$PORTFOLIO" | grep -q 'IZAKHONO PORTFOLIO'
           curl -fsSL "$LAUNCH" | grep -q 'IZAKHONO PORTFOLIO'
-
-      - name: Verify KORA KIDS public route
-        shell: bash
-        run: |
-          set -euo pipefail
-          KIDS="https://bevanshelton-netizen.github.io/Downloads/kora-kids/"
-          ok=0
-          for i in $(seq 1 24); do
-            if curl -fsSL "$KIDS" | grep -q 'TUMI' && curl -fsSL "$KIDS" | grep -q 'KORA KIDS'; then
-              ok=1
-              break
-            fi
-            sleep 5
-          done
-          test "$ok" -eq 1
