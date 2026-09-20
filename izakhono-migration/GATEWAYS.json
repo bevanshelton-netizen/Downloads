@@ -1,6 +1,6 @@
 {
   "schema": "izakhono.gateway/v1",
-  "effective_at": "2026-09-20T07:52:00+02:00",
+  "effective_at": "2026-09-20T08:18:00+02:00",
   "mode": "TEMPORARY_GATEWAY_FIRST",
   "primary_entrypoint": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway",
   "policy": {
@@ -99,9 +99,12 @@
     ],
     "prelaunch_only": [
       "Matric Rewrite Prep Academy"
-    ]
+    ],
+    "revenue_sprint_premium_ui": true
   },
   "launch_mode": "REVENUE_FIRST",
   "feature_freeze": true,
-  "revenue_sprint": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-revenue"
+  "revenue_sprint": "https://bevanshelton-netizen.github.io/Downloads/revenue.html",
+  "revenue_sprint_status": "PUBLISHED_V2",
+  "revenue_sprint_design": "premium-african-tech"
 }
