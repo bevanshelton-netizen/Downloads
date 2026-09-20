@@ -9,7 +9,7 @@ const products=[
 {sku:"CRN-TEXTURE",name:"Texture Edit",category:"Extensions",texture:"Coil / curl",price:649,image:"https://images.pexels.com/photos/5254288/pexels-photo-5254288.jpeg?auto=compress&cs=tinysrgb&w=900",note:"Texture-forward pieces for fullness and blending."}
 ];
 const money=n=>new Intl.NumberFormat("en-ZA",{style:"currency",currency:"ZAR",maximumFractionDigits:0}).format(n);
-let active="All",cart=[],checkoutConfigured=false;
+let active="All",cart=[],checkoutConfigured=false;\nconst LEAD_URL="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/crowne-hair-lead";
 const filters=document.querySelector("#filters"),grid=document.querySelector("#productGrid"),bagDrawer=document.querySelector("#bagDrawer"),scrim=document.querySelector("#scrim"),bagItems=document.querySelector("#bagItems"),bagCount=document.querySelector("#bagCount"),bagTotal=document.querySelector("#bagTotal"),paymentNote=document.querySelector("#paymentNote"),checkoutButton=document.querySelector("#checkoutButton"),customerName=document.querySelector("#customerName"),customerEmail=document.querySelector("#customerEmail");
 function renderFilters(){const cats=["All"].concat(Array.from(new Set(products.map(p=>p.category))));filters.innerHTML=cats.map(c=>'<button class="filter '+(c===active?'active':'')+'" data-filter="'+c+'">'+c+'</button>').join("");filters.querySelectorAll("button").forEach(b=>b.onclick=()=>{active=b.dataset.filter;renderFilters();renderProducts()})}
 function renderProducts(){const list=active==="All"?products:products.filter(p=>p.category===active);grid.innerHTML=list.map(p=>'<article class="product-card"><figure><img loading="lazy" src="'+p.image+'" alt="'+p.name+' hair style"></figure><div class="product-info"><div class="product-meta"><span>'+p.category+'</span><span>'+p.texture+'</span></div><h3>'+p.name+'</h3><p>'+p.note+'</p><div class="product-buy"><strong>from '+money(p.price)+'</strong><button class="add-btn" data-add="'+p.sku+'">Add to bag</button></div></div></article>').join("");grid.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>addToBag(b.dataset.add))}
@@ -25,21 +25,36 @@ document.querySelector("#shareSite").onclick=async()=>{const share={title:"CROWN
 document.querySelectorAll(".quiz-chip").forEach(b=>b.onclick=()=>{document.querySelector("#quizResult").textContent=b.dataset.answer+" selected — your personalised hair-match flow is ready for catalogue linking."});
 checkoutButton.onclick=async()=>{
   if(!cart.length){paymentNote.textContent="Add at least one crown to your bag first.";return}
-  if(!checkoutConfigured){paymentNote.textContent="The catalogue is live; the secure IZAKHONO PAY key still needs to be loaded on the owner host.";return}
   const name=customerName.value.trim(),email=customerEmail.value.trim();
-  if(!name||!email){paymentNote.textContent="Enter your name and email to start secure checkout.";return}
-  checkoutButton.disabled=true;checkoutButton.textContent="Opening secure checkout…";paymentNote.textContent="Creating your protected order through IZAKHONO PAY.";
+  if(!name||!email){paymentNote.textContent="Enter your name and email first.";return}
+  checkoutButton.disabled=true;
+  if(checkoutConfigured){
+    checkoutButton.textContent="Opening secure checkout…";paymentNote.textContent="Creating your protected order through IZAKHONO PAY.";
+    try{
+      const r=await fetch("/api/checkout",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({sku:cart[0].sku,customer_name:name,customer_email:email})});
+      const data=await r.json();
+      if(!r.ok)throw new Error(data.error||"Checkout failed");
+      if(data.redirect_url){location.href=data.redirect_url;return}
+      if(data.payment_reference){let msg="Order created. Payment reference: "+data.payment_reference+".";if(data.bank_details){msg+=" EFT: "+[data.bank_details.bank_name,data.bank_details.account_name,data.bank_details.account_number,"branch "+data.bank_details.branch_code].filter(Boolean).join(" · ");}paymentNote.textContent=msg;return}
+      paymentNote.textContent="Order created. Follow the payment instructions returned by IZAKHONO PAY.";
+    }catch(err){paymentNote.textContent=String(err.message||err)}
+    finally{checkoutButton.disabled=false;checkoutButton.textContent="Secure checkout"}
+    return;
+  }
+  checkoutButton.textContent="Reserving…";paymentNote.textContent="Saving your Crown Room request so we can confirm stock, final options and secure payment.";
   try{
-    const r=await fetch("/api/checkout",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({sku:cart[0].sku,customer_name:name,customer_email:email})});
+    const p=cart[0];
+    const r=await fetch(LEAD_URL,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({customer_name:name,customer_email:email,product_code:p.sku,product_name:p.name,source:location.host,website:""})});
     const data=await r.json();
-    if(!r.ok)throw new Error(data.error||"Checkout failed");
-    if(data.redirect_url){location.href=data.redirect_url;return}
-    if(data.payment_reference){let msg="Order created. Payment reference: "+data.payment_reference+".";if(data.bank_details){msg+=" EFT: "+[data.bank_details.bank_name,data.bank_details.account_name,data.bank_details.account_number,"branch "+data.bank_details.branch_code].filter(Boolean).join(" · ");}paymentNote.textContent=msg;return}
-    paymentNote.textContent="Order created. Follow the payment instructions returned by IZAKHONO PAY.";
-  }catch(err){paymentNote.textContent=String(err.message||err)}
-  finally{checkoutButton.disabled=false;checkoutButton.textContent="Secure checkout"}
+    if(!r.ok)throw new Error(data.error||"Could not save request");
+    paymentNote.textContent="Reserved ✓ Reference "+data.reference+". We have your request and can complete stock confirmation and secure payment next.";
+    checkoutButton.textContent="Reserved ✓";
+  }catch(err){
+    paymentNote.textContent="We could not save the request just now. Please try again.";
+    checkoutButton.textContent="Reserve this crown";
+  }finally{checkoutButton.disabled=false}
 };
-fetch("/api/config").then(r=>r.json()).then(cfg=>{checkoutConfigured=Boolean(cfg.checkoutConfigured);paymentNote.textContent=checkoutConfigured?"Secure payment powered by iKhokha through IZAKHONO PAY.":"Catalogue live · payment key pending on owner host."}).catch(()=>{paymentNote.textContent="Secure checkout status unavailable."});
+fetch("/api/config").then(r=>{if(!r.ok)throw new Error("no local checkout");return r.json()}).then(cfg=>{checkoutConfigured=Boolean(cfg.checkoutConfigured);if(checkoutConfigured){paymentNote.textContent="Secure payment powered by iKhokha through IZAKHONO PAY.";checkoutButton.textContent="Secure checkout"}else{paymentNote.textContent="Reserve your crown now; secure payment is completed after stock confirmation.";checkoutButton.textContent="Reserve this crown"}}).catch(()=>{checkoutConfigured=false;paymentNote.textContent="Reserve your crown now; secure payment is completed after stock confirmation.";checkoutButton.textContent="Reserve this crown"});
 renderFilters();renderProducts();renderBag();
 const ring=document.querySelector("#spinRing"),viewport=document.querySelector("#spinViewport"),cards=[...ring.children],step=360/cards.length;let angle=0,timer,dragging=false,startX=0,startAngle=0;
 function update(){ring.style.transform="rotateY("+angle+"deg)"}function layout(){const radius=Math.min(380,Math.max(230,viewport.clientWidth*.33));cards.forEach((card,i)=>card.style.transform="rotateY("+(i*step)+"deg) translateZ("+radius+"px)");update()}function rotate(dir=1){angle-=step*dir;update();restart()}function restart(){clearInterval(timer);timer=setInterval(()=>rotate(1),3200)}
