@@ -50,3 +50,40 @@ renderFilters();renderProducts();renderBag();
 const ring=$("#spinRing"),viewport=$("#spinViewport"),cards=[...ring.children],step=360/cards.length;let angle=0,timer,dragging=false,startX=0,startAngle=0;
 function update(){ring.style.transform="rotateY("+angle+"deg)"}function layout(){const radius=Math.min(380,Math.max(230,viewport.clientWidth*.33));cards.forEach((card,i)=>card.style.transform="rotateY("+(i*step)+"deg) translateZ("+radius+"px)");update()}function rotate(dir=1){angle-=step*dir;update();restart()}function restart(){clearInterval(timer);timer=setInterval(()=>rotate(1),3200)}
 $("#spinPrev").onclick=()=>rotate(-1);$("#spinNext").onclick=()=>rotate(1);viewport.addEventListener("pointerdown",e=>{dragging=true;startX=e.clientX;startAngle=angle;viewport.setPointerCapture(e.pointerId);clearInterval(timer)});viewport.addEventListener("pointermove",e=>{if(dragging){angle=startAngle+(e.clientX-startX)*.32;update()}});viewport.addEventListener("pointerup",()=>{dragging=false;angle=Math.round(angle/step)*step;update();restart()});window.addEventListener("resize",layout);layout();restart();
+
+const CROWNE_SALON_BOOKING_URL="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/crowne-salon-booking";
+const salonForm=document.querySelector("#salonBookingForm");
+if(salonForm){
+  const dateField=document.querySelector("#salonDate");
+  if(dateField)dateField.min=new Date().toISOString().slice(0,10);
+  salonForm.addEventListener("submit",async e=>{
+    e.preventDefault();
+    const status=document.querySelector("#salonBookingStatus"),button=document.querySelector("#salonBookingButton");
+    const payload={
+      customer_name:document.querySelector("#salonName").value.trim(),
+      customer_email:document.querySelector("#salonEmail").value.trim(),
+      customer_phone:document.querySelector("#salonPhone").value.trim(),
+      service:document.querySelector("#salonService").value,
+      preferred_date:document.querySelector("#salonDate").value||null,
+      preferred_time:document.querySelector("#salonTime").value||null,
+      hair_length:document.querySelector("#salonHairLength").value.trim()||null,
+      notes:document.querySelector("#salonNotes").value.trim()||null,
+      website:document.querySelector("#salonWebsite").value,
+      source:location.host||"crowne-salon-web"
+    };
+    if(!payload.customer_name||!payload.customer_email||!payload.customer_phone||!payload.service){
+      status.className="salon-booking-status error";status.textContent="Please complete your name, email, phone and service.";return;
+    }
+    button.disabled=true;button.textContent="Sending request…";status.className="salon-booking-status";status.textContent="Saving your appointment request securely.";
+    try{
+      const r=await fetch(CROWNE_SALON_BOOKING_URL,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload)});
+      const data=await r.json();if(!r.ok)throw new Error(data.error||"Could not save request");
+      status.className="salon-booking-status success";status.textContent="Appointment requested ✓ Reference "+data.reference+". The salon will confirm the date, time and service details before your booking is final.";
+      button.textContent="Request received ✓";
+      if(window.IZGrowth)window.IZGrowth.track("salon_booking_requested",{reference:data.reference,service:payload.service});
+      salonForm.reset();if(dateField)dateField.min=new Date().toISOString().slice(0,10);
+    }catch(err){
+      status.className="salon-booking-status error";status.textContent=String(err.message||"We could not save the request. Please try again.");button.textContent="Request appointment";
+    }finally{button.disabled=false}
+  });
+}
