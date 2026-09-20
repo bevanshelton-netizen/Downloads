@@ -48,6 +48,9 @@ jobs:
           cp ports/yenzanow/index.html _site/yenzanow/index.html
           cp ports/yenzanow/healthz.txt _site/yenzanow/healthz.txt
 
+          # Publish the premium IZAKHONO Revenue Sprint.
+          cp ports/revenue-sprint/index.html _site/revenue/index.html
+
           # Publish the shared portfolio growth bridge.
           cp -R portfolio-growth/. _site/portfolio-growth/
 
@@ -74,6 +77,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          REVENUE="https://bevanshelton-netizen.github.io/Downloads/revenue/"
           BASE="https://bevanshelton-netizen.github.io/Downloads/izakhono-one/"
           HEALTH="https://bevanshelton-netizen.github.io/Downloads/izakhono-one/health-check/"
           CLINIC="https://bevanshelton-netizen.github.io/Downloads/izakhono-one/clinic/"
@@ -82,19 +86,23 @@ jobs:
           LAUNCH="https://bevanshelton-netizen.github.io/Downloads/portfolio-growth/launch/?platform=fortress"
           ok=0
           for i in $(seq 1 36); do
-            rm -f /tmp/one.html /tmp/health.html /tmp/clinic.html /tmp/contractors.html /tmp/portfolio.html /tmp/launch.html /tmp/one.h /tmp/health.h
-            if curl -fsSL -D /tmp/one.h -o /tmp/one.html "$BASE" &&
+            rm -f /tmp/revenue.html /tmp/revenue.h /tmp/one.html /tmp/health.html /tmp/clinic.html /tmp/contractors.html /tmp/portfolio.html /tmp/launch.html /tmp/one.h /tmp/health.h
+            if curl -fsSL -D /tmp/revenue.h -o /tmp/revenue.html "$REVENUE" &&
+               curl -fsSL -D /tmp/one.h -o /tmp/one.html "$BASE" &&
                curl -fsSL -D /tmp/health.h -o /tmp/health.html "$HEALTH" &&
                curl -fsSL -o /tmp/clinic.html "$CLINIC" &&
                curl -fsSL -o /tmp/contractors.html "$CONTRACTORS" &&
                curl -fsSL -o /tmp/portfolio.html "$PORTFOLIO" &&
                curl -fsSL -o /tmp/launch.html "$LAUNCH" &&
+               grep -q 'IZAKHONO REVENUE SPRINT' /tmp/revenue.html &&
+               grep -q 'Built enough.' /tmp/revenue.html &&
                grep -q 'IZAKHONO ONE' /tmp/one.html &&
                grep -q 'FREE 3-MINUTE BUSINESS HEALTH CHECK' /tmp/health.html &&
                grep -q 'Business Clinic' /tmp/clinic.html &&
                grep -q 'Contractors' /tmp/contractors.html &&
                grep -q 'IZAKHONO PORTFOLIO' /tmp/portfolio.html &&
                grep -q 'IZAKHONO PORTFOLIO' /tmp/launch.html &&
+               grep -qi '^content-type: text/html' /tmp/revenue.h &&
                grep -qi '^content-type: text/html' /tmp/one.h &&
                grep -qi '^content-type: text/html' /tmp/health.h; then
               ok=1
