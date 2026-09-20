@@ -66,3 +66,19 @@ footer{background:linear-gradient(135deg,#020202,#0d0d0d);border-top-color:rgba(
 .checkout-fields label{color:#c9c1ad}
 .checkout-fields input,.checkout-fields textarea,.checkout-fields select{background:linear-gradient(135deg,#090909,#141414);border-color:rgba(232,198,106,.26);color:#fffdf7}
 @media(max-width:980px){.main-nav{background:#050505}}
+
+/* CROWNÉ Lifestyle Shop */
+.lifestyle-shop{background:linear-gradient(135deg,#fffaf4 0%,#f7ead0 46%,#ead4a0 100%);color:#12051d;position:relative;overflow:hidden}
+.lifestyle-shop:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 82% 14%,rgba(184,134,47,.20),transparent 28%),radial-gradient(circle at 12% 80%,rgba(18,5,29,.07),transparent 26%);pointer-events:none}
+.lifestyle-shop .section-heading{position:relative;z-index:1}
+.lifestyle-shop .section-heading>p{color:#5f4a3d}
+.lifestyle-shop .eyebrow{color:#8d6528}
+.lifestyle-feature{position:relative;z-index:1;display:grid;grid-template-columns:1.08fr .92fr;gap:5vw;align-items:center}
+.lifestyle-art{margin:0;background:#fffdf8;border:1px solid rgba(139,99,31,.25);border-radius:34px;overflow:hidden;box-shadow:0 26px 65px rgba(63,38,14,.14)}
+.lifestyle-art img{aspect-ratio:1/1;object-fit:cover}
+.lifestyle-copy h3{font:600 clamp(42px,5vw,72px)/.98 Georgia,serif;letter-spacing:-.035em;margin:12px 0 22px}
+.lifestyle-copy>p{color:#5f4a3d;line-height:1.8;max-width:620px}
+.lifestyle-points{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:28px 0}
+.lifestyle-points span{border:1px solid rgba(139,99,31,.25);background:rgba(255,255,255,.58);padding:13px 16px;border-radius:999px;font-size:12px;font-weight:800;text-align:center}
+.lifestyle-note{font-size:11px!important;margin-top:16px}
+@media(max-width:900px){.lifestyle-feature{grid-template-columns:1fr}.lifestyle-art{max-width:680px}.lifestyle-points{grid-template-columns:1fr}}
