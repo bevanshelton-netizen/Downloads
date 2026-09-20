@@ -69,7 +69,9 @@ jobs:
         run: |
           test "$(curl -sS -o /tmp/control-noauth.json -w '%{http_code}' http://127.0.0.1:8188/api/control/status)" = "401"
           grep -q '"error":"Owner authorization required."' /tmp/control-noauth.json
-          curl -fsS http://127.0.0.1:8188/api/control/status             -H 'authorization: Bearer ci-owner-control-token-1234567890' | grep -q '"service":"kora-gospel-tv-control"'
+          curl -fsS http://127.0.0.1:8188/api/control/status             -H 'authorization: Bearer ci-owner-control-token-1234567890' | tee /tmp/control-status.json | grep -q '"service":"kora-gospel-tv-control"'
+          grep -q '"sponsorship_inventory"' /tmp/control-status.json
+          grep -q '"rights_workflow"' /tmp/control-status.json
           curl -fsS http://127.0.0.1:8188/control.html | grep -q "GOSPEL TV"
           ! grep -R "ci-owner-control-token-1234567890" ports/kora-gospel-tv/control.html ports/kora-gospel-tv/control-room.json
 
