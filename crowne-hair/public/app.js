@@ -10,7 +10,7 @@ const products=[
 ];
 const money=n=>new Intl.NumberFormat("en-ZA",{style:"currency",currency:"ZAR",maximumFractionDigits:0}).format(n);
 let active="All",cart=[],checkoutConfigured=false;
-const filters=document.querySelector("#filters"),grid=document.querySelector("#productGrid"),bagDrawer=document.querySelector("#bagDrawer"),scrim=document.querySelector("#scrim"),bagItems=document.querySelector("#bagItems"),bagCount=document.querySelector("#bagCount"),bagTotal=document.querySelector("#bagTotal"),paymentNote=document.querySelector("#paymentNote"),checkoutButton=document.querySelector("#checkoutButton");
+const filters=document.querySelector("#filters"),grid=document.querySelector("#productGrid"),bagDrawer=document.querySelector("#bagDrawer"),scrim=document.querySelector("#scrim"),bagItems=document.querySelector("#bagItems"),bagCount=document.querySelector("#bagCount"),bagTotal=document.querySelector("#bagTotal"),paymentNote=document.querySelector("#paymentNote"),checkoutButton=document.querySelector("#checkoutButton"),customerName=document.querySelector("#customerName"),customerEmail=document.querySelector("#customerEmail");
 function renderFilters(){const cats=["All"].concat(Array.from(new Set(products.map(p=>p.category))));filters.innerHTML=cats.map(c=>'<button class="filter '+(c===active?'active':'')+'" data-filter="'+c+'">'+c+'</button>').join("");filters.querySelectorAll("button").forEach(b=>b.onclick=()=>{active=b.dataset.filter;renderFilters();renderProducts()})}
 function renderProducts(){const list=active==="All"?products:products.filter(p=>p.category===active);grid.innerHTML=list.map(p=>'<article class="product-card"><figure><img loading="lazy" src="'+p.image+'" alt="'+p.name+' hair style"></figure><div class="product-info"><div class="product-meta"><span>'+p.category+'</span><span>'+p.texture+'</span></div><h3>'+p.name+'</h3><p>'+p.note+'</p><div class="product-buy"><strong>from '+money(p.price)+'</strong><button class="add-btn" data-add="'+p.sku+'">Add to bag</button></div></div></article>').join("");grid.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>addToBag(b.dataset.add))}
 function addToBag(sku){const p=products.find(x=>x.sku===sku);if(!p)return;cart.push(p);renderBag();openBag()}
@@ -23,16 +23,24 @@ document.querySelector("#menuToggle").onclick=e=>{const open=document.querySelec
 document.querySelectorAll(".main-nav a").forEach(a=>a.onclick=()=>document.querySelector("#mainNav").classList.remove("open"));
 document.querySelector("#shareSite").onclick=async()=>{const share={title:"CROWNÉ Hair",text:"Every shade. Every texture. Every crown.",url:location.href};if(navigator.share){try{await navigator.share(share)}catch{}}else{await navigator.clipboard?.writeText(location.href);document.querySelector("#shareSite").textContent="Link copied ✓"}};
 document.querySelectorAll(".quiz-chip").forEach(b=>b.onclick=()=>{document.querySelector("#quizResult").textContent=b.dataset.answer+" selected — your personalised hair-match flow is ready for catalogue linking."});
-checkoutButton.onclick=()=>{if(!cart.length){paymentNote.textContent="Add at least one crown to your bag first.";return}const first=cart[0];if(!checkoutConfigured){paymentNote.textContent="Catalogue is live; the hair-specific iKhokha checkout URL still needs to be connected. No payment has been taken.";return}location.href="/checkout?sku="+encodeURIComponent(first.sku)};
-fetch("/api/config").then(r=>r.json()).then(cfg=>{checkoutConfigured=Boolean(cfg.checkoutConfigured);paymentNote.textContent=checkoutConfigured?"Secure payment powered by iKhokha.":"Catalogue live · iKhokha hair checkout connection pending."}).catch(()=>{paymentNote.textContent="Secure checkout status unavailable."});
+checkoutButton.onclick=async()=>{
+  if(!cart.length){paymentNote.textContent="Add at least one crown to your bag first.";return}
+  if(!checkoutConfigured){paymentNote.textContent="The catalogue is live; the secure IZAKHONO PAY key still needs to be loaded on the owner host.";return}
+  const name=customerName.value.trim(),email=customerEmail.value.trim();
+  if(!name||!email){paymentNote.textContent="Enter your name and email to start secure checkout.";return}
+  checkoutButton.disabled=true;checkoutButton.textContent="Opening secure checkout…";paymentNote.textContent="Creating your protected order through IZAKHONO PAY.";
+  try{
+    const r=await fetch("/api/checkout",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({sku:cart[0].sku,customer_name:name,customer_email:email})});
+    const data=await r.json();
+    if(!r.ok)throw new Error(data.error||"Checkout failed");
+    if(data.redirect_url){location.href=data.redirect_url;return}
+    if(data.payment_reference){let msg="Order created. Payment reference: "+data.payment_reference+".";if(data.bank_details){msg+=" EFT: "+[data.bank_details.bank_name,data.bank_details.account_name,data.bank_details.account_number,"branch "+data.bank_details.branch_code].filter(Boolean).join(" · ");}paymentNote.textContent=msg;return}
+    paymentNote.textContent="Order created. Follow the payment instructions returned by IZAKHONO PAY.";
+  }catch(err){paymentNote.textContent=String(err.message||err)}
+  finally{checkoutButton.disabled=false;checkoutButton.textContent="Secure checkout"}
+};
+fetch("/api/config").then(r=>r.json()).then(cfg=>{checkoutConfigured=Boolean(cfg.checkoutConfigured);paymentNote.textContent=checkoutConfigured?"Secure payment powered by iKhokha through IZAKHONO PAY.":"Catalogue live · payment key pending on owner host."}).catch(()=>{paymentNote.textContent="Secure checkout status unavailable."});
 renderFilters();renderProducts();renderBag();
 const ring=document.querySelector("#spinRing"),viewport=document.querySelector("#spinViewport"),cards=[...ring.children],step=360/cards.length;let angle=0,timer,dragging=false,startX=0,startAngle=0;
-function update(){ring.style.transform="rotateY("+angle+"deg)"}
-function layout(){const radius=Math.min(380,Math.max(230,viewport.clientWidth*.33));cards.forEach((card,i)=>card.style.transform="rotateY("+(i*step)+"deg) translateZ("+radius+"px)");update()}
-function rotate(dir=1){angle-=step*dir;update();restart()}
-function restart(){clearInterval(timer);timer=setInterval(()=>rotate(1),3200)}
-document.querySelector("#spinPrev").onclick=()=>rotate(-1);document.querySelector("#spinNext").onclick=()=>rotate(1);
-viewport.addEventListener("pointerdown",e=>{dragging=true;startX=e.clientX;startAngle=angle;viewport.setPointerCapture(e.pointerId);clearInterval(timer)});
-viewport.addEventListener("pointermove",e=>{if(dragging){angle=startAngle+(e.clientX-startX)*.32;update()}});
-viewport.addEventListener("pointerup",()=>{dragging=false;angle=Math.round(angle/step)*step;update();restart()});
-window.addEventListener("resize",layout);layout();restart();
+function update(){ring.style.transform="rotateY("+angle+"deg)"}function layout(){const radius=Math.min(380,Math.max(230,viewport.clientWidth*.33));cards.forEach((card,i)=>card.style.transform="rotateY("+(i*step)+"deg) translateZ("+radius+"px)");update()}function rotate(dir=1){angle-=step*dir;update();restart()}function restart(){clearInterval(timer);timer=setInterval(()=>rotate(1),3200)}
+document.querySelector("#spinPrev").onclick=()=>rotate(-1);document.querySelector("#spinNext").onclick=()=>rotate(1);viewport.addEventListener("pointerdown",e=>{dragging=true;startX=e.clientX;startAngle=angle;viewport.setPointerCapture(e.pointerId);clearInterval(timer)});viewport.addEventListener("pointermove",e=>{if(dragging){angle=startAngle+(e.clientX-startX)*.32;update()}});viewport.addEventListener("pointerup",()=>{dragging=false;angle=Math.round(angle/step)*step;update();restart()});window.addEventListener("resize",layout);layout();restart();
