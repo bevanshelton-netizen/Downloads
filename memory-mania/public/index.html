@@ -48,8 +48,20 @@ linear-gradient(145deg,rgba(18,28,74,.97),rgba(8,13,41,.97));box-shadow:var(--sh
 .team{display:flex;align-items:center;gap:18px;border:1px solid rgba(62,173,255,.32);background:linear-gradient(135deg,#0f2859,#0d1841);border-radius:28px;padding:22px;box-shadow:0 16px 35px rgba(0,0,0,.18)}.team .emoji{font-size:58px}
 .community{display:grid;grid-template-columns:1fr 1fr;gap:14px}.board,.badges{border:1px solid var(--line);background:linear-gradient(145deg,#101936,#0c132c);border-radius:26px;padding:20px}.rank{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07)}.rank:last-child{border-bottom:0}.avatar{width:34px;height:34px;border-radius:12px;display:grid;place-items:center;background:#17234b}.medals{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}.medal{text-align:center;border:1px solid rgba(116,145,255,.2);border-radius:17px;padding:12px 8px;background:rgba(255,255,255,.03)}.medal .micon{font-size:30px}.medal small{display:block;margin-top:6px;color:#c2cff1;font-weight:800}
 .footer{margin:34px 0 84px;text-align:center;color:var(--muted);font-size:13px}.notice{display:none;margin-top:14px;border:1px solid rgba(83,222,255,.24);background:#0f1938;border-radius:18px;padding:14px;color:#c8d6f7}.notice.show{display:block}
+.tool-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;margin-top:16px}
+.tool-card{position:relative;overflow:hidden;border:1px solid rgba(111,151,255,.28);border-radius:27px;padding:22px;background:linear-gradient(145deg,#111b3f,#0c1431);box-shadow:0 18px 38px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.07)}
+.tool-card.custom{background:linear-gradient(145deg,rgba(48,203,178,.18),rgba(12,20,49,.98))}
+.tool-card.daily{background:linear-gradient(145deg,rgba(255,184,47,.16),rgba(20,16,55,.98))}
+.tool-card h3{margin:5px 0 8px;font-family:"Bungee",sans-serif;font-size:22px}
+.tool-card p{margin:0;color:#c5d1f4;line-height:1.55}
+.study-input{width:100%;min-height:105px;margin-top:14px;resize:vertical;border:1px solid rgba(126,157,255,.3);border-radius:18px;background:#090f27;color:#fff;padding:14px;font:800 15px/1.5 "Nunito",sans-serif;outline:none}
+.study-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(76,236,255,.1)}
+.study-help{margin-top:8px;font-size:12px;color:#99a8d4}
+.daily-meta{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.daily-chip{border:1px solid rgba(255,215,92,.3);background:rgba(255,204,61,.08);border-radius:999px;padding:7px 10px;font-size:12px;font-weight:900;color:#ffe995}
 .mobile-nav{display:none}
 @media(max-width:900px){.hero-grid{grid-template-columns:1fr}.mascot-wrap{min-height:245px}.stats{grid-template-columns:repeat(2,1fr)}.modes{grid-template-columns:repeat(2,1fr)}.game-cards,.choice-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:900px){.tool-grid{grid-template-columns:1fr}}
 @media(max-width:600px){.shell{padding:12px}.topbar{padding-top:4px}.hero{border-radius:26px;padding:21px 17px}.logo{font-size:52px}.subtitle{font-size:13px}.lead{font-size:15px}.mascot-wrap{min-height:220px}.mascot{width:250px}.modes,.plan-grid,.community{grid-template-columns:1fr}.mode{min-height:165px}.mode h3{margin-top:18px}.stats{grid-template-columns:repeat(2,1fr)}.game-cards,.choice-grid{grid-template-columns:repeat(2,1fr)}.team{align-items:flex-start}.section h2{font-size:27px}.mobile-nav{position:fixed;z-index:30;display:grid;grid-template-columns:repeat(4,1fr);left:10px;right:10px;bottom:10px;padding:8px;border:1px solid rgba(102,139,255,.3);border-radius:20px;background:rgba(9,13,30,.91);backdrop-filter:blur(15px);box-shadow:0 16px 50px rgba(0,0,0,.45)}.mobile-nav a{color:#aebce4;text-decoration:none;text-align:center;font-size:11px;font-weight:900}.mobile-nav span{display:block;font-size:21px}.mobile-nav a:first-child{color:var(--cyan)}}
 </style>
 </head>
@@ -103,6 +115,26 @@ linear-gradient(145deg,rgba(18,28,74,.97),rgba(8,13,41,.97));box-shadow:var(--sh
       <button class="mode mode2" data-mode="emoji"><div class="icon">🤣</div><h3>Emoji Chaos</h3><p>See • Remember • Match</p><span class="arrow">›</span></button>
       <button class="mode mode3" data-mode="numbers"><div class="icon" style="font-size:24px;font-weight:1000">123</div><h3>Number Ninja</h3><p>Numbers • Focus • Recall</p><span class="arrow">›</span></button>
       <button class="mode mode4" data-mode="mixed"><div class="icon">🧩</div><h3>Mega Mix</h3><p>All-in-one challenge</p><span class="arrow">›</span></button>
+    </div>
+
+    <div class="tool-grid">
+      <div class="tool-card custom">
+        <div class="eyebrow">✨ TRAIN YOUR OWN MATERIAL</div>
+        <h3>Turn your stuff into a game</h3>
+        <p>Paste vocabulary, names, dates, exam terms, procedures or anything you need to remember.</p>
+        <textarea id="customInput" class="study-input" placeholder="Example: photosynthesis, chlorophyll, sunlight, carbon dioxide, oxygen, glucose"></textarea>
+        <div class="study-help">Use commas or new lines. Add at least 6 items for the best challenge.</div>
+        <button id="customPlay" class="cta primary" type="button" style="margin-top:13px">🧠 Train My Stuff</button>
+        <div id="customNotice" class="notice"></div>
+      </div>
+      <div class="tool-card daily">
+        <div class="eyebrow">🔥 DAILY CHALLENGE</div>
+        <h3>One fresh brain battle every day</h3>
+        <p>Complete today’s challenge to protect your daily streak and earn a bonus.</p>
+        <div class="daily-meta"><span class="daily-chip" id="dailyDate">Today</span><span class="daily-chip">+750 perfect bonus</span><span class="daily-chip">1 attempt/day</span></div>
+        <button id="dailyPlay" class="cta secondary" type="button">⚡ Play Today’s Challenge</button>
+        <div id="dailyNotice" class="notice"></div>
+      </div>
     </div>
 
     <div id="game" class="game">
@@ -160,19 +192,28 @@ linear-gradient(145deg,rgba(18,28,74,.97),rgba(8,13,41,.97));box-shadow:var(--sh
 (()=> {
   const poolEmoji=['🐯','🚀','🍕','🎸','👑','⚽','🌈','🐘','💎','🍎','🎂','🚗','🐙','⭐','🦄'];
   const poolWords=['tiger','rocket','pizza','guitar','crown','football','rainbow','elephant','diamond','apple','cake','car','octopus','star','unicorn'];
-  let mode='emoji',score=0,streak=0,lives=3,level=1,target=[],selected=new Set(),tick=null;
+  let mode='emoji',score=0,streak=0,lives=3,level=1,target=[],selected=new Set(),tick=null,customPool=[],dailyActive=false;
   try{score=Number(localStorage.getItem('mm-score')||0);streak=Number(localStorage.getItem('mm-streak')||0);level=Math.max(1,Number(localStorage.getItem('mm-level')||1))}catch(_){}
   const $=id=>document.getElementById(id);
   const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
   const save=()=>{try{localStorage.setItem('mm-score',score);localStorage.setItem('mm-streak',streak);localStorage.setItem('mm-level',level)}catch(_){}};
   const sync=()=>{$('scoreTop').textContent=score.toLocaleString();$('streakTop').textContent=streak;$('livesTop').textContent=lives;$('levelTop').textContent=level;save()};
+  function dayKey(){return new Date().toISOString().slice(0,10)}
+  function dailyItems(){
+    const base=[...poolEmoji,...poolWords,'27','48','63','91','focus','music','planet','coffee','school','river'];
+    let seed=0;for(const c of dayKey())seed=(seed*31+c.charCodeAt(0))>>>0;
+    const a=[...base];for(let i=a.length-1;i>0;i--){seed=(seed*1664525+1013904223)>>>0;const j=seed%(i+1);[a[i],a[j]]=[a[j],a[i]]}
+    return a;
+  }
   function itemsForMode(){
+    if(mode==='custom') return shuffle(customPool);
+    if(mode==='daily') return dailyItems();
     if(mode==='emoji') return shuffle(poolEmoji);
     if(mode==='words') return shuffle(poolWords);
     if(mode==='numbers') return shuffle(Array.from({length:20},(_,i)=>String(10+i*4+((i*7)%9))));
     return shuffle([...poolEmoji.slice(0,7),...poolWords.slice(0,7),'27','48','63','91']);
   }
-  function title(){return mode==='words'?'Word Rush':mode==='emoji'?'Emoji Chaos':mode==='numbers'?'Number Ninja':'Mega Mix'}
+  function title(){return mode==='custom'?'My Study Challenge':mode==='daily'?'Daily Challenge':mode==='words'?'Word Rush':mode==='emoji'?'Emoji Chaos':mode==='numbers'?'Number Ninja':'Mega Mix'}
   function start(){
     if(tick)clearInterval(tick);selected.clear();$('result').className='notice';$('choiceArea').style.display='none';
     $('game').classList.add('active');$('gameTitle').textContent=title();$('game').scrollIntoView({behavior:'smooth',block:'start'});
@@ -191,12 +232,26 @@ linear-gradient(145deg,rgba(18,28,74,.97),rgba(8,13,41,.97));box-shadow:var(--sh
   }
   function judge(){
     const hits=target.filter(x=>selected.has(x)).length, perfect=hits===target.length;
-    if(perfect){const earned=500*level;score+=earned;streak++;level=Math.min(10,level+(streak%2===0?1:0));$('result').innerHTML='🏆 <strong>Perfect recall!</strong> You remembered all '+target.length+' items. +'+earned.toLocaleString()+' points.'}
+    if(perfect){let earned=500*level;if(mode==='daily')earned+=750;score+=earned;streak++;level=Math.min(10,level+(streak%2===0?1:0));$('result').innerHTML='🏆 <strong>Perfect recall!</strong> You remembered all '+target.length+' items. +'+earned.toLocaleString()+' points.';if(mode==='daily'){try{localStorage.setItem('mm-daily-'+dayKey(),'done')}catch(_){};$('dailyNotice').textContent='✅ Daily Challenge complete! Your bonus was added.';$('dailyNotice').className='notice show'}}
     else{score+=hits*80;streak=0;if(hits<Math.ceil(target.length*.6))lives=Math.max(0,lives-1);$('result').innerHTML=(hits>=Math.ceil(target.length*.7)?'🔥':'🧠')+' <strong>'+hits+'/'+target.length+' remembered.</strong> Correct set: '+target.join(' ') }
     $('result').className='notice show';sync();if(lives===0)$('result').innerHTML+=' <strong>Brain battery empty — hit Restart for a fresh run.</strong>';
   }
-  document.querySelectorAll('.mode').forEach(b=>b.addEventListener('click',()=>{mode=b.dataset.mode;start()}));
-  $('playHero').addEventListener('click',()=>{mode='emoji';start()});
+  document.querySelectorAll('.mode').forEach(b=>b.addEventListener('click',()=>{dailyActive=false;mode=b.dataset.mode;start()}));
+  $('customPlay').addEventListener('click',()=>{
+    const raw=$('customInput').value.trim();
+    customPool=[...new Set(raw.split(/[,\n;]+/).map(x=>x.trim()).filter(Boolean))].slice(0,40);
+    const n=$('customNotice');
+    if(customPool.length<6){n.textContent='Add at least 6 different items so Memory Mania can build a fair challenge.';n.className='notice show';return}
+    n.textContent='✅ Study deck ready: '+customPool.length+' items.';n.className='notice show';dailyActive=false;mode='custom';start();
+  });
+  $('dailyDate').textContent=new Date().toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'});
+  $('dailyPlay').addEventListener('click',()=>{
+    let done=false;try{done=localStorage.getItem('mm-daily-'+dayKey())==='done'}catch(_){}
+    const n=$('dailyNotice');
+    if(done){n.textContent='✅ Today’s challenge is already complete. Come back tomorrow for a fresh one.';n.className='notice show';return}
+    n.textContent='⚡ Today’s challenge is live. Perfect recall earns a +750 bonus.';n.className='notice show';dailyActive=true;mode='daily';start();
+  });
+  $('playHero').addEventListener('click',()=>{dailyActive=false;mode='emoji';start()});
   $('lockBtn').addEventListener('click',judge);
   $('restartBtn').addEventListener('click',()=>{score=0;streak=0;lives=3;level=1;sync();start()});
   document.querySelectorAll('.planBtn').forEach(b=>b.addEventListener('click',()=>{const n=$('planNotice');n.textContent=b.dataset.plan+' selected. Secure iKhokha checkout will be connected here before premium unlocks.';n.className='notice show'}));
