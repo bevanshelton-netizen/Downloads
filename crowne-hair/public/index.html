@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#140a10">
+<meta name="description" content="CROWNÉ Hair — glamorous wigs, weaves, frontals, closures, ponytails and extensions for every shade, texture and crown.">
+<title>CROWNÉ Hair | Every shade. Every texture. Every crown.</title>
+<link rel="stylesheet" href="./styles.css"><script type="module" src="./app.js"></script>
+</head>
+<body>
+<div class="announcement"><span>✦ GLAMOUR HAS ARRIVED ✦</span><span>Wigs · Weaves · Bundles · Frontals · Closures · Ponytails</span><button class="text-button" id="shareSite">Share the glamour ↗</button></div>
+<header class="site-header">
+<a class="brand" href="#top"><span class="brand-mark">C</span><span class="brand-copy"><strong>CROWNÉ</strong><small>HAIR</small></span></a>
+<button class="menu-toggle" id="menuToggle" aria-expanded="false">Menu</button>
+<nav id="mainNav" class="main-nav"><a href="#showroom">Rotating showroom</a><a href="#shop">Shop hair</a><a href="#textures">Textures</a><a href="#inclusivity">All crowns</a><a href="#concierge">Concierge</a></nav>
+<button class="bag-button" id="openBag">Bag <span id="bagCount">0</span></button>
+</header>
+<main id="top">
+<section class="hero">
+<div class="hero-copy"><p class="eyebrow">LUXURY HAIR. LIMITLESS YOU.</p><h1>Wear the <em>moment.</em><br>Own the room.</h1>
+<p class="hero-lede">A glamorous hair destination celebrating every skin tone, every texture and every expression — from sleek straight to deep curl, protective styles to show-stopping colour.</p>
+<div class="hero-actions"><a class="button button-gold" href="#shop">Shop the collection</a><a class="button button-ghost" href="#showroom">Enter rotating showroom</a></div>
+<div class="hero-proof"><span>Premium collections</span><span>Beginner-friendly options</span><span>Global glamour</span></div></div>
+<div class="hero-visual">
+<figure class="hero-image hero-image-main"><img src="https://images.pexels.com/photos/9167117/pexels-photo-9167117.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Three diverse women posing in a beauty editorial"></figure>
+<figure class="hero-image hero-image-float top"><img src="https://images.pexels.com/photos/9167178/pexels-photo-9167178.jpeg?auto=compress&cs=tinysrgb&w=700" alt="Women celebrating textured natural hair"></figure>
+<figure class="hero-image hero-image-float bottom"><img src="https://images.pexels.com/photos/5901063/pexels-photo-5901063.jpeg?auto=compress&cs=tinysrgb&w=700" alt="Women with contrasting hair colours"></figure>
+<div class="hero-seal"><span>EVERY</span><strong>SKIN TONE</strong><span>EVERY CROWN</span></div></div>
+</section>
+<section class="ticker"><div class="ticker-track"><span>LACE FRONTS ✦</span><span>BOB WIGS ✦</span><span>BODY WAVE ✦</span><span>DEEP CURL ✦</span><span>BUNDLES ✦</span><span>CLIP-INS ✦</span><span>PONYTAILS ✦</span><span>FRONTALS ✦</span><span>LACE FRONTS ✦</span><span>BOB WIGS ✦</span><span>BODY WAVE ✦</span><span>DEEP CURL ✦</span><span>BUNDLES ✦</span><span>CLIP-INS ✦</span><span>PONYTAILS ✦</span><span>FRONTALS ✦</span></div></section>
+<section id="showroom" class="section showroom-section">
+<div class="section-heading"><div><p class="eyebrow">THE ROTATING SHOWROOM</p><h2>See the hair <em>move.</em></h2></div><p>Drag, tap the arrows, or simply watch. The collection rotates automatically so shoppers experience silhouette, texture and drama instead of a flat catalogue.</p></div>
+<div class="showroom-shell"><button class="spin-control prev" id="spinPrev">‹</button><div class="spin-viewport" id="spinViewport"><div class="spin-ring" id="spinRing">
+<article class="spin-card"><img src="https://images.pexels.com/photos/6484129/pexels-photo-6484129.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Curly hair beauty portrait"><div><span>01</span><h3>Velvet Curl</h3><p>Statement volume · soft curl finish</p></div></article>
+<article class="spin-card"><img src="https://images.pexels.com/photos/15868319/pexels-photo-15868319.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Woman trying different wigs"><div><span>02</span><h3>Bombshell Body</h3><p>Flowing body wave · high glamour</p></div></article>
+<article class="spin-card"><img src="https://images.pexels.com/photos/13439624/pexels-photo-13439624.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Wigs in multiple styles and colours"><div><span>03</span><h3>The Wig Vault</h3><p>Lengths · colours · cuts · textures</p></div></article>
+<article class="spin-card"><img src="https://images.pexels.com/photos/14730867/pexels-photo-14730867.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Hair extension bundles"><div><span>04</span><h3>Bundle Bar</h3><p>Mix, match and build your look</p></div></article>
+<article class="spin-card"><img src="https://images.pexels.com/photos/5254288/pexels-photo-5254288.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Diverse women with textured hair"><div><span>05</span><h3>Texture Edit</h3><p>Coils · curls · waves · sleek</p></div></article>
+</div></div><button class="spin-control next" id="spinNext">›</button><div class="spin-status"><span class="pulse"></span> Auto-rotating · touch to explore</div></div>
+</section>
+<section id="shop" class="section shop-section"><div class="section-heading"><div><p class="eyebrow">SHOP THE CROWN ROOM</p><h2>Choose your <em>energy.</em></h2></div><p>Launch catalogue pricing is shown as a merchandising guide and can be edited before payment activation.</p></div><div class="filters" id="filters"></div><div class="product-grid" id="productGrid"></div></section>
+<section id="textures" class="texture-section"><div class="texture-copy"><p class="eyebrow">TEXTURE IS THE LUXURY</p><h2>From silk to coil,<br><em>never one-size-fits-all.</em></h2><p>Shop by mood, maintenance level and finish. CROWNÉ is designed to make texture visible, celebrated and easy to discover.</p></div><div class="texture-list"><article><strong>01</strong><span>Straight & sleek</span><small>Glossy, polished, effortless</small></article><article><strong>02</strong><span>Body & loose wave</span><small>Soft movement, red-carpet energy</small></article><article><strong>03</strong><span>Deep curl</span><small>Defined glamour with bounce</small></article><article><strong>04</strong><span>Coily & kinky</span><small>Rich texture, natural-looking fullness</small></article></div></section>
+<section id="inclusivity" class="section inclusivity-section"><div class="inclusivity-photo"><img src="https://images.pexels.com/photos/29096366/pexels-photo-29096366.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Hair stylist working with diverse models"></div><div class="inclusivity-copy"><p class="eyebrow">BEAUTY WITHOUT A SHADE CHART</p><h2>Made to look glorious on <em>everyone.</em></h2><p>Our art direction deliberately features light, medium, olive, brown and deep skin tones, while the catalogue spans natural blacks and browns through blonde, copper, burgundy and fashion colour.</p><div class="tone-row"><span style="--tone:#f4d7c4"></span><span style="--tone:#dfb08e"></span><span style="--tone:#bd815c"></span><span style="--tone:#915b3b"></span><span style="--tone:#653b28"></span><span style="--tone:#3d241d"></span></div><a class="button button-gold" href="#shop">Find your next crown</a></div></section>
+<section id="concierge" class="concierge-section"><p class="eyebrow">CROWNÉ CONCIERGE</p><h2>Not sure what to wear?</h2><p>Tell us your preferred length, texture, colour, budget and how much styling you want to do. The store is ready for a guided hair-match flow as the catalogue expands.</p><div class="quiz-row"><button class="quiz-chip" data-answer="Beginner friendly">Beginner friendly</button><button class="quiz-chip" data-answer="Maximum glamour">Maximum glamour</button><button class="quiz-chip" data-answer="Protective style">Protective style</button><button class="quiz-chip" data-answer="Everyday luxury">Everyday luxury</button></div><p class="quiz-result" id="quizResult"></p></section>
+</main>
+<footer><div class="brand footer-brand"><span class="brand-mark">C</span><span class="brand-copy"><strong>CROWNÉ</strong><small>HAIR</small></span></div><p>Every shade. Every texture. Every crown.</p><p class="legal">CROWNÉ Hair is a launch brand concept. Product specifications, stock, delivery terms and final prices must be confirmed before taking customer payment.</p></footer>
+<aside class="bag-drawer" id="bagDrawer" aria-hidden="true"><div class="bag-head"><div><p class="eyebrow">YOUR CROWN ROOM</p><h2>Shopping bag</h2></div><button id="closeBag">×</button></div><div id="bagItems" class="bag-items"></div><div class="bag-foot"><div class="bag-total"><span>Estimated total</span><strong id="bagTotal">R0</strong></div><p id="paymentNote" class="payment-note">Checking secure checkout…</p><button id="checkoutButton" class="button button-gold full">Secure checkout</button></div></aside><div class="scrim" id="scrim"></div>
+</body></html>
