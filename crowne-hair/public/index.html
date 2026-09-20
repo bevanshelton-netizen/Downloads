@@ -17,7 +17,19 @@
 </header>
 <main id="top">
 <section class="landing-hero" aria-label="CROWNÉ Hair by Netty">
-  <img src="./crowne-approved-landing-hero.webp" alt="CROWNÉ Hair by Netty black and gold crowned logo in a luxury salon setting">
+  <div class="landing-fallback" aria-hidden="true">
+    <div class="landing-fallback-crown">♛</div>
+    <div class="landing-fallback-mark">C</div>
+    <strong>CROWNÉ HAIR</strong>
+    <span>BY NETTY</span>
+    <small>EVERY SHADE · EVERY TEXTURE · EVERY CROWN</small>
+  </div>
+  <img src="./crowne-approved-landing-hero.webp"
+       width="700" height="394"
+       loading="eager" fetchpriority="high" decoding="async"
+       alt="CROWNÉ Hair by Netty black and gold crowned logo in a luxury salon setting"
+       onload="this.closest('.landing-hero').classList.add('hero-loaded')"
+       onerror="this.closest('.landing-hero').classList.add('hero-fallback')">
 </section>
 <section class="ticker"><div class="ticker-track"><span>LACE FRONTS ✦</span><span>BOB WIGS ✦</span><span>BODY WAVE ✦</span><span>DEEP CURL ✦</span><span>VIETNAMESE BUNDLES ✦</span><span>BRAZILIAN BUNDLES ✦</span><span>PERUVIAN BUNDLES ✦</span><span>8–32 INCH ✦</span><span>BUNDLES ✦</span><span>CLIP-INS ✦</span><span>PONYTAILS ✦</span><span>FRONTALS ✦</span><span>LACE FRONTS ✦</span><span>BOB WIGS ✦</span><span>BODY WAVE ✦</span><span>DEEP CURL ✦</span><span>BUNDLES ✦</span><span>CLIP-INS ✦</span><span>PONYTAILS ✦</span><span>FRONTALS ✦</span></div></section>
 <section id="showroom" class="section showroom-section">
