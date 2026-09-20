@@ -19,7 +19,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          PAGE="https://bevanshelton-netizen.github.io/Downloads/revenue/"
+          PAGE="https://bevanshelton-netizen.github.io/Downloads/revenue.html"
           TRACK="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-revenue"
 
           ok=0
