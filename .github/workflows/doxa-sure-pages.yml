@@ -94,7 +94,7 @@ jobs:
                curl -fsSL -o /tmp/contractors.html "$CONTRACTORS" &&
                curl -fsSL -o /tmp/portfolio.html "$PORTFOLIO" &&
                curl -fsSL -o /tmp/launch.html "$LAUNCH" &&
-               grep -q 'IZAKHONO REVENUE SPRINT' /tmp/revenue.html &&
+               grep -q 'IZAKHONO Revenue Sprint' /tmp/revenue.html &&
                grep -q 'Built enough.' /tmp/revenue.html &&
                grep -q 'IZAKHONO ONE' /tmp/one.html &&
                grep -q 'FREE 3-MINUTE BUSINESS HEALTH CHECK' /tmp/health.html &&
