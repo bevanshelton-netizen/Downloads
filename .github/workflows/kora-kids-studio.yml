@@ -1,0 +1,68 @@
+name: KORA KIDS Animation Factory
+
+on:
+  push:
+    paths:
+      - "kora-kids-studio/**"
+      - "owner-host/START-KORA-KIDS-STUDIO.ps1"
+      - "START-KORA-KIDS-STUDIO.cmd"
+      - ".github/workflows/kora-kids-studio.yml"
+  pull_request:
+    paths:
+      - "kora-kids-studio/**"
+      - "owner-host/START-KORA-KIDS-STUDIO.ps1"
+      - "START-KORA-KIDS-STUDIO.cmd"
+      - ".github/workflows/kora-kids-studio.yml"
+
+jobs:
+  studio-health:
+    runs-on: ubuntu-latest
+    env:
+      HOME: ${{ runner.temp }}/home
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Validate studio runtime
+        run: node --check kora-kids-studio/server.mjs
+      - name: Validate original rigs and render policy
+        run: |
+          grep -q '<svg' kora-kids-studio/rigs/tumi.svg
+          grep -q '<svg' kora-kids-studio/rigs/tala.svg
+          grep -q '<svg' kora-kids-studio/rigs/piko.svg
+          grep -q '<svg' kora-kids-studio/rigs/busi-bus.svg
+          node -e 'const x=require("./kora-kids-studio/config/render-targets.json"); const p=x.targets.find(t=>t.id==="izakhono-local"); const e=x.targets.find(t=>t.id==="external-burst"); if(!p?.enabled||!p?.authoritative||e?.enabled) process.exit(2)'
+      - name: Start private studio
+        run: |
+          mkdir -p "$HOME"
+          node kora-kids-studio/server.mjs >/tmp/kora-studio.log 2>&1 &
+          echo $! >/tmp/kora-studio.pid
+      - name: Verify health, job creation and review gates
+        run: |
+          for i in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:8890/health >/tmp/health.json && break
+            sleep 1
+          done
+          node -e 'const x=require("/tmp/health.json"); if(x.ok!==true||x.service!=="kora-kids-studio"||x.public!==false) process.exit(2)'
+          curl -fsS http://127.0.0.1:8890/api/catalog >/tmp/catalog.json
+          node -e 'const x=require("/tmp/catalog.json"); if(x.season.episodes.length!==10||x.languages.default!=="en-ZA") process.exit(2)'
+          node <<'NODE'
+          const base="http://127.0.0.1:8890";
+          const headers={"content-type":"application/json"};
+          const create=await fetch(base+"/api/jobs",{method:"POST",headers,body:JSON.stringify({episodeSlug:"good-morning-rainbow-town",language:"en-ZA",renderTarget:"izakhono-local"})});
+          if(create.status!==201) process.exit(2);
+          let {job}=await create.json();
+          for(const gate of ["script","language","childSafety","brand","final"]){
+            const r=await fetch(base+"/api/jobs/"+job.id+"/review",{method:"POST",headers,body:JSON.stringify({gate,approved:true})});
+            if(!r.ok) process.exit(3);
+            job=(await r.json()).job;
+          }
+          if(job.publishable!==true||job.status!=="approved") process.exit(4);
+          const blocked=await fetch(base+"/api/jobs",{method:"POST",headers,body:JSON.stringify({episodeSlug:"good-morning-rainbow-town",language:"zu-ZA",renderTarget:"izakhono-local"})});
+          if(blocked.status!==409) process.exit(5);
+          NODE
+      - name: Stop studio
+        if: always()
+        run: |
+          test ! -f /tmp/kora-studio.pid || kill "$(cat /tmp/kora-studio.pid)" || true
