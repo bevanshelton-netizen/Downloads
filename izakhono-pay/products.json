@@ -6,33 +6,101 @@
       "display_name": "FAISReady",
       "callback_url": "",
       "products": {
-        "re5": {"name": "RE5 Complete Prep", "amount_minor": 29900, "currency": "ZAR", "entitlement": {"days": 90}},
-        "re1": {"name": "RE1 Complete Prep", "amount_minor": 39900, "currency": "ZAR", "entitlement": {"days": 90}},
-        "combo": {"name": "RE5 + RE1 Complete Prep", "amount_minor": 54900, "currency": "ZAR", "entitlement": {"days": 120}}
+        "re5": {
+          "name": "RE5 Complete Prep",
+          "amount_minor": 29900,
+          "currency": "ZAR",
+          "entitlement": {
+            "days": 90
+          }
+        },
+        "re1": {
+          "name": "RE1 Complete Prep",
+          "amount_minor": 39900,
+          "currency": "ZAR",
+          "entitlement": {
+            "days": 90
+          }
+        },
+        "combo": {
+          "name": "RE5 + RE1 Complete Prep",
+          "amount_minor": 54900,
+          "currency": "ZAR",
+          "entitlement": {
+            "days": 120
+          }
+        }
       }
     },
     "edubuild-ecd360": {
       "display_name": "Edu-Build Institute – Shelton Campuses",
       "callback_url": "",
       "products": {
-        "ecd-nqf4": {"name": "ECD NQF Level 4", "amount_minor": 1300000, "currency": "ZAR", "entitlement": {"kind": "course", "course": "ecd-nqf4"}},
-        "ecd-nqf5": {"name": "ECD NQF Level 5", "amount_minor": 1500000, "currency": "ZAR", "entitlement": {"kind": "course", "course": "ecd-nqf5"}}
+        "ecd-nqf4": {
+          "name": "ECD NQF Level 4",
+          "amount_minor": 1300000,
+          "currency": "ZAR",
+          "entitlement": {
+            "kind": "course",
+            "course": "ecd-nqf4"
+          }
+        },
+        "ecd-nqf5": {
+          "name": "ECD NQF Level 5",
+          "amount_minor": 1500000,
+          "currency": "ZAR",
+          "entitlement": {
+            "kind": "course",
+            "course": "ecd-nqf5"
+          }
+        }
       }
     },
     "studypal-welearn": {
       "display_name": "StudyPal / WeLearn",
       "callback_url": "",
       "products": {
-        "monthly": {"name": "AI Learning Monthly Access", "amount_minor": 9900, "currency": "ZAR", "entitlement": {"days": 30}}
+        "monthly": {
+          "name": "AI Learning Monthly Access",
+          "amount_minor": 9900,
+          "currency": "ZAR",
+          "entitlement": {
+            "days": 30
+          }
+        }
       }
     },
     "auto-ai": {
       "display_name": "AUTO AI",
       "callback_url": "",
       "products": {
-        "vehicle-health-report": {"name": "Vehicle Health Report", "amount_minor": 7900, "currency": "ZAR", "entitlement": {"kind": "service", "service": "vehicle-health-report"}},
-        "repair-second-opinion": {"name": "Repair Quote Second Opinion", "amount_minor": 9900, "currency": "ZAR", "entitlement": {"kind": "service", "service": "repair-second-opinion"}},
-        "used-car-buyer-check": {"name": "Used-Car Buyer Check", "amount_minor": 14900, "currency": "ZAR", "entitlement": {"kind": "service", "service": "used-car-buyer-check"}}
+        "vehicle-health-report": {
+          "name": "Vehicle Health Report",
+          "amount_minor": 7900,
+          "currency": "ZAR",
+          "entitlement": {
+            "kind": "service",
+            "service": "vehicle-health-report"
+          }
+        },
+        "repair-second-opinion": {
+          "name": "Repair Quote Second Opinion",
+          "amount_minor": 9900,
+          "currency": "ZAR",
+          "entitlement": {
+            "kind": "service",
+            "service": "repair-second-opinion"
+          }
+        },
+        "used-car-buyer-check": {
+          "name": "Used-Car Buyer Check",
+          "amount_minor": 14900,
+          "currency": "ZAR",
+          "entitlement": {
+            "kind": "service",
+            "service": "used-car-buyer-check"
+          }
+        }
       }
     },
     "doxa-sure": {
@@ -43,7 +111,10 @@
           "name": "Rescue Readiness Pack",
           "amount_minor": 19900,
           "currency": "ZAR",
-          "entitlement": {"kind": "service", "service": "rescue-readiness-pack"}
+          "entitlement": {
+            "kind": "service",
+            "service": "rescue-readiness-pack"
+          }
         }
       }
     },
@@ -66,6 +137,84 @@
       "display_name": "The Chancellor",
       "callback_url": "",
       "products": {}
+    },
+    "crowne-hair": {
+      "display_name": "CROWNÉ Hair",
+      "callback_url": "",
+      "products": {
+        "velvet-curl": {
+          "name": "Velvet Curl",
+          "amount_minor": 189900,
+          "currency": "ZAR",
+          "entitlement": {
+            "kind": "physical-goods",
+            "fulfilment": "manual"
+          }
+        },
+        "bombshell-body": {
+          "name": "Bombshell Body",
+          "amount_minor": 219900,
+          "currency": "ZAR",
+          "entitlement": {
+            "kind": "physical-goods",
+            "fulfilment": "manual"
+          }
+        },
+        "signature-bundles": {
+          "name": "Signature Bundles",
+          "amount_minor": 69900,
+          "currency": "ZAR",
+          "entitlement": {
+            "kind": "physical-goods",
+            "fulfilment": "manual"
+          }
+        },
+        "after-dark-bob": {
+          "name": "After-Dark Bob",
+          "amount_minor": 149900,
+          "currency": "ZAR",
+          "entitlement": {
+            "kind": "physical-goods",
+            "fulfilment": "manual"
+          }
+        },
+        "melted-closure": {
+          "name": "Melted Closure",
+          "amount_minor": 74900,
+          "currency": "ZAR",
+          "entitlement": {
+            "kind": "physical-goods",
+            "fulfilment": "manual"
+          }
+        },
+        "spotlight-frontal": {
+          "name": "Spotlight Frontal",
+          "amount_minor": 99900,
+          "currency": "ZAR",
+          "entitlement": {
+            "kind": "physical-goods",
+            "fulfilment": "manual"
+          }
+        },
+        "power-pony": {
+          "name": "Power Pony",
+          "amount_minor": 59900,
+          "currency": "ZAR",
+          "entitlement": {
+            "kind": "physical-goods",
+            "fulfilment": "manual"
+          }
+        },
+        "texture-edit": {
+          "name": "Texture Edit",
+          "amount_minor": 64900,
+          "currency": "ZAR",
+          "entitlement": {
+            "kind": "physical-goods",
+            "fulfilment": "manual"
+          }
+        }
+      }
     }
   }
-}
+}\n
