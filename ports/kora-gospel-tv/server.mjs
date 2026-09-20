@@ -9,6 +9,7 @@ const PORT = Number(process.env.PORT || 8080);
 const ROOT = resolve(fileURLToPath(new URL("./", import.meta.url)));
 const DATA_DIR = process.env.GOSPEL_TV_DATA_DIR || "/var/lib/izakhono-runtime/data/kora-gospel-tv";
 const LIVE_EMBED_URL = process.env.GOSPEL_TV_LIVE_EMBED_URL || "";
+const CONTROL_TOKEN = String(process.env.GOSPEL_TV_CONTROL_TOKEN || "").trim();
 
 const types = {
   ".html":"text/html; charset=utf-8",".css":"text/css; charset=utf-8",".js":"text/javascript; charset=utf-8",
@@ -52,6 +53,44 @@ function validEmbed(url){
   if(!url) return "";
   try{const u=new URL(url);if(u.protocol!=="https:") return "";return u.toString()}catch{return ""}
 }
+function controlAuthorized(req){
+  if(CONTROL_TOKEN.length<24) return false;
+  const header=String(req.headers.authorization||"");
+  if(!header.startsWith("Bearer ")) return false;
+  const supplied=header.slice(7).trim();
+  const a=Buffer.from(CONTROL_TOKEN);
+  const b=Buffer.from(supplied);
+  return a.length===b.length && crypto.timingSafeEqual(a,b);
+}
+async function readSubmissionRecords(limit=100){
+  try{
+    const raw=await readFile(join(DATA_DIR,"submissions.ndjson"),"utf8");
+    return raw.trim().split("\n").filter(Boolean).slice(-Math.max(1,Math.min(limit,200))).reverse().map(line=>{
+      try{return JSON.parse(line)}catch{return null}
+    }).filter(Boolean);
+  }catch{return []}
+}
+async function controlStatus(){
+  const records=await readSubmissionRecords(200);
+  const counts=records.reduce((acc,row)=>{acc[row.category]=(acc[row.category]||0)+1;return acc},{});
+  return {
+    ok:true,
+    service:"kora-gospel-tv-control",
+    runtime:"izakhono-owned",
+    channel:{mode:validEmbed(LIVE_EMBED_URL)?"live-feed":"launch-mode",live_feed_configured:Boolean(validEmbed(LIVE_EMBED_URL))},
+    queues:{content:counts.content||0,partner:counts.partner||0,prayer:counts.prayer||0,total:records.length},
+    regions:[
+      {id:"africa",name:"Africa",status:"launch-region"},
+      {id:"europe",name:"Europe",status:"distribution-ready"},
+      {id:"north-america",name:"North America",status:"distribution-ready"},
+      {id:"latin-america",name:"Latin America & Caribbean",status:"distribution-ready"},
+      {id:"asia-pacific",name:"Asia-Pacific",status:"distribution-ready"},
+      {id:"middle-east",name:"Middle East",status:"review-required"}
+    ],
+    priority_languages:["English","French","Portuguese","Spanish","Swahili","isiZulu","isiXhosa"],
+    controls:{write_actions:false,note:"Read-only owner control foundation. Broadcast write actions require a separate audited control path."}
+  };
+}
 async function saveSubmission(data,req){
   await mkdir(DATA_DIR,{recursive:true});
   const reference="KGT-"+new Date().toISOString().slice(0,10).replaceAll("-","")+"-"+crypto.randomBytes(3).toString("hex").toUpperCase();
@@ -87,6 +126,19 @@ createServer(async (req,res)=>{
         ]
       }
     },{"access-control-allow-origin":"*"});
+  }
+
+  if(url.pathname==="/api/control/status" && req.method==="GET"){
+    if(CONTROL_TOKEN.length<24) return json(res,503,{error:"Owner control room is not enabled on this runtime."});
+    if(!controlAuthorized(req)) return json(res,401,{error:"Owner authorization required."},{"www-authenticate":"Bearer"});
+    return json(res,200,await controlStatus());
+  }
+
+  if(url.pathname==="/api/control/submissions" && req.method==="GET"){
+    if(CONTROL_TOKEN.length<24) return json(res,503,{error:"Owner control room is not enabled on this runtime."});
+    if(!controlAuthorized(req)) return json(res,401,{error:"Owner authorization required."},{"www-authenticate":"Bearer"});
+    const limit=Math.max(1,Math.min(Number(url.searchParams.get("limit")||50),100));
+    return json(res,200,{ok:true,records:await readSubmissionRecords(limit)});
   }
 
   if(url.pathname==="/api/submissions" && req.method==="POST"){
