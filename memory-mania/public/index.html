@@ -26,6 +26,16 @@ background-size:54px 54px,87px 87px;background-position:0 0,19px 21px;mask-image
 button,a{font:inherit}.shell{max-width:1180px;margin:auto;padding:18px}.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0 16px;background:linear-gradient(180deg,rgba(7,7,19,.95),rgba(7,7,19,.68),transparent);backdrop-filter:blur(10px)}
 .brand-mini{display:flex;align-items:center;gap:10px;font-family:"Bungee",sans-serif;font-size:16px;letter-spacing:.03em}.brain-dot{width:36px;height:36px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(145deg,#ff6aa8,#ff86d8);box-shadow:0 0 22px rgba(255,85,198,.35)}
 .share{border:1px solid var(--line);background:linear-gradient(145deg,#141d42,#0f1735);color:#fff;border-radius:15px;padding:11px 15px;cursor:pointer;font-weight:900;box-shadow:inset 0 1px rgba(255,255,255,.08)}
+.share-sheet{position:fixed;inset:0;z-index:60;display:none;align-items:end;justify-content:center;padding:14px;background:rgba(2,4,14,.72);backdrop-filter:blur(8px)}
+.share-sheet.show{display:flex}
+.share-panel{width:min(680px,100%);border:1px solid rgba(104,151,255,.34);border-radius:28px;background:linear-gradient(160deg,#121b40,#0a1028);padding:20px;box-shadow:0 28px 80px rgba(0,0,0,.55),inset 0 1px rgba(255,255,255,.08)}
+.share-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.share-head h3{margin:0;font-family:"Bungee",sans-serif;font-size:22px}
+.share-close{width:40px;height:40px;border-radius:14px;border:1px solid var(--line);background:#101834;color:#fff;cursor:pointer;font-size:21px}
+.share-copy{margin:8px 0 16px;color:#becaf0;line-height:1.5}
+.share-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.share-option{display:flex;min-height:86px;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:1px solid rgba(112,148,255,.22);border-radius:18px;background:rgba(255,255,255,.035);color:#fff;text-decoration:none;cursor:pointer;font-weight:900;text-align:center}
+.share-option:hover{background:rgba(255,255,255,.07)}.share-option span{font-size:27px}.share-option small{color:#aebce4;font-weight:800}
+.share-status{display:none;margin-top:12px;padding:10px 12px;border-radius:14px;background:rgba(76,236,255,.08);border:1px solid rgba(76,236,255,.2);color:#d8fbff;font-size:13px}.share-status.show{display:block}
 .hero{position:relative;overflow:hidden;border:1px solid rgba(101,137,255,.35);border-radius:34px;padding:clamp(22px,4vw,50px);background:
 linear-gradient(145deg,rgba(18,28,74,.97),rgba(8,13,41,.97));box-shadow:var(--shadow),inset 0 1px rgba(255,255,255,.08)}
 .hero:before{content:"";position:absolute;width:520px;height:520px;right:-170px;top:-210px;border-radius:50%;background:radial-gradient(circle,rgba(76,236,255,.25),rgba(142,77,255,.16) 35%,transparent 70%);filter:blur(3px)}
@@ -62,7 +72,7 @@ linear-gradient(145deg,rgba(18,28,74,.97),rgba(8,13,41,.97));box-shadow:var(--sh
 .mobile-nav{display:none}
 @media(max-width:900px){.hero-grid{grid-template-columns:1fr}.mascot-wrap{min-height:245px}.stats{grid-template-columns:repeat(2,1fr)}.modes{grid-template-columns:repeat(2,1fr)}.game-cards,.choice-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:900px){.tool-grid{grid-template-columns:1fr}}
-@media(max-width:600px){.shell{padding:12px}.topbar{padding-top:4px}.hero{border-radius:26px;padding:21px 17px}.logo{font-size:52px}.subtitle{font-size:13px}.lead{font-size:15px}.mascot-wrap{min-height:220px}.mascot{width:250px}.modes,.plan-grid,.community{grid-template-columns:1fr}.mode{min-height:165px}.mode h3{margin-top:18px}.stats{grid-template-columns:repeat(2,1fr)}.game-cards,.choice-grid{grid-template-columns:repeat(2,1fr)}.team{align-items:flex-start}.section h2{font-size:27px}.mobile-nav{position:fixed;z-index:30;display:grid;grid-template-columns:repeat(4,1fr);left:10px;right:10px;bottom:10px;padding:8px;border:1px solid rgba(102,139,255,.3);border-radius:20px;background:rgba(9,13,30,.91);backdrop-filter:blur(15px);box-shadow:0 16px 50px rgba(0,0,0,.45)}.mobile-nav a{color:#aebce4;text-decoration:none;text-align:center;font-size:11px;font-weight:900}.mobile-nav span{display:block;font-size:21px}.mobile-nav a:first-child{color:var(--cyan)}}
+@media(max-width:600px){.share-grid{grid-template-columns:repeat(2,1fr)}.shell{padding:12px}.topbar{padding-top:4px}.hero{border-radius:26px;padding:21px 17px}.logo{font-size:52px}.subtitle{font-size:13px}.lead{font-size:15px}.mascot-wrap{min-height:220px}.mascot{width:250px}.modes,.plan-grid,.community{grid-template-columns:1fr}.mode{min-height:165px}.mode h3{margin-top:18px}.stats{grid-template-columns:repeat(2,1fr)}.game-cards,.choice-grid{grid-template-columns:repeat(2,1fr)}.team{align-items:flex-start}.section h2{font-size:27px}.mobile-nav{position:fixed;z-index:30;display:grid;grid-template-columns:repeat(4,1fr);left:10px;right:10px;bottom:10px;padding:8px;border:1px solid rgba(102,139,255,.3);border-radius:20px;background:rgba(9,13,30,.91);backdrop-filter:blur(15px);box-shadow:0 16px 50px rgba(0,0,0,.45)}.mobile-nav a{color:#aebce4;text-decoration:none;text-align:center;font-size:11px;font-weight:900}.mobile-nav span{display:block;font-size:21px}.mobile-nav a:first-child{color:var(--cyan)}}
 </style>
 </head>
 <body>
@@ -181,6 +191,27 @@ linear-gradient(145deg,rgba(18,28,74,.97),rgba(8,13,41,.97));box-shadow:var(--sh
   <div class="footer">Memory Mania™ • Train smarter • Play daily • Public Beta</div>
 </main>
 
+<div id="shareSheet" class="share-sheet" aria-hidden="true">
+  <div class="share-panel" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
+    <div class="share-head">
+      <div><div class="eyebrow">SHARE EVERYWHERE</div><h3 id="shareTitle">Spread Memory Mania</h3></div>
+      <button id="shareClose" class="share-close" type="button" aria-label="Close share menu">×</button>
+    </div>
+    <p class="share-copy">Send friends straight into the game. Each platform gets its own tracked campaign link.</p>
+    <div class="share-grid">
+      <a id="shareWhatsApp" class="share-option" target="_blank" rel="noopener"><span>🟢</span>WhatsApp<small>Message & Status</small></a>
+      <a id="shareFacebook" class="share-option" target="_blank" rel="noopener"><span>🔵</span>Facebook<small>Feed & Groups</small></a>
+      <a id="shareX" class="share-option" target="_blank" rel="noopener"><span>✕</span>X<small>Post</small></a>
+      <a id="shareLinkedIn" class="share-option" target="_blank" rel="noopener"><span>💼</span>LinkedIn<small>Network</small></a>
+      <a id="shareTelegram" class="share-option" target="_blank" rel="noopener"><span>✈️</span>Telegram<small>Chats & Channels</small></a>
+      <a id="shareEmail" class="share-option"><span>✉️</span>Email<small>Send invite</small></a>
+      <button id="shareNative" class="share-option" type="button"><span>📲</span>More apps<small>Phone share sheet</small></button>
+      <button id="shareCopy" class="share-option" type="button"><span>🔗</span>Copy link<small>Tracked URL</small></button>
+    </div>
+    <div id="shareStatus" class="share-status"></div>
+  </div>
+</div>
+
 <nav class="mobile-nav" aria-label="Mobile navigation">
   <a href="#home"><span>⌂</span>Home</a>
   <a href="#games"><span>🎮</span>Games</a>
@@ -255,7 +286,35 @@ linear-gradient(145deg,rgba(18,28,74,.97),rgba(8,13,41,.97));box-shadow:var(--sh
   $('lockBtn').addEventListener('click',judge);
   $('restartBtn').addEventListener('click',()=>{score=0;streak=0;lives=3;level=1;sync();start()});
   document.querySelectorAll('.planBtn').forEach(b=>b.addEventListener('click',()=>{const n=$('planNotice');n.textContent=b.dataset.plan+' selected. Secure iKhokha checkout will be connected here before premium unlocks.';n.className='notice show'}));
-  $('shareBtn').addEventListener('click',async()=>{const data={title:'Memory Mania — Brain Battle',text:'Try Memory Mania — train your memory through quick, colourful challenges.',url:location.href};try{if(navigator.share)await navigator.share(data);else prompt('Copy this link:',location.href)}catch(_){}});
+  const baseShare='https://bevanshelton-netizen.github.io/Downloads/memory-mania/';
+  const shareText='🧠 Think your memory is sharp? Try Memory Mania — quick brain battles, daily challenges and your own study material turned into a game. 🎮';
+  const campaignUrl=platform=>baseShare+'?utm_source='+encodeURIComponent(platform)+'&utm_medium=social&utm_campaign=memory_mania_launch';
+  const sheet=$('shareSheet'),status=$('shareStatus');
+  function openShare(){
+    const wa=campaignUrl('whatsapp'),fb=campaignUrl('facebook'),xx=campaignUrl('x'),li=campaignUrl('linkedin'),tg=campaignUrl('telegram'),em=campaignUrl('email');
+    $('shareWhatsApp').href='https://wa.me/?text='+encodeURIComponent(shareText+' '+wa);
+    $('shareFacebook').href='https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(fb);
+    $('shareX').href='https://twitter.com/intent/tweet?text='+encodeURIComponent(shareText)+'&url='+encodeURIComponent(xx);
+    $('shareLinkedIn').href='https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(li);
+    $('shareTelegram').href='https://t.me/share/url?url='+encodeURIComponent(tg)+'&text='+encodeURIComponent(shareText);
+    $('shareEmail').href='mailto:?subject='+encodeURIComponent('Try Memory Mania — Brain Battle')+'&body='+encodeURIComponent(shareText+'\n\n'+em);
+    status.className='share-status';sheet.classList.add('show');sheet.setAttribute('aria-hidden','false');
+  }
+  function closeShare(){sheet.classList.remove('show');sheet.setAttribute('aria-hidden','true')}
+  $('shareBtn').addEventListener('click',openShare);
+  $('shareClose').addEventListener('click',closeShare);
+  sheet.addEventListener('click',e=>{if(e.target===sheet)closeShare()});
+  $('shareNative').addEventListener('click',async()=>{
+    const url=campaignUrl('native_share');
+    try{if(navigator.share){await navigator.share({title:'Memory Mania — Brain Battle',text:shareText,url});status.textContent='✅ Share sheet opened.';status.className='share-status show'}else throw new Error('unsupported')}
+    catch(e){if(e && e.name==='AbortError')return;status.textContent='Use Copy Link below — your browser does not expose a native share sheet.';status.className='share-status show'}
+  });
+  $('shareCopy').addEventListener('click',async()=>{
+    const url=campaignUrl('copy_link');
+    try{await navigator.clipboard.writeText(url);status.textContent='✅ Tracked Memory Mania link copied.'}
+    catch(_){status.textContent='Copy this link: '+url}
+    status.className='share-status show';
+  });
   sync();
 })();
 </script>
