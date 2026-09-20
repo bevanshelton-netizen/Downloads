@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350" role="img" aria-labelledby="t d">
+<title id="t">Learner Driver SA advert</title><desc id="d">Prepare for your South African learner's licence with motorcycles, Code 08, Code 10 and Code 14, mock tests, road signs, simulators and 12 official languages.</desc>
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#061b38"/><stop offset=".55" stop-color="#0b4f6c"/><stop offset="1" stop-color="#0d7b58"/></linearGradient>
+ <linearGradient id="gold" x1="0" x2="1"><stop stop-color="#ffd51f"/><stop offset="1" stop-color="#ff9d00"/></linearGradient>
+ <linearGradient id="green" x1="0" x2="1"><stop stop-color="#28e39a"/><stop offset="1" stop-color="#0abf6a"/></linearGradient>
+ <filter id="shadow"><feDropShadow dx="0" dy="12" stdDeviation="16" flood-opacity=".35"/></filter>
+</defs>
+<rect width="1080" height="1350" fill="url(#bg)"/>
+<path d="M0 0h360L0 170z" fill="#e53935"/><path d="M0 45h300L0 185z" fill="#fff"/><path d="M0 70h250L0 190z" fill="#1f9c5b"/>
+<path d="M1080 1180L760 1350h320z" fill="#e53935"/><path d="M1080 1140L700 1350h120l260-145z" fill="#ffd51f"/><path d="M1080 1098L635 1350h120l325-184z" fill="#1f9c5b"/>
+<g filter="url(#shadow)">
+ <rect x="60" y="72" width="126" height="126" rx="24" fill="#fff"/><text x="123" y="165" text-anchor="middle" font-size="92" font-family="Arial Black,Arial" fill="#e32636">L</text>
+</g>
+<text x="215" y="125" font-size="61" font-family="Arial Black,Arial" fill="#fff">LEARNER</text>
+<text x="215" y="188" font-size="61" font-family="Arial Black,Arial" fill="#fff">DRIVER <tspan fill="#23e18f">SA</tspan></text>
+<text x="215" y="226" font-size="24" font-family="Arial,sans-serif" font-weight="700" fill="#cfe7f2">LEARN TODAY. DRIVE TOMORROW.</text>
+
+<text x="540" y="355" text-anchor="middle" font-size="68" font-family="Arial Black,Arial" fill="#fff">GET READY FOR YOUR</text>
+<rect x="118" y="385" width="844" height="104" rx="16" fill="url(#gold)" transform="rotate(-1 540 437)"/>
+<text x="540" y="460" text-anchor="middle" font-size="64" font-family="Arial Black,Arial" fill="#061525">LEARNER'S LICENCE!</text>
+<text x="540" y="525" text-anchor="middle" font-size="31" font-family="Arial,sans-serif" font-weight="700" fill="#e9f7ff">Study • Practise • Test yourself • Build confidence</text>
+
+<g font-family="Arial Black,Arial" text-anchor="middle">
+ <g transform="translate(145 610)"><circle r="78" fill="#19b867"/><text y="14" font-size="70">🏍</text><text y="118" font-size="25" fill="#fff">MOTORCYCLES</text></g>
+ <g transform="translate(405 610)"><circle r="78" fill="#198bdb"/><text y="14" font-size="70">🚗</text><text y="118" font-size="25" fill="#fff">CODE 08</text></g>
+ <g transform="translate(675 610)"><circle r="78" fill="#f0a316"/><text y="14" font-size="70">🚚</text><text y="118" font-size="25" fill="#fff">CODE 10</text></g>
+ <g transform="translate(935 610)"><circle r="78" fill="#e94135"/><text y="14" font-size="70">🚛</text><text y="118" font-size="25" fill="#fff">CODE 14</text></g>
+</g>
+
+<rect x="65" y="780" width="950" height="250" rx="34" fill="#fff" opacity=".97"/>
+<g font-family="Arial,sans-serif" font-weight="800" text-anchor="middle" fill="#0a2540">
+ <text x="160" y="860" font-size="52">⚠</text><text x="160" y="915" font-size="24">Road Signs</text>
+ <text x="350" y="860" font-size="52">📘</text><text x="350" y="915" font-size="24">Rules</text>
+ <text x="540" y="860" font-size="52">✅</text><text x="540" y="915" font-size="24">Mock Tests</text>
+ <text x="730" y="860" font-size="52">🖥</text><text x="730" y="915" font-size="24">Simulators</text>
+ <text x="920" y="860" font-size="52">🌍</text><text x="920" y="915" font-size="24">12 Languages</text>
+</g>
+<text x="540" y="985" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" font-weight="700" fill="#476274">Independent learner's licence preparation • South Africa</text>
+
+<rect x="120" y="1070" width="840" height="112" rx="56" fill="#e82f2f" filter="url(#shadow)"/>
+<text x="540" y="1141" text-anchor="middle" font-family="Arial Black,Arial" font-size="42" fill="#fff">START LEARNING TODAY →</text>
+<rect x="250" y="1208" width="580" height="72" rx="36" fill="#fff"/>
+<text x="540" y="1255" text-anchor="middle" font-family="Arial Black,Arial" font-size="29" fill="#071d45">↗ SHARE LEARNER DRIVER SA</text>
+<text x="540" y="1320" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" font-weight="700" fill="#e8f8ff">Learn • Practise • Pass • Drive a brighter tomorrow</text>
+</svg>
