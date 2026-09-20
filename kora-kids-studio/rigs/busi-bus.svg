@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" role="img" aria-labelledby="t"><title id="t">Busi Bus rig</title>
+<g id="busi-bus" stroke="#fff" stroke-width="10" stroke-linejoin="round">
+<rect x="55" y="70" width="490" height="220" rx="58" fill="#ffcf3f"/>
+<rect x="110" y="105" width="320" height="92" rx="22" fill="#6ed4ff"/>
+<rect x="445" y="105" width="55" height="118" rx="18" fill="#6ed4ff"/>
+<circle cx="172" cy="290" r="48" fill="#18314f"/><circle cx="430" cy="290" r="48" fill="#18314f"/>
+<circle cx="172" cy="290" r="20" fill="#fff"/><circle cx="430" cy="290" r="20" fill="#fff"/>
+<circle cx="248" cy="233" r="10" fill="#18314f" stroke="none"/><circle cx="302" cy="233" r="10" fill="#18314f" stroke="none"/>
+<path d="M250 260q26 25 52 0" fill="none" stroke="#18314f" stroke-width="10" stroke-linecap="round"/>
+</g></svg>

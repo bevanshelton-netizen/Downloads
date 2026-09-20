@@ -1,0 +1,115 @@
+{
+  "schema": "kora-kids.episode-project/v1",
+  "series": "Tumi & Tala",
+  "title": "",
+  "episodeNumber": null,
+  "slug": "",
+  "audience": "2-6",
+  "durationSeconds": 420,
+  "learningObjectives": [],
+  "language": "en-ZA",
+  "cast": [
+    "Tumi",
+    "Tala",
+    "Piko",
+    "Busi Bus"
+  ],
+  "scenes": [
+    {
+      "id": "s01",
+      "durationSeconds": 45,
+      "location": "Rainbow Town",
+      "characters": [
+        "Tumi",
+        "Tala"
+      ],
+      "action": "Opening hook",
+      "dialogue": [],
+      "musicCue": "theme-light",
+      "subtitleTrack": true
+    },
+    {
+      "id": "s02",
+      "durationSeconds": 75,
+      "location": "Rainbow Town",
+      "characters": [
+        "Tumi",
+        "Tala",
+        "Piko"
+      ],
+      "action": "Learning challenge",
+      "dialogue": [],
+      "musicCue": "playful",
+      "subtitleTrack": true
+    },
+    {
+      "id": "s03",
+      "durationSeconds": 90,
+      "location": "Rainbow Town",
+      "characters": [
+        "Tumi",
+        "Tala",
+        "Busi Bus"
+      ],
+      "action": "Adventure and practice",
+      "dialogue": [],
+      "musicCue": "movement",
+      "subtitleTrack": true
+    },
+    {
+      "id": "s04",
+      "durationSeconds": 120,
+      "location": "Rainbow Town",
+      "characters": [
+        "Tumi",
+        "Tala",
+        "Piko"
+      ],
+      "action": "Song and repetition",
+      "dialogue": [],
+      "musicCue": "episode-song",
+      "subtitleTrack": true
+    },
+    {
+      "id": "s05",
+      "durationSeconds": 90,
+      "location": "Rainbow Town",
+      "characters": [
+        "Tumi",
+        "Tala"
+      ],
+      "action": "Recap and goodbye",
+      "dialogue": [],
+      "musicCue": "theme-outro",
+      "subtitleTrack": true
+    }
+  ],
+  "outputs": [
+    {
+      "type": "episode",
+      "aspect": "16:9",
+      "resolution": "1920x1080"
+    },
+    {
+      "type": "short",
+      "aspect": "9:16",
+      "resolution": "1080x1920"
+    },
+    {
+      "type": "thumbnail",
+      "aspect": "16:9",
+      "resolution": "1280x720"
+    },
+    {
+      "type": "caption",
+      "format": "vtt"
+    }
+  ],
+  "review": {
+    "script": false,
+    "language": false,
+    "childSafety": false,
+    "brand": false,
+    "final": false
+  }
+}

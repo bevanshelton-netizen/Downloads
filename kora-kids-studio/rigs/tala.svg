@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 420" role="img" aria-labelledby="t"><title id="t">Tala character rig</title>
+<g id="tala" stroke="#fff" stroke-width="10" stroke-linejoin="round">
+<ellipse id="head" cx="150" cy="110" rx="72" ry="78" fill="#c7835b"/>
+<path id="hair" d="M78 91q8-65 72-65 64 0 72 65-22-20-44-22 5 23-28 28-33-5-28-28-22 2-44 22z" fill="#2b2131" stroke="none"/>
+<circle cx="124" cy="105" r="8" fill="#1d2233" stroke="none"/><circle cx="176" cy="105" r="8" fill="#1d2233" stroke="none"/>
+<path d="M132 139q18 18 36 0" fill="none" stroke="#6d2f2f" stroke-width="8" stroke-linecap="round"/>
+<rect id="body" x="82" y="182" width="136" height="140" rx="38" fill="#ff79b0"/>
+<g id="left-arm"><rect x="52" y="198" width="42" height="118" rx="21" fill="#c7835b" transform="rotate(8 73 257)"/></g>
+<g id="right-arm"><rect x="206" y="198" width="42" height="118" rx="21" fill="#c7835b" transform="rotate(-8 227 257)"/></g>
+<g id="left-leg"><rect x="100" y="306" width="46" height="96" rx="22" fill="#493f86"/></g>
+<g id="right-leg"><rect x="154" y="306" width="46" height="96" rx="22" fill="#493f86"/></g>
+</g></svg>

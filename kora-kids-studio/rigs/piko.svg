@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 420" role="img" aria-labelledby="t"><title id="t">Piko sunbird rig</title>
+<g id="piko" stroke="#fff" stroke-width="10" stroke-linejoin="round">
+<ellipse cx="150" cy="220" rx="78" ry="98" fill="#54c77b"/>
+<circle cx="165" cy="118" r="60" fill="#5fd7e8"/>
+<circle cx="184" cy="106" r="8" fill="#18314f" stroke="none"/>
+<path d="M220 120l58 20-58 18z" fill="#ffcf3f"/>
+<path id="left-wing" d="M94 190q-70 40-35 125 70-25 90-86z" fill="#8667e8"/>
+<path id="right-wing" d="M201 190q70 40 35 125-70-25-90-86z" fill="#8667e8"/>
+<path d="M122 305l-25 72 53-44 53 44-25-72z" fill="#ff79b0"/>
+</g></svg>
