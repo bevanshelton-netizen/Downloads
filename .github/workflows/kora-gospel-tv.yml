@@ -1,0 +1,68 @@
+name: KORA GOSPEL TV Gate
+
+on:
+  pull_request:
+    paths:
+      - "ports/kora-gospel-tv/**"
+      - "izakhono-owned-cloud/deploy-kora-gospel-tv.sh"
+      - "owner-host/START-KORA-GOSPEL-TV-ON-IZAKHONO.ps1"
+      - "START-KORA-GOSPEL-TV-ON-IZAKHONO.cmd"
+      - "kora-gospel-tv/**"
+      - ".github/workflows/kora-gospel-tv.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ports/kora-gospel-tv/**"
+      - "izakhono-owned-cloud/deploy-kora-gospel-tv.sh"
+      - "owner-host/START-KORA-GOSPEL-TV-ON-IZAKHONO.ps1"
+      - "START-KORA-GOSPEL-TV-ON-IZAKHONO.cmd"
+      - "kora-gospel-tv/**"
+      - ".github/workflows/kora-gospel-tv.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  prove-channel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate runtime syntax
+        run: |
+          node --check ports/kora-gospel-tv/server.mjs
+          bash -n izakhono-owned-cloud/deploy-kora-gospel-tv.sh
+
+      - name: Start isolated Gospel TV runtime
+        run: |
+          mkdir -p "$RUNNER_TEMP/kora-gospel-tv"
+          GOSPEL_TV_DATA_DIR="$RUNNER_TEMP/kora-gospel-tv" HOST=127.0.0.1 PORT=8188 node ports/kora-gospel-tv/server.mjs >"$RUNNER_TEMP/kora-gospel-tv.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/kora-gospel-tv.pid"
+          for i in {1..20}; do
+            curl -fsS http://127.0.0.1:8188/health && exit 0
+            sleep 0.25
+          done
+          cat "$RUNNER_TEMP/kora-gospel-tv.log"
+          exit 1
+
+      - name: Verify channel experience
+        run: |
+          curl -fsS http://127.0.0.1:8188/ | grep -q "KORA GOSPEL TV"
+          curl -fsS http://127.0.0.1:8188/ | grep -q "GOSPEL ONLY"
+          curl -fsS http://127.0.0.1:8188/api/channel | grep -q '"mode":"launch-mode"'
+
+      - name: Verify safe submission path
+        run: |
+          RESPONSE="$(curl -fsS -X POST http://127.0.0.1:8188/api/submissions             -H 'content-type: application/json'             --data '{"category":"prayer","message":"Please pray for our community","onAir":false}')"
+          echo "$RESPONSE" | grep -q '"ok":true'
+          test -s "$RUNNER_TEMP/kora-gospel-tv/submissions.ndjson"
+          grep -q '"category":"prayer"' "$RUNNER_TEMP/kora-gospel-tv/submissions.ndjson"
+          grep -q '"on_air":false' "$RUNNER_TEMP/kora-gospel-tv/submissions.ndjson"
+
+      - name: Stop runtime
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/kora-gospel-tv.pid" ]; then
+            kill "$(cat "$RUNNER_TEMP/kora-gospel-tv.pid")" 2>/dev/null || true
+          fi
