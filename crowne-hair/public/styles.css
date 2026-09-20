@@ -92,3 +92,29 @@ footer{background:linear-gradient(135deg,#020202,#0d0d0d);border-top-color:rgba(
 .experience-actions span{border:1px solid rgba(242,210,124,.30);background:rgba(255,255,255,.025);padding:10px 16px;border-radius:999px;color:#f2ddb0;font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}
 .experience-actions .button{margin-left:10px}
 @media(max-width:620px){.experience-visual{border-radius:20px}.experience-actions .button{width:100%;margin-left:0}.experience-actions span{flex:1 1 calc(50% - 12px);text-align:center}}
+
+/* CROWNÉ Salon */
+.salon-section{background:radial-gradient(circle at 86% 8%,rgba(232,198,106,.12),transparent 25%),linear-gradient(180deg,#050505 0%,#12100a 50%,#050505 100%);color:#fffdf7}
+.salon-heading>p{color:#d2c6aa}
+.salon-hero-visual{margin:0;border-radius:34px;overflow:hidden;border:1px solid rgba(232,198,106,.38);box-shadow:0 36px 100px rgba(0,0,0,.58)}
+.salon-hero-visual img{width:100%;height:auto;aspect-ratio:3/2;object-fit:cover}
+.salon-capacity{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:24px 0 54px}
+.salon-capacity article{padding:24px;border:1px solid rgba(232,198,106,.25);border-radius:22px;background:linear-gradient(145deg,#15120c,#080808)}
+.salon-capacity strong{display:block;font:600 46px Georgia,serif;color:var(--gold);line-height:1}
+.salon-capacity span{display:block;margin:8px 0 5px;font:600 18px Georgia,serif}.salon-capacity small{color:#bfb59d;line-height:1.5}
+.salon-zones{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:70px}
+.salon-zones article{min-height:220px;padding:28px;border:1px solid rgba(232,198,106,.21);border-radius:24px;background:rgba(255,255,255,.025)}
+.salon-zones span{color:var(--gold);font-size:11px;letter-spacing:.16em}.salon-zones h3{font:600 27px Georgia,serif;margin:18px 0 10px}.salon-zones p{color:#c8bfad;line-height:1.65;font-size:13px}
+.salon-service-layout{display:grid;grid-template-columns:.9fr 1.1fr;gap:4vw;align-items:start}
+.salon-services,.salon-booking{border:1px solid rgba(232,198,106,.25);border-radius:28px;padding:34px;background:linear-gradient(145deg,#111,#080706)}
+.salon-services h3,.salon-booking h3{font:600 clamp(34px,4vw,54px)/1 Georgia,serif;margin:10px 0 26px}
+.service-list{display:grid;grid-template-columns:1fr 1fr;gap:10px}.service-list span{border-bottom:1px solid rgba(232,198,106,.18);padding:12px 0;color:#e1d9c9;font-size:13px}
+.salon-shop-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:30px}
+.salon-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.salon-form-grid label{display:grid;gap:7px;color:#cabf9f;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.11em}
+.salon-form-grid input,.salon-form-grid select,.salon-form-grid textarea{width:100%;border:1px solid rgba(232,198,106,.25);border-radius:14px;background:#0b0b0b;color:#fffdf7;padding:13px 14px;outline:none}
+.salon-form-grid input:focus,.salon-form-grid select:focus,.salon-form-grid textarea:focus{border-color:var(--gold)}
+.salon-form-grid select{appearance:none}.salon-full{grid-column:1/-1}.salon-honeypot{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important}
+.salon-booking-status{min-height:36px;color:#bfb59d;font-size:11px;line-height:1.55;margin:18px 0}.salon-booking-status.success{color:#f2d27c}.salon-booking-status.error{color:#ffb5b5}
+@media(max-width:980px){.salon-capacity{grid-template-columns:repeat(2,1fr)}.salon-zones{grid-template-columns:repeat(2,1fr)}.salon-service-layout{grid-template-columns:1fr}}
+@media(max-width:620px){.salon-hero-visual{border-radius:20px}.salon-capacity,.salon-zones,.salon-form-grid,.service-list{grid-template-columns:1fr}.salon-full{grid-column:auto}.salon-services,.salon-booking{padding:24px}}
