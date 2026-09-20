@@ -1,0 +1,14 @@
+{
+  "name": "kora-kids-animation-factory",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Owner-side production studio for KORA KIDS — Tumi & Tala",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "check": "node --check server.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
