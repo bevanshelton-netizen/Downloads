@@ -12,7 +12,7 @@
 <header class="site-header">
 <a class="brand" href="#top"><span class="brand-mark">C</span><span class="brand-copy"><strong>CROWNE HAIR BY NETTY</strong></span></a>
 <button class="menu-toggle" id="menuToggle" aria-expanded="false">Menu</button>
-<nav id="mainNav" class="main-nav"><a href="#showroom">Rotating showroom</a><a href="#shop">Shop hair</a><a href="#lifestyle">Lifestyle Shop</a><a href="#experience">Pop-Up Experience</a><a href="#textures">Textures</a><a href="#inclusivity">All crowns</a><a href="#concierge">Concierge</a></nav>
+<nav id="mainNav" class="main-nav"><a href="#showroom">Rotating showroom</a><a href="#shop">Shop hair</a><a href="#salon">Salon</a><a href="#shop">Shop Hair</a><a href="#lifestyle">Lifestyle</a><a href="#experience">Pop-Up</a><a href="#textures">Textures</a><a href="#inclusivity">All crowns</a><a href="#concierge">Concierge</a></nav>
 <button class="bag-button" id="openBag">Bag <span id="bagCount">0</span></button>
 </header>
 <main id="top">
@@ -67,6 +67,57 @@
   <div class="experience-actions">
     <span>Premium Hair</span><span>Apparel</span><span>Accessories</span><span>Pop-Ups &amp; Events</span>
     <a class="button button-gold" href="#shop">Shop CROWNÉ</a>
+  </div>
+</section>
+<section id="salon" class="section salon-section">
+  <div class="section-heading salon-heading">
+    <div><p class="eyebrow">CROWNÉ SALON</p><h2>The full <em>royal experience.</em></h2></div>
+    <p>Eight styling chairs. Eight shampoo basins. Wall-mounted dryers beside illuminated mirrors. Reception, waiting lounge, coffee station, TVs and a retail shop — designed as one premium CROWNÉ journey.</p>
+  </div>
+  <figure class="salon-hero-visual"><img src="./crowne-salon-interior.webp" alt="CROWNÉ Hair by Netty luxury black gold and cream salon interior with styling stations, shampoo basins, reception, waiting lounge and retail shop"></figure>
+  <div class="salon-capacity">
+    <article><strong>8</strong><span>Styling chairs</span><small>Mirror stations with wall-mounted dryers</small></article>
+    <article><strong>8</strong><span>Shampoo basins</span><small>Dedicated wash and treatment suite</small></article>
+    <article><strong>1</strong><span>Reception</span><small>Arrival, booking and customer care</small></article>
+    <article><strong>360°</strong><span>Retail experience</span><small>Hair, care products and CROWNÉ merch</small></article>
+  </div>
+  <div class="salon-zones">
+    <article><span>01</span><h3>Styling Floor</h3><p>Eight spacious stations with illuminated mirrors, organised tool storage and wall-mounted dryers positioned beside each mirror.</p></article>
+    <article><span>02</span><h3>Wash & Treatment</h3><p>Eight basins for wash, condition, treatments and preparation, designed to keep the service flow separate from the styling floor.</p></article>
+    <article><span>03</span><h3>Reception</h3><p>A black-marble and gold welcome desk for check-in, appointments, enquiries and collection handovers.</p></article>
+    <article><span>04</span><h3>Waiting Lounge + TVs</h3><p>Comfortable cream seating, screens for CROWNÉ content and enough breathing room for clients and accompanying guests.</p></article>
+    <article><span>05</span><h3>Coffee Station</h3><p>A dedicated hospitality counter for coffee and refreshments, separate from the treatment and retail zones.</p></article>
+    <article><span>06</span><h3>Hair + Merch Shop</h3><p>Wigs, bundles, frontals, closures, hair-care products, styling accessories and CROWNÉ apparel in one integrated retail wall.</p></article>
+  </div>
+  <div class="salon-service-layout">
+    <div class="salon-services">
+      <p class="eyebrow">SALON SERVICES</p>
+      <h3>Choose your appointment.</h3>
+      <div class="service-list">
+        <span>Consultation &amp; Hair Match</span><span>Wig Install &amp; Customisation</span>
+        <span>Bundle / Weave Install</span><span>Closure / Frontal Install</span>
+        <span>Wash, Treatment &amp; Blow-Dry</span><span>Silk Press &amp; Styling</span>
+        <span>Curl / Texture Styling</span><span>Wig Maintenance &amp; Refresh</span>
+        <span>Hair Colour Consultation</span><span>Event / Bridal Styling</span>
+      </div>
+      <div class="salon-shop-links"><a class="button button-ghost" href="#shop">Shop Hair</a><a class="button button-ghost" href="#lifestyle">Shop Merch</a></div>
+    </div>
+    <form id="salonBookingForm" class="salon-booking">
+      <p class="eyebrow">REQUEST AN APPOINTMENT</p><h3>Reserve your chair.</h3>
+      <div class="salon-form-grid">
+        <label>Name<input id="salonName" autocomplete="name" required placeholder="Your name"></label>
+        <label>Email<input id="salonEmail" type="email" autocomplete="email" required placeholder="you@example.com"></label>
+        <label>Phone<input id="salonPhone" autocomplete="tel" required placeholder="+27 …"></label>
+        <label>Service<select id="salonService" required><option value="">Choose service</option><option>Consultation &amp; Hair Match</option><option>Wig Install &amp; Customisation</option><option>Bundle / Weave Install</option><option>Closure / Frontal Install</option><option>Wash, Treatment &amp; Blow-Dry</option><option>Silk Press &amp; Styling</option><option>Curl / Texture Styling</option><option>Wig Maintenance &amp; Refresh</option><option>Hair Colour Consultation</option><option>Event / Bridal Styling</option></select></label>
+        <label>Preferred date<input id="salonDate" type="date"></label>
+        <label>Preferred time<select id="salonTime"><option value="">Flexible</option><option>Morning</option><option>Midday</option><option>Afternoon</option><option>Evening</option></select></label>
+        <label>Hair length<input id="salonHairLength" placeholder='e.g. 18 inch'></label>
+        <label class="salon-full">Notes<textarea id="salonNotes" rows="4" placeholder="Hair, style, colour or service details"></textarea></label>
+        <input id="salonWebsite" class="salon-honeypot" tabindex="-1" autocomplete="off" aria-hidden="true">
+      </div>
+      <p id="salonBookingStatus" class="salon-booking-status">Appointment requests are confirmed by the salon before the booking is final.</p>
+      <button id="salonBookingButton" class="button button-gold full" type="submit">Request appointment</button>
+    </form>
   </div>
 </section>
 <section id="textures" class="texture-section"><div class="texture-copy"><p class="eyebrow">TEXTURE IS THE LUXURY</p><h2>From silk to coil,<br><em>never one-size-fits-all.</em></h2><p>Shop by mood, maintenance level and finish. CROWNE HAIR BY NETTY is designed to make texture visible, celebrated and easy to discover.</p></div><div class="texture-list"><article><strong>01</strong><span>Straight & sleek</span><small>Glossy, polished, effortless</small></article><article><strong>02</strong><span>Body & loose wave</span><small>Soft movement, red-carpet energy</small></article><article><strong>03</strong><span>Deep curl</span><small>Defined glamour with bounce</small></article><article><strong>04</strong><span>Coily & kinky</span><small>Rich texture, natural-looking fullness</small></article></div></section>
