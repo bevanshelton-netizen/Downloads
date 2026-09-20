@@ -69,7 +69,7 @@ createServer(async (req,res)=>{
   const url=new URL(req.url||"/","http://localhost");
 
   if(url.pathname==="/health"||url.pathname==="/api/health"){
-    return json(res,200,{ok:true,service:"kora-gospel-tv",product:"KORA GOSPEL TV",runtime:"izakhono-owned",version:"launch-1"});
+    return json(res,200,{ok:true,service:"kora-gospel-tv",product:"KORA GOSPEL TV",runtime:"izakhono-owned",version:"hybrid-1"},{"access-control-allow-origin":"*"});
   }
 
   if(url.pathname==="/api/channel" && req.method==="GET"){
@@ -77,8 +77,16 @@ createServer(async (req,res)=>{
       name:"KORA GOSPEL TV",
       promise:"Faith. Worship. Word. Africa to the World.",
       mode:validEmbed(LIVE_EMBED_URL)?"live-feed":"launch-mode",
-      liveEmbedUrl:validEmbed(LIVE_EMBED_URL)
-    });
+      liveEmbedUrl:validEmbed(LIVE_EMBED_URL),
+      distribution:{
+        policy:"owned-primary-external-distribution",
+        primary:{provider:"IZAKHONO",role:"origin-control-plane",url:"https://gospel.domains.izakhonoafrica.co.za",authoritative:true},
+        external:[
+          {provider:"KORA/Vercel",role:"distribution-discovery",url:"https://kora-network.vercel.app/gospel",authoritative:false},
+          {provider:"GitHub Pages",role:"public-fallback",url:"https://bevanshelton-netizen.github.io/Downloads/kora-gospel-tv/",authoritative:false}
+        ]
+      }
+    },{"access-control-allow-origin":"*"});
   }
 
   if(url.pathname==="/api/submissions" && req.method==="POST"){
