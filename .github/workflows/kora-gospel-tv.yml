@@ -51,6 +51,8 @@ jobs:
           curl -fsS http://127.0.0.1:8188/ | grep -q "KORA GOSPEL TV"
           curl -fsS http://127.0.0.1:8188/ | grep -q "GOSPEL ONLY"
           curl -fsS http://127.0.0.1:8188/api/channel | grep -q '"mode":"launch-mode"'
+          curl -fsS http://127.0.0.1:8188/api/channel | grep -q '"policy":"owned-primary-external-distribution"'
+          curl -fsS http://127.0.0.1:8188/api/channel | grep -q '"provider":"KORA/Vercel"'
 
       - name: Verify safe submission path
         run: |
