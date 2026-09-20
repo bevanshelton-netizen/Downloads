@@ -1,7 +1,7 @@
 #requires -Version 5.1
 [CmdletBinding()]
 param(
-  [string]$Hostname = "memorymania.izakhonoafrica.co.za"
+  [string]$Hostname = "memorymania.domains.izakhonoafrica.co.za"
 )
 
 Set-StrictMode -Version Latest
@@ -55,6 +55,42 @@ try {
     exit 0
   }
 } catch {
-  Write-Host "PUBLIC HTTPS: not yet verified. RUNTIME deployment is complete; EDGE/DNS cutover still controls public reachability." -ForegroundColor Yellow
+  Write-Host "Public HTTPS is not reachable yet. Activating IZAKHONO-owned DNS and EDGE..." -ForegroundColor Yellow
+}
+
+$edgeLinux = @"
+set -euo pipefail
+cd /opt/izakhono-source/Downloads
+export IZAKHONO_PUBLIC_ZONE='domains.izakhonoafrica.co.za'
+export IZAKHONO_PUBLIC_HOSTNAME='$escapedHost'
+bash izakhono-owned-cloud/activate-owned-public-edge.sh
+"@
+
+$edgeLinux | & wsl.exe -d Ubuntu-24.04 -u root -- bash -s
+$edgeCode = $LASTEXITCODE
+if ($edgeCode -eq 20) {
+  Write-Host ""
+  Write-Host "MEMORY MANIA: runtime is deployed and owned DNS is installed." -ForegroundColor Green
+  Write-Host "ONE-TIME NETWORK CUTOVER is still required. Use the exact parent-DNS and router-forward values printed above, then run this same launcher again." -ForegroundColor Yellow
   exit 20
 }
+if ($edgeCode -eq 21) {
+  Write-Host ""
+  Write-Host "Owned DNS delegation is visible. Public TCP 80/443 or trusted TLS still needs to complete." -ForegroundColor Yellow
+  exit 21
+}
+if ($edgeCode -ne 0) {
+  throw "IZAKHONO-owned public edge activation failed (code $edgeCode)."
+}
+
+$public = Invoke-WebRequest -UseBasicParsing -TimeoutSec 12 "https://$Hostname/health"
+$health = $public.Content | ConvertFrom-Json
+if ($health.ok -ne $true -or $health.service -ne "memory-mania") {
+  throw "Public Memory Mania health verification failed."
+}
+
+Write-Host ""
+Write-Host "MEMORY MANIA: PUBLIC HTTPS LIVE AND VERIFIED" -ForegroundColor Green
+Write-Host "https://$Hostname" -ForegroundColor Green
+Start-Process "https://$Hostname"
+exit 0
