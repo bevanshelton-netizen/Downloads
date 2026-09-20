@@ -37,7 +37,7 @@ jobs:
         run: |
           node --check memory-mania/server.mjs
           bash -n izakhono-owned-cloud/deploy-memory-mania.sh
-          node -e 'const x=JSON.parse(require("fs").readFileSync("owner-host/platforms.json","utf8"));if(!x.platforms.some(p=>p.id==="memory-mania"&&p.defaultHostname==="memorymania.izakhonoafrica.co.za"))process.exit(2)'
+          node -e 'const x=JSON.parse(require("fs").readFileSync("owner-host/platforms.json","utf8"));if(!x.platforms.some(p=>p.id==="memory-mania"&&p.defaultHostname==="memorymania.domains.izakhonoafrica.co.za"))process.exit(2)'
       - name: Live local game health proof
         run: |
           HOST=127.0.0.1 PORT=18077 node memory-mania/server.mjs >/tmp/memory-mania.log 2>&1 &
