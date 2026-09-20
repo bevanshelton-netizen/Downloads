@@ -2,5 +2,7 @@
   "ok": true,
   "service": "kora-kids",
   "product": "KORA KIDS — Tumi & Tala",
-  "mode": "static-mirror"
+  "mode": "static-mirror",
+  "version": "season-1-engine",
+  "episodes": 10
 }
