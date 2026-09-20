@@ -9,20 +9,20 @@ const offers = [
   {
     name: 'FAISReady',
     hook: 'RE5 from R299',
-    href: 'https://faisready-revenue.vercel.app/?utm_source=kora&utm_medium=global_revenue_launcher&utm_campaign=push_push_push#courses',
+    href: 'https://pay.ikhokha.com/izakhono/buy/re5completeprepara',
   },
   {
     name: 'Regulatory Exams',
     hook: 'RE1 + RE5 bundle R549',
-    href: 'https://mandatory-regulatory-exams.vercel.app/?utm_source=kora&utm_medium=global_revenue_launcher&utm_campaign=push_push_push#faisready',
+    href: 'https://pay.ikhokha.com/izakhono/buy/re5-and-re1-complete-p',
   },
 ];
 
 const shareText = [
   'Useful services open now:',
   'AUTO AI — R99 Repair Quote Second Opinion: https://auto-ai-eosin.vercel.app/?utm_source=kora&utm_medium=share_offers&utm_campaign=push_push_push#pricing',
-  'FAISReady — RE5 from R299: https://faisready-revenue.vercel.app/?utm_source=kora&utm_medium=share_offers&utm_campaign=push_push_push#courses',
-  'Mandatory Regulatory Exams — RE1 + RE5 bundle R549: https://mandatory-regulatory-exams.vercel.app/?utm_source=kora&utm_medium=share_offers&utm_campaign=push_push_push#faisready',
+  'FAISReady — RE5 R299 direct checkout: https://pay.ikhokha.com/izakhono/buy/re5completeprepara',
+  'RE1 + RE5 bundle R549 direct checkout: https://pay.ikhokha.com/izakhono/buy/re5-and-re1-complete-p',
 ].join('\n');
 
 export default function AutoAiPromo() {
