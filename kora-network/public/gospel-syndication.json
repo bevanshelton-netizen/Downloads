@@ -1,0 +1,65 @@
+{
+  "schema": "kora.gospel-tv.syndication/v1",
+  "principle": "owned-origin-many-distribution-lanes",
+  "authoritative": "IZAKHONO",
+  "outputs": [
+    {
+      "id": "izakhono-web",
+      "name": "IZAKHONO Gospel TV",
+      "type": "owned",
+      "role": "primary-origin",
+      "status": "configured"
+    },
+    {
+      "id": "kora-vercel",
+      "name": "KORA / Vercel",
+      "type": "external",
+      "role": "web-distribution",
+      "status": "configured"
+    },
+    {
+      "id": "github-pages",
+      "name": "GitHub Pages",
+      "type": "external",
+      "role": "fallback-mirror",
+      "status": "configured"
+    },
+    {
+      "id": "youtube-live",
+      "name": "YouTube Live",
+      "type": "external",
+      "role": "simulcast",
+      "status": "credentials-required"
+    },
+    {
+      "id": "facebook-live",
+      "name": "Facebook Live",
+      "type": "external",
+      "role": "simulcast",
+      "status": "credentials-required"
+    },
+    {
+      "id": "instagram",
+      "name": "Instagram",
+      "type": "external",
+      "role": "clips-promotion",
+      "status": "account-integration-required"
+    },
+    {
+      "id": "tiktok",
+      "name": "TikTok",
+      "type": "external",
+      "role": "clips-or-live-where-supported",
+      "status": "account-integration-required"
+    },
+    {
+      "id": "smart-tv",
+      "name": "Smart TV / OTT",
+      "type": "external",
+      "role": "future-hls-distribution",
+      "status": "partner-integration-required"
+    }
+  ],
+  "secrets_policy": "stream keys and partner credentials live only in protected host environment files",
+  "editorial_policy": "external distribution never bypasses KORA GOSPEL TV editorial approval"
+}\n
