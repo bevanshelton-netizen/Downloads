@@ -1,0 +1,98 @@
+{
+  "schema": "kora-kids.languages/v1",
+  "default": "en-ZA",
+  "editorialRule": "Only reviewed localisations may be marked live.",
+  "languages": [
+    {
+      "code": "en-ZA",
+      "name": "English",
+      "region": "South Africa",
+      "status": "live",
+      "voice": "en-ZA"
+    },
+    {
+      "code": "zu-ZA",
+      "name": "isiZulu",
+      "region": "South Africa",
+      "status": "next",
+      "voice": "zu-ZA"
+    },
+    {
+      "code": "xh-ZA",
+      "name": "isiXhosa",
+      "region": "South Africa",
+      "status": "next",
+      "voice": "xh-ZA"
+    },
+    {
+      "code": "st-ZA",
+      "name": "Sesotho",
+      "region": "South Africa",
+      "status": "next",
+      "voice": "st-ZA"
+    },
+    {
+      "code": "af-ZA",
+      "name": "Afrikaans",
+      "region": "South Africa",
+      "status": "next",
+      "voice": "af-ZA"
+    },
+    {
+      "code": "sw",
+      "name": "Kiswahili",
+      "region": "Africa",
+      "status": "planned",
+      "voice": "sw-KE"
+    },
+    {
+      "code": "fr",
+      "name": "French",
+      "region": "Global",
+      "status": "planned",
+      "voice": "fr-FR"
+    },
+    {
+      "code": "pt",
+      "name": "Portuguese",
+      "region": "Global",
+      "status": "planned",
+      "voice": "pt-BR"
+    },
+    {
+      "code": "es",
+      "name": "Spanish",
+      "region": "Global",
+      "status": "planned",
+      "voice": "es-ES"
+    },
+    {
+      "code": "ar",
+      "name": "Arabic",
+      "region": "Global",
+      "status": "planned",
+      "voice": "ar-SA"
+    },
+    {
+      "code": "hi",
+      "name": "Hindi",
+      "region": "Global",
+      "status": "planned",
+      "voice": "hi-IN"
+    },
+    {
+      "code": "zh",
+      "name": "Mandarin Chinese",
+      "region": "Global",
+      "status": "planned",
+      "voice": "zh-CN"
+    },
+    {
+      "code": "bn",
+      "name": "Bengali",
+      "region": "Global",
+      "status": "planned",
+      "voice": "bn-BD"
+    }
+  ]
+}
