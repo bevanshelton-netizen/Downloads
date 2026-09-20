@@ -32,15 +32,22 @@ cd "$ROOT/izakhono-dns-node"
 bash install-linux.sh
 
 SERIAL="$(date -u +%Y%m%d%H)"
-node - /etc/izakhono/dns-zone.json "$ZONE" "$NS1" "$NS2" "$PUBLIC_IP" "$SERIAL" <<'NODE'
+node - /etc/izakhono/dns-zone.json "$ZONE" "$HOSTNAME" "$NS1" "$NS2" "$PUBLIC_IP" "$SERIAL" <<'NODE'
 const fs=require("fs");
-const [path,zoneName,ns1,ns2,ip,serial]=process.argv.slice(2);
-const zone=zoneName.replace(/\.$/,"")+".";
+const [path,zoneName,hostName,ns1,ns2,ip,serial]=process.argv.slice(2);
+const zoneBare=zoneName.replace(/\.$/,"").toLowerCase();
+const hostBare=hostName.replace(/\.$/,"").toLowerCase();
+const zone=zoneBare+".";
 const records=[
   {name:"@",type:"NS",value:ns1.replace(/\.$/,"")+".",ttl:300},
   {name:"@",type:"A",value:ip,ttl:120}
 ];
 if(ns2) records.splice(1,0,{name:"@",type:"NS",value:ns2.replace(/\.$/,"")+".",ttl:300});
+if(hostBare!==zoneBare){
+  if(!hostBare.endsWith("."+zoneBare)) throw new Error("IZAKHONO_PUBLIC_HOSTNAME must be inside IZAKHONO_PUBLIC_ZONE");
+  const relative=hostBare.slice(0,-1-zoneBare.length);
+  records.push({name:relative,type:"A",value:ip,ttl:120});
+}
 const body={
   zone,ttl:300,
   soa:{mname:ns1.replace(/\.$/,"")+".",rname:"hostmaster.izakhonoafrica.co.za.",serial:Number(serial),refresh:3600,retry:600,expire:1209600,minimum:300},
@@ -71,15 +78,21 @@ systemctl restart izakhono-dns-node
 sleep 1
 curl -fsS http://127.0.0.1:8900/health >/dev/null
 
-node - "$LOCAL_IP" "$ZONE" <<'NODE'
+node - "$LOCAL_IP" "$ZONE" "$HOSTNAME" <<'NODE'
 const d=require("dgram");
-const host=process.argv[2], name=process.argv[3].replace(/\.$/,"");
-const labels=name.split(".");
-const q=Buffer.concat([Buffer.from([0x12,0x34,0x01,0x00,0x00,0x01,0,0,0,0,0,0]),...labels.flatMap(x=>[Buffer.from([Buffer.byteLength(x)]),Buffer.from(x)]),Buffer.from([0,0,1,0,1])]);
-const s=d.createSocket("udp4");
-const t=setTimeout(()=>{console.error("DNS local authoritative probe timed out");process.exit(2)},2500);
-s.on("message",m=>{clearTimeout(t);if(m.length<12||m.readUInt16BE(6)<1)process.exit(3);s.close();});
-s.send(q,53,host);
+const host=process.argv[2];
+const names=[process.argv[3],process.argv[4]].map(x=>x.replace(/\.$/,""));
+function query(name,id){
+  return new Promise((resolve,reject)=>{
+    const labels=name.split(".");
+    const q=Buffer.concat([Buffer.from([(id>>8)&255,id&255,0x01,0x00,0x00,0x01,0,0,0,0,0,0]),...labels.flatMap(x=>[Buffer.from([Buffer.byteLength(x)]),Buffer.from(x)]),Buffer.from([0,0,1,0,1])]);
+    const s=d.createSocket("udp4");
+    const t=setTimeout(()=>{s.close();reject(new Error("DNS local authoritative probe timed out: "+name));},2500);
+    s.on("message",m=>{clearTimeout(t);s.close();if(m.length<12||m.readUInt16BE(6)<1)reject(new Error("No authoritative A answer for "+name));else resolve();});
+    s.send(q,53,host);
+  });
+}
+(async()=>{let i=0x1234;for(const name of [...new Set(names)])await query(name,i++);})().catch(e=>{console.error(e.message);process.exit(2)});
 NODE
 
 HOST_A_READY=false
@@ -106,10 +119,15 @@ if [ "$HOST_A_READY" = true ] && [ "$DELEGATION_READY" = true ] && [ "$TLS_READY
   apt-get install -y certbot >/dev/null
   EDGE_WAS_ACTIVE=false
   if systemctl is-active --quiet izakhono-edge-node 2>/dev/null; then EDGE_WAS_ACTIVE=true; systemctl stop izakhono-edge-node; fi
-  if certbot certonly --standalone --preferred-challenges http --non-interactive --agree-tos --register-unsafely-without-email -d "$HOSTNAME"; then
+  CERT_NAME="izakhono-owned-edge"
+  CERT_ARGS=(-d "$ZONE")
+  if [ "$HOSTNAME" != "$ZONE" ]; then CERT_ARGS+=(-d "$HOSTNAME"); fi
+  EXPAND_ARGS=()
+  if [ -d "/etc/letsencrypt/live/$CERT_NAME" ]; then EXPAND_ARGS+=(--expand); fi
+  if certbot certonly --standalone --preferred-challenges http --non-interactive --agree-tos --register-unsafely-without-email --cert-name "$CERT_NAME" "${EXPAND_ARGS[@]}" "${CERT_ARGS[@]}"; then
     mkdir -p /etc/izakhono/tls
-    ln -sfn "/etc/letsencrypt/live/$HOSTNAME/fullchain.pem" /etc/izakhono/tls/fullchain.pem
-    ln -sfn "/etc/letsencrypt/live/$HOSTNAME/privkey.pem" /etc/izakhono/tls/privkey.pem
+    ln -sfn "/etc/letsencrypt/live/$CERT_NAME/fullchain.pem" /etc/izakhono/tls/fullchain.pem
+    ln -sfn "/etc/letsencrypt/live/$CERT_NAME/privkey.pem" /etc/izakhono/tls/privkey.pem
     TLS_READY=true
   else
     if [ "$EDGE_WAS_ACTIVE" = true ]; then systemctl start izakhono-edge-node || true; fi
@@ -163,6 +181,9 @@ if [ "$DELEGATION_READY" != true ] || [ "$HOST_A_READY" != true ]; then
     echo "  NS $ZONE -> $NS2"
   fi
   echo
+  if [ "$HOSTNAME" != "$ZONE" ]; then
+    echo "  Owned DNS will publish A $HOSTNAME -> $PUBLIC_IP automatically after delegation."
+  fi
   echo "Router/firewall must forward 53/udp, 53/tcp, 80/tcp and 443/tcp to $LOCAL_IP."
   echo "After propagation, rerun this launcher. It will obtain TLS and switch EDGE to direct mode."
   exit 20
