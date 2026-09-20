@@ -59,7 +59,7 @@
     {
       "id": "memory-mania",
       "hostnameEnv": "MEMORY_MANIA_PUBLIC_HOST",
-      "defaultHostname": "memorymania.izakhonoafrica.co.za",
+      "defaultHostname": "memorymania.domains.izakhonoafrica.co.za",
       "deploy": "izakhono-owned-cloud/deploy-memory-mania.sh"
     }
   ]
