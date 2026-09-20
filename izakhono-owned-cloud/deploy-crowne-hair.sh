@@ -22,7 +22,7 @@ if [ -z "$REPO_URL" ] && [ -f "$SOURCE_ENV" ]; then
   REPO_TOKEN="$(sudo awk -F= '$1=="IZAKHONO_CODE_REPO_TOKEN"{sub(/^[^=]*=/,"");print;exit}' "$SOURCE_ENV")"
 fi
 [ -n "$REPO_URL" ] || fail "IZAKHONO CODE source is not configured."
-if [[ "$REPO_URL" != http://127.0.0.1:8860/git/* ]] && [ "${ALLOW_EXTERNAL_SOURCE:-0}" != "1" ]; then fail "External source refused. CROWNÉ Hair must deploy from IZAKHONO CODE."; fi
+if [[ "$REPO_URL" != http://127.0.0.1:8860/git/* ]] && [ "${ALLOW_EXTERNAL_SOURCE:-0}" != "1" ]; then fail "External source refused. Crowne by Netty must deploy from IZAKHONO CODE."; fi
 for cmd in git curl node tar; do need "$cmd"; done
 [ -f "$RUNTIME_ENV" ] || fail "IZAKHONO RUNTIME NODE is not installed."
 curl -fsS "$CONTROL_URL/health" >/dev/null || fail "IZAKHONO RUNTIME NODE is not healthy."
@@ -39,8 +39,8 @@ RESOLVED="$(sudo git -C "$CACHE" rev-parse FETCH_HEAD)"
 unset REPO_TOKEN GIT_AUTH
 RELEASE="$RELEASE_BASE/$RESOLVED"
 if [ ! -d "$RELEASE" ]; then TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT; sudo git -C "$CACHE" archive "$RESOLVED" "$SOURCE_DIR" | tar -x -C "$TMP"; sudo mkdir -p "$RELEASE"; sudo cp -a "$TMP/$SOURCE_DIR/." "$RELEASE/"; sudo chown -R izakhono:izakhono "$RELEASE"; fi
-test -f "$RELEASE/server.mjs" || fail "CROWNÉ Hair server.mjs missing."
-test -f "$RELEASE/public/index.html" || fail "CROWNÉ Hair public/index.html missing."
+test -f "$RELEASE/server.mjs" || fail "Crowne by Netty server.mjs missing."
+test -f "$RELEASE/public/index.html" || fail "Crowne by Netty public/index.html missing."
 node --check "$RELEASE/server.mjs"
 ENV_FILE=""; if [ -f "/etc/izakhono/crowne-hair.env" ]; then ENV_FILE="/etc/izakhono/crowne-hair.env"; fi
 BODY="$(node - "$APP" "$HOSTNAME" "$RELEASE" "$ENV_FILE" <<'NODE'
@@ -51,16 +51,17 @@ RESPONSE="$(curl -fsS -X POST "$CONTROL_URL/v1/deployments" -H "content-type: ap
 DEPLOYMENT_ID="$(node -e 'const x=JSON.parse(process.argv[1]);if(!x.id)process.exit(2);process.stdout.write(x.id)' "$RESPONSE")"
 HEALTH="$(curl -fsS -H "Host: $HOSTNAME" "$PROXY_URL/health")"
 node -e 'const x=JSON.parse(process.argv[1]);if(x.ok!==true||x.service!=="crowne-hair"||x.runtime!=="izakhono-owned")process.exit(2)' "$HEALTH"
-curl -fsS -H "Host: $HOSTNAME" "$PROXY_URL/" | grep -q "CROWNÉ"
+curl -fsS -H "Host: $HOSTNAME" "$PROXY_URL/" | grep -Fq "Crowne by Netty"
 EDGE="NOT_RUNNING"; if systemctl is-active --quiet izakhono-edge-node 2>/dev/null; then if curl -fsS -H "Host: $HOSTNAME" "$EDGE_URL/health" >/tmp/crowne-hair-edge-health.json 2>/dev/null; then EDGE="VERIFIED"; else EDGE="RUNNING_NOT_VERIFIED"; fi; fi
 PUBLIC_HTTPS="NOT_VERIFIED"; if curl -fsS --max-time 8 "https://$HOSTNAME/health" >/tmp/crowne-hair-public-health.json 2>/dev/null; then if node -e 'const x=require("/tmp/crowne-hair-public-health.json");if(x.ok!==true||x.service!=="crowne-hair")process.exit(2)' 2>/dev/null; then PUBLIC_HTTPS="VERIFIED"; fi; fi
 TMP_REPORT="$(mktemp)"
 node - "$TMP_REPORT" "$HOSTNAME" "$RESOLVED" "$DEPLOYMENT_ID" "$EDGE" "$PUBLIC_HTTPS" <<'NODE'
-const fs=require("fs");const [path,hostname,revision,deploymentId,edge,publicHttps]=process.argv.slice(2);fs.writeFileSync(path,JSON.stringify({schema:"izakhono.crowne-hair-deployment/v1",app:"crowne-hair",product:"CROWNÉ Hair",hostname,revision,deployment_id:deploymentId,source:"IZAKHONO_CODE",runtime:"IZAKHONO_RUNTIME",edge,public_https:publicHttps,vercel_required:false,generated_at:new Date().toISOString()},null,2)+"\n");
+const fs=require("fs");const [path,hostname,revision,deploymentId,edge,publicHttps]=process.argv.slice(2);fs.writeFileSync(path,JSON.stringify({schema:"izakhono.crowne-hair-deployment/v1",app:"crowne-hair",product:"Crowne by Netty",hostname,revision,deployment_id:deploymentId,source:"IZAKHONO_CODE",runtime:"IZAKHONO_RUNTIME",edge,public_https:publicHttps,vercel_required:false,generated_at:new Date().toISOString()},null,2)+"
+");
 NODE
 sudo install -o root -g izakhono -m 0640 "$TMP_REPORT" "$REPORT";rm -f "$TMP_REPORT"
 cat <<EOF
-CROWNÉ HAIR OWNED DEPLOYMENT
+CROWNE BY NETTY OWNED DEPLOYMENT
 APP=$APP
 HOSTNAME=$HOSTNAME
 REVISION=$RESOLVED
