@@ -4,7 +4,7 @@ param([string]$Hostname = "hair.domains.izakhonoafrica.co.za")
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 Write-Host ""
-Write-Host "CROWNE HAIR - IZAKHONO OWNED INFRASTRUCTURE" -ForegroundColor Magenta
+Write-Host "CROWNE BY NETTY - IZAKHONO OWNED INFRASTRUCTURE" -ForegroundColor Magenta
 Write-Host "Target: ISN-01 -> IZAKHONO CODE -> RUNTIME -> EDGE/FORTRESS" -ForegroundColor Cyan
 Write-Host ""
 if (-not (Get-Command wsl.exe -ErrorAction SilentlyContinue)) { throw "WSL is not installed. Run START-IZAKHONO-OWNER-HOST.cmd first." }
