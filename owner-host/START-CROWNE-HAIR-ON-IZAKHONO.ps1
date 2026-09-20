@@ -4,7 +4,7 @@ param([string]$Hostname = "hair.domains.izakhonoafrica.co.za")
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 Write-Host ""
-Write-Host "CROWNE HAIR - IZAKHONO OWNED INFRASTRUCTURE" -ForegroundColor Magenta
+Write-Host "CROWNE BY NETTY - IZAKHONO OWNED INFRASTRUCTURE" -ForegroundColor Magenta
 Write-Host "Target: ISN-01 -> IZAKHONO CODE -> RUNTIME -> EDGE/FORTRESS" -ForegroundColor Cyan
 Write-Host ""
 if (-not (Get-Command wsl.exe -ErrorAction SilentlyContinue)) { throw "WSL is not installed. Run START-IZAKHONO-OWNER-HOST.cmd first." }
@@ -26,9 +26,9 @@ export CROWNE_HAIR_HOSTNAME='$escapedHost'
 bash izakhono-owned-cloud/deploy-crowne-hair.sh main
 "@
 $linux | & wsl.exe -d Ubuntu-24.04 -u root -- bash -s
-if ($LASTEXITCODE -ne 0) { throw "CROWNÉ Hair owned-infrastructure deployment failed." }
+if ($LASTEXITCODE -ne 0) { throw "Crowne by Netty owned-infrastructure deployment failed." }
 Write-Host ""
-Write-Host "CROWNÉ HAIR: DEPLOYED TO IZAKHONO RUNTIME" -ForegroundColor Green
+Write-Host "CROWNE BY NETTY: DEPLOYED TO IZAKHONO RUNTIME" -ForegroundColor Green
 Write-Host "Hostname: $Hostname" -ForegroundColor Green
 try {
   $public=Invoke-WebRequest -UseBasicParsing -TimeoutSec 12 "https://$Hostname/health"
