@@ -70,8 +70,12 @@ async function readSubmissionRecords(limit=100){
     }).filter(Boolean);
   }catch{return []}
 }
+async function readOperations(){
+  try{return JSON.parse(await readFile(join(ROOT,"control-operations.json"),"utf8"))}catch{return null}
+}
 async function controlStatus(){
   const records=await readSubmissionRecords(200);
+  const operations=await readOperations();
   const counts=records.reduce((acc,row)=>{acc[row.category]=(acc[row.category]||0)+1;return acc},{});
   return {
     ok:true,
@@ -88,6 +92,7 @@ async function controlStatus(){
       {id:"middle-east",name:"Middle East",status:"review-required"}
     ],
     priority_languages:["English","French","Portuguese","Spanish","Swahili","isiZulu","isiXhosa"],
+    operations,
     controls:{write_actions:false,note:"Read-only owner control foundation. Broadcast write actions require a separate audited control path."}
   };
 }
