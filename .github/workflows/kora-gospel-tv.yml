@@ -8,6 +8,10 @@ on:
       - "owner-host/START-KORA-GOSPEL-TV-ON-IZAKHONO.ps1"
       - "START-KORA-GOSPEL-TV-ON-IZAKHONO.cmd"
       - "kora-gospel-tv/**"
+      - "izakhono-owned-cloud/kora-gospel-tv-simulcast.sh"
+      - "izakhono-owned-cloud/kora-gospel-tv-simulcast.env.example"
+      - "kora-network/app/gospel/**"
+      - "kora-network/public/gospel-syndication.json"
       - ".github/workflows/kora-gospel-tv.yml"
   push:
     branches: [main]
@@ -33,6 +37,8 @@ jobs:
         run: |
           node --check ports/kora-gospel-tv/server.mjs
           bash -n izakhono-owned-cloud/deploy-kora-gospel-tv.sh
+          bash -n izakhono-owned-cloud/kora-gospel-tv-simulcast.sh
+          ! grep -R --line-number -E '(stream[_ -]?key|secret).{0,20}(=|:).{3,}' izakhono-owned-cloud/kora-gospel-tv-simulcast.env.example | grep -v 'REPLACE-WITH'
 
       - name: Start isolated Gospel TV runtime
         run: |
