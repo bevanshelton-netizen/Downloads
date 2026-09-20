@@ -82,3 +82,13 @@ footer{background:linear-gradient(135deg,#020202,#0d0d0d);border-top-color:rgba(
 .lifestyle-points span{border:1px solid rgba(139,99,31,.25);background:rgba(255,255,255,.58);padding:13px 16px;border-radius:999px;font-size:12px;font-weight:800;text-align:center}
 .lifestyle-note{font-size:11px!important;margin-top:16px}
 @media(max-width:900px){.lifestyle-feature{grid-template-columns:1fr}.lifestyle-art{max-width:680px}.lifestyle-points{grid-template-columns:1fr}}
+
+/* CROWNÉ Experience */
+.experience-section{background:linear-gradient(180deg,#0b0807 0%,#17100c 50%,#0a0706 100%);color:#fff}
+.experience-section .section-heading>p{color:#d9c8ad}
+.experience-visual{margin:0;border-radius:34px;overflow:hidden;border:1px solid rgba(242,210,124,.38);box-shadow:0 34px 90px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.025);background:#080706}
+.experience-visual img{width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;display:block}
+.experience-actions{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:30px}
+.experience-actions span{border:1px solid rgba(242,210,124,.30);background:rgba(255,255,255,.025);padding:10px 16px;border-radius:999px;color:#f2ddb0;font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}
+.experience-actions .button{margin-left:10px}
+@media(max-width:620px){.experience-visual{border-radius:20px}.experience-actions .button{width:100%;margin-left:0}.experience-actions span{flex:1 1 calc(50% - 12px);text-align:center}}
