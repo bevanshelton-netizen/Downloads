@@ -73,6 +73,12 @@
       "hostnameEnv": "KORA_KIDS_PUBLIC_HOST",
       "defaultHostname": "korakids.domains.izakhonoafrica.co.za",
       "deploy": "izakhono-owned-cloud/deploy-kora-kids.sh"
+    },
+    {
+      "id": "kora-gospel-tv",
+      "hostnameEnv": "KORA_GOSPEL_TV_PUBLIC_HOST",
+      "defaultHostname": "gospel.domains.izakhonoafrica.co.za",
+      "deploy": "izakhono-owned-cloud/deploy-kora-gospel-tv.sh"
     }
   ]
 }
