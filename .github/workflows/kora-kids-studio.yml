@@ -17,8 +17,6 @@ on:
 jobs:
   studio-health:
     runs-on: ubuntu-latest
-    env:
-      HOME: ${{ runner.temp }}/home
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -34,8 +32,10 @@ jobs:
           grep -q '<svg' kora-kids-studio/rigs/busi-bus.svg
           node -e 'const x=require("./kora-kids-studio/config/render-targets.json"); const p=x.targets.find(t=>t.id==="izakhono-local"); const e=x.targets.find(t=>t.id==="external-burst"); if(!p?.enabled||!p?.authoritative||e?.enabled) process.exit(2)'
       - name: Start private studio
+        env:
+          KORA_KIDS_STUDIO_WORKSPACE: ${{ runner.temp }}/kora-kids-studio
         run: |
-          mkdir -p "$HOME"
+          mkdir -p "$KORA_KIDS_STUDIO_WORKSPACE"
           node kora-kids-studio/server.mjs >/tmp/kora-studio.log 2>&1 &
           echo $! >/tmp/kora-studio.pid
       - name: Verify health, job creation and review gates
