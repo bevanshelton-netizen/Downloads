@@ -2,71 +2,89 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0b1020">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090718">
 <title>Memory Mania — Brain Battle</title>
-<meta name="description" content="Memory Mania is a fast, colourful memory-training game. Play free, build streaks and train recall.">
+<meta name="description" content="Memory Mania is a colourful memory-training game. Play free, build streaks and train recall.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#090d19;--panel:#11182d;--card:#151f39;--line:#2a385d;--text:#f8fbff;--muted:#a9b6d4;
-  --gold:#ffca52;--cyan:#4de7ff;--purple:#8b5cf6;--pink:#ff6fb5;--orange:#ff8a3d;--green:#51e0a6;--red:#ff667a;
+  --bg:#070713;--panel:#0d1230;--card:#111a3d;--line:rgba(115,148,255,.28);--text:#fff;--muted:#a9b5df;
+  --gold:#ffd33d;--orange:#ff872f;--cyan:#4cecff;--blue:#338bff;--purple:#8e4dff;--pink:#ff55c6;--green:#35dfb0;--red:#ff5e76;
+  --shadow:0 20px 60px rgba(0,0,0,.35)
 }
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:
-radial-gradient(circle at 20% 0%,rgba(77,231,255,.13),transparent 26rem),
-radial-gradient(circle at 95% 15%,rgba(139,92,246,.16),transparent 28rem),
-linear-gradient(180deg,#080c18,#0c1325 45%,#080c18);
-color:var(--text);font-family:"Trebuchet MS","Segoe UI",Arial,sans-serif;min-height:100vh}
-button,a{font:inherit}.shell{max-width:1180px;margin:0 auto;padding:20px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0 18px}.brand-mini{font-weight:1000;letter-spacing:.06em}.share{border:1px solid var(--line);background:#121a30;color:var(--text);border-radius:14px;padding:11px 15px;cursor:pointer;font-weight:900}.hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:30px;padding:clamp(22px,4vw,48px);background:
-radial-gradient(circle at 78% 28%,rgba(139,92,246,.24),transparent 24rem),
-radial-gradient(circle at 15% 90%,rgba(77,231,255,.15),transparent 26rem),
-linear-gradient(145deg,#111a32,#10172a)}
-.hero-grid{display:grid;grid-template-columns:1.25fr .75fr;align-items:center;gap:28px}.kicker{display:inline-flex;gap:8px;border:1px solid var(--line);background:rgba(255,255,255,.04);padding:7px 11px;border-radius:999px;font-size:12px;font-weight:1000;letter-spacing:.12em}
-.logo{margin:20px 0 0;font-family:Impact,"Arial Black","Trebuchet MS",sans-serif;font-size:clamp(56px,9vw,118px);line-height:.77;letter-spacing:-.035em;text-transform:uppercase}
-.logo .memory{display:block;color:var(--gold);text-shadow:0 5px 0 #714311,0 12px 30px rgba(255,202,82,.18)}
-.logo .mania{display:block;margin-top:9px;color:var(--cyan);text-shadow:0 5px 0 #135878,0 12px 30px rgba(77,231,255,.18)}
-.subtitle{font-weight:1000;letter-spacing:.22em;margin-top:18px}.lead{max-width:650px;color:var(--muted);line-height:1.6;font-size:17px}.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
-.cta{border:0;border-radius:18px;padding:15px 24px;font-weight:1000;cursor:pointer;font-size:18px}.cta.primary{background:linear-gradient(135deg,var(--gold),var(--orange));color:#211508;box-shadow:0 7px 0 #7b4714,0 18px 40px rgba(255,156,55,.2)}.cta.secondary{background:#151e36;color:var(--text);border:1px solid var(--line)}
-.mascot-wrap{display:grid;place-items:center;min-height:300px;position:relative}.orb{position:absolute;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(77,231,255,.26),rgba(139,92,246,.12),transparent 68%);filter:blur(4px)}
-.mascot{width:min(320px,80vw);filter:drop-shadow(0 20px 24px rgba(0,0,0,.28));animation:float 2.6s ease-in-out infinite}@keyframes float{50%{transform:translateY(-10px) rotate(1deg)}}@media(prefers-reduced-motion:reduce){.mascot{animation:none}}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:24px}.stat{background:#11192f;border:1px solid var(--line);border-radius:18px;padding:15px;text-align:center}.stat .big{font-size:22px;font-weight:1000}.muted{color:var(--muted)}
-.section{margin-top:28px}.section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:12px}.section h2{margin:0;font-family:Impact,"Arial Black",sans-serif;letter-spacing:.02em;font-size:34px}.modes{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.mode{position:relative;overflow:hidden;min-height:190px;border:0;border-radius:25px;padding:19px;text-align:left;color:white;cursor:pointer;box-shadow:0 15px 30px rgba(0,0,0,.18);transition:transform .17s ease}
-.mode:hover{transform:translateY(-5px)}.mode:before,.mode:after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.10)}.mode:before{width:130px;height:130px;right:-38px;top:-40px}.mode:after{width:80px;height:80px;left:-28px;bottom:-34px}.mode1{background:linear-gradient(145deg,#087d75,#18b9ab)}.mode2{background:linear-gradient(145deg,#7623c8,#d231db)}.mode3{background:linear-gradient(145deg,#1d4ed8,#0ea5e9)}.mode4{background:linear-gradient(145deg,#c2410c,#ff783d)}
-.icon{width:62px;height:62px;border-radius:18px;display:grid;place-items:center;background:rgba(255,255,255,.14);font-size:34px;position:relative}.mode h3{font-size:22px;margin:28px 0 5px;position:relative}.mode p{margin:0;opacity:.88;position:relative;font-size:13px}
-.game{display:none;border:1px solid var(--line);border-radius:28px;background:linear-gradient(145deg,#111a31,#0e162a);padding:22px;margin-top:18px}.game.active{display:block}.game-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.pill{border:1px solid var(--line);background:#151e36;border-radius:999px;padding:8px 12px;font-weight:1000}.game-cards,.choice-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:20px}.memory-card,.choice{min-height:100px;border:1px solid var(--line);background:#17223e;border-radius:20px;display:grid;place-items:center;font-size:48px}.choice{cursor:pointer;color:var(--text)}.choice.selected{outline:3px solid var(--cyan);background:#183d4a}.hint{margin-top:16px;color:var(--muted);text-align:center}.game-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:18px}
-.plan-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.plan{border:1px solid var(--line);border-radius:26px;padding:22px;background:#121a30}.plan.plus{background:linear-gradient(145deg,rgba(255,202,82,.13),rgba(139,92,246,.08)),#121a30}.plan.pro{background:linear-gradient(145deg,rgba(139,92,246,.16),rgba(255,111,181,.08)),#121a30}.plan .price{font-size:34px;font-weight:1000}.badge{display:inline-block;border-radius:999px;padding:6px 10px;background:var(--gold);color:#241706;font-size:11px;font-weight:1000}
-.team{display:flex;align-items:center;gap:18px;border:1px solid var(--line);background:#121a30;border-radius:26px;padding:22px}.team .emoji{font-size:54px}.footer{margin:32px 0 10px;text-align:center;color:var(--muted);font-size:13px}.notice{display:none;margin-top:14px;border:1px solid var(--line);background:#10192f;border-radius:18px;padding:14px;color:var(--muted)}.notice.show{display:block}
-@media(max-width:900px){.hero-grid{grid-template-columns:1fr}.mascot-wrap{min-height:240px}.stats{grid-template-columns:repeat(2,1fr)}.modes{grid-template-columns:repeat(2,1fr)}.game-cards,.choice-grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:560px){.shell{padding:14px}.hero{border-radius:24px;padding:22px}.logo{font-size:58px}.modes,.plan-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.game-cards,.choice-grid{grid-template-columns:repeat(2,1fr)}.team{align-items:flex-start}.section h2{font-size:29px}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;color:var(--text);font-family:"Nunito","Segoe UI",Arial,sans-serif;background:
+radial-gradient(circle at 12% -5%,rgba(77,236,255,.18),transparent 24rem),
+radial-gradient(circle at 90% 10%,rgba(142,77,255,.22),transparent 30rem),
+radial-gradient(circle at 55% 80%,rgba(255,85,198,.08),transparent 28rem),
+linear-gradient(180deg,#060612,#0a1025 42%,#060612);overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.25;background-image:
+radial-gradient(circle,#fff 1px,transparent 1px),radial-gradient(circle,#4cecff 1px,transparent 1px);
+background-size:54px 54px,87px 87px;background-position:0 0,19px 21px;mask-image:linear-gradient(to bottom,#000,transparent 72%)}
+button,a{font:inherit}.shell{max-width:1180px;margin:auto;padding:18px}.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0 16px;background:linear-gradient(180deg,rgba(7,7,19,.95),rgba(7,7,19,.68),transparent);backdrop-filter:blur(10px)}
+.brand-mini{display:flex;align-items:center;gap:10px;font-family:"Bungee",sans-serif;font-size:16px;letter-spacing:.03em}.brain-dot{width:36px;height:36px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(145deg,#ff6aa8,#ff86d8);box-shadow:0 0 22px rgba(255,85,198,.35)}
+.share{border:1px solid var(--line);background:linear-gradient(145deg,#141d42,#0f1735);color:#fff;border-radius:15px;padding:11px 15px;cursor:pointer;font-weight:900;box-shadow:inset 0 1px rgba(255,255,255,.08)}
+.hero{position:relative;overflow:hidden;border:1px solid rgba(101,137,255,.35);border-radius:34px;padding:clamp(22px,4vw,50px);background:
+linear-gradient(145deg,rgba(18,28,74,.97),rgba(8,13,41,.97));box-shadow:var(--shadow),inset 0 1px rgba(255,255,255,.08)}
+.hero:before{content:"";position:absolute;width:520px;height:520px;right:-170px;top:-210px;border-radius:50%;background:radial-gradient(circle,rgba(76,236,255,.25),rgba(142,77,255,.16) 35%,transparent 70%);filter:blur(3px)}
+.hero:after{content:"";position:absolute;left:-80px;bottom:-130px;width:420px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(255,85,198,.18),transparent 70%)}
+.hero-grid{position:relative;z-index:2;display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:24px}.kicker{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(76,236,255,.28);background:rgba(76,236,255,.08);padding:8px 12px;border-radius:999px;font-size:12px;font-weight:900;letter-spacing:.12em;color:#dffcff}
+.logo{margin:18px 0 0;font-family:"Bungee",sans-serif;font-size:clamp(48px,8vw,100px);line-height:.84;letter-spacing:-.03em;text-transform:uppercase}
+.logo .memory{display:block;background:linear-gradient(180deg,#fff4a7 0%,#ffd83b 28%,#ff9a24 72%,#ff6d15 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-stroke:2px rgba(86,34,0,.35);filter:drop-shadow(0 6px 0 #6d2b04) drop-shadow(0 16px 28px rgba(255,157,35,.2))}
+.logo .mania{display:block;margin-top:6px;background:linear-gradient(180deg,#d9fbff 0%,#62edff 28%,#2ba5ff 70%,#6c5cff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-stroke:2px rgba(0,48,98,.3);filter:drop-shadow(0 6px 0 #153b78) drop-shadow(0 16px 28px rgba(76,236,255,.22))}
+.subtitle{font-family:"Bungee",sans-serif;font-size:clamp(14px,2.2vw,24px);letter-spacing:.17em;color:#f2dcff;margin-top:16px}.lead{max-width:650px;color:#c9d4f6;line-height:1.65;font-size:17px}.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+.cta{border:0;border-radius:19px;padding:15px 23px;font-weight:900;cursor:pointer;font-size:17px;transition:transform .15s ease,filter .15s ease}.cta:hover{transform:translateY(-2px);filter:brightness(1.05)}.cta.primary{background:linear-gradient(180deg,#fff35a,#ffc526 58%,#ff8b1f);color:#35170a;box-shadow:0 7px 0 #9f4a0b,0 18px 45px rgba(255,176,36,.28),inset 0 2px rgba(255,255,255,.6);text-transform:uppercase}.cta.secondary{background:linear-gradient(145deg,#18244d,#101735);color:#fff;border:1px solid var(--line)}
+.mascot-wrap{display:grid;place-items:center;min-height:315px;position:relative}.portal{position:absolute;width:290px;height:190px;bottom:36px;border-radius:50%;background:radial-gradient(ellipse,rgba(47,208,255,.38),rgba(110,79,255,.22) 35%,rgba(9,10,28,0) 70%);filter:blur(1px);box-shadow:0 0 70px rgba(76,236,255,.16)}
+.mascot{position:relative;width:min(330px,82vw);filter:drop-shadow(0 24px 28px rgba(0,0,0,.4));animation:float 2.7s ease-in-out infinite}.star{position:absolute;font-size:28px;filter:drop-shadow(0 0 12px #fff);animation:twinkle 1.8s ease-in-out infinite alternate}.s1{left:8%;top:8%}.s2{right:7%;top:18%;animation-delay:.5s}.s3{left:16%;bottom:24%;animation-delay:.9s}@keyframes float{50%{transform:translateY(-10px) rotate(1deg)}}@keyframes twinkle{to{transform:scale(1.25) rotate(12deg);opacity:.65}}@media(prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto!important}}
+.stats{position:relative;z-index:2;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:24px}.stat{background:linear-gradient(160deg,rgba(24,36,82,.94),rgba(13,20,52,.94));border:1px solid rgba(102,139,255,.28);border-radius:19px;padding:14px;text-align:center;box-shadow:inset 0 1px rgba(255,255,255,.06)}.stat .big{font-size:23px;font-weight:1000}.muted{color:var(--muted)}
+.section{margin-top:30px}.section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:13px}.eyebrow{font-size:11px;font-weight:1000;letter-spacing:.15em;color:#8aefff}.section h2{margin:2px 0 0;font-family:"Bungee",sans-serif;font-size:clamp(25px,4vw,38px);letter-spacing:-.02em}.modes{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.mode{position:relative;overflow:hidden;min-height:210px;border:1px solid rgba(255,255,255,.2);border-radius:27px;padding:18px;text-align:left;color:white;cursor:pointer;box-shadow:0 16px 36px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.22);transition:transform .17s ease,filter .17s ease}.mode:hover{transform:translateY(-5px) scale(1.01);filter:saturate(1.08)}.mode:before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 15%,rgba(255,255,255,.16) 45%,transparent 65%);transform:translateX(-120%);transition:transform .45s ease}.mode:hover:before{transform:translateX(120%)}.mode:after{content:"";position:absolute;width:145px;height:145px;border-radius:50%;right:-40px;top:-42px;background:rgba(255,255,255,.12)}
+.mode1{background:linear-gradient(145deg,#078b83,#14cab9)}.mode2{background:linear-gradient(145deg,#7521dc,#d428d6)}.mode3{background:linear-gradient(145deg,#1856e8,#00b6f2)}.mode4{background:linear-gradient(145deg,#e04819,#ff8c2c)}
+.icon{position:relative;z-index:2;width:66px;height:66px;border-radius:20px;display:grid;place-items:center;background:linear-gradient(145deg,rgba(255,255,255,.22),rgba(255,255,255,.08));font-size:36px;border:1px solid rgba(255,255,255,.22);box-shadow:0 12px 25px rgba(0,0,0,.16)}.mode h3{position:relative;z-index:2;font-family:"Bungee",sans-serif;font-size:19px;margin:28px 0 5px}.mode p{position:relative;z-index:2;margin:0;opacity:.9;font-size:13px;font-weight:800}.arrow{position:absolute;right:18px;bottom:16px;z-index:2;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.18);font-size:20px}
+.game{display:none;border:1px solid rgba(83,222,255,.28);border-radius:30px;background:linear-gradient(145deg,#101a40,#0b112b);padding:22px;margin-top:18px;box-shadow:var(--shadow),inset 0 1px rgba(255,255,255,.07)}.game.active{display:block}.game-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.pill{border:1px solid rgba(76,236,255,.28);background:rgba(76,236,255,.08);border-radius:999px;padding:9px 13px;font-weight:1000;color:#dbfbff}.game-cards,.choice-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:20px}.memory-card,.choice{min-height:105px;border:1px solid rgba(111,151,255,.3);background:linear-gradient(145deg,#172651,#121a38);border-radius:22px;display:grid;place-items:center;font-size:48px;box-shadow:inset 0 1px rgba(255,255,255,.07),0 10px 22px rgba(0,0,0,.18)}.choice{cursor:pointer;color:#fff;transition:transform .14s ease,box-shadow .14s ease}.choice:hover{transform:translateY(-2px)}.choice.selected{outline:3px solid var(--cyan);background:linear-gradient(145deg,#17546c,#173f5e);box-shadow:0 0 24px rgba(76,236,255,.2)}.hint{margin-top:16px;color:#c7d4f6;text-align:center}.game-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:18px}
+.plan-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.plan{position:relative;overflow:hidden;border:1px solid rgba(116,145,255,.3);border-radius:28px;padding:23px;background:#111a36;box-shadow:0 18px 38px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.07)}.plan:after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;right:-70px;top:-80px;background:rgba(255,255,255,.06)}.plan.plus{background:linear-gradient(145deg,rgba(255,191,47,.16),rgba(35,26,76,.96)),#111a36;border-color:rgba(255,205,65,.42)}.plan.pro{background:linear-gradient(145deg,rgba(121,74,255,.21),rgba(31,19,70,.96)),#111a36;border-color:rgba(158,102,255,.42)}.plan h3{font-family:"Bungee",sans-serif;font-size:20px}.plan .price{font-size:36px;font-weight:1000}.badge{display:inline-block;border-radius:999px;padding:6px 10px;background:linear-gradient(180deg,#ffe969,#ffb72e);color:#351c08;font-size:11px;font-weight:1000;box-shadow:0 6px 16px rgba(255,185,45,.22)}
+.team{display:flex;align-items:center;gap:18px;border:1px solid rgba(62,173,255,.32);background:linear-gradient(135deg,#0f2859,#0d1841);border-radius:28px;padding:22px;box-shadow:0 16px 35px rgba(0,0,0,.18)}.team .emoji{font-size:58px}
+.community{display:grid;grid-template-columns:1fr 1fr;gap:14px}.board,.badges{border:1px solid var(--line);background:linear-gradient(145deg,#101936,#0c132c);border-radius:26px;padding:20px}.rank{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07)}.rank:last-child{border-bottom:0}.avatar{width:34px;height:34px;border-radius:12px;display:grid;place-items:center;background:#17234b}.medals{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}.medal{text-align:center;border:1px solid rgba(116,145,255,.2);border-radius:17px;padding:12px 8px;background:rgba(255,255,255,.03)}.medal .micon{font-size:30px}.medal small{display:block;margin-top:6px;color:#c2cff1;font-weight:800}
+.footer{margin:34px 0 84px;text-align:center;color:var(--muted);font-size:13px}.notice{display:none;margin-top:14px;border:1px solid rgba(83,222,255,.24);background:#0f1938;border-radius:18px;padding:14px;color:#c8d6f7}.notice.show{display:block}
+.mobile-nav{display:none}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr}.mascot-wrap{min-height:245px}.stats{grid-template-columns:repeat(2,1fr)}.modes{grid-template-columns:repeat(2,1fr)}.game-cards,.choice-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.shell{padding:12px}.topbar{padding-top:4px}.hero{border-radius:26px;padding:21px 17px}.logo{font-size:52px}.subtitle{font-size:13px}.lead{font-size:15px}.mascot-wrap{min-height:220px}.mascot{width:250px}.modes,.plan-grid,.community{grid-template-columns:1fr}.mode{min-height:165px}.mode h3{margin-top:18px}.stats{grid-template-columns:repeat(2,1fr)}.game-cards,.choice-grid{grid-template-columns:repeat(2,1fr)}.team{align-items:flex-start}.section h2{font-size:27px}.mobile-nav{position:fixed;z-index:30;display:grid;grid-template-columns:repeat(4,1fr);left:10px;right:10px;bottom:10px;padding:8px;border:1px solid rgba(102,139,255,.3);border-radius:20px;background:rgba(9,13,30,.91);backdrop-filter:blur(15px);box-shadow:0 16px 50px rgba(0,0,0,.45)}.mobile-nav a{color:#aebce4;text-decoration:none;text-align:center;font-size:11px;font-weight:900}.mobile-nav span{display:block;font-size:21px}.mobile-nav a:first-child{color:var(--cyan)}}
 </style>
 </head>
 <body>
 <main class="shell">
-  <div class="topbar"><div class="brand-mini">🧠 MEMORY MANIA</div><button id="shareBtn" class="share" type="button">↗ Share game</button></div>
+  <div class="topbar">
+    <div class="brand-mini"><span class="brain-dot">🧠</span> MEMORY MANIA</div>
+    <button id="shareBtn" class="share" type="button">↗ Share</button>
+  </div>
 
-  <section class="hero">
+  <section class="hero" id="home">
     <div class="hero-grid">
       <div>
-        <div class="kicker">⚡ TRAIN • PLAY • REMEMBER</div>
+        <div class="kicker">⚡ TRAIN • PLAY • IMPROVE</div>
         <h1 class="logo"><span class="memory">MEMORY</span><span class="mania">MANIA</span></h1>
         <div class="subtitle">BRAIN BATTLE</div>
-        <p class="lead">Small games. Big brain gains. Build stronger recall with fast, colourful challenges that make remembering feel like play.</p>
+        <p class="lead">Challenge your brain with fast, colourful memory games. Build streaks, climb levels and turn better recall into a daily habit.</p>
         <div class="actions">
-          <button id="playHero" class="cta primary" type="button">▶ PLAY FREE</button>
-          <a class="cta secondary" href="#plans" style="text-decoration:none">👑 SEE PREMIUM</a>
+          <button id="playHero" class="cta primary" type="button">▶ Play now</button>
+          <a class="cta secondary" href="#plans" style="text-decoration:none">👑 Go Premium</a>
         </div>
       </div>
       <div class="mascot-wrap" aria-label="Memory Mania brain mascot">
-        <div class="orb"></div>
+        <span class="star s1">✨</span><span class="star s2">⭐</span><span class="star s3">⚡</span>
+        <div class="portal"></div>
         <svg class="mascot" viewBox="0 0 320 300" role="img" aria-label="Smiling brain mascot wearing sunglasses">
-          <defs><linearGradient id="bp" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff789d"/><stop offset="1" stop-color="#f45fc3"/></linearGradient><linearGradient id="sg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#55efff"/><stop offset="1" stop-color="#3576ff"/></linearGradient></defs>
+          <defs><linearGradient id="bp" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff789d"/><stop offset="1" stop-color="#f45fc3"/></linearGradient><linearGradient id="sg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#55efff"/><stop offset="1" stop-color="#3576ff"/></linearGradient><linearGradient id="shoe" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#45a1ff"/><stop offset="1" stop-color="#674dff"/></linearGradient></defs>
           <ellipse cx="160" cy="263" rx="94" ry="17" fill="rgba(77,231,255,.18)"/>
           <path d="M89 117c-22-48 29-82 66-51 24-38 80-13 74 30 44 7 49 59 17 80 16 44-37 73-71 45-30 37-91 13-79-34-43-13-43-59-7-70z" fill="url(#bp)" stroke="#be2a77" stroke-width="6"/>
           <path d="M102 82c15 13 15 31 5 44M145 59c-10 19 1 35 17 44M190 65c-11 15-9 33 12 43M79 132c20-6 37 6 39 27M221 117c24 3 32 23 27 40M123 184c7-16 23-25 43-18M180 171c12 3 20 12 24 25" fill="none" stroke="#de377f" stroke-width="8" stroke-linecap="round" opacity=".8"/>
           <path d="M82 122l66 5-8 40-54-5zM154 127l66-5-4 41-56 4z" fill="url(#sg)" stroke="#092941" stroke-width="8" stroke-linejoin="round"/><path d="M146 137h17" stroke="#092941" stroke-width="10" stroke-linecap="round"/>
           <path d="M128 187c18 22 43 22 61 0" fill="none" stroke="#7e1f47" stroke-width="8" stroke-linecap="round"/>
           <path d="M91 212c-24 6-33 24-25 40M223 211c25 4 37 22 30 40" fill="none" stroke="#f45fc3" stroke-width="11" stroke-linecap="round"/>
-          <rect x="55" y="241" width="48" height="26" rx="13" fill="#2864ee"/><rect x="219" y="241" width="48" height="26" rx="13" fill="#2864ee"/>
-          <g fill="#ffca52"><path d="M55 42l5 12 12 5-12 5-5 12-5-12-12-5 12-5z"/><path d="M267 66l4 9 9 4-9 4-4 9-4-9-9-4 9-4z"/></g>
+          <rect x="55" y="241" width="48" height="26" rx="13" fill="url(#shoe)"/><rect x="219" y="241" width="48" height="26" rx="13" fill="url(#shoe)"/>
+          <g fill="#ffd83b"><path d="M55 42l5 12 12 5-12 5-5 12-5-12-12-5 12-5z"/><path d="M267 66l4 9 9 4-9 4-4 9-4-9-9-4 9-4z"/></g>
         </svg>
       </div>
     </div>
@@ -78,49 +96,76 @@ linear-gradient(145deg,#111a32,#10172a)}
     </div>
   </section>
 
-  <section class="section">
-    <div class="section-head"><div><div class="muted" style="font-weight:1000;letter-spacing:.12em;font-size:12px">CHOOSE YOUR CHALLENGE</div><h2>Pick a brain battle</h2></div><div class="muted">Tap any mode to play</div></div>
+  <section class="section" id="games">
+    <div class="section-head"><div><div class="eyebrow">CHOOSE YOUR CHALLENGE</div><h2>Pick a brain battle</h2></div><div class="muted">Tap any mode to play</div></div>
     <div class="modes">
-      <button class="mode mode1" data-mode="words"><div class="icon">🔤</div><h3>Word Rush</h3><p>Words • Memory • Speed</p></button>
-      <button class="mode mode2" data-mode="emoji"><div class="icon">🤣</div><h3>Emoji Chaos</h3><p>See • Match • Recall</p></button>
-      <button class="mode mode3" data-mode="numbers"><div class="icon" style="font-size:24px;font-weight:1000">123</div><h3>Number Ninja</h3><p>Numbers • Focus • Recall</p></button>
-      <button class="mode mode4" data-mode="mixed"><div class="icon">🧩</div><h3>Mega Mix</h3><p>Ultimate brain challenge</p></button>
+      <button class="mode mode1" data-mode="words"><div class="icon">🔤</div><h3>Word Rush</h3><p>Words • Memory • Speed</p><span class="arrow">›</span></button>
+      <button class="mode mode2" data-mode="emoji"><div class="icon">🤣</div><h3>Emoji Chaos</h3><p>See • Remember • Match</p><span class="arrow">›</span></button>
+      <button class="mode mode3" data-mode="numbers"><div class="icon" style="font-size:24px;font-weight:1000">123</div><h3>Number Ninja</h3><p>Numbers • Focus • Recall</p><span class="arrow">›</span></button>
+      <button class="mode mode4" data-mode="mixed"><div class="icon">🧩</div><h3>Mega Mix</h3><p>All-in-one challenge</p><span class="arrow">›</span></button>
     </div>
 
     <div id="game" class="game">
-      <div class="game-top"><div><div class="muted" style="font-size:12px;font-weight:1000">LIVE ROUND</div><h2 id="gameTitle" style="margin:3px 0 0;font-size:28px">Emoji Chaos</h2></div><div class="pill" id="timer">6s</div></div>
+      <div class="game-top"><div><div class="eyebrow">LIVE ROUND</div><h2 id="gameTitle" style="margin:3px 0 0;font-size:28px">Emoji Chaos</h2></div><div class="pill" id="timer">6s</div></div>
       <div id="studyCards" class="game-cards"></div>
       <div id="choiceArea" style="display:none">
         <div class="hint">They’re gone. Pick the <strong id="pickCount">5</strong> items you remember.</div>
         <div id="choices" class="choice-grid"></div>
         <div class="game-actions"><button id="lockBtn" class="cta primary" type="button">LOCK IT IN 🔒</button><button id="restartBtn" class="cta secondary" type="button">Restart</button></div>
       </div>
-      <div id="result" class="notice"></div>
+      <div id="result" class="notice" aria-live="polite"></div>
     </div>
   </section>
 
   <section id="plans" class="section">
-    <div class="section-head"><div><div class="muted" style="font-weight:1000;letter-spacing:.12em;font-size:12px">MORE TRAINING</div><h2>Premium plans</h2></div><div class="muted">Free play remains available</div></div>
+    <div class="section-head"><div><div class="eyebrow">LEVEL UP</div><h2>More ways to train</h2></div><div class="muted">Free play stays free</div></div>
     <div class="plan-grid">
-      <div class="plan plus"><span class="badge">MOST POPULAR</span><h3 style="font-size:26px;margin-bottom:6px">👑 Memory Mania Plus</h3><p class="muted">No ads • Unlimited play • Advanced stats • Extra challenges</p><div class="price">R79<span style="font-size:15px">/month</span></div><button class="cta secondary planBtn" data-plan="Plus" type="button" style="margin-top:15px">Choose Plus</button></div>
-      <div class="plan pro"><span class="badge" style="background:#8b5cf6;color:white">PRO</span><h3 style="font-size:26px;margin-bottom:6px">🤖 Memory Mania Pro</h3><p class="muted">AI memory plans • Deep reports • Personalised challenges</p><div class="price">R149<span style="font-size:15px">/month</span></div><button class="cta secondary planBtn" data-plan="Pro" type="button" style="margin-top:15px">Choose Pro</button></div>
+      <div class="plan plus"><span class="badge">MOST POPULAR</span><h3>👑 Upgrade to Plus</h3><p class="muted">No ads • Unlimited play • Advanced stats • Extra challenges</p><div class="price">R79<span style="font-size:15px">/month</span></div><button class="cta secondary planBtn" data-plan="Plus" type="button" style="margin-top:15px">Choose Plus</button></div>
+      <div class="plan pro"><span class="badge" style="background:linear-gradient(180deg,#ae83ff,#7141ff);color:white">PRO</span><h3>🤖 Go Pro</h3><p class="muted">AI memory plans • Deep reports • Personalised challenges</p><div class="price">R149<span style="font-size:15px">/month</span></div><button class="cta secondary planBtn" data-plan="Pro" type="button" style="margin-top:15px">Choose Pro</button></div>
     </div>
     <div id="planNotice" class="notice">Premium checkout is being connected to the IZAKHONO payment stack. Free play is live now.</div>
   </section>
 
-  <section class="section team"><div class="emoji">🏫</div><div><h2 style="margin:0">Schools & Teams</h2><p class="muted" style="margin:7px 0 0">Class competitions, staff training, custom learning packs and progress dashboards are part of the institutional roadmap.</p></div></section>
+  <section class="section team"><div class="emoji">🏫</div><div><div class="eyebrow">SCHOOLS & TEAMS</div><h2 style="margin:2px 0 0">Train brighter minds together</h2><p class="muted" style="margin:8px 0 0">Class competitions, staff training, custom learning packs and progress dashboards.</p></div></section>
 
-  <div class="footer">Memory Mania™ • Built on IZAKHONO infrastructure • Public Beta</div>
+  <section class="section community">
+    <div class="board">
+      <div class="section-head" style="margin-bottom:3px"><h2 style="font-size:24px">🏆 Top Players</h2><span class="muted">This week</span></div>
+      <div class="rank"><span>🥇 <span class="avatar" style="display:inline-grid">🧑‍🚀</span> NovaMind</span><strong>52,340</strong></div>
+      <div class="rank"><span>🥈 <span class="avatar" style="display:inline-grid">🧠</span> BrainByte</span><strong>41,220</strong></div>
+      <div class="rank"><span>🥉 <span class="avatar" style="display:inline-grid">🐼</span> PixelPanda</span><strong>38,900</strong></div>
+    </div>
+    <div class="badges">
+      <div class="section-head" style="margin-bottom:3px"><h2 style="font-size:24px">🎖️ Collect Badges</h2><span class="muted">Play. Earn. Improve.</span></div>
+      <div class="medals">
+        <div class="medal"><div class="micon">🧠</div><small>Quick Thinker</small></div>
+        <div class="medal"><div class="micon">🎯</div><small>7-Day Streak</small></div>
+        <div class="medal"><div class="micon">⭐</div><small>Memory Master</small></div>
+        <div class="medal"><div class="micon">💎</div><small>Brain Legend</small></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">Memory Mania™ • Train smarter • Play daily • Public Beta</div>
 </main>
+
+<nav class="mobile-nav" aria-label="Mobile navigation">
+  <a href="#home"><span>⌂</span>Home</a>
+  <a href="#games"><span>🎮</span>Games</a>
+  <a href="#plans"><span>📊</span>Plans</a>
+  <a href="#games"><span>🏆</span>Ranks</a>
+</nav>
 
 <script>
 (()=> {
   const poolEmoji=['🐯','🚀','🍕','🎸','👑','⚽','🌈','🐘','💎','🍎','🎂','🚗','🐙','⭐','🦄'];
   const poolWords=['tiger','rocket','pizza','guitar','crown','football','rainbow','elephant','diamond','apple','cake','car','octopus','star','unicorn'];
   let mode='emoji',score=0,streak=0,lives=3,level=1,target=[],selected=new Set(),tick=null;
+  try{score=Number(localStorage.getItem('mm-score')||0);streak=Number(localStorage.getItem('mm-streak')||0);level=Math.max(1,Number(localStorage.getItem('mm-level')||1))}catch(_){}
   const $=id=>document.getElementById(id);
   const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
-  const sync=()=>{$('scoreTop').textContent=score;$('streakTop').textContent=streak;$('livesTop').textContent=lives;$('levelTop').textContent=level};
+  const save=()=>{try{localStorage.setItem('mm-score',score);localStorage.setItem('mm-streak',streak);localStorage.setItem('mm-level',level)}catch(_){}};
+  const sync=()=>{$('scoreTop').textContent=score.toLocaleString();$('streakTop').textContent=streak;$('livesTop').textContent=lives;$('levelTop').textContent=level;save()};
   function itemsForMode(){
     if(mode==='emoji') return shuffle(poolEmoji);
     if(mode==='words') return shuffle(poolWords);
@@ -146,14 +191,16 @@ linear-gradient(145deg,#111a32,#10172a)}
   }
   function judge(){
     const hits=target.filter(x=>selected.has(x)).length, perfect=hits===target.length;
-    if(perfect){score+=500*level;streak++;level=Math.min(10,level+(streak%2===0?1:0));$('result').innerHTML='🏆 <strong>Perfect recall!</strong> You remembered all '+target.length+' items. +'+(500*level)+' points.'}
-    else{score+=hits*80;streak=0;if(hits<Math.ceil(target.length*.6))lives=Math.max(0,lives-1);$('result').innerHTML=(hits>=Math.ceil(target.length*.7)?'🔥':'🧠')+' <strong>'+hits+'/'+target.length+' remembered.</strong> The correct set was: '+target.join(' ') }
-    $('result').className='notice show';sync(); if(lives===0){$('result').innerHTML+=' <strong>Brain battery empty — press Restart for a fresh run.</strong>'}
+    if(perfect){const earned=500*level;score+=earned;streak++;level=Math.min(10,level+(streak%2===0?1:0));$('result').innerHTML='🏆 <strong>Perfect recall!</strong> You remembered all '+target.length+' items. +'+earned.toLocaleString()+' points.'}
+    else{score+=hits*80;streak=0;if(hits<Math.ceil(target.length*.6))lives=Math.max(0,lives-1);$('result').innerHTML=(hits>=Math.ceil(target.length*.7)?'🔥':'🧠')+' <strong>'+hits+'/'+target.length+' remembered.</strong> Correct set: '+target.join(' ') }
+    $('result').className='notice show';sync();if(lives===0)$('result').innerHTML+=' <strong>Brain battery empty — hit Restart for a fresh run.</strong>';
   }
   document.querySelectorAll('.mode').forEach(b=>b.addEventListener('click',()=>{mode=b.dataset.mode;start()}));
-  $('playHero').addEventListener('click',()=>{mode='emoji';start()});$('lockBtn').addEventListener('click',judge);$('restartBtn').addEventListener('click',()=>{score=0;streak=0;lives=3;level=1;sync();start()});
-  document.querySelectorAll('.planBtn').forEach(b=>b.addEventListener('click',()=>{const n=$('planNotice');n.textContent=b.dataset.plan+' selected. Secure IZAKHONO/iKhokha checkout will be enabled when the product checkout link is assigned. Free play is already live.';n.className='notice show'}));
-  $('shareBtn').addEventListener('click',async()=>{const data={title:'Memory Mania — Brain Battle',text:'Try Memory Mania, a fun memory-training game.',url:location.href};try{if(navigator.share)await navigator.share(data);else{prompt('Copy this link:',location.href)}}catch(_){}});
+  $('playHero').addEventListener('click',()=>{mode='emoji';start()});
+  $('lockBtn').addEventListener('click',judge);
+  $('restartBtn').addEventListener('click',()=>{score=0;streak=0;lives=3;level=1;sync();start()});
+  document.querySelectorAll('.planBtn').forEach(b=>b.addEventListener('click',()=>{const n=$('planNotice');n.textContent=b.dataset.plan+' selected. Secure iKhokha checkout will be connected here before premium unlocks.';n.className='notice show'}));
+  $('shareBtn').addEventListener('click',async()=>{const data={title:'Memory Mania — Brain Battle',text:'Try Memory Mania — train your memory through quick, colourful challenges.',url:location.href};try{if(navigator.share)await navigator.share(data);else prompt('Copy this link:',location.href)}catch(_){}});
   sync();
 })();
 </script>
