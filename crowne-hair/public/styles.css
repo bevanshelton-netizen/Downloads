@@ -144,3 +144,73 @@ footer{background:linear-gradient(135deg,#020202,#0d0d0d);border-top-color:rgba(
   .lifestyle-feature{grid-template-columns:1fr;gap:28px}
   .lifestyle-feature-reverse .lifestyle-art,.lifestyle-feature-reverse .lifestyle-copy{order:initial}
 }
+
+/* Mobile-first royal polish */
+@media(max-width:700px){
+  .announcement{
+    min-height:34px;
+    padding:7px 12px;
+    flex-direction:row;
+    justify-content:space-between;
+    gap:10px;
+    white-space:nowrap;
+    font-size:9px;
+    letter-spacing:.11em;
+  }
+  .announcement>span:first-child{overflow:hidden;text-overflow:ellipsis}
+  .announcement .text-button{font-size:9px;white-space:nowrap}
+  .site-header{
+    height:68px;
+    padding:0 12px;
+    gap:8px;
+  }
+  .brand{gap:8px;min-width:0;flex:1}
+  .brand-mark{width:38px;height:38px;font-size:22px;flex:0 0 38px}
+  .brand-copy{min-width:0}
+  .brand-copy strong{
+    display:block;
+    max-width:180px;
+    font-size:17px;
+    line-height:1.02;
+    letter-spacing:.025em;
+  }
+  .menu-toggle,.bag-button{
+    padding:8px 10px;
+    font-size:13px;
+    white-space:nowrap;
+  }
+  .bag-button span{
+    width:21px;
+    height:21px;
+    margin-left:5px;
+    font-size:11px;
+  }
+  .main-nav{top:68px}
+  .landing-hero{
+    aspect-ratio:700/394;
+    min-height:0;
+    max-height:58vh;
+  }
+  .landing-hero img{object-fit:cover;object-position:center}
+  .landing-fallback{padding:22px 16px}
+  .landing-fallback-crown{font-size:34px}
+  .landing-fallback-mark{width:62px;height:62px;font-size:36px;margin:9px auto}
+  .landing-fallback strong{font-size:27px}
+  .landing-fallback span{font-size:12px;letter-spacing:.24em}
+  .landing-fallback small{margin-top:10px;font-size:8px}
+  .ticker-track{
+    gap:20px;
+    padding:12px 5vw;
+    font-size:13px;
+    animation-duration:34s;
+  }
+  #showroom.section{padding-top:60px}
+  #showroom .section-heading{margin-bottom:28px}
+  #showroom .section-heading h2{font-size:44px}
+}
+@media(max-width:390px){
+  .brand-copy strong{max-width:145px;font-size:15px}
+  .menu-toggle,.bag-button{padding:7px 8px;font-size:12px}
+  .announcement{font-size:8px}
+  .announcement .text-button{font-size:8px}
+}
