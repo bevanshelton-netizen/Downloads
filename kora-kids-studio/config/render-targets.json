@@ -1,0 +1,22 @@
+{
+  "schema": "kora-kids.render-targets/v1",
+  "default": "izakhono-local",
+  "targets": [
+    {
+      "id": "izakhono-local",
+      "label": "IZAKHONO Local Render",
+      "mode": "owned",
+      "enabled": true,
+      "authoritative": true,
+      "notes": "Primary production target. Jobs stay on owned infrastructure."
+    },
+    {
+      "id": "external-burst",
+      "label": "External Burst Render",
+      "mode": "external",
+      "enabled": false,
+      "authoritative": false,
+      "notes": "Optional overflow compute. Enable only after provider credentials and data boundaries are approved."
+    }
+  ]
+}
