@@ -37,20 +37,19 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf _site
-          mkdir -p _site/yenzanow _site/revenue
+          mkdir -p _site/doxa-sure _site/yenzanow
           mkdir -p _site/izakhono-one
           mkdir -p _site/portfolio-growth
 
-          # Preserve the existing DOXA-SURE demo at repository Pages root.
-          cp -R doxa-sure/. _site/
+          # Revenue Sprint is the production front door at the Pages root.
+          cp ports/revenue-sprint/index.html _site/index.html
+
+          # Preserve DOXA-SURE at its own stable sub-route.
+          cp -R doxa-sure/. _site/doxa-sure/
 
           # Add the verified YenZaNow build as a stable sub-route.
           cp ports/yenzanow/index.html _site/yenzanow/index.html
           cp ports/yenzanow/healthz.txt _site/yenzanow/healthz.txt
-
-          # Publish the premium IZAKHONO Revenue Sprint.
-          cp ports/revenue-sprint/index.html _site/revenue/index.html
-          cp ports/revenue-sprint/index.html _site/revenue.html
 
           # Publish the shared portfolio growth bridge.
           cp -R portfolio-growth/. _site/portfolio-growth/
@@ -78,7 +77,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          REVENUE="https://bevanshelton-netizen.github.io/Downloads/revenue/"
+          REVENUE="https://bevanshelton-netizen.github.io/Downloads/"
           ok=0
           for i in $(seq 1 36); do
             rm -f /tmp/revenue.html /tmp/revenue.h
