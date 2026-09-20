@@ -87,6 +87,14 @@ jobs:
               whois("coza-whois.registry.net.za",d)
           whois("org-whois.registry.net.za","edubuildshelton.org.za")
           PY
+      - name: Probe zero-cost Pages bridge
+        shell: bash
+        run: |
+          set +e
+          echo "=== GitHub Pages bridge ==="
+          curl -sSIL --max-time 15 https://bevanshelton-netizen.github.io/Downloads/memory-mania/ || true
+          echo "=== Content marker ==="
+          curl -sSL --max-time 15 https://bevanshelton-netizen.github.io/Downloads/memory-mania/ | grep -E -m1 'MEMORY|Memory Mania' || true
       - name: Probe HTTPS
         shell: bash
         run: |
