@@ -50,6 +50,7 @@ jobs:
 
           # Publish the premium IZAKHONO Revenue Sprint.
           cp ports/revenue-sprint/index.html _site/revenue/index.html
+          cp ports/revenue-sprint/index.html _site/revenue.html
 
           # Publish the shared portfolio growth bridge.
           cp -R portfolio-growth/. _site/portfolio-growth/
@@ -77,7 +78,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          REVENUE="https://bevanshelton-netizen.github.io/Downloads/revenue/"
+          REVENUE="https://bevanshelton-netizen.github.io/Downloads/revenue.html"
           BASE="https://bevanshelton-netizen.github.io/Downloads/izakhono-one/"
           HEALTH="https://bevanshelton-netizen.github.io/Downloads/izakhono-one/health-check/"
           CLINIC="https://bevanshelton-netizen.github.io/Downloads/izakhono-one/clinic/"
