@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "gateway": "izakhono-pay",
   "primaryProvider": "ikhokha",
   "primaryProviderStatus": "merchant-live",
@@ -81,6 +81,11 @@
       "slug": "izakhono-group",
       "workspacePath": "izakhono-group",
       "status": "deploy-after-products-registered"
+    },
+    {
+      "slug": "crowne-hair",
+      "workspacePath": "crowne-hair",
+      "status": "deploy-now-gateway-registered-reservation-first"
     }
   ],
   "liveActivation": "publish-child-app-after-e2e-payment-acceptance",
@@ -90,6 +95,7 @@
     "faisready",
     "mandatory-regulatory-exams",
     "doxa-sure",
-    "edubuild-ecd360"
+    "edubuild-ecd360",
+    "crowne-hair"
   ]
 }
