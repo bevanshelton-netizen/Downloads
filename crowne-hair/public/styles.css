@@ -120,9 +120,17 @@ footer{background:linear-gradient(135deg,#020202,#0d0d0d);border-top-color:rgba(
 @media(max-width:620px){.salon-hero-visual{border-radius:20px}.salon-capacity,.salon-zones,.salon-form-grid,.service-list{grid-template-columns:1fr}.salon-full{grid-column:auto}.salon-services,.salon-booking{padding:24px}}
 
 /* Approved CROWNÉ landing hero */
-.landing-hero{background:#f4ead8;border-bottom:1px solid rgba(232,198,106,.38)}
-.landing-hero img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;object-position:center}
-@media(max-width:700px){.landing-hero img{aspect-ratio:auto;min-height:0;object-fit:contain;background:#f4ead8}}
+.landing-hero{position:relative;overflow:hidden;aspect-ratio:700/394;background:radial-gradient(circle at 50% 38%,rgba(232,198,106,.18),transparent 30%),linear-gradient(135deg,#020202,#0b0905 58%,#171006);border-bottom:1px solid rgba(232,198,106,.38)}
+.landing-hero img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;object-position:center;opacity:0;transition:opacity .35s ease;background:transparent}
+.landing-hero.hero-loaded img{opacity:1}
+.landing-fallback{position:absolute;inset:0;display:grid;place-items:center;align-content:center;text-align:center;padding:7vw;color:#f4da8a;background:radial-gradient(circle at 50% 42%,rgba(232,198,106,.13),transparent 30%);z-index:0}
+.landing-fallback-crown{font-size:clamp(36px,7vw,90px);line-height:.8;color:#e8c66a;text-shadow:0 8px 30px rgba(169,120,24,.25)}
+.landing-fallback-mark{width:clamp(64px,10vw,118px);height:clamp(64px,10vw,118px);margin:14px auto;border:1px solid #c99a32;border-radius:50%;display:grid;place-items:center;font:italic 700 clamp(38px,6vw,70px) Georgia,serif;color:#f4da8a;box-shadow:0 0 0 8px rgba(232,198,106,.04)}
+.landing-fallback strong{font:700 clamp(28px,5vw,68px) Georgia,serif;letter-spacing:.08em}
+.landing-fallback span{margin-top:5px;font:700 clamp(14px,2vw,28px) Georgia,serif;letter-spacing:.28em}
+.landing-fallback small{margin-top:18px;font-size:clamp(8px,1.1vw,13px);font-weight:900;letter-spacing:.18em;color:#c9c1ad}
+.landing-hero.hero-loaded .landing-fallback{opacity:0;pointer-events:none;transition:opacity .25s ease}
+@media(max-width:700px){.landing-hero{aspect-ratio:4/3;min-height:300px}.landing-hero img{object-fit:cover}.landing-fallback{padding:34px 20px}.landing-fallback strong{font-size:30px}.landing-fallback span{font-size:14px}.landing-fallback small{max-width:280px;line-height:1.5}}
 
 /* Expanded CROWNÉ Lifestyle Shop */
 .lifestyle-grid{position:relative;z-index:1;display:grid;gap:42px}
