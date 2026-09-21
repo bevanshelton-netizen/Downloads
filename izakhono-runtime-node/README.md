@@ -7,6 +7,7 @@ This is the second piece of the owned stack after IZAKHONO DATA NODE.
 ## Current capabilities
 
 - register apps by hostname;
+- attach additional hostname aliases to an active app without launching a second process;
 - deploy a staged release from disk;
 - launch Node/Next.js-compatible processes;
 - health-check before activation;
@@ -54,3 +55,18 @@ RUNTIME supports three witness modes:
 The Linux installer defaults to `IZAKHONO_WITNESS_MODE=observe`. It does not configure a witness credential automatically. This keeps the current single-host runtime unchanged while allowing a primary/standby host to be enrolled explicitly later.
 
 A verified fencing token is propagated downstream as `x-izakhono-fencing-token`. Applications must treat GET/HEAD/OPTIONS as read-only for enforcement semantics to remain valid.
+
+
+## External bridge aliases
+
+The protected control API supports aliases for external ingress providers:
+
+`POST /v1/apps/{app}/aliases`
+
+Body:
+
+```json
+{"hostname":"example.ts.net"}
+```
+
+Aliases follow the app's current active deployment automatically, so a temporary public bridge can route through the same RUNTIME process and preserve rollback semantics.
