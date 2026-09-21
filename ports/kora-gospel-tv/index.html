@@ -290,15 +290,38 @@ document.querySelector("#watchButton").addEventListener("click",async()=>{
    alert("KORA GOSPEL TV is on air in launch mode. A live broadcast feed can be attached without changing the channel experience.");
  }catch(e){alert("KORA GOSPEL TV is ready for its live broadcast feed.")}
 });
+const GOSPEL_EXTERNAL_INTAKE="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/kora-gospel-intake";
+function ownedSubmissionUrl(){
+  return location.hostname.endsWith("github.io")
+    ?"https://gospel.domains.izakhonoafrica.co.za/api/submissions"
+    :"/api/submissions";
+}
+async function submitHybrid(data){
+  let shouldFallback=false;
+  try{
+    const r=await fetch(ownedSubmissionUrl(),{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({...data,sourceChannel:"gospel-public-web"})});
+    const j=await r.json().catch(()=>({}));
+    if(r.ok)return {...j,route:j.route||"izakhono-owned"};
+    if(r.status>=500||[404,405].includes(r.status))shouldFallback=true;
+    else throw new Error(j.error||"Unable to submit");
+  }catch(err){
+    if(err instanceof TypeError||String(err?.message||"").includes("Failed to fetch"))shouldFallback=true;
+    else throw err;
+  }
+  if(!shouldFallback)throw new Error("Unable to submit right now.");
+  const r=await fetch(GOSPEL_EXTERNAL_INTAKE,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({...data,sourceChannel:"external-resilience-web"})});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(j.error||"Unable to submit right now.");
+  return j;
+}
 async function wireForm(id,statusId,category){
  const form=document.querySelector(id),status=document.querySelector(statusId);
  form.addEventListener("submit",async e=>{
    e.preventDefault();status.textContent="Sending…";
    const data=Object.fromEntries(new FormData(form).entries());data.category=category;data.onAir=data.onAir==="on";
    try{
-     const r=await fetch("/api/submissions",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(data)});
-     const j=await r.json();if(!r.ok)throw new Error(j.error||"Unable to submit");
-     status.textContent="Received. Reference: "+j.reference;form.reset();
+     const j=await submitHybrid(data);
+     status.textContent=(j.route==="external-buffer"?"Received via resilience route. Reference: ":"Received. Reference: ")+j.reference;form.reset();
    }catch(err){status.textContent=err.message||"Unable to submit right now."}
  });
 }
