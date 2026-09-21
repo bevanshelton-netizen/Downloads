@@ -1,0 +1,61 @@
+# IZAKHONO Warm Standby Handoff
+
+This is a **warm snapshot standby**, not synchronous hot replication.
+
+## Prepare the standby host
+
+Use a physically separate Linux host and an approved private/VPN address.
+
+Transfer only:
+- the WITNESS standby member credential;
+- the WITNESS public-key JSON.
+
+Then run:
+
+    export IZAKHONO_STANDBY_BIND_HOST=<private-vpn-ip>
+    export IZAKHONO_STANDBY_NODE_ID=standby-01
+    export IZAKHONO_STANDBY_WITNESS_CREDENTIAL=/secure/standby.env
+    export IZAKHONO_WITNESS_PUBLIC_KEY_JSON=/secure/public-key.json
+    sudo bash deploy-standby-node.sh
+
+The script installs the owned stack with no public route, binds the RUNTIME proxy to loopback, exposes only the REPLICA receiver on the specified private/VPN interface, enrolls the host as the WITNESS standby and enables fail-closed write fencing.
+
+A standby that accidentally holds the leadership lease during preparation is **not certified**.
+
+## Replicate the encrypted recovery image
+
+On the primary, register the recovery host as a REPLICA peer and sync encrypted `.izbk` archives. REPLICA never transfers the backup decryption recovery key.
+
+Keep the recovery key on a separate offline medium.
+
+## Stage a recovery point
+
+Temporarily attach the offline recovery-key medium to the standby and run:
+
+    sudo bash stage-standby-replica.sh /media/offline/izakhono-backup-recovery.env 60
+
+The optional `60` means the newest replica must be no older than 60 minutes.
+
+The staging flow:
+1. chooses the newest replicated archive;
+2. rejects it when older than the recovery-point limit;
+3. asks REPLICA NODE to recompute and verify SHA-256;
+4. verifies the digest against the selected object metadata;
+5. decrypts the archive using the separately supplied recovery key;
+6. extracts only beneath `/var/lib/izakhono-standby/restores/`;
+7. produces a proof receipt.
+
+It does **not** overwrite `/etc/izakhono`, `/var/lib/izakhono-*`, change DNS, move a public route or promote the standby.
+
+## Promotion boundary
+
+A controlled promotion still needs:
+- primary fencing;
+- current WITNESS leadership on the standby;
+- an accepted recovery point;
+- a controlled state cutover from staging into live service paths;
+- service validation;
+- explicit FAILOVER approval;
+- explicit route/DNS cutover.
+
+That destructive live-state cutover is intentionally outside this staging tool until it is proven on physical standby hardware.

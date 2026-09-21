@@ -10,8 +10,10 @@ if ! command -v tar >/dev/null 2>&1; then
   exit 3
 fi
 
-sudo mkdir -p /opt/izakhono-backup-node   /var/lib/izakhono-backup/archives   /var/lib/izakhono-backup/restores   /var/lib/izakhono-backup/mirrors   /etc/izakhono
+sudo mkdir -p /opt/izakhono-backup-node/scripts   /var/lib/izakhono-backup/archives   /var/lib/izakhono-backup/restores   /var/lib/izakhono-backup/mirrors   /etc/izakhono
 sudo cp server.mjs /opt/izakhono-backup-node/server.mjs
+sudo cp scripts/restore-external.mjs /opt/izakhono-backup-node/scripts/restore-external.mjs
+sudo chmod 0755 /opt/izakhono-backup-node/scripts/restore-external.mjs
 sudo chown -R root:root /opt/izakhono-backup-node /var/lib/izakhono-backup
 sudo chmod 0700 /var/lib/izakhono-backup /var/lib/izakhono-backup/archives /var/lib/izakhono-backup/restores
 
@@ -23,7 +25,7 @@ HOST=127.0.0.1
 PORT=8870
 IZAKHONO_BACKUP_ADMIN_KEY=$ADMIN
 IZAKHONO_BACKUP_ENCRYPTION_KEY=$ENC
-IZAKHONO_BACKUP_SOURCE_ALLOWLIST=/etc/izakhono,/var/lib/izakhono-data,/var/lib/izakhono-object,/var/lib/izakhono-queue,/var/lib/izakhono-runtime,/var/lib/izakhono-auth,/var/lib/izakhono-analytics,/var/lib/izakhono-notify,/var/lib/izakhono-ai-gateway,/var/lib/izakhono-code,/var/lib/izakhono-ci,/var/lib/izakhono-replica
+IZAKHONO_BACKUP_SOURCE_ALLOWLIST=/etc/izakhono,/var/lib/izakhono-data,/var/lib/izakhono-object,/var/lib/izakhono-queue,/var/lib/izakhono-runtime,/var/lib/izakhono-auth,/var/lib/izakhono-analytics,/var/lib/izakhono-notify,/var/lib/izakhono-ai-gateway,/var/lib/izakhono-code,/var/lib/izakhono-package,/var/lib/izakhono-ci,/var/lib/izakhono-replica,/var/lib/izakhono-failover
 IZAKHONO_BACKUP_MIRROR_ROOTS=
 IZAKHONO_BACKUP_INTERVAL_HOURS=24
 IZAKHONO_BACKUP_MAX_BODY_BYTES=262144

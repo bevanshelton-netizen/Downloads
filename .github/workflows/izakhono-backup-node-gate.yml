@@ -2,7 +2,7 @@ name: IZAKHONO BACKUP NODE Gate
 
 on:
   push:
-    branches: [build/izakhono-backup-node]
+    branches: [build/izakhono-backup-node, build/warm-standby-handoff]
     paths:
       - "izakhono-backup-node/**"
       - ".github/workflows/izakhono-backup-node-gate.yml"
@@ -36,11 +36,18 @@ jobs:
         run: |
           bash -n install-linux.sh
           bash -n export-recovery-key.sh
+          test -f scripts/restore-external.mjs
       - name: Run encrypted backup end-to-end self test
         run: npm run check
+      - name: Run external replica restore staging self test
+        run: node scripts/restore-external-self-test.mjs
       - name: Verify recovery safeguards
         run: |
           grep -q 'aes-256-gcm' server.mjs
           grep -q 'SOURCE_NOT_ALLOWED' server.mjs
           grep -q 'RESTORE_DESTINATION_EXISTS' server.mjs
           grep -q 'User=root' systemd/izakhono-backup-node.service
+          grep -q 'IZAKHONO_STANDBY_RESTORE_ROOT' scripts/restore-external.mjs
+          grep -q 'liveDirectoriesModified:false' scripts/restore-external.mjs
+          grep -q 'izakhono-package' install-linux.sh
+          grep -q 'izakhono-failover' install-linux.sh

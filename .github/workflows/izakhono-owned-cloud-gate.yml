@@ -2,7 +2,7 @@ name: IZAKHONO OWNED CLOUD Gate
 
 on:
   push:
-    branches: [build/izakhono-owned-cloud-stack, build/owned-cloud-add-auth, build/owned-cloud-add-analytics, build/owned-cloud-add-notify, build/owned-cloud-add-ai-gateway, build/owned-cloud-add-code, build/owned-cloud-add-backup, build/owned-cloud-add-ci-worker, build/owned-cloud-add-replica-final, build/owned-cloud-package-node-final, build/owned-cloud-add-failover, build/owned-cloud-witness-companion, build/witness-member-enrollment-final]
+    branches: [build/izakhono-owned-cloud-stack, build/owned-cloud-add-auth, build/owned-cloud-add-analytics, build/owned-cloud-add-notify, build/owned-cloud-add-ai-gateway, build/owned-cloud-add-code, build/owned-cloud-add-backup, build/owned-cloud-add-ci-worker, build/owned-cloud-add-replica-final, build/owned-cloud-package-node-final, build/owned-cloud-add-failover, build/owned-cloud-witness-companion, build/witness-member-enrollment-final, build/warm-standby-handoff]
     paths:
       - "izakhono-owned-cloud/**"
       - ".github/workflows/izakhono-owned-cloud-gate.yml"
@@ -42,6 +42,8 @@ jobs:
           bash -n izakhono-owned-cloud/bootstrap-ha-cluster.sh
           bash -n izakhono-owned-cloud/configure-witness-member.sh
           bash -n izakhono-owned-cloud/set-witness-mode.sh
+          bash -n izakhono-owned-cloud/deploy-standby-node.sh
+          bash -n izakhono-owned-cloud/stage-standby-replica.sh
       - name: Verify no paid provisioning commands
         run: |
           ! grep -R -E 'supabase projects create|vercel deploy|aws s3 mb|gcloud .* create' izakhono-owned-cloud
@@ -63,6 +65,11 @@ jobs:
           grep -q 'Refusing primary enforce mode without a valid signed witness lease' izakhono-owned-cloud/set-witness-mode.sh
           grep -q 'standby_fail_closed_probe' izakhono-owned-cloud/set-witness-mode.sh
           grep -q 'automatic_dns_failover_enabled:false' izakhono-owned-cloud/set-witness-mode.sh
+          grep -q 'Refusing to convert a proven primary node into a standby' izakhono-owned-cloud/deploy-standby-node.sh
+          grep -q 'public_route_changed:false' izakhono-owned-cloud/deploy-standby-node.sh
+          grep -q 'hot_state_replication:false' izakhono-owned-cloud/deploy-standby-node.sh
+          grep -q 'live_directories_modified:false' izakhono-owned-cloud/stage-standby-replica.sh
+          grep -q 'promotion_performed:false' izakhono-owned-cloud/stage-standby-replica.sh
       - name: Verify all sixteen component installers exist
         run: |
           test -f izakhono-data-node/install-linux.sh
