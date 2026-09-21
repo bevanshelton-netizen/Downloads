@@ -26,7 +26,8 @@ const sources = [
   "019_ticket_settlements.sql",
   "020_allegro_video_handoff.sql",
   "021_tour2screen.sql",
-  "022_music_screen_release_gate.sql",\n  "023_partner_gateway.sql"
+  "022_music_screen_release_gate.sql",
+  "023_partner_gateway.sql"
 ];
 
 const parts = [];
