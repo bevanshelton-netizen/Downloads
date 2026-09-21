@@ -148,3 +148,37 @@ On a separate Linux host/failure domain:
 The deployment script refuses a normal production install when DATA, RUNTIME or EDGE are already active on the same host. The cluster bootstrap creates separate primary and standby member credentials without printing their secrets.
 
 WITNESS uses exclusive 15-second leases, monotonic fencing tokens and Ed25519-signed lease receipts. Automatic failover still remains disabled until the primary and standby RUNTIME/EDGE layers enforce witness lease expiry/fencing on real physical hosts.
+
+
+## Enrol primary and standby with WITNESS
+
+After the witness host creates the HA cluster, transfer only the matching member credential plus the witness public-key JSON to each application host.
+
+Primary:
+
+    sudo bash configure-witness-member.sh primary /secure/primary.env /secure/public-key.json
+
+Standby:
+
+    sudo bash configure-witness-member.sh standby /secure/standby.env /secure/public-key.json
+
+Enrollment pins the Ed25519 witness key, verifies the live witness exposes that same key, validates the member credential, configures both RUNTIME and EDGE, and starts in **observe** mode only. The primary must prove that both layers hold the same valid fencing token. The standby may remain lease-inactive while primary leadership is valid.
+
+### Deliberately enable write fencing
+
+After observe-mode enrollment has been proven on the real primary/witness/standby path:
+
+    sudo bash set-witness-mode.sh primary enforce
+
+and on the standby:
+
+    sudo bash set-witness-mode.sh standby enforce
+
+Primary enforcement is refused unless RUNTIME and EDGE both hold a valid signed lease with matching fencing tokens. A standby without leadership is expected to fail closed for write methods. The script proves that behavior against RUNTIME before reporting success.
+
+Rollback to observation without removing witness enrollment:
+
+    sudo bash set-witness-mode.sh primary observe
+    sudo bash set-witness-mode.sh standby observe
+
+Changing witness mode does **not** enable automatic DNS or route failover. FAILOVER NODE remains the promotion/control plane and public route switching stays explicit until the physical multi-host cutover has been proven.
