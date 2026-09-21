@@ -25,6 +25,15 @@
       "status": "configured"
     },
     {
+      "id": "supabase-intake-buffer",
+      "name": "IZAKHONO WebStart Supabase",
+      "type": "external",
+      "role": "resilient-public-intake-buffer",
+      "status": "configured",
+      "authoritative": false,
+      "endpoint": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/kora-gospel-intake"
+    },
+    {
       "id": "youtube-live",
       "name": "YouTube Live",
       "type": "external",
@@ -61,5 +70,6 @@
     }
   ],
   "secrets_policy": "stream keys and partner credentials live only in protected host environment files",
-  "editorial_policy": "external distribution never bypasses KORA GOSPEL TV editorial approval"
-}\n
+  "editorial_policy": "external distribution never bypasses KORA GOSPEL TV editorial approval",
+  "intake_policy": "Public intake tries the IZAKHONO owned runtime first, then uses the external resilience buffer only when the owned route is unavailable."
+}

@@ -10,6 +10,13 @@ const ROOT = resolve(fileURLToPath(new URL("./", import.meta.url)));
 const DATA_DIR = process.env.GOSPEL_TV_DATA_DIR || "/var/lib/izakhono-runtime/data/kora-gospel-tv";
 const LIVE_EMBED_URL = process.env.GOSPEL_TV_LIVE_EMBED_URL || "";
 const CONTROL_TOKEN = String(process.env.GOSPEL_TV_CONTROL_TOKEN || "").trim();
+const PUBLIC_INTAKE_ORIGINS = new Set([
+  "https://kora-network.vercel.app",
+  "https://bevanshelton-netizen.github.io",
+  "https://gospel.domains.izakhonoafrica.co.za",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000"
+]);
 
 const types = {
   ".html":"text/html; charset=utf-8",".css":"text/css; charset=utf-8",".js":"text/javascript; charset=utf-8",
@@ -27,7 +34,7 @@ function baseHeaders(type,length,cache="no-store"){
     "referrer-policy":"strict-origin-when-cross-origin",
     "permissions-policy":"camera=(), microphone=(), geolocation=(), payment=()",
     "x-frame-options":"SAMEORIGIN",
-    "content-security-policy":"default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; frame-src https:; media-src 'self' https: blob:; object-src 'none'; base-uri 'self'; form-action 'self'"
+    "content-security-policy":"default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://yfawrenhudjomhnglfhq.supabase.co; frame-src https:; media-src 'self' https: blob:; object-src 'none'; base-uri 'self'; form-action 'self'"
   };
 }
 function send(res,status,body,type="text/plain; charset=utf-8",extra={}){
@@ -48,6 +55,16 @@ function allowed(req){
   const prev=rate.get(key)||[];const next=prev.filter(t=>now-t<windowMs);
   if(next.length>=max){rate.set(key,next);return false}
   next.push(now);rate.set(key,next);return true;
+}
+function publicIntakeCors(req){
+  const origin=String(req.headers.origin||"");
+  if(!origin||!PUBLIC_INTAKE_ORIGINS.has(origin)) return {};
+  return {
+    "access-control-allow-origin":origin,
+    "access-control-allow-methods":"POST, OPTIONS",
+    "access-control-allow-headers":"content-type",
+    "vary":"origin"
+  };
 }
 function validEmbed(url){
   if(!url) return "";
@@ -103,6 +120,8 @@ async function saveSubmission(data,req){
     schema:"kora.gospel-tv.submission/v1",reference,created_at:new Date().toISOString(),
     category:clean(data.category,30),type:clean(data.type,50),name:clean(data.name,120),
     contact:clean(data.contact,160),message:clean(data.message,1600),on_air:Boolean(data.onAir),
+    territory:clean(data.territory,80),language:clean(data.language,50),
+    rights_attested:Boolean(data.rightsAttested),source_channel:clean(data.sourceChannel||"izakhono-owned",60),
     source_ip_hash:crypto.createHash("sha256").update(clientKey(req)+"|kora-gospel-tv").digest("hex").slice(0,20)
   };
   await appendFile(join(DATA_DIR,"submissions.ndjson"),JSON.stringify(record)+"\n",{encoding:"utf8",mode:0o600});
@@ -146,19 +165,28 @@ createServer(async (req,res)=>{
     return json(res,200,{ok:true,records:await readSubmissionRecords(limit)});
   }
 
+  if(url.pathname==="/api/submissions" && req.method==="OPTIONS"){
+    const cors=publicIntakeCors(req);
+    if(!cors["access-control-allow-origin"]) return json(res,403,{error:"Origin not allowed."});
+    res.writeHead(204,cors);return res.end();
+  }
+
   if(url.pathname==="/api/submissions" && req.method==="POST"){
-    if(!allowed(req)) return json(res,429,{error:"Too many submissions. Please try again later."},{"retry-after":"3600"});
+    const cors=publicIntakeCors(req);
+    const origin=String(req.headers.origin||"");
+    if(origin && !cors["access-control-allow-origin"]) return json(res,403,{error:"Origin not allowed."});
+    if(!allowed(req)) return json(res,429,{error:"Too many submissions. Please try again later."},{...cors,"retry-after":"3600"});
     try{
       const data=await readJson(req);
       const category=clean(data.category,30);
-      if(!["content","partner","prayer"].includes(category)) return json(res,400,{error:"Invalid submission category."});
-      if(category!=="prayer" && (!clean(data.name,120)||!clean(data.contact,160))) return json(res,400,{error:"Name and contact details are required."});
-      if(!clean(data.message,1600)) return json(res,400,{error:"Please add a message."});
+      if(!["content","partner","prayer"].includes(category)) return json(res,400,{error:"Invalid submission category."},cors);
+      if(category!=="prayer" && (!clean(data.name,120)||!clean(data.contact,160))) return json(res,400,{error:"Name and contact details are required."},cors);
+      if(!clean(data.message,1600)) return json(res,400,{error:"Please add a message."},cors);
       const reference=await saveSubmission(data,req);
-      return json(res,201,{ok:true,reference});
+      return json(res,201,{ok:true,reference,route:"izakhono-owned",authoritative:true},cors);
     }catch(err){
-      if(String(err?.message)==="payload_too_large") return json(res,413,{error:"Submission is too large."});
-      return json(res,400,{error:"Unable to process this submission."});
+      if(String(err?.message)==="payload_too_large") return json(res,413,{error:"Submission is too large."},cors);
+      return json(res,400,{error:"Unable to process this submission."},cors);
     }
   }
 
