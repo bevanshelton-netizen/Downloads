@@ -55,7 +55,7 @@ fi
 bash izakhono-owned-cloud/first-host-proof.sh
 
 echo "Deploying IZAKHONO Growth OS v2 to the owned runtime..."
-export GROWTH_OS_V2_HOSTNAME="${GROWTH_OS_V2_HOSTNAME:-growth.izakhonoafrica.co.za}"
+export GROWTH_OS_V2_HOSTNAME="${GROWTH_OS_V2_HOSTNAME:-growth.domains.izakhonoafrica.co.za}"
 bash izakhono-owned-cloud/deploy-growth-os-v2.sh main
 GROWTH_OS_STATE="RUNTIME_VERIFIED"
 if [ -f /var/lib/izakhono-deploy/growth-os-v2.json ]; then
