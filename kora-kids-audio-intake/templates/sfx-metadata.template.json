@@ -1,0 +1,10 @@
+{
+  "schema": "kora-kids.audio-intake/v1",
+  "type": "sfx",
+  "seriesId": "lebo-jabu",
+  "episodeSlug": "jam-day-under-the-baobab",
+  "language": "en-ZA",
+  "cueId": "jabu-question",
+  "originalName": "ENTER SOURCE FILE NAME",
+  "rightsCleared": false
+}
