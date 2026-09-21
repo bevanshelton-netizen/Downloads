@@ -37,6 +37,9 @@ jobs:
           grep -q 'strict-transport-security' server.mjs
           grep -q 'request body too large' server.mjs
           grep -q 'FORTRESS_PROTECTOR_MODE' install-linux.sh
+          grep -q 'hybrid' install-linux.sh
+          grep -q 'TUNNEL_INGRESS' server.mjs
+          grep -q 'DIRECT_INGRESS' server.mjs
           grep -q 'x-fortress-protector' server.mjs
           grep -q 'sensitive-route rate limit exceeded' server.mjs
           grep -q 'IZAKHONO_WITNESS_MODE=observe' install-linux.sh
