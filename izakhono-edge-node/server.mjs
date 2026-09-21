@@ -6,6 +6,8 @@ import { timingSafeEqual } from "node:crypto";
 import { createWitnessLeaseGuard, isWriteMethod } from "./witness-lease.mjs";
 
 const INGRESS_MODE=(process.env.IZAKHONO_EDGE_MODE || "direct").toLowerCase();
+const TUNNEL_INGRESS=INGRESS_MODE==="tunnel" || INGRESS_MODE==="hybrid";
+const DIRECT_INGRESS=INGRESS_MODE==="direct" || INGRESS_MODE==="hybrid";
 const HTTP_HOST=process.env.HTTP_HOST || "0.0.0.0";
 const HTTP_PORT=Number(process.env.HTTP_PORT || 80);
 const TUNNEL_HOST=process.env.TUNNEL_HOST || "127.0.0.1";
@@ -43,7 +45,7 @@ function secureEqual(a,b){
 }
 
 function clientIp(req){
-  if(INGRESS_MODE==="tunnel"){
+  if(req.__izakhonoIngress==="tunnel"){
     const cf=req.headers["cf-connecting-ip"];
     if(typeof cf==="string" && /^[0-9a-f:.]+$/i.test(cf)) return cf;
   }
@@ -257,11 +259,20 @@ let httpsServer=null;
 let httpServer=null;
 let tunnelServer=null;
 
-if(INGRESS_MODE==="tunnel"){
-  tunnelServer=createHttpServer(proxy);
+function ingressProxy(kind){
+  return (req,res)=>{
+    req.__izakhonoIngress=kind;
+    proxy(req,res);
+  };
+}
+
+if(TUNNEL_INGRESS){
+  tunnelServer=createHttpServer(ingressProxy("tunnel"));
   tunnelServer.listen(TUNNEL_PORT,TUNNEL_HOST,()=>console.log(`IZAKHONO EDGE tunnel origin: http://${TUNNEL_HOST}:${TUNNEL_PORT}`));
-}else{
-  httpsServer=createHttpsServer(loadTls(),proxy);
+}
+
+if(DIRECT_INGRESS){
+  httpsServer=createHttpsServer(loadTls(),ingressProxy("direct"));
   httpServer=createHttpServer((req,res)=>{
     const host=normalizedHost(req);
     if(!host) return send(res,400,"IZAKHONO EDGE: invalid host");
@@ -281,9 +292,10 @@ const control=createHttpServer((req,res)=>{
       product:"IZAKHONO EDGE NODE",
       status:"healthy",
       runtimeUpstream:`${RUNTIME_HOST}:${RUNTIME_PORT}`,
-      tls:INGRESS_MODE!=="tunnel",
+      tls:DIRECT_INGRESS,
       ingressMode:INGRESS_MODE,
-      tunnelOrigin:INGRESS_MODE==="tunnel"?`http://${TUNNEL_HOST}:${TUNNEL_PORT}`:null,
+      directHttps:DIRECT_INGRESS?`https://${HTTPS_HOST}:${HTTPS_PORT}`:null,
+      tunnelOrigin:TUNNEL_INGRESS?`http://${TUNNEL_HOST}:${TUNNEL_PORT}`:null,
       rateLimitPerMinute:RATE_PER_MIN,
       maxBodyBytes:MAX_BODY,
       fortressProtector:FORTRESS_PROTECTOR,
@@ -301,7 +313,7 @@ const control=createHttpServer((req,res)=>{
   }
 
   if(req.method==="POST" && url.pathname==="/v1/reload-tls"){
-    if(INGRESS_MODE==="tunnel" || !httpsServer) return send(res,409,"TLS is terminated by the configured tunnel ingress");
+    if(!DIRECT_INGRESS || !httpsServer) return send(res,409,"Direct TLS ingress is not active");
     try{
       httpsServer.setSecureContext(loadTls());
       return send(res,200,"TLS reloaded");
