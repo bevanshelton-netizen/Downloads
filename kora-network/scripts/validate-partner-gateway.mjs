@@ -25,6 +25,7 @@ check('External handoff is gated by the rights decision RPC',handoff.includes('g
 check('External handoff logs attribution before redirect',handoff.indexOf("from('partner_referrals')")>=0&&handoff.lastIndexOf('NextResponse.redirect(destination')>handoff.indexOf("from('partner_referrals')"));
 check('Partner dashboard separates verified from reported conversions',dashboard.includes("status === 'verified'")&&dashboard.includes('Verified attributable revenue'));
 check('No public client can read partner webhook keys',migration.includes('revoke all on public.partner_webhook_keys from anon,authenticated'));
+check('Rights resolver is server-only',migration.includes('revoke all on function public.partner_asset_access(uuid,text) from public,anon,authenticated')&&migration.includes('grant execute on function public.partner_asset_access(uuid,text) to service_role'));
 check('Partner gateway avoids storing IP addresses',!migration.includes('ip_address')&&!migration.includes('user_agent'));
 check('Dedicated production bootstrap includes schema 023',productionBootstrap.includes('"023_partner_gateway.sql"')&&productionBootstrap.includes('schema23'));
 check('Shared Supabase bootstrap includes schema 023',sharedBootstrap.includes('"023_partner_gateway.sql"')&&sharedBootstrap.includes('schema23'));
