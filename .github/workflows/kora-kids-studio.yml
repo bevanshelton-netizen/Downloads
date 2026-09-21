@@ -71,6 +71,9 @@ jobs:
           if(create.status!==201) process.exit(2);
           let {job}=await create.json();
           if(job.series?.id!=="lebo-jabu"||job.episode?.slug!=="jam-day-under-the-baobab") process.exit(6);
+          if(job.productionPack?.status!=="production-candidate"||job.productionPack?.targetDurationSeconds!==420) process.exit(14);
+          if(job.scenes?.length!==5||job.scenes?.[0]?.dialogue?.[0]?.speaker!=="Lebo"||job.scenes?.[0]?.shots?.length!==4) process.exit(15);
+          if(!job.scenes?.some(s=>s.dialogue?.some(d=>d.factReviewRequired===true))) process.exit(16);
           for(const gate of ["script","language","culturalContext","childSafety","brand","final"]){
             const r=await fetch(base+"/api/jobs/"+job.id+"/review",{method:"POST",headers,body:JSON.stringify({gate,approved:true})});
             if(!r.ok) process.exit(3);
@@ -91,6 +94,7 @@ jobs:
           if(render?.status!=="completed") { console.error(render); process.exit(11); }
           if(render.result?.broadcastMaster!==false||render.result?.authoritativeTarget!=="izakhono-local"||render.result?.guideAudio?.finalVoiceApproved!==false) process.exit(12);
           if(render.result?.dimensions?.width!==640||render.result?.dimensions?.height!==360) process.exit(13);
+          if(render.result?.qc?.passForGuide!==true||render.result?.qc?.passForBroadcast!==false) process.exit(17);
           const blocked=await fetch(base+"/api/jobs",{method:"POST",headers,body:JSON.stringify({seriesId:"lebo-jabu",episodeSlug:"jam-day-under-the-baobab",language:"zu-ZA",renderTarget:"izakhono-local"})});
           if(blocked.status!==409) process.exit(5);
           const legacy=await fetch(base+"/api/jobs",{method:"POST",headers,body:JSON.stringify({seriesId:"tumi-tala",episodeSlug:"good-morning-rainbow-town",language:"en-ZA",renderTarget:"izakhono-local"})});
