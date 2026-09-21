@@ -207,3 +207,17 @@ It refuses HA certification unless:
 - witness health and Ed25519 arbitration safety flags are valid.
 
 A PASS produces `IZAKHONO-PHYSICAL-HA-PROOF.json` with status `READY_FOR_CONTROLLED_FAILOVER_DRILL`. The actual destructive failover drill remains a separate, deliberate operator event.
+
+## Controlled physical failover drill
+
+After `prove-physical-ha.sh` produces `READY_FOR_CONTROLLED_FAILOVER_DRILL`, generate the non-destructive plan first:
+
+    IZAKHONO_HA_PROOF=./IZAKHONO-PHYSICAL-HA-PROOF.json bash controlled-failover-drill.sh plan
+
+The real drill is armed separately. It requires the three SSH targets, `RUN-CONTROLLED-FAILOVER`, and an executable trusted route-switch script. It fences the primary application path, waits for standby RUNTIME and EDGE to acquire the same higher witness fencing token, and only then invokes the route script.
+
+The supplied `route-switch-template.sh` never changes production and exits non-zero. Copy and adapt it outside the repository for the route authority you actually control.
+
+Failback is a separate action using `controlled-failback.sh` and `RUN-CONTROLLED-FAILBACK`. It fences the standby first, waits for the original primary to reacquire a newer witness token, switches the route back, then restarts the standby and proves it has no leadership.
+
+No automatic failover or automatic failback is enabled by these scripts.
