@@ -3,7 +3,7 @@ set -euo pipefail
 
 APP="izakhono-revenue-desk"
 SOURCE_DIR="kora-network/public/izakhono-revenue"
-HOSTNAME="${IZAKHONO_REVENUE_HOSTNAME:-revenue.izakhonoafrica.co.za}"
+HOSTNAME="${IZAKHONO_REVENUE_HOSTNAME:-revenue.domains.izakhonoafrica.co.za}"
 REVISION="${1:-main}"
 SOURCE_ENV="${IZAKHONO_CODE_SOURCE_ENV:-/etc/izakhono/code-source.env}"
 REPO_URL="${IZAKHONO_CODE_REPO_URL:-}"
