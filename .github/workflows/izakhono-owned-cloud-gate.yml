@@ -2,7 +2,7 @@ name: IZAKHONO OWNED CLOUD Gate
 
 on:
   push:
-    branches: [build/izakhono-owned-cloud-stack, build/owned-cloud-add-auth, build/owned-cloud-add-analytics, build/owned-cloud-add-notify, build/owned-cloud-add-ai-gateway, build/owned-cloud-add-code, build/owned-cloud-add-backup, build/owned-cloud-add-ci-worker, build/owned-cloud-add-replica-final, build/owned-cloud-package-node-final, build/owned-cloud-add-failover, build/owned-cloud-witness-companion]
+    branches: [build/izakhono-owned-cloud-stack, build/owned-cloud-add-auth, build/owned-cloud-add-analytics, build/owned-cloud-add-notify, build/owned-cloud-add-ai-gateway, build/owned-cloud-add-code, build/owned-cloud-add-backup, build/owned-cloud-add-ci-worker, build/owned-cloud-add-replica-final, build/owned-cloud-package-node-final, build/owned-cloud-add-failover, build/owned-cloud-witness-companion, build/witness-member-enrollment-final]
     paths:
       - "izakhono-owned-cloud/**"
       - ".github/workflows/izakhono-owned-cloud-gate.yml"
@@ -40,6 +40,8 @@ jobs:
           bash -n izakhono-owned-cloud/migrate-source-to-code.sh
           bash -n izakhono-owned-cloud/deploy-witness-node.sh
           bash -n izakhono-owned-cloud/bootstrap-ha-cluster.sh
+          bash -n izakhono-owned-cloud/configure-witness-member.sh
+          bash -n izakhono-owned-cloud/set-witness-mode.sh
       - name: Verify no paid provisioning commands
         run: |
           ! grep -R -E 'supabase projects create|vercel deploy|aws s3 mb|gcloud .* create' izakhono-owned-cloud
@@ -55,6 +57,12 @@ jobs:
           grep -q 'independentFailureDomainRequired:true' izakhono-witness-node/server.mjs
           ! grep -q 'install_component "IZAKHONO WITNESS NODE"' izakhono-owned-cloud/install-owned-stack.sh
           grep -q 'Refusing co-located production witness' izakhono-owned-cloud/deploy-witness-node.sh
+          grep -q 'IZAKHONO_WITNESS_MODE:\"observe\"' izakhono-owned-cloud/configure-witness-member.sh
+          grep -q 'Refusing a local/co-located production witness' izakhono-owned-cloud/configure-witness-member.sh
+          grep -q 'write_blocking_enabled:false' izakhono-owned-cloud/configure-witness-member.sh
+          grep -q 'Refusing primary enforce mode without a valid signed witness lease' izakhono-owned-cloud/set-witness-mode.sh
+          grep -q 'standby_fail_closed_probe' izakhono-owned-cloud/set-witness-mode.sh
+          grep -q 'automatic_dns_failover_enabled:false' izakhono-owned-cloud/set-witness-mode.sh
       - name: Verify all sixteen component installers exist
         run: |
           test -f izakhono-data-node/install-linux.sh
