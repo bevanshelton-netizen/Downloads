@@ -1,0 +1,68 @@
+{
+  "schema": "kora-kids.sound-bible/v1",
+  "series": "Lebo & Jabu",
+  "sonicIdentity": "Warm, playful, organic, spacious and recognisably KORA KIDS without flattening Africa into one sound.",
+  "rules": [
+    "All score melodies must be original.",
+    "No interpolation or close imitation of existing children's themes.",
+    "The KORA brand may use a kora-instrument motif, but metadata must correctly identify the kora as a West African instrument rather than a pan-African generic.",
+    "Episode-local instruments or musical styles require regional cultural review before final use.",
+    "Dialogue clarity always takes priority over music."
+  ],
+  "corePalette": {
+    "harmonic": [
+      "light plucked strings",
+      "warm marimba-like tuned percussion",
+      "soft acoustic bass",
+      "gentle pads used sparingly"
+    ],
+    "rhythmic": [
+      "hand percussion",
+      "claps",
+      "soft shakers",
+      "light kit accents"
+    ],
+    "signature": [
+      "short original kora-style plucked motif used as KORA brand punctuation"
+    ],
+    "avoid": [
+      "generic 'tribal' library cues",
+      "war chants",
+      "tourist-stereotype percussion",
+      "overly busy wall-to-wall score"
+    ]
+  },
+  "theme": {
+    "workingTitle": "KORA KIDS Adventure Theme",
+    "tempoBpm": 112,
+    "meter": "4/4",
+    "targetLengthSeconds": 22,
+    "hookShape": "four-note rising question answered by a three-note falling smile",
+    "sections": [
+      {
+        "seconds": "0-4",
+        "role": "KORA sonic logo"
+      },
+      {
+        "seconds": "4-12",
+        "role": "Lebo melody"
+      },
+      {
+        "seconds": "12-18",
+        "role": "Jabu playful response"
+      },
+      {
+        "seconds": "18-22",
+        "role": "title-button ending"
+      }
+    ],
+    "lyricsPolicy": "No final lyrics until multilingual singability review. Instrumental theme is the launch default."
+  },
+  "mixing": {
+    "dialogueTargetLufs": -18,
+    "programmeTargetLufs": -16,
+    "truePeakMaxDbtp": -1.5,
+    "musicDuckUnderDialogueDb": -7,
+    "sfxPeakMaxDbfs": -3
+  }
+}

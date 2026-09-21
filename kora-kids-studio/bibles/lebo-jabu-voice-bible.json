@@ -1,0 +1,158 @@
+{
+  "schema": "kora-kids.voice-bible/v1",
+  "series": "Lebo & Jabu",
+  "principle": "Natural, warm, child-led performances. Never imitate a known character, celebrity, or existing cartoon voice.",
+  "lebo": {
+    "agePresentation": "young child, approximately 6",
+    "homeVoice": "South African English",
+    "qualities": [
+      "curious",
+      "quick-thinking",
+      "warm",
+      "mischievous without being rude",
+      "emotionally readable",
+      "confident but not precocious"
+    ],
+    "pace": {
+      "normalWpm": "115-145",
+      "factSegmentWpm": "95-120",
+      "excitedMaxWpm": 165
+    },
+    "performanceRules": [
+      "Use a real, natural South African rhythm rather than an exaggerated accent.",
+      "Keep breaths, small laughs and spontaneous reactions where they help the performance.",
+      "Do not make Lebo sound like an adult performing a generic baby voice.",
+      "Questions should feel genuinely curious, not instructional.",
+      "Educational lines must remain conversational and never sound like a lecture."
+    ],
+    "emotionMap": {
+      "delighted": {
+        "pitch": "slightly lifted",
+        "pace": "quick",
+        "smile": true
+      },
+      "curious": {
+        "pitch": "neutral-lift",
+        "pace": "slower",
+        "smile": "soft"
+      },
+      "playful": {
+        "pitch": "bouncy",
+        "pace": "quick",
+        "smile": true
+      },
+      "laughing": {
+        "pitch": "variable",
+        "pace": "loose",
+        "smile": true
+      },
+      "confident": {
+        "pitch": "centred",
+        "pace": "clear",
+        "smile": "light"
+      },
+      "encouraging": {
+        "pitch": "warm",
+        "pace": "measured",
+        "smile": true
+      },
+      "surprised": {
+        "pitch": "lifted",
+        "pace": "short burst",
+        "smile": false
+      },
+      "thoughtful": {
+        "pitch": "lower",
+        "pace": "slow",
+        "smile": false
+      },
+      "determined": {
+        "pitch": "centred",
+        "pace": "firm",
+        "smile": "light"
+      },
+      "teamwork": {
+        "pitch": "warm",
+        "pace": "clear",
+        "smile": true
+      },
+      "proud": {
+        "pitch": "open",
+        "pace": "measured",
+        "smile": true
+      },
+      "announcer-playful": {
+        "pitch": "bright",
+        "pace": "clear",
+        "smile": true
+      },
+      "warm-informative": {
+        "pitch": "gentle",
+        "pace": "slow",
+        "smile": "soft"
+      },
+      "warm": {
+        "pitch": "gentle",
+        "pace": "measured",
+        "smile": true
+      },
+      "joyful": {
+        "pitch": "bright",
+        "pace": "quick",
+        "smile": true
+      }
+    },
+    "castingBoundary": "Final casting requires guardian/performer consent, compensation terms, recording rights and territory/media rights documented before approval."
+  },
+  "jabu": {
+    "speechModel": "nonverbal elephant character",
+    "rule": "Jabu does not speak human language in the core format.",
+    "palette": [
+      {
+        "id": "hello",
+        "sound": "soft prrr-oo",
+        "emotion": "friendly"
+      },
+      {
+        "id": "question",
+        "sound": "rising prrr-oo?",
+        "emotion": "curious"
+      },
+      {
+        "id": "proud",
+        "sound": "short prrrp!",
+        "emotion": "proud"
+      },
+      {
+        "id": "happy",
+        "sound": "rounded prrr-ooo!",
+        "emotion": "happy"
+      },
+      {
+        "id": "sneeze",
+        "sound": "breathy build then comic elephant sneeze",
+        "emotion": "surprised"
+      },
+      {
+        "id": "goodbye",
+        "sound": "long warm prrr-oooo",
+        "emotion": "joyful"
+      }
+    ],
+    "designRules": [
+      "Keep Jabu recognisably elephant-like; do not use a human actor saying the written syllables as dialogue.",
+      "Avoid distressed or aggressive animal sounds for comedy.",
+      "Build a consistent recurring sound vocabulary children can learn."
+    ]
+  },
+  "dubbing": {
+    "leboName": "Lebo stays Lebo in every language.",
+    "jabuName": "Jabu stays Jabu in every language.",
+    "rules": [
+      "Translate meaning and comic timing, not word-for-word syntax.",
+      "Use native or near-native reviewers for every final language track.",
+      "Do not erase the South African identity of the original edition.",
+      "Jabu's nonverbal sound vocabulary should remain substantially consistent across languages."
+    ]
+  }
+}

@@ -35,6 +35,7 @@ jobs:
           grep -q '<svg' kora-kids-studio/rigs/piko.svg
           grep -q '<svg' kora-kids-studio/rigs/busi-bus.svg
           node -e 'const x=require("./kora-kids-studio/config/render-targets.json"); const p=x.targets.find(t=>t.id==="izakhono-local"); const e=x.targets.find(t=>t.id==="external-burst"); if(!p?.enabled||!p?.authoritative||e?.enabled) process.exit(2)'
+          node -e 'const v=require("./kora-kids-studio/bibles/lebo-jabu-voice-bible.json"); const s=require("./kora-kids-studio/bibles/kora-kids-sound-bible.json"); const a=require("./kora-kids-studio/bibles/lebo-jabu-animation-bible.json"); if(v.schema!=="kora-kids.voice-bible/v1"||s.schema!=="kora-kids.sound-bible/v1"||a.schema!=="kora-kids.animation-bible/v1") process.exit(2)'
       - name: Ensure owned render tools
         run: |
           set -euo pipefail
@@ -72,7 +73,11 @@ jobs:
           let {job}=await create.json();
           if(job.series?.id!=="lebo-jabu"||job.episode?.slug!=="jam-day-under-the-baobab") process.exit(6);
           if(job.productionPack?.status!=="production-candidate"||job.productionPack?.targetDurationSeconds!==420) process.exit(14);
+          if(!job.productionPack?.qualityBibles?.voice||!job.productionPack?.qualityBibles?.sound||!job.productionPack?.qualityBibles?.animation) process.exit(18);
+          if(job.productionPack?.performanceLocks?.voiceCasting!=="pending-human-cast"||job.productionPack?.performanceLocks?.animationStyle!=="quality-bible-locked") process.exit(19);
           if(job.scenes?.length!==5||job.scenes?.[0]?.dialogue?.[0]?.speaker!=="Lebo"||job.scenes?.[0]?.shots?.length!==4) process.exit(15);
+          const shotCount=job.scenes.reduce((n,s)=>n+(s.shots?.length||0),0);
+          if(shotCount<20||!job.scenes.some(s=>s.shots?.some(sh=>sh.expressionFocus?.length))) process.exit(20);
           if(!job.scenes?.some(s=>s.dialogue?.some(d=>d.factReviewRequired===true))) process.exit(16);
           for(const gate of ["script","language","culturalContext","childSafety","brand","final"]){
             const r=await fetch(base+"/api/jobs/"+job.id+"/review",{method:"POST",headers,body:JSON.stringify({gate,approved:true})});
@@ -95,6 +100,7 @@ jobs:
           if(render.result?.broadcastMaster!==false||render.result?.authoritativeTarget!=="izakhono-local"||render.result?.guideAudio?.finalVoiceApproved!==false) process.exit(12);
           if(render.result?.dimensions?.width!==640||render.result?.dimensions?.height!==360) process.exit(13);
           if(render.result?.qc?.passForGuide!==true||render.result?.qc?.passForBroadcast!==false) process.exit(17);
+          if(render.result?.schema!=="kora-kids.render-result/v3"||render.result?.qc?.shotCount<20||render.result?.qc?.framingTypes?.length<6) process.exit(21);
           const blocked=await fetch(base+"/api/jobs",{method:"POST",headers,body:JSON.stringify({seriesId:"lebo-jabu",episodeSlug:"jam-day-under-the-baobab",language:"zu-ZA",renderTarget:"izakhono-local"})});
           if(blocked.status!==409) process.exit(5);
           const legacy=await fetch(base+"/api/jobs",{method:"POST",headers,body:JSON.stringify({seriesId:"tumi-tala",episodeSlug:"good-morning-rainbow-town",language:"en-ZA",renderTarget:"izakhono-local"})});
