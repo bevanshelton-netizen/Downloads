@@ -35,3 +35,20 @@ Do not point the public Internet directly at RUNTIME, FORTRESS, DATA, AUTH or th
 ## Cutover policy
 
 Deploy and health-check a platform on the owner host first. Keep its current public deployment live. Move its hostname only after the owner-host route, application readiness, payment callbacks and rollback path have been proved. KORA's production-readiness gates remain authoritative; moving compute does not bypass them.
+
+
+## External bridge fallback — Tailscale Funnel
+
+If the owned public edge is blocked by CGNAT, router forwarding, parent DNS or ACME reachability, IZAKHONO can publish Growth OS through Tailscale Funnel without moving application compute or data off ISN-01.
+
+Run:
+
+`START-IZAKHONO-TAILSCALE-BRIDGE.cmd`
+
+The launcher installs Tailscale when necessary, asks for one-time Tailscale account authorization if the node is not already connected, registers the generated `*.ts.net` hostname as an alias in IZAKHONO RUNTIME, publishes the existing loopback EDGE origin, and verifies `/api/health` publicly before declaring the bridge live.
+
+The path remains:
+
+`Internet -> Tailscale Funnel -> IZAKHONO EDGE/FORTRESS -> IZAKHONO RUNTIME -> Growth OS`
+
+Tailscale is transport only. IZAKHONO CODE, DATA, AUTH, RUNTIME, FORTRESS and the application remain owner-hosted.
