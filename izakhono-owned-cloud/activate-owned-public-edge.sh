@@ -5,7 +5,7 @@ if [ "${EUID:-$(id -u)}" -ne 0 ]; then exec sudo -E bash "$0" "$@"; fi
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 HOSTNAME="${IZAKHONO_PUBLIC_HOSTNAME:-domains.izakhonoafrica.co.za}"
 ZONE="${IZAKHONO_PUBLIC_ZONE:-domains.izakhonoafrica.co.za}"
-EXTRA_HOSTS_RAW="${IZAKHONO_PUBLIC_EXTRA_HOSTS:-growth.domains.izakhonoafrica.co.za}"
+EXTRA_HOSTS_RAW="${IZAKHONO_PUBLIC_EXTRA_HOSTS:-}"
 NS1="${IZAKHONO_NS1:-ns1.izakhonoafrica.co.za}"
 NS2="${IZAKHONO_NS2:-}"
 REPORT=/var/lib/izakhono-deploy/owned-public-edge.json
@@ -14,6 +14,21 @@ chmod 0700 /var/lib/izakhono-deploy
 
 need(){ command -v "$1" >/dev/null 2>&1 || { echo "Missing $1" >&2; exit 2; }; }
 for c in curl node ip systemctl openssl python3; do need "$c"; done
+
+if [ -z "$EXTRA_HOSTS_RAW" ] && [ -f "$ROOT/owner-host/platforms.json" ]; then
+  EXTRA_HOSTS_RAW="$(node - "$ROOT/owner-host/platforms.json" "$ZONE" "$HOSTNAME" <<'NODE'
+const fs=require("fs");
+const [path,zoneName,current]=process.argv.slice(2);
+const zone=zoneName.replace(/\.$/,"").toLowerCase();
+const now=current.replace(/\.$/,"").toLowerCase();
+const x=JSON.parse(fs.readFileSync(path,"utf8"));
+const hosts=[...new Set((x.platforms||[])
+  .map(p=>String(p.defaultHostname||"").replace(/\.$/,"").toLowerCase())
+  .filter(h=>h && h!==now && (h===zone || h.endsWith("."+zone))))];
+process.stdout.write(hosts.join(","));
+NODE
+)"
+fi
 
 LOCAL_IP="${IZAKHONO_OWNER_LAN_IPV4:-$(ip -4 route get 1.1.1.1 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i=="src"){print $(i+1);exit}}')}"
 [ -n "$LOCAL_IP" ] || { echo "Could not determine owner-host IPv4." >&2; exit 3; }
