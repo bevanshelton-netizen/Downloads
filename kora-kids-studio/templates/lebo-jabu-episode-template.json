@@ -1,0 +1,123 @@
+{
+  "schema": "kora-kids.episode-project/v2",
+  "seriesId": "lebo-jabu",
+  "series": "Lebo & Jabu",
+  "title": "",
+  "episodeNumber": null,
+  "slug": "",
+  "audience": "3-7",
+  "durationSeconds": 420,
+  "learningObjectives": [],
+  "language": "en-ZA",
+  "cast": [
+    "Lebo",
+    "Jabu"
+  ],
+  "culturalReviewRequired": true,
+  "scenes": [
+    {
+      "id": "s01",
+      "durationSeconds": 55,
+      "location": "Episode location",
+      "characters": [
+        "Lebo",
+        "Jabu"
+      ],
+      "action": "Funny visual hook and question",
+      "dialogue": [],
+      "musicCue": "kora-kids-theme-light",
+      "subtitleTrack": true,
+      "culturalNotes": []
+    },
+    {
+      "id": "s02",
+      "durationSeconds": 80,
+      "location": "Episode location",
+      "characters": [
+        "Lebo",
+        "Jabu"
+      ],
+      "action": "Discovery of the place, animal, object or tradition",
+      "dialogue": [],
+      "musicCue": "curious-playful",
+      "subtitleTrack": true,
+      "culturalNotes": []
+    },
+    {
+      "id": "s03",
+      "durationSeconds": 105,
+      "location": "Episode location",
+      "characters": [
+        "Lebo",
+        "Jabu"
+      ],
+      "action": "Comedy problem, movement and learning challenge",
+      "dialogue": [],
+      "musicCue": "adventure",
+      "subtitleTrack": true,
+      "culturalNotes": []
+    },
+    {
+      "id": "s04",
+      "durationSeconds": 105,
+      "location": "Episode location",
+      "characters": [
+        "Lebo",
+        "Jabu"
+      ],
+      "action": "Friends solve the problem through cooperation",
+      "dialogue": [],
+      "musicCue": "warm-resolution",
+      "subtitleTrack": true,
+      "culturalNotes": []
+    },
+    {
+      "id": "s05",
+      "durationSeconds": 75,
+      "location": "Episode location",
+      "characters": [
+        "Lebo",
+        "Jabu"
+      ],
+      "action": "Jabu's Africa Fact and cheerful goodbye",
+      "dialogue": [],
+      "musicCue": "fact-and-outro",
+      "subtitleTrack": true,
+      "culturalNotes": []
+    }
+  ],
+  "outputs": [
+    {
+      "type": "episode",
+      "aspect": "16:9",
+      "resolution": "1920x1080"
+    },
+    {
+      "type": "short",
+      "aspect": "9:16",
+      "resolution": "1080x1920"
+    },
+    {
+      "type": "thumbnail",
+      "aspect": "16:9",
+      "resolution": "1280x720"
+    },
+    {
+      "type": "caption",
+      "format": "vtt"
+    },
+    {
+      "type": "audio-master",
+      "format": "wav",
+      "languageScoped": true
+    }
+  ],
+  "review": {
+    "script": false,
+    "language": false,
+    "culturalContext": false,
+    "childSafety": false,
+    "brand": false,
+    "final": false
+  }
+}
