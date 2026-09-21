@@ -1,0 +1,107 @@
+name: IZAKHONO HYBRID RESILIENCE Gate
+
+on:
+  push:
+    branches: [build/izakhono-hybrid-resilience]
+    paths:
+      - "izakhono-owned-cloud/prove-growth-os-hybrid.sh"
+      - "izakhono-owned-cloud/select-growth-os-hybrid-route.sh"
+      - "izakhono-owned-cloud/HYBRID-INFRASTRUCTURE.md"
+      - ".github/workflows/izakhono-hybrid-resilience-gate.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "izakhono-owned-cloud/prove-growth-os-hybrid.sh"
+      - "izakhono-owned-cloud/select-growth-os-hybrid-route.sh"
+      - "izakhono-owned-cloud/HYBRID-INFRASTRUCTURE.md"
+      - ".github/workflows/izakhono-hybrid-resilience-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  prove:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+      - name: Validate shell syntax
+        run: |
+          bash -n izakhono-owned-cloud/prove-growth-os-hybrid.sh
+          bash -n izakhono-owned-cloud/select-growth-os-hybrid-route.sh
+      - name: Prepare IZAKHONO service group
+        run: sudo groupadd -f izakhono
+      - name: Start owned and external test endpoints
+        run: |
+          cat > /tmp/hybrid-owned.mjs <<'NODE'
+          import {createServer} from "node:http";
+          createServer((req,res)=>{
+            if(req.url==="/api/health"){
+              const body=JSON.stringify({ok:true,service:"growth-os-v2",runtime:"izakhono-owned"});
+              res.writeHead(200,{"content-type":"application/json","content-length":Buffer.byteLength(body)});
+              return res.end(body);
+            }
+            res.writeHead(404);res.end();
+          }).listen(20180,"127.0.0.1");
+          NODE
+          cat > /tmp/hybrid-external.mjs <<'NODE'
+          import {createServer} from "node:http";
+          createServer((req,res)=>{
+            if(req.url==="/api/status"){
+              const body=JSON.stringify({product:"IZAKHONO GROWTH OS",status:"public-beta",liveAdWrites:false});
+              res.writeHead(200,{"content-type":"application/json","content-length":Buffer.byteLength(body)});
+              return res.end(body);
+            }
+            res.writeHead(404);res.end();
+          }).listen(20181,"127.0.0.1");
+          NODE
+          node /tmp/hybrid-owned.mjs >/tmp/hybrid-owned.log 2>&1 &
+          echo $! >/tmp/hybrid-owned.pid
+          node /tmp/hybrid-external.mjs >/tmp/hybrid-external.log 2>&1 &
+          echo $! >/tmp/hybrid-external.pid
+          sleep 1
+      - name: Prove owned-primary plus external fallback
+        env:
+          IZAKHONO_HYBRID_OWNED_HOST: growth.test
+          IZAKHONO_HYBRID_EDGE_ORIGIN: http://127.0.0.1:20180
+          IZAKHONO_HYBRID_TAILSCALE_REPORT: /tmp/no-tailscale.json
+          IZAKHONO_HYBRID_EXTERNAL_URL: http://127.0.0.1:20181
+        run: |
+          sudo -E bash izakhono-owned-cloud/prove-growth-os-hybrid.sh >/tmp/hybrid-first.txt
+          sudo node - <<'NODE'
+          const fs=require("fs");
+          const x=JSON.parse(fs.readFileSync("/var/lib/izakhono-deploy/proofs/growth-os-hybrid-proof.json","utf8"));
+          if(x.owned.ready!==true) process.exit(2);
+          if(x.external_compute.ready!==true || x.external_compute.safe_readonly!==true) process.exit(3);
+          if(x.decision.write_path!=="OWNED") process.exit(4);
+          if(x.decision.automatic_payment_reroute!==false) process.exit(5);
+          NODE
+      - name: Prove external continuity stays read-only after owned loss
+        env:
+          IZAKHONO_HYBRID_OWNED_HOST: growth.test
+          IZAKHONO_HYBRID_EDGE_ORIGIN: http://127.0.0.1:20180
+          IZAKHONO_HYBRID_TAILSCALE_REPORT: /tmp/no-tailscale.json
+          IZAKHONO_HYBRID_EXTERNAL_URL: http://127.0.0.1:20181
+        run: |
+          kill "$(cat /tmp/hybrid-owned.pid)"
+          sleep 1
+          sudo -E bash izakhono-owned-cloud/prove-growth-os-hybrid.sh >/tmp/hybrid-second.txt
+          sudo node - <<'NODE'
+          const fs=require("fs");
+          const x=JSON.parse(fs.readFileSync("/var/lib/izakhono-deploy/proofs/growth-os-hybrid-proof.json","utf8"));
+          if(x.owned.ready!==false) process.exit(2);
+          if(x.external_compute.ready!==true || x.external_compute.safe_readonly!==true) process.exit(3);
+          if(x.decision.mode!=="EXTERNAL_COMPUTE_SAFE_FALLBACK") process.exit(4);
+          if(x.decision.write_path!=="BLOCKED") process.exit(5);
+          if(x.decision.automatic_dns_mutation!==false) process.exit(6);
+          NODE
+          sudo -E bash izakhono-owned-cloud/select-growth-os-hybrid-route.sh | grep -q 'ACTION=KEEP_PUBLIC_READ_ACCESS_ON_EXTERNAL_COMPUTE_AND_BLOCK_SENSITIVE_WRITES'
+      - name: Verify policy guardrails
+        run: |
+          grep -q 'Owned infrastructure remains authoritative' izakhono-owned-cloud/HYBRID-INFRASTRUCTURE.md
+          grep -q 'liveAdWrites:false' izakhono-owned-cloud/HYBRID-INFRASTRUCTURE.md
+          grep -q 'AUTOMATIC_PAYMENT_REROUTE=NO' izakhono-owned-cloud/prove-growth-os-hybrid.sh
+          ! grep -q 'vercel deploy' izakhono-owned-cloud/prove-growth-os-hybrid.sh
