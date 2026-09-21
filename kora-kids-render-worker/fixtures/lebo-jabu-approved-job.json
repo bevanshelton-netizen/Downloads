@@ -14,15 +14,16 @@
     "title": "Jam Day Under the Baobab",
     "theme": "Lebo and Jabu turn a berry-jam mess into a picnic under a baobab.",
     "learning": [
-      "Baobab trees",
-      "Sharing",
-      "Food traditions"
+      "Notice that baobabs are remarkable trees found in parts of Africa",
+      "Practise counting and sequencing",
+      "See how friends can solve a messy problem together"
     ]
   },
   "language": {
     "code": "en-ZA",
     "name": "English",
-    "voice": "en-ZA"
+    "voice": "en-ZA",
+    "finalVoiceApproved": false
   },
   "renderTarget": {
     "id": "izakhono-local",
@@ -59,77 +60,365 @@
     {
       "id": "s01",
       "durationSeconds": 55,
-      "location": "Baobab picnic clearing",
+      "location": "Sunny baobab clearing",
       "characters": [
         "Lebo",
         "Jabu"
       ],
-      "action": "Lebo and Jabu meet a giant baobab and ask why its trunk is so wide.",
-      "dialogue": [],
+      "action": "Lebo races into a sunny clearing and stops in amazement at a huge baobab. Jabu trots in behind her and nearly bumps into her.",
+      "dialogue": [
+        {
+          "speaker": "Lebo",
+          "text": "Whoa! Jabu, look at that tree! Its tummy is bigger than yours!",
+          "emotion": "delighted"
+        },
+        {
+          "speaker": "Jabu",
+          "text": "Prrr-ooo?",
+          "emotion": "mock-offended",
+          "performance": "elephant vocalisation; no human-language dubbing required"
+        },
+        {
+          "speaker": "Lebo",
+          "text": "Okay, okay. Maybe not bigger. But why is the trunk so wide?",
+          "emotion": "curious"
+        }
+      ],
+      "shots": [
+        {
+          "id": "s01a",
+          "seconds": 10,
+          "framing": "wide",
+          "action": "Establish clearing, baobab and birds; Lebo runs in."
+        },
+        {
+          "id": "s01b",
+          "seconds": 15,
+          "framing": "medium",
+          "action": "Lebo points up; Jabu arrives and reacts."
+        },
+        {
+          "id": "s01c",
+          "seconds": 16,
+          "framing": "close",
+          "action": "Lebo compares the trunk to Jabu; playful reaction."
+        },
+        {
+          "id": "s01d",
+          "seconds": 14,
+          "framing": "wide-push",
+          "action": "They circle the trunk and decide to picnic nearby."
+        }
+      ],
       "musicCue": "kora-kids-theme-light",
+      "sfx": [
+        "birds-light",
+        "running-feet",
+        "jabu-trumpet-soft"
+      ],
       "subtitleTrack": true,
       "culturalNotes": [
-        "Keep the baobab explanation general and regionally accurate."
+        "The baobab is a real tree, not a magical stereotype. Avoid assigning a specific cultural meaning without a sourced regional review."
       ]
     },
     {
       "id": "s02",
       "durationSeconds": 80,
-      "location": "Berry path",
+      "location": "Berry path and picnic clearing",
       "characters": [
         "Lebo",
         "Jabu"
       ],
-      "action": "They gather berries for jam and count their basketfuls.",
-      "dialogue": [],
+      "action": "They collect berries and simple picnic ingredients. Lebo turns collecting into a counting game.",
+      "dialogue": [
+        {
+          "speaker": "Lebo",
+          "text": "We need berries for our jam. One basket for us, and one little bowl to share.",
+          "emotion": "cheerful"
+        },
+        {
+          "speaker": "Lebo",
+          "text": "Let’s count together. One, two, three, four, five!",
+          "emotion": "playful"
+        },
+        {
+          "speaker": "Lebo",
+          "text": "Jabu, your trunk is the fastest berry-picker I’ve ever seen.",
+          "emotion": "laughing"
+        },
+        {
+          "speaker": "Jabu",
+          "text": "Prrrp!",
+          "emotion": "proud",
+          "performance": "elephant vocalisation"
+        }
+      ],
+      "shots": [
+        {
+          "id": "s02a",
+          "seconds": 18,
+          "framing": "tracking",
+          "action": "They walk beside the clearing, spotting berries."
+        },
+        {
+          "id": "s02b",
+          "seconds": 20,
+          "framing": "close-montage",
+          "action": "Count five safe, generic berries into a basket."
+        },
+        {
+          "id": "s02c",
+          "seconds": 22,
+          "framing": "medium-comedy",
+          "action": "Jabu carefully picks with trunk, then poses proudly."
+        },
+        {
+          "id": "s02d",
+          "seconds": 20,
+          "framing": "wide",
+          "action": "They return to the picnic table with baskets."
+        }
+      ],
       "musicCue": "curious-playful",
+      "sfx": [
+        "basket-rustle",
+        "berry-plops",
+        "jabu-happy"
+      ],
       "subtitleTrack": true,
       "culturalNotes": []
     },
     {
       "id": "s03",
       "durationSeconds": 105,
-      "location": "Picnic clearing",
+      "location": "Outdoor picnic table",
       "characters": [
         "Lebo",
         "Jabu"
       ],
-      "action": "Jabu sneezes and the berries bounce everywhere.",
-      "dialogue": [],
-      "musicCue": "adventure",
+      "action": "Lebo explains the order: bowl, berries, mash, stir. Jabu tries to help, sneezes, and sends berries bouncing everywhere.",
+      "dialogue": [
+        {
+          "speaker": "Lebo",
+          "text": "First, bowl. Then berries. Then mash. Then stir. In that order!",
+          "emotion": "confident"
+        },
+        {
+          "speaker": "Lebo",
+          "text": "Ready, Jabu? Gently does it.",
+          "emotion": "encouraging"
+        },
+        {
+          "speaker": "Jabu",
+          "text": "Prrr... prrr... PAA-CHOO!",
+          "emotion": "sneeze",
+          "performance": "elephant sneeze"
+        },
+        {
+          "speaker": "Lebo",
+          "text": "The berries are escaping!",
+          "emotion": "surprised"
+        },
+        {
+          "speaker": "Lebo",
+          "text": "Catch the purple one! No, the other purple one!",
+          "emotion": "laughing"
+        }
+      ],
+      "shots": [
+        {
+          "id": "s03a",
+          "seconds": 20,
+          "framing": "overhead",
+          "action": "Show four-step sequence with bowl and spoon."
+        },
+        {
+          "id": "s03b",
+          "seconds": 22,
+          "framing": "two-shot",
+          "action": "Jabu leans in carefully; nose tickles."
+        },
+        {
+          "id": "s03c",
+          "seconds": 12,
+          "framing": "close",
+          "action": "Sneeze build-up."
+        },
+        {
+          "id": "s03d",
+          "seconds": 28,
+          "framing": "wide-comedy",
+          "action": "Berry bounce chaos across table and grass."
+        },
+        {
+          "id": "s03e",
+          "seconds": 23,
+          "framing": "tracking",
+          "action": "Lebo and Jabu chase rolling berries without panic."
+        }
+      ],
+      "musicCue": "berry-bounce-comedy",
+      "sfx": [
+        "bowl-clink",
+        "sneeze-comedy",
+        "berry-bounces",
+        "comic-whooshes"
+      ],
       "subtitleTrack": true,
       "culturalNotes": []
     },
     {
       "id": "s04",
       "durationSeconds": 105,
-      "location": "Picnic clearing",
+      "location": "Baobab picnic clearing",
       "characters": [
         "Lebo",
         "Jabu"
       ],
-      "action": "New friends help clean up, cook and share the picnic.",
-      "dialogue": [],
+      "action": "They stop, assess the mess, clean what can safely be cleaned, and start again with a smaller batch. The lesson is cooperation, not perfection.",
+      "dialogue": [
+        {
+          "speaker": "Lebo",
+          "text": "Well... that did not go to plan.",
+          "emotion": "thoughtful"
+        },
+        {
+          "speaker": "Lebo",
+          "text": "But we can fix it. We’ll pick up, clean up, and try again.",
+          "emotion": "determined"
+        },
+        {
+          "speaker": "Lebo",
+          "text": "You gather. I sort. Then we both stir.",
+          "emotion": "teamwork"
+        },
+        {
+          "speaker": "Lebo",
+          "text": "Look! A small pot of jam and a very big adventure.",
+          "emotion": "proud"
+        },
+        {
+          "speaker": "Jabu",
+          "text": "Prrr-ooo!",
+          "emotion": "happy",
+          "performance": "elephant vocalisation"
+        }
+      ],
+      "shots": [
+        {
+          "id": "s04a",
+          "seconds": 18,
+          "framing": "medium",
+          "action": "Quiet beat; they look at the mess."
+        },
+        {
+          "id": "s04b",
+          "seconds": 24,
+          "framing": "montage",
+          "action": "Team clean-up and sorting."
+        },
+        {
+          "id": "s04c",
+          "seconds": 28,
+          "framing": "close-montage",
+          "action": "Restart with a small clean batch; mash and stir."
+        },
+        {
+          "id": "s04d",
+          "seconds": 20,
+          "framing": "two-shot",
+          "action": "They taste a tiny spoonful safely."
+        },
+        {
+          "id": "s04e",
+          "seconds": 15,
+          "framing": "wide",
+          "action": "Lay out the picnic and celebrate teamwork."
+        }
+      ],
       "musicCue": "warm-resolution",
+      "sfx": [
+        "soft-cleanup",
+        "stirring",
+        "tiny-cheer"
+      ],
       "subtitleTrack": true,
       "culturalNotes": [
-        "Food references require local review before final script lock."
+        "Food remains generic in this version. Region-specific preparation should only be added after cultural review."
       ]
     },
     {
       "id": "s05",
       "durationSeconds": 75,
-      "location": "Baobab sunset",
+      "location": "Baobab at golden-hour sunset",
       "characters": [
         "Lebo",
         "Jabu"
       ],
-      "action": "Jabu shares an Africa Fact about baobabs and the friends say goodbye.",
-      "dialogue": [],
+      "action": "They sit under the tree. Lebo gives the recurring fact segment, then they invite children to keep exploring Africa.",
+      "dialogue": [
+        {
+          "speaker": "Lebo",
+          "text": "Jabu’s Africa Fact!",
+          "emotion": "announcer-playful"
+        },
+        {
+          "speaker": "Lebo",
+          "text": "Baobabs grow in several parts of Africa. Their thick trunks can store lots of water, which helps them through dry times.",
+          "emotion": "warm-informative",
+          "factReviewRequired": true
+        },
+        {
+          "speaker": "Lebo",
+          "text": "Africa is full of different places, people, plants and stories. We’ll discover another one next time.",
+          "emotion": "warm"
+        },
+        {
+          "speaker": "Lebo",
+          "text": "Bye, explorers!",
+          "emotion": "joyful"
+        },
+        {
+          "speaker": "Jabu",
+          "text": "Prrr-oooo!",
+          "emotion": "joyful",
+          "performance": "elephant goodbye"
+        }
+      ],
+      "shots": [
+        {
+          "id": "s05a",
+          "seconds": 18,
+          "framing": "wide-sunset",
+          "action": "Golden light under baobab."
+        },
+        {
+          "id": "s05b",
+          "seconds": 24,
+          "framing": "medium",
+          "action": "Jabu’s Africa Fact."
+        },
+        {
+          "id": "s05c",
+          "seconds": 18,
+          "framing": "map-motif",
+          "action": "Simple Africa silhouette with varied landscapes; no national stereotypes."
+        },
+        {
+          "id": "s05d",
+          "seconds": 15,
+          "framing": "close-to-wide",
+          "action": "Lebo waves; Jabu trumpets; end card."
+        }
+      ],
       "musicCue": "fact-and-outro",
+      "sfx": [
+        "sunset-birds",
+        "jabu-goodbye"
+      ],
       "subtitleTrack": true,
       "culturalNotes": [
-        "Verify the fact wording before publishing."
+        "Final fact wording must be independently reviewed before the episode is called fact-locked."
       ]
     }
   ],
@@ -140,5 +429,35 @@
     "childSafety": true,
     "brand": true,
     "final": true
+  },
+  "productionPack": {
+    "schema": "kora-kids.production-pack/v1",
+    "status": "production-candidate",
+    "targetDurationSeconds": 420,
+    "factNotes": [
+      "Keep the baobab fact general: baobabs grow naturally in several parts of Africa.",
+      "Do not present one food tradition as representative of all African communities.",
+      "Any later local-language words or region-specific customs require a reviewer from that language/cultural context."
+    ],
+    "musicDirection": {
+      "theme": "Bright, playful, acoustic African-inspired children’s theme using original melodies only.",
+      "rule": "Do not imitate or interpolate an existing children's song or soundtrack.",
+      "cues": [
+        "kora-kids-theme-light",
+        "curious-playful",
+        "berry-bounce-comedy",
+        "warm-resolution",
+        "fact-and-outro"
+      ]
+    },
+    "reviewState": {
+      "scriptLock": false,
+      "factLock": false,
+      "languagePerformance": false,
+      "culturalContext": false,
+      "childSafety": false,
+      "musicOriginality": false,
+      "finalMaster": false
+    }
   }
 }
