@@ -1,0 +1,31 @@
+{
+  "schema": "kora-kids.hybrid-release/v1",
+  "product": "KORA KIDS — Tumi & Tala",
+  "release": "season-1-factory-1",
+  "authority": "izakhono-owned",
+  "publicStrategy": "hybrid",
+  "primary": {
+    "provider": "IZAKHONO",
+    "hostname": "korakids.domains.izakhonoafrica.co.za",
+    "health": "/health",
+    "status": "requires-owner-host-cutover"
+  },
+  "external": [
+    {
+      "provider": "KORA Network / Vercel",
+      "path": "/tumi-tala/index.html",
+      "role": "public mirror and failover"
+    },
+    {
+      "provider": "GitHub Pages",
+      "path": "/Downloads/kora-kids/",
+      "role": "static fallback"
+    }
+  ],
+  "invariants": {
+    "sameContentManifest": true,
+    "childDataCollection": false,
+    "directChildPurchases": false,
+    "externalAuthoritative": false
+  }
+}
