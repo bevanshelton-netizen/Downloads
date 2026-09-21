@@ -30,3 +30,11 @@ if [ -f /var/lib/izakhono-deploy/growth-os-v2.json ]; then
 else
   echo "growth-os-v2 receipt: missing"
 fi
+
+echo
+echo "=== OWNED PUBLIC EDGE ==="
+if [ -f /var/lib/izakhono-deploy/owned-public-edge.json ]; then
+  cat /var/lib/izakhono-deploy/owned-public-edge.json
+else
+  echo "owned-public-edge receipt: missing"
+fi
