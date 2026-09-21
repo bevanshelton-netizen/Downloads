@@ -29,7 +29,8 @@ function validate(job){
   if(!job.language?.code) throw new Error("job has no language");
 }
 function commandExists(cmd){
-  const r=spawnSync(cmd,["--version"],{stdio:"ignore"});
+  const versionArg=(cmd==="ffmpeg"||cmd==="ffprobe")?"-version":"--version";
+  const r=spawnSync(cmd,[versionArg],{stdio:"ignore"});
   return r.status===0;
 }
 function ffmpegRun(argv, opts={}){
