@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f5faf7">
+<title>IZAKHONO COMMANDS — Resilience Mirror</title>
+<meta name="description" content="External resilience mirror for the IZAKHONO owner command centre.">
+<style>
+:root{--ink:#14362d;--muted:#667c73;--paper:#fff;--bg:#f4faf7;--line:#cfe3da;--green:#07845e;--green2:#51c992;--gold:#d7ae43;--blue:#3b7fd9;--red:#b42318;--shadow:0 18px 45px rgba(23,76,59,.12)}
+*{box-sizing:border-box}html{background:var(--bg)}body{margin:0;background:radial-gradient(circle at 10% 0,#daf6e7 0,transparent 30%),radial-gradient(circle at 90% 8%,#fff0be 0,transparent 22%),linear-gradient(180deg,#fbfdfb,#eef7f2);color:var(--ink);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+button,input{font:inherit}.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:13px clamp(16px,4vw,50px);background:#ffffffee;border-bottom:1px solid var(--line);backdrop-filter:blur(14px)}.logo{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-weight:1000;color:#fff;background:linear-gradient(135deg,#075d45,#15a272 60%,#e2bb55);box-shadow:var(--shadow)}.brand{font-weight:1000;letter-spacing:.08em}.sub{font-size:11px;color:var(--muted)}.status{margin-left:auto;border:1px solid var(--line);border-radius:999px;padding:8px 11px;background:#fff;font-size:11px;font-weight:850}.status.live{color:#086a49;border-color:#9bd6bb;background:#effaf4}.status.fallback{color:#875d00;border-color:#e8cc86;background:#fffaf0}
+.wrap{max-width:1280px;margin:auto;padding:28px clamp(16px,4vw,50px) 80px}.hero{display:grid;grid-template-columns:1.25fr .75fr;gap:18px}.card{background:#ffffffee;border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.heroMain{padding:28px}.ey{font-size:11px;letter-spacing:.16em;font-weight:950;color:var(--green)}h1{font-size:clamp(42px,6vw,72px);line-height:.94;letter-spacing:-.05em;margin:12px 0 16px}h1 span{color:var(--green)}.lead{color:var(--muted);line-height:1.65;max-width:780px}.notice{margin-top:16px;border:1px solid #ecd38f;border-radius:14px;background:#fffaf0;padding:12px 14px;color:#74520b;font-size:12px;line-height:1.5}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:14px}.stat{border:1px solid var(--line);border-radius:16px;background:#fbfefc;padding:15px}.stat b{display:block;font-size:27px}.stat span{font-size:10px;color:var(--muted)}
+.unlock{display:grid;grid-template-columns:1fr auto;gap:9px;margin-top:18px}.unlock input,.cmdline input,.search{width:100%;border:1px solid #bed9ce;border-radius:12px;padding:13px 14px;background:#fff;color:var(--ink);outline:none}.unlock input:focus,.cmdline input:focus,.search:focus{border-color:#68c29f;box-shadow:0 0 0 4px rgba(81,201,146,.12)}.btn{border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:11px 15px;font-weight:900;cursor:pointer}.btn.primary{border:0;background:linear-gradient(135deg,#087657,#18a675);color:#fff}.btn.gold{border-color:#e6c86f;background:#fffaf0}.btn:disabled{opacity:.5;cursor:not-allowed}
+.work{display:grid;grid-template-columns:280px 1fr;gap:18px;margin-top:18px}.side{padding:17px;align-self:start}.side h3,.console h3,.catalog h3{font-size:11px;letter-spacing:.13em;color:#63796f;margin:0 0 10px}.cats{display:grid;gap:5px;margin-top:11px}.cat{display:flex;justify-content:space-between;gap:8px;border:0;background:transparent;border-radius:10px;padding:9px;text-align:left;color:#38554b;cursor:pointer}.cat:hover,.cat.on{background:#edf8f3;color:#08704f;font-weight:900}.miniTitle{font-size:10px;letter-spacing:.13em;font-weight:900;color:#7b8e87;margin:18px 0 8px}.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{border:1px solid var(--line);border-radius:999px;background:#fff;padding:7px 9px;font-size:11px;cursor:pointer}
+.main{display:grid;gap:18px}.console,.catalog{padding:19px}.cmdline{display:grid;grid-template-columns:1fr auto;gap:9px}.cmdline input{font-size:17px;font-weight:800}.hint{font-size:12px;color:var(--muted);line-height:1.5;margin-top:8px}.result{margin-top:15px;border:1px solid var(--line);border-radius:16px;background:#f9fcfa;padding:15px;min-height:120px}.head{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.head b{font-size:18px}.tag{font-size:10px;text-transform:uppercase;letter-spacing:.08em;border:1px solid var(--line);border-radius:999px;padding:5px 8px;background:#fff}.tag.live{color:#0a6e4e;border-color:#9bd8bc}.tag.workflow{color:#2d67b1;border-color:#c6d6ef}.tag.fallback{color:#8b6200;border-color:#e9ce88}.msg{color:var(--muted);line-height:1.55;margin-top:8px}.bad{color:var(--red)}.steps{display:grid;gap:8px;margin-top:12px}.step{display:grid;grid-template-columns:29px 1fr;gap:9px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px}.step i{width:27px;height:27px;border-radius:8px;display:grid;place-items:center;background:#e8f8f0;color:#08704f;font-style:normal;font-weight:950}.json{margin-top:12px;background:#10251f;color:#eafff6;padding:13px;border-radius:12px;white-space:pre-wrap;word-break:break-word;max-height:340px;overflow:auto;font-size:11px;line-height:1.45}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.catalogTop{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:13px}.cmd{border:1px solid var(--line);border-radius:14px;background:#fff;padding:12px;cursor:pointer}.cmd:hover{box-shadow:0 9px 24px rgba(20,75,58,.08)}.cmd code{font-weight:950;color:#08704f}.cmd p{font-size:11px;color:var(--muted);line-height:1.45;margin:7px 0 0}.empty{border:1px dashed #c9ddd4;border-radius:14px;padding:28px;text-align:center;color:var(--muted)}
+footer{margin-top:22px;text-align:center;color:#7a9087;font-size:10px;line-height:1.5}
+@media(max-width:900px){.hero,.work{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:620px){.grid{grid-template-columns:1fr}.unlock,.cmdline{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.wrap{padding-top:18px}.heroMain{padding:22px}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="logo">I</div>
+  <div><div class="brand">IZAKHONO COMMANDS</div><div class="sub">External resilience mirror · owned runtime remains authoritative</div></div>
+  <div class="status fallback" id="runtimeStatus">Checking owned runtime</div>
+</header>
+<main class="wrap">
+  <section class="hero">
+    <div class="card heroMain">
+      <div class="ey">HYBRID IZAKHONO CONTROL</div>
+      <h1>One command centre.<br><span>Two survival paths.</span></h1>
+      <p class="lead">This mirror keeps the owner command interface reachable when the owned IZAKHONO runtime is temporarily unavailable. Structured workflows continue locally. High-impact build, repository and payment actions execute only when the owned command API is reachable and owner authentication succeeds.</p>
+      <div class="notice"><b>Resilience rule:</b> this mirror never claims a deployment succeeded when the owned runtime is offline. It does not store your owner credential.</div>
+      <div class="unlock">
+        <input id="secret" type="password" autocomplete="off" placeholder="Owner recovery key / Builder admin secret">
+        <button class="btn primary" id="unlock">Connect Owner Runtime</button>
+      </div>
+      <div class="hint" id="unlockMsg">You can browse and run local workflow commands without connecting. Owner actions require the existing IZAKHONO credential.</div>
+    </div>
+    <div class="card stats">
+      <div class="stat"><b id="total">60+</b><span>RESILIENCE COMMANDS</span></div>
+      <div class="stat"><b>221</b><span>FULL OWNED CATALOGUE WHEN ONLINE</span></div>
+      <div class="stat"><b>0</b><span>SECRETS STORED</span></div>
+      <div class="stat"><b>2</b><span>OWNED + EXTERNAL PATHS</span></div>
+    </div>
+  </section>
+
+  <section class="work">
+    <aside class="card side">
+      <h3>FILTER COMMANDS</h3>
+      <input class="search" id="search" placeholder="Search commands">
+      <div class="cats" id="cats"></div>
+      <div class="miniTitle">QUICK START</div>
+      <div class="chips">
+        <button class="chip" onclick="use('/health')">/health</button>
+        <button class="chip" onclick="use('/portfolio')">/portfolio</button>
+        <button class="chip" onclick="use('/launch faisready')">/launch</button>
+        <button class="chip" onclick="use('/sales')">/sales</button>
+        <button class="chip" onclick="use('/campaign')">/campaign</button>
+        <button class="chip" onclick="use('/kora')">/kora</button>
+      </div>
+    </aside>
+
+    <div class="main">
+      <section class="card console">
+        <h3>COMMAND LINE</h3>
+        <div class="cmdline">
+          <input id="command" autocomplete="off" spellcheck="false" placeholder="/sales school uniforms">
+          <button class="btn primary" id="run">Run</button>
+        </div>
+        <div class="hint">Owner actions: /health · /portfolio · /project · /plan · /generate · /validate · /repo · /payments · /launch. Workflows continue in resilience mode even while the owned runtime is down.</div>
+        <div class="result" id="result"><div class="msg">Type a command or choose one from the catalogue.</div></div>
+      </section>
+
+      <section class="card catalog">
+        <div class="catalogTop"><div><h3>COMMAND LIBRARY</h3><b id="catalogTitle">Resilience catalogue</b></div></div>
+        <div class="grid" id="grid"></div>
+      </section>
+    </div>
+  </section>
+  <footer>IZAKHONO-owned runtime is the authority. This mirror is an external availability layer only.</footer>
+</main>
+
+<script>
+const state={secret:'',online:false,commands:[],category:'All'};
+const ownerActions=new Set(['health','portfolio','project','plan','generate','validate','repo','repository','payments','launch','commands','help']);
+const launchers={
+  'kora':'https://kora-network.vercel.app',
+  'faisready':'https://faisready-revenue.vercel.app',
+  'worknow':'https://worknow-sa.vercel.app',
+  'auto-ai':'https://auto-ai-eosin.vercel.app',
+  'allegro':'https://allegro-vibez.vercel.app',
+  'growth':'https://izakhono-growth-os.vercel.app',
+  'revenue':'https://izakhono-revenue-os.vercel.app'
+};
+const sets={
+'Marketing':['instagram','facebook','linkedin','tiktok','youtube','reels','social','campaign','ad','content-plan','content-calendar','seo'],
+'Sales':['sales','offer','pricing','upsell','cross-sell','follow-up','proposal','quote','pitch','closing','objections','sales-funnel'],
+'Brand':['brand','positioning','tagline','brand-story','brand-voice','messaging','value-proposition'],
+'Customer':['customer','audience','persona','journey','onboarding','retention','feedback','support'],
+'Research':['competitor','market','trends','swot','opportunity','benchmark','gap-analysis','supplier-research'],
+'Content':['script','email','newsletter','blog','press-release','case-study','brochure','video-brief'],
+'Web & Product':['website','landing-page','product-page','checkout','app','feature','roadmap','conversion-audit'],
+'Finance':['budget','cashflow','forecast','break-even','margin','revenue-model','funding','investor-model'],
+'Operations':['sop','process','workflow','checklist','quality-control','procurement','fulfilment'],
+'Infrastructure':['dns','tls','deployment','hosting','ci','release','rollback','backup','monitoring'],
+'Owner':['health','portfolio','project','plan','generate','validate','repo','payments','launch','commands'],
+'Platforms':['kora','faisready','worknow','auto-ai','allegro','growth','revenue']
+};
+const steps={
+'Marketing':['Define the objective and target audience.','Build channel-specific message and creative direction.','Set CTA, tracking and publishing cadence.','Review performance signals and iterate.'],
+'Sales':['Define buyer, offer and commercial objective.','Build proof, objections and closing message.','Set pricing, CTA and follow-up sequence.','Track conversion and next action.'],
+'Brand':['Define audience, promise and differentiator.','Build messaging and tone.','Translate into visual/content guidance.','Check consistency across touchpoints.'],
+'Customer':['Define customer segment and desired outcome.','Map journey and friction.','Design the intervention and measurement.','Capture feedback and improve.'],
+'Research':['Define the decision question.','Gather comparable evidence.','Separate facts, assumptions and gaps.','Produce implications and next actions.'],
+'Content':['Define audience, format and objective.','Structure the message.','Create the production-ready draft.','Add CTA and distribution notes.'],
+'Web & Product':['Define user and conversion goal.','Map the feature/screen flow.','Specify data, payments, analytics and legal boundaries.','Set validation and launch gates.'],
+'Finance':['Define the financial decision and horizon.','Collect revenue, cost and cash assumptions.','Model scenarios and sensitivities.','Identify risks and decision gates.'],
+'Operations':['Define trigger, owner and outcome.','Map repeatable steps and controls.','Set exceptions and escalation.','Measure quality and turnaround.'],
+'Infrastructure':['Define target environment and current state.','Inspect dependencies and failure points.','Execute the smallest reversible change.','Verify health and rollback readiness.'],
+'Owner':['Connect to the owned IZAKHONO runtime.','Execute only the whitelisted owner action.','Verify returned evidence.','Do not claim production readiness beyond verified proof.'],
+'Platforms':['Open the approved platform endpoint.','Verify the destination before entering sensitive data.','Use the platform-specific workflow.','Return to Command Centre for the next action.']
+};
+function title(s){return s.split('-').map(x=>x?x[0].toUpperCase()+x.slice(1):x).join(' ')}
+function buildFallback(){
+  const out=[];Object.entries(sets).forEach(([category,names])=>names.forEach(name=>out.push({name,label:title(name),category,kind:ownerActions.has(name)?'action':launchers[name]?'launcher':'workflow',description:(ownerActions.has(name)?'Owned IZAKHONO action.':launchers[name]?'Open approved platform route.':title(name)+' structured workflow.'),steps:steps[category]||[]})));
+  return out;
+}
+state.commands=buildFallback();
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+function renderCats(){
+  const counts={All:state.commands.length};state.commands.forEach(c=>counts[c.category]=(counts[c.category]||0)+1);
+  cats.innerHTML=Object.entries(counts).map(([k,v])=>'<button class="cat '+(state.category===k?'on':'')+'" onclick="setCat(\''+esc(k)+'\')"><span>'+esc(k)+'</span><small>'+v+'</small></button>').join('');
+}
+function setCat(c){state.category=c;renderCats();renderGrid()}
+function renderGrid(){
+  const q=search.value.trim().toLowerCase();
+  const list=state.commands.filter(c=>(state.category==='All'||c.category===state.category)&&(!q||('/'+c.name+' '+c.label+' '+c.description).toLowerCase().includes(q)));
+  catalogTitle.textContent=(state.online?'Owned catalogue':'Resilience catalogue')+' · '+list.length;
+  grid.innerHTML=list.length?list.map(c=>'<article class="cmd" onclick="use(\'/'+esc(c.name)+(c.kind==='action'&&['project','plan','generate','validate','repo','payments','launch'].includes(c.name)?' ':'')+'\')"><div><span class="tag '+(c.kind==='workflow'?'workflow':state.online?'live':'fallback')+'">'+esc(c.kind)+'</span> <code>/'+esc(c.name)+'</code></div><p>'+esc(c.description)+'</p></article>').join(''):'<div class="empty">No matching commands.</div>';
+}
+function use(v){command.value=v;command.focus()}
+function workflow(c,args){
+  const s=(c.steps&&c.steps.length?c.steps:steps[c.category]||[]);
+  return '<div class="head"><b>/'+esc(c.name)+'</b><span class="tag workflow">workflow</span><span class="tag fallback">resilience</span></div><div class="msg">'+esc(c.description)+(args?'<br><b>Input:</b> '+esc(args):'')+'</div><div class="steps">'+s.map((x,i)=>'<div class="step"><i>'+(i+1)+'</i><div>'+esc(x)+'</div></div>').join('')+'</div>';
+}
+async function connect(){
+  state.secret=secret.value.trim();if(!state.secret){unlockMsg.innerHTML='<span class="bad">Enter the owner credential.</span>';return}
+  unlock.disabled=true;unlockMsg.textContent='Checking owned runtime…';
+  try{
+    const r=await fetch('/api/izakhono-commands',{headers:{'x-admin-secret':state.secret},cache:'no-store'});
+    const d=await r.json();if(!r.ok)throw new Error(d.error||'Owned runtime unavailable');
+    state.online=true;state.commands=d.commands||state.commands;runtimeStatus.textContent='Owned runtime connected';runtimeStatus.className='status live';unlockMsg.textContent='Connected. Live owner actions are available through the owned IZAKHONO runtime.';total.textContent=state.commands.length;renderCats();renderGrid();
+  }catch(e){state.online=false;runtimeStatus.textContent='Resilience mode';runtimeStatus.className='status fallback';unlockMsg.textContent='Owned runtime is not reachable yet. Workflow commands remain available here; owner actions stay safely blocked.';renderCats();renderGrid()}
+  finally{unlock.disabled=false}
+}
+async function run(){
+  const raw=command.value.trim();if(!raw)return;
+  const clean=raw.replace(/^\/+/,''), name=(clean.split(/\s+/)[0]||'').toLowerCase(), args=clean.slice(name.length).trim();
+  const c=state.commands.find(x=>x.name===name)||buildFallback().find(x=>x.name===name);
+  if(!c){result.innerHTML='<div class="bad">Unknown command. Search the catalogue below.</div>';return}
+  if(c.kind==='launcher'){
+    const url=launchers[c.name];result.innerHTML='<div class="head"><b>/'+esc(c.name)+'</b><span class="tag live">launcher</span></div><div class="msg">Opening the approved external platform route.</div><div class="actions"><a class="btn primary" href="'+esc(url)+'" target="_blank" rel="noopener">Open platform</a></div>';window.open(url,'_blank','noopener');return
+  }
+  if(c.kind==='workflow'){result.innerHTML=workflow(c,args);return}
+  if(!state.secret){result.innerHTML='<div class="bad">Owner action blocked. Connect the owner runtime first.</div>';return}
+  run.disabled=true;result.innerHTML='<div class="msg">Running '+esc(raw)+' through the owned command API…</div>';
+  try{
+    const r=await fetch('/api/izakhono-commands',{method:'POST',headers:{'content-type':'application/json','x-admin-secret':state.secret},body:JSON.stringify({input:raw}),cache:'no-store'});
+    const d=await r.json();if(!r.ok)throw new Error(d.error||'Command failed');
+    state.online=true;runtimeStatus.textContent='Owned runtime connected';runtimeStatus.className='status live';
+    result.innerHTML='<div class="head"><b>/'+esc(d.command||name)+'</b><span class="tag live">owned action</span></div><div class="msg">'+esc(d.message||'Command completed.')+'</div>'+(d.preview?'<div class="actions"><a class="btn primary" href="'+esc(d.preview)+'" target="_blank" rel="noopener">Open preview</a></div>':'')+(d.data?'<pre class="json">'+esc(JSON.stringify(d.data,null,2))+'</pre>':'');
+  }catch(e){state.online=false;runtimeStatus.textContent='Resilience mode';runtimeStatus.className='status fallback';result.innerHTML='<div class="head"><b>/'+esc(name)+'</b><span class="tag fallback">blocked safely</span></div><div class="bad">'+esc(e.message)+'</div><div class="msg">No owner-side change was claimed. Use workflow commands here while the owned runtime is restored.</div>'}
+  finally{run.disabled=false}
+}
+unlock.onclick=connect;run.onclick=run;command.addEventListener('keydown',e=>{if(e.key==='Enter')run()});search.addEventListener('input',()=>{state.category='All';renderCats();renderGrid()});renderCats();renderGrid();
+</script>
+</body></html>

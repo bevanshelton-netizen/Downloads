@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f6fbf8">
+<title>IZAKHONO COMMANDS — Resilience Console</title>
+<style>
+:root{--ink:#15372e;--muted:#667c73;--line:#cfe2d9;--green:#087657;--gold:#d8ad43;--blue:#397dd5;--bg:#f4faf7}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 12% 0,#daf5e7 0,transparent 30%),radial-gradient(circle at 88% 5%,#fff1bf 0,transparent 24%),linear-gradient(180deg,#fbfdfc,#eff7f3);color:var(--ink);font-family:Inter,system-ui,sans-serif;min-height:100vh}
+header{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:14px clamp(16px,4vw,48px);background:#fffef9;border-bottom:1px solid var(--line)}
+.logo{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;color:white;font-weight:1000;background:linear-gradient(135deg,#075e46,#17a675 60%,#dfb74e)}.brand{font-weight:1000;letter-spacing:.08em}.sub{font-size:11px;color:var(--muted)}
+.badge{margin-left:auto;padding:8px 11px;border-radius:999px;border:1px solid #e5c779;background:#fff8e8;color:#7a5908;font-size:11px;font-weight:900}
+main{max-width:1200px;margin:auto;padding:28px clamp(16px,4vw,48px) 70px}.hero{background:#ffffffef;border:1px solid var(--line);border-radius:22px;padding:28px;box-shadow:0 18px 45px rgba(24,77,61,.1)}
+.ey{font-size:11px;letter-spacing:.16em;font-weight:950;color:var(--green)}h1{font-size:clamp(42px,6vw,72px);line-height:.95;letter-spacing:-.05em;margin:12px 0 16px}h1 span{color:var(--green)}.lead{color:var(--muted);line-height:1.65;max-width:800px}
+.notice{margin-top:16px;padding:12px 14px;border:1px solid #ead08a;border-radius:13px;background:#fff9ea;color:#755509;font-size:12px;line-height:1.5}
+.console{margin-top:18px;background:#ffffffef;border:1px solid var(--line);border-radius:22px;padding:19px}.cmdline{display:grid;grid-template-columns:1fr auto;gap:9px}.cmdline input,.search{width:100%;border:1px solid #bfd9ce;border-radius:12px;padding:13px 14px;background:white;color:var(--ink);font:inherit}.cmdline input{font-size:17px;font-weight:800}.btn{border:0;border-radius:12px;background:linear-gradient(135deg,#087657,#18a675);color:white;padding:11px 16px;font-weight:900;cursor:pointer}.hint{margin-top:8px;font-size:12px;color:var(--muted);line-height:1.5}
+.result{margin-top:14px;border:1px solid var(--line);border-radius:15px;background:#f9fcfa;padding:15px;min-height:116px}.head{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.head b{font-size:18px}.tag{font-size:10px;text-transform:uppercase;letter-spacing:.08em;border:1px solid var(--line);border-radius:999px;padding:5px 8px;background:white}.workflow{color:#2e68b0;border-color:#c8d8ef}.launcher{color:#80600d;border-color:#e4ca83}.blocked{color:#8d4b00;border-color:#e9bc7f}.msg{color:var(--muted);line-height:1.55;margin-top:8px}.steps{display:grid;gap:8px;margin-top:12px}.step{display:grid;grid-template-columns:29px 1fr;gap:9px;padding:10px;border:1px solid var(--line);border-radius:12px;background:white}.step i{width:27px;height:27px;border-radius:8px;display:grid;place-items:center;background:#e9f8f1;color:#08704f;font-style:normal;font-weight:950}.actions{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}.actions a{text-decoration:none}
+.library{margin-top:18px;display:grid;grid-template-columns:240px 1fr;gap:18px}.side,.catalog{background:#ffffffef;border:1px solid var(--line);border-radius:20px;padding:17px}.cats{display:grid;gap:5px;margin-top:10px}.cat{border:0;background:transparent;text-align:left;padding:9px;border-radius:10px;color:#39564c;cursor:pointer}.cat.on,.cat:hover{background:#eef8f3;color:#08704f;font-weight:900}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.cmd{border:1px solid var(--line);border-radius:14px;background:white;padding:12px;cursor:pointer}.cmd code{font-weight:950;color:#08704f}.cmd p{font-size:11px;color:var(--muted);line-height:1.45;margin:7px 0 0}
+footer{text-align:center;color:#7b9088;font-size:10px;margin-top:24px}
+@media(max-width:900px){.library{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:620px){.cmdline{grid-template-columns:1fr}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="logo">I</div><div><div class="brand">IZAKHONO COMMANDS</div><div class="sub">External resilience console</div></div><div class="badge">SAFE FALLBACK</div></header>
+<main>
+<section class="hero"><div class="ey">IZAKHONO ONE · RESILIENCE LAYER</div><h1>Keep moving.<br><span>Even when the owned runtime is down.</span></h1><p class="lead">This lightweight fallback keeps structured business workflows and approved platform launchers available while the owned IZAKHONO Command Centre is being restored.</p><div class="notice"><b>Safety boundary:</b> project builds, repository changes, payment-module changes and deployment commands are displayed here but never claimed as executed. Those actions remain owned-runtime only.</div></section>
+<section class="console"><div class="cmdline"><input id="input" autocomplete="off" placeholder="/sales school uniforms"><button class="btn" id="run">Run</button></div><div class="hint">Try /sales, /offer, /campaign, /competitor, /website, /funding, /course, /dns, /kora — or search below.</div><div class="result" id="result"><div class="msg">Choose a command to start.</div></div></section>
+<section class="library"><aside class="side"><input class="search" id="search" placeholder="Search commands"><div class="cats" id="cats"></div></aside><div class="catalog"><div class="grid" id="grid"></div></div></section>
+<footer>IZAKHONO-owned runtime remains the authority for operational actions.</footer>
+</main>
+<script>
+const owner=new Set(['health','portfolio','project','plan','generate','validate','repo','payments','launch','commands']);
+const launchers={kora:'https://kora-network.vercel.app',faisready:'https://faisready-revenue.vercel.app',worknow:'https://worknow-sa.vercel.app','auto-ai':'https://auto-ai-eosin.vercel.app',allegro:'https://allegro-vibez.vercel.app',growth:'https://izakhono-growth-os.vercel.app',revenue:'https://izakhono-revenue-os.vercel.app'};
+const sets={
+Marketing:['instagram','facebook','linkedin','tiktok','youtube','reels','social','campaign','ad','content-plan','seo'],
+Sales:['sales','offer','pricing','upsell','cross-sell','follow-up','proposal','quote','pitch','closing','objections','sales-funnel'],
+Brand:['brand','positioning','tagline','brand-story','brand-voice','messaging','value-proposition'],
+Customer:['customer','audience','persona','journey','onboarding','retention','feedback','support'],
+Research:['competitor','market','trends','swot','opportunity','benchmark','gap-analysis','supplier-research'],
+Content:['script','email','newsletter','blog','press-release','case-study','brochure','video-brief'],
+'Web & Product':['website','landing-page','product-page','checkout','app','feature','roadmap','conversion-audit'],
+Finance:['budget','cashflow','forecast','break-even','margin','revenue-model','funding','investor-model'],
+Operations:['sop','process','workflow','checklist','quality-control','procurement','fulfilment'],
+Infrastructure:['dns','tls','deployment','hosting','ci','release','rollback','backup','monitoring'],
+Owner:['health','portfolio','project','plan','generate','validate','repo','payments','launch','commands'],
+Platforms:['kora','faisready','worknow','auto-ai','allegro','growth','revenue']
+};
+const steps={
+Marketing:['Define the objective and target audience.','Build channel-specific message and creative direction.','Set CTA, tracking and publishing cadence.','Review performance signals and iterate.'],
+Sales:['Define buyer, offer and commercial objective.','Build proof, objections and closing message.','Set pricing, CTA and follow-up sequence.','Track conversion and next action.'],
+Brand:['Define audience, promise and differentiator.','Build messaging and tone.','Translate into visual/content guidance.','Check consistency across touchpoints.'],
+Customer:['Define customer segment and desired outcome.','Map journey and friction.','Design the intervention and measurement.','Capture feedback and improve.'],
+Research:['Define the decision question.','Gather comparable evidence.','Separate facts, assumptions and gaps.','Produce implications and next actions.'],
+Content:['Define audience, format and objective.','Structure the message.','Create the production-ready draft.','Add CTA and distribution notes.'],
+'Web & Product':['Define user and conversion goal.','Map feature/screen flow.','Specify data, payment, analytics and legal boundaries.','Set validation and launch gates.'],
+Finance:['Define the financial decision and time horizon.','Collect revenue, cost and cash assumptions.','Model scenarios and sensitivities.','Identify risks and decision gates.'],
+Operations:['Define trigger, owner and outcome.','Map repeatable steps and controls.','Set exceptions and escalation.','Measure quality and turnaround.'],
+Infrastructure:['Define target environment and current state.','Inspect dependencies and failure points.','Execute the smallest reversible change.','Verify health and rollback readiness.'],
+Owner:['Return to the owned IZAKHONO runtime.','Authenticate with the existing owner gate.','Execute the whitelisted action.','Verify evidence before calling it complete.'],
+Platforms:['Open the approved platform route.','Verify the destination.','Continue the platform-specific workflow.','Return here for the next action.']
+};
+const commands=[];Object.entries(sets).forEach(([category,names])=>names.forEach(name=>commands.push({name,category,kind:owner.has(name)?'owner':launchers[name]?'launcher':'workflow'})));
+let category='All';
+const title=s=>s.split('-').map(x=>x?x[0].toUpperCase()+x.slice(1):x).join(' ');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+function use(name){input.value='/'+name+(owner.has(name)&&['project','plan','generate','validate','repo','payments','launch'].includes(name)?' ':'');input.focus()}
+function renderCats(){const counts={All:commands.length};commands.forEach(c=>counts[c.category]=(counts[c.category]||0)+1);cats.innerHTML=Object.entries(counts).map(([k,v])=>'<button class="cat '+(category===k?'on':'')+'" onclick="category=\''+esc(k)+'\';renderCats();renderGrid()">'+esc(k)+' ('+v+')</button>').join('')}
+function renderGrid(){const q=search.value.trim().toLowerCase();const list=commands.filter(c=>(category==='All'||c.category===category)&&(!q||('/'+c.name+' '+c.category).toLowerCase().includes(q)));grid.innerHTML=list.map(c=>'<article class="cmd" onclick="use(\''+esc(c.name)+'\')"><span class="tag '+(c.kind==='workflow'?'workflow':c.kind==='launcher'?'launcher':'blocked')+'">'+(c.kind==='owner'?'owned only':c.kind)+'</span> <code>/'+esc(c.name)+'</code><p>'+esc(c.kind==='owner'?'Operational action — available on the owned Command Centre.':c.kind==='launcher'?'Open approved platform route.':title(c.name)+' structured workflow.')+'</p></article>').join('')}
+function runCommand(){const raw=input.value.trim();if(!raw)return;const clean=raw.replace(/^\/+/,''),name=(clean.split(/\s+/)[0]||'').toLowerCase(),args=clean.slice(name.length).trim();const c=commands.find(x=>x.name===name);if(!c){result.innerHTML='<div class="msg">Unknown command. Search the catalogue below.</div>';return}if(c.kind==='owner'){result.innerHTML='<div class="head"><b>/'+esc(name)+'</b><span class="tag blocked">owned runtime only</span></div><div class="msg">This fallback does not execute owner-side changes. The action remains queued for the authoritative IZAKHONO runtime.</div>';return}if(c.kind==='launcher'){const u=launchers[name];result.innerHTML='<div class="head"><b>/'+esc(name)+'</b><span class="tag launcher">launcher</span></div><div class="msg">Approved platform route ready.</div><div class="actions"><a class="btn" href="'+esc(u)+'" target="_blank" rel="noopener">Open platform</a></div>';window.open(u,'_blank','noopener');return}const s=steps[c.category]||[];result.innerHTML='<div class="head"><b>/'+esc(name)+'</b><span class="tag workflow">workflow</span></div><div class="msg">'+esc(title(name))+' workflow'+(args?'<br><b>Input:</b> '+esc(args):'')+'</div><div class="steps">'+s.map((x,i)=>'<div class="step"><i>'+(i+1)+'</i><div>'+esc(x)+'</div></div>').join('')+'</div>'}
+run.onclick=runCommand;input.addEventListener('keydown',e=>{if(e.key==='Enter')runCommand()});search.addEventListener('input',()=>{category='All';renderCats();renderGrid()});renderCats();renderGrid();
+</script>
+</body></html>
