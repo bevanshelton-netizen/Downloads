@@ -1,0 +1,40 @@
+{
+  "schema": "kora-kids.mastering-approval/v1",
+  "seriesId": "lebo-jabu",
+  "episodeSlug": "jam-day-under-the-baobab",
+  "language": "en-ZA",
+  "voice": {
+    "approved": true,
+    "reviewer": "CI test reviewer",
+    "rightsCleared": true,
+    "notes": "Synthetic CI fixture only; not a real cast approval."
+  },
+  "music": {
+    "approved": true,
+    "reviewer": "CI test reviewer",
+    "originalityConfirmed": true,
+    "rightsCleared": true,
+    "notes": "Synthetic CI fixture only."
+  },
+  "factLock": {
+    "approved": true,
+    "reviewer": "CI test reviewer"
+  },
+  "culturalContext": {
+    "approved": true,
+    "reviewer": "CI test reviewer"
+  },
+  "captionLock": {
+    "approved": true,
+    "reviewer": "CI test reviewer"
+  },
+  "visualQc": {
+    "approved": true,
+    "reviewer": "CI test reviewer"
+  },
+  "release": {
+    "approved": false,
+    "reviewer": null,
+    "notes": "A master candidate still requires explicit release approval."
+  }
+}
