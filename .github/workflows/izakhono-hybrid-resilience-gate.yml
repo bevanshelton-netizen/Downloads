@@ -71,7 +71,7 @@ jobs:
           IZAKHONO_HYBRID_EXTERNAL_URL: http://127.0.0.1:20181
         run: |
           sudo -E bash izakhono-owned-cloud/prove-growth-os-hybrid.sh >/tmp/hybrid-first.txt
-          node - <<'NODE'
+          sudo node - <<'NODE'
           const fs=require("fs");
           const x=JSON.parse(fs.readFileSync("/var/lib/izakhono-deploy/proofs/growth-os-hybrid-proof.json","utf8"));
           if(x.owned.ready!==true) process.exit(2);
@@ -89,7 +89,7 @@ jobs:
           kill "$(cat /tmp/hybrid-owned.pid)"
           sleep 1
           sudo -E bash izakhono-owned-cloud/prove-growth-os-hybrid.sh >/tmp/hybrid-second.txt
-          node - <<'NODE'
+          sudo node - <<'NODE'
           const fs=require("fs");
           const x=JSON.parse(fs.readFileSync("/var/lib/izakhono-deploy/proofs/growth-os-hybrid-proof.json","utf8"));
           if(x.owned.ready!==false) process.exit(2);
