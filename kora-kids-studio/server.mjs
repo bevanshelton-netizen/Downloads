@@ -1,10 +1,11 @@
 import { createServer } from "node:http";
 import { readFile, writeFile, mkdir, readdir } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { existsSync, createWriteStream } from "node:fs";
 import { resolve, join, extname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { homedir } from "node:os";
 import { randomUUID } from "node:crypto";
+import { spawn } from "node:child_process";
 
 const HOST = process.env.HOST || "127.0.0.1";
 const PORT = Number(process.env.PORT || 8890);
@@ -12,6 +13,8 @@ const ROOT = resolve(fileURLToPath(new URL("./", import.meta.url)));
 const REPO = resolve(ROOT, "..");
 const WORKSPACE = resolve(process.env.KORA_KIDS_STUDIO_WORKSPACE || join(homedir(), ".izakhono", "kora-kids-studio"));
 const JOBS = join(WORKSPACE, "jobs");
+const RENDERS = join(WORKSPACE, "renders");
+const RENDER_WORKER = join(REPO, "kora-kids-render-worker", "worker.mjs");
 
 const types={".html":"text/html; charset=utf-8",".js":"text/javascript; charset=utf-8",".json":"application/json; charset=utf-8",".svg":"image/svg+xml",".css":"text/css; charset=utf-8"};
 
@@ -46,10 +49,54 @@ async function catalog(){
 }
 async function listJobs(){
  await mkdir(JOBS,{recursive:true});
+ await mkdir(RENDERS,{recursive:true});
  const names=(await readdir(JOBS)).filter(x=>x.endsWith(".json"));
  const out=[];
  for(const n of names){try{out.push(await json(join(JOBS,n)))}catch{}}
  return out.sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
+}
+async function listRenders(){
+ await mkdir(RENDERS,{recursive:true});
+ const entries=await readdir(RENDERS,{withFileTypes:true});
+ const out=[];
+ for(const e of entries){
+  if(!e.isDirectory()||!safeId(e.name))continue;
+  try{out.push(await json(join(RENDERS,e.name,"status.json")))}catch{}
+ }
+ return out.sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
+}
+async function writeRenderStatus(dir,status){
+ status.updatedAt=new Date().toISOString();
+ await writeFile(join(dir,"status.json"),JSON.stringify(status,null,2)+"\n");
+}
+async function startRender(jobId,mode){
+ if(!safeId(jobId))throw new Error("bad-id");
+ if(!["proof","production"].includes(mode))throw new Error("invalid-render-mode");
+ if(!existsSync(RENDER_WORKER))throw new Error("render-worker-missing");
+ const jobPath=join(JOBS,jobId+".json");
+ const job=await json(jobPath);
+ if(job.status!=="approved"||job.publishable!==true)throw new Error("job-not-approved");
+ if(job.series?.id!=="lebo-jabu")throw new Error("series-render-worker-not-ready");
+ if(job.renderTarget?.id!=="izakhono-local"||job.renderTarget?.mode!=="owned")throw new Error("job-not-owned-render");
+ const id=randomUUID(),dir=join(RENDERS,id);
+ await mkdir(dir,{recursive:true});
+ const status={id,jobId,mode,status:"queued",createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),series:job.series,episode:job.episode,language:job.language,outputDir:dir,broadcastMaster:false};
+ await writeRenderStatus(dir,status);
+ const log=createWriteStream(join(dir,"worker.log"),{flags:"a"});
+ const child=spawn(process.execPath,[RENDER_WORKER,"--input",jobPath,"--output",dir,"--mode",mode],{cwd:REPO,windowsHide:true,stdio:["ignore","pipe","pipe"]});
+ child.stdout.pipe(log);child.stderr.pipe(log);
+ status.status="running";status.pid=child.pid;await writeRenderStatus(dir,status);
+ child.on("error",async err=>{status.status="failed";status.error=err.message;delete status.pid;try{await writeRenderStatus(dir,status)}catch{}});
+ child.on("close",async code=>{
+  delete status.pid;status.exitCode=code;
+  if(code===0){
+   status.status="completed";
+   try{status.result=await json(join(dir,"render-result.json"))}catch{status.status="failed";status.error="render-result-missing"}
+  }else{status.status="failed";status.error="render-worker-exit-"+code}
+  try{await writeRenderStatus(dir,status)}catch{}
+  log.end();
+ });
+ return status;
 }
 function safeId(x){return /^[a-f0-9-]{36}$/i.test(x)}
 async function updateJob(id,fn){
@@ -67,6 +114,7 @@ createServer(async(req,res)=>{
   if(url.pathname==="/health") return send(res,200,{ok:true,service:"kora-kids-studio",runtime:"izakhono-owner-local",version:"factory-2",public:false});
   if(url.pathname==="/api/catalog"&&req.method==="GET") return send(res,200,await catalog());
   if(url.pathname==="/api/jobs"&&req.method==="GET") return send(res,200,{jobs:await listJobs()});
+  if(url.pathname==="/api/renders"&&req.method==="GET") return send(res,200,{renders:await listRenders()});
   if(url.pathname==="/api/jobs"&&req.method==="POST"){
    const input=await readBody(req); const c=await catalog();
    const series=c.series.find(x=>x.id===(input.seriesId||c.defaultSeries));
@@ -79,6 +127,15 @@ createServer(async(req,res)=>{
    const job={id,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),status:"draft",publishable:false,series:{id:series.id,title:series.title},episode:{number:ep.number,slug:ep.slug,title:ep.title,theme:ep.theme,learning:ep.learning},language:{code:lang.code,name:lang.name,voice:lang.voice},renderTarget:{id:target.id,label:target.label,mode:target.mode},outputs:series.template.outputs,scenes:series.template.scenes,review:{...series.template.review}};
    await mkdir(JOBS,{recursive:true}); await writeFile(join(JOBS,id+".json"),JSON.stringify(job,null,2)+"\n");
    return send(res,201,{ok:true,job});
+  }
+  const renderMatch=url.pathname.match(/^\/api\/jobs\/([a-f0-9-]{36})\/render$/i);
+  if(renderMatch&&req.method==="POST"){
+   const input=await readBody(req);
+   try{return send(res,202,{ok:true,render:await startRender(renderMatch[1],input.mode||"proof")})}
+   catch(e){
+    const stateErrors=["job-not-approved","series-render-worker-not-ready","job-not-owned-render"];
+    return send(res,stateErrors.includes(e?.message)?409:400,{ok:false,error:e?.message||"render request failed"});
+   }
   }
   const reviewMatch=url.pathname.match(/^\/api\/jobs\/([a-f0-9-]{36})\/review$/i);
   if(reviewMatch&&req.method==="POST"){
