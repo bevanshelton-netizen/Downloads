@@ -1,5 +1,7 @@
 -- KORA Partner Gateway v1: rights-aware media partner distribution, attribution and audit controls.
 
+create schema if not exists kora_private;
+
 create table if not exists public.media_partners (
   id uuid primary key default gen_random_uuid(),
   slug text not null unique check(slug ~ '^[a-z0-9][a-z0-9-]{1,62}$'),
@@ -126,42 +128,51 @@ create index if not exists partner_rights_asset_status_idx on public.partner_rig
 create index if not exists partner_referrals_partner_time_idx on public.partner_referrals(partner_id,occurred_at desc);
 create index if not exists partner_conversions_partner_time_idx on public.partner_conversions(partner_id,occurred_at desc,status);
 
-create or replace function public.kora_touch_updated_at()
-returns trigger language plpgsql as $$
-begin new.updated_at=now(); return new; end$$;
+create or replace function kora_private.kora_touch_updated_at()
+returns trigger language plpgsql set search_path='' as $
+begin new.updated_at=pg_catalog.now(); return new; end$;
 
 drop trigger if exists media_partners_touch on public.media_partners;
-create trigger media_partners_touch before update on public.media_partners for each row execute function public.kora_touch_updated_at();
+create trigger media_partners_touch before update on public.media_partners for each row execute function kora_private.kora_touch_updated_at();
 drop trigger if exists partner_assets_touch on public.partner_assets;
-create trigger partner_assets_touch before update on public.partner_assets for each row execute function public.kora_touch_updated_at();
+create trigger partner_assets_touch before update on public.partner_assets for each row execute function kora_private.kora_touch_updated_at();
 drop trigger if exists partner_rights_touch on public.partner_rights_grants;
-create trigger partner_rights_touch before update on public.partner_rights_grants for each row execute function public.kora_touch_updated_at();
+create trigger partner_rights_touch before update on public.partner_rights_grants for each row execute function kora_private.kora_touch_updated_at();
 
-create or replace function public.is_partner_member(p_partner_id uuid)
-returns boolean language sql stable security definer set search_path=public as $$
-  select exists(select 1 from public.partner_memberships m where m.partner_id=p_partner_id and m.user_id=auth.uid());
-$$;
+create or replace function kora_private.is_partner_member(p_partner_id uuid)
+returns boolean language sql stable security definer set search_path='' as $
+  select exists(
+    select 1 from public.partner_memberships m
+    where m.partner_id=p_partner_id and m.user_id=(select auth.uid())
+  );
+$;
 
-create or replace function public.kora_partner_audit_trigger()
-returns trigger language plpgsql security definer set search_path=public as $$
+revoke all on function kora_private.is_partner_member(uuid) from public;
+grant usage on schema kora_private to anon,authenticated,service_role;
+grant execute on function kora_private.is_partner_member(uuid) to anon,authenticated,service_role;
+
+create or replace function kora_private.kora_partner_audit_trigger()
+returns trigger language plpgsql security definer set search_path='' as $
 declare v_id text;
 begin
-  v_id:=coalesce((case when tg_op='DELETE' then old.id else new.id end)::text,'unknown');
+  v_id:=pg_catalog.coalesce((case when tg_op='DELETE' then old.id else new.id end)::text,'unknown');
   insert into public.partner_audit_log(actor_user_id,action,subject_table,subject_id,before_state,after_state)
-  values(auth.uid(),tg_op,tg_table_name,v_id,case when tg_op in ('UPDATE','DELETE') then to_jsonb(old) end,case when tg_op in ('INSERT','UPDATE') then to_jsonb(new) end);
+  values((select auth.uid()),tg_op,tg_table_name,v_id,case when tg_op in ('UPDATE','DELETE') then pg_catalog.to_jsonb(old) end,case when tg_op in ('INSERT','UPDATE') then pg_catalog.to_jsonb(new) end);
   return case when tg_op='DELETE' then old else new end;
-end$$;
+end$;
+
+revoke all on function kora_private.kora_partner_audit_trigger() from public;
 
 drop trigger if exists media_partners_audit on public.media_partners;
-create trigger media_partners_audit after insert or update or delete on public.media_partners for each row execute function public.kora_partner_audit_trigger();
+create trigger media_partners_audit after insert or update or delete on public.media_partners for each row execute function kora_private.kora_partner_audit_trigger();
 drop trigger if exists partner_assets_audit on public.partner_assets;
-create trigger partner_assets_audit after insert or update or delete on public.partner_assets for each row execute function public.kora_partner_audit_trigger();
+create trigger partner_assets_audit after insert or update or delete on public.partner_assets for each row execute function kora_private.kora_partner_audit_trigger();
 drop trigger if exists partner_rights_audit on public.partner_rights_grants;
-create trigger partner_rights_audit after insert or update or delete on public.partner_rights_grants for each row execute function public.kora_partner_audit_trigger();
+create trigger partner_rights_audit after insert or update or delete on public.partner_rights_grants for each row execute function kora_private.kora_partner_audit_trigger();
 
 create or replace function public.partner_asset_access(p_asset_id uuid,p_country_code text default null)
 returns table(access_action text, reason text)
-language plpgsql stable security definer set search_path=public as $$
+language plpgsql stable security definer set search_path='' as $
 declare
   v_asset public.partner_assets%rowtype;
   v_partner public.media_partners%rowtype;
@@ -209,23 +220,31 @@ alter table public.partner_webhook_keys enable row level security;
 alter table public.partner_audit_log enable row level security;
 
 create policy "public reads signed active partners" on public.media_partners for select
-using((status='active' and agreement_state='full') or public.is_staff() or public.is_partner_member(id));
+to anon,authenticated
+using((status='active' and agreement_state='full') or public.is_staff() or (select kora_private.is_partner_member(id)));
 create policy "members read own memberships" on public.partner_memberships for select
-using(user_id=auth.uid() or public.is_staff());
+to authenticated
+using(user_id=(select auth.uid()) or public.is_staff());
 create policy "public reads active signed partner assets" on public.partner_assets for select
+to anon,authenticated
 using(
-  public.is_staff() or public.is_partner_member(partner_id) or
+  public.is_staff() or (select kora_private.is_partner_member(partner_id)) or
   (active and exists(select 1 from public.media_partners p where p.id=partner_id and p.status='active' and p.agreement_state='full'))
 );
 create policy "partners read own rights" on public.partner_rights_grants for select
-using(public.is_staff() or exists(select 1 from public.partner_assets a where a.id=asset_id and public.is_partner_member(a.partner_id)));
+to authenticated
+using(public.is_staff() or exists(select 1 from public.partner_assets a where a.id=asset_id and (select kora_private.is_partner_member(a.partner_id))));
 create policy "partners read own referrals" on public.partner_referrals for select
-using(public.is_staff() or public.is_partner_member(partner_id));
+to authenticated
+using(public.is_staff() or (select kora_private.is_partner_member(partner_id)));
 create policy "partners read own conversions" on public.partner_conversions for select
-using(public.is_staff() or public.is_partner_member(partner_id));
+to authenticated
+using(public.is_staff() or (select kora_private.is_partner_member(partner_id)));
 create policy "partners read own catalogue imports" on public.partner_catalogue_imports for select
-using(public.is_staff() or public.is_partner_member(partner_id));
-create policy "staff reads partner audit" on public.partner_audit_log for select using(public.is_staff());
+to authenticated
+using(public.is_staff() or (select kora_private.is_partner_member(partner_id)));
+create policy "staff reads partner audit" on public.partner_audit_log for select
+to authenticated using(public.is_staff());
 
 grant select on public.media_partners,public.partner_memberships,public.partner_assets,public.partner_rights_grants,public.partner_referrals,public.partner_conversions,public.partner_catalogue_imports to authenticated;
 grant select on public.media_partners,public.partner_assets to anon;
@@ -233,6 +252,7 @@ revoke all on function public.partner_asset_access(uuid,text) from public,anon,a
 grant execute on function public.partner_asset_access(uuid,text) to service_role;
 revoke all on public.partner_webhook_keys from anon,authenticated;
 grant all on public.media_partners,public.partner_memberships,public.partner_assets,public.partner_rights_grants,public.partner_referrals,public.partner_conversions,public.partner_catalogue_imports,public.partner_webhook_keys,public.partner_audit_log to service_role;
+grant usage,select on sequence public.partner_audit_log_id_seq to service_role;
 
 update public.platform_release_state
 set schema_version=greatest(schema_version,23),updated_at=now()
