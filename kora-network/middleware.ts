@@ -42,6 +42,18 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
+  // IZAKHONO Revenue Desk is a public static commercial page.
+  // Rewrite the friendly route to the deployed public HTML and bypass KORA launch/session gates.
+  if (pathname === '/izakhono-revenue' || pathname === '/izakhono-revenue/') {
+    const destination = request.nextUrl.clone();
+    destination.pathname = '/izakhono-revenue/index.html';
+    return NextResponse.rewrite(destination);
+  }
+
+  if (pathname === '/izakhono-revenue/index.html') {
+    return response;
+  }
+
   // Public-beta discovery routes stay informational/free; payment, private and readiness gates stay intact.
   const alwaysPublic = pathname === '/'
     || pathname === '/learner-driver'
