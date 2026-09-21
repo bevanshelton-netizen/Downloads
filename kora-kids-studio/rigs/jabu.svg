@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 650 540" role="img" aria-labelledby="title desc">
+<title id="title">Jabu production rig</title><desc id="desc">Original layered vector rig for KORA KIDS Jabu the young elephant.</desc>
+<defs><linearGradient id="skin" x1="0" x2="1"><stop stop-color="#c5cbd0"/><stop offset="1" stop-color="#9fa8b0"/></linearGradient></defs>
+<g id="shadow" opacity=".16"><ellipse cx="330" cy="505" rx="190" ry="24" fill="#173453"/></g>
+<g id="body"><ellipse cx="320" cy="330" rx="183" ry="135" fill="url(#skin)" stroke="#fff" stroke-width="10"/></g>
+<g id="leg-back"><rect x="378" y="391" width="70" height="111" rx="34" fill="#9ca5ad"/><rect x="218" y="391" width="70" height="111" rx="34" fill="#aab2b9"/></g>
+<g id="ear-back"><ellipse cx="216" cy="225" rx="100" ry="117" fill="#d5d8dc" stroke="#fff" stroke-width="8"/></g>
+<g id="head"><ellipse cx="354" cy="224" rx="129" ry="117" fill="#bcc3c8" stroke="#fff" stroke-width="10"/>
+<g id="ear-front"><ellipse cx="461" cy="231" rx="88" ry="105" fill="#cdd1d5"/></g>
+<g id="face"><ellipse cx="327" cy="212" rx="18" ry="23" fill="#fff"/><ellipse cx="389" cy="209" rx="18" ry="23" fill="#fff"/><circle cx="331" cy="217" r="9" fill="#17253a"/><circle cx="386" cy="214" r="9" fill="#17253a"/><path d="M328 266q34 25 69-2" fill="none" stroke="#596670" stroke-width="9" stroke-linecap="round"/></g>
+<g id="trunk"><path d="M414 259q93 38 67 132-10 36 29 54" fill="none" stroke="#b7bec4" stroke-width="48" stroke-linecap="round"/><ellipse cx="511" cy="447" rx="27" ry="20" fill="#a9b1b8"/></g></g>
+<g id="tail"><path d="M143 334q-50 25-34 79" fill="none" stroke="#929ca5" stroke-width="13" stroke-linecap="round"/><circle cx="111" cy="417" r="14" fill="#6f7780"/></g>
+</svg>
