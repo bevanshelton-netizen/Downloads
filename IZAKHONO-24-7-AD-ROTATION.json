@@ -1,6 +1,6 @@
 {
-  "version": 4,
-  "updated": "2026-09-19",
+  "version": 5,
+  "updated": "2026-09-21",
   "mode": "cash-first-owned-media",
   "slotMinutes": 5,
   "paidSpendZAR": 0,
@@ -9,12 +9,14 @@
     {
       "slot": 1,
       "brand": "FAISReady",
-      "offer": "RE1 + RE5 Complete Bundle — R549 direct iKhokha checkout"
+      "offer": "RE1 + RE5 Complete Bundle — R549 direct iKhokha checkout",
+      "destination": "https://faisready-revenue.vercel.app/"
     },
     {
       "slot": 2,
       "brand": "FAISReady",
-      "offer": "RE5 Complete Prep — R299 direct iKhokha checkout"
+      "offer": "RE1, RE3, RE4 & RE5 — one regulatory exam preparation platform",
+      "destination": "https://faisready-revenue.vercel.app/"
     },
     {
       "slot": 3,
@@ -24,7 +26,8 @@
     {
       "slot": 4,
       "brand": "FAISReady",
-      "offer": "RE1 + RE5 Complete Bundle — R549 direct iKhokha checkout"
+      "offer": "RE5 Complete Prep — R299 direct iKhokha checkout",
+      "destination": "https://faisready-revenue.vercel.app/"
     },
     {
       "slot": 5,
@@ -34,17 +37,20 @@
     {
       "slot": 6,
       "brand": "FAISReady",
-      "offer": "RE5 Complete Prep — R299 direct iKhokha checkout"
+      "offer": "RE1 / RE3 / RE4 preparation — R399 each; order capture available",
+      "destination": "https://faisready-revenue.vercel.app/"
     },
     {
       "slot": 7,
       "brand": "FAISReady",
-      "offer": "RE1 + RE5 Complete Bundle — R549 direct iKhokha checkout"
+      "offer": "RE1 + RE5 Complete Bundle — R549 direct iKhokha checkout",
+      "destination": "https://faisready-revenue.vercel.app/"
     },
     {
       "slot": 8,
       "brand": "Mandatory Regulatory Exams",
-      "offer": "Find the exam that applies to your field"
+      "offer": "Find the exam that applies to your field — RE1, RE3, RE4 or RE5",
+      "destination": "https://faisready-revenue.vercel.app/"
     },
     {
       "slot": 9,
@@ -54,17 +60,20 @@
     {
       "slot": 10,
       "brand": "FAISReady",
-      "offer": "RE5 Complete Prep — R299 direct iKhokha checkout"
+      "offer": "RE5 Complete Prep — R299 direct iKhokha checkout",
+      "destination": "https://faisready-revenue.vercel.app/"
     },
     {
       "slot": 11,
-      "brand": "IZAKHONO Business Growth Desk",
-      "offer": "High-ticket business solutions assessment"
+      "brand": "FAISReady",
+      "offer": "RE1, RE3, RE4 & RE5 — prepare from one platform",
+      "destination": "https://faisready-revenue.vercel.app/"
     },
     {
       "slot": 12,
       "brand": "FAISReady",
-      "offer": "RE1 + RE5 Complete Bundle — R549 direct iKhokha checkout"
+      "offer": "RE1 + RE5 Complete Bundle — R549 direct iKhokha checkout",
+      "destination": "https://faisready-revenue.vercel.app/"
     }
   ],
   "rules": [
@@ -76,6 +85,7 @@
     "Use the public Business Growth Desk for high-ticket opportunity capture.",
     "Paid advertiser creative takes priority when eligible; otherwise use the current owned house-ad slot.",
     "Keep external paid-media spend at R0 unless explicitly approved.",
-    "Use tracked destination links and only advertise currently available offers."
+    "Use tracked destination links and only advertise currently available offers.",
+    "FAISReady non-direct-checkout courses may be advertised only as preparation/order-capture offers; do not imply instant iKhokha payment until their exact merchant links are verified."
   ]
 }
