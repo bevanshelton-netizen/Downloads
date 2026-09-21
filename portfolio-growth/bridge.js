@@ -71,7 +71,8 @@
     var offers=[
       ["RE5 PREP — R299","https://pay.ikhokha.com/izakhono/buy/re5completeprepara","direct_checkout_re5"],
       ["RE1 + RE5 — R549","https://pay.ikhokha.com/izakhono/buy/re5-and-re1-complete-p","direct_checkout_bundle"],
-      ["CROWNÉ HAIR — SHOP","https://bevanshelton-netizen.github.io/Downloads/hair/?utm_source="+encodeURIComponent(platform)+"&utm_medium=portfolio_growth_bridge&utm_campaign=crowne_launch","crowne_hair"],\n      ["BUSINESS GROWTH","https://izakhono-revenue-desk.vercel.app/?utm_source="+encodeURIComponent(platform)+"&utm_medium=portfolio_growth_bridge&utm_campaign=cash_first","growth_desk"]
+      ["CROWNÉ HAIR — SHOP","https://bevanshelton-netizen.github.io/Downloads/hair/?utm_source="+encodeURIComponent(platform)+"&utm_medium=portfolio_growth_bridge&utm_campaign=crowne_launch","crowne_hair"],
+      ["BUSINESS GROWTH","https://izakhono-revenue-desk.vercel.app/?utm_source="+encodeURIComponent(platform)+"&utm_medium=portfolio_growth_bridge&utm_campaign=cash_first","growth_desk"]
     ];
     offers.forEach(function(o){
       var a=document.createElement("a");a.href=o[1];a.target="_blank";a.rel="noopener";a.textContent=o[0];
@@ -86,6 +87,64 @@
     root.appendChild(panel);root.appendChild(toggle);document.body.appendChild(root);
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",addCashLauncher,{once:true});else addCashLauncher();
+
+  var portfolioAdPlatforms={"kora":1,"learner-driver-sa":1,"mandatory-regulatory-exams":1,"faisready":1,"auto-ai":1,"crowne-hair":1,"allegro":1,"the-chancellor":1};
+  function addPortfolioAdRail(){
+    if(!portfolioAdPlatforms[platform]||document.getElementById("iz-portfolio-ad-rail"))return;
+    var campaign="portfolio_live_20260921";
+    function trackedUrl(url){
+      try{
+        var x=new URL(url);
+        x.searchParams.set("utm_source",platform);
+        x.searchParams.set("utm_medium","owned_crosspromo");
+        x.searchParams.set("utm_campaign",campaign);
+        return x.toString();
+      }catch(e){return url}
+    }
+    var ads=[
+      {id:"mandatory-regulatory-exams",eyebrow:"PROFESSIONAL PREP",title:"Mandatory Regulatory Exams",body:"Find the regulatory exam that applies to you and start preparing.",cta:"FIND YOUR EXAM",url:"https://mandatory-regulatory-exams.vercel.app/"},
+      {id:"learner-driver-sa",eyebrow:"GET ROAD READY",title:"Learner Driver SA",body:"Explore learner-driver preparation for Codes 08, 10, 14 and motorcycles.",cta:"START LEARNING",url:"https://kora-network.vercel.app/learner-driver"},
+      {id:"allegro",eyebrow:"MUSIC WITHOUT BORDERS",title:"ALLEGRO VIBEZ",body:"Discover music across cultures and support the artists behind it.",cta:"EXPLORE ALLEGRO",url:"https://allegro-vibez.vercel.app/"},
+      {id:"kora",eyebrow:"AFRICA TO THE WORLD",title:"KORA",body:"African digital entertainment, music, creators and live experiences in one network.",cta:"EXPLORE KORA",url:"https://kora-network.vercel.app/"},
+      {id:"the-chancellor",eyebrow:"BUILD A STRONGER BUSINESS",title:"The Chancellor",body:"Start with the R500 Business Readiness Audit and identify your next growth step.",cta:"START R500 AUDIT",url:"https://the-chancellor.vercel.app/"}
+    ];
+    var root=document.createElement("aside");root.id="iz-portfolio-ad-rail";
+    root.setAttribute("aria-label","Featured IZAKHONO services");
+    Object.assign(root.style,{position:"fixed",left:"50%",bottom:"76px",transform:"translateX(-50%)",zIndex:"2147482500",width:"min(760px,calc(100vw - 24px))",fontFamily:"Inter,Arial,sans-serif"});
+    var card=document.createElement("div");
+    Object.assign(card.style,{display:"grid",gridTemplateColumns:"auto 1fr auto auto",gap:"12px",alignItems:"center",padding:"12px 14px",borderRadius:"18px",background:"linear-gradient(135deg,#fff8e8,#ffffff 48%,#eef9ff)",color:"#101820",boxShadow:"0 16px 48px rgba(0,0,0,.24)",border:"1px solid rgba(16,24,32,.12)"});
+    var badge=document.createElement("div");badge.textContent="FEATURED";
+    Object.assign(badge.style,{fontSize:"10px",fontWeight:"1000",letterSpacing:"1.2px",padding:"7px 9px",borderRadius:"999px",background:"#101820",color:"#fff"});
+    var copy=document.createElement("div");
+    var eyebrow=document.createElement("div");Object.assign(eyebrow.style,{fontSize:"10px",fontWeight:"900",letterSpacing:".9px",color:"#7a5a11"});
+    var title=document.createElement("div");Object.assign(title.style,{fontSize:"16px",fontWeight:"1000",lineHeight:"1.15"});
+    var body=document.createElement("div");Object.assign(body.style,{fontSize:"12px",lineHeight:"1.3",color:"#4d5861",marginTop:"2px"});
+    copy.appendChild(eyebrow);copy.appendChild(title);copy.appendChild(body);
+    var cta=document.createElement("a");cta.target="_blank";cta.rel="noopener";
+    Object.assign(cta.style,{textDecoration:"none",whiteSpace:"nowrap",borderRadius:"12px",padding:"10px 12px",fontSize:"12px",fontWeight:"1000",background:"#f4bf32",color:"#101820"});
+    var close=document.createElement("button");close.type="button";close.textContent="×";close.setAttribute("aria-label","Close featured adverts");
+    Object.assign(close.style,{border:"0",background:"transparent",color:"#5d6670",fontSize:"22px",lineHeight:"1",cursor:"pointer",padding:"4px"});
+    card.appendChild(badge);card.appendChild(copy);card.appendChild(cta);card.appendChild(close);root.appendChild(card);
+    var index=0;
+    function render(){
+      var a=ads[index%ads.length];
+      eyebrow.textContent=a.eyebrow;title.textContent=a.title;body.textContent=a.body;cta.textContent=a.cta;cta.href=trackedUrl(a.url);
+      cta.setAttribute("data-growth-cta","portfolio_ad_"+a.id);
+      track("ad_impression",{campaign:campaign,creative:a.id,placement:"portfolio_ad_rail",page:location.pathname});
+      index=(index+1)%ads.length;
+    }
+    cta.addEventListener("click",function(){
+      var shown=ads[(index+ads.length-1)%ads.length];
+      track("ad_click",{campaign:campaign,creative:shown.id,placement:"portfolio_ad_rail",page:location.pathname});
+    });
+    close.addEventListener("click",function(){root.remove();track("ad_dismiss",{campaign:campaign,placement:"portfolio_ad_rail",page:location.pathname})});
+    render();document.body.appendChild(root);
+    var timer=setInterval(function(){if(!document.body.contains(root)){clearInterval(timer);return}render()},12000);
+    if(window.matchMedia&&window.matchMedia("(max-width:640px)").matches){
+      card.style.gridTemplateColumns="1fr auto";badge.style.display="none";body.style.display="none";cta.style.gridColumn="1 / 2";close.style.gridColumn="2 / 3";root.style.bottom="74px";
+    }
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",addPortfolioAdRail,{once:true});else addPortfolioAdRail();
 
   function scrubUnresolvedDestinations(){
     try{
