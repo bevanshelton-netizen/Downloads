@@ -14,6 +14,7 @@ const REPO = resolve(ROOT, "..");
 const WORKSPACE = resolve(process.env.KORA_KIDS_STUDIO_WORKSPACE || join(homedir(), ".izakhono", "kora-kids-studio"));
 const JOBS = join(WORKSPACE, "jobs");
 const RENDERS = join(WORKSPACE, "renders");
+const AUDIO_ASSETS = join(WORKSPACE, "audio-assets");
 const RENDER_WORKER = join(REPO, "kora-kids-render-worker", "worker.mjs");
 
 const types={".html":"text/html; charset=utf-8",".js":"text/javascript; charset=utf-8",".json":"application/json; charset=utf-8",".svg":"image/svg+xml",".css":"text/css; charset=utf-8"};
@@ -57,10 +58,33 @@ async function catalog(){
 async function listJobs(){
  await mkdir(JOBS,{recursive:true});
  await mkdir(RENDERS,{recursive:true});
+ await mkdir(AUDIO_ASSETS,{recursive:true});
  const names=(await readdir(JOBS)).filter(x=>x.endsWith(".json"));
  const out=[];
  for(const n of names){try{out.push(await json(join(JOBS,n)))}catch{}}
  return out.sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
+}
+async function listAudioAssets(){
+ await mkdir(AUDIO_ASSETS,{recursive:true});
+ const entries=await readdir(AUDIO_ASSETS,{withFileTypes:true});
+ const out=[];
+ for(const e of entries){
+  if(!e.isDirectory()||!safeId(e.name))continue;
+  try{
+   const asset=await json(join(AUDIO_ASSETS,e.name,"manifest.json"));
+   const safe={...asset}; delete safe.privateAssetPath;
+   out.push(safe);
+  }catch{}
+ }
+ return out.sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
+}
+async function updateAudioAsset(id,fn){
+ if(!safeId(id))throw new Error("bad-id");
+ const path=join(AUDIO_ASSETS,id,"manifest.json");
+ const asset=await json(path);const next=fn(asset);
+ next.updatedAt=new Date().toISOString();
+ await writeFile(path,JSON.stringify(next,null,2)+"\n");
+ const safe={...next};delete safe.privateAssetPath;return safe;
 }
 async function listRenders(){
  await mkdir(RENDERS,{recursive:true});
@@ -118,10 +142,11 @@ async function updateJob(id,fn){
 createServer(async(req,res)=>{
  try{
   const url=new URL(req.url||"/","http://localhost");
-  if(url.pathname==="/health") return send(res,200,{ok:true,service:"kora-kids-studio",runtime:"izakhono-owner-local",version:"factory-5",public:false});
+  if(url.pathname==="/health") return send(res,200,{ok:true,service:"kora-kids-studio",runtime:"izakhono-owner-local",version:"factory-6",public:false});
   if(url.pathname==="/api/catalog"&&req.method==="GET") return send(res,200,await catalog());
   if(url.pathname==="/api/jobs"&&req.method==="GET") return send(res,200,{jobs:await listJobs()});
   if(url.pathname==="/api/renders"&&req.method==="GET") return send(res,200,{renders:await listRenders()});
+  if(url.pathname==="/api/audio-assets"&&req.method==="GET") return send(res,200,{assets:await listAudioAssets()});
   if(url.pathname==="/api/jobs"&&req.method==="POST"){
    const input=await readBody(req); const c=await catalog();
    const series=c.series.find(x=>x.id===(input.seriesId||c.defaultSeries));
@@ -135,6 +160,21 @@ createServer(async(req,res)=>{
    const job={id,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),status:"draft",publishable:false,series:{id:series.id,title:series.title},episode:{number:ep.number,slug:ep.slug,title:ep.title,theme:ep.theme,learning:pack?.learningObjectives||ep.learning},language:{code:lang.code,name:lang.name,voice:lang.voice,finalVoiceApproved:pack?.language?.finalVoiceApproved===true},renderTarget:{id:target.id,label:target.label,mode:target.mode},outputs:series.template.outputs,scenes:pack?.scenes||series.template.scenes,productionPack:pack?{schema:pack.schema,status:pack.status,targetDurationSeconds:pack.targetDurationSeconds,factNotes:pack.factNotes,musicDirection:pack.musicDirection,qualityBibles:pack.qualityBibles,performanceLocks:pack.performanceLocks,reviewState:pack.reviewState}:null,review:{...series.template.review}};
    await mkdir(JOBS,{recursive:true}); await writeFile(join(JOBS,id+".json"),JSON.stringify(job,null,2)+"\n");
    return send(res,201,{ok:true,job});
+  }
+  const audioReviewMatch=url.pathname.match(/^\/api\/audio-assets\/([a-f0-9-]{36})\/review$/i);
+  if(audioReviewMatch&&req.method==="POST"){
+   const input=await readBody(req);
+   const allowed=["performance","technical","rights","final"];
+   if(!allowed.includes(input.gate)||typeof input.approved!=="boolean") return send(res,400,{ok:false,error:"invalid audio review gate"});
+   try{
+    const asset=await updateAudioAsset(audioReviewMatch[1],x=>{
+      x.review=x.review||{performance:false,technical:false,rights:false,final:false};
+      x.review[input.gate]=input.approved;
+      x.approvedForMastering=Object.values(x.review).every(Boolean);
+      return x;
+    });
+    return send(res,200,{ok:true,asset});
+   }catch(e){return send(res,400,{ok:false,error:e?.message||"audio review failed"})}
   }
   const renderMatch=url.pathname.match(/^\/api\/jobs\/([a-f0-9-]{36})\/render$/i);
   if(renderMatch&&req.method==="POST"){

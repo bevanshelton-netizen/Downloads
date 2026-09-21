@@ -1,0 +1,21 @@
+{
+  "schema": "kora-kids.audio-intake/v1",
+  "type": "music",
+  "seriesId": "lebo-jabu",
+  "episodeSlug": "jam-day-under-the-baobab",
+  "language": "en-ZA",
+  "title": "KORA KIDS Adventure Theme — CI Fixture",
+  "composerDisplayName": "CI Test Composer",
+  "originalName": "ci-theme.wav",
+  "originalityConfirmed": true,
+  "musicRights": {
+    "master": true,
+    "composition": true,
+    "distribution": true,
+    "localisation": true,
+    "territories": [
+      "worldwide"
+    ],
+    "term": "CI fixture only"
+  }
+}
