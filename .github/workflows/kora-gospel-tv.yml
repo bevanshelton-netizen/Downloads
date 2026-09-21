@@ -13,6 +13,7 @@ on:
       - "kora-network/app/gospel/**"
       - "kora-network/public/gospel-syndication.json"
       - "kora-network/public/gospel-global.json"
+      - "kora-network/public/gospel-commercial.json"
       - "ports/kora-gospel-tv/WORLDWIDE.md"
       - ".github/workflows/kora-gospel-tv.yml"
   push:
@@ -46,6 +47,8 @@ jobs:
           grep -q '"name": "Spanish"' kora-network/public/gospel-global.json
           grep -q '"id": "supabase-intake-buffer"' kora-network/public/gospel-syndication.json
           grep -q 'yfawrenhudjomhnglfhq.supabase.co/functions/v1/kora-gospel-intake' kora-network/public/gospel-syndication.json
+          grep -q '"pricing_mode": "proposal-based"' kora-network/public/gospel-commercial.json
+          grep -q '"editorial_independence": true' kora-network/public/gospel-commercial.json
 
       - name: Start isolated Gospel TV runtime
         run: |
@@ -85,6 +88,9 @@ jobs:
           echo "$RESPONSE" | grep -q '"route":"izakhono-owned"'
           grep -q '"territory":"Global"' "$RUNNER_TEMP/kora-gospel-tv/submissions.ndjson"
           grep -q '"source_channel":"kora-ci"' "$RUNNER_TEMP/kora-gospel-tv/submissions.ndjson"
+          RESPONSE="$(curl -fsS -X POST http://127.0.0.1:8188/api/submissions -H 'origin: https://kora-network.vercel.app' -H 'content-type: application/json' --data '{"category":"partner","type":"sponsor","name":"Commercial CI","contact":"ci@example.invalid","message":"Commercial desk test","details":{"package":"programme-sponsor","budget":"quote-request"}}')"
+          echo "$RESPONSE" | grep -q '"route":"izakhono-owned"'
+          grep -q '"package":"programme-sponsor"' "$RUNNER_TEMP/kora-gospel-tv/submissions.ndjson"
 
       - name: Verify safe submission path
         run: |

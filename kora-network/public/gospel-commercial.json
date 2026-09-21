@@ -1,0 +1,39 @@
+{
+  "schema": "kora.gospel-tv.commercial/v1",
+  "pricing_mode": "proposal-based",
+  "currency_policy": "quote in agreed transaction currency",
+  "editorial_independence": true,
+  "offers": [
+    {
+      "id": "founding-partner",
+      "status": "available",
+      "price": "quote"
+    },
+    {
+      "id": "programme-sponsor",
+      "status": "available",
+      "price": "quote"
+    },
+    {
+      "id": "event-broadcast",
+      "status": "available",
+      "price": "quote"
+    },
+    {
+      "id": "regional-distribution",
+      "status": "available",
+      "price": "quote"
+    },
+    {
+      "id": "advertising",
+      "status": "available",
+      "price": "quote"
+    },
+    {
+      "id": "production-services",
+      "status": "available",
+      "price": "quote"
+    }
+  ],
+  "rule": "Payment or commercial agreement never creates automatic editorial or broadcast approval."
+}
