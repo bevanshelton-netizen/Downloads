@@ -29,6 +29,13 @@ async function readBody(req){
  for await (const c of req){total+=c.length;if(total>262144)throw new Error("body-too-large");chunks.push(c)}
  return JSON.parse(Buffer.concat(chunks).toString("utf8")||"{}");
 }
+async function productionPack(seriesId,slug,language){
+ const path=join(ROOT,"production",seriesId,slug+"."+language+".json");
+ if(!existsSync(path)) return null;
+ const pack=await json(path);
+ if(pack?.series?.id!==seriesId||pack?.episode?.slug!==slug||pack?.language?.code!==language) throw new Error("production-pack-mismatch");
+ return pack;
+}
 async function catalog(){
  const [network,leboSeason,tumiSeason,languages,targets,leboTemplate,tumiTemplate]=await Promise.all([
   json(join(REPO,"ports","kora-kids","network.json")),
@@ -111,7 +118,7 @@ async function updateJob(id,fn){
 createServer(async(req,res)=>{
  try{
   const url=new URL(req.url||"/","http://localhost");
-  if(url.pathname==="/health") return send(res,200,{ok:true,service:"kora-kids-studio",runtime:"izakhono-owner-local",version:"factory-3",public:false});
+  if(url.pathname==="/health") return send(res,200,{ok:true,service:"kora-kids-studio",runtime:"izakhono-owner-local",version:"factory-4",public:false});
   if(url.pathname==="/api/catalog"&&req.method==="GET") return send(res,200,await catalog());
   if(url.pathname==="/api/jobs"&&req.method==="GET") return send(res,200,{jobs:await listJobs()});
   if(url.pathname==="/api/renders"&&req.method==="GET") return send(res,200,{renders:await listRenders()});
@@ -123,8 +130,9 @@ createServer(async(req,res)=>{
    const target=c.targets.targets.find(x=>x.id===input.renderTarget&&x.enabled);
    if(!series||!ep||!lang||!target) return send(res,400,{ok:false,error:"invalid series, episode, language or enabled render target"});
    if(lang.status!=="live") return send(res,409,{ok:false,error:"language edition is not reviewed/live yet",language:lang.name,status:lang.status});
+   const pack=await productionPack(series.id,ep.slug,lang.code);
    const id=randomUUID();
-   const job={id,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),status:"draft",publishable:false,series:{id:series.id,title:series.title},episode:{number:ep.number,slug:ep.slug,title:ep.title,theme:ep.theme,learning:ep.learning},language:{code:lang.code,name:lang.name,voice:lang.voice},renderTarget:{id:target.id,label:target.label,mode:target.mode},outputs:series.template.outputs,scenes:series.template.scenes,review:{...series.template.review}};
+   const job={id,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),status:"draft",publishable:false,series:{id:series.id,title:series.title},episode:{number:ep.number,slug:ep.slug,title:ep.title,theme:ep.theme,learning:pack?.learningObjectives||ep.learning},language:{code:lang.code,name:lang.name,voice:lang.voice,finalVoiceApproved:pack?.language?.finalVoiceApproved===true},renderTarget:{id:target.id,label:target.label,mode:target.mode},outputs:series.template.outputs,scenes:pack?.scenes||series.template.scenes,productionPack:pack?{schema:pack.schema,status:pack.status,targetDurationSeconds:pack.targetDurationSeconds,factNotes:pack.factNotes,musicDirection:pack.musicDirection,reviewState:pack.reviewState}:null,review:{...series.template.review}};
    await mkdir(JOBS,{recursive:true}); await writeFile(join(JOBS,id+".json"),JSON.stringify(job,null,2)+"\n");
    return send(res,201,{ok:true,job});
   }
