@@ -51,6 +51,10 @@ files=(
   "supabase/017_ticket_payment_hardening.sql"
   "supabase/018_artist_discovery.sql"
   "supabase/019_ticket_settlements.sql"
+  "supabase/020_allegro_video_handoff.sql"
+  "supabase/021_tour2screen.sql"
+  "supabase/022_music_screen_release_gate.sql"
+  "supabase/023_partner_gateway.sql"
 )
 
 for file in "${files[@]}"; do
