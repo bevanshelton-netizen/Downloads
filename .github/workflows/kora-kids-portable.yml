@@ -27,20 +27,26 @@ jobs:
         run: |
           node server.mjs > /tmp/kora-kids.log 2>&1 &
           echo $! > /tmp/kora-kids.pid
-      - name: Verify dynamic health and pilot
+      - name: Verify dynamic health and flagship page
         run: |
           for i in $(seq 1 20); do
             if curl -fsS http://127.0.0.1:8080/health > /tmp/health.json; then break; fi
             sleep 1
           done
           node -e 'const x=require("/tmp/health.json"); if(x.ok!==true||x.service!=="kora-kids"||x.runtime!=="izakhono-owned") process.exit(2)'
-          curl -fsS http://127.0.0.1:8080/ | grep -q "TUMI"
+          curl -fsS http://127.0.0.1:8080/ | grep -q "LEBO"
+          curl -fsS http://127.0.0.1:8080/ | grep -q "JABU"
           curl -fsS http://127.0.0.1:8080/ | grep -q "KORA KIDS"
-          curl -fsS http://127.0.0.1:8080/ | grep -q "SEASON 1"
-      - name: Validate Season 1 catalogue
+          curl -fsS http://127.0.0.1:8080/ | grep -q "Tumi & Tala"
+      - name: Validate network and series catalogues
         run: |
-          node -e 'const x=require("./season-1.json"); if(x.season!==1||x.episodes?.length!==10||x.episodes[0]?.status!=="pilot-live") process.exit(2)'
-          node -e 'const x=require("./languages.json"); if(x.default!=="en-ZA"||!x.languages?.some(l=>l.code==="zu-ZA")||!x.languages?.some(l=>l.code==="zh")) process.exit(2)'
+          node -e 'const x=require("./network.json"); if(x.brand!=="KORA KIDS"||x.flagship!=="lebo-jabu"||x.shows?.length<2) process.exit(2)'
+          node -e 'const x=require("./lebo-jabu-season-1.json"); if(x.series!=="Lebo & Jabu"||x.season!==1||x.episodes?.length!==10||x.episodes[0]?.status!=="interactive-preview") process.exit(2)'
+          node -e 'const x=require("./season-1.json"); if(x.season!==1||x.episodes?.length!==10) process.exit(2)'
+          node -e 'const x=require("./languages.json"); if(x.default!=="en-ZA"||x.languages?.length<25||!x.languages?.some(l=>l.code==="zu-ZA")||!x.languages?.some(l=>l.code==="zh")||!x.languages?.some(l=>l.code==="hi")) process.exit(2)'
+      - name: Validate child-safety boundary
+        run: |
+          node -e 'const x=require("./network.json").childSafety; if(x.directPurchases!==false||x.personalisedAds!==false||x.childPersonalDataRequired!==false||x.humanLanguageReviewRequired!==true) process.exit(2)'
       - name: Validate static mirror marker
         run: |
           node -e 'const x=require("./health.json"); if(x.ok!==true||x.service!=="kora-kids") process.exit(2)'
