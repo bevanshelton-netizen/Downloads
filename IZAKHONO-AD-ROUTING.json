@@ -1,12 +1,12 @@
 {
-  "version": 2,
+  "version": 3,
   "updated": "2026-09-21",
   "strategy": "owned-media-first",
   "publishingPolicy": {
     "ownedMedia": "prepare-and-publish-when-destination-is-verified-live",
     "externalNetworks": "oauth-required-before-publish",
     "paidMedia": "explicit-budget-approval-required",
-    "destinationRule": "never-advertise-a-payment-live-claim-until-e2e-checkout-passes"
+    "destinationRule": "advertise only verified-live destinations; payment-live claims additionally require e2e checkout evidence"
   },
   "campaigns": [
     {
@@ -32,9 +32,10 @@
         "YouTube",
         "X"
       ],
-      "message": "African music, artists and live entertainment built for the world.",
+      "message": "African digital entertainment, music, creators and live experiences built in Africa for the world.",
       "cta": "EXPLORE KORA",
-      "status": "campaign-ready-payment-live-claim-gated"
+      "status": "verified-live-organic-ready",
+      "destination": "https://kora-network.vercel.app/"
     },
     {
       "id": "auto-ai",
@@ -130,9 +131,14 @@
         "Facebook",
         "YouTube"
       ],
-      "message": "Find the exam that applies to your field and prepare through one exam-focused platform.",
+      "message": "Find the regulatory exam that applies to you and start preparing through an independent exam-focused platform.",
       "cta": "FIND YOUR EXAM",
-      "status": "campaign-ready-payment-live-claim-gated"
+      "status": "verified-live-organic-ready",
+      "destination": "https://mandatory-regulatory-exams.vercel.app/",
+      "claimRules": [
+        "Do not imply regulator affiliation or endorsement.",
+        "Do not guarantee an examination pass."
+      ]
     },
     {
       "id": "doxa-sure",
@@ -187,6 +193,85 @@
       "message": "ECD study pathways with campus and digital support.",
       "cta": "ENQUIRE / START LEARNING",
       "status": "lead-generation-only-until-canonical-ecd360-source-and-payment-e2e-restored"
+    },
+    {
+      "id": "learner-driver-sa",
+      "brand": "LEARNER DRIVER SA",
+      "objective": "qualified-traffic-and-learning-starts",
+      "audience": [
+        "South African learner drivers",
+        "people preparing for Codes 08, 10 or 14",
+        "motorcycle learner applicants"
+      ],
+      "ownedPlacements": [
+        "KORA network",
+        "Mandatory Regulatory Exams cross-promo",
+        "IZAKHONO portfolio cross-promo"
+      ],
+      "externalOrganicTargets": [
+        "Facebook",
+        "Instagram",
+        "TikTok",
+        "YouTube",
+        "WhatsApp share flows"
+      ],
+      "message": "Explore learner-driver preparation for Codes 08, 10, 14 and motorcycles.",
+      "cta": "START LEARNING",
+      "destination": "https://kora-network.vercel.app/learner-driver",
+      "status": "verified-live-organic-ready"
+    },
+    {
+      "id": "allegro",
+      "brand": "ALLEGRO VIBEZ",
+      "objective": "audience-growth-and-artist-discovery",
+      "audience": [
+        "music fans",
+        "artists",
+        "African and global music audiences"
+      ],
+      "ownedPlacements": [
+        "KORA music surfaces",
+        "IZAKHONO portfolio cross-promo"
+      ],
+      "externalOrganicTargets": [
+        "Instagram",
+        "TikTok",
+        "YouTube",
+        "Facebook",
+        "X"
+      ],
+      "message": "Discover music across cultures and support the artists behind it.",
+      "cta": "EXPLORE ALLEGRO",
+      "destination": "https://allegro-vibez.vercel.app/",
+      "status": "verified-live-organic-ready"
+    },
+    {
+      "id": "the-chancellor",
+      "brand": "THE CHANCELLOR",
+      "objective": "business-readiness-audit-sales-and-qualified-leads",
+      "audience": [
+        "entrepreneurs",
+        "small businesses",
+        "business owners seeking growth or recovery support"
+      ],
+      "ownedPlacements": [
+        "Mandatory Regulatory Exams professional surfaces",
+        "IZAKHONO portfolio cross-promo"
+      ],
+      "externalOrganicTargets": [
+        "LinkedIn",
+        "Facebook",
+        "Instagram",
+        "YouTube",
+        "WhatsApp share flows"
+      ],
+      "message": "Start with the R500 Business Readiness Audit and identify the next practical growth step.",
+      "cta": "START R500 AUDIT",
+      "destination": "https://the-chancellor.vercel.app/",
+      "status": "verified-live-organic-ready",
+      "claimRules": [
+        "Do not guarantee funding, sales growth, recovery or business outcomes."
+      ]
     }
   ]
 }
