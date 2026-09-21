@@ -87,7 +87,7 @@ jobs:
           for i in $(seq 1 36); do
             rm -f /tmp/kids.html /tmp/kids.h
             if curl -fsSL -D /tmp/kids.h -o /tmp/kids.html "$KIDS" &&
-               grep -q 'TUMI' /tmp/kids.html &&
+               grep -q 'LEBO' /tmp/kids.html &&\n               grep -q 'JABU' /tmp/kids.html &&
                grep -q 'KORA KIDS' /tmp/kids.html &&
                grep -qi '^content-type: text/html' /tmp/kids.h; then
               ok=1
