@@ -91,7 +91,7 @@ jobs:
           grep -q 'domains.izakhonoafrica.co.za' izakhono-owned-cloud/activate-owned-public-edge.sh
           grep -q 'resolveNs' izakhono-owned-cloud/activate-owned-public-edge.sh
           grep -q 'certbot certonly' izakhono-owned-cloud/activate-owned-public-edge.sh
-          grep -q 'IZAKHONO_EDGE_MODE=direct' izakhono-owned-cloud/activate-owned-public-edge.sh
+          grep -q 'IZAKHONO_EDGE_MODE=hybrid' izakhono-owned-cloud/activate-owned-public-edge.sh
           grep -q '53/udp' izakhono-owned-cloud/activate-owned-public-edge.sh
           grep -q 'cloudflare_tunnel_required:false' izakhono-owned-cloud/activate-owned-public-edge.sh
           if grep -Eq 'cloudflared tunnel route|Cloudflare API token|CLOUDFLARE_API_TOKEN' izakhono-owned-cloud/activate-owned-public-edge.sh; then
