@@ -30,14 +30,33 @@ function selectSeries(){
  document.querySelectorAll(".showSet").forEach(el=>el.classList.toggle("hidden",el.id!==s.id+"-stage"));
  status.textContent=s.title+" selected. IZAKHONO Local Render is the primary production target.";
 }
-async function boot(){catalog=await api("/api/catalog");
+async function boot(){
+ catalog=await api("/api/catalog");
  series.innerHTML=catalog.series.map(s=>'<option value="'+s.id+'" '+(s.id===catalog.defaultSeries?"selected":"")+'>'+s.title+(s.flagship?" · FLAGSHIP":"")+'</option>').join("");
  language.innerHTML=catalog.languages.languages.map(l=>'<option value="'+l.code+'" '+(l.status!=="live"?"disabled":"")+'>'+l.name+' · '+l.status.toUpperCase()+'</option>').join("");
  target.innerHTML=catalog.targets.targets.map(t=>'<option value="'+t.id+'" '+(!t.enabled?"disabled":"")+'>'+t.label+(t.authoritative?" · PRIMARY":"")+'</option>').join("");
- series.addEventListener("change",selectSeries);selectSeries();await refresh()}
-async function refresh(){const x=await api("/api/jobs");jobs.innerHTML=x.jobs.length?x.jobs.map(renderJob).join(""):'<p class="small">No production jobs yet.</p>'}
-function renderJob(j){const gates=Object.keys(j.review||{});return '<article class="job"><div class="small">'+j.status.toUpperCase()+' · '+(j.series?.title||"KORA KIDS")+' · '+j.language.name+' · '+j.renderTarget.label+'</div><h3>'+j.episode.title+'</h3><div class="small">'+j.id+'</div><div class="gates">'+gates.map(g=>'<button class="gate '+(j.review[g]?"ok":"")+'" onclick="review(\''+j.id+'\',\''+g+'\','+(!j.review[g])+')">'+(j.review[g]?"✓ ":"")+(gateLabels[g]||g)+'</button>').join("")+'</div><div class="small" style="margin-top:8px">'+(j.publishable?"✅ APPROVED FOR PUBLISHING":"Not publishable until every gate passes")+'</div></article>'}
+ series.addEventListener("change",selectSeries);
+ selectSeries();
+ await refresh();
+ setInterval(refreshRenders,2500);
+}
+async function refresh(){
+ const [j,r]=await Promise.all([api("/api/jobs"),api("/api/renders")]);
+ jobs.innerHTML=j.jobs.length?j.jobs.map(renderJob).join(""):'<p class="small">No production jobs yet.</p>';
+ drawRenders(r.renders);
+}
+function renderJob(j){
+ const gates=Object.keys(j.review||{});
+ const canRender=j.publishable&&j.status==="approved"&&j.series?.id==="lebo-jabu"&&j.renderTarget?.id==="izakhono-local";
+ const controls=canRender?'<div class="renderActions"><button class="renderBtn proof" onclick="startRenderUi(\''+j.id+'\',\'proof\')">🎬 Render proof</button><button class="renderBtn" onclick="startRenderUi(\''+j.id+'\',\'production\')">📺 Render production guide</button></div>':'';
+ return '<article class="job"><div class="small">'+j.status.toUpperCase()+' · '+(j.series?.title||"KORA KIDS")+' · '+j.language.name+' · '+j.renderTarget.label+'</div><h3>'+j.episode.title+'</h3><div class="small">'+j.id+'</div><div class="gates">'+gates.map(g=>'<button class="gate '+(j.review[g]?"ok":"")+'" onclick="review(\''+j.id+'\',\''+g+'\','+(!j.review[g])+')">'+(j.review[g]?"✓ ":"")+(gateLabels[g]||g)+'</button>').join("")+'</div><div class="small" style="margin-top:8px">'+(j.publishable?"✅ APPROVED FOR PUBLISHING":"Not publishable until every gate passes")+'</div>'+controls+'</article>';
+}
+function drawRenders(items){
+ renders.innerHTML=items.length?items.map(r=>'<article class="renderItem"><div class="small">'+r.status.toUpperCase()+' · '+r.mode.toUpperCase()+' · '+(r.series?.title||"KORA KIDS")+'</div><strong>'+r.episode.title+'</strong><div class="small">'+r.id+'</div><div class="small">'+(r.status==="completed"?"✅ Guide animatic complete — NOT a broadcast master":r.status==="failed"?"❌ "+(r.error||"Render failed"):"Owned render worker is running…")+'</div>'+(r.outputDir?'<div class="small" style="margin-top:5px">Output: '+r.outputDir+'</div>':'')+'</article>').join(""):'<p class="small">No renders yet.</p>';
+}
+async function refreshRenders(){try{const r=await api("/api/renders");drawRenders(r.renders)}catch{}}
 create.onclick=async()=>{try{status.textContent="Creating owned production job…";await api("/api/jobs",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({seriesId:series.value,episodeSlug:episode.value,language:language.value,renderTarget:target.value})});status.textContent="Job created on IZAKHONO owner workspace.";await refresh()}catch(e){status.textContent=e.message}}
 async function review(id,gate,approved){try{await api("/api/jobs/"+id+"/review",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({gate,approved})});await refresh()}catch(e){status.textContent=e.message}}
-boot().then(()=>setInterval(refreshRenders,2500)).catch(e=>status.textContent=e.message);
+async function startRenderUi(id,mode){try{status.textContent="Starting "+mode+" render on IZAKHONO Local Render…";await api("/api/jobs/"+id+"/render",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({mode})});status.textContent="Render started in the private owner workspace.";await refreshRenders()}catch(e){status.textContent=e.message}}
+boot().catch(e=>status.textContent=e.message);
 </script></body></html>
