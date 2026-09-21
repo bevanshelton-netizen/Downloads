@@ -39,6 +39,16 @@ db.exec(`
     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
+  CREATE TABLE IF NOT EXISTS app_aliases(
+    hostname TEXT PRIMARY KEY,
+    app_name TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY(app_name) REFERENCES apps(name) ON DELETE CASCADE
+  );
+
+  CREATE INDEX IF NOT EXISTS app_aliases_app_idx
+    ON app_aliases(app_name);
+
   CREATE TABLE IF NOT EXISTS deployments(
     id TEXT PRIMARY KEY,
     app_name TEXT NOT NULL,
@@ -307,11 +317,35 @@ async function rollbackApp(appName){
 }
 
 function activeRoute(hostname){
-  return db.prepare(`
+  const canonical=db.prepare(`
     SELECT a.name,a.hostname,d.id AS deployment_id,d.port
     FROM apps a JOIN deployments d ON d.id=a.active_deployment_id
     WHERE a.hostname=? AND d.state='active'
   `).get(hostname);
+  if(canonical) return canonical;
+  return db.prepare(`
+    SELECT a.name,x.hostname,d.id AS deployment_id,d.port
+    FROM app_aliases x
+    JOIN apps a ON a.name=x.app_name
+    JOIN deployments d ON d.id=a.active_deployment_id
+    WHERE x.hostname=? AND d.state='active'
+  `).get(hostname);
+}
+
+function addAlias(appName,hostname){
+  safeName(appName);
+  const alias=safeHostname(hostname);
+  const app=db.prepare("SELECT name,hostname FROM apps WHERE name=?").get(appName);
+  if(!app) throw new Error("APP_NOT_FOUND");
+  if(app.hostname===alias) return {app:appName,hostname:alias,canonical:true};
+  const canonicalConflict=db.prepare("SELECT name FROM apps WHERE hostname=?").get(alias);
+  if(canonicalConflict) throw new Error("HOSTNAME_IN_USE");
+  db.prepare(`
+    INSERT INTO app_aliases(hostname,app_name) VALUES(?,?)
+    ON CONFLICT(hostname) DO UPDATE SET app_name=excluded.app_name
+  `).run(alias,appName);
+  ledger("app.alias.add",appName,null,"executed",{hostname:alias});
+  return {app:appName,hostname:alias,canonical:false};
 }
 
 const control=createServer(async(req,res)=>{
@@ -333,11 +367,31 @@ const control=createServer(async(req,res)=>{
     if(!authenticated(req)) return json(res,401,{error:"Unauthorized"});
 
     if(req.method==="GET" && url.pathname==="/v1/apps"){
-      return json(res,200,{apps:db.prepare(`
+      const apps=db.prepare(`
         SELECT a.*,d.release_path,d.port,d.state,d.activated_at
         FROM apps a LEFT JOIN deployments d ON d.id=a.active_deployment_id
         ORDER BY a.name
-      `).all()});
+      `).all();
+      for(const app of apps){
+        app.aliases=db.prepare("SELECT hostname FROM app_aliases WHERE app_name=? ORDER BY hostname").all(app.name).map(x=>x.hostname);
+      }
+      return json(res,200,{apps});
+    }
+
+    const aliasAdd=url.pathname.match(/^\/v1\/apps\/([^/]+)\/aliases$/);
+    if(req.method==="POST" && aliasAdd){
+      const body=await readBody(req);
+      const result=addAlias(aliasAdd[1],body?.hostname);
+      return json(res,201,result);
+    }
+
+    const aliasDelete=url.pathname.match(/^\/v1\/apps\/([^/]+)\/aliases\/([^/]+)$/);
+    if(req.method==="DELETE" && aliasDelete){
+      const app=safeName(aliasDelete[1]);
+      const hostname=safeHostname(decodeURIComponent(aliasDelete[2]));
+      const result=db.prepare("DELETE FROM app_aliases WHERE app_name=? AND hostname=?").run(app,hostname);
+      ledger("app.alias.remove",app,null,"executed",{hostname,changes:Number(result.changes||0)});
+      return json(res,200,{app,hostname,removed:Number(result.changes||0)>0});
     }
 
     if(req.method==="POST" && url.pathname==="/v1/deployments"){
@@ -375,7 +429,7 @@ const control=createServer(async(req,res)=>{
       "BODY_TOO_LARGE","INVALID_APP_NAME","INVALID_HOSTNAME","INVALID_RELEASE_PATH",
       "RELEASE_OUTSIDE_ROOT","RELEASE_NOT_FOUND","INVALID_ENV_FILE","ENV_OUTSIDE_ROOT",
       "ENV_FILE_NOT_FOUND","INVALID_COMMAND","COMMAND_NOT_ALLOWED","COMMAND_TOO_LONG",
-      "NO_ACTIVE_DEPLOYMENT","NO_PREVIOUS_DEPLOYMENT"
+      "NO_ACTIVE_DEPLOYMENT","NO_PREVIOUS_DEPLOYMENT","APP_NOT_FOUND","HOSTNAME_IN_USE"
     ]);
     if(message==="HEALTH_CHECK_FAILED") return json(res,422,{error:message});
     if(clientErrors.has(message)) return json(res,400,{error:message});

@@ -8,6 +8,7 @@ on:
       - 'START-IZAKHONO-OWNER-HOST.cmd'
       - 'START-IZAKHONO-DOMAINS-OWNER-HOST.cmd'
       - 'START-GROWTH-OS-V2-ON-IZAKHONO.cmd'
+      - 'START-IZAKHONO-TAILSCALE-BRIDGE.cmd'
       - 'owner-host/START-IZAKHONO-DOMAINS-OWNER-HOST.ps1'
       - 'izakhono-edge-node/**'
       - 'izakhono-owned-cloud/**'
@@ -52,6 +53,7 @@ jobs:
           bash -n izakhono-owned-cloud/deploy-izakhono-domains.sh
           bash -n izakhono-owned-cloud/deploy-growth-os-v2.sh
           bash -n izakhono-owned-cloud/activate-owned-public-edge.sh
+          bash -n izakhono-owned-cloud/activate-tailscale-funnel.sh
           node --check growth-os-v2/server.mjs
           bash -n izakhono-edge-node/install-linux.sh
           node --check izakhono-edge-node/server.mjs
@@ -78,6 +80,9 @@ jobs:
           grep -q 'IZAKHONO_PUBLIC_EXTRA_HOSTS' izakhono-owned-cloud/activate-owned-public-edge.sh
           grep -q 'IZAKHONO_EDGE_MODE=hybrid' izakhono-owned-cloud/activate-owned-public-edge.sh
           grep -q 'GROWTH_OS_V2=DEPLOYED_TO_IZAKHONO_RUNTIME' izakhono-owned-cloud/deploy-primary-node.sh
+          grep -q 'tailscale funnel --bg' izakhono-owned-cloud/activate-tailscale-funnel.sh
+          grep -q '/v1/apps/$APP/aliases' izakhono-owned-cloud/activate-tailscale-funnel.sh
+          grep -q 'IZAKHONO EDGE -> FORTRESS -> RUNTIME' izakhono-owned-cloud/activate-tailscale-funnel.sh
           grep -q 'REGISTRATION_LIVE' izakhono-owned-cloud/deploy-izakhono-domains.sh
           grep -q 'Checkout safety gate did not fail closed' izakhono-owned-cloud/deploy-izakhono-domains.sh
 
@@ -93,6 +98,7 @@ jobs:
             'owner-host/START-IZAKHONO-OWNER-HOST.ps1',
             'owner-host/START-IZAKHONO-DOMAINS-OWNER-HOST.ps1',
             'owner-host/START-GROWTH-OS-V2-ON-IZAKHONO.ps1',
+            'owner-host/START-IZAKHONO-TAILSCALE-BRIDGE.ps1',
             'izakhono-cloud/DEPLOY-KORA-ISN-01.ps1'
           )
           foreach ($path in $paths) {
@@ -132,3 +138,8 @@ jobs:
           $growthPs = Get-Content 'owner-host/START-GROWTH-OS-V2-ON-IZAKHONO.ps1' -Raw
           if ($growthPs -notmatch 'deploy-growth-os-v2.sh') { throw 'Growth OS v2 deployment handoff missing' }
           if ($growthPs -notmatch 'growth.domains.izakhonoafrica.co.za') { throw 'Growth OS v2 hostname missing' }
+          $tailscale = Get-Content 'START-IZAKHONO-TAILSCALE-BRIDGE.cmd' -Raw
+          if ($tailscale -notmatch 'START-IZAKHONO-TAILSCALE-BRIDGE.ps1') { throw 'Tailscale bridge CMD handoff missing' }
+          $tailscalePs = Get-Content 'owner-host/START-IZAKHONO-TAILSCALE-BRIDGE.ps1' -Raw
+          if ($tailscalePs -notmatch 'tailscale up') { throw 'Tailscale one-time auth handoff missing' }
+          if ($tailscalePs -notmatch 'activate-tailscale-funnel.sh') { throw 'Tailscale bridge activation handoff missing' }

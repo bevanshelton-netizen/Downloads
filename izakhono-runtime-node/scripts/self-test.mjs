@@ -72,14 +72,14 @@ async function deploy(path){
   if(!response.ok) throw new Error("Deploy failed: "+await response.text());
 }
 
-async function routed(){
+async function routed(host="demo.local"){
   return new Promise((resolve,reject)=>{
     const req=httpRequest({
       hostname:"127.0.0.1",
       port:proxyPort,
       path:"/",
       method:"GET",
-      headers:{Host:"demo.local"}
+      headers:{Host:host}
     },res=>{
       const chunks=[];
       res.on("data",chunk=>chunks.push(chunk));
@@ -98,8 +98,17 @@ try{
   await deploy(resolve(releases,"demo","r1"));
   if(await routed()!=="v1") throw new Error("r1 route mismatch");
 
+  const alias=await fetch(`http://127.0.0.1:${controlPort}/v1/apps/demo/aliases`,{
+    method:"POST",
+    headers:{"content-type":"application/json","x-izakhono-key":key},
+    body:JSON.stringify({hostname:"bridge.example.ts.net"})
+  });
+  if(!alias.ok) throw new Error("Alias creation failed: "+await alias.text());
+  if(await routed("bridge.example.ts.net")!=="v1") throw new Error("alias route mismatch");
+
   await deploy(resolve(releases,"demo","r2"));
   if(await routed()!=="v2") throw new Error("r2 route mismatch");
+  if(await routed("bridge.example.ts.net")!=="v2") throw new Error("alias did not follow active deployment");
 
   const rollback=await fetch(`http://127.0.0.1:${controlPort}/v1/apps/demo/rollback`,{
     method:"POST",
