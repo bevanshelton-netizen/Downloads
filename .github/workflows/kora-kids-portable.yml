@@ -47,6 +47,9 @@ jobs:
       - name: Validate child-safety boundary
         run: |
           node -e 'const x=require("./network.json").childSafety; if(x.directPurchases!==false||x.personalisedAds!==false||x.childPersonalDataRequired!==false||x.humanLanguageReviewRequired!==true) process.exit(2)'
+      - name: Validate hybrid release parity
+        run: |
+          node -e 'const a=require("./release.json"); const b=require("../../kora-network/public/tumi-tala/release.json"); if(JSON.stringify(a)!==JSON.stringify(b)||a.authority!=="izakhono-owned"||a.publicStrategy!=="hybrid") process.exit(2)'
       - name: Validate static mirror marker
         run: |
           node -e 'const x=require("./health.json"); if(x.ok!==true||x.service!=="kora-kids") process.exit(2)'
