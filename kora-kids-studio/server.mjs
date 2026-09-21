@@ -27,13 +27,22 @@ async function readBody(req){
  return JSON.parse(Buffer.concat(chunks).toString("utf8")||"{}");
 }
 async function catalog(){
- const [season,languages,targets,template]=await Promise.all([
+ const [network,leboSeason,tumiSeason,languages,targets,leboTemplate,tumiTemplate]=await Promise.all([
+  json(join(REPO,"ports","kora-kids","network.json")),
+  json(join(REPO,"ports","kora-kids","lebo-jabu-season-1.json")),
   json(join(REPO,"ports","kora-kids","season-1.json")),
   json(join(REPO,"ports","kora-kids","languages.json")),
   json(join(ROOT,"config","render-targets.json")),
+  json(join(ROOT,"templates","lebo-jabu-episode-template.json")),
   json(join(ROOT,"templates","episode-template.json"))
  ]);
- return {season,languages,targets,template};
+ const series=[
+  {id:"lebo-jabu",title:"Lebo & Jabu",flagship:true,season:leboSeason,template:leboTemplate,rigs:["lebo.svg","jabu.svg"]},
+  {id:"tumi-tala",title:"Tumi & Tala",flagship:false,season:tumiSeason,template:tumiTemplate,rigs:["tumi.svg","tala.svg","piko.svg","busi-bus.svg"]}
+ ];
+ const defaultSeries=network.flagship||"lebo-jabu";
+ const active=series.find(x=>x.id===defaultSeries)||series[0];
+ return {network,series,defaultSeries,languages,targets,season:active.season,template:active.template};
 }
 async function listJobs(){
  await mkdir(JOBS,{recursive:true});
@@ -55,26 +64,28 @@ async function updateJob(id,fn){
 createServer(async(req,res)=>{
  try{
   const url=new URL(req.url||"/","http://localhost");
-  if(url.pathname==="/health") return send(res,200,{ok:true,service:"kora-kids-studio",runtime:"izakhono-owner-local",version:"factory-1",public:false});
+  if(url.pathname==="/health") return send(res,200,{ok:true,service:"kora-kids-studio",runtime:"izakhono-owner-local",version:"factory-2",public:false});
   if(url.pathname==="/api/catalog"&&req.method==="GET") return send(res,200,await catalog());
   if(url.pathname==="/api/jobs"&&req.method==="GET") return send(res,200,{jobs:await listJobs()});
   if(url.pathname==="/api/jobs"&&req.method==="POST"){
    const input=await readBody(req); const c=await catalog();
-   const ep=c.season.episodes.find(x=>x.slug===input.episodeSlug);
+   const series=c.series.find(x=>x.id===(input.seriesId||c.defaultSeries));
+   const ep=series?.season.episodes.find(x=>x.slug===input.episodeSlug);
    const lang=c.languages.languages.find(x=>x.code===input.language);
    const target=c.targets.targets.find(x=>x.id===input.renderTarget&&x.enabled);
-   if(!ep||!lang||!target) return send(res,400,{ok:false,error:"invalid episode, language or enabled render target"});
+   if(!series||!ep||!lang||!target) return send(res,400,{ok:false,error:"invalid series, episode, language or enabled render target"});
    if(lang.status!=="live") return send(res,409,{ok:false,error:"language edition is not reviewed/live yet",language:lang.name,status:lang.status});
    const id=randomUUID();
-   const job={id,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),status:"draft",publishable:false,episode:{number:ep.number,slug:ep.slug,title:ep.title,theme:ep.theme,learning:ep.learning},language:{code:lang.code,name:lang.name,voice:lang.voice},renderTarget:{id:target.id,label:target.label,mode:target.mode},outputs:c.template.outputs,scenes:c.template.scenes,review:{script:false,language:false,childSafety:false,brand:false,final:false}};
+   const job={id,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),status:"draft",publishable:false,series:{id:series.id,title:series.title},episode:{number:ep.number,slug:ep.slug,title:ep.title,theme:ep.theme,learning:ep.learning},language:{code:lang.code,name:lang.name,voice:lang.voice},renderTarget:{id:target.id,label:target.label,mode:target.mode},outputs:series.template.outputs,scenes:series.template.scenes,review:{...series.template.review}};
    await mkdir(JOBS,{recursive:true}); await writeFile(join(JOBS,id+".json"),JSON.stringify(job,null,2)+"\n");
    return send(res,201,{ok:true,job});
   }
   const reviewMatch=url.pathname.match(/^\/api\/jobs\/([a-f0-9-]{36})\/review$/i);
   if(reviewMatch&&req.method==="POST"){
-   const input=await readBody(req); const allowed=["script","language","childSafety","brand","final"];
-   if(!allowed.includes(input.gate)||typeof input.approved!=="boolean") return send(res,400,{ok:false,error:"invalid review gate"});
+   const input=await readBody(req);
    const next=await updateJob(reviewMatch[1],job=>{
+    const allowed=Object.keys(job.review||{});
+    if(!allowed.includes(input.gate)||typeof input.approved!=="boolean") throw new Error("invalid review gate");
     job.review[input.gate]=input.approved;
     job.publishable=Object.values(job.review).every(Boolean);
     job.status=job.publishable?"approved":"review";

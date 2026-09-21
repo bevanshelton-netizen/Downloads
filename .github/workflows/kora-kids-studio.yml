@@ -26,6 +26,8 @@ jobs:
         run: node --check kora-kids-studio/server.mjs
       - name: Validate original rigs and render policy
         run: |
+          grep -q '<svg' kora-kids-studio/rigs/lebo.svg
+          grep -q '<svg' kora-kids-studio/rigs/jabu.svg
           grep -q '<svg' kora-kids-studio/rigs/tumi.svg
           grep -q '<svg' kora-kids-studio/rigs/tala.svg
           grep -q '<svg' kora-kids-studio/rigs/piko.svg
@@ -46,21 +48,26 @@ jobs:
           done
           node -e 'const x=require("/tmp/health.json"); if(x.ok!==true||x.service!=="kora-kids-studio"||x.public!==false) process.exit(2)'
           curl -fsS http://127.0.0.1:8890/api/catalog >/tmp/catalog.json
-          node -e 'const x=require("/tmp/catalog.json"); if(x.season.episodes.length!==10||x.languages.default!=="en-ZA") process.exit(2)'
+          node -e 'const x=require("/tmp/catalog.json"); if(x.defaultSeries!=="lebo-jabu"||x.series?.length<2||x.series.find(s=>s.id==="lebo-jabu")?.season?.episodes?.length!==10||x.series.find(s=>s.id==="tumi-tala")?.season?.episodes?.length!==10||x.languages.default!=="en-ZA") process.exit(2)'
           node <<'NODE'
           const base="http://127.0.0.1:8890";
           const headers={"content-type":"application/json"};
-          const create=await fetch(base+"/api/jobs",{method:"POST",headers,body:JSON.stringify({episodeSlug:"good-morning-rainbow-town",language:"en-ZA",renderTarget:"izakhono-local"})});
+          const create=await fetch(base+"/api/jobs",{method:"POST",headers,body:JSON.stringify({seriesId:"lebo-jabu",episodeSlug:"jam-day-under-the-baobab",language:"en-ZA",renderTarget:"izakhono-local"})});
           if(create.status!==201) process.exit(2);
           let {job}=await create.json();
-          for(const gate of ["script","language","childSafety","brand","final"]){
+          if(job.series?.id!=="lebo-jabu"||job.episode?.slug!=="jam-day-under-the-baobab") process.exit(6);
+          for(const gate of ["script","language","culturalContext","childSafety","brand","final"]){
             const r=await fetch(base+"/api/jobs/"+job.id+"/review",{method:"POST",headers,body:JSON.stringify({gate,approved:true})});
             if(!r.ok) process.exit(3);
             job=(await r.json()).job;
           }
           if(job.publishable!==true||job.status!=="approved") process.exit(4);
-          const blocked=await fetch(base+"/api/jobs",{method:"POST",headers,body:JSON.stringify({episodeSlug:"good-morning-rainbow-town",language:"zu-ZA",renderTarget:"izakhono-local"})});
+          const blocked=await fetch(base+"/api/jobs",{method:"POST",headers,body:JSON.stringify({seriesId:"lebo-jabu",episodeSlug:"jam-day-under-the-baobab",language:"zu-ZA",renderTarget:"izakhono-local"})});
           if(blocked.status!==409) process.exit(5);
+          const legacy=await fetch(base+"/api/jobs",{method:"POST",headers,body:JSON.stringify({seriesId:"tumi-tala",episodeSlug:"good-morning-rainbow-town",language:"en-ZA",renderTarget:"izakhono-local"})});
+          if(legacy.status!==201) process.exit(7);
+          const legacyJob=(await legacy.json()).job;
+          if(legacyJob.series?.id!=="tumi-tala") process.exit(8);
           NODE
       - name: Stop studio
         if: always()
