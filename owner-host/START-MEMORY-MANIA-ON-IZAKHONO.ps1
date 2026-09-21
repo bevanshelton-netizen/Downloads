@@ -25,7 +25,7 @@ $escapedHost = $Hostname.Replace("'","''")
 $linux = @"
 set -euo pipefail
 cd /opt/izakhono-source/Downloads
-if [ -n "$(git status --porcelain)" ]; then
+if [ -n "`$(git status --porcelain)" ]; then
   echo "Owner-host source checkout has local changes; refusing to overwrite." >&2
   exit 3
 fi
