@@ -111,7 +111,7 @@ async function updateJob(id,fn){
 createServer(async(req,res)=>{
  try{
   const url=new URL(req.url||"/","http://localhost");
-  if(url.pathname==="/health") return send(res,200,{ok:true,service:"kora-kids-studio",runtime:"izakhono-owner-local",version:"factory-2",public:false});
+  if(url.pathname==="/health") return send(res,200,{ok:true,service:"kora-kids-studio",runtime:"izakhono-owner-local",version:"factory-3",public:false});
   if(url.pathname==="/api/catalog"&&req.method==="GET") return send(res,200,await catalog());
   if(url.pathname==="/api/jobs"&&req.method==="GET") return send(res,200,{jobs:await listJobs()});
   if(url.pathname==="/api/renders"&&req.method==="GET") return send(res,200,{renders:await listRenders()});
@@ -162,6 +162,7 @@ createServer(async(req,res)=>{
  }catch(e){return send(res,500,{ok:false,error:e?.message||"studio error"})}
 }).listen(PORT,HOST,async()=>{
  await mkdir(JOBS,{recursive:true});
+ await mkdir(RENDERS,{recursive:true});
  console.log(`KORA KIDS Animation Factory listening on http://${HOST}:${PORT}`);
  console.log(`Workspace: ${WORKSPACE}`);
 });
