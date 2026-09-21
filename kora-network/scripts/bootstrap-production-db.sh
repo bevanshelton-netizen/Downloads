@@ -51,6 +51,10 @@ files=(
   "supabase/017_ticket_payment_hardening.sql"
   "supabase/018_artist_discovery.sql"
   "supabase/019_ticket_settlements.sql"
+  "supabase/020_allegro_video_handoff.sql"
+  "supabase/021_tour2screen.sql"
+  "supabase/022_music_screen_release_gate.sql"
+  "supabase/023_partner_gateway.sql"
 )
 
 for file in "${files[@]}"; do
@@ -71,9 +75,9 @@ done
 
 echo "Verifying KORA schema version..."
 version="$(psql "$SUPABASE_DB_URL" -X -A -t -v ON_ERROR_STOP=1 -c "select schema_version from public.platform_release_state where singleton=true;")"
-if [[ "$version" != "19" ]]; then
+if [[ "$version" != "23" ]]; then
   echo "Unexpected schema version: ${version:-missing}" >&2
   exit 1
 fi
 
-echo "KORA fresh production database bootstrap completed at schema version 19."
+echo "KORA fresh production database bootstrap completed at schema version 23."

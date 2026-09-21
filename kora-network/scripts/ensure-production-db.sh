@@ -63,8 +63,28 @@ if [[ "$version" == "18" ]]; then
   psql "$SUPABASE_DB_URL" -X -v ON_ERROR_STOP=1 -f supabase/019_ticket_settlements.sql
   version="$(psql "$SUPABASE_DB_URL" -X -A -t -v ON_ERROR_STOP=1 -c "select schema_version from public.platform_release_state where singleton=true;")"
 fi
-if [[ "$version" != "19" ]]; then
-  echo "KORA production database is not at schema version 19: ${version:-missing}." >&2
+if [[ "$version" == "19" ]]; then
+  echo "Applying incremental schema 20 Allegro video handoff migration."
+  psql "$SUPABASE_DB_URL" -X -v ON_ERROR_STOP=1 -f supabase/020_allegro_video_handoff.sql
+  version="$(psql "$SUPABASE_DB_URL" -X -A -t -v ON_ERROR_STOP=1 -c "select schema_version from public.platform_release_state where singleton=true;")"
+fi
+if [[ "$version" == "20" ]]; then
+  echo "Applying incremental schema 21 Tour2Screen migration."
+  psql "$SUPABASE_DB_URL" -X -v ON_ERROR_STOP=1 -f supabase/021_tour2screen.sql
+  version="$(psql "$SUPABASE_DB_URL" -X -A -t -v ON_ERROR_STOP=1 -c "select schema_version from public.platform_release_state where singleton=true;")"
+fi
+if [[ "$version" == "21" ]]; then
+  echo "Applying incremental schema 22 Music Screen release gate."
+  psql "$SUPABASE_DB_URL" -X -v ON_ERROR_STOP=1 -f supabase/022_music_screen_release_gate.sql
+  version="$(psql "$SUPABASE_DB_URL" -X -A -t -v ON_ERROR_STOP=1 -c "select schema_version from public.platform_release_state where singleton=true;")"
+fi
+if [[ "$version" == "22" ]]; then
+  echo "Applying incremental schema 23 KORA Partner Gateway."
+  psql "$SUPABASE_DB_URL" -X -v ON_ERROR_STOP=1 -f supabase/023_partner_gateway.sql
+  version="$(psql "$SUPABASE_DB_URL" -X -A -t -v ON_ERROR_STOP=1 -c "select schema_version from public.platform_release_state where singleton=true;")"
+fi
+if [[ "$version" != "23" ]]; then
+  echo "KORA production database is not at schema version 23: ${version:-missing}." >&2
   exit 1
 fi
 
@@ -81,4 +101,4 @@ if ! [[ "$channel_count" =~ ^[0-9]+$ ]] || (( channel_count < 1 )); then
 fi
 
 release_name="$(psql "$SUPABASE_DB_URL" -X -A -t -v ON_ERROR_STOP=1 -c "select release_name from public.platform_release_state where singleton=true;")"
-echo "KORA database verified: schema=19, release=${release_name:-unknown}, active_channels=$channel_count, public_launch=false."
+echo "KORA database verified: schema=23, release=${release_name:-unknown}, active_channels=$channel_count, public_launch=false."
