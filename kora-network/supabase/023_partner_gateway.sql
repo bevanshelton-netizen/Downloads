@@ -129,8 +129,8 @@ create index if not exists partner_referrals_partner_time_idx on public.partner_
 create index if not exists partner_conversions_partner_time_idx on public.partner_conversions(partner_id,occurred_at desc,status);
 
 create or replace function kora_private.kora_touch_updated_at()
-returns trigger language plpgsql set search_path='' as $
-begin new.updated_at=pg_catalog.now(); return new; end$;
+returns trigger language plpgsql set search_path='' as $kora$
+begin new.updated_at=pg_catalog.now(); return new; end$kora$;
 
 drop trigger if exists media_partners_touch on public.media_partners;
 create trigger media_partners_touch before update on public.media_partners for each row execute function kora_private.kora_touch_updated_at();
@@ -140,26 +140,26 @@ drop trigger if exists partner_rights_touch on public.partner_rights_grants;
 create trigger partner_rights_touch before update on public.partner_rights_grants for each row execute function kora_private.kora_touch_updated_at();
 
 create or replace function kora_private.is_partner_member(p_partner_id uuid)
-returns boolean language sql stable security definer set search_path='' as $
+returns boolean language sql stable security definer set search_path='' as $kora$
   select exists(
     select 1 from public.partner_memberships m
     where m.partner_id=p_partner_id and m.user_id=(select auth.uid())
   );
-$;
+$kora$;
 
 revoke all on function kora_private.is_partner_member(uuid) from public;
 grant usage on schema kora_private to anon,authenticated,service_role;
 grant execute on function kora_private.is_partner_member(uuid) to anon,authenticated,service_role;
 
 create or replace function kora_private.kora_partner_audit_trigger()
-returns trigger language plpgsql security definer set search_path='' as $
+returns trigger language plpgsql security definer set search_path='' as $kora$
 declare v_id text;
 begin
   v_id:=pg_catalog.coalesce((case when tg_op='DELETE' then old.id else new.id end)::text,'unknown');
   insert into public.partner_audit_log(actor_user_id,action,subject_table,subject_id,before_state,after_state)
   values((select auth.uid()),tg_op,tg_table_name,v_id,case when tg_op in ('UPDATE','DELETE') then pg_catalog.to_jsonb(old) end,case when tg_op in ('INSERT','UPDATE') then pg_catalog.to_jsonb(new) end);
   return case when tg_op='DELETE' then old else new end;
-end$;
+end$kora$;
 
 revoke all on function kora_private.kora_partner_audit_trigger() from public;
 
@@ -172,7 +172,7 @@ create trigger partner_rights_audit after insert or update or delete on public.p
 
 create or replace function public.partner_asset_access(p_asset_id uuid,p_country_code text default null)
 returns table(access_action text, reason text)
-language plpgsql stable security definer set search_path='' as $
+language plpgsql stable security definer set search_path='' as $kora$
 declare
   v_asset public.partner_assets%rowtype;
   v_partner public.media_partners%rowtype;
@@ -207,7 +207,7 @@ begin
     return query select case when v_required='authenticated' then 'authenticate' else 'watch_on_kora' end,'verified_rights_grant'; return;
   end if;
   return query select 'blocked','verified_rights_grant_required';
-end$$;
+end$kora$;
 
 alter table public.media_partners enable row level security;
 alter table public.partner_memberships enable row level security;
