@@ -47,7 +47,7 @@ const ok=spawnSync(process.execPath,[
   "--recovery-key-file",keyFile,
   "--destination-name","proof"
 ],{
-  cwd:resolve("izakhono-backup-node"),
+  cwd:process.cwd(),
   env:{...process.env,IZAKHONO_STANDBY_RESTORE_ROOT:restoreRoot},
   encoding:"utf8"
 });
@@ -64,7 +64,7 @@ const bad=spawnSync(process.execPath,[
   "--recovery-key-file",keyFile,
   "--destination-name","bad-sha"
 ],{
-  cwd:resolve("izakhono-backup-node"),
+  cwd:process.cwd(),
   env:{...process.env,IZAKHONO_STANDBY_RESTORE_ROOT:restoreRoot},
   encoding:"utf8"
 });
