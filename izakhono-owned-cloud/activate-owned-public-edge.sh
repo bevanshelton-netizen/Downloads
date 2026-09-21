@@ -132,7 +132,7 @@ if [ -f /etc/izakhono/tls/fullchain.pem ] && [ -f /etc/izakhono/tls/privkey.pem 
   done
 fi
 
-if [ "$HOST_A_READY" = true ] && [ "$DELEGATION_READY" = true ] && [ "$TLS_READY" = false ]; then
+if [ "$HOST_A_READY" = true ] && [ "$EXTRA_A_READY" = true ] && [ "$DELEGATION_READY" = true ] && [ "$TLS_READY" = false ]; then
   echo "Owned DNS delegation is visible. Attempting trusted ACME TLS..."
   apt-get update >/dev/null
   apt-get install -y certbot >/dev/null
