@@ -1,0 +1,84 @@
+name: KORA KIDS Mastering Lane
+
+on:
+  push:
+    paths:
+      - "kora-kids-mastering/**"
+      - "kora-kids-render-worker/**"
+      - "owner-host/START-KORA-KIDS-MASTER.ps1"
+      - "START-KORA-KIDS-MASTER.cmd"
+      - ".github/workflows/kora-kids-mastering.yml"
+  pull_request:
+    paths:
+      - "kora-kids-mastering/**"
+      - "kora-kids-render-worker/**"
+      - "owner-host/START-KORA-KIDS-MASTER.ps1"
+      - "START-KORA-KIDS-MASTER.cmd"
+      - ".github/workflows/kora-kids-mastering.yml"
+
+jobs:
+  master-candidate-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Ensure local media tools
+        run: |
+          set -euo pipefail
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y ffmpeg espeak-ng
+          fi
+          ffmpeg -version >/dev/null
+          ffprobe -version >/dev/null
+      - name: Validate workers
+        run: |
+          node --check kora-kids-render-worker/worker.mjs
+          node --check kora-kids-mastering/worker.mjs
+      - name: Render approved Episode 1 proof picture
+        run: |
+          rm -rf /tmp/kora-picture /tmp/kora-master
+          node kora-kids-render-worker/worker.mjs             --input kora-kids-render-worker/fixtures/lebo-jabu-approved-job.json             --output /tmp/kora-picture             --mode proof
+      - name: Build synthetic reviewed audio fixtures
+        run: |
+          ffmpeg -y -f lavfi -i "sine=frequency=220:sample_rate=48000:duration=5.6" -af "volume=0.08" -ac 1 /tmp/voice.wav
+          ffmpeg -y -f lavfi -i "sine=frequency=440:sample_rate=48000:duration=6" -af "volume=0.03" -ac 2 /tmp/music.wav
+      - name: Create master candidate
+        run: |
+          node kora-kids-mastering/worker.mjs             --job kora-kids-render-worker/fixtures/lebo-jabu-approved-job.json             --animatic /tmp/kora-picture/episode-silent.mp4             --voice /tmp/voice.wav             --music /tmp/music.wav             --captions /tmp/kora-picture/captions.vtt             --approval kora-kids-mastering/fixtures/mastering-approval.json             --output /tmp/kora-master
+      - name: Validate mastering boundary and technical QC
+        run: |
+          test -s /tmp/kora-master/master-candidate.mp4
+          test -s /tmp/kora-master/mastering-result.json
+          node <<'NODE'
+          const x=require("/tmp/kora-master/mastering-result.json");
+          const fail=[];
+          const ok=(n,v)=>{if(!v)fail.push(n)};
+          ok("candidate",x.masterCandidate===true);
+          ok("not-broadcast",x.broadcastMaster===false);
+          ok("release-required",x.releaseApprovalRequired===true);
+          ok("technical-pass",x.technical?.pass===true);
+          ok("duration",x.technical?.durationMatch===true);
+          ok("h264",x.technical?.h264Video===true);
+          ok("aac",x.technical?.aacAudio===true);
+          ok("voice-lock",x.approvalLocks?.voice===true);
+          ok("music-lock",x.approvalLocks?.music===true);
+          ok("release-lock-false",x.approvalLocks?.release===false);
+          if(fail.length){console.error("Failed:",fail.join(", "));process.exit(2)}
+          NODE
+      - name: Prove incomplete approval is refused
+        run: |
+          node -e 'const fs=require("fs");const x=require("./kora-kids-mastering/fixtures/mastering-approval.json");x.music.approved=false;fs.writeFileSync("/tmp/bad-approval.json",JSON.stringify(x))'
+          if node kora-kids-mastering/worker.mjs             --job kora-kids-render-worker/fixtures/lebo-jabu-approved-job.json             --animatic /tmp/kora-picture/episode-silent.mp4             --voice /tmp/voice.wav             --music /tmp/music.wav             --approval /tmp/bad-approval.json             --output /tmp/should-not-master; then
+            echo "Mastering worker incorrectly accepted incomplete approval" >&2
+            exit 2
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lebo-jabu-episode1-master-candidate-proof
+          path: |
+            /tmp/kora-master/master-candidate.mp4
+            /tmp/kora-master/mastering-result.json
+          retention-days: 7
