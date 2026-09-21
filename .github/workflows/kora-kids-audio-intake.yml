@@ -70,7 +70,7 @@ jobs:
             curl -fsS http://127.0.0.1:8890/api/audio-assets >/tmp/assets.json && break
             sleep 1
           done
-          node <<'NODE'
+          node --input-type=commonjs <<'NODE'
           const fs=require("fs");
           const base="http://127.0.0.1:8890",headers={"content-type":"application/json"};
           let list=JSON.parse(fs.readFileSync("/tmp/assets.json","utf8")).assets;
