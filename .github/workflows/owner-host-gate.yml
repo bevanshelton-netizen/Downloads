@@ -44,6 +44,9 @@ jobs:
           grep -q 'deploy-growth-os-v2.sh main' owner-host/bootstrap-linux.sh
           grep -q 'configure-growth-os.sh' owner-host/bootstrap-linux.sh
           grep -q 'growth-os-v2.json' owner-host/status.sh
+          grep -q 'owned-public-edge.json' owner-host/status.sh
+          grep -q 'activate-owned-public-edge.sh' owner-host/bootstrap-linux.sh
+          grep -q 'ACTIVE_HYBRID' owner-host/bootstrap-linux.sh
           bash -n izakhono-owned-cloud/install-owned-stack.sh
           bash -n izakhono-owned-cloud/first-host-proof.sh
           bash -n izakhono-owned-cloud/deploy-izakhono-domains.sh
@@ -73,6 +76,7 @@ jobs:
           grep -q 'IZAKHONO_PACKAGE_NODE' izakhono-owned-cloud/deploy-growth-os-v2.sh
           grep -q 'growth.domains.izakhonoafrica.co.za' izakhono-owned-cloud/activate-owned-public-edge.sh
           grep -q 'IZAKHONO_PUBLIC_EXTRA_HOSTS' izakhono-owned-cloud/activate-owned-public-edge.sh
+          grep -q 'IZAKHONO_EDGE_MODE=hybrid' izakhono-owned-cloud/activate-owned-public-edge.sh
           grep -q 'GROWTH_OS_V2=DEPLOYED_TO_IZAKHONO_RUNTIME' izakhono-owned-cloud/deploy-primary-node.sh
           grep -q 'REGISTRATION_LIVE' izakhono-owned-cloud/deploy-izakhono-domains.sh
           grep -q 'Checkout safety gate did not fail closed' izakhono-owned-cloud/deploy-izakhono-domains.sh

@@ -161,10 +161,10 @@ EDGE_DIRECT=false
 GROWTH_OS_EDGE=false
 if [ "$TLS_READY" = true ]; then
   cd "$ROOT/izakhono-edge-node"
-  IZAKHONO_EDGE_MODE=direct bash install-linux.sh >/dev/null
+  IZAKHONO_EDGE_MODE=hybrid bash install-linux.sh >/dev/null
   sleep 1
   EDGE_JSON="$(curl -fsS http://127.0.0.1:8795/health)"
-  node -e 'const x=JSON.parse(process.argv[1]);if(x.status!=="healthy"||x.ingressMode!=="direct"||x.tls!==true||x.fortressProtector!==true)process.exit(1)' "$EDGE_JSON"
+  node -e 'const x=JSON.parse(process.argv[1]);if(x.status!=="healthy"||x.ingressMode!=="hybrid"||x.tls!==true||!x.tunnelOrigin||x.fortressProtector!==true)process.exit(1)' "$EDGE_JSON"
   curl -kfsS --resolve "$HOSTNAME:443:127.0.0.1" "https://$HOSTNAME/health" >/dev/null
   EDGE_DIRECT=true
   if curl -kfsS --resolve "growth.domains.izakhonoafrica.co.za:443:127.0.0.1" "https://growth.domains.izakhonoafrica.co.za/api/health" >/tmp/growth-os-owned-edge.json 2>/dev/null; then
@@ -189,6 +189,7 @@ const body={
   parent_delegation_observed:delegation==="true",
   tls_ready:tls==="true",
   edge_direct:edge==="true",
+  edge_hybrid:edge==="true",
   fortress:true,
   cloudflare_compute_required:false,
   cloudflare_tunnel_required:false,
@@ -230,5 +231,5 @@ fi
 
 echo
 echo "IZAKHONO OWNED PUBLIC EDGE: LOCAL CUTOVER PROVED"
-echo "Cloudflare Tunnel is no longer required for $HOSTNAME."
-echo "Keep the existing tunnel for other hostnames until each is migrated separately."
+echo "EDGE MODE: HYBRID — owned HTTPS is active and the tunnel origin remains available during migration."
+echo "Cloudflare Tunnel is not required for $HOSTNAME, but remains available for other hostnames until each is migrated."

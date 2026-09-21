@@ -5,6 +5,7 @@ Owned HTTPS ingress layer for IZAKHONO RUNTIME NODE.
 ## V1 capabilities
 
 - HTTPS termination with your certificate/key;
+- hybrid ingress: owned direct HTTPS and loopback tunnel origin can run simultaneously during migration;
 - HTTP → HTTPS 308 redirect;
 - hostname-preserving proxy to IZAKHONO RUNTIME NODE;
 - HSTS and baseline security headers;
@@ -39,7 +40,9 @@ Certificates can come from your chosen CA. The private key never belongs in GitH
 
 ## Topology
 
-Internet → IZAKHONO EDGE NODE :443 → IZAKHONO RUNTIME NODE :8080 → app process
+Owned path: Internet → IZAKHONO EDGE NODE :443 → IZAKHONO RUNTIME NODE :8080 → app process
+
+Migration/fallback path: external tunnel → 127.0.0.1:8780 → the same IZAKHONO EDGE/FORTRESS policy → RUNTIME. Set `IZAKHONO_EDGE_MODE=hybrid` while both paths must coexist.
 
 Control APIs bind to loopback and are separate from public application traffic.
 
