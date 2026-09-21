@@ -1,0 +1,30 @@
+{
+  "schema": "kora-kids.network/v1",
+  "brand": "KORA KIDS",
+  "positioning": "Original African children's animation and learning network",
+  "tagline": "Africa's Stories for the World's Children",
+  "flagship": "lebo-jabu",
+  "shows": [
+    {
+      "id": "lebo-jabu",
+      "title": "Lebo & Jabu",
+      "status": "flagship-development",
+      "audience": "3-7",
+      "description": "Adventure, comedy and discovery across Africa."
+    },
+    {
+      "id": "tumi-tala",
+      "title": "Tumi & Tala",
+      "status": "development",
+      "audience": "2-6",
+      "description": "Musical preschool learning adventures from Rainbow Town."
+    }
+  ],
+  "childSafety": {
+    "directPurchases": false,
+    "personalisedAds": false,
+    "childAccountRequired": false,
+    "childPersonalDataRequired": false,
+    "humanLanguageReviewRequired": true
+  }
+}
