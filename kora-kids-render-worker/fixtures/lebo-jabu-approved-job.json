@@ -1,0 +1,144 @@
+{
+  "id": "11111111-2222-4333-8444-555555555555",
+  "createdAt": "2026-09-21T00:00:00.000Z",
+  "updatedAt": "2026-09-21T00:00:00.000Z",
+  "status": "approved",
+  "publishable": true,
+  "series": {
+    "id": "lebo-jabu",
+    "title": "Lebo & Jabu"
+  },
+  "episode": {
+    "number": 1,
+    "slug": "jam-day-under-the-baobab",
+    "title": "Jam Day Under the Baobab",
+    "theme": "Lebo and Jabu turn a berry-jam mess into a picnic under a baobab.",
+    "learning": [
+      "Baobab trees",
+      "Sharing",
+      "Food traditions"
+    ]
+  },
+  "language": {
+    "code": "en-ZA",
+    "name": "English",
+    "voice": "en-ZA"
+  },
+  "renderTarget": {
+    "id": "izakhono-local",
+    "label": "IZAKHONO Local Render",
+    "mode": "owned"
+  },
+  "outputs": [
+    {
+      "type": "episode",
+      "aspect": "16:9",
+      "resolution": "1920x1080"
+    },
+    {
+      "type": "short",
+      "aspect": "9:16",
+      "resolution": "1080x1920"
+    },
+    {
+      "type": "thumbnail",
+      "aspect": "16:9",
+      "resolution": "1280x720"
+    },
+    {
+      "type": "caption",
+      "format": "vtt"
+    },
+    {
+      "type": "audio-master",
+      "format": "wav",
+      "languageScoped": true
+    }
+  ],
+  "scenes": [
+    {
+      "id": "s01",
+      "durationSeconds": 55,
+      "location": "Baobab picnic clearing",
+      "characters": [
+        "Lebo",
+        "Jabu"
+      ],
+      "action": "Lebo and Jabu meet a giant baobab and ask why its trunk is so wide.",
+      "dialogue": [],
+      "musicCue": "kora-kids-theme-light",
+      "subtitleTrack": true,
+      "culturalNotes": [
+        "Keep the baobab explanation general and regionally accurate."
+      ]
+    },
+    {
+      "id": "s02",
+      "durationSeconds": 80,
+      "location": "Berry path",
+      "characters": [
+        "Lebo",
+        "Jabu"
+      ],
+      "action": "They gather berries for jam and count their basketfuls.",
+      "dialogue": [],
+      "musicCue": "curious-playful",
+      "subtitleTrack": true,
+      "culturalNotes": []
+    },
+    {
+      "id": "s03",
+      "durationSeconds": 105,
+      "location": "Picnic clearing",
+      "characters": [
+        "Lebo",
+        "Jabu"
+      ],
+      "action": "Jabu sneezes and the berries bounce everywhere.",
+      "dialogue": [],
+      "musicCue": "adventure",
+      "subtitleTrack": true,
+      "culturalNotes": []
+    },
+    {
+      "id": "s04",
+      "durationSeconds": 105,
+      "location": "Picnic clearing",
+      "characters": [
+        "Lebo",
+        "Jabu"
+      ],
+      "action": "New friends help clean up, cook and share the picnic.",
+      "dialogue": [],
+      "musicCue": "warm-resolution",
+      "subtitleTrack": true,
+      "culturalNotes": [
+        "Food references require local review before final script lock."
+      ]
+    },
+    {
+      "id": "s05",
+      "durationSeconds": 75,
+      "location": "Baobab sunset",
+      "characters": [
+        "Lebo",
+        "Jabu"
+      ],
+      "action": "Jabu shares an Africa Fact about baobabs and the friends say goodbye.",
+      "dialogue": [],
+      "musicCue": "fact-and-outro",
+      "subtitleTrack": true,
+      "culturalNotes": [
+        "Verify the fact wording before publishing."
+      ]
+    }
+  ],
+  "review": {
+    "script": true,
+    "language": true,
+    "culturalContext": true,
+    "childSafety": true,
+    "brand": true,
+    "final": true
+  }
+}
