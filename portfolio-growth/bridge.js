@@ -71,7 +71,8 @@
     var offers=[
       ["RE5 PREP — R299","https://pay.ikhokha.com/izakhono/buy/re5completeprepara","direct_checkout_re5"],
       ["RE1 + RE5 — R549","https://pay.ikhokha.com/izakhono/buy/re5-and-re1-complete-p","direct_checkout_bundle"],
-      ["CROWNÉ HAIR — SHOP","https://bevanshelton-netizen.github.io/Downloads/hair/?utm_source="+encodeURIComponent(platform)+"&utm_medium=portfolio_growth_bridge&utm_campaign=crowne_launch","crowne_hair"],\n      ["BUSINESS GROWTH","https://izakhono-revenue-desk.vercel.app/?utm_source="+encodeURIComponent(platform)+"&utm_medium=portfolio_growth_bridge&utm_campaign=cash_first","growth_desk"]
+      ["CROWNÉ HAIR — SHOP","https://bevanshelton-netizen.github.io/Downloads/hair/?utm_source="+encodeURIComponent(platform)+"&utm_medium=portfolio_growth_bridge&utm_campaign=crowne_launch","crowne_hair"],
+      ["BUSINESS GROWTH","https://izakhono-revenue-desk.vercel.app/?utm_source="+encodeURIComponent(platform)+"&utm_medium=portfolio_growth_bridge&utm_campaign=cash_first","growth_desk"]
     ];
     offers.forEach(function(o){
       var a=document.createElement("a");a.href=o[1];a.target="_blank";a.rel="noopener";a.textContent=o[0];
