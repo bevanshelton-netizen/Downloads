@@ -1,0 +1,45 @@
+name: IZAKHONO WITNESS HA E2E
+
+on:
+  push:
+    branches: [build/witness-ha-e2e-proof]
+    paths:
+      - "izakhono-witness-node/**"
+      - "izakhono-runtime-node/**"
+      - "izakhono-edge-node/**"
+      - "izakhono-owned-cloud/tests/witness-ha-e2e.mjs"
+      - ".github/workflows/izakhono-witness-ha-e2e.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "izakhono-witness-node/**"
+      - "izakhono-runtime-node/**"
+      - "izakhono-edge-node/**"
+      - "izakhono-owned-cloud/tests/witness-ha-e2e.mjs"
+      - ".github/workflows/izakhono-witness-ha-e2e.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  witness-ha-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+      - name: Verify zero runtime dependency design
+        run: |
+          test "$(node -e 'console.log(Object.keys(require("./izakhono-witness-node/package.json").dependencies||{}).length)')" = "0"
+          test "$(node -e 'console.log(Object.keys(require("./izakhono-runtime-node/package.json").dependencies||{}).length)')" = "0"
+          test "$(node -e 'console.log(Object.keys(require("./izakhono-edge-node/package.json").dependencies||{}).length)')" = "0"
+      - name: Prove witness lease loss and write fencing end to end
+        run: node izakhono-owned-cloud/tests/witness-ha-e2e.mjs
+      - name: Verify HA safety assertions remain present
+        run: |
+          grep -q 'writeAfterLeaseExpiry:"BLOCKED_503"' izakhono-owned-cloud/tests/witness-ha-e2e.mjs
+          grep -q 'automaticDnsFailover:false' izakhono-owned-cloud/tests/witness-ha-e2e.mjs
+          grep -q 'witness leadership lease' izakhono-edge-node/server.mjs
+          grep -q 'witness leadership lease' izakhono-runtime-node/server.mjs
