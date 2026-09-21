@@ -13,6 +13,8 @@ const conversions=read('app/api/partners/conversions/route.ts');
 const dashboard=read('app/partner/page.tsx');
 const productionBootstrap=read('scripts/build-production-bootstrap.mjs');
 const sharedBootstrap=read('scripts/build-shared-supabase-bootstrap.mjs');
+const freshDb=read('scripts/bootstrap-production-db.sh');
+const ensureDb=read('scripts/ensure-production-db.sh');
 
 check('Direct playback requires a verified rights grant',migration.includes("v_required:=case when v_asset.access_mode='authenticated' then 'authenticated' else 'stream' end")&&migration.includes("r.status='verified'"));
 check('Unverified direct/authenticated access is blocked',migration.includes("return query select 'blocked','verified_rights_grant_required'"));
@@ -29,6 +31,8 @@ check('Rights resolver is server-only',migration.includes('revoke all on functio
 check('Partner gateway avoids storing IP addresses',!migration.includes('ip_address')&&!migration.includes('user_agent'));
 check('Dedicated production bootstrap includes schema 023',productionBootstrap.includes('"023_partner_gateway.sql"')&&productionBootstrap.includes('schema23'));
 check('Shared Supabase bootstrap includes schema 023',sharedBootstrap.includes('"023_partner_gateway.sql"')&&sharedBootstrap.includes('schema23'));
+check('Fresh production DB bootstrap includes migration 023',freshDb.includes('supabase/023_partner_gateway.sql')&&freshDb.includes('"23"'));
+check('Production DB activation advances through migration 023',ensureDb.includes('supabase/023_partner_gateway.sql')&&ensureDb.includes('schema=23'));
 
 console.log('\nKORA Partner Gateway guard: '+passed+' passed, '+failures.length+' failed.');
 if(failures.length){failures.forEach(x=>console.error('- '+x));process.exit(1);}
