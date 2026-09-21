@@ -41,6 +41,9 @@ jobs:
           bash -n owner-host/bootstrap-linux.sh
           bash -n owner-host/install-cloudflare-tunnel.sh
           bash -n owner-host/status.sh
+          grep -q 'deploy-growth-os-v2.sh main' owner-host/bootstrap-linux.sh
+          grep -q 'configure-growth-os.sh' owner-host/bootstrap-linux.sh
+          grep -q 'growth-os-v2.json' owner-host/status.sh
           bash -n izakhono-owned-cloud/install-owned-stack.sh
           bash -n izakhono-owned-cloud/first-host-proof.sh
           bash -n izakhono-owned-cloud/deploy-izakhono-domains.sh
@@ -66,6 +69,8 @@ jobs:
           ! grep -R -E 'eyJ[a-zA-Z0-9_-]{30,}' owner-host
           grep -q 'FORTRESS_PROTECTOR_MODE=active' izakhono-edge-node/install-linux.sh
           grep -q 'SOURCE=IZAKHONO_CODE' izakhono-owned-cloud/deploy-izakhono-domains.sh
+          grep -q 'IZAKHONO_PACKAGE_NODE' izakhono-owned-cloud/deploy-growth-os-v2.sh
+          grep -q 'GROWTH_OS_V2=DEPLOYED_TO_IZAKHONO_RUNTIME' izakhono-owned-cloud/deploy-primary-node.sh
           grep -q 'REGISTRATION_LIVE' izakhono-owned-cloud/deploy-izakhono-domains.sh
           grep -q 'Checkout safety gate did not fail closed' izakhono-owned-cloud/deploy-izakhono-domains.sh
 
