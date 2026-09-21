@@ -1,0 +1,21 @@
+{
+  "schema": "kora-kids.audio-intake/v1",
+  "type": "music",
+  "seriesId": "lebo-jabu",
+  "episodeSlug": "jam-day-under-the-baobab",
+  "language": "en-ZA",
+  "title": "ENTER TRACK TITLE",
+  "composerDisplayName": "ENTER COMPOSER DISPLAY NAME",
+  "originalName": "ENTER SOURCE FILE NAME",
+  "originalityConfirmed": false,
+  "musicRights": {
+    "master": false,
+    "composition": false,
+    "distribution": false,
+    "localisation": false,
+    "territories": [
+      "ENTER TERRITORY"
+    ],
+    "term": "ENTER RIGHTS TERM"
+  }
+}
