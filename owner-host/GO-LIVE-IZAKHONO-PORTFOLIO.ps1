@@ -38,7 +38,7 @@ function Stop-With([int]$Code,[string]$Message) {
 Log "IZAKHONO OWNED PORTFOLIO GO-LIVE"
 Log ("Started: {0}" -f (Get-Date).ToString("s"))
 Log "Path: IZAKHONO CODE -> RUNTIME -> EDGE/TLS -> PUBLIC INTERNET"
-Log "Platforms: KORA Gospel TV, KORA Kids, IZAKHONO Revenue Desk"
+Log "Platforms: KORA Gospel TV, KORA Kids, IZAKHONO Revenue Desk, Memory Mania, Crowne by Netty"
 Log ""
 
 if (-not (Get-Command wsl.exe -ErrorAction SilentlyContinue)) {
@@ -65,6 +65,8 @@ bash izakhono-owned-cloud/migrate-source-to-code.sh
 export KORA_GOSPEL_TV_HOSTNAME='gospel.domains.izakhonoafrica.co.za'
 export KORA_KIDS_HOSTNAME='korakids.domains.izakhonoafrica.co.za'
 export IZAKHONO_REVENUE_HOSTNAME='revenue.domains.izakhonoafrica.co.za'
+export MEMORY_MANIA_HOSTNAME='memorymania.domains.izakhonoafrica.co.za'
+export CROWNE_HAIR_HOSTNAME='hair.domains.izakhonoafrica.co.za'
 
 echo "=== DEPLOY KORA GOSPEL TV ==="
 bash izakhono-owned-cloud/deploy-kora-gospel-tv.sh main
@@ -75,13 +77,19 @@ bash izakhono-owned-cloud/deploy-kora-kids.sh main
 echo "=== DEPLOY IZAKHONO REVENUE DESK ==="
 bash izakhono-owned-cloud/deploy-revenue-desk.sh main
 
+echo "=== DEPLOY MEMORY MANIA ==="
+bash izakhono-owned-cloud/deploy-memory-mania.sh main
+
+echo "=== DEPLOY CROWNE BY NETTY ==="
+bash izakhono-owned-cloud/deploy-crowne-hair.sh main
+
 echo "=== ACTIVATE SHARED IZAKHONO PUBLIC EDGE ==="
 export IZAKHONO_PUBLIC_ZONE='domains.izakhonoafrica.co.za'
 export IZAKHONO_PUBLIC_HOSTNAME='gospel.domains.izakhonoafrica.co.za'
 bash izakhono-owned-cloud/activate-owned-public-edge.sh
 "@
 
-Log "Deploying all three platforms to IZAKHONO RUNTIME..."
+Log "Deploying all five platforms to IZAKHONO RUNTIME..."
 $linux | & wsl.exe -d Ubuntu-24.04 -u root -- bash -s
 $code = $LASTEXITCODE
 
@@ -101,7 +109,9 @@ Log ""
 $targets = @(
   @{ Name="KORA GOSPEL TV"; Host="gospel.domains.izakhonoafrica.co.za"; Service="kora-gospel-tv" },
   @{ Name="KORA KIDS"; Host="korakids.domains.izakhonoafrica.co.za"; Service="kora-kids" },
-  @{ Name="IZAKHONO REVENUE DESK"; Host="revenue.domains.izakhonoafrica.co.za"; Service="izakhono-revenue-desk" }
+  @{ Name="IZAKHONO REVENUE DESK"; Host="revenue.domains.izakhonoafrica.co.za"; Service="izakhono-revenue-desk" },
+  @{ Name="MEMORY MANIA"; Host="memorymania.domains.izakhonoafrica.co.za"; Service="memory-mania" },
+  @{ Name="CROWNE BY NETTY"; Host="hair.domains.izakhonoafrica.co.za"; Service="crowne-hair" }
 )
 
 foreach ($t in $targets) {
@@ -127,6 +137,8 @@ Log "IZAKHONO PORTFOLIO: PUBLIC HTTPS LIVE AND VERIFIED"
 Log "https://gospel.domains.izakhonoafrica.co.za"
 Log "https://korakids.domains.izakhonoafrica.co.za"
 Log "https://revenue.domains.izakhonoafrica.co.za"
+Log "https://memorymania.domains.izakhonoafrica.co.za"
+Log "https://hair.domains.izakhonoafrica.co.za"
 Log ("Completed: {0}" -f (Get-Date).ToString("s"))
 Log ("Report: {0}" -f $report)
 Save-Report
