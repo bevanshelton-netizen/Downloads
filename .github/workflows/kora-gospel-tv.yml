@@ -13,6 +13,7 @@ on:
       - "kora-network/app/gospel/**"
       - "kora-network/public/gospel-syndication.json"
       - "kora-network/public/gospel-global.json"
+      - "kora-network/public/gospel-commercial.json"
       - "ports/kora-gospel-tv/WORLDWIDE.md"
       - ".github/workflows/kora-gospel-tv.yml"
   push:
@@ -46,6 +47,8 @@ jobs:
           grep -q '"name": "Spanish"' kora-network/public/gospel-global.json
           grep -q '"id": "supabase-intake-buffer"' kora-network/public/gospel-syndication.json
           grep -q 'yfawrenhudjomhnglfhq.supabase.co/functions/v1/kora-gospel-intake' kora-network/public/gospel-syndication.json
+          grep -q '"pricing_mode": "proposal-based"' kora-network/public/gospel-commercial.json
+          grep -q '"editorial_independence": true' kora-network/public/gospel-commercial.json
 
       - name: Start isolated Gospel TV runtime
         run: |
