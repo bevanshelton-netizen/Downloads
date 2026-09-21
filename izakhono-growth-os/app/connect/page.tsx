@@ -1,7 +1,7 @@
 import { providerOnboarding } from "@/lib/providers/onboarding";
 import Link from "next/link";
 
-const base=(process.env.GROWTH_OS_PUBLIC_BASE_URL || "https://growth.izakhonoafrica.co.za").replace(/\/$/,"");
+const base=(process.env.GROWTH_OS_PUBLIC_BASE_URL || "https://growth.domains.izakhonoafrica.co.za").replace(/\/$/,"");
 
 export default function ConnectPage(){
   return <main className="connectPage">

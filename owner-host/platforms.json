@@ -12,7 +12,7 @@
     {
       "id": "growth-os-v2",
       "hostnameEnv": "GROWTH_OS_V2_PUBLIC_HOST",
-      "defaultHostname": "growth.izakhonoafrica.co.za",
+      "defaultHostname": "growth.domains.izakhonoafrica.co.za",
       "deploy": "izakhono-owned-cloud/deploy-growth-os-v2.sh"
     },
     {

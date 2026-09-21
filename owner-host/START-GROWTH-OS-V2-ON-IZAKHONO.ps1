@@ -1,7 +1,7 @@
 #requires -Version 5.1
 [CmdletBinding()]
 param(
-  [string]$Hostname = "growth.izakhonoafrica.co.za"
+  [string]$Hostname = "growth.domains.izakhonoafrica.co.za"
 )
 
 Set-StrictMode -Version Latest

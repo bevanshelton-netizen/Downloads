@@ -5,6 +5,7 @@ if [ "${EUID:-$(id -u)}" -ne 0 ]; then exec sudo -E bash "$0" "$@"; fi
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 HOSTNAME="${IZAKHONO_PUBLIC_HOSTNAME:-domains.izakhonoafrica.co.za}"
 ZONE="${IZAKHONO_PUBLIC_ZONE:-domains.izakhonoafrica.co.za}"
+EXTRA_HOSTS_RAW="${IZAKHONO_PUBLIC_EXTRA_HOSTS:-growth.domains.izakhonoafrica.co.za}"
 NS1="${IZAKHONO_NS1:-ns1.izakhonoafrica.co.za}"
 NS2="${IZAKHONO_NS2:-}"
 REPORT=/var/lib/izakhono-deploy/owned-public-edge.json
@@ -32,9 +33,9 @@ cd "$ROOT/izakhono-dns-node"
 bash install-linux.sh
 
 SERIAL="$(date -u +%Y%m%d%H)"
-node - /etc/izakhono/dns-zone.json "$ZONE" "$HOSTNAME" "$NS1" "$NS2" "$PUBLIC_IP" "$SERIAL" <<'NODE'
+node - /etc/izakhono/dns-zone.json "$ZONE" "$HOSTNAME" "$NS1" "$NS2" "$PUBLIC_IP" "$SERIAL" "$EXTRA_HOSTS_RAW" <<'NODE'
 const fs=require("fs");
-const [path,zoneName,hostName,ns1,ns2,ip,serial]=process.argv.slice(2);
+const [path,zoneName,hostName,ns1,ns2,ip,serial,extraRaw]=process.argv.slice(2);
 const zoneBare=zoneName.replace(/\.$/,"").toLowerCase();
 const hostBare=hostName.replace(/\.$/,"").toLowerCase();
 const zone=zoneBare+".";
@@ -43,11 +44,15 @@ const records=[
   {name:"@",type:"A",value:ip,ttl:120}
 ];
 if(ns2) records.splice(1,0,{name:"@",type:"NS",value:ns2.replace(/\.$/,"")+".",ttl:300});
-if(hostBare!==zoneBare){
-  if(!hostBare.endsWith("."+zoneBare)) throw new Error("IZAKHONO_PUBLIC_HOSTNAME must be inside IZAKHONO_PUBLIC_ZONE");
-  const relative=hostBare.slice(0,-1-zoneBare.length);
-  records.push({name:relative,type:"A",value:ip,ttl:120});
+function addHost(host){
+  const bare=host.replace(/\.$/,"").toLowerCase();
+  if(!bare || bare===zoneBare) return;
+  if(!bare.endsWith("."+zoneBare)) throw new Error("Public hostname must be inside IZAKHONO_PUBLIC_ZONE: "+bare);
+  const relative=bare.slice(0,-1-zoneBare.length);
+  if(!records.some(r=>r.type==="A"&&r.name===relative)) records.push({name:relative,type:"A",value:ip,ttl:120});
 }
+addHost(hostBare);
+for(const extra of (extraRaw||"").split(/[\s,]+/).filter(Boolean)) addHost(extra);
 const body={
   zone,ttl:300,
   soa:{mname:ns1.replace(/\.$/,"")+".",rname:"hostmaster.izakhonoafrica.co.za.",serial:Number(serial),refresh:3600,retry:600,expire:1209600,minimum:300},
@@ -78,10 +83,11 @@ systemctl restart izakhono-dns-node
 sleep 1
 curl -fsS http://127.0.0.1:8900/health >/dev/null
 
-node - "$LOCAL_IP" "$ZONE" "$HOSTNAME" <<'NODE'
+node - "$LOCAL_IP" "$ZONE" "$HOSTNAME" "$EXTRA_HOSTS_RAW" <<'NODE'
 const d=require("dgram");
 const host=process.argv[2];
-const names=[process.argv[3],process.argv[4]].map(x=>x.replace(/\.$/,""));
+const extra=(process.argv[5]||"").split(/[\s,]+/).filter(Boolean);
+const names=[process.argv[3],process.argv[4],...extra].map(x=>x.replace(/\.$/,""));
 function query(name,id){
   return new Promise((resolve,reject)=>{
     const labels=name.split(".");
@@ -99,6 +105,13 @@ HOST_A_READY=false
 RESOLVED="$(getent ahostsv4 "$HOSTNAME" 2>/dev/null | awk 'NR==1{print $1}' || true)"
 if [ "$RESOLVED" = "$PUBLIC_IP" ]; then HOST_A_READY=true; fi
 
+EXTRA_A_READY=true
+for extra_host in $(printf '%s' "$EXTRA_HOSTS_RAW" | tr ',' ' '); do
+  [ -n "$extra_host" ] || continue
+  EXTRA_RESOLVED="$(getent ahostsv4 "$extra_host" 2>/dev/null | awk 'NR==1{print $1}' || true)"
+  if [ "$EXTRA_RESOLVED" != "$PUBLIC_IP" ]; then EXTRA_A_READY=false; fi
+done
+
 DELEGATION_READY=false
 if node - "$ZONE" "$NS1" <<'NODE'
 const dns=require("dns").promises;
@@ -111,9 +124,15 @@ NODE
 then DELEGATION_READY=true; fi
 
 TLS_READY=false
-if [ -f /etc/izakhono/tls/fullchain.pem ] && [ -f /etc/izakhono/tls/privkey.pem ] && openssl x509 -in /etc/izakhono/tls/fullchain.pem -noout -checkhost "$HOSTNAME" >/dev/null 2>&1; then TLS_READY=true; fi
+if [ -f /etc/izakhono/tls/fullchain.pem ] && [ -f /etc/izakhono/tls/privkey.pem ] && openssl x509 -in /etc/izakhono/tls/fullchain.pem -noout -checkhost "$HOSTNAME" >/dev/null 2>&1; then
+  TLS_READY=true
+  for extra_host in $(printf '%s' "$EXTRA_HOSTS_RAW" | tr ',' ' '); do
+    [ -n "$extra_host" ] || continue
+    if ! openssl x509 -in /etc/izakhono/tls/fullchain.pem -noout -checkhost "$extra_host" >/dev/null 2>&1; then TLS_READY=false; fi
+  done
+fi
 
-if [ "$HOST_A_READY" = true ] && [ "$DELEGATION_READY" = true ] && [ "$TLS_READY" = false ]; then
+if [ "$HOST_A_READY" = true ] && [ "$EXTRA_A_READY" = true ] && [ "$DELEGATION_READY" = true ] && [ "$TLS_READY" = false ]; then
   echo "Owned DNS delegation is visible. Attempting trusted ACME TLS..."
   apt-get update >/dev/null
   apt-get install -y certbot >/dev/null
@@ -122,6 +141,10 @@ if [ "$HOST_A_READY" = true ] && [ "$DELEGATION_READY" = true ] && [ "$TLS_READY
   CERT_NAME="izakhono-owned-edge"
   CERT_ARGS=(-d "$ZONE")
   if [ "$HOSTNAME" != "$ZONE" ]; then CERT_ARGS+=(-d "$HOSTNAME"); fi
+  for extra_host in $(printf '%s' "$EXTRA_HOSTS_RAW" | tr ',' ' '); do
+    [ -n "$extra_host" ] || continue
+    if [ "$extra_host" != "$ZONE" ] && [ "$extra_host" != "$HOSTNAME" ]; then CERT_ARGS+=(-d "$extra_host"); fi
+  done
   EXPAND_ARGS=()
   if [ -d "/etc/letsencrypt/live/$CERT_NAME" ]; then EXPAND_ARGS+=(--expand); fi
   if certbot certonly --standalone --preferred-challenges http --non-interactive --agree-tos --register-unsafely-without-email --cert-name "$CERT_NAME" "${EXPAND_ARGS[@]}" "${CERT_ARGS[@]}"; then
@@ -135,6 +158,7 @@ if [ "$HOST_A_READY" = true ] && [ "$DELEGATION_READY" = true ] && [ "$TLS_READY
 fi
 
 EDGE_DIRECT=false
+GROWTH_OS_EDGE=false
 if [ "$TLS_READY" = true ]; then
   cd "$ROOT/izakhono-edge-node"
   IZAKHONO_EDGE_MODE=direct bash install-linux.sh >/dev/null
@@ -143,11 +167,14 @@ if [ "$TLS_READY" = true ]; then
   node -e 'const x=JSON.parse(process.argv[1]);if(x.status!=="healthy"||x.ingressMode!=="direct"||x.tls!==true||x.fortressProtector!==true)process.exit(1)' "$EDGE_JSON"
   curl -kfsS --resolve "$HOSTNAME:443:127.0.0.1" "https://$HOSTNAME/health" >/dev/null
   EDGE_DIRECT=true
+  if curl -kfsS --resolve "growth.domains.izakhonoafrica.co.za:443:127.0.0.1" "https://growth.domains.izakhonoafrica.co.za/api/health" >/tmp/growth-os-owned-edge.json 2>/dev/null; then
+    if node -e 'const x=require("/tmp/growth-os-owned-edge.json");if(x.ok!==true||x.service!=="growth-os-v2")process.exit(2)' 2>/dev/null; then GROWTH_OS_EDGE=true; fi
+  fi
 fi
 
-node - "$REPORT" "$LOCAL_IP" "$PUBLIC_IP" "$HOSTNAME" "$ZONE" "$NS1" "$NS2" "$HOST_A_READY" "$DELEGATION_READY" "$TLS_READY" "$EDGE_DIRECT" <<'NODE'
+node - "$REPORT" "$LOCAL_IP" "$PUBLIC_IP" "$HOSTNAME" "$ZONE" "$NS1" "$NS2" "$HOST_A_READY" "$EXTRA_A_READY" "$DELEGATION_READY" "$TLS_READY" "$EDGE_DIRECT" "$GROWTH_OS_EDGE" "$EXTRA_HOSTS_RAW" <<'NODE'
 const fs=require("fs");
-const [path,lan,publicIp,host,zone,ns1,ns2,aReady,delegation,tls,edge]=process.argv.slice(2);
+const [path,lan,publicIp,host,zone,ns1,ns2,aReady,extraAReady,delegation,tls,edge,growthOsEdge,extraRaw]=process.argv.slice(2);
 const body={
   schema:"izakhono.owned-public-edge/v1",
   owner_host_lan_ipv4:lan,
@@ -156,13 +183,16 @@ const body={
   authoritative_zone:zone,
   nameservers:[ns1,...(ns2?[ns2]:[])],
   hostname_resolves_to_owner_ip:aReady==="true",
+  extra_hostnames:(extraRaw||"").split(/[\s,]+/).filter(Boolean),
+  extra_hostnames_resolve_to_owner_ip:extraAReady==="true",
+  growth_os_edge_verified:growthOsEdge==="true",
   parent_delegation_observed:delegation==="true",
   tls_ready:tls==="true",
   edge_direct:edge==="true",
   fortress:true,
   cloudflare_compute_required:false,
   cloudflare_tunnel_required:false,
-  public_ready:aReady==="true"&&delegation==="true"&&tls==="true"&&edge==="true",
+  public_ready:aReady==="true"&&extraAReady==="true"&&delegation==="true"&&tls==="true"&&edge==="true",
   required_inbound_ports:["53/udp","53/tcp","80/tcp","443/tcp"],
   generated_at:new Date().toISOString()
 };
@@ -171,7 +201,7 @@ console.log(JSON.stringify(body,null,2));
 NODE
 chmod 0600 "$REPORT"
 
-if [ "$DELEGATION_READY" != true ] || [ "$HOST_A_READY" != true ]; then
+if [ "$DELEGATION_READY" != true ] || [ "$HOST_A_READY" != true ] || [ "$EXTRA_A_READY" != true ]; then
   echo
   echo "ONE-TIME PARENT DNS BOOTSTRAP REQUIRED:"
   echo "  A  $NS1 -> $PUBLIC_IP"
@@ -184,6 +214,9 @@ if [ "$DELEGATION_READY" != true ] || [ "$HOST_A_READY" != true ]; then
   if [ "$HOSTNAME" != "$ZONE" ]; then
     echo "  Owned DNS will publish A $HOSTNAME -> $PUBLIC_IP automatically after delegation."
   fi
+  for extra_host in $(printf '%s' "$EXTRA_HOSTS_RAW" | tr ',' ' '); do
+    [ -n "$extra_host" ] && echo "  Owned DNS will publish A $extra_host -> $PUBLIC_IP automatically after delegation."
+  done
   echo "Router/firewall must forward 53/udp, 53/tcp, 80/tcp and 443/tcp to $LOCAL_IP."
   echo "After propagation, rerun this launcher. It will obtain TLS and switch EDGE to direct mode."
   exit 20

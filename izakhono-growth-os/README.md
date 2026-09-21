@@ -43,7 +43,7 @@ Growth OS v2 is the production application. The UI, planner, provider readiness 
 The production target is the IZAKHONO owner-controlled stack:
 
 ```text
-ISN-01 -> IZAKHONO CODE -> IZAKHONO RUNTIME -> IZAKHONO EDGE -> growth.izakhonoafrica.co.za
+ISN-01 -> IZAKHONO CODE -> IZAKHONO RUNTIME -> IZAKHONO EDGE -> growth.domains.izakhonoafrica.co.za
 ```
 
 Run `START-GROWTH-OS-V2-ON-IZAKHONO.cmd` on the owner machine. The deployment is health-gated at `/api/health`, preserves the approval-before-write policy, and records a deployment receipt. Vercel is not required.

@@ -48,10 +48,11 @@ jobs:
           bash -n izakhono-owned-cloud/first-host-proof.sh
           bash -n izakhono-owned-cloud/deploy-izakhono-domains.sh
           bash -n izakhono-owned-cloud/deploy-growth-os-v2.sh
+          bash -n izakhono-owned-cloud/activate-owned-public-edge.sh
           node --check growth-os-v2/server.mjs
           bash -n izakhono-edge-node/install-linux.sh
           node --check izakhono-edge-node/server.mjs
-          node -e 'const x=JSON.parse(require("fs").readFileSync("owner-host/platforms.json","utf8"));if(!x.platforms.some(p=>p.id==="izakhono-domains"&&p.defaultHostname==="domains.izakhonoafrica.co.za"))process.exit(2);if(!x.platforms.some(p=>p.id==="growth-os-v2"&&p.defaultHostname==="growth.izakhonoafrica.co.za"))process.exit(3)'
+          node -e 'const x=JSON.parse(require("fs").readFileSync("owner-host/platforms.json","utf8"));if(!x.platforms.some(p=>p.id==="izakhono-domains"&&p.defaultHostname==="domains.izakhonoafrica.co.za"))process.exit(2);if(!x.platforms.some(p=>p.id==="growth-os-v2"&&p.defaultHostname==="growth.domains.izakhonoafrica.co.za"))process.exit(3)'
           PORT=13000 HOST=127.0.0.1 node growth-os-v2/server.mjs >/tmp/growth-os-v2.log 2>&1 &
           PID=$!
           trap 'kill $PID 2>/dev/null || true' EXIT
@@ -70,6 +71,8 @@ jobs:
           grep -q 'FORTRESS_PROTECTOR_MODE=active' izakhono-edge-node/install-linux.sh
           grep -q 'SOURCE=IZAKHONO_CODE' izakhono-owned-cloud/deploy-izakhono-domains.sh
           grep -q 'IZAKHONO_PACKAGE_NODE' izakhono-owned-cloud/deploy-growth-os-v2.sh
+          grep -q 'growth.domains.izakhonoafrica.co.za' izakhono-owned-cloud/activate-owned-public-edge.sh
+          grep -q 'IZAKHONO_PUBLIC_EXTRA_HOSTS' izakhono-owned-cloud/activate-owned-public-edge.sh
           grep -q 'GROWTH_OS_V2=DEPLOYED_TO_IZAKHONO_RUNTIME' izakhono-owned-cloud/deploy-primary-node.sh
           grep -q 'REGISTRATION_LIVE' izakhono-owned-cloud/deploy-izakhono-domains.sh
           grep -q 'Checkout safety gate did not fail closed' izakhono-owned-cloud/deploy-izakhono-domains.sh
@@ -119,4 +122,4 @@ jobs:
           if ($growth -notmatch 'START-GROWTH-OS-V2-ON-IZAKHONO.ps1') { throw 'Growth OS v2 launcher target mismatch' }
           $growthPs = Get-Content 'owner-host/START-GROWTH-OS-V2-ON-IZAKHONO.ps1' -Raw
           if ($growthPs -notmatch 'deploy-growth-os-v2.sh') { throw 'Growth OS v2 deployment handoff missing' }
-          if ($growthPs -notmatch 'growth.izakhonoafrica.co.za') { throw 'Growth OS v2 hostname missing' }
+          if ($growthPs -notmatch 'growth.domains.izakhonoafrica.co.za') { throw 'Growth OS v2 hostname missing' }
