@@ -49,6 +49,10 @@ async function readJson(req,limit=24_000){
   return JSON.parse(Buffer.concat(chunks).toString("utf8")||"{}");
 }
 function clean(v,max=160){return String(v??"").replace(/[\u0000-\u001f\u007f]/g," ").replace(/\s+/g," ").trim().slice(0,max)}
+function cleanDetails(v){
+  if(!v||typeof v!=="object"||Array.isArray(v)) return {};
+  return Object.fromEntries(Object.entries(v).slice(0,20).map(([k,val])=>[clean(k,60),clean(val,240)]));
+}
 function clientKey(req){return String(req.headers["x-forwarded-for"]||req.socket.remoteAddress||"unknown").split(",")[0].trim()}
 function allowed(req){
   const key=clientKey(req),now=Date.now(),windowMs=60*60*1000,max=12;
@@ -122,6 +126,7 @@ async function saveSubmission(data,req){
     contact:clean(data.contact,160),message:clean(data.message,1600),on_air:Boolean(data.onAir),
     territory:clean(data.territory,80),language:clean(data.language,50),
     rights_attested:Boolean(data.rightsAttested),source_channel:clean(data.sourceChannel||"izakhono-owned",60),
+    details:cleanDetails(data.details),
     source_ip_hash:crypto.createHash("sha256").update(clientKey(req)+"|kora-gospel-tv").digest("hex").slice(0,20)
   };
   await appendFile(join(DATA_DIR,"submissions.ndjson"),JSON.stringify(record)+"\n",{encoding:"utf8",mode:0o600});
