@@ -1,9 +1,5 @@
 {
-  "id": "11111111-2222-4333-8444-555555555555",
-  "createdAt": "2026-09-21T00:00:00.000Z",
-  "updatedAt": "2026-09-21T00:00:00.000Z",
-  "status": "approved",
-  "publishable": true,
+  "schema": "kora-kids.production-pack/v1",
   "series": {
     "id": "lebo-jabu",
     "title": "Lebo & Jabu"
@@ -11,51 +7,37 @@
   "episode": {
     "number": 1,
     "slug": "jam-day-under-the-baobab",
-    "title": "Jam Day Under the Baobab",
-    "theme": "Lebo and Jabu turn a berry-jam mess into a picnic under a baobab.",
-    "learning": [
-      "Notice that baobabs are remarkable trees found in parts of Africa",
-      "Practise counting and sequencing",
-      "See how friends can solve a messy problem together"
-    ]
+    "title": "Jam Day Under the Baobab"
   },
   "language": {
     "code": "en-ZA",
-    "name": "English",
-    "voice": "en-ZA",
+    "name": "English (South Africa)",
     "finalVoiceApproved": false
   },
-  "renderTarget": {
-    "id": "izakhono-local",
-    "label": "IZAKHONO Local Render",
-    "mode": "owned"
-  },
-  "outputs": [
-    {
-      "type": "episode",
-      "aspect": "16:9",
-      "resolution": "1920x1080"
-    },
-    {
-      "type": "short",
-      "aspect": "9:16",
-      "resolution": "1080x1920"
-    },
-    {
-      "type": "thumbnail",
-      "aspect": "16:9",
-      "resolution": "1280x720"
-    },
-    {
-      "type": "caption",
-      "format": "vtt"
-    },
-    {
-      "type": "audio-master",
-      "format": "wav",
-      "languageScoped": true
-    }
+  "status": "production-candidate",
+  "audience": "3-7",
+  "targetDurationSeconds": 420,
+  "learningObjectives": [
+    "Notice that baobabs are remarkable trees found in parts of Africa",
+    "Practise counting and sequencing",
+    "See how friends can solve a messy problem together"
   ],
+  "factNotes": [
+    "Keep the baobab fact general: baobabs grow naturally in several parts of Africa.",
+    "Do not present one food tradition as representative of all African communities.",
+    "Any later local-language words or region-specific customs require a reviewer from that language/cultural context."
+  ],
+  "musicDirection": {
+    "theme": "Bright, playful, acoustic African-inspired children’s theme using original melodies only.",
+    "rule": "Do not imitate or interpolate an existing children's song or soundtrack.",
+    "cues": [
+      "kora-kids-theme-light",
+      "curious-playful",
+      "berry-bounce-comedy",
+      "warm-resolution",
+      "fact-and-outro"
+    ]
+  },
   "scenes": [
     {
       "id": "s01",
@@ -422,42 +404,13 @@
       ]
     }
   ],
-  "review": {
-    "script": true,
-    "language": true,
-    "culturalContext": true,
-    "childSafety": true,
-    "brand": true,
-    "final": true
-  },
-  "productionPack": {
-    "schema": "kora-kids.production-pack/v1",
-    "status": "production-candidate",
-    "targetDurationSeconds": 420,
-    "factNotes": [
-      "Keep the baobab fact general: baobabs grow naturally in several parts of Africa.",
-      "Do not present one food tradition as representative of all African communities.",
-      "Any later local-language words or region-specific customs require a reviewer from that language/cultural context."
-    ],
-    "musicDirection": {
-      "theme": "Bright, playful, acoustic African-inspired children’s theme using original melodies only.",
-      "rule": "Do not imitate or interpolate an existing children's song or soundtrack.",
-      "cues": [
-        "kora-kids-theme-light",
-        "curious-playful",
-        "berry-bounce-comedy",
-        "warm-resolution",
-        "fact-and-outro"
-      ]
-    },
-    "reviewState": {
-      "scriptLock": false,
-      "factLock": false,
-      "languagePerformance": false,
-      "culturalContext": false,
-      "childSafety": false,
-      "musicOriginality": false,
-      "finalMaster": false
-    }
+  "reviewState": {
+    "scriptLock": false,
+    "factLock": false,
+    "languagePerformance": false,
+    "culturalContext": false,
+    "childSafety": false,
+    "musicOriginality": false,
+    "finalMaster": false
   }
 }

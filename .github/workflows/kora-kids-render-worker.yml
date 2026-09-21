@@ -49,13 +49,45 @@ jobs:
           test -s /tmp/kora-render-proof/guide.wav
           test -s /tmp/kora-render-proof/captions.vtt
           test -s /tmp/kora-render-proof/voice-cues.json
+          test -s /tmp/kora-render-proof/lip-sync.json
+          test -s /tmp/kora-render-proof/mix-plan.json
+          test -s /tmp/kora-render-proof/qc-report.json
           test -s /tmp/kora-render-proof/render-result.json
           ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,width,height -of json /tmp/kora-render-proof/episode-guide.mp4 >/tmp/video.json
           ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of json /tmp/kora-render-proof/episode-guide.mp4 >/tmp/audio.json
-          node -e 'const x=require("/tmp/video.json").streams[0]; if(x.codec_name!=="h264"||x.width!==640||x.height!==360) process.exit(2)'
-          node -e 'const x=require("/tmp/audio.json").streams[0]; if(x.codec_name!=="aac") process.exit(2)'
-          node -e 'const x=require("/tmp/kora-render-proof/render-result.json"); if(x.broadcastMaster!==false||x.authoritativeTarget!=="izakhono-local"||x.guideAudio?.finalVoiceApproved!==false) process.exit(2)'
-          grep -q "WEBVTT" /tmp/kora-render-proof/captions.vtt
+          node <<'NODE'
+          const fs=require("fs");
+          const read=p=>JSON.parse(fs.readFileSync(p,"utf8"));
+          const checks=[];
+          const expect=(name,value)=>checks.push({name,ok:Boolean(value)});
+          const video=read("/tmp/video.json").streams[0];
+          const audio=read("/tmp/audio.json").streams[0];
+          const result=read("/tmp/kora-render-proof/render-result.json");
+          const qc=read("/tmp/kora-render-proof/qc-report.json");
+          const lip=read("/tmp/kora-render-proof/lip-sync.json");
+          const mix=read("/tmp/kora-render-proof/mix-plan.json");
+          const caps=fs.readFileSync("/tmp/kora-render-proof/captions.vtt","utf8");
+          expect("video-h264-640x360",video.codec_name==="h264"&&video.width===640&&video.height===360);
+          expect("audio-aac",audio.codec_name==="aac");
+          expect("result-v2",result.schema==="kora-kids.render-result/v2");
+          expect("owned-target",result.authoritativeTarget==="izakhono-local");
+          expect("not-broadcast",result.broadcastMaster===false);
+          expect("voice-not-final",result.guideAudio?.finalVoiceApproved===false);
+          expect("guide-qc-pass",result.qc?.passForGuide===true);
+          expect("broadcast-qc-blocked",result.qc?.passForBroadcast===false);
+          expect("qc-shot-timing",qc.checks?.shotTiming===true);
+          expect("qc-fact-lines",qc.checks?.factLinesIdentified===true);
+          expect("lip-sync-cues",lip.cues?.length>=10);
+          expect("lip-sync-lebo-only",lip.cues?.every(c=>c.speaker==="Lebo"&&c.endSeconds>c.startSeconds));
+          expect("original-music-required",mix.musicBus?.originalMusicRequired===true);
+          expect("five-mix-scenes",mix.scenes?.length===5);
+          expect("captions-webvtt",caps.includes("WEBVTT"));
+          expect("captions-lebo",caps.includes("Lebo:"));
+          expect("captions-first-line",caps.includes("Whoa! Jabu"));
+          console.table(checks);
+          const failed=checks.filter(x=>!x.ok);
+          if(failed.length){console.error("Failed validations:",failed.map(x=>x.name).join(", "));process.exit(2)}
+          NODE
       - name: Prove unapproved jobs are refused
         run: |
           node -e 'const fs=require("fs");const x=require("./kora-kids-render-worker/fixtures/lebo-jabu-approved-job.json");x.status="review";x.publishable=false;x.review.culturalContext=false;fs.writeFileSync("/tmp/rejected.json",JSON.stringify(x))'
@@ -71,5 +103,8 @@ jobs:
             /tmp/kora-render-proof/episode-guide.mp4
             /tmp/kora-render-proof/captions.vtt
             /tmp/kora-render-proof/voice-cues.json
+            /tmp/kora-render-proof/lip-sync.json
+            /tmp/kora-render-proof/mix-plan.json
+            /tmp/kora-render-proof/qc-report.json
             /tmp/kora-render-proof/render-result.json
           retention-days: 7
