@@ -113,6 +113,11 @@ jobs:
           $ps = Get-Content 'owner-host/START-IZAKHONO-OWNER-HOST.ps1' -Raw
           if ($ps -notmatch 'Ubuntu-24.04') { throw 'Ubuntu owner-host target missing' }
           if ($ps -notmatch 'bootstrap-linux.sh') { throw 'Linux bootstrap handoff missing' }
+          if ($ps -notmatch 'IZAKHONO-OWNER-HOST-STATUS.txt') { throw 'Owner-host desktop status report missing' }
+          if ($ps -notmatch 'growth.domains.izakhonoafrica.co.za') { throw 'Growth OS owned hostname missing from owner launcher' }
+          if ($ps -notmatch 'owned_public_edge_state') { throw 'Owned public-edge result handling missing' }
+          if ($ps -notmatch 'PARENT_DNS_OR_ROUTER_REQUIRED') { throw 'DNS/router blocker handling missing' }
+          if ($ps -notmatch 'TLS_OR_PORTS_REQUIRED') { throw 'TLS/ports blocker handling missing' }
           $domains = Get-Content 'START-IZAKHONO-DOMAINS-OWNER-HOST.cmd' -Raw
           if ($domains -notmatch 'START-IZAKHONO-DOMAINS-OWNER-HOST.ps1') { throw 'Domains PowerShell handoff missing' }
           $domainsPs = Get-Content 'owner-host/START-IZAKHONO-DOMAINS-OWNER-HOST.ps1' -Raw
