@@ -35,20 +35,32 @@ export default async function Kids({ searchParams }: { searchParams: Promise<{ e
     <main className="kidsMode">
       <section className="subHero">
         <div className="eyebrow">KORA KIDS • CURATED & MODERATED</div>
-        <h1>{activeProfile ? `Hi ${activeProfile.nickname}!` : 'Stories young Africans can grow up with.'}</h1>
-        <p>{activeProfile ? `Locked Kids Mode • ${activeProfile.age_band.replace('_','–')} • content up to ${activeProfile.max_age_rating}. No purchases, viewer cash rewards or personalised advertising are available in this profile.` : 'This catalogue shows only productions separately approved by KORA moderators for Kids. Parent-managed locked mode is available through KORA Family.'}</p>
+        <h1>{activeProfile ? `Hi ${activeProfile.nickname}!` : "Africa's stories for the world's children."}</h1>
+        <p>{activeProfile ? `Locked Kids Mode • ${activeProfile.age_band.replace('_','–')} • content up to ${activeProfile.max_age_rating}. No purchases, viewer cash rewards or personalised advertising are available in this profile.` : 'Original African animation, learning and adventure alongside a catalogue separately approved by KORA moderators for Kids. Parent-managed locked mode is available through KORA Family.'}</p>
         {activeProfile ? <form action={exitChildMode} className="inlineForm"><input name="family_pin" type="password" inputMode="numeric" placeholder="Parent PIN to exit" minLength={4} maxLength={6} required /><button className="secondary">Exit Kids Mode</button></form> : <Link className="secondary" href={user ? '/family' : '/login?next=/family'}>Set up Kids Mode</Link>}
         {exitError ? <p role="alert"><strong>{exitError}</strong></p> : null}
       </section>
+
       <section>
-        <div className="sectionHead"><h2>Featured KORA KIDS Original</h2><span>New pilot</span></div>
+        <div className="sectionHead"><h2>Featured KORA KIDS Original</h2><span>Flagship</span></div>
+        <Link className="panel" href="/kids/lebo-jabu" style={{display:'block',textDecoration:'none'}}>
+          <span className="badge">AGES 3–7 • FLAGSHIP ORIGINAL • INTERACTIVE PREVIEW</span>
+          <h3>Lebo & Jabu — Africa's Stories for the World's Children</h3>
+          <p>Lebo and her gentle elephant friend Jabu turn countries, animals, music, places and everyday discoveries across Africa into funny learning adventures. Season 1 begins with Jam Day Under the Baobab.</p>
+          <strong>Explore Lebo & Jabu →</strong>
+        </Link>
+      </section>
+
+      <section>
+        <div className="sectionHead"><h2>More KORA KIDS Originals</h2><span>Growing slate</span></div>
         <Link className="panel" href="/kids/tumi-tala" style={{display:'block',textDecoration:'none'}}>
           <span className="badge">AGES 2–6 • ORIGINAL PILOT</span>
           <h3>Tumi & Tala — Good Morning, Rainbow Town!</h3>
-          <p>Meet Tumi, Tala, Piko and Busi Bus in an original musical learning adventure with counting, routines, kindness and South African voice playback.</p>
-          <strong>Play the interactive pilot →</strong>
+          <p>Tumi, Tala, Piko and Busi Bus turn routines, numbers, words, music and kindness into preschool adventures.</p>
+          <strong>Play the Tumi & Tala interactive pilot →</strong>
         </Link>
       </section>
+
       <section>
         <div className="sectionHead"><h2>KORA Kids</h2><span>Human-approved titles only</span></div>
         <div className="grid three">{(productions ?? []).length ? (productions ?? []).map((item, index) => <Link className={`card poster p${index % 4}`} href={`/kids/watch/${item.slug}`} key={item.id}><span className="badge">{item.age_rating} • KIDS APPROVED</span><div className="cardBottom"><small>{item.genre || 'Family'} • {item.primary_language || 'Multilingual'}</small><h3>{item.title}</h3><p>{item.synopsis}</p></div></Link>) : <article className="panel" style={{gridColumn:'1/-1'}}><h3>Kids catalogue is being curated.</h3><p>Titles will appear here only after publication and a separate KORA Kids approval. We deliberately do not fill this area with unreviewed general catalogue content.</p></article>}</div>

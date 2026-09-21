@@ -1,0 +1,163 @@
+{
+  "schema": "kora-kids.series-season/v1",
+  "network": "KORA KIDS",
+  "series": "Lebo & Jabu",
+  "season": 1,
+  "audience": "3-7",
+  "format": "7-minute animated adventures",
+  "tagline": "Africa's Stories for the World's Children",
+  "flagship": true,
+  "status": "development",
+  "episodes": [
+    {
+      "number": 1,
+      "slug": "jam-day-under-the-baobab",
+      "title": "Jam Day Under the Baobab",
+      "countryFocus": "South Africa",
+      "region": "Southern Africa",
+      "emoji": "🌳",
+      "theme": "Lebo and Jabu turn a berry-jam mess into a picnic under a baobab.",
+      "learning": [
+        "Baobab trees",
+        "Sharing",
+        "Food traditions"
+      ],
+      "status": "interactive-preview"
+    },
+    {
+      "number": 2,
+      "slug": "penguins-at-the-cape",
+      "title": "Penguins at the Cape",
+      "countryFocus": "South Africa",
+      "region": "Southern Africa",
+      "emoji": "🐧",
+      "theme": "A windy seaside day introduces African penguins and ocean care.",
+      "learning": [
+        "African penguins",
+        "Coasts",
+        "Caring for wildlife"
+      ],
+      "status": "planned"
+    },
+    {
+      "number": 3,
+      "slug": "stars-over-the-kalahari",
+      "title": "Stars Over the Kalahari",
+      "countryFocus": "Botswana",
+      "region": "Southern Africa",
+      "emoji": "✨",
+      "theme": "A night journey becomes a game of stars, sounds and desert survival.",
+      "learning": [
+        "Kalahari",
+        "Night sky",
+        "Desert animals"
+      ],
+      "status": "planned"
+    },
+    {
+      "number": 4,
+      "slug": "the-great-zimbabwe-builders",
+      "title": "The Great Zimbabwe Builders",
+      "countryFocus": "Zimbabwe",
+      "region": "Southern Africa",
+      "emoji": "🧱",
+      "theme": "Lebo and Jabu discover how planning, teamwork and stonework can shape history.",
+      "learning": [
+        "Great Zimbabwe",
+        "Building",
+        "Teamwork"
+      ],
+      "status": "planned"
+    },
+    {
+      "number": 5,
+      "slug": "drums-and-colours-in-accra",
+      "title": "Drums & Colours in Accra",
+      "countryFocus": "Ghana",
+      "region": "West Africa",
+      "emoji": "🥁",
+      "theme": "A city celebration introduces rhythm, patterns and respectful cultural curiosity.",
+      "learning": [
+        "Accra",
+        "Rhythm",
+        "Patterns"
+      ],
+      "status": "planned"
+    },
+    {
+      "number": 6,
+      "slug": "the-niles-long-journey",
+      "title": "The Nile's Long Journey",
+      "countryFocus": "Egypt and Uganda",
+      "region": "North & East Africa",
+      "emoji": "🌊",
+      "theme": "A map adventure follows part of the Nile and asks where rivers come from and where they go.",
+      "learning": [
+        "Rivers",
+        "Maps",
+        "Connected places"
+      ],
+      "status": "planned"
+    },
+    {
+      "number": 7,
+      "slug": "rain-on-the-serengeti",
+      "title": "Rain on the Serengeti",
+      "countryFocus": "Tanzania",
+      "region": "East Africa",
+      "emoji": "🦒",
+      "theme": "Jabu worries about a storm until the friends learn why seasonal rain matters.",
+      "learning": [
+        "Serengeti",
+        "Rain",
+        "Animal habitats"
+      ],
+      "status": "planned"
+    },
+    {
+      "number": 8,
+      "slug": "market-shapes-in-marrakesh",
+      "title": "Market Shapes in Marrakesh",
+      "countryFocus": "Morocco",
+      "region": "North Africa",
+      "emoji": "🔷",
+      "theme": "A lively market scavenger hunt turns doors, tiles and baskets into a shapes lesson.",
+      "learning": [
+        "Marrakesh",
+        "Shapes",
+        "Craft traditions"
+      ],
+      "status": "planned"
+    },
+    {
+      "number": 9,
+      "slug": "island-wonders-of-madagascar",
+      "title": "Island Wonders of Madagascar",
+      "countryFocus": "Madagascar",
+      "region": "Indian Ocean Africa",
+      "emoji": "🐒",
+      "theme": "A lemur-led trail explores what makes island ecosystems special.",
+      "learning": [
+        "Madagascar",
+        "Lemurs",
+        "Biodiversity"
+      ],
+      "status": "planned"
+    },
+    {
+      "number": 10,
+      "slug": "our-big-africa-map",
+      "title": "Our Big Africa Map",
+      "countryFocus": "Pan-African recap",
+      "region": "Africa",
+      "emoji": "🗺️",
+      "theme": "Friends from the season help Lebo and Jabu build a giant map of memories.",
+      "learning": [
+        "Countries and regions",
+        "Respect",
+        "Curiosity"
+      ],
+      "status": "planned"
+    }
+  ]
+}
