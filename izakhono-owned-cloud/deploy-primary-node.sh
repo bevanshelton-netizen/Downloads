@@ -28,6 +28,10 @@ fi
 
 bash "$HERE/first-host-proof.sh" | tee -a "$REPORT"
 
+echo "Deploying Growth OS v2 to IZAKHONO RUNTIME..." | tee -a "$REPORT"
+GROWTH_OS_V2_HOSTNAME="${GROWTH_OS_V2_HOSTNAME:-growth.izakhonoafrica.co.za}" \
+  bash "$HERE/deploy-growth-os-v2.sh" main | tee -a "$REPORT"
+
 echo | tee -a "$REPORT"
 bash "$HERE/stack-status.sh" | tee -a "$REPORT"
 
@@ -37,6 +41,7 @@ bash "$HERE/stack-status.sh" | tee -a "$REPORT"
   echo "FORTRESS_PROTECTOR=ACTIVE_PRIVATE_CONTROL_PLANE"
   echo "GITHUB_RUNTIME_DEPENDENCY=NO"
   echo "VERCEL_RUNTIME_DEPENDENCY=NO"
+  echo "GROWTH_OS_V2=DEPLOYED_TO_IZAKHONO_RUNTIME"
   echo "DNS_NODE=SAFE_LOOPBACK_READY"\n  echo "PUBLIC_EDGE=$([ -f /etc/izakhono/tls/fullchain.pem ] && echo READY_FOR_DIRECT_CUTOVER || echo PENDING_TLS)"
   echo "PHYSICAL_REPLICA=REQUIRES_SEPARATE_HOST"
   echo "Completed: $(date -u +%Y-%m-%dT%H:%M:%SZ)"

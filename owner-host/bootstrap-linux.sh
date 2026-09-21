@@ -45,6 +45,7 @@ cd "$REPO"
 export IZAKHONO_EDGE_MODE=tunnel
 bash izakhono-owned-cloud/install-owned-stack.sh
 bash izakhono-owned-cloud/deploy-fortress-protector.sh
+bash izakhono-owned-cloud/configure-growth-os.sh
 bash izakhono-owned-cloud/configure-stack-backup.sh
 
 if [ ! -f /etc/izakhono/code-source.env ]; then
@@ -52,6 +53,16 @@ if [ ! -f /etc/izakhono/code-source.env ]; then
 fi
 
 bash izakhono-owned-cloud/first-host-proof.sh
+
+echo "Deploying IZAKHONO Growth OS v2 to the owned runtime..."
+export GROWTH_OS_V2_HOSTNAME="${GROWTH_OS_V2_HOSTNAME:-growth.izakhonoafrica.co.za}"
+bash izakhono-owned-cloud/deploy-growth-os-v2.sh main
+GROWTH_OS_STATE="RUNTIME_VERIFIED"
+if [ -f /var/lib/izakhono-deploy/growth-os-v2.json ]; then
+  if grep -q '"public_https": "VERIFIED"' /var/lib/izakhono-deploy/growth-os-v2.json 2>/dev/null; then
+    GROWTH_OS_STATE="PUBLIC_HTTPS_VERIFIED"
+  fi
+fi
 
 TUNNEL_STATE="TOKEN_REQUIRED"
 if [ -s /etc/izakhono/cloudflare-tunnel.token ]; then
@@ -67,9 +78,9 @@ else
 fi
 
 SOURCE_COMMIT="$(git rev-parse HEAD)"
-node - "$REPORT" "$SOURCE_COMMIT" "$TUNNEL_STATE" <<'NODE'
+node - "$REPORT" "$SOURCE_COMMIT" "$TUNNEL_STATE" "$GROWTH_OS_STATE" <<'NODE'
 const fs=require("fs");
-const [path,commit,tunnel]=process.argv.slice(2);
+const [path,commit,tunnel,growthOs]=process.argv.slice(2);
 const body={
   schema:"izakhono.owner-host/v1",
   node_name:"ISN-01",
@@ -78,6 +89,7 @@ const body={
   edge_mode:"cloudflare-tunnel-origin",
   edge_origin:"http://127.0.0.1:8780",
   fortress_private_control_plane:true,
+  growth_os_v2:growthOs,
   tunnel_state:tunnel,
   source_of_truth:"IZAKHONO CODE after bootstrap migration",
   public_ready:tunnel==="ACTIVE",
@@ -97,4 +109,5 @@ if [ "$TUNNEL_STATE" = "ACTIVE" ]; then
 else
   echo "PUBLIC INGRESS: one tunnel token is still required at /etc/izakhono/cloudflare-tunnel.token"
 fi
+echo "GROWTH OS v2: deployed to IZAKHONO RUNTIME and health-gated"
 echo "KORA and other applications remain behind their own readiness/payment gates until deployed."

@@ -22,3 +22,11 @@ if systemctl is-active --quiet izakhono-owner-tunnel 2>/dev/null; then
 else
   echo "izakhono-owner-tunnel=INACTIVE"
 fi
+
+echo
+echo "=== GROWTH OS v2 ==="
+if [ -f /var/lib/izakhono-deploy/growth-os-v2.json ]; then
+  cat /var/lib/izakhono-deploy/growth-os-v2.json
+else
+  echo "growth-os-v2 receipt: missing"
+fi
