@@ -19,7 +19,8 @@
     "preflight:production": "node scripts/preflight-production.mjs",
     "smoke:production": "node scripts/postdeploy-smoke.mjs",
     "validate:music-screen": "node scripts/validate-music-screen.mjs",
-    "build:shared-bootstrap-sql": "node scripts/build-shared-supabase-bootstrap.mjs"
+    "build:shared-bootstrap-sql": "node scripts/build-shared-supabase-bootstrap.mjs",
+    "validate:partner-gateway": "node scripts/validate-partner-gateway.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.6.1",
