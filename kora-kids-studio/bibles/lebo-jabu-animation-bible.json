@@ -1,0 +1,199 @@
+{
+  "schema": "kora-kids.animation-bible/v1",
+  "series": "Lebo & Jabu",
+  "visualPrinciples": [
+    "Big readable silhouettes and expressions for preschool viewing.",
+    "Warm daylight, rich but comfortable colour, no permanently dark interface or image treatment.",
+    "Physical comedy should be surprising without depicting dangerous imitation-worthy behaviour.",
+    "African environments must be specific when a country or region is named; generic fantasy Africa is not a substitute for reference research."
+  ],
+  "leboExpressions": {
+    "neutral": {
+      "eyes": "open",
+      "brows": "soft",
+      "mouth": "small-smile"
+    },
+    "delighted": {
+      "eyes": "wide",
+      "brows": "high",
+      "mouth": "wide-smile"
+    },
+    "curious": {
+      "eyes": "focused",
+      "brows": "one-raised",
+      "mouth": "small-open"
+    },
+    "playful": {
+      "eyes": "squint-smile",
+      "brows": "raised",
+      "mouth": "grin"
+    },
+    "laughing": {
+      "eyes": "happy-arc",
+      "brows": "relaxed",
+      "mouth": "open-laugh"
+    },
+    "confident": {
+      "eyes": "open",
+      "brows": "level",
+      "mouth": "smile"
+    },
+    "encouraging": {
+      "eyes": "soft",
+      "brows": "soft",
+      "mouth": "smile"
+    },
+    "surprised": {
+      "eyes": "very-wide",
+      "brows": "high",
+      "mouth": "round-open"
+    },
+    "thoughtful": {
+      "eyes": "side-look",
+      "brows": "slight-knit",
+      "mouth": "closed"
+    },
+    "determined": {
+      "eyes": "focused",
+      "brows": "slight-down",
+      "mouth": "firm-smile"
+    },
+    "teamwork": {
+      "eyes": "bright",
+      "brows": "soft",
+      "mouth": "smile"
+    },
+    "proud": {
+      "eyes": "bright",
+      "brows": "high",
+      "mouth": "closed-smile"
+    },
+    "announcer-playful": {
+      "eyes": "wide",
+      "brows": "high",
+      "mouth": "presenter-smile"
+    },
+    "warm-informative": {
+      "eyes": "soft",
+      "brows": "soft",
+      "mouth": "gentle-smile"
+    },
+    "warm": {
+      "eyes": "soft",
+      "brows": "soft",
+      "mouth": "gentle-smile"
+    },
+    "joyful": {
+      "eyes": "happy-arc",
+      "brows": "raised",
+      "mouth": "wide-smile"
+    }
+  },
+  "jabuExpressions": {
+    "neutral": {
+      "ears": "relaxed",
+      "trunk": "low",
+      "eyes": "open"
+    },
+    "curious": {
+      "ears": "forward",
+      "trunk": "slight-lift",
+      "eyes": "wide"
+    },
+    "mock-offended": {
+      "ears": "half-back",
+      "trunk": "curl",
+      "eyes": "side-eye"
+    },
+    "proud": {
+      "ears": "open",
+      "trunk": "up",
+      "eyes": "bright"
+    },
+    "sneeze": {
+      "ears": "flutter",
+      "trunk": "forward",
+      "eyes": "squint"
+    },
+    "happy": {
+      "ears": "open",
+      "trunk": "gentle-up",
+      "eyes": "happy"
+    },
+    "joyful": {
+      "ears": "wide",
+      "trunk": "high",
+      "eyes": "happy"
+    }
+  },
+  "camera": {
+    "wide": {
+      "scale": 0.82,
+      "pan": "stable"
+    },
+    "medium": {
+      "scale": 1,
+      "pan": "stable"
+    },
+    "close": {
+      "scale": 1.28,
+      "pan": "character-led"
+    },
+    "tracking": {
+      "scale": 0.92,
+      "pan": "follow"
+    },
+    "wide-push": {
+      "scaleRange": [
+        0.82,
+        1
+      ],
+      "pan": "slow-push"
+    },
+    "close-montage": {
+      "scale": 1.24,
+      "pan": "cut-rhythm"
+    },
+    "medium-comedy": {
+      "scale": 1.05,
+      "pan": "reaction-led"
+    },
+    "overhead": {
+      "scale": 0.9,
+      "pan": "top-down-suggested"
+    },
+    "two-shot": {
+      "scale": 1.02,
+      "pan": "balanced"
+    },
+    "wide-comedy": {
+      "scale": 0.84,
+      "pan": "action-room"
+    },
+    "montage": {
+      "scale": 1.02,
+      "pan": "cut-rhythm"
+    },
+    "wide-sunset": {
+      "scale": 0.8,
+      "pan": "stable"
+    },
+    "map-motif": {
+      "scale": 0.88,
+      "pan": "graphic"
+    },
+    "close-to-wide": {
+      "scaleRange": [
+        1.18,
+        0.82
+      ],
+      "pan": "pull-out"
+    }
+  },
+  "timing": {
+    "preschoolReactionHoldSeconds": "0.4-1.2",
+    "noRapidCutRule": "Avoid sustained cutting faster than roughly 1.5 seconds per shot unless a reviewer approves the comedy beat.",
+    "blinkIntervalSeconds": "2.5-5.5 varied",
+    "lipSync": "Guide mouth cues may be automated; final lip-sync must be checked against the approved voice master."
+  }
+}
