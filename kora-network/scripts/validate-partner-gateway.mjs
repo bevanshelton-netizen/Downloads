@@ -11,6 +11,8 @@ const handoff=read('app/go/[partner]/[asset]/route.ts');
 const catalogue=read('app/api/partners/catalogue/route.ts');
 const conversions=read('app/api/partners/conversions/route.ts');
 const dashboard=read('app/partner/page.tsx');
+const productionBootstrap=read('scripts/build-production-bootstrap.mjs');
+const sharedBootstrap=read('scripts/build-shared-supabase-bootstrap.mjs');
 
 check('Direct playback requires a verified rights grant',migration.includes("v_required:=case when v_asset.access_mode='authenticated' then 'authenticated' else 'stream' end")&&migration.includes("r.status='verified'"));
 check('Unverified direct/authenticated access is blocked',migration.includes("return query select 'blocked','verified_rights_grant_required'"));
@@ -24,6 +26,8 @@ check('External handoff logs attribution before redirect',handoff.indexOf("from(
 check('Partner dashboard separates verified from reported conversions',dashboard.includes("status === 'verified'")&&dashboard.includes('Verified attributable revenue'));
 check('No public client can read partner webhook keys',migration.includes('revoke all on public.partner_webhook_keys from anon,authenticated'));
 check('Partner gateway avoids storing IP addresses',!migration.includes('ip_address')&&!migration.includes('user_agent'));
+check('Dedicated production bootstrap includes schema 023',productionBootstrap.includes('"023_partner_gateway.sql"')&&productionBootstrap.includes('schema23'));
+check('Shared Supabase bootstrap includes schema 023',sharedBootstrap.includes('"023_partner_gateway.sql"')&&sharedBootstrap.includes('schema23'));
 
 console.log('\nKORA Partner Gateway guard: '+passed+' passed, '+failures.length+' failed.');
 if(failures.length){failures.forEach(x=>console.error('- '+x));process.exit(1);}
