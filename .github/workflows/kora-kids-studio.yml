@@ -4,12 +4,14 @@ on:
   push:
     paths:
       - "kora-kids-studio/**"
+      - "kora-kids-render-worker/**"
       - "owner-host/START-KORA-KIDS-STUDIO.ps1"
       - "START-KORA-KIDS-STUDIO.cmd"
       - ".github/workflows/kora-kids-studio.yml"
   pull_request:
     paths:
       - "kora-kids-studio/**"
+      - "kora-kids-render-worker/**"
       - "owner-host/START-KORA-KIDS-STUDIO.ps1"
       - "START-KORA-KIDS-STUDIO.cmd"
       - ".github/workflows/kora-kids-studio.yml"
@@ -33,6 +35,19 @@ jobs:
           grep -q '<svg' kora-kids-studio/rigs/piko.svg
           grep -q '<svg' kora-kids-studio/rigs/busi-bus.svg
           node -e 'const x=require("./kora-kids-studio/config/render-targets.json"); const p=x.targets.find(t=>t.id==="izakhono-local"); const e=x.targets.find(t=>t.id==="external-burst"); if(!p?.enabled||!p?.authoritative||e?.enabled) process.exit(2)'
+      - name: Ensure owned render tools
+        run: |
+          set -euo pipefail
+          need_install=0
+          command -v ffmpeg >/dev/null 2>&1 || need_install=1
+          command -v ffprobe >/dev/null 2>&1 || need_install=1
+          command -v espeak-ng >/dev/null 2>&1 || need_install=1
+          if [ "$need_install" -eq 1 ]; then
+            sudo apt-get update -qq
+            sudo apt-get install -y ffmpeg espeak-ng
+          fi
+          ffmpeg -version >/dev/null
+          espeak-ng --version >/dev/null
       - name: Start private studio
         env:
           KORA_KIDS_STUDIO_WORKSPACE: ${{ runner.temp }}/kora-kids-studio
@@ -62,6 +77,20 @@ jobs:
             job=(await r.json()).job;
           }
           if(job.publishable!==true||job.status!=="approved") process.exit(4);
+          const renderStart=await fetch(base+"/api/jobs/"+job.id+"/render",{method:"POST",headers,body:JSON.stringify({mode:"proof"})});
+          if(renderStart.status!==202) process.exit(9);
+          const renderId=(await renderStart.json()).render.id;
+          let render=null;
+          for(let i=0;i<120;i++){
+            await new Promise(r=>setTimeout(r,250));
+            const list=await fetch(base+"/api/renders");
+            if(!list.ok) process.exit(10);
+            render=(await list.json()).renders.find(x=>x.id===renderId);
+            if(render?.status==="completed"||render?.status==="failed")break;
+          }
+          if(render?.status!=="completed") { console.error(render); process.exit(11); }
+          if(render.result?.broadcastMaster!==false||render.result?.authoritativeTarget!=="izakhono-local"||render.result?.guideAudio?.finalVoiceApproved!==false) process.exit(12);
+          if(render.result?.dimensions?.width!==640||render.result?.dimensions?.height!==360) process.exit(13);
           const blocked=await fetch(base+"/api/jobs",{method:"POST",headers,body:JSON.stringify({seriesId:"lebo-jabu",episodeSlug:"jam-day-under-the-baobab",language:"zu-ZA",renderTarget:"izakhono-local"})});
           if(blocked.status!==409) process.exit(5);
           const legacy=await fetch(base+"/api/jobs",{method:"POST",headers,body:JSON.stringify({seriesId:"tumi-tala",episodeSlug:"good-morning-rainbow-town",language:"en-ZA",renderTarget:"izakhono-local"})});
