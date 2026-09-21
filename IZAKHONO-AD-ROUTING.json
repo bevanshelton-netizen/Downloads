@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "updated": "2026-09-18",
+  "version": 2,
+  "updated": "2026-09-21",
   "strategy": "owned-media-first",
   "publishingPolicy": {
     "ownedMedia": "prepare-and-publish-when-destination-is-verified-live",
@@ -67,27 +67,48 @@
     {
       "id": "faisready",
       "brand": "FAISREADY",
-      "objective": "course-sales",
+      "objective": "RE1-RE3-RE4-RE5-course-sales-and-qualified-orders",
       "audience": [
         "financial-services representatives",
         "key individuals",
-        "people preparing for RE exams"
+        "FSP staff",
+        "people preparing for RE1, RE3, RE4 or RE5",
+        "employers supporting regulatory exam preparation"
       ],
       "ownedPlacements": [
         "Mandatory Regulatory Exams platform",
         "The Chancellor business surfaces",
+        "WorkNow career and professional-development surfaces",
+        "IZAKHONO Revenue / Growth Desk surfaces",
         "IZAKHONO Group professional surfaces",
-        "IZAKHONO STUDIO campaign packs"
+        "KORA network business/professional display inventory where contextually appropriate",
+        "IZAKHONO STUDIO campaign packs",
+        "IZAKHONO portfolio cross-promo"
       ],
       "externalOrganicTargets": [
         "LinkedIn",
         "Facebook",
+        "Instagram",
+        "X",
         "YouTube",
         "WhatsApp share flows"
       ],
-      "message": "Focused preparation for regulatory examinations. Educational support; no regulator endorsement implied.",
+      "message": "RE1, RE3, RE4 and RE5 regulatory exam preparation on one FAISReady platform. Independent exam-preparation support; no regulator endorsement or pass guarantee.",
       "cta": "START PREPARING",
-      "status": "campaign-ready-existing-buy-buttons-usable"
+      "status": "owned-media-active-re5-and-bundle-direct-checkout-re1-re3-re4-order-capture",
+      "destination": "https://faisready-revenue.vercel.app/",
+      "offers": [
+        "RE5 Complete Prep — R299 — direct iKhokha checkout",
+        "RE1 Complete Prep — R399 — order capture",
+        "RE3 Complete Prep — R399 — order capture",
+        "RE4 Complete Prep — R399 — order capture",
+        "RE1 + RE5 Complete Bundle — R549 — direct iKhokha checkout"
+      ],
+      "claimRules": [
+        "Do not imply FSCA affiliation or endorsement.",
+        "Do not guarantee an examination pass.",
+        "Only RE5 R299 and the RE1 + RE5 R549 bundle may be described as direct iKhokha checkout until other merchant links are verified."
+      ]
     },
     {
       "id": "mandatory-reg-exams",
