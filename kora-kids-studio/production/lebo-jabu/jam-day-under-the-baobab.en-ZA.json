@@ -71,25 +71,65 @@
           "id": "s01a",
           "seconds": 10,
           "framing": "wide",
-          "action": "Establish clearing, baobab and birds; Lebo runs in."
+          "action": "Establish clearing, baobab and birds; Lebo runs in.",
+          "expressionFocus": [
+            {
+              "speaker": "Lebo",
+              "emotion": "delighted"
+            },
+            {
+              "speaker": "Jabu",
+              "emotion": "mock-offended"
+            }
+          ]
         },
         {
           "id": "s01b",
           "seconds": 15,
           "framing": "medium",
-          "action": "Lebo points up; Jabu arrives and reacts."
+          "action": "Lebo points up; Jabu arrives and reacts.",
+          "expressionFocus": [
+            {
+              "speaker": "Lebo",
+              "emotion": "delighted"
+            },
+            {
+              "speaker": "Jabu",
+              "emotion": "mock-offended"
+            }
+          ]
         },
         {
           "id": "s01c",
           "seconds": 16,
           "framing": "close",
-          "action": "Lebo compares the trunk to Jabu; playful reaction."
+          "action": "Lebo compares the trunk to Jabu; playful reaction.",
+          "expressionFocus": [
+            {
+              "speaker": "Lebo",
+              "emotion": "delighted"
+            },
+            {
+              "speaker": "Jabu",
+              "emotion": "mock-offended"
+            }
+          ]
         },
         {
           "id": "s01d",
           "seconds": 14,
           "framing": "wide-push",
-          "action": "They circle the trunk and decide to picnic nearby."
+          "action": "They circle the trunk and decide to picnic nearby.",
+          "expressionFocus": [
+            {
+              "speaker": "Lebo",
+              "emotion": "delighted"
+            },
+            {
+              "speaker": "Jabu",
+              "emotion": "mock-offended"
+            }
+          ]
         }
       ],
       "musicCue": "kora-kids-theme-light",
@@ -140,25 +180,65 @@
           "id": "s02a",
           "seconds": 18,
           "framing": "tracking",
-          "action": "They walk beside the clearing, spotting berries."
+          "action": "They walk beside the clearing, spotting berries.",
+          "expressionFocus": [
+            {
+              "speaker": "Lebo",
+              "emotion": "cheerful"
+            },
+            {
+              "speaker": "Lebo",
+              "emotion": "playful"
+            }
+          ]
         },
         {
           "id": "s02b",
           "seconds": 20,
           "framing": "close-montage",
-          "action": "Count five safe, generic berries into a basket."
+          "action": "Count five safe, generic berries into a basket.",
+          "expressionFocus": [
+            {
+              "speaker": "Lebo",
+              "emotion": "cheerful"
+            },
+            {
+              "speaker": "Lebo",
+              "emotion": "playful"
+            }
+          ]
         },
         {
           "id": "s02c",
           "seconds": 22,
           "framing": "medium-comedy",
-          "action": "Jabu carefully picks with trunk, then poses proudly."
+          "action": "Jabu carefully picks with trunk, then poses proudly.",
+          "expressionFocus": [
+            {
+              "speaker": "Lebo",
+              "emotion": "cheerful"
+            },
+            {
+              "speaker": "Lebo",
+              "emotion": "playful"
+            }
+          ]
         },
         {
           "id": "s02d",
           "seconds": 20,
           "framing": "wide",
-          "action": "They return to the picnic table with baskets."
+          "action": "They return to the picnic table with baskets.",
+          "expressionFocus": [
+            {
+              "speaker": "Lebo",
+              "emotion": "cheerful"
+            },
+            {
+              "speaker": "Lebo",
+              "emotion": "playful"
+            }
+          ]
         }
       ],
       "musicCue": "curious-playful",
@@ -212,31 +292,81 @@
           "id": "s03a",
           "seconds": 20,
           "framing": "overhead",
-          "action": "Show four-step sequence with bowl and spoon."
+          "action": "Show four-step sequence with bowl and spoon.",
+          "expressionFocus": [
+            {
+              "speaker": "Lebo",
+              "emotion": "confident"
+            },
+            {
+              "speaker": "Lebo",
+              "emotion": "encouraging"
+            }
+          ]
         },
         {
           "id": "s03b",
           "seconds": 22,
           "framing": "two-shot",
-          "action": "Jabu leans in carefully; nose tickles."
+          "action": "Jabu leans in carefully; nose tickles.",
+          "expressionFocus": [
+            {
+              "speaker": "Lebo",
+              "emotion": "confident"
+            },
+            {
+              "speaker": "Lebo",
+              "emotion": "encouraging"
+            }
+          ]
         },
         {
           "id": "s03c",
           "seconds": 12,
           "framing": "close",
-          "action": "Sneeze build-up."
+          "action": "Sneeze build-up.",
+          "expressionFocus": [
+            {
+              "speaker": "Lebo",
+              "emotion": "confident"
+            },
+            {
+              "speaker": "Lebo",
+              "emotion": "encouraging"
+            }
+          ]
         },
         {
           "id": "s03d",
           "seconds": 28,
           "framing": "wide-comedy",
-          "action": "Berry bounce chaos across table and grass."
+          "action": "Berry bounce chaos across table and grass.",
+          "expressionFocus": [
+            {
+              "speaker": "Lebo",
+              "emotion": "confident"
+            },
+            {
+              "speaker": "Lebo",
+              "emotion": "encouraging"
+            }
+          ]
         },
         {
           "id": "s03e",
           "seconds": 23,
           "framing": "tracking",
-          "action": "Lebo and Jabu chase rolling berries without panic."
+          "action": "Lebo and Jabu chase rolling berries without panic.",
+          "expressionFocus": [
+            {
+              "speaker": "Lebo",
+              "emotion": "confident"
+            },
+            {
+              "speaker": "Lebo",
+              "emotion": "encouraging"
+            }
+          ]
         }
       ],
       "musicCue": "berry-bounce-comedy",
@@ -291,31 +421,81 @@
           "id": "s04a",
           "seconds": 18,
           "framing": "medium",
-          "action": "Quiet beat; they look at the mess."
+          "action": "Quiet beat; they look at the mess.",
+          "expressionFocus": [
+            {
+              "speaker": "Lebo",
+              "emotion": "thoughtful"
+            },
+            {
+              "speaker": "Lebo",
+              "emotion": "determined"
+            }
+          ]
         },
         {
           "id": "s04b",
           "seconds": 24,
           "framing": "montage",
-          "action": "Team clean-up and sorting."
+          "action": "Team clean-up and sorting.",
+          "expressionFocus": [
+            {
+              "speaker": "Lebo",
+              "emotion": "thoughtful"
+            },
+            {
+              "speaker": "Lebo",
+              "emotion": "determined"
+            }
+          ]
         },
         {
           "id": "s04c",
           "seconds": 28,
           "framing": "close-montage",
-          "action": "Restart with a small clean batch; mash and stir."
+          "action": "Restart with a small clean batch; mash and stir.",
+          "expressionFocus": [
+            {
+              "speaker": "Lebo",
+              "emotion": "thoughtful"
+            },
+            {
+              "speaker": "Lebo",
+              "emotion": "determined"
+            }
+          ]
         },
         {
           "id": "s04d",
           "seconds": 20,
           "framing": "two-shot",
-          "action": "They taste a tiny spoonful safely."
+          "action": "They taste a tiny spoonful safely.",
+          "expressionFocus": [
+            {
+              "speaker": "Lebo",
+              "emotion": "thoughtful"
+            },
+            {
+              "speaker": "Lebo",
+              "emotion": "determined"
+            }
+          ]
         },
         {
           "id": "s04e",
           "seconds": 15,
           "framing": "wide",
-          "action": "Lay out the picnic and celebrate teamwork."
+          "action": "Lay out the picnic and celebrate teamwork.",
+          "expressionFocus": [
+            {
+              "speaker": "Lebo",
+              "emotion": "thoughtful"
+            },
+            {
+              "speaker": "Lebo",
+              "emotion": "determined"
+            }
+          ]
         }
       ],
       "musicCue": "warm-resolution",
@@ -372,25 +552,65 @@
           "id": "s05a",
           "seconds": 18,
           "framing": "wide-sunset",
-          "action": "Golden light under baobab."
+          "action": "Golden light under baobab.",
+          "expressionFocus": [
+            {
+              "speaker": "Lebo",
+              "emotion": "announcer-playful"
+            },
+            {
+              "speaker": "Lebo",
+              "emotion": "warm-informative"
+            }
+          ]
         },
         {
           "id": "s05b",
           "seconds": 24,
           "framing": "medium",
-          "action": "Jabu’s Africa Fact."
+          "action": "Jabu’s Africa Fact.",
+          "expressionFocus": [
+            {
+              "speaker": "Lebo",
+              "emotion": "announcer-playful"
+            },
+            {
+              "speaker": "Lebo",
+              "emotion": "warm-informative"
+            }
+          ]
         },
         {
           "id": "s05c",
           "seconds": 18,
           "framing": "map-motif",
-          "action": "Simple Africa silhouette with varied landscapes; no national stereotypes."
+          "action": "Simple Africa silhouette with varied landscapes; no national stereotypes.",
+          "expressionFocus": [
+            {
+              "speaker": "Lebo",
+              "emotion": "announcer-playful"
+            },
+            {
+              "speaker": "Lebo",
+              "emotion": "warm-informative"
+            }
+          ]
         },
         {
           "id": "s05d",
           "seconds": 15,
           "framing": "close-to-wide",
-          "action": "Lebo waves; Jabu trumpets; end card."
+          "action": "Lebo waves; Jabu trumpets; end card.",
+          "expressionFocus": [
+            {
+              "speaker": "Lebo",
+              "emotion": "announcer-playful"
+            },
+            {
+              "speaker": "Lebo",
+              "emotion": "warm-informative"
+            }
+          ]
         }
       ],
       "musicCue": "fact-and-outro",
@@ -412,5 +632,17 @@
     "childSafety": false,
     "musicOriginality": false,
     "finalMaster": false
+  },
+  "qualityBibles": {
+    "voice": "kora-kids-studio/bibles/lebo-jabu-voice-bible.json",
+    "sound": "kora-kids-studio/bibles/kora-kids-sound-bible.json",
+    "animation": "kora-kids-studio/bibles/lebo-jabu-animation-bible.json"
+  },
+  "performanceLocks": {
+    "voiceCasting": "pending-human-cast",
+    "jabuSoundDesign": "guide-vocabulary-locked",
+    "themeMusic": "composition-brief-locked",
+    "animationStyle": "quality-bible-locked",
+    "finalPerformanceApproval": false
   }
 }
