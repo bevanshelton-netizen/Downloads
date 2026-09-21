@@ -1,0 +1,58 @@
+name: IZAKHONO Controlled HA Drill Gate
+
+on:
+  push:
+    branches: [build/controlled-ha-failover-drill]
+    paths:
+      - "izakhono-owned-cloud/controlled-failover-drill.sh"
+      - "izakhono-owned-cloud/controlled-failback.sh"
+      - "izakhono-owned-cloud/route-switch-template.sh"
+      - ".github/workflows/izakhono-controlled-ha-drill-gate.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "izakhono-owned-cloud/controlled-failover-drill.sh"
+      - "izakhono-owned-cloud/controlled-failback.sh"
+      - "izakhono-owned-cloud/route-switch-template.sh"
+      - ".github/workflows/izakhono-controlled-ha-drill-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+      - name: Validate shell syntax
+        run: |
+          bash -n izakhono-owned-cloud/controlled-failover-drill.sh
+          bash -n izakhono-owned-cloud/controlled-failback.sh
+          bash -n izakhono-owned-cloud/route-switch-template.sh
+      - name: Prove plan mode is non-destructive
+        run: |
+          cat > /tmp/ha-proof.json <<'JSON'
+          {
+            "status":"PASS",
+            "certification":"READY_FOR_CONTROLLED_FAILOVER_DRILL",
+            "destructive_cutover_performed":false,
+            "witness":{"primary_fencing_token":7,"cluster_id":"test","url":"http://witness.invalid:8930"},
+            "standby":{"state":"PREPARED","writes_fail_closed_without_lease":true},
+            "primary":{"fortress":"healthy"}
+          }
+          JSON
+          IZAKHONO_HA_PROOF=/tmp/ha-proof.json bash izakhono-owned-cloud/controlled-failover-drill.sh plan > /tmp/plan.json
+          node -e 'const fs=require("fs");const x=JSON.parse(fs.readFileSync("/tmp/plan.json","utf8"));if(x.mode!=="PLAN_ONLY"||x.destructive_actions_performed!==false||x.route_change_performed!==false)process.exit(2)'
+      - name: Verify destructive gates
+        run: |
+          grep -q 'RUN-CONTROLLED-FAILOVER' izakhono-owned-cloud/controlled-failover-drill.sh
+          grep -q 'RUN-CONTROLLED-FAILBACK' izakhono-owned-cloud/controlled-failback.sh
+          grep -q 'ROUTE SWITCH TEMPLATE ONLY' izakhono-owned-cloud/route-switch-template.sh
+          grep -q 'systemctl stop izakhono-edge-node izakhono-runtime-node' izakhono-owned-cloud/controlled-failover-drill.sh
+          grep -q 'a>old' izakhono-owned-cloud/controlled-failover-drill.sh
+          ! grep -q 'eval ' izakhono-owned-cloud/controlled-failover-drill.sh
+          ! grep -q 'eval ' izakhono-owned-cloud/controlled-failback.sh
