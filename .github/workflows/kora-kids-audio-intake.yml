@@ -1,0 +1,93 @@
+name: KORA KIDS Audio Intake
+
+on:
+  push:
+    paths:
+      - "kora-kids-audio-intake/**"
+      - "kora-kids-studio/**"
+      - "owner-host/IMPORT-KORA-KIDS-AUDIO.ps1"
+      - "IMPORT-KORA-KIDS-AUDIO.cmd"
+      - ".github/workflows/kora-kids-audio-intake.yml"
+  pull_request:
+    paths:
+      - "kora-kids-audio-intake/**"
+      - "kora-kids-studio/**"
+      - "owner-host/IMPORT-KORA-KIDS-AUDIO.ps1"
+      - "IMPORT-KORA-KIDS-AUDIO.cmd"
+      - ".github/workflows/kora-kids-audio-intake.yml"
+
+jobs:
+  audio-intake-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Ensure local media tools
+        run: |
+          set -euo pipefail
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y ffmpeg
+          fi
+          ffmpeg -version >/dev/null
+          ffprobe -version >/dev/null
+      - name: Validate intake and studio syntax
+        run: |
+          node --check kora-kids-audio-intake/worker.mjs
+          node --check kora-kids-studio/server.mjs
+      - name: Build synthetic audio fixtures
+        run: |
+          ffmpeg -y -f lavfi -i "sine=frequency=260:sample_rate=48000:duration=4" -ac 1 /tmp/lebo.wav
+          ffmpeg -y -f lavfi -i "sine=frequency=440:sample_rate=48000:duration=6" -ac 2 /tmp/theme.wav
+      - name: Import rights-cleared voice and music
+        env:
+          KORA_WORKSPACE: ${{ runner.temp }}/kora-kids-studio
+        run: |
+          mkdir -p "$KORA_WORKSPACE"
+          node kora-kids-audio-intake/worker.mjs             --type voice --input /tmp/lebo.wav             --metadata kora-kids-audio-intake/fixtures/voice-metadata.json             --workspace "$KORA_WORKSPACE" >/tmp/voice-asset.json
+          node kora-kids-audio-intake/worker.mjs             --type music --input /tmp/theme.wav             --metadata kora-kids-audio-intake/fixtures/music-metadata.json             --workspace "$KORA_WORKSPACE" >/tmp/music-asset.json
+          node -e 'const v=require("/tmp/voice-asset.json"),m=require("/tmp/music-asset.json"); if(v.type!=="voice"||m.type!=="music"||v.review?.rights!==true||m.review?.rights!==true||v.approvedForMastering!==false||m.approvedForMastering!==false) process.exit(2)'
+      - name: Prove missing rights are refused
+        env:
+          KORA_WORKSPACE: ${{ runner.temp }}/bad-workspace
+        run: |
+          node -e 'const fs=require("fs");const x=require("./kora-kids-audio-intake/fixtures/voice-metadata.json");x.voiceRights.localisation=false;fs.writeFileSync("/tmp/bad-voice.json",JSON.stringify(x))'
+          if node kora-kids-audio-intake/worker.mjs             --type voice --input /tmp/lebo.wav --metadata /tmp/bad-voice.json --workspace "$KORA_WORKSPACE"; then
+            echo "Intake incorrectly accepted incomplete voice rights" >&2
+            exit 2
+          fi
+      - name: Start private Animation Factory
+        env:
+          KORA_KIDS_STUDIO_WORKSPACE: ${{ runner.temp }}/kora-kids-studio
+        run: |
+          node kora-kids-studio/server.mjs >/tmp/kora-audio-studio.log 2>&1 &
+          echo $! >/tmp/kora-audio-studio.pid
+      - name: Review imported audio through private studio API
+        run: |
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:8890/api/audio-assets >/tmp/assets.json && break
+            sleep 1
+          done
+          node <<'NODE'
+          const fs=require("fs");
+          const base="http://127.0.0.1:8890",headers={"content-type":"application/json"};
+          let list=JSON.parse(fs.readFileSync("/tmp/assets.json","utf8")).assets;
+          if(list.length!==2) process.exit(2);
+          if(list.some(x=>Object.hasOwn(x,"privateAssetPath"))) process.exit(3);
+          const voice=list.find(x=>x.type==="voice"),music=list.find(x=>x.type==="music");
+          if(!voice||!music||voice.review.rights!==true||music.review.rights!==true) process.exit(4);
+          for(const asset of [voice,music]){
+            for(const gate of ["performance","technical","final"]){
+              const r=await fetch(base+"/api/audio-assets/"+asset.id+"/review",{method:"POST",headers,body:JSON.stringify({gate,approved:true})});
+              if(!r.ok) process.exit(5);
+            }
+          }
+          list=(await (await fetch(base+"/api/audio-assets")).json()).assets;
+          if(!list.every(x=>x.approvedForMastering===true&&Object.values(x.review).every(Boolean))) process.exit(6);
+          NODE
+      - name: Stop studio
+        if: always()
+        run: |
+          test ! -f /tmp/kora-audio-studio.pid || kill "$(cat /tmp/kora-audio-studio.pid)" || true
