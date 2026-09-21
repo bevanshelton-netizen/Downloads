@@ -10,6 +10,7 @@ const tls=resolve(root,"tls");
 const logs=resolve(root,"access.jsonl");
 const httpPort=19280;
 const httpsPort=19243;
+const tunnelPort=19278;
 const controlPort=19295;
 const runtimePort=19200;
 const key=randomBytes(24).toString("hex");
@@ -35,10 +36,13 @@ await new Promise(resolve=>runtime.listen(runtimePort,"127.0.0.1",resolve));
 const child=spawn(process.execPath,["server.mjs"],{
   env:{
     ...process.env,
+    IZAKHONO_EDGE_MODE:"hybrid",
     HTTP_HOST:"127.0.0.1",
     HTTP_PORT:String(httpPort),
     HTTPS_HOST:"127.0.0.1",
     HTTPS_PORT:String(httpsPort),
+    TUNNEL_HOST:"127.0.0.1",
+    TUNNEL_PORT:String(tunnelPort),
     CONTROL_HOST:"127.0.0.1",
     CONTROL_PORT:String(controlPort),
     RUNTIME_HOST:"127.0.0.1",
@@ -103,6 +107,12 @@ function secureGet(path="/"){
 
 try{
   await waitHealth();
+
+  const health=await fetch(`http://127.0.0.1:${controlPort}/health`).then(r=>r.json());
+  if(health.ingressMode!=="hybrid" || health.tls!==true || !health.tunnelOrigin) throw new Error("Hybrid EDGE health contract failed");
+
+  const tunnel=await fetch(`http://127.0.0.1:${tunnelPort}/tunnel`,{headers:{host:"tunnel.local"}});
+  if(tunnel.status!==200 || await tunnel.text()!=="runtime-ok") throw new Error("Tunnel ingress failed in hybrid mode");
 
   const redirect=await fetch(`http://127.0.0.1:${httpPort}/hello`,{
     redirect:"manual",
