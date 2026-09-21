@@ -1,0 +1,10 @@
+{
+  "name": "kora-kids-render-worker",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "check": "node --check worker.mjs",
+    "proof": "node worker.mjs --input fixtures/lebo-jabu-approved-job.json --output .render-proof --mode proof"
+  }
+}
