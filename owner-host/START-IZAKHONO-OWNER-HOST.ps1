@@ -62,5 +62,89 @@ Write-Host "Checking host status..." -ForegroundColor Cyan
 & wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cd /opt/izakhono-source/Downloads && bash owner-host/status.sh"
 
 Write-Host ""
-Write-Host "If PUBLIC TUNNEL is INACTIVE, the only remaining public-ingress input is the Cloudflare Tunnel token." -ForegroundColor Yellow
-Write-Host "The host itself and all private IZAKHONO services are installed independently of Vercel." -ForegroundColor Green
+Write-Host "Evaluating go-live state..." -ForegroundColor Cyan
+
+$OwnerJsonRaw = (& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cat /var/lib/izakhono-deploy/owner-host.json 2>/dev/null || true") -join "`n"
+$EdgeJsonRaw = (& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cat /var/lib/izakhono-deploy/owned-public-edge.json 2>/dev/null || true") -join "`n"
+$GrowthJsonRaw = (& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cat /var/lib/izakhono-deploy/growth-os-v2.json 2>/dev/null || true") -join "`n"
+
+$Owner = $null
+$Edge = $null
+$Growth = $null
+if ($OwnerJsonRaw.Trim()) { $Owner = $OwnerJsonRaw | ConvertFrom-Json }
+if ($EdgeJsonRaw.Trim()) { $Edge = $EdgeJsonRaw | ConvertFrom-Json }
+if ($GrowthJsonRaw.Trim()) { $Growth = $GrowthJsonRaw | ConvertFrom-Json }
+
+$PublicUrl = "https://growth.domains.izakhonoafrica.co.za"
+$Result = "OWNER HOST READY"
+$Action = "No public-edge receipt was produced yet."
+
+if ($Owner -and $Owner.owned_public_edge_state -eq "ACTIVE_HYBRID") {
+    $Result = "IZAKHONO OWNED PUBLIC EDGE: LIVE"
+    $Action = "Growth OS is on the owned public-edge path. Verifying the public health endpoint."
+} elseif ($Owner -and $Owner.owned_public_edge_state -eq "PARENT_DNS_OR_ROUTER_REQUIRED") {
+    $Result = "IZAKHONO CORE: READY - PUBLIC DNS/ROUTER ACTION REQUIRED"
+    $Action = "Complete the parent delegation for domains.izakhonoafrica.co.za and forward 53/UDP, 53/TCP, 80/TCP and 443/TCP to ISN-01. Then run this launcher again."
+} elseif ($Owner -and $Owner.owned_public_edge_state -eq "TLS_OR_PORTS_REQUIRED") {
+    $Result = "IZAKHONO CORE: READY - TLS/PORTS ACTION REQUIRED"
+    $Action = "Owned DNS is visible. Ensure public TCP 80 and 443 reach ISN-01, then run this launcher again so ACME TLS can complete."
+} elseif ($Owner -and $Owner.tunnel_state -eq "ACTIVE") {
+    $Result = "IZAKHONO CORE: READY - TUNNEL FALLBACK ACTIVE"
+    $Action = "Owned public-edge cutover is not complete yet; the existing tunnel path remains available."
+}
+
+$PublicVerified = $false
+try {
+    $Health = Invoke-RestMethod -Uri "$PublicUrl/api/health" -TimeoutSec 12
+    if ($Health.ok -eq $true -and $Health.service -eq "growth-os-v2") {
+        $PublicVerified = $true
+        $Result = "GROWTH OS v2: PUBLICLY LIVE ON IZAKHONO"
+        $Action = "No further Growth OS hosting action is required."
+    }
+} catch {
+    # External reachability is reported by the receipts below; do not fail the private stack.
+}
+
+$ReportLines = @(
+    "IZAKHONO OWNER HOST - FINAL STATUS"
+    "Generated: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss K')"
+    "Node: ISN-01"
+    "Growth OS: $PublicUrl"
+    "Result: $Result"
+    "Public health verified: $PublicVerified"
+    "Action: $Action"
+)
+if ($Owner) {
+    $ReportLines += "Owned edge state: $($Owner.owned_public_edge_state)"
+    $ReportLines += "Tunnel state: $($Owner.tunnel_state)"
+    $ReportLines += "Growth OS runtime state: $($Owner.growth_os_v2)"
+}
+if ($Edge) {
+    $ReportLines += "DNS delegation observed: $($Edge.parent_delegation_observed)"
+    $ReportLines += "Owner IP record ready: $($Edge.hostname_resolves_to_owner_ip)"
+    $ReportLines += "Growth OS DNS ready: $($Edge.extra_hostnames_resolve_to_owner_ip)"
+    $ReportLines += "TLS ready: $($Edge.tls_ready)"
+    $ReportLines += "Hybrid/direct edge ready: $($Edge.edge_hybrid)"
+}
+if ($Growth) {
+    $ReportLines += "Growth OS runtime health: $($Growth.runtime)"
+    $ReportLines += "Growth OS public HTTPS receipt: $($Growth.public_https)"
+}
+
+$Desktop = [Environment]::GetFolderPath("Desktop")
+$ReportPath = Join-Path $Desktop "IZAKHONO-OWNER-HOST-STATUS.txt"
+$ReportLines | Set-Content -Path $ReportPath -Encoding UTF8
+
+Write-Host ""
+Write-Host "============================================================" -ForegroundColor DarkCyan
+Write-Host $Result -ForegroundColor $(if($PublicVerified){"Green"}else{"Yellow"})
+Write-Host "============================================================" -ForegroundColor DarkCyan
+Write-Host $Action
+Write-Host "Status report: $ReportPath" -ForegroundColor Cyan
+
+if ($PublicVerified) {
+    Start-Process $PublicUrl
+}
+
+Write-Host ""
+Write-Host "The private IZAKHONO stack, Growth OS runtime, FORTRESS and owned services do not depend on Vercel." -ForegroundColor Green
