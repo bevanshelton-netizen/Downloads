@@ -44,6 +44,8 @@ jobs:
           grep -q '"authoritative_origin": "IZAKHONO"' kora-network/public/gospel-global.json
           grep -q '"name": "Europe"' kora-network/public/gospel-global.json
           grep -q '"name": "Spanish"' kora-network/public/gospel-global.json
+          grep -q '"id": "supabase-intake-buffer"' kora-network/public/gospel-syndication.json
+          grep -q 'yfawrenhudjomhnglfhq.supabase.co/functions/v1/kora-gospel-intake' kora-network/public/gospel-syndication.json
 
       - name: Start isolated Gospel TV runtime
         run: |
@@ -74,6 +76,15 @@ jobs:
           grep -q '"rights_workflow"' /tmp/control-status.json
           curl -fsS http://127.0.0.1:8188/control.html | grep -q "GOSPEL TV"
           ! grep -R "ci-owner-control-token-1234567890" ports/kora-gospel-tv/control.html ports/kora-gospel-tv/control-room.json
+
+      - name: Verify owned cross-origin intake
+        run: |
+          test "$(curl -sS -o /tmp/preflight.txt -D /tmp/preflight.headers -w '%{http_code}' -X OPTIONS http://127.0.0.1:8188/api/submissions -H 'origin: https://kora-network.vercel.app' -H 'access-control-request-method: POST' -H 'access-control-request-headers: content-type')" = "204"
+          grep -qi 'access-control-allow-origin: https://kora-network.vercel.app' /tmp/preflight.headers
+          RESPONSE="$(curl -fsS -X POST http://127.0.0.1:8188/api/submissions -H 'origin: https://kora-network.vercel.app' -H 'content-type: application/json' --data '{"category":"partner","type":"distribution","name":"KORA CI","contact":"ci@example.invalid","message":"Cross-origin owned intake test","territory":"Global","language":"English","sourceChannel":"kora-ci"}')"
+          echo "$RESPONSE" | grep -q '"route":"izakhono-owned"'
+          grep -q '"territory":"Global"' "$RUNNER_TEMP/kora-gospel-tv/submissions.ndjson"
+          grep -q '"source_channel":"kora-ci"' "$RUNNER_TEMP/kora-gospel-tv/submissions.ndjson"
 
       - name: Verify safe submission path
         run: |
