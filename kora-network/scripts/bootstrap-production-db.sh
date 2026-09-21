@@ -71,9 +71,9 @@ done
 
 echo "Verifying KORA schema version..."
 version="$(psql "$SUPABASE_DB_URL" -X -A -t -v ON_ERROR_STOP=1 -c "select schema_version from public.platform_release_state where singleton=true;")"
-if [[ "$version" != "19" ]]; then
+if [[ "$version" != "23" ]]; then
   echo "Unexpected schema version: ${version:-missing}" >&2
   exit 1
 fi
 
-echo "KORA fresh production database bootstrap completed at schema version 19."
+echo "KORA fresh production database bootstrap completed at schema version 23."
