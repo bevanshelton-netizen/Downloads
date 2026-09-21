@@ -3,7 +3,7 @@ set -euo pipefail
 
 APP="growth-os-v2"
 SOURCE_DIR="izakhono-growth-os"
-HOSTNAME="${GROWTH_OS_V2_HOSTNAME:-growth.izakhonoafrica.co.za}"
+HOSTNAME="${GROWTH_OS_V2_HOSTNAME:-growth.domains.izakhonoafrica.co.za}"
 REVISION="${1:-main}"
 SOURCE_ENV="${IZAKHONO_CODE_SOURCE_ENV:-/etc/izakhono/code-source.env}"
 REPO_URL="${IZAKHONO_CODE_REPO_URL:-}"
