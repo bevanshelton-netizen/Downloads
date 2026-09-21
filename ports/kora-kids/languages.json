@@ -1,12 +1,12 @@
 {
-  "schema": "kora-kids.languages/v1",
+  "schema": "kora-kids.languages/v2",
   "default": "en-ZA",
-  "editorialRule": "Only reviewed localisations may be marked live.",
+  "editorialRule": "Only human-reviewed localisations may be marked live.",
   "languages": [
     {
       "code": "en-ZA",
       "name": "English",
-      "region": "South Africa",
+      "region": "South Africa / Global",
       "status": "live",
       "voice": "en-ZA"
     },
@@ -41,23 +41,51 @@
     {
       "code": "sw",
       "name": "Kiswahili",
-      "region": "Africa",
+      "region": "East Africa",
       "status": "planned",
       "voice": "sw-KE"
     },
     {
+      "code": "ha",
+      "name": "Hausa",
+      "region": "West Africa",
+      "status": "planned",
+      "voice": "ha-NG"
+    },
+    {
+      "code": "pcm",
+      "name": "Nigerian Pidgin",
+      "region": "West Africa",
+      "status": "planned",
+      "voice": "en-NG"
+    },
+    {
+      "code": "am",
+      "name": "Amharic",
+      "region": "East Africa",
+      "status": "planned",
+      "voice": "am-ET"
+    },
+    {
+      "code": "so",
+      "name": "Somali",
+      "region": "East Africa / Horn",
+      "status": "planned",
+      "voice": "so-SO"
+    },
+    {
       "code": "fr",
       "name": "French",
-      "region": "Global",
+      "region": "Africa / Global",
       "status": "planned",
       "voice": "fr-FR"
     },
     {
       "code": "pt",
       "name": "Portuguese",
-      "region": "Global",
+      "region": "Africa / Global",
       "status": "planned",
-      "voice": "pt-BR"
+      "voice": "pt-PT"
     },
     {
       "code": "es",
@@ -69,30 +97,114 @@
     {
       "code": "ar",
       "name": "Arabic",
-      "region": "Global",
+      "region": "Africa / Middle East / Global",
       "status": "planned",
       "voice": "ar-SA"
     },
     {
       "code": "hi",
       "name": "Hindi",
-      "region": "Global",
+      "region": "South Asia",
       "status": "planned",
       "voice": "hi-IN"
     },
     {
       "code": "zh",
       "name": "Mandarin Chinese",
-      "region": "Global",
+      "region": "East Asia",
       "status": "planned",
       "voice": "zh-CN"
     },
     {
       "code": "bn",
       "name": "Bengali",
-      "region": "Global",
+      "region": "South Asia",
       "status": "planned",
       "voice": "bn-BD"
+    },
+    {
+      "code": "ru",
+      "name": "Russian",
+      "region": "Europe / Eurasia",
+      "status": "planned",
+      "voice": "ru-RU"
+    },
+    {
+      "code": "id",
+      "name": "Indonesian",
+      "region": "Southeast Asia",
+      "status": "planned",
+      "voice": "id-ID"
+    },
+    {
+      "code": "ur",
+      "name": "Urdu",
+      "region": "South Asia",
+      "status": "planned",
+      "voice": "ur-PK"
+    },
+    {
+      "code": "de",
+      "name": "German",
+      "region": "Europe",
+      "status": "planned",
+      "voice": "de-DE"
+    },
+    {
+      "code": "ja",
+      "name": "Japanese",
+      "region": "East Asia",
+      "status": "planned",
+      "voice": "ja-JP"
+    },
+    {
+      "code": "ko",
+      "name": "Korean",
+      "region": "East Asia",
+      "status": "planned",
+      "voice": "ko-KR"
+    },
+    {
+      "code": "tr",
+      "name": "Turkish",
+      "region": "Europe / West Asia",
+      "status": "planned",
+      "voice": "tr-TR"
+    },
+    {
+      "code": "vi",
+      "name": "Vietnamese",
+      "region": "Southeast Asia",
+      "status": "planned",
+      "voice": "vi-VN"
+    },
+    {
+      "code": "ta",
+      "name": "Tamil",
+      "region": "South Asia / Global",
+      "status": "planned",
+      "voice": "ta-IN"
+    },
+    {
+      "code": "te",
+      "name": "Telugu",
+      "region": "South Asia",
+      "status": "planned",
+      "voice": "te-IN"
+    },
+    {
+      "code": "pa",
+      "name": "Punjabi",
+      "region": "South Asia / Global",
+      "status": "planned",
+      "voice": "pa-IN"
+    },
+    {
+      "code": "tl",
+      "name": "Tagalog / Filipino",
+      "region": "Southeast Asia",
+      "status": "planned",
+      "voice": "fil-PH"
     }
   ]
 }
