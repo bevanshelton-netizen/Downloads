@@ -79,7 +79,19 @@ test -f "$RELEASE/app/page.tsx" || fail "Growth OS app page missing from release
 
 if [ ! -d "$RELEASE/.next" ]; then
   echo "Building Growth OS v2 on IZAKHONO-owned compute..."
-  sudo -u izakhono env     HOME="$RELEASE"     NEXT_TELEMETRY_DISABLED=1     npm_config_cache="$RELEASE/.npm-cache"     bash -lc "cd '$RELEASE' && npm install --no-audit --no-fund && npm run build"
+  PACKAGE_REGISTRY="https://registry.npmjs.org/"
+  if curl -fsS --max-time 3 http://127.0.0.1:8910/ >/dev/null 2>&1; then
+    PACKAGE_REGISTRY="http://127.0.0.1:8910/"
+    echo "PACKAGE_SOURCE=IZAKHONO_PACKAGE_NODE"
+  else
+    echo "PACKAGE_SOURCE=UPSTREAM_BOOTSTRAP_FALLBACK"
+  fi
+  sudo -u izakhono env \
+    HOME="$RELEASE" \
+    NEXT_TELEMETRY_DISABLED=1 \
+    npm_config_cache="$RELEASE/.npm-cache" \
+    npm_config_registry="$PACKAGE_REGISTRY" \
+    bash -lc "cd '$RELEASE' && npm install --no-audit --no-fund && npm run build"
 fi
 
 test -d "$RELEASE/.next" || fail "Growth OS production build did not produce .next."
