@@ -1,10 +1,10 @@
 {
-  "version": 5,
+  "version": 6,
   "updated": "2026-09-21",
-  "mode": "cash-first-owned-media",
+  "mode": "verified-live-portfolio-growth",
   "slotMinutes": 5,
   "paidSpendZAR": 0,
-  "priority": "verified-live-revenue-first",
+  "priority": "verified-live-revenue-and-audience-growth",
   "rotation": [
     {
       "slot": 1,
@@ -14,14 +14,15 @@
     },
     {
       "slot": 2,
-      "brand": "FAISReady",
-      "offer": "RE1, RE3, RE4 & RE5 — one regulatory exam preparation platform",
-      "destination": "https://faisready-revenue.vercel.app/"
+      "brand": "Learner Driver SA",
+      "offer": "Learner-driver preparation for Codes 08, 10, 14 and motorcycles",
+      "destination": "https://kora-network.vercel.app/learner-driver"
     },
     {
       "slot": 3,
-      "brand": "AUTO AI",
-      "offer": "R99 Repair Quote Second Opinion"
+      "brand": "KORA",
+      "offer": "African digital entertainment, music, creators and live experiences",
+      "destination": "https://kora-network.vercel.app/"
     },
     {
       "slot": 4,
@@ -31,61 +32,59 @@
     },
     {
       "slot": 5,
-      "brand": "IZAKHONO Business Growth Desk",
-      "offer": "High-ticket business solutions assessment"
+      "brand": "The Chancellor",
+      "offer": "R500 Business Readiness Audit",
+      "destination": "https://the-chancellor.vercel.app/"
     },
     {
       "slot": 6,
-      "brand": "FAISReady",
-      "offer": "RE1 / RE3 / RE4 preparation — R399 each; order capture available",
-      "destination": "https://faisready-revenue.vercel.app/"
+      "brand": "ALLEGRO VIBEZ",
+      "offer": "Discover music across cultures and support artists",
+      "destination": "https://allegro-vibez.vercel.app/"
     },
     {
       "slot": 7,
-      "brand": "FAISReady",
-      "offer": "RE1 + RE5 Complete Bundle — R549 direct iKhokha checkout",
-      "destination": "https://faisready-revenue.vercel.app/"
+      "brand": "Mandatory Regulatory Exams",
+      "offer": "Find the regulatory exam that applies to you and start preparing",
+      "destination": "https://mandatory-regulatory-exams.vercel.app/"
     },
     {
       "slot": 8,
-      "brand": "Mandatory Regulatory Exams",
-      "offer": "Find the exam that applies to your field — RE1, RE3, RE4 or RE5",
-      "destination": "https://faisready-revenue.vercel.app/"
-    },
-    {
-      "slot": 9,
       "brand": "AUTO AI",
       "offer": "R99 Repair Quote Second Opinion"
     },
     {
+      "slot": 9,
+      "brand": "KORA",
+      "offer": "Explore KORA — built in Africa for the world",
+      "destination": "https://kora-network.vercel.app/"
+    },
+    {
       "slot": 10,
-      "brand": "FAISReady",
-      "offer": "RE5 Complete Prep — R299 direct iKhokha checkout",
-      "destination": "https://faisready-revenue.vercel.app/"
+      "brand": "Learner Driver SA",
+      "offer": "Start learning and practise before test day",
+      "destination": "https://kora-network.vercel.app/learner-driver"
     },
     {
       "slot": 11,
-      "brand": "FAISReady",
-      "offer": "RE1, RE3, RE4 & RE5 — prepare from one platform",
-      "destination": "https://faisready-revenue.vercel.app/"
+      "brand": "ALLEGRO VIBEZ",
+      "offer": "More than music — a global discovery and creator platform",
+      "destination": "https://allegro-vibez.vercel.app/"
     },
     {
       "slot": 12,
-      "brand": "FAISReady",
-      "offer": "RE1 + RE5 Complete Bundle — R549 direct iKhokha checkout",
-      "destination": "https://faisready-revenue.vercel.app/"
+      "brand": "The Chancellor",
+      "offer": "Diagnose first, then choose the right business growth pathway",
+      "destination": "https://the-chancellor.vercel.app/"
     }
   ],
   "rules": [
     "Run continuously 24 hours a day, 365 days a year.",
     "Advance the owned-media rotation every 5 minutes.",
-    "Give highest weight to verified direct-checkout offers while the owned public hostname is unavailable.",
-    "Do not rotate traffic to unresolved or unverified public destinations.",
-    "Restore IZAKHONO AI membership to rotation only after its public DNS and HTTPS endpoint are independently verified.",
-    "Use the public Business Growth Desk for high-ticket opportunity capture.",
-    "Paid advertiser creative takes priority when eligible; otherwise use the current owned house-ad slot.",
+    "Advertise only destinations independently verified reachable before campaign activation.",
     "Keep external paid-media spend at R0 unless explicitly approved.",
-    "Use tracked destination links and only advertise currently available offers.",
-    "FAISReady non-direct-checkout courses may be advertised only as preparation/order-capture offers; do not imply instant iKhokha payment until their exact merchant links are verified."
+    "Use tracked destination links for owned cross-promotion.",
+    "Do not imply regulator endorsement, guaranteed exam passes, guaranteed earnings or guaranteed business outcomes.",
+    "Only offers with verified direct iKhokha links may be described as direct checkout."
   ]
 }
