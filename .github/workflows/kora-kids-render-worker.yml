@@ -1,0 +1,70 @@
+name: KORA KIDS Render Worker
+
+on:
+  push:
+    paths:
+      - "kora-kids-render-worker/**"
+      - "owner-host/START-KORA-KIDS-RENDER.ps1"
+      - "START-KORA-KIDS-RENDER.cmd"
+      - ".github/workflows/kora-kids-render-worker.yml"
+  pull_request:
+    paths:
+      - "kora-kids-render-worker/**"
+      - "owner-host/START-KORA-KIDS-RENDER.ps1"
+      - "START-KORA-KIDS-RENDER.cmd"
+      - ".github/workflows/kora-kids-render-worker.yml"
+
+jobs:
+  render-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Ensure local render tools
+        run: |
+          set -euo pipefail
+          ffmpeg -version >/dev/null
+          ffprobe -version >/dev/null
+          if ! command -v espeak-ng >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y espeak-ng
+          fi
+      - name: Validate worker syntax
+        run: node --check kora-kids-render-worker/worker.mjs
+      - name: Render approved Lebo & Jabu proof
+        run: |
+          rm -rf /tmp/kora-render-proof
+          node kora-kids-render-worker/worker.mjs             --input kora-kids-render-worker/fixtures/lebo-jabu-approved-job.json             --output /tmp/kora-render-proof             --mode proof
+      - name: Validate media and claims boundary
+        run: |
+          set -euo pipefail
+          test -s /tmp/kora-render-proof/episode-guide.mp4
+          test -s /tmp/kora-render-proof/guide.wav
+          test -s /tmp/kora-render-proof/captions.vtt
+          test -s /tmp/kora-render-proof/voice-cues.json
+          test -s /tmp/kora-render-proof/render-result.json
+          ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,width,height -of json /tmp/kora-render-proof/episode-guide.mp4 >/tmp/video.json
+          ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of json /tmp/kora-render-proof/episode-guide.mp4 >/tmp/audio.json
+          node -e 'const x=require("/tmp/video.json").streams[0]; if(x.codec_name!=="h264"||x.width!==640||x.height!==360) process.exit(2)'
+          node -e 'const x=require("/tmp/audio.json").streams[0]; if(x.codec_name!=="aac") process.exit(2)'
+          node -e 'const x=require("/tmp/kora-render-proof/render-result.json"); if(x.broadcastMaster!==false||x.authoritativeTarget!=="izakhono-local"||x.guideAudio?.finalVoiceApproved!==false) process.exit(2)'
+          grep -q "WEBVTT" /tmp/kora-render-proof/captions.vtt
+      - name: Prove unapproved jobs are refused
+        run: |
+          node -e 'const fs=require("fs");const x=require("./kora-kids-render-worker/fixtures/lebo-jabu-approved-job.json");x.status="review";x.publishable=false;x.review.culturalContext=false;fs.writeFileSync("/tmp/rejected.json",JSON.stringify(x))'
+          if node kora-kids-render-worker/worker.mjs --input /tmp/rejected.json --output /tmp/should-not-render --mode proof; then
+            echo "Worker incorrectly rendered an unapproved job" >&2
+            exit 2
+          fi
+      - name: Upload guide animatic proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: kora-kids-lebo-jabu-render-proof
+          path: |
+            /tmp/kora-render-proof/episode-guide.mp4
+            /tmp/kora-render-proof/captions.vtt
+            /tmp/kora-render-proof/voice-cues.json
+            /tmp/kora-render-proof/render-result.json
+          retention-days: 7
