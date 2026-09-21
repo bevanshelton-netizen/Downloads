@@ -1,0 +1,44 @@
+name: KORA Gospel TV Public Verify
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-public-gospel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Resolve public DNS
+        shell: bash
+        run: |
+          set -euo pipefail
+          HOST="gospel.domains.izakhonoafrica.co.za"
+          getent ahostsv4 "$HOST"
+          IP="$(getent ahostsv4 "$HOST" | awk 'NR==1{print $1}')"
+          test -n "$IP"
+          echo "Resolved $HOST -> $IP"
+
+      - name: Verify trusted HTTPS health
+        shell: bash
+        run: |
+          set -euo pipefail
+          HOST="gospel.domains.izakhonoafrica.co.za"
+          HEALTH="$(curl --fail --silent --show-error --max-time 15 "https://$HOST/health")"
+          echo "$HEALTH"
+          node -e '
+            const x=JSON.parse(process.argv[1]);
+            if(x.ok!==true || x.service!=="kora-gospel-tv") process.exit(2);
+          ' "$HEALTH"
+
+      - name: Verify public Gospel TV page
+        shell: bash
+        run: |
+          set -euo pipefail
+          HOST="gospel.domains.izakhonoafrica.co.za"
+          PAGE="$(curl --fail --silent --show-error --max-time 15 "https://$HOST/")"
+          printf '%s' "$PAGE" | grep -qi 'KORA'
+          printf '%s' "$PAGE" | grep -qi 'GOSPEL'
+          echo "KORA GOSPEL TV: PUBLIC HTTPS LIVE AND VERIFIED"
