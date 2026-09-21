@@ -7,7 +7,7 @@ Production source now lives in `izakhono-growth-os/`, where the UI is combined w
 Production topology:
 
 ```text
-ISN-01 -> IZAKHONO CODE -> IZAKHONO RUNTIME -> IZAKHONO EDGE -> growth.izakhonoafrica.co.za
+ISN-01 -> IZAKHONO CODE -> IZAKHONO RUNTIME -> IZAKHONO EDGE -> growth.domains.izakhonoafrica.co.za
 ```
 
 Use `START-GROWTH-OS-V2-ON-IZAKHONO.cmd` for the owner-host deployment. Vercel is not required.
