@@ -57,31 +57,59 @@ function ellipse(buf,w,h,cx,cy,rx,ry,c){
   for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)if(((x-cx)*(x-cx))/rrX+((y-cy)*(y-cy))/rrY<=1)setPixel(buf,w,h,x,y,...c);
 }
 function circle(buf,w,h,cx,cy,r,c){ellipse(buf,w,h,cx,cy,r,r,c)}
-function drawLebo(buf,w,h,x,y,s,bob,mouthOpen=false){
+function drawLebo(buf,w,h,x,y,s,bob,mouthOpen=false,emotion="neutral"){
   const skin=[135,84,60],hair=[36,27,33],yellow=[255,207,63],red=[236,75,65],ink=[23,52,83],white=[255,255,255];
   y+=bob;
   ellipse(buf,w,h,x,y+68*s,34*s,38*s,skin);
   circle(buf,w,h,x-27*s,y+36*s,21*s,hair);circle(buf,w,h,x+27*s,y+36*s,21*s,hair);
-  circle(buf,w,h,x-12*s,y+64*s,4*s,ink);circle(buf,w,h,x+12*s,y+64*s,4*s,ink);
+  const wide=["delighted","curious","surprised","announcer-playful","joyful"].includes(emotion);
+  const happy=["laughing","playful","joyful"].includes(emotion);
+  const focused=["determined","thoughtful","confident"].includes(emotion);
+  if(happy){
+    rect(buf,w,h,x-18*s,y+64*s,12*s,2*s,ink);rect(buf,w,h,x+6*s,y+64*s,12*s,2*s,ink);
+  }else{
+    circle(buf,w,h,x-12*s,y+64*s,(wide?5:4)*s,ink);circle(buf,w,h,x+12*s,y+64*s,(wide?5:4)*s,ink);
+  }
+  if(focused){
+    rect(buf,w,h,x-21*s,y+52*s,16*s,2*s,ink);rect(buf,w,h,x+5*s,y+52*s,16*s,2*s,ink);
+  }
   rect(buf,w,h,x-30*s,y+105*s,60*s,78*s,yellow);
   circle(buf,w,h,x,y+144*s,15*s,[255,155,37]);
   rect(buf,w,h,x-22*s,y+181*s,17*s,55*s,skin);rect(buf,w,h,x+6*s,y+181*s,17*s,55*s,skin);
   rect(buf,w,h,x-28*s,y+229*s,28*s,14*s,red);rect(buf,w,h,x+4*s,y+229*s,28*s,14*s,red);
   circle(buf,w,h,x-13*s,y+86*s,3*s,white);circle(buf,w,h,x+13*s,y+86*s,3*s,white);
-  if(mouthOpen) ellipse(buf,w,h,x,y+93*s,8*s,5*s,[111,46,52]); else rect(buf,w,h,x-7*s,y+92*s,14*s,2*s,[111,46,52]);
+  if(mouthOpen||["surprised","laughing","joyful","delighted"].includes(emotion)) ellipse(buf,w,h,x,y+93*s,(emotion==="surprised"?6:8)*s,(emotion==="surprised"?7:5)*s,[111,46,52]); else rect(buf,w,h,x-7*s,y+92*s,14*s,2*s,[111,46,52]);
 }
-function drawJabu(buf,w,h,x,y,s,bob){
+function drawJabu(buf,w,h,x,y,s,bob,emotion="neutral"){
   const body=[185,192,198],ear=[210,215,219],leg=[160,169,176],ink=[23,52,83];
   y+=bob;
   ellipse(buf,w,h,x,y+145*s,72*s,55*s,body);
   ellipse(buf,w,h,x+52*s,y+82*s,49*s,45*s,body);
-  ellipse(buf,w,h,x+19*s,y+86*s,36*s,42*s,ear);
+  const earScale=["proud","happy","joyful"].includes(emotion)?1.12:(emotion==="mock-offended"?.88:1);
+  ellipse(buf,w,h,x+19*s,y+86*s,36*s*earScale,42*s*earScale,ear);
   circle(buf,w,h,x+37*s,y+78*s,4*s,ink);circle(buf,w,h,x+64*s,y+78*s,4*s,ink);
   rect(buf,w,h,x-43*s,y+180*s,23*s,58*s,leg);rect(buf,w,h,x+20*s,y+180*s,23*s,58*s,leg);
-  rect(buf,w,h,x+84*s,y+93*s,16*s,68*s,body);
-  ellipse(buf,w,h,x+90*s,y+160*s,12*s,18*s,body);
+  const trunkLift=["proud","happy","joyful","curious"].includes(emotion)?-18:0;
+  rect(buf,w,h,x+84*s,y+(93+trunkLift)*s,16*s,68*s,body);
+  ellipse(buf,w,h,x+90*s,y+(160+trunkLift)*s,12*s,18*s,body);
 }
-function frame(width,height,t,sceneIndex,sceneT,leboMouthOpen=false){
+const CAMERA_SCALE={wide:.82,medium:1,close:1.24,tracking:.94,"wide-push":.9,"close-montage":1.18,"medium-comedy":1.05,overhead:.9,"two-shot":1.02,"wide-comedy":.84,montage:1.02,"wide-sunset":.8,"map-motif":.88,"close-to-wide":1};
+function shotSchedule(schedule){
+  const out=[];
+  for(const scene of schedule){
+    const shots=Array.isArray(scene.shots)&&scene.shots.length?scene.shots:[{id:scene.id+"-guide",seconds:scene.durationSeconds||scene.duration,framing:"medium",action:scene.action}];
+    const sourceTotal=shots.reduce((n,s)=>n+Math.max(.01,Number(s.seconds)||0),0);
+    let cursor=scene.start;
+    for(const shot of shots){
+      const dur=scene.duration*(Math.max(.01,Number(shot.seconds)||0)/sourceTotal);
+      out.push({...shot,sceneId:scene.id,start:+cursor.toFixed(4),end:+(cursor+dur).toFixed(4),duration:+dur.toFixed(4)});
+      cursor+=dur;
+    }
+  }
+  return out;
+}
+function activeAt(items,t){return items.find(x=>t>=x.start&&t<x.end)||items[items.length-1]}
+function frame(width,height,t,sceneIndex,sceneT,leboMouthOpen=false,shot=null,dialogueCue=null){
   const buf=Buffer.alloc(width*height*3);
   rect(buf,width,height,0,0,width,height,[116,220,255]);
   const horizon=Math.floor(height*.63);
@@ -93,13 +121,23 @@ function frame(width,height,t,sceneIndex,sceneT,leboMouthOpen=false){
   // distant sand/path
   ellipse(buf,width,height,width*.55,horizon+55,width*.45,42,[232,189,108]);
   const wave=Math.sin(t*3.2);
+  const framing=shot?.framing||"medium";
+  let cameraScale=CAMERA_SCALE[framing]||1;
+  if(framing==="wide-push"&&shot?.duration) cameraScale=.82+.18*Math.max(0,Math.min(1,(t-shot.start)/shot.duration));
+  if(framing==="close-to-wide"&&shot?.duration) cameraScale=1.18-.36*Math.max(0,Math.min(1,(t-shot.start)/shot.duration));
   let leboX=width*.37, jabuX=width*.61;
   if(sceneIndex===1){leboX+=sceneT*18;jabuX+=sceneT*10}
   if(sceneIndex===2){leboX+=Math.sin(t*7)*12;jabuX+=Math.sin(t*5)*16}
   if(sceneIndex===3){leboX-=sceneT*10;jabuX+=sceneT*8}
   if(sceneIndex===4){leboX=width*.42;jabuX=width*.64}
-  drawLebo(buf,width,height,leboX,horizon-183,.72,wave*4,leboMouthOpen);
-  drawJabu(buf,width,height,jabuX,horizon-178,.75,-wave*3);
+  if(framing==="tracking"&&shot?.duration){
+    const p=Math.max(0,Math.min(1,(t-shot.start)/shot.duration));
+    leboX+=(p-.5)*28;jabuX+=(p-.5)*28;
+  }
+  const leboEmotion=dialogueCue?.speaker==="Lebo"?dialogueCue.emotion:(shot?.expressionFocus?.find?.(x=>x.speaker==="Lebo")?.emotion||"neutral");
+  const jabuEmotion=dialogueCue?.speaker==="Jabu"?dialogueCue.emotion:(shot?.expressionFocus?.find?.(x=>x.speaker==="Jabu")?.emotion||"neutral");
+  drawLebo(buf,width,height,leboX,horizon-183,.72*cameraScale,wave*4,leboMouthOpen,leboEmotion);
+  drawJabu(buf,width,height,jabuX,horizon-178,.75*cameraScale,-wave*3,jabuEmotion);
   // berry/jam accents
   if(sceneIndex>=1&&sceneIndex<=3){
     for(let i=0;i<9;i++)circle(buf,width,height,width*.47+(i%3)*14-14,horizon+7+Math.floor(i/3)*10,4,[111,54,124]);
@@ -167,7 +205,7 @@ function makeMixPlan(schedule,dialogue){
     dialogueCues:dialogue.map(c=>({sceneId:c.sceneId,speaker:c.speaker,startSeconds:c.startSeconds,endSeconds:c.endSeconds}))
   };
 }
-function qcReport(job,schedule,dialogue,total,mode){
+function qcReport(job,schedule,dialogue,shots,total,mode){
   const shotTiming=schedule.map(s=>{
     const shotSum=(Array.isArray(s.shots)?s.shots:[]).reduce((n,x)=>n+(Number(x.seconds)||0),0);
     return {sceneId:s.id,sceneSeconds:+s.duration.toFixed(3),shotSeconds:shotSum,withinTolerance:!s.shots||Math.abs(shotSum-(Number(s.durationSeconds)||0))<=1};
@@ -181,9 +219,13 @@ function qcReport(job,schedule,dialogue,total,mode){
     culturalGate:job.review?.culturalContext===true,
     factLinesIdentified:dialogue.some(x=>x.factReviewRequired===true),
     finalVoiceApproved:job.language?.finalVoiceApproved===true,
-    productionDuration:mode!=="production"||Math.abs(total-420)<=2
+    productionDuration:mode!=="production"||Math.abs(total-420)<=2,
+    shotPlanPresent:shots.length>=20,
+    framingVariety:new Set(shots.map(s=>s.framing)).size>=6,
+    expressionDirection:shots.some(s=>Array.isArray(s.expressionFocus)&&s.expressionFocus.length>0),
+    qualityBiblesBound:Boolean(job.productionPack?.qualityBibles?.voice&&job.productionPack?.qualityBibles?.sound&&job.productionPack?.qualityBibles?.animation)
   };
-  return {schema:"kora-kids.qc-report/v1",checks,shotTiming,passForGuide:Object.entries(checks).filter(([k])=>k!=="finalVoiceApproved").every(([,v])=>v===true),passForBroadcast:Object.values(checks).every(Boolean)};
+  return {schema:"kora-kids.qc-report/v2",checks,shotTiming,shotCount:shots.length,framingTypes:[...new Set(shots.map(s=>s.framing))],passForGuide:Object.entries(checks).filter(([k])=>k!=="finalVoiceApproved").every(([,v])=>v===true),passForBroadcast:Object.values(checks).every(Boolean)};
 }
 function wavTone(path,duration=3){
   const rate=22050,samples=Math.floor(rate*duration),data=Buffer.alloc(samples*2);
@@ -207,14 +249,16 @@ async function main(){
   if(total<=0) throw new Error("episode duration is zero");
   const schedule=sceneSchedule(job,total);
   const dialogue=dialogueSchedule(schedule,job.language.code);
+  const shots=shotSchedule(schedule);
   const lipSync=lipSyncFromDialogue(dialogue);
-  const qc=qcReport(job,schedule,dialogue,total,a.mode);
+  const qc=qcReport(job,schedule,dialogue,shots,total,a.mode);
   if(!qc.passForGuide) throw new Error("guide QC failed: "+Object.entries(qc.checks).filter(([k,v])=>k!=="finalVoiceApproved"&&v!==true).map(([k])=>k).join(", "));
   const silent=join(out,"episode-silent.mp4"),guide=join(out,"guide.wav"),final=join(out,"episode-guide.mp4"),captions=join(out,"captions.vtt"),cues=join(out,"voice-cues.json");
   await writeFile(captions,makeVtt(dialogue));
   await writeFile(cues,JSON.stringify({schema:"kora-kids.voice-cues/v2",series:job.series,episode:job.episode,guideOnly:true,cues:dialogue},null,2)+"\n");
   await writeFile(join(out,"lip-sync.json"),JSON.stringify({schema:"kora-kids.lip-sync/v1",guideOnly:true,cues:lipSync},null,2)+"\n");
   await writeFile(join(out,"mix-plan.json"),JSON.stringify(makeMixPlan(schedule,dialogue),null,2)+"\n");
+  await writeFile(join(out,"shot-plan.json"),JSON.stringify({schema:"kora-kids.shot-plan/v1",guideOnly:true,shots},null,2)+"\n");
   await writeFile(join(out,"qc-report.json"),JSON.stringify(qc,null,2)+"\n");
 
   const ff=[
@@ -230,7 +274,9 @@ async function main(){
         for(const s of schedule)if(t>=s.start&&t<s.end){sc=s;break}
         const local=(t-sc.start)/Math.max(.001,sc.duration);
         const mouthOpen=lipSync.some(x=>t>=x.startSeconds&&t<x.endSeconds);
-        const buf=frame(width,height,t,sc.index,local,mouthOpen);
+        const shot=activeAt(shots,t);
+        const dialogueCue=dialogue.find(x=>t>=x.startSeconds&&t<x.endSeconds)||null;
+        const buf=frame(width,height,t,sc.index,local,mouthOpen,shot,dialogueCue);
         if(!p.stdin.write(buf)) await new Promise(r=>p.stdin.once("drain",r));
       }
       p.stdin.end();
@@ -247,13 +293,13 @@ async function main(){
 
   await ffmpegRun(["-y","-i",silent,"-i",guide,"-map","0:v:0","-map","1:a:0","-c:v","copy","-c:a","aac","-af",`apad=pad_dur=${total}`,"-shortest","-metadata",`title=${safeText(job.series.title)} — ${safeText(job.episode.title)}`,"-metadata","comment=GUIDE ANIMATIC ONLY. Final voice, music, cultural review lock and broadcast QC remain required.",final]);
 
-  const files=["episode-silent.mp4","guide.wav","episode-guide.mp4","captions.vtt","voice-cues.json","lip-sync.json","mix-plan.json","qc-report.json"];
+  const files=["episode-silent.mp4","guide.wav","episode-guide.mp4","captions.vtt","voice-cues.json","lip-sync.json","mix-plan.json","shot-plan.json","qc-report.json"];
   const outputs={};for(const name of files){const p=join(out,name);outputs[name]={bytes:(await stat(p)).size,sha256:await sha(p)}}
   const manifest={
-    schema:"kora-kids.render-result/v2",createdAt:new Date().toISOString(),mode:a.mode,authoritativeTarget:"izakhono-local",
+    schema:"kora-kids.render-result/v3",createdAt:new Date().toISOString(),mode:a.mode,authoritativeTarget:"izakhono-local",
     series:job.series,episode:job.episode,language:job.language,dimensions:{width,height,fps,durationSeconds:total},
     guideAudio:{kind:guideKind,finalVoiceApproved:job.language?.finalVoiceApproved===true},broadcastMaster:qc.passForBroadcast===true,
-    qc:{passForGuide:qc.passForGuide,passForBroadcast:qc.passForBroadcast},
+    qc:{passForGuide:qc.passForGuide,passForBroadcast:qc.passForBroadcast,shotCount:qc.shotCount,framingTypes:qc.framingTypes},
     requiredBeforeBroadcast:["approved final voice master","approved original music master","fact lock","audio loudness QC","visual QC","caption QC"],
     outputs
   };
