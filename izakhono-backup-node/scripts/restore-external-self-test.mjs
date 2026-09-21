@@ -24,8 +24,11 @@ const out=createWriteStream(archive,{mode:0o600});
 out.write(Buffer.from("IZBK1"));
 out.write(iv);
 const tar=spawn("tar",["-C",resolve(root,"source"),"-cf","-","etc"],{stdio:["ignore","pipe","inherit"]});
-await pipeline(tar.stdout,cipher,out);
-await new Promise((resolvePromise,reject)=>tar.on("close",code=>code===0?resolvePromise():reject(new Error("tar failed"))));
+const tarDone=new Promise((resolvePromise,reject)=>{
+  tar.on("error",reject);
+  tar.on("close",code=>code===0?resolvePromise():reject(new Error("tar failed")));
+});
+await Promise.all([pipeline(tar.stdout,cipher,out),tarDone]);
 await new Promise(resolvePromise=>setImmediate(resolvePromise));
 const tag=cipher.getAuthTag();
 const append=createWriteStream(archive,{flags:"a"});
