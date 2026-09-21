@@ -69,6 +69,12 @@
       "deploy": "izakhono-owned-cloud/deploy-crowne-hair.sh"
     },
     {
+      "id": "izakhono-revenue-desk",
+      "hostnameEnv": "IZAKHONO_REVENUE_PUBLIC_HOST",
+      "defaultHostname": "revenue.domains.izakhonoafrica.co.za",
+      "deploy": "izakhono-owned-cloud/deploy-revenue-desk.sh"
+    },
+    {
       "id": "kora-kids",
       "hostnameEnv": "KORA_KIDS_PUBLIC_HOST",
       "defaultHostname": "korakids.domains.izakhonoafrica.co.za",
