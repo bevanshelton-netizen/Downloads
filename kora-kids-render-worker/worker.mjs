@@ -151,7 +151,8 @@ function lipSyncFromDialogue(cues){
     words.forEach((word,i)=>{
       const a=cue.startSeconds+dur*(i/Math.max(1,words.length));
       const b=cue.startSeconds+dur*((i+.72)/Math.max(1,words.length));
-      mouth.push({speaker:"Lebo",sceneId:cue.sceneId,word,shape:"open",startSeconds:+a.toFixed(3),endSeconds:+Math.min(cue.endSeconds,b).toFixed(3)});
+      const end=Math.max(a+.002,Math.min(cue.endSeconds,b));
+      mouth.push({speaker:"Lebo",sceneId:cue.sceneId,word,shape:"open",startSeconds:+a.toFixed(4),endSeconds:+end.toFixed(4)});
     });
   }
   return mouth;
