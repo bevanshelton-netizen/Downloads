@@ -8,7 +8,7 @@ if not exist "%STATE%" mkdir "%STATE%"
 
 echo.
 echo IZAKHONO OWNED PORTFOLIO GO-LIVE
-echo KORA Gospel TV + KORA Kids + Revenue Desk
+echo Gospel TV + KORA Kids + Revenue Desk + Memory Mania + Crowne by Netty
 echo.
 echo Downloading latest portfolio launcher...
 powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; Invoke-WebRequest -UseBasicParsing '%URL%' -OutFile '%SCRIPT%'"
