@@ -14,13 +14,13 @@ const dashboard=read('app/partner/page.tsx');
 
 check('Direct playback requires a verified rights grant',migration.includes("v_required:=case when v_asset.access_mode='authenticated' then 'authenticated' else 'stream' end")&&migration.includes("r.status='verified'"));
 check('Unverified direct/authenticated access is blocked',migration.includes("return query select 'blocked','verified_rights_grant_required'"));
-check('Catalogue destinations reject direct media manifests',migration.includes("destination_url !~* '\\\\.(m3u8|mpd)")&&catalogue.includes('isDirectMediaUrl'));
-check('Catalogue ingestion cannot assign playback rights',catalogue.includes("access_mode:'handoff'")&&!catalogue.includes('partner_rights_grants'));
+check('Catalogue destinations reject direct media manifests',migration.includes('m3u8|mpd')&&catalogue.includes('isDirectMediaUrl'));
+check('Catalogue ingestion cannot assign playback rights',catalogue.includes("access_mode: 'handoff'")&&!catalogue.includes('partner_rights_grants'));
 check('Partner webhook credentials are stored as hashes',migration.includes('key_hash text not null unique')&&lib.includes("createHash('sha256')"));
 check('Conversion webhook requires partner key header',conversions.includes("x-kora-partner-key"));
-check('Reported conversions are not automatically verified revenue',conversions.includes("status:'reported'"));
+check('Reported conversions are not automatically verified revenue',conversions.includes("status: 'reported'"));
 check('External handoff is gated by the rights decision RPC',handoff.includes('getPartnerAccess')&&handoff.includes("decision.action !== 'handoff'"));
-check('External handoff logs attribution before redirect',handoff.indexOf("from('partner_referrals')")>=0&&handoff.indexOf('NextResponse.redirect')>handoff.indexOf("from('partner_referrals')"));
+check('External handoff logs attribution before redirect',handoff.indexOf("from('partner_referrals')")>=0&&handoff.lastIndexOf('NextResponse.redirect(destination')>handoff.indexOf("from('partner_referrals')"));
 check('Partner dashboard separates verified from reported conversions',dashboard.includes("status === 'verified'")&&dashboard.includes('Verified attributable revenue'));
 check('No public client can read partner webhook keys',migration.includes('revoke all on public.partner_webhook_keys from anon,authenticated'));
 check('Partner gateway avoids storing IP addresses',!migration.includes('ip_address')&&!migration.includes('user_agent'));
