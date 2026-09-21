@@ -229,7 +229,8 @@ create policy "staff reads partner audit" on public.partner_audit_log for select
 
 grant select on public.media_partners,public.partner_memberships,public.partner_assets,public.partner_rights_grants,public.partner_referrals,public.partner_conversions,public.partner_catalogue_imports to authenticated;
 grant select on public.media_partners,public.partner_assets to anon;
-grant execute on function public.partner_asset_access(uuid,text) to anon,authenticated,service_role;
+revoke all on function public.partner_asset_access(uuid,text) from public,anon,authenticated;
+grant execute on function public.partner_asset_access(uuid,text) to service_role;
 revoke all on public.partner_webhook_keys from anon,authenticated;
 grant all on public.media_partners,public.partner_memberships,public.partner_assets,public.partner_rights_grants,public.partner_referrals,public.partner_conversions,public.partner_catalogue_imports,public.partner_webhook_keys,public.partner_audit_log to service_role;
 
