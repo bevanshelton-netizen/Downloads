@@ -32,6 +32,8 @@ jobs:
         run: |
           bash -n izakhono-owned-cloud/prove-growth-os-hybrid.sh
           bash -n izakhono-owned-cloud/select-growth-os-hybrid-route.sh
+      - name: Prepare IZAKHONO service group
+        run: sudo groupadd -f izakhono
       - name: Start owned and external test endpoints
         run: |
           cat > /tmp/hybrid-owned.mjs <<'NODE'
