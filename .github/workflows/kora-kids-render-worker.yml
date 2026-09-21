@@ -25,12 +25,17 @@ jobs:
       - name: Ensure local render tools
         run: |
           set -euo pipefail
+          need_install=0
+          command -v ffmpeg >/dev/null 2>&1 || need_install=1
+          command -v ffprobe >/dev/null 2>&1 || need_install=1
+          command -v espeak-ng >/dev/null 2>&1 || need_install=1
+          if [ "$need_install" -eq 1 ]; then
+            sudo apt-get update -qq
+            sudo apt-get install -y ffmpeg espeak-ng
+          fi
           ffmpeg -version >/dev/null
           ffprobe -version >/dev/null
-          if ! command -v espeak-ng >/dev/null 2>&1; then
-            sudo apt-get update -qq
-            sudo apt-get install -y espeak-ng
-          fi
+          espeak-ng --version >/dev/null
       - name: Validate worker syntax
         run: node --check kora-kids-render-worker/worker.mjs
       - name: Render approved Lebo & Jabu proof
