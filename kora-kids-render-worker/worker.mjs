@@ -57,7 +57,7 @@ function ellipse(buf,w,h,cx,cy,rx,ry,c){
   for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)if(((x-cx)*(x-cx))/rrX+((y-cy)*(y-cy))/rrY<=1)setPixel(buf,w,h,x,y,...c);
 }
 function circle(buf,w,h,cx,cy,r,c){ellipse(buf,w,h,cx,cy,r,r,c)}
-function drawLebo(buf,w,h,x,y,s,bob){
+function drawLebo(buf,w,h,x,y,s,bob,mouthOpen=false){
   const skin=[135,84,60],hair=[36,27,33],yellow=[255,207,63],red=[236,75,65],ink=[23,52,83],white=[255,255,255];
   y+=bob;
   ellipse(buf,w,h,x,y+68*s,34*s,38*s,skin);
@@ -68,6 +68,7 @@ function drawLebo(buf,w,h,x,y,s,bob){
   rect(buf,w,h,x-22*s,y+181*s,17*s,55*s,skin);rect(buf,w,h,x+6*s,y+181*s,17*s,55*s,skin);
   rect(buf,w,h,x-28*s,y+229*s,28*s,14*s,red);rect(buf,w,h,x+4*s,y+229*s,28*s,14*s,red);
   circle(buf,w,h,x-13*s,y+86*s,3*s,white);circle(buf,w,h,x+13*s,y+86*s,3*s,white);
+  if(mouthOpen) ellipse(buf,w,h,x,y+93*s,8*s,5*s,[111,46,52]); else rect(buf,w,h,x-7*s,y+92*s,14*s,2*s,[111,46,52]);
 }
 function drawJabu(buf,w,h,x,y,s,bob){
   const body=[185,192,198],ear=[210,215,219],leg=[160,169,176],ink=[23,52,83];
@@ -80,7 +81,7 @@ function drawJabu(buf,w,h,x,y,s,bob){
   rect(buf,w,h,x+84*s,y+93*s,16*s,68*s,body);
   ellipse(buf,w,h,x+90*s,y+160*s,12*s,18*s,body);
 }
-function frame(width,height,t,sceneIndex,sceneT){
+function frame(width,height,t,sceneIndex,sceneT,leboMouthOpen=false){
   const buf=Buffer.alloc(width*height*3);
   rect(buf,width,height,0,0,width,height,[116,220,255]);
   const horizon=Math.floor(height*.63);
@@ -97,7 +98,7 @@ function frame(width,height,t,sceneIndex,sceneT){
   if(sceneIndex===2){leboX+=Math.sin(t*7)*12;jabuX+=Math.sin(t*5)*16}
   if(sceneIndex===3){leboX-=sceneT*10;jabuX+=sceneT*8}
   if(sceneIndex===4){leboX=width*.42;jabuX=width*.64}
-  drawLebo(buf,width,height,leboX,horizon-183,.72,wave*4);
+  drawLebo(buf,width,height,leboX,horizon-183,.72,wave*4,leboMouthOpen);
   drawJabu(buf,width,height,jabuX,horizon-178,.75,-wave*3);
   // berry/jam accents
   if(sceneIndex>=1&&sceneIndex<=3){
@@ -117,8 +118,71 @@ function vttTime(sec){
   const ms=Math.max(0,Math.round(sec*1000)),h=Math.floor(ms/3600000),m=Math.floor(ms%3600000/60000),s=Math.floor(ms%60000/1000),r=ms%1000;
   return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")+":"+String(s).padStart(2,"0")+"."+String(r).padStart(3,"0");
 }
-function makeVtt(schedule){
-  return "WEBVTT\n\n"+schedule.map((s,i)=>`${i+1}\n${vttTime(s.start)} --> ${vttTime(s.end)}\n${safeText(s.action)}\n`).join("\n");
+function dialogueSchedule(schedule,language){
+  const cues=[];
+  for(const scene of schedule){
+    const lines=Array.isArray(scene.dialogue)&&scene.dialogue.length?scene.dialogue:[{speaker:"Narrator",text:scene.action,emotion:"guide"}];
+    const usable=Math.max(.5,scene.duration*.78),pad=scene.duration*.11;
+    const weights=lines.map(l=>Math.max(3,safeText(l.text).split(/\s+/).filter(Boolean).length));
+    const sum=weights.reduce((a,b)=>a+b,0);
+    let cursor=scene.start+pad;
+    lines.forEach((line,i)=>{
+      const dur=usable*(weights[i]/sum);
+      cues.push({
+        sceneId:scene.id,line:i+1,speaker:safeText(line.speaker)||"Narrator",text:safeText(line.text),
+        emotion:safeText(line.emotion),performance:safeText(line.performance),factReviewRequired:line.factReviewRequired===true,
+        startSeconds:+cursor.toFixed(3),endSeconds:+Math.min(scene.end-pad,cursor+dur).toFixed(3),
+        language,finalVoiceApproved:false
+      });
+      cursor+=dur;
+    });
+  }
+  return cues;
+}
+function makeVtt(cues){
+  return "WEBVTT\n\n"+cues.map((c,i)=>`${i+1}\n${vttTime(c.startSeconds)} --> ${vttTime(c.endSeconds)}\n${c.speaker}: ${c.text}\n`).join("\n");
+}
+function lipSyncFromDialogue(cues){
+  const mouth=[];
+  for(const cue of cues){
+    if(cue.speaker!=="Lebo") continue;
+    const words=cue.text.split(/\s+/).filter(Boolean);
+    const dur=Math.max(.1,cue.endSeconds-cue.startSeconds);
+    words.forEach((word,i)=>{
+      const a=cue.startSeconds+dur*(i/Math.max(1,words.length));
+      const b=cue.startSeconds+dur*((i+.72)/Math.max(1,words.length));
+      mouth.push({speaker:"Lebo",sceneId:cue.sceneId,word,shape:"open",startSeconds:+a.toFixed(3),endSeconds:+Math.min(cue.endSeconds,b).toFixed(3)});
+    });
+  }
+  return mouth;
+}
+function makeMixPlan(schedule,dialogue){
+  return {
+    schema:"kora-kids.mix-plan/v1",
+    dialogueBus:{target:"final-reviewed-voice",guideOnly:true},
+    musicBus:{originalMusicRequired:true,targetIntegratedLufs:-16,duckUnderDialogueDb:-7},
+    sfxBus:{targetPeakDbfs:-3},
+    scenes:schedule.map(s=>({sceneId:s.id,startSeconds:+s.start.toFixed(3),endSeconds:+s.end.toFixed(3),musicCue:s.musicCue||null,sfx:Array.isArray(s.sfx)?s.sfx:[]})),
+    dialogueCues:dialogue.map(c=>({sceneId:c.sceneId,speaker:c.speaker,startSeconds:c.startSeconds,endSeconds:c.endSeconds}))
+  };
+}
+function qcReport(job,schedule,dialogue,total,mode){
+  const shotTiming=schedule.map(s=>{
+    const shotSum=(Array.isArray(s.shots)?s.shots:[]).reduce((n,x)=>n+(Number(x.seconds)||0),0);
+    return {sceneId:s.id,sceneSeconds:+s.duration.toFixed(3),shotSeconds:shotSum,withinTolerance:!s.shots||Math.abs(shotSum-(Number(s.durationSeconds)||0))<=1};
+  });
+  const checks={
+    approvedJob:job.status==="approved"&&job.publishable===true,
+    ownedRender:job.renderTarget?.id==="izakhono-local"&&job.renderTarget?.mode==="owned",
+    dialoguePresent:dialogue.length>0&&dialogue.every(x=>x.speaker&&x.text),
+    shotTiming:shotTiming.every(x=>x.withinTolerance),
+    captionTiming:dialogue.every(x=>x.endSeconds>x.startSeconds&&x.startSeconds>=0&&x.endSeconds<=total+.01),
+    culturalGate:job.review?.culturalContext===true,
+    factLinesIdentified:dialogue.some(x=>x.factReviewRequired===true),
+    finalVoiceApproved:job.language?.finalVoiceApproved===true,
+    productionDuration:mode!=="production"||Math.abs(total-420)<=2
+  };
+  return {schema:"kora-kids.qc-report/v1",checks,shotTiming,passForGuide:Object.entries(checks).filter(([k])=>k!=="finalVoiceApproved").every(([,v])=>v===true),passForBroadcast:Object.values(checks).every(Boolean)};
 }
 function wavTone(path,duration=3){
   const rate=22050,samples=Math.floor(rate*duration),data=Buffer.alloc(samples*2);
@@ -141,10 +205,16 @@ async function main(){
   const width=proof?640:1920,height=proof?360:1080,fps=proof?12:24,total=proof?6:job.scenes.reduce((n,s)=>n+(Number(s.durationSeconds)||0),0);
   if(total<=0) throw new Error("episode duration is zero");
   const schedule=sceneSchedule(job,total);
+  const dialogue=dialogueSchedule(schedule,job.language.code);
+  const lipSync=lipSyncFromDialogue(dialogue);
+  const qc=qcReport(job,schedule,dialogue,total,a.mode);
+  if(!qc.passForGuide) throw new Error("guide QC failed: "+Object.entries(qc.checks).filter(([k,v])=>k!=="finalVoiceApproved"&&v!==true).map(([k])=>k).join(", "));
   const silent=join(out,"episode-silent.mp4"),guide=join(out,"guide.wav"),final=join(out,"episode-guide.mp4"),captions=join(out,"captions.vtt"),cues=join(out,"voice-cues.json");
-  await writeFile(captions,makeVtt(schedule));
-  const voiceCues=schedule.map(s=>({sceneId:s.id,startSeconds:+s.start.toFixed(3),endSeconds:+s.end.toFixed(3),language:job.language.code,voice:job.language.voice,guideText:safeText(s.action),finalVoiceApproved:false}));
-  await writeFile(cues,JSON.stringify({schema:"kora-kids.voice-cues/v1",series:job.series,episode:job.episode,guideOnly:true,cues:voiceCues},null,2)+"\n");
+  await writeFile(captions,makeVtt(dialogue));
+  await writeFile(cues,JSON.stringify({schema:"kora-kids.voice-cues/v2",series:job.series,episode:job.episode,guideOnly:true,cues:dialogue},null,2)+"\n");
+  await writeFile(join(out,"lip-sync.json"),JSON.stringify({schema:"kora-kids.lip-sync/v1",guideOnly:true,cues:lipSync},null,2)+"\n");
+  await writeFile(join(out,"mix-plan.json"),JSON.stringify(makeMixPlan(schedule,dialogue),null,2)+"\n");
+  await writeFile(join(out,"qc-report.json"),JSON.stringify(qc,null,2)+"\n");
 
   const ff=[
     "-y","-f","rawvideo","-pixel_format","rgb24","-video_size",`${width}x${height}`,"-framerate",String(fps),"-i","pipe:0",
@@ -158,14 +228,15 @@ async function main(){
         const t=i/fps;let sc=schedule[schedule.length-1];
         for(const s of schedule)if(t>=s.start&&t<s.end){sc=s;break}
         const local=(t-sc.start)/Math.max(.001,sc.duration);
-        const buf=frame(width,height,t,sc.index,local);
+        const mouthOpen=lipSync.some(x=>t>=x.startSeconds&&t<x.endSeconds);
+        const buf=frame(width,height,t,sc.index,local,mouthOpen);
         if(!p.stdin.write(buf)) await new Promise(r=>p.stdin.once("drain",r));
       }
       p.stdin.end();
     })().catch(e=>p.stdin.destroy(e));
   }});
 
-  const speech=safeText(job.episode.title+". "+job.scenes.map(s=>s.action).join(" "));
+  const speech=safeText(job.episode.title+". "+dialogue.map(c=>(c.speaker==="Lebo"?c.text:(c.performance||c.text))).join(" "));
   let guideKind="tone-fallback";
   if(commandExists("espeak-ng")){
     const r=spawnSync("espeak-ng",["-v","en","-s","160","-w",guide,speech],{stdio:"ignore"});
@@ -175,13 +246,14 @@ async function main(){
 
   await ffmpegRun(["-y","-i",silent,"-i",guide,"-map","0:v:0","-map","1:a:0","-c:v","copy","-c:a","aac","-af",`apad=pad_dur=${total}`,"-shortest","-metadata",`title=${safeText(job.series.title)} — ${safeText(job.episode.title)}`,"-metadata","comment=GUIDE ANIMATIC ONLY. Final voice, music, cultural review lock and broadcast QC remain required.",final]);
 
-  const files=["episode-silent.mp4","guide.wav","episode-guide.mp4","captions.vtt","voice-cues.json"];
+  const files=["episode-silent.mp4","guide.wav","episode-guide.mp4","captions.vtt","voice-cues.json","lip-sync.json","mix-plan.json","qc-report.json"];
   const outputs={};for(const name of files){const p=join(out,name);outputs[name]={bytes:(await stat(p)).size,sha256:await sha(p)}}
   const manifest={
-    schema:"kora-kids.render-result/v1",createdAt:new Date().toISOString(),mode:a.mode,authoritativeTarget:"izakhono-local",
+    schema:"kora-kids.render-result/v2",createdAt:new Date().toISOString(),mode:a.mode,authoritativeTarget:"izakhono-local",
     series:job.series,episode:job.episode,language:job.language,dimensions:{width,height,fps,durationSeconds:total},
-    guideAudio:{kind:guideKind,finalVoiceApproved:false},broadcastMaster:false,
-    requiredBeforeBroadcast:["approved final voice master","approved music master","cultural-context lock","audio loudness QC","visual QC","caption QC"],
+    guideAudio:{kind:guideKind,finalVoiceApproved:job.language?.finalVoiceApproved===true},broadcastMaster:qc.passForBroadcast===true,
+    qc:{passForGuide:qc.passForGuide,passForBroadcast:qc.passForBroadcast},
+    requiredBeforeBroadcast:["approved final voice master","approved original music master","fact lock","audio loudness QC","visual QC","caption QC"],
     outputs
   };
   await writeFile(join(out,"render-result.json"),JSON.stringify(manifest,null,2)+"\n");
