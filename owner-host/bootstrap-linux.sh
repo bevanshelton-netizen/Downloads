@@ -77,10 +77,23 @@ else
   chmod 0600 /etc/izakhono/cloudflare-tunnel.token
 fi
 
+OWNED_EDGE_STATE="NOT_ATTEMPTED"
+set +e
+IZAKHONO_PUBLIC_EXTRA_HOSTS="${IZAKHONO_PUBLIC_EXTRA_HOSTS:-growth.domains.izakhonoafrica.co.za}" \
+  bash izakhono-owned-cloud/activate-owned-public-edge.sh
+OWNED_EDGE_CODE=$?
+set -e
+case "$OWNED_EDGE_CODE" in
+  0) OWNED_EDGE_STATE="ACTIVE_HYBRID" ;;
+  20) OWNED_EDGE_STATE="PARENT_DNS_OR_ROUTER_REQUIRED" ;;
+  21) OWNED_EDGE_STATE="TLS_OR_PORTS_REQUIRED" ;;
+  *) OWNED_EDGE_STATE="FAILED_$OWNED_EDGE_CODE" ;;
+esac
+
 SOURCE_COMMIT="$(git rev-parse HEAD)"
-node - "$REPORT" "$SOURCE_COMMIT" "$TUNNEL_STATE" "$GROWTH_OS_STATE" <<'NODE'
+node - "$REPORT" "$SOURCE_COMMIT" "$TUNNEL_STATE" "$GROWTH_OS_STATE" "$OWNED_EDGE_STATE" <<'NODE'
 const fs=require("fs");
-const [path,commit,tunnel,growthOs]=process.argv.slice(2);
+const [path,commit,tunnel,growthOs,ownedEdge]=process.argv.slice(2);
 const body={
   schema:"izakhono.owner-host/v1",
   node_name:"ISN-01",
@@ -91,8 +104,9 @@ const body={
   fortress_private_control_plane:true,
   growth_os_v2:growthOs,
   tunnel_state:tunnel,
+  owned_public_edge_state:ownedEdge,
   source_of_truth:"IZAKHONO CODE after bootstrap migration",
-  public_ready:tunnel==="ACTIVE",
+  public_ready:tunnel==="ACTIVE"||ownedEdge==="ACTIVE_HYBRID",
   commercial_ready:false,
   generated_at:new Date().toISOString()
 };
@@ -104,10 +118,12 @@ chmod 0600 "$REPORT"
 echo
 echo "IZAKHONO OWNER HOST SOFTWARE: READY"
 echo "Owner-host receipt: $REPORT"
-if [ "$TUNNEL_STATE" = "ACTIVE" ]; then
-  echo "PUBLIC INGRESS: ACTIVE through the configured Cloudflare Tunnel"
+if [ "$OWNED_EDGE_STATE" = "ACTIVE_HYBRID" ]; then
+  echo "PUBLIC INGRESS: IZAKHONO-owned HTTPS ACTIVE; tunnel fallback remains available"
+elif [ "$TUNNEL_STATE" = "ACTIVE" ]; then
+  echo "PUBLIC INGRESS: ACTIVE through the configured tunnel; owned-edge state=$OWNED_EDGE_STATE"
 else
-  echo "PUBLIC INGRESS: one tunnel token is still required at /etc/izakhono/cloudflare-tunnel.token"
+  echo "PUBLIC INGRESS: owned-edge state=$OWNED_EDGE_STATE; tunnel token may still be required at /etc/izakhono/cloudflare-tunnel.token"
 fi
 echo "GROWTH OS v2: deployed to IZAKHONO RUNTIME and health-gated"
 echo "KORA and other applications remain behind their own readiness/payment gates until deployed."
