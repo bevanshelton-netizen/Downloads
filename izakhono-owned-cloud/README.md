@@ -182,3 +182,28 @@ Rollback to observation without removing witness enrollment:
     sudo bash set-witness-mode.sh standby observe
 
 Changing witness mode does **not** enable automatic DNS or route failover. FAILOVER NODE remains the promotion/control plane and public route switching stays explicit until the physical multi-host cutover has been proven.
+
+
+## Physical HA acceptance
+
+Once the real primary, warm standby and independent witness are installed and enrolled, run the non-destructive physical certification from an operator machine with SSH access:
+
+    export IZAKHONO_HA_PRIMARY_SSH=<ssh-target-for-primary>
+    export IZAKHONO_HA_STANDBY_SSH=<ssh-target-for-standby>
+    export IZAKHONO_HA_WITNESS_SSH=<ssh-target-for-witness>
+    export IZAKHONO_HA_MAX_REPLICA_AGE_MINUTES=1440
+    bash prove-physical-ha.sh
+
+The command requires non-interactive sudo over the approved administration path and deliberately performs **no shutdown, no promotion, no DNS change and no route switch**.
+
+It refuses HA certification unless:
+- primary, standby and witness are three distinct machine identities;
+- the primary first-host proof is PASS;
+- FORTRESS is healthy;
+- primary RUNTIME and EDGE hold the same valid signed witness lease/fencing token;
+- standby is prepared, non-public and fail-closed for writes without leadership;
+- a replicated encrypted backup has been cryptographically verified and staged without touching live directories;
+- the recovery point is within the chosen RPO age;
+- witness health and Ed25519 arbitration safety flags are valid.
+
+A PASS produces `IZAKHONO-PHYSICAL-HA-PROOF.json` with status `READY_FOR_CONTROLLED_FAILOVER_DRILL`. The actual destructive failover drill remains a separate, deliberate operator event.

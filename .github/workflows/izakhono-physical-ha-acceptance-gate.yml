@@ -1,0 +1,35 @@
+name: IZAKHONO PHYSICAL HA Acceptance Gate
+
+on:
+  push:
+    branches: [build/physical-ha-acceptance]
+    paths:
+      - "izakhono-owned-cloud/prove-physical-ha.sh"
+      - ".github/workflows/izakhono-physical-ha-acceptance-gate.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "izakhono-owned-cloud/prove-physical-ha.sh"
+      - ".github/workflows/izakhono-physical-ha-acceptance-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate physical HA acceptance script
+        run: bash -n izakhono-owned-cloud/prove-physical-ha.sh
+      - name: Verify non-destructive acceptance boundary
+        run: |
+          grep -q 'destructive_cutover_performed:false' izakhono-owned-cloud/prove-physical-ha.sh
+          grep -q 'READY_FOR_CONTROLLED_FAILOVER_DRILL' izakhono-owned-cloud/prove-physical-ha.sh
+          grep -q 'three distinct machine identities' izakhono-owned-cloud/prove-physical-ha.sh
+          grep -q 'FORTRESS' izakhono-owned-cloud/prove-physical-ha.sh
+          grep -q 'standby_fail_closed_probe' izakhono-owned-cloud/prove-physical-ha.sh
+          ! grep -q 'systemctl stop' izakhono-owned-cloud/prove-physical-ha.sh
+          ! grep -q '/approve' izakhono-owned-cloud/prove-physical-ha.sh
+          ! grep -q 'ROUTE_SWITCHED' izakhono-owned-cloud/prove-physical-ha.sh
