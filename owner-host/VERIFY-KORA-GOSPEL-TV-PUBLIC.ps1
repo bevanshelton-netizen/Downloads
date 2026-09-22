@@ -77,8 +77,8 @@ try {
 if ($page.StatusCode -ne 200) {
     Fail 24 ("Public Gospel TV page returned status {0}." -f $page.StatusCode)
 }
-if ($page.Content -notmatch "(?i)KORA" -or $page.Content -notmatch "(?i)GOSPEL") {
-    Fail 24 "Public page loaded, but expected KORA Gospel branding was not found."
+if ($page.Content -notmatch "(?i)YHVH" -or $page.Content -notmatch "(?i)GOSPEL") {
+    Fail 24 "Public page loaded, but expected YHVH Gospel TV branding was not found."
 }
 Add-Line "Public Gospel TV page: PASS"
 
