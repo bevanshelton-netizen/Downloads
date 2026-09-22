@@ -177,6 +177,36 @@ footer .brand img{width:64px;height:64px}
 @media(max-width:900px){.heroLogo{width:min(310px,65%)}.stageArt{right:-5%;top:20%;width:52%}.stage{min-height:590px}.stage h1{font-size:clamp(3rem,12vw,5.2rem)}}
 @media(max-width:560px){.launchRibbon{font-size:.61rem;letter-spacing:.09em}.stage{min-height:670px}.heroLogo{top:22px;left:22px;width:72%}.stageArt{width:78%;right:-25%;top:17%;opacity:.55}.stageContent{padding:24px}.stage h1{font-size:3.55rem}.stage p{font-size:.96rem}.revenueShell{padding:22px}.section{padding:48px 0}}
 
+
+/* Photography + visual storytelling */
+.heroPhoto{position:absolute;inset:0;z-index:1;width:100%;height:100%;object-fit:cover;object-position:center 45%;opacity:.42;filter:saturate(.82) contrast(1.04)}
+.heroPhotoShade{position:absolute;inset:0;z-index:2;background:linear-gradient(90deg,rgba(5,12,24,.96) 0%,rgba(5,12,24,.78) 45%,rgba(5,12,24,.28) 77%,rgba(5,12,24,.58) 100%),linear-gradient(180deg,rgba(5,12,24,.04),rgba(5,12,24,.88))}
+.heroLogo,.stageArt,.stageContent{z-index:4}
+.visualStory{display:grid;grid-template-columns:1.18fr .82fr;grid-template-rows:260px 260px;gap:16px;margin-top:28px}
+.photoTile{position:relative;overflow:hidden;border-radius:26px;border:1px solid rgba(245,196,81,.13);background:#0b1729;box-shadow:0 20px 52px rgba(0,0,0,.2)}
+.photoTile.large{grid-row:1/3}
+.photoTile img{width:100%;height:100%;display:block;object-fit:cover;transition:transform .6s ease,filter .4s ease;filter:saturate(.88) contrast(1.04)}
+.photoTile:hover img{transform:scale(1.035);filter:saturate(1) contrast(1.05)}
+.photoTile:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 38%,rgba(3,8,16,.88) 100%)}
+.photoCaption{position:absolute;z-index:2;left:22px;right:22px;bottom:18px}
+.photoCaption small{display:block;text-transform:uppercase;letter-spacing:.13em;color:#f7d681;font-weight:800;font-size:.66rem;margin-bottom:6px}
+.photoCaption strong{font-family:"Cormorant Garamond",Georgia,serif;font-size:1.72rem;line-height:1;color:#fff8e8}
+.show.hasPhoto{background:#0a1424}
+.show.hasPhoto .showBg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.48;filter:saturate(.82)}
+.show.hasPhoto:before{display:none}
+.show.hasPhoto:after{background:linear-gradient(180deg,rgba(4,10,20,.08) 0%,rgba(4,10,20,.25) 35%,rgba(4,10,20,.96) 100%)}
+.show.hasPhoto .showIcon,.show.hasPhoto h3,.show.hasPhoto p{z-index:2}
+.prayerMedia{position:relative;overflow:hidden;border-radius:24px;min-height:420px;border:1px solid rgba(245,196,81,.13)}
+.prayerMedia img{width:100%;height:100%;position:absolute;inset:0;object-fit:cover;filter:saturate(.82);opacity:.74}
+.prayerMedia:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,12,24,.05),rgba(5,12,24,.82))}
+.prayerMediaCopy{position:absolute;z-index:2;left:24px;right:24px;bottom:24px}
+.prayerMediaCopy strong{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:2.1rem;line-height:1;color:#fff8e8;margin-bottom:8px}
+.prayerMediaCopy span{color:#d6e0ec;line-height:1.5}
+.photoCredit{font-size:.67rem;color:#8090a6;margin-top:12px;line-height:1.55}
+.photoCredit a{color:#b8c5d8;text-decoration:underline;text-decoration-color:rgba(184,197,216,.35)}
+@media(max-width:900px){.visualStory{grid-template-columns:1fr 1fr;grid-template-rows:360px 220px}.photoTile.large{grid-column:1/3;grid-row:auto}.prayerGrid{grid-template-columns:1fr}.prayerMedia{min-height:360px}}
+@media(max-width:560px){.visualStory{display:grid;grid-template-columns:1fr;grid-template-rows:none}.photoTile,.photoTile.large{grid-column:auto;grid-row:auto;min-height:250px}.photoTile.large{min-height:360px}.heroPhoto{object-position:62% 45%;opacity:.34}.prayerMedia{min-height:300px}}
+
 </style>
 </head>
 <body>
@@ -194,6 +224,8 @@ footer .brand img{width:64px;height:64px}
 <section class="hero" id="watch">
 <div class="wrap heroGrid">
   <div class="stage">
+    <img class="heroPhoto" src="https://images.unsplash.com/photo-1729548627958-ea4900cb6645?auto=format&fit=crop&q=82&w=1800" alt="Worshippers gathered with hands raised during praise">
+    <div class="heroPhotoShade"></div>
     <div class="rays"></div>
     <img class="heroLogo" src="/Downloads/kora-network/public/images/yhvh-gospel-tv-logo-dove.png" alt="YHVH Gospel TV — dove and open Bible">
     <div class="stageArt" aria-hidden="true"><div class="orbit"></div><div class="halo"></div></div>
@@ -230,6 +262,28 @@ footer .brand img{width:64px;height:64px}
 </div>
 </section>
 
+<section class="section" id="stories">
+<div class="wrap">
+  <div class="eyebrow">See the Gospel. Feel the moment.</div>
+  <h2>Worship, the Word and Gospel voices — visually alive.</h2>
+  <p class="sectionIntro">The channel experience should feel like stepping into worship, a live Gospel performance and a global Christian community — not reading a brochure.</p>
+  <div class="visualStory">
+    <figure class="photoTile large">
+      <img loading="lazy" src="https://images.unsplash.com/photo-1689844759889-f8d92bd8a03a?auto=format&fit=crop&q=82&w=1500" alt="Church worship gathering in Johannesburg, South Africa">
+      <figcaption class="photoCaption"><small>Johannesburg • Worship</small><strong>Faith lives in real communities.</strong></figcaption>
+    </figure>
+    <figure class="photoTile">
+      <img loading="lazy" src="https://images.unsplash.com/photo-1745852738196-4dfed8cbd691?auto=format&fit=crop&q=82&w=1200" alt="Gospel choir performing on stage">
+      <figcaption class="photoCaption"><small>Choirs • Live performance</small><strong>The sound of Gospel.</strong></figcaption>
+    </figure>
+    <figure class="photoTile">
+      <img loading="lazy" src="https://images.unsplash.com/photo-1777421389422-519764272b2f?auto=format&fit=crop&q=82&w=1200" alt="Open Bible held in warm sunlight">
+      <figcaption class="photoCaption"><small>Scripture • The Word</small><strong>Rooted in the Word.</strong></figcaption>
+    </figure>
+  </div>
+</div>
+</section>
+
 <section class="section" id="revenue">
 <div class="wrap">
 <div class="revenueShell">
@@ -255,12 +309,12 @@ footer .brand img{width:64px;height:64px}
   <h2>A full Gospel television schedule.</h2>
   <p class="sectionIntro">Built as a real channel, not a playlist: recurring shows, daily blocks, premieres, live services, children’s programming, documentaries, interviews and late-night worship.</p><div class="globalRibbon"><span>Africa</span><span>Americas</span><span>Europe</span><span>Asia</span><span>Caribbean</span><span>Pacific</span><span>Every nation welcome</span></div>
   <div class="grid4">
-    <article class="show" style="--accent:#f1b943"><div class="showIcon">☼</div><h3>Morning Glory</h3><p>Sunrise worship, scripture, devotion and prayer to start the day.</p></article>
+    <article class="show hasPhoto"><img class="showBg" loading="lazy" src="https://images.unsplash.com/photo-1777421389422-519764272b2f?auto=format&fit=crop&q=76&w=900" alt=""><div class="showIcon">☼</div><h3>Morning Glory</h3><p>Sunrise worship, scripture, devotion and prayer to start the day.</p></article>
     <article class="show" style="--accent:#7d1538"><div class="showIcon">✦</div><h3>The Word</h3><p>Preaching and teaching from trusted pastors and ministries across Africa and beyond.</p></article>
-    <article class="show" style="--accent:#5f3aa8"><div class="showIcon">♫</div><h3>Gospel Africa</h3><p>Music videos, live sessions, choirs, worship teams and artist premieres.</p></article>
-    <article class="show" style="--accent:#26856f"><div class="showIcon">◎</div><h3>Faith Without Borders</h3><p>Global Christian stories, missionaries, community impact and conversations.</p></article>
+    <article class="show hasPhoto"><img class="showBg" loading="lazy" src="https://images.unsplash.com/photo-1745852738196-4dfed8cbd691?auto=format&fit=crop&q=76&w=900" alt=""><div class="showIcon">♫</div><h3>Gospel Africa</h3><p>Music videos, live sessions, choirs, worship teams and artist premieres.</p></article>
+    <article class="show hasPhoto"><img class="showBg" loading="lazy" src="https://images.unsplash.com/photo-1689844759889-f8d92bd8a03a?auto=format&fit=crop&q=76&w=900" alt=""><div class="showIcon">◎</div><h3>Faith Without Borders</h3><p>Global Christian stories, missionaries, community impact and conversations.</p></article>
     <article class="show" style="--accent:#b45629"><div class="showIcon">♡</div><h3>Gospel Kids</h3><p>Safe Bible stories, music, values, animation and family faith programming.</p></article>
-    <article class="show" style="--accent:#3b6599"><div class="showIcon">◇</div><h3>Testimony Hour</h3><p>Real stories of hope, recovery, restoration, faith and changed lives.</p></article>
+    <article class="show hasPhoto"><img class="showBg" loading="lazy" src="https://images.unsplash.com/photo-1767812119961-1a294e500535?auto=format&fit=crop&q=76&w=900" alt=""><div class="showIcon">◇</div><h3>Testimony Hour</h3><p>Real stories of hope, recovery, restoration, faith and changed lives.</p></article>
     <article class="show" style="--accent:#936c20"><div class="showIcon">♬</div><h3>Choirs of Africa</h3><p>Church choirs, mass choirs, traditional Gospel and powerful live performances.</p></article>
     <article class="show" style="--accent:#833e79"><div class="showIcon">✧</div><h3>Revival Nights</h3><p>Evening worship, live church services, crusades, conferences and altar moments.</p></article>
   </div>
@@ -327,6 +381,10 @@ footer .brand img{width:64px;height:64px}
     <div>
       <div class="eyebrow">Prayer line</div><h2>Send a prayer request.</h2>
       <p class="sectionIntro">Prayer requests can be received privately for the ministry team. Nothing is placed on air without explicit permission.</p>
+      <div class="prayerMedia">
+        <img loading="lazy" src="https://images.unsplash.com/photo-1767812119961-1a294e500535?auto=format&fit=crop&q=82&w=1200" alt="A hand reaching toward warm beams of light">
+        <div class="prayerMediaCopy"><strong>Hope. Prayer. New beginnings.</strong><span>A private place to ask for prayer — with on-air sharing only when you explicitly permit it.</span></div>
+      </div>
       <div class="metrics"><div class="metric"><b>24/7</b><span>Gospel schedule</span></div><div class="metric"><b>LIVE</b><span>Church broadcasts</span></div><div class="metric"><b>GLOBAL</b><span>Digital reach</span></div><div class="metric"><b>SAFE</b><span>Family lanes</span></div></div>
     </div>
     <form id="prayerForm">
@@ -354,7 +412,7 @@ footer .brand img{width:64px;height:64px}
 </main>
 
 <footer><div class="wrap footerGrid">
-  <div><div class="brand"><img src="/Downloads/kora-network/public/images/yhvh-gospel-tv-logo-dove.png" alt="YHVH Gospel TV"><span>YHVH GOSPEL TV<small>AFRICA TO THE WORLD</small></span></div><p class="notice">A Gospel-only digital television network. Broadcast rights, music rights, participant releases and ministry permissions must be cleared before publication or transmission.</p></div>
+  <div><div class="brand"><img src="/Downloads/kora-network/public/images/yhvh-gospel-tv-logo-dove.png" alt="YHVH Gospel TV"><span>YHVH GOSPEL TV<small>AFRICA TO THE WORLD</small></span></div><p class="notice">A Gospel-only digital television network. Broadcast rights, music rights, participant releases and ministry permissions must be cleared before publication or transmission.</p><p class="photoCredit">Selected photography via Unsplash: <a href="https://unsplash.com/@sydneysibanda" target="_blank" rel="noopener noreferrer">Sydney Sibanda</a>, <a href="https://unsplash.com/@philhearing" target="_blank" rel="noopener noreferrer">Phil Hearing</a>, <a href="https://unsplash.com/@christopherstites" target="_blank" rel="noopener noreferrer">Christopher Stites</a> and <a href="https://unsplash.com/@cherstve_pechivo" target="_blank" rel="noopener noreferrer">Liana S</a>.</p></div>
   <div><h4>Watch</h4><a href="#watch">Live Channel</a><a href="#guide">TV Guide</a><a href="#shows">Programmes</a></div>
   <div><h4>Join</h4><a href="#submit">Submit Content</a><a href="#submit">Partner</a><a href="#prayer">Prayer Request</a></div>
   <div><h4>Network</h4><a href="#submit">Churches</a><a href="#submit">Artists & Choirs</a><a href="#submit">Sponsors</a></div>
