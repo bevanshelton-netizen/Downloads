@@ -61,8 +61,179 @@ test -f "$RELEASE/package.json" || fail "LegacyMart package.json missing"
 node --check "$RELEASE/server.js"
 node --check "$RELEASE/marketplace-pay.js"
 
-ENV_FILE=""
-if [ -f "$APP_ENV" ]; then ENV_FILE="$APP_ENV"; fi
+if [ ! -f "$APP_ENV" ]; then
+  sudo mkdir -p "$(dirname "$APP_ENV")"
+  TMP_APP_ENV="$(mktemp)"
+  cat > "$TMP_APP_ENV" <<EOF
+BASE_URL=https://$HOSTNAME
+PAYFAST_MODE=sandbox
+CHECKOUT_ENABLED=false
+REFERENCE_CHECKOUT_ENABLED=false
+MARKETPLACE_FEE_PERCENT=8
+IZAKHONO_PAY_URL=http://127.0.0.1:18100
+IZAKHONO_PAY_APP_SLUG=legacymart-makers
+IZAKHONO_PAY_API_KEY=
+IZAKHONO_PAY_CALLBACK_SECRET=
+EOF
+  sudo install -o root -g izakhono -m 0640 "$TMP_APP_ENV" "$APP_ENV"
+  rm -f "$TMP_APP_ENV"
+fi
+
+grep -q '^PAYFAST_MODE=sandbox"$(node - "$APP" "$HOSTNAME" "$RELEASE" "$ENV_FILE" <<'NODE'
+const [app,hostname,releasePath,envFile]=process.argv.slice(2);
+process.stdout.write(JSON.stringify({
+  app,hostname,releasePath,
+  command:["node","server.js"],
+  envFile:envFile||null,
+  healthPath:"/health"
+}));
+NODE
+)"
+
+RESPONSE="$(curl -fsS -X POST "$CONTROL_URL/v1/deployments"   -H "content-type: application/json" -H "x-izakhono-key: $RUNTIME_KEY" --data-binary "$BODY")"
+DEPLOYMENT_ID="$(node -e 'const x=JSON.parse(process.argv[1]);if(!x.id)process.exit(2);process.stdout.write(x.id)' "$RESPONSE")"
+
+HEALTH="$(curl -fsS -H "Host: $HOSTNAME" "$PROXY_URL/health")"
+node -e 'const x=JSON.parse(process.argv[1]);if(x.ok!==true||x.service!=="LegacyMart"||x.checkout_enabled!==false)process.exit(2)' "$HEALTH"
+curl -fsS -H "Host: $HOSTNAME" "$PROXY_URL/shop?seller=bevan-shelton" | grep -Fq "BEVAN SHELTON"
+
+EDGE="NOT_RUNNING"
+if systemctl is-active --quiet izakhono-edge-node 2>/dev/null; then
+  if curl -fsS -H "Host: $HOSTNAME" "$EDGE_URL/health" >/tmp/legacymart-edge-health.json 2>/dev/null; then
+    EDGE="VERIFIED"
+  else
+    EDGE="RUNNING_NOT_VERIFIED"
+  fi
+fi
+
+PUBLIC_HTTPS="NOT_VERIFIED"
+if curl -fsS --max-time 8 "https://$HOSTNAME/health" >/tmp/legacymart-public-health.json 2>/dev/null; then
+  if node -e 'const x=require("/tmp/legacymart-public-health.json");if(x.ok!==true||x.service!=="LegacyMart")process.exit(2)' 2>/dev/null; then
+    PUBLIC_HTTPS="VERIFIED"
+  fi
+fi
+
+TMP_REPORT="$(mktemp)"
+node - "$TMP_REPORT" "$HOSTNAME" "$RESOLVED" "$DEPLOYMENT_ID" "$EDGE" "$PUBLIC_HTTPS" <<'NODE'
+const fs=require("fs");
+const [path,hostname,revision,deploymentId,edge,publicHttps]=process.argv.slice(2);
+fs.writeFileSync(path,JSON.stringify({
+  schema:"izakhono.legacymart-deployment/v1",
+  app:"legacymart",
+  product:"LegacyMart Makers",
+  reference_shop:"BEVAN SHELTON™",
+  hostname,revision,
+  deployment_id:deploymentId,
+  source:"IZAKHONO_CODE",
+  runtime:"IZAKHONO_RUNTIME",
+  edge,
+  public_https:publicHttps,
+  external_fallback_preserved:true,
+  payment_activation:"environment-gated",
+  legacy_checkout_enabled:false,
+  generated_at:new Date().toISOString()
+},null,2)+"\n");
+NODE
+sudo install -o root -g izakhono -m 0640 "$TMP_REPORT" "$REPORT"
+rm -f "$TMP_REPORT"
+
+cat <<EOF
+LEGACYMART MAKERS OWNED DEPLOYMENT
+APP=$APP
+HOSTNAME=$HOSTNAME
+REVISION=$RESOLVED
+DEPLOYMENT_ID=$DEPLOYMENT_ID
+SOURCE=IZAKHONO_CODE
+RUNTIME_HEALTH=VERIFIED
+EDGE=$EDGE
+PUBLIC_HTTPS=$PUBLIC_HTTPS
+REFERENCE_SHOP=BEVAN_SHELTON
+PAYMENT_ACTIVATION=ENVIRONMENT_GATED
+RECEIPT=$REPORT
+EXTERNAL_FALLBACK=PRESERVED
+EOF
+ "$APP_ENV" || fail "Legacy PayFast mode must remain sandbox on the reference pilot"
+grep -q '^CHECKOUT_ENABLED=false"$(node - "$APP" "$HOSTNAME" "$RELEASE" "$ENV_FILE" <<'NODE'
+const [app,hostname,releasePath,envFile]=process.argv.slice(2);
+process.stdout.write(JSON.stringify({
+  app,hostname,releasePath,
+  command:["node","server.js"],
+  envFile:envFile||null,
+  healthPath:"/health"
+}));
+NODE
+)"
+
+RESPONSE="$(curl -fsS -X POST "$CONTROL_URL/v1/deployments"   -H "content-type: application/json" -H "x-izakhono-key: $RUNTIME_KEY" --data-binary "$BODY")"
+DEPLOYMENT_ID="$(node -e 'const x=JSON.parse(process.argv[1]);if(!x.id)process.exit(2);process.stdout.write(x.id)' "$RESPONSE")"
+
+HEALTH="$(curl -fsS -H "Host: $HOSTNAME" "$PROXY_URL/health")"
+node -e 'const x=JSON.parse(process.argv[1]);if(x.ok!==true||x.service!=="LegacyMart")process.exit(2)' "$HEALTH"
+curl -fsS -H "Host: $HOSTNAME" "$PROXY_URL/shop?seller=bevan-shelton" | grep -Fq "BEVAN SHELTON"
+
+EDGE="NOT_RUNNING"
+if systemctl is-active --quiet izakhono-edge-node 2>/dev/null; then
+  if curl -fsS -H "Host: $HOSTNAME" "$EDGE_URL/health" >/tmp/legacymart-edge-health.json 2>/dev/null; then
+    EDGE="VERIFIED"
+  else
+    EDGE="RUNNING_NOT_VERIFIED"
+  fi
+fi
+
+PUBLIC_HTTPS="NOT_VERIFIED"
+if curl -fsS --max-time 8 "https://$HOSTNAME/health" >/tmp/legacymart-public-health.json 2>/dev/null; then
+  if node -e 'const x=require("/tmp/legacymart-public-health.json");if(x.ok!==true||x.service!=="LegacyMart")process.exit(2)' 2>/dev/null; then
+    PUBLIC_HTTPS="VERIFIED"
+  fi
+fi
+
+TMP_REPORT="$(mktemp)"
+node - "$TMP_REPORT" "$HOSTNAME" "$RESOLVED" "$DEPLOYMENT_ID" "$EDGE" "$PUBLIC_HTTPS" <<'NODE'
+const fs=require("fs");
+const [path,hostname,revision,deploymentId,edge,publicHttps]=process.argv.slice(2);
+fs.writeFileSync(path,JSON.stringify({
+  schema:"izakhono.legacymart-deployment/v1",
+  app:"legacymart",
+  product:"LegacyMart Makers",
+  reference_shop:"BEVAN SHELTON™",
+  hostname,revision,
+  deployment_id:deploymentId,
+  source:"IZAKHONO_CODE",
+  runtime:"IZAKHONO_RUNTIME",
+  edge,
+  public_https:publicHttps,
+  external_fallback_preserved:true,
+  payment_activation:"environment-gated",
+  generated_at:new Date().toISOString()
+},null,2)+"\n");
+NODE
+sudo install -o root -g izakhono -m 0640 "$TMP_REPORT" "$REPORT"
+rm -f "$TMP_REPORT"
+
+cat <<EOF
+LEGACYMART MAKERS OWNED DEPLOYMENT
+APP=$APP
+HOSTNAME=$HOSTNAME
+REVISION=$RESOLVED
+DEPLOYMENT_ID=$DEPLOYMENT_ID
+SOURCE=IZAKHONO_CODE
+RUNTIME_HEALTH=VERIFIED
+EDGE=$EDGE
+PUBLIC_HTTPS=$PUBLIC_HTTPS
+REFERENCE_SHOP=BEVAN_SHELTON
+PAYMENT_ACTIVATION=ENVIRONMENT_GATED
+RECEIPT=$REPORT
+EXTERNAL_FALLBACK=PRESERVED
+EOF
+ "$APP_ENV" || fail "Legacy ebook checkout must remain disabled on the reference pilot"
+REFERENCE_ENABLED="$(awk -F= '$1=="REFERENCE_CHECKOUT_ENABLED"{print tolower($2);exit}' "$APP_ENV")"
+if [ "$REFERENCE_ENABLED" = "true" ]; then
+  API_KEY="$(awk -F= '$1=="IZAKHONO_PAY_API_KEY"{sub(/^[^=]*=/,"");print;exit}' "$APP_ENV")"
+  CALLBACK_SECRET="$(awk -F= '$1=="IZAKHONO_PAY_CALLBACK_SECRET"{sub(/^[^=]*=/,"");print;exit}' "$APP_ENV")"
+  [ -n "$API_KEY" ] || fail "Reference checkout enabled without IZAKHONO PAY API key"
+  [ -n "$CALLBACK_SECRET" ] || fail "Reference checkout enabled without IZAKHONO PAY callback secret"
+fi
+ENV_FILE="$APP_ENV"
 
 BODY="$(node - "$APP" "$HOSTNAME" "$RELEASE" "$ENV_FILE" <<'NODE'
 const [app,hostname,releasePath,envFile]=process.argv.slice(2);
