@@ -34,7 +34,7 @@ From the repository root:
     cd izakhono-owned-cloud
     sudo bash install-owned-stack.sh
 
-The installer validates Node 22.13+, installs DATA, RUNTIME, OBJECT, QUEUE, AUTH, ANALYTICS, NOTIFY, AI GATEWAY, CODE, PACKAGE, CI WORKER, BACKUP, REPLICA and FAILOVER, and installs EDGE only when a TLS certificate/key already exist. It never creates paid cloud resources and never prints generated service secrets.
+The installer validates Node 22.13+, installs DATA, RUNTIME, OBJECT, QUEUE, AUTH, ANALYTICS, NOTIFY, AI GATEWAY, CODE, PACKAGE, CI WORKER, BACKUP, REPLICA, FAILOVER and DNS in safe loopback mode, and installs EDGE only when TLS or tunnel mode is available. It never creates paid cloud resources and never prints generated service secrets.
 
 ## TLS
 
@@ -124,7 +124,7 @@ That installs the full stack, configures Growth OS, creates the encrypted core b
 
 Owned Cloud eliminates the software subscription requirement for these sixteen infrastructure layers, but running infrastructure still requires hardware, disks, backups, power and internet connectivity.
 
-IZAKHONO DNS NODE can own authoritative DNS after the parent/registrar delegates a zone to it. Public domain registration/delegation authority, a trusted certificate authority relationship, upstream ISP connectivity and large-scale DDoS scrubbing remain external network realities. The first safe cutover uses the child zone domains.izakhonoafrica.co.za so existing apex mail/TXT/web records are not disturbed.
+IZAKHONO DNS NODE is installed on the primary in safe loopback mode first. It can later own public authoritative DNS only after the parent/registrar delegates a zone to it. Public domain registration/delegation authority, a trusted certificate authority relationship, upstream ISP connectivity and large-scale DDoS scrubbing remain external network realities. The first safe cutover uses the child zone domains.izakhonoafrica.co.za so existing apex mail/TXT/web records are not disturbed.
 
 
 ## Live failover safety
