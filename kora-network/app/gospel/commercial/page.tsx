@@ -2,7 +2,7 @@ import Link from 'next/link';
 import CommercialLead from './commercial-client';
 
 export const metadata={
-  title:'Sponsor & Advertise — YHVH GOSPEL TV',
+  title:{ absolute:'Sponsor & Advertise — YHVH GOSPEL TV' },
   description:'Commercial partnerships, sponsorship, event broadcast, distribution and production opportunities with YHVH GOSPEL TV.'
 };
 
