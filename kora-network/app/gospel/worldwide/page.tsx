@@ -12,7 +12,7 @@ const regions = [
 const languages = ['English','French','Portuguese','Spanish','Swahili','isiZulu','isiXhosa','Arabic','Hindi','Indonesian','Simplified Chinese','Yoruba','Hausa'];
 
 export const metadata = {
-  title: 'YHVH GOSPEL TV Worldwide',
+  title: { absolute: 'YHVH GOSPEL TV Worldwide' },
   description: 'Global YHVH GOSPEL TV distribution, languages and regional broadcast architecture.'
 };
 
