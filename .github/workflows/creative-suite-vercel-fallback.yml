@@ -26,17 +26,24 @@ jobs:
       PROJECT_NAME: izakhono-creative-suite
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - name: Require existing Vercel account credentials
+      - name: Check external fallback credential
+        id: credential
+        shell: bash
         run: |
-          test -n "$VERCEL_TOKEN" || { echo "Missing VERCEL_TOKEN"; exit 1; }
-          test -n "$VERCEL_ORG_ID" || { echo "Missing VERCEL_ORG_ID"; exit 1; }
+          if [ -n "$VERCEL_TOKEN" ] && [ -n "$VERCEL_ORG_ID" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+            echo "External fallback credential is available."
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::External fallback is BLOCKED: VERCEL_TOKEN is not configured in the kora-production environment."
+          fi
 
       - name: Create or locate isolated Creative Suite project
+        if: steps.credential.outputs.available == 'true'
         id: project
         shell: bash
         run: |
@@ -52,23 +59,21 @@ jobs:
             }
           }
           JSON
-
           CODE="$(curl -sS -o /tmp/vercel-create.json -w "%{http_code}"             -X POST "https://api.vercel.com/v11/projects?teamId=$VERCEL_ORG_ID"             -H "Authorization: Bearer $VERCEL_TOKEN"             -H "Content-Type: application/json"             --data-binary @/tmp/creative-suite-project.json)"
-
           if [[ "$CODE" =~ ^2 ]]; then
             cp /tmp/vercel-create.json /tmp/vercel-project.json
           elif [ "$CODE" = "409" ]; then
-            curl -fsS               "https://api.vercel.com/v9/projects/$PROJECT_NAME?teamId=$VERCEL_ORG_ID"               -H "Authorization: Bearer $VERCEL_TOKEN"               > /tmp/vercel-project.json
+            curl -fsS "https://api.vercel.com/v9/projects/$PROJECT_NAME?teamId=$VERCEL_ORG_ID"               -H "Authorization: Bearer $VERCEL_TOKEN" > /tmp/vercel-project.json
           else
             echo "Vercel project creation failed with HTTP $CODE"
             cat /tmp/vercel-create.json
             exit 1
           fi
-
           PROJECT_ID="$(node -e "const fs=require('fs');const x=JSON.parse(fs.readFileSync('/tmp/vercel-project.json','utf8'));if(!x.id)process.exit(2);process.stdout.write(x.id)")"
           echo "project_id=$PROJECT_ID" >> "$GITHUB_OUTPUT"
 
       - name: Link Creative Suite root
+        if: steps.credential.outputs.available == 'true'
         working-directory: IZAKHONO-STUDIO
         env:
           PROJECT_ID: ${{ steps.project.outputs.project_id }}
@@ -77,14 +82,17 @@ jobs:
           node -e "require('fs').writeFileSync('.vercel/project.json',JSON.stringify({orgId:process.env.VERCEL_ORG_ID,projectId:process.env.PROJECT_ID,projectName:process.env.PROJECT_NAME}))"
 
       - name: Pull external project settings
+        if: steps.credential.outputs.available == 'true'
         working-directory: IZAKHONO-STUDIO
         run: npx --yes vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
 
       - name: Build external artifact
+        if: steps.credential.outputs.available == 'true'
         working-directory: IZAKHONO-STUDIO
         run: npx --yes vercel@latest build --prod --token="$VERCEL_TOKEN"
 
       - name: Deploy external fallback
+        if: steps.credential.outputs.available == 'true'
         id: deploy
         working-directory: IZAKHONO-STUDIO
         run: |
@@ -94,6 +102,7 @@ jobs:
           echo "url=$URL" >> "$GITHUB_OUTPUT"
 
       - name: Verify external fallback
+        if: steps.credential.outputs.available == 'true'
         env:
           URL: ${{ steps.deploy.outputs.url }}
         run: |
@@ -105,19 +114,29 @@ jobs:
           node -e "const x=require('/tmp/creative-health.json');if(x.ok!==true||x.service!=='izakhono-creative-suite'||x.checkout_enabled!==false||x.registration_enabled!==false)process.exit(2)"
           curl -fsS "$URL/" | grep -Fq '<div id="root"></div>'
 
-      - name: Publish fallback result
+      - name: Publish deployed fallback result
+        if: steps.credential.outputs.available == 'true'
         env:
           URL: ${{ steps.deploy.outputs.url }}
           PROJECT_ID: ${{ steps.project.outputs.project_id }}
         run: |
           {
             echo "## Creative Suite External Fallback"
+            echo "- Status: DEPLOYED_AND_VERIFIED"
             echo "- URL: $URL"
-            echo "- Target: production fallback"
             echo "- Vercel project: $PROJECT_ID"
-            echo "- Commit: ${GITHUB_SHA::7}"
             echo "- Registration: disabled"
             echo "- Checkout: disabled"
-            echo "- Health: passed"
             echo "- Source of truth: IZAKHONO-owned"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish blocked fallback result
+        if: steps.credential.outputs.available != 'true'
+        run: |
+          {
+            echo "## Creative Suite External Fallback"
+            echo "- Status: BLOCKED_MISSING_VERCEL_TOKEN"
+            echo "- No Vercel project or deployment was created."
+            echo "- IZAKHONO-owned deployment remains the primary route."
+            echo "- Restore VERCEL_TOKEN in the kora-production GitHub environment, then rerun this workflow."
           } >> "$GITHUB_STEP_SUMMARY"
