@@ -644,3 +644,97 @@
   .switch-promise { grid-template-columns: 1fr; }
   .switch-file { grid-template-columns: 1fr; }
 }
+\n
+.gamer-studio {
+  padding: 64px clamp(22px,6vw,86px);
+  border-bottom: 1px solid var(--suite-line);
+  background: radial-gradient(circle at 84% 12%, rgba(122,92,255,.12), transparent 28%);
+}
+.gamer-grid {
+  display: grid;
+  grid-template-columns: minmax(270px,360px) minmax(0,1fr);
+  gap: 20px;
+  margin-top: 28px;
+}
+.gamer-controls {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+  padding: 18px;
+  border: 1px solid #2b3548;
+  border-radius: 24px;
+  background: rgba(15,20,30,.9);
+}
+.gamer-controls > label {
+  display: grid;
+  gap: 7px;
+  color: #b8c2d1;
+  font-size: 12px;
+  font-weight: 700;
+}
+.gamer-controls input,
+.gamer-controls select {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 11px;
+}
+.gamer-toggles {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #2f3a50;
+  border-radius: 14px;
+  background: #0b1018;
+}
+.gamer-toggles label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #aeb9ca;
+  font-size: 12px;
+}
+.gamer-toggles input { width: auto; min-height: auto; }
+.gamer-export {
+  min-height: 48px;
+  color: #071006;
+  background: var(--suite-lime);
+  border-color: var(--suite-lime);
+}
+.gamer-preview {
+  display: grid;
+  place-items: center;
+  min-height: 420px;
+  overflow: hidden;
+  border: 1px solid #303b50;
+  border-radius: 24px;
+  background: #05070b;
+}
+.gamer-preview canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.gamer-roadmap {
+  display: grid;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+.gamer-roadmap article {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+  border: 1px solid #2b3548;
+  border-radius: 16px;
+  background: rgba(10,14,22,.82);
+}
+.gamer-roadmap b { color: var(--suite-cyan); font-size: 11px; letter-spacing: .12em; }
+.gamer-roadmap span { color: #aeb9ca; line-height: 1.45; font-size: 12px; }
+@media (max-width: 980px) {
+  .gamer-grid { grid-template-columns: 1fr; }
+  .gamer-roadmap { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 640px) {
+  .gamer-roadmap { grid-template-columns: 1fr; }
+}
