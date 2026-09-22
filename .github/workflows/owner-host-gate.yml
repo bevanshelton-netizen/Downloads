@@ -8,6 +8,7 @@ on:
       - 'START-IZAKHONO-OWNER-HOST.cmd'
       - 'START-IZAKHONO-DOMAINS-OWNER-HOST.cmd'
       - 'START-GROWTH-OS-V2-ON-IZAKHONO.cmd'
+      - 'START-CREATIVE-SUITE-ON-IZAKHONO.cmd'
       - 'START-IZAKHONO-TAILSCALE-BRIDGE.cmd'
       - 'owner-host/START-IZAKHONO-DOMAINS-OWNER-HOST.ps1'
       - 'izakhono-edge-node/**'
@@ -52,6 +53,7 @@ jobs:
           bash -n izakhono-owned-cloud/first-host-proof.sh
           bash -n izakhono-owned-cloud/deploy-izakhono-domains.sh
           bash -n izakhono-owned-cloud/deploy-growth-os-v2.sh
+          bash -n izakhono-owned-cloud/deploy-creative-suite.sh
           bash -n izakhono-owned-cloud/import-repo-to-code.sh
           bash -n izakhono-owned-cloud/deploy-legacymart.sh
           bash -n izakhono-owned-cloud/activate-owned-public-edge.sh
@@ -59,7 +61,7 @@ jobs:
           node --check growth-os-v2/server.mjs
           bash -n izakhono-edge-node/install-linux.sh
           node --check izakhono-edge-node/server.mjs
-          node -e 'const x=JSON.parse(require("fs").readFileSync("owner-host/platforms.json","utf8"));if(!x.platforms.some(p=>p.id==="izakhono-domains"&&p.defaultHostname==="domains.izakhonoafrica.co.za"))process.exit(2);if(!x.platforms.some(p=>p.id==="growth-os-v2"&&p.defaultHostname==="growth.domains.izakhonoafrica.co.za"))process.exit(3);if(!x.platforms.some(p=>p.id==="legacymart"&&p.defaultHostname==="market.domains.izakhonoafrica.co.za"))process.exit(4)'
+          node -e 'const x=JSON.parse(require("fs").readFileSync("owner-host/platforms.json","utf8"));if(!x.platforms.some(p=>p.id==="izakhono-domains"&&p.defaultHostname==="domains.izakhonoafrica.co.za"))process.exit(2);if(!x.platforms.some(p=>p.id==="growth-os-v2"&&p.defaultHostname==="growth.domains.izakhonoafrica.co.za"))process.exit(3);if(!x.platforms.some(p=>p.id==="legacymart"&&p.defaultHostname==="market.domains.izakhonoafrica.co.za"))process.exit(4);if(!x.platforms.some(p=>p.id==="creative-suite"&&p.defaultHostname==="creative.domains.izakhonoafrica.co.za"))process.exit(5)'
           PORT=13000 HOST=127.0.0.1 node growth-os-v2/server.mjs >/tmp/growth-os-v2.log 2>&1 &
           PID=$!
           trap 'kill $PID 2>/dev/null || true' EXIT
@@ -100,6 +102,7 @@ jobs:
             'owner-host/START-IZAKHONO-OWNER-HOST.ps1',
             'owner-host/START-IZAKHONO-DOMAINS-OWNER-HOST.ps1',
             'owner-host/START-GROWTH-OS-V2-ON-IZAKHONO.ps1',
+            'owner-host/START-CREATIVE-SUITE-ON-IZAKHONO.ps1',
             'owner-host/START-IZAKHONO-TAILSCALE-BRIDGE.ps1',
             'izakhono-cloud/DEPLOY-KORA-ISN-01.ps1',
             'izakhono-cloud/DEPLOY-LEGACYMART-ISN-01.ps1'
@@ -141,6 +144,13 @@ jobs:
           $growthPs = Get-Content 'owner-host/START-GROWTH-OS-V2-ON-IZAKHONO.ps1' -Raw
           if ($growthPs -notmatch 'deploy-growth-os-v2.sh') { throw 'Growth OS v2 deployment handoff missing' }
           if ($growthPs -notmatch 'growth.domains.izakhonoafrica.co.za') { throw 'Growth OS v2 hostname missing' }
+          $creative = Get-Content 'START-CREATIVE-SUITE-ON-IZAKHONO.cmd' -Raw
+          if ($creative -notmatch 'START-CREATIVE-SUITE-ON-IZAKHONO.ps1') { throw 'Creative Suite CMD handoff missing' }
+          $creativePs = Get-Content 'owner-host/START-CREATIVE-SUITE-ON-IZAKHONO.ps1' -Raw
+          if ($creativePs -notmatch 'deploy-creative-suite.sh') { throw 'Creative Suite owned deployment handoff missing' }
+          if ($creativePs -notmatch 'creative.domains.izakhonoafrica.co.za') { throw 'Creative Suite owned hostname missing' }
+          if ($creativePs -notmatch 'REGISTRATION') { throw 'Creative Suite registration safety reporting missing' }
+          if ($creativePs -notmatch 'CHECKOUT') { throw 'Creative Suite checkout safety reporting missing' }
           $tailscale = Get-Content 'START-IZAKHONO-TAILSCALE-BRIDGE.cmd' -Raw
           if ($tailscale -notmatch 'START-IZAKHONO-TAILSCALE-BRIDGE.ps1') { throw 'Tailscale bridge CMD handoff missing' }
           $tailscalePs = Get-Content 'owner-host/START-IZAKHONO-TAILSCALE-BRIDGE.ps1' -Raw
