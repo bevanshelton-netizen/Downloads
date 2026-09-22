@@ -1,6 +1,6 @@
 {
-  "version": 3,
-  "updated": "2026-09-21",
+  "version": 4,
+  "updated": "2026-09-22",
   "strategy": "owned-media-first",
   "publishingPolicy": {
     "ownedMedia": "prepare-and-publish-when-destination-is-verified-live",
@@ -9,6 +9,46 @@
     "destinationRule": "advertise only verified-live destinations; payment-live claims additionally require e2e checkout evidence"
   },
   "campaigns": [
+    {
+      "id": "izakhono-gamer",
+      "brand": "IZAKHONO GAMER STUDIO",
+      "objective": "gamer-plan-subscriptions",
+      "audience": [
+        "gamers",
+        "streamers",
+        "esports teams",
+        "gaming creators",
+        "independent game developers"
+      ],
+      "ownedPlacements": [
+        "KORA gaming and entertainment surfaces where contextually appropriate",
+        "ALLEGRO creator surfaces where contextually appropriate",
+        "IZAKHONO portfolio cross-promo",
+        "IZAKHONO STUDIO campaign packs"
+      ],
+      "externalOrganicTargets": [
+        "YouTube",
+        "TikTok",
+        "Instagram",
+        "Facebook",
+        "X"
+      ],
+      "message": "Stream graphics, gaming thumbnails, esports creative and the full IZAKHONO Creative Suite for USD $15/month.",
+      "cta": "JOIN GAMER STUDIO",
+      "offer": "USD $15/month — includes the USD $5 Creative Suite plus Gamer Studio",
+      "status": "campaign-prepared-hold-until-public-and-payment-verified",
+      "launchGates": [
+        "verified public destination over HTTPS",
+        "signup/auth tested",
+        "USD $15 or approved local-currency checkout mapped and end-to-end verified",
+        "legal/privacy/refund/cancellation pages published",
+        "cancellation and reconciliation tested"
+      ],
+      "claimRules": [
+        "Do not claim native live streaming, platform publishing, game capture or game-engine integration until those features are verified.",
+        "Do not publish sales ads until the destination and payment gates pass."
+      ]
+    },
     {
       "id": "kora",
       "brand": "KORA",
