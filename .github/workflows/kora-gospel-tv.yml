@@ -105,7 +105,7 @@ jobs:
         run: |
           test "$(curl -sS -o /tmp/preflight.txt -D /tmp/preflight.headers -w '%{http_code}' -X OPTIONS http://127.0.0.1:8188/api/submissions -H 'origin: https://kora-network.vercel.app' -H 'access-control-request-method: POST' -H 'access-control-request-headers: content-type')" = "204"
           grep -qi 'access-control-allow-origin: https://kora-network.vercel.app' /tmp/preflight.headers
-          RESPONSE="$(curl -fsS -X POST http://127.0.0.1:8188/api/submissions -H 'origin: https://kora-network.vercel.app' -H 'content-type: application/json' --data '{"category":"partner","type":"distribution","name":"KORA CI","contact":"ci@example.invalid","message":"Cross-origin owned intake test","territory":"Global","language":"English","sourceChannel":"kora-ci"}')"
+          RESPONSE="$(curl -fsS -X POST http://127.0.0.1:8188/api/submissions -H 'origin: https://kora-network.vercel.app' -H 'content-type: application/json' --data '{"category":"partner","type":"distribution","name":"YHVH CI","contact":"ci@example.invalid","message":"Cross-origin owned intake test","territory":"Global","language":"English","sourceChannel":"yhvh-ci"}')"
           echo "$RESPONSE" | grep -q '"route":"izakhono-owned"'
           grep -q '"territory":"Global"' "$RUNNER_TEMP/kora-gospel-tv/submissions.ndjson"
           grep -q '"source_channel":"kora-ci"' "$RUNNER_TEMP/kora-gospel-tv/submissions.ndjson"
