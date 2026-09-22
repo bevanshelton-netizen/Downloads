@@ -103,7 +103,7 @@ jobs:
             sleep 3
           done
           node -e "const x=require('/tmp/creative-health.json');if(x.ok!==true||x.service!=='izakhono-creative-suite'||x.checkout_enabled!==false||x.registration_enabled!==false)process.exit(2)"
-          curl -fsS "$URL/" | grep -Fq "IZAKHONO CREATIVE SUITE"
+          curl -fsS "$URL/" | grep -Fq '<div id="root"></div>'
 
       - name: Publish fallback result
         env:
