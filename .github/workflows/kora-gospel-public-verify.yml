@@ -27,7 +27,7 @@ jobs:
           set -euo pipefail
           grep -qi "YHVH GOSPEL TV" yhvh-gospel-tv/index.html
           grep -qi "YHVH GOSPEL TV" ports/kora-gospel-tv/index.html
-          grep -q "ZERO-BUDGET PUBLIC LAUNCH" ports/kora-gospel-tv/index.html
+          grep -q "LIVE DIGITAL CHANNEL" ports/kora-gospel-tv/index.html\n          grep -q "Cormorant Garamond" ports/kora-gospel-tv/index.html\n          grep -q "yhvh-gospel-tv-logo-dove.png" ports/kora-gospel-tv/index.html\n          grep -q "FAITH. WORSHIP." ports/kora-gospel-tv/index.html
           grep -q "external-launch-web" ports/kora-gospel-tv/index.html
           grep -q "Request Commercial Proposal" kora-network/app/gospel/commercial/commercial-client.tsx
 
