@@ -33,7 +33,7 @@ export default function GospelJoin(){
       <section style={{marginTop:26,padding:22,borderRadius:22,border:'1px solid rgba(255,255,255,.13)',background:'rgba(9,22,39,.85)'}}>
         <small style={{color:'#8ed8ff',fontWeight:900,letterSpacing:'.12em'}}>HYBRID RESILIENCE</small>
         <h2>Owned control. External reach. No single point of failure.</h2>
-        <p style={{color:'#b9c8db',lineHeight:1.6}}>IZAKHONO remains the authoritative Gospel TV control plane. KORA/Vercel, GitHub Pages and the external intake buffer keep worldwide discovery and acquisition available when an individual infrastructure layer is unavailable.</p>
+        <p style={{color:'#b9c8db',lineHeight:1.6}}>IZAKHONO remains the authoritative Gospel TV control plane. Vercel, GitHub Pages and the external intake buffer keep worldwide discovery and acquisition available when an individual infrastructure layer is unavailable.</p>
       </section>
     </div>
   </main>;
