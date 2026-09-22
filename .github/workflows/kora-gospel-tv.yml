@@ -1,4 +1,4 @@
-name: KORA GOSPEL TV Gate
+name: YHVH GOSPEL TV Gate
 
 on:
   pull_request:
@@ -82,7 +82,7 @@ jobs:
 
       - name: Verify channel experience
         run: |
-          curl -fsS http://127.0.0.1:8188/ | grep -q "KORA GOSPEL TV"
+          curl -fsS http://127.0.0.1:8188/ | grep -q "YHVH GOSPEL TV"
           curl -fsS http://127.0.0.1:8188/ | grep -q "GOSPEL ONLY"
           curl -fsS http://127.0.0.1:8188/api/channel | grep -q '"mode":"launch-mode"'
           curl -fsS http://127.0.0.1:8188/api/channel | grep -q '"policy":"owned-primary-external-distribution"'
