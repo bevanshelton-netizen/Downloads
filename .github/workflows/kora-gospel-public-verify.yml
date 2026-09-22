@@ -1,4 +1,4 @@
-name: KORA Gospel TV Public Verify
+name: YHVH Gospel TV Public Verify
 
 on:
   workflow_dispatch:
@@ -39,6 +39,6 @@ jobs:
           set -euo pipefail
           HOST="gospel.domains.izakhonoafrica.co.za"
           PAGE="$(curl --fail --silent --show-error --max-time 15 "https://$HOST/")"
-          printf '%s' "$PAGE" | grep -qi 'KORA'
+          printf '%s' "$PAGE" | grep -qi 'YHVH'
           printf '%s' "$PAGE" | grep -qi 'GOSPEL'
-          echo "KORA GOSPEL TV: PUBLIC HTTPS LIVE AND VERIFIED"
+          echo "YHVH GOSPEL TV: PUBLIC HTTPS LIVE AND VERIFIED"
