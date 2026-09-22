@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 const lanes = [
   ['IZAKHONO Gospel TV','PRIMARY ORIGIN','Configured','Owned'],
-  ['KORA / Vercel','WEB DISTRIBUTION','Configured','External'],
+  ['Vercel external distribution','WEB DISTRIBUTION','Configured','External'],
   ['GitHub Pages','PUBLIC FALLBACK','Configured','External'],
   ['YouTube Live','SIMULCAST','Credentials required','External'],
   ['Facebook Live','SIMULCAST','Credentials required','External'],
@@ -12,7 +12,7 @@ const lanes = [
 ] as const;
 
 export const metadata = {
-  title: 'Gospel TV Distribution | KORA',
+  title: 'YHVH GOSPEL TV Distribution',
   description: 'YHVH GOSPEL TV distribution topology: IZAKHONO-owned origin with external reach and fallback lanes.'
 };
 
@@ -41,7 +41,7 @@ export default function GospelDistributionMap() {
         <section style={{marginTop:30,padding:24,border:'1px solid rgba(255,255,255,.13)',borderRadius:22,background:'linear-gradient(135deg,rgba(125,21,56,.32),rgba(95,58,168,.22))'}}>
           <small style={{color:'#ffe29a',fontWeight:900,letterSpacing:'.12em'}}>SECURITY BOUNDARY</small>
           <h2>External credentials never belong in the public app.</h2>
-          <p style={{color:'#c2cede',lineHeight:1.6,maxWidth:850}}>YouTube, Facebook and partner stream destinations are loaded only from the protected IZAKHONO host environment. The public KORA site shows distribution state, not stream keys or private ingest URLs.</p>
+          <p style={{color:'#c2cede',lineHeight:1.6,maxWidth:850}}>YouTube, Facebook and partner stream destinations are loaded only from the protected IZAKHONO host environment. The public YHVH GOSPEL TV site shows distribution state, not stream keys or private ingest URLs.</p>
         </section>
       </div>
     </main>
