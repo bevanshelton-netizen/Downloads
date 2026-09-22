@@ -10,6 +10,12 @@ on:
       - "kora-gospel-tv/**"
       - "izakhono-owned-cloud/kora-gospel-tv-simulcast.sh"
       - "izakhono-owned-cloud/kora-gospel-tv-simulcast.env.example"
+      - "izakhono-owned-cloud/reconcile-kora-gospel-intake.mjs"
+      - "izakhono-owned-cloud/kora-gospel-external.env.example"
+      - "izakhono-owned-cloud/install-kora-gospel-reconciler.sh"
+      - "tests/kora-gospel-reconciler-test.mjs"
+      - "owner-host/INSTALL-KORA-GOSPEL-RECONCILIATION.ps1"
+      - "INSTALL-KORA-GOSPEL-RECONCILIATION.cmd"
       - "kora-network/app/gospel/**"
       - "kora-network/public/gospel-syndication.json"
       - "kora-network/public/gospel-global.json"
@@ -42,7 +48,12 @@ jobs:
           node --check ports/kora-gospel-tv/server.mjs
           bash -n izakhono-owned-cloud/deploy-kora-gospel-tv.sh
           bash -n izakhono-owned-cloud/kora-gospel-tv-simulcast.sh
+          bash -n izakhono-owned-cloud/install-kora-gospel-reconciler.sh
+          node --check izakhono-owned-cloud/reconcile-kora-gospel-intake.mjs
+          node --check tests/kora-gospel-reconciler-test.mjs
           ! grep -R --line-number -E '(stream[_ -]?key|secret).{0,20}(=|:).{3,}' izakhono-owned-cloud/kora-gospel-tv-simulcast.env.example | grep -v 'REPLACE-WITH'
+          grep -q 'SUPABASE_SECRET_KEY=REPLACE-WITH-DEDICATED-SB-SECRET-KEY' izakhono-owned-cloud/kora-gospel-external.env.example
+          ! grep -R --line-number 'sb_secret_' izakhono-owned-cloud tests owner-host INSTALL-KORA-GOSPEL-RECONCILIATION.cmd | grep -v 'sb_secret_ci_test_only'
           grep -q '"authoritative_origin": "IZAKHONO"' kora-network/public/gospel-global.json
           grep -q '"name": "Europe"' kora-network/public/gospel-global.json
           grep -q '"name": "Spanish"' kora-network/public/gospel-global.json
@@ -104,6 +115,10 @@ jobs:
           grep -q '"category":"prayer"' "$RUNNER_TEMP/kora-gospel-tv/submissions.ndjson"
           grep -q '"on_air":false' "$RUNNER_TEMP/kora-gospel-tv/submissions.ndjson"
           curl -fsS 'http://127.0.0.1:8188/api/control/submissions?limit=5'             -H 'authorization: Bearer ci-owner-control-token-1234567890' | grep -q '"category":"prayer"'
+
+      - name: Prove external intake reconciliation
+        run: |
+          node tests/kora-gospel-reconciler-test.mjs
 
       - name: Stop runtime
         if: always()
