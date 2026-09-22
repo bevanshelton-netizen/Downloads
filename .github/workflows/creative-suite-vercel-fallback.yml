@@ -2,6 +2,12 @@ name: Creative Suite Vercel Fallback Deploy
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'IZAKHONO-STUDIO/**'
+      - '.github/workflows/creative-suite-vercel-fallback.yml'
 
 permissions:
   contents: read
