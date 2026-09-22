@@ -10,6 +10,7 @@ const ROOT = resolve(fileURLToPath(new URL("./", import.meta.url)));
 const DATA_DIR = process.env.GOSPEL_TV_DATA_DIR || "/var/lib/izakhono-runtime/data/kora-gospel-tv";
 const LIVE_EMBED_URL = process.env.GOSPEL_TV_LIVE_EMBED_URL || "";
 const CONTROL_TOKEN = String(process.env.GOSPEL_TV_CONTROL_TOKEN || "").trim();
+const RECONCILE_RECEIPT = process.env.GOSPEL_RECONCILE_RECEIPT || "/var/lib/izakhono-deploy/kora-gospel-reconcile.json";
 const PUBLIC_INTAKE_ORIGINS = new Set([
   "https://kora-network.vercel.app",
   "https://bevanshelton-netizen.github.io",
@@ -94,9 +95,28 @@ async function readSubmissionRecords(limit=100){
 async function readOperations(){
   try{return JSON.parse(await readFile(join(ROOT,"control-operations.json"),"utf8"))}catch{return null}
 }
+async function readReconciliation(){
+  try{
+    const x=JSON.parse(await readFile(RECONCILE_RECEIPT,"utf8"));
+    return {
+      available:true,
+      authority:x.authority==="IZAKHONO"?"IZAKHONO":"unknown",
+      source_authoritative:x.source_authoritative===true,
+      scanned:Number(x.scanned||0),
+      imported:Number(x.imported||0),
+      duplicates:Number(x.duplicates||0),
+      failed:Number(x.failed||0),
+      completed_at:clean(x.completed_at,80),
+      worker:clean(x.worker,100)
+    };
+  }catch{
+    return {available:false,authority:"IZAKHONO",source_authoritative:false,scanned:0,imported:0,duplicates:0,failed:0,completed_at:"",worker:""};
+  }
+}
 async function controlStatus(){
   const records=await readSubmissionRecords(200);
   const operations=await readOperations();
+  const reconciliation=await readReconciliation();
   const counts=records.reduce((acc,row)=>{acc[row.category]=(acc[row.category]||0)+1;return acc},{});
   return {
     ok:true,
@@ -114,6 +134,7 @@ async function controlStatus(){
     ],
     priority_languages:["English","French","Portuguese","Spanish","Swahili","isiZulu","isiXhosa"],
     operations,
+    reconciliation,
     controls:{write_actions:false,note:"Read-only owner control foundation. Broadcast write actions require a separate audited control path."}
   };
 }
