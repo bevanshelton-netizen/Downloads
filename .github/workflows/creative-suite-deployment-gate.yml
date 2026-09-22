@@ -1,0 +1,61 @@
+name: Creative Suite Hybrid Deployment Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'IZAKHONO-STUDIO/**'
+      - 'izakhono-owned-cloud/deploy-creative-suite.sh'
+      - 'owner-host/platforms.json'
+      - '.github/workflows/creative-suite-deployment-gate.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'IZAKHONO-STUDIO/**'
+      - 'izakhono-owned-cloud/deploy-creative-suite.sh'
+      - 'owner-host/platforms.json'
+      - '.github/workflows/creative-suite-deployment-gate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  portable-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: IZAKHONO-STUDIO
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build portable artifact
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+          node --check server.mjs
+      - name: Verify portable runtime
+        run: |
+          PORT=4174 HOST=127.0.0.1 node server.mjs >/tmp/creative-suite.log 2>&1 &
+          PID=$!
+          trap 'kill $PID 2>/dev/null || true' EXIT
+          for i in 1 2 3 4 5 6 7 8; do curl -fsS http://127.0.0.1:4174/health >/tmp/health.json && break || sleep .5; done
+          node -e 'const x=require("/tmp/health.json");if(x.ok!==true||x.service!=="izakhono-creative-suite"||x.checkout_enabled!==false||x.registration_enabled!==false)process.exit(2)'
+          curl -fsS http://127.0.0.1:4174/ | grep -Fq '<div id="root"></div>'
+
+  owned-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate owned deployment contract
+        run: |
+          bash -n izakhono-owned-cloud/deploy-creative-suite.sh
+          grep -q 'creative.domains.izakhonoafrica.co.za' owner-host/platforms.json
+          grep -q 'IZAKHONO_CODE' izakhono-owned-cloud/deploy-creative-suite.sh
+          grep -q 'IZAKHONO_RUNTIME' izakhono-owned-cloud/deploy-creative-suite.sh
+          grep -q 'CHECKOUT_ENABLED=false' izakhono-owned-cloud/deploy-creative-suite.sh
+          grep -q 'REGISTRATION_ENABLED=false' izakhono-owned-cloud/deploy-creative-suite.sh
+          node -e 'const x=require("./owner-host/platforms.json");const p=x.platforms.find(p=>p.id==="creative-suite");if(!p||p.defaultHostname!=="creative.domains.izakhonoafrica.co.za")process.exit(2)'
+          node -e 'const x=require("./IZAKHONO-STUDIO/vercel.json");if(x.framework!=="vite"||x.outputDirectory!=="dist")process.exit(2)'
