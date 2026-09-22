@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@vitejs/plugin-react": "^5.0.2",
+    "ag-psd": "^31.0.2",
     "html-to-image": "^1.11.13",
     "jszip": "^3.10.1",
     "vite": "^7.1.7",
