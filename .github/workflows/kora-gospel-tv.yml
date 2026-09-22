@@ -87,7 +87,7 @@ jobs:
           curl -fsS http://127.0.0.1:8188/ | grep -q "GOSPEL ONLY"
           curl -fsS http://127.0.0.1:8188/api/channel | grep -q '"mode":"launch-mode"'
           curl -fsS http://127.0.0.1:8188/api/channel | grep -q '"policy":"owned-primary-external-distribution"'
-          curl -fsS http://127.0.0.1:8188/api/channel | grep -q '"provider":"KORA/Vercel"'
+          curl -fsS http://127.0.0.1:8188/api/channel | grep -q '"provider":"Vercel"'
 
       - name: Verify owner control room boundary
         run: |
@@ -109,7 +109,7 @@ jobs:
           RESPONSE="$(curl -fsS -X POST http://127.0.0.1:8188/api/submissions -H 'origin: https://kora-network.vercel.app' -H 'content-type: application/json' --data '{"category":"partner","type":"distribution","name":"YHVH CI","contact":"ci@example.invalid","message":"Cross-origin owned intake test","territory":"Global","language":"English","sourceChannel":"yhvh-ci"}')"
           echo "$RESPONSE" | grep -q '"route":"izakhono-owned"'
           grep -q '"territory":"Global"' "$RUNNER_TEMP/kora-gospel-tv/submissions.ndjson"
-          grep -q '"source_channel":"kora-ci"' "$RUNNER_TEMP/kora-gospel-tv/submissions.ndjson"
+          grep -q '"source_channel":"yhvh-ci"' "$RUNNER_TEMP/kora-gospel-tv/submissions.ndjson"
           RESPONSE="$(curl -fsS -X POST http://127.0.0.1:8188/api/submissions -H 'origin: https://kora-network.vercel.app' -H 'content-type: application/json' --data '{"category":"partner","type":"sponsor","name":"Commercial CI","contact":"ci@example.invalid","message":"Commercial desk test","details":{"package":"programme-sponsor","budget":"quote-request"}}')"
           echo "$RESPONSE" | grep -q '"route":"izakhono-owned"'
           grep -q '"package":"programme-sponsor"' "$RUNNER_TEMP/kora-gospel-tv/submissions.ndjson"
