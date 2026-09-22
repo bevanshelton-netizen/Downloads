@@ -137,6 +137,56 @@
       "display_name": "The Chancellor",
       "callback_url": "",
       "products": {}
+    },
+    "legacymart-makers": {
+      "display_name": "LegacyMart Makers — BEVAN SHELTON™ Reference Shop",
+      "callback_url": "",
+      "products": {
+        "bs-signature-hoodie": {
+          "name": "BEVAN SHELTON™ Signature Hoodie",
+          "amount_minor": 55000,
+          "currency": "ZAR",
+          "entitlement": {
+            "kind": "physical-product",
+            "shop": "bevan-shelton",
+            "sku": "BS-HOODIE-001",
+            "reference_trial": true
+          }
+        },
+        "bs-signature-tracksuit": {
+          "name": "BEVAN SHELTON™ Signature Tracksuit",
+          "amount_minor": 68000,
+          "currency": "ZAR",
+          "entitlement": {
+            "kind": "physical-product",
+            "shop": "bevan-shelton",
+            "sku": "BS-TRACK-001",
+            "reference_trial": true
+          }
+        },
+        "bs-branded-golfer": {
+          "name": "BEVAN SHELTON™ Branded Golfer",
+          "amount_minor": 25000,
+          "currency": "ZAR",
+          "entitlement": {
+            "kind": "physical-product",
+            "shop": "bevan-shelton",
+            "sku": "BS-GOLFER-001",
+            "reference_trial": true
+          }
+        },
+        "bs-branded-tee": {
+          "name": "BEVAN SHELTON™ Branded Tee",
+          "amount_minor": 19000,
+          "currency": "ZAR",
+          "entitlement": {
+            "kind": "physical-product",
+            "shop": "bevan-shelton",
+            "sku": "BS-TEE-001",
+            "reference_trial": true
+          }
+        }
+      }
     }
   }
 }
