@@ -2,7 +2,8 @@ import React from 'react';
 import App from './App.jsx';
 import PhotoLab from './PhotoLab.jsx';
 import SwitchCenter from './SwitchCenter.jsx';
-import { SUITE_PRICE, SUITE_PROMISES, SUITE_TOOLS } from './suiteCatalog.js';
+import GamerStudio from './GamerStudio.jsx';
+import { GAMER_PRICE, SUITE_PRICE, SUITE_PROMISES, SUITE_TOOLS } from './suiteCatalog.js';
 
 function Status({ value }) {
   return <span className={`suite-status ${value === 'working-v1' ? 'ready' : ''}`}>{value === 'working-v1' ? 'WORKING V1' : 'IN SUITE FOUNDATION'}</span>;
@@ -17,7 +18,7 @@ export default function SuiteShell() {
         <div className="suite-hero-copy">
           <div className="suite-pill">IZAKHONO CREATIVE SUITE • ORIGINAL PRODUCT</div>
           <h1>One creative universe. <em>{SUITE_PRICE.label}.</em></h1>
-          <p className="suite-lead">A unified alternative to expensive, fragmented creative software: design, photo, vector, publishing, video, motion, audio, documents, AI, assets and distribution under one IZAKHONO roof.</p>
+          <p className="suite-lead">A unified alternative to expensive, fragmented creative software: design, photo, gaming, vector, publishing, video, motion, audio, documents, AI, assets and distribution under one IZAKHONO roof.</p>
           <div className="suite-price-row">
             <div className="suite-price"><strong>$5</strong><span>USD / month</span></div>
             <div className="suite-price-copy">
@@ -27,7 +28,7 @@ export default function SuiteShell() {
           </div>
           <div className="suite-cta-row">
             <a className="suite-primary-link" href="#switch-center">Switch to IZAKHONO</a>
-            <a className="suite-secondary-link" href="#design-studio">Open Design Studio</a>
+            <a className="suite-secondary-link" href="#gamer-studio">Open Gamer Studio</a>
           </div>
         </div>
 
@@ -74,15 +75,18 @@ export default function SuiteShell() {
         </div>
       </section>
 
-      <SwitchCenter />\n\n      <PhotoLab />
+      <SwitchCenter />
+
+      <GamerStudio />\n\n      <PhotoLab />
 
       <section className="suite-commercial">
         <div>
           <span className="suite-eyebrow">COMMERCIAL MODEL</span>
-          <h2>$5 gets the creator into the whole core suite.</h2>
+          <h2>$5 for creators. $15 for gamers.</h2>
         </div>
         <div className="suite-commercial-grid">
-          <div><b>Core subscription</b><strong>$5/month</strong><span>No separate app subscription for each core creative tool.</span></div>
+          <div><b>Creative subscription</b><strong>$5/month</strong><span>Core creative tools excluding Gamer Studio.</span></div>
+          <div><b>Gamer subscription</b><strong>{GAMER_PRICE.label}</strong><span>Includes the full Creative Suite plus Gamer Studio.</span></div>
           <div><b>AI compute</b><strong>Controlled</strong><span>Starter allowance included; top-ups only when costly generation exceeds the base allowance.</span></div>
           <div><b>Storage</b><strong>Hybrid</strong><span>Local-first where practical, with IZAKHONO storage and approved external resilience as the product matures.</span></div>
           <div><b>Payments</b><strong>Gated</strong><span>List price is approved. Public checkout stays off until the selected gateway, legal pages and end-to-end payment flow are verified.</span></div>
