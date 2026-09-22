@@ -1,0 +1,36 @@
+name: Creative Suite Pages Fallback Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'IZAKHONO-STUDIO/**'
+      - '.github/workflows/doxa-sure-pages.yml'
+      - '.github/workflows/creative-suite-pages-gate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: IZAKHONO-STUDIO
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build Pages fallback
+        run: |
+          npm install --no-audit --no-fund
+          npm run build -- --base=/Downloads/creative-suite/
+      - name: Verify static fallback contract
+        run: |
+          test -f dist/index.html
+          test -f dist/health.json
+          grep -Fq '/Downloads/creative-suite/assets/' dist/index.html
+          grep -Fq '<div id="root"></div>' dist/index.html
+          node -e 'const x=require("./dist/health.json");if(x.ok!==true||x.service!=="izakhono-creative-suite"||x.registration_enabled!==false||x.checkout_enabled!==false||x.runtime!=="external-static-fallback")process.exit(2)'
