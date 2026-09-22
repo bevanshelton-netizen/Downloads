@@ -12,7 +12,7 @@ const lanes = [
 ] as const;
 
 export const metadata = {
-  title: 'YHVH GOSPEL TV Distribution',
+  title: { absolute: 'YHVH GOSPEL TV Distribution' },
   description: 'YHVH GOSPEL TV distribution topology: IZAKHONO-owned origin with external reach and fallback lanes.'
 };
 
