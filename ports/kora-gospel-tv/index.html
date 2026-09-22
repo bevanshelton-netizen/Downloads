@@ -92,7 +92,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 50px;color:var(--muted)}.
 @media(max-width:560px){.topbar .wrap{display:block}.topbar .wrap span:last-child{display:none}.brand>span{font-size:.86rem}.actions .btn:not(.live){display:none}.grid4{grid-template-columns:1fr}.stage{min-height:570px}.stage h1{font-size:3.35rem}.metrics,.footerGrid{grid-template-columns:1fr}.section{padding:38px 0}}
 </style>
 </head>
-<body>
+<body>\n<div style="background:#123c32;color:#dffff1;padding:10px 16px;text-align:center;font-weight:900;letter-spacing:.06em;font-size:.78rem">ZERO-BUDGET PUBLIC LAUNCH • EXTERNAL DELIVERY ACTIVE • IZAKHONO AUTHORITY RETAINED</div>
 <div class="topbar"><div class="wrap"><span><strong>GOSPEL ONLY.</strong> 24 hours a day • 7 days a week • Africa to the world</span><span>Churches • Artists • Choirs • Families • Ministries</span></div></div>
 <nav>
   <div class="wrap navrow">
@@ -284,11 +284,12 @@ function renderGuide(){
 renderGuide();setInterval(renderGuide,60000);
 async function shareChannel(){try{if(navigator.share){await navigator.share({title:"YHVH GOSPEL TV",text:"Faith. Worship. Word. Africa to the World.",url:location.href})}else{await navigator.clipboard.writeText(location.href);alert("Channel link copied.")}}catch(e){}}
 document.querySelector("#watchButton").addEventListener("click",async()=>{
- try{
-   const r=await fetch("/api/channel");const j=await r.json();
-   if(j.liveEmbedUrl){location.href=j.liveEmbedUrl;return}
-   alert("YHVH GOSPEL TV is on air in launch mode. A live broadcast feed can be attached without changing the channel experience.");
- }catch(e){alert("YHVH GOSPEL TV is ready for its live broadcast feed.")}
+  if(location.hostname.endsWith("github.io")){ location.href="https://kora-network.vercel.app/gospel"; return; }
+  try{
+    const r=await fetch("/api/channel");const j=await r.json();
+    if(j.liveEmbedUrl){location.href=j.liveEmbedUrl;return}
+    alert("YHVH GOSPEL TV is live in launch mode. The external production route is active while the IZAKHONO-owned origin completes public cutover.");
+  }catch(e){ location.href="https://kora-network.vercel.app/gospel"; }
 });
 const GOSPEL_EXTERNAL_INTAKE="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/kora-gospel-intake";
 function ownedSubmissionUrl(){
@@ -297,6 +298,12 @@ function ownedSubmissionUrl(){
     :"/api/submissions";
 }
 async function submitHybrid(data){
+  if(location.hostname.endsWith("github.io")){
+    const r=await fetch(GOSPEL_EXTERNAL_INTAKE,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({...data,sourceChannel:"external-launch-web"})});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(j.error||"Unable to submit right now.");
+    return {...j,route:j.route||"external-buffer"};
+  }
   let shouldFallback=false;
   try{
     const r=await fetch(ownedSubmissionUrl(),{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({...data,sourceChannel:"gospel-public-web"})});
