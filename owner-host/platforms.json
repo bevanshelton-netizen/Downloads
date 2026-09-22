@@ -16,6 +16,12 @@
       "deploy": "izakhono-owned-cloud/deploy-growth-os-v2.sh"
     },
     {
+      "id": "creative-suite",
+      "hostnameEnv": "CREATIVE_SUITE_PUBLIC_HOST",
+      "defaultHostname": "creative.domains.izakhonoafrica.co.za",
+      "deploy": "izakhono-owned-cloud/deploy-creative-suite.sh"
+    },
+    {
       "id": "kora-network",
       "hostnameEnv": "KORA_PUBLIC_HOST",
       "deploy": "izakhono-cloud/DEPLOY-KORA-ISN-01.ps1"
