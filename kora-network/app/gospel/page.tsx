@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import GospelDistribution from './gospel-distribution';
 
 export const metadata: Metadata = {
-  title: 'YHVH GOSPEL TV',
+  title: { absolute: 'YHVH GOSPEL TV' },
   description: 'YHVH GOSPEL TV — Gospel-only television on IZAKHONO-owned infrastructure with resilient external distribution.',
   applicationName: 'YHVH GOSPEL TV',
 };
