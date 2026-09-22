@@ -25,9 +25,10 @@
       ├─ IZAKHONO BACKUP NODE     :8870
       ├─ IZAKHONO CI WORKER NODE  :8880
       ├─ IZAKHONO REPLICA NODE    :8890
-      └─ IZAKHONO FAILOVER NODE   :8920
+      ├─ IZAKHONO FAILOVER NODE   :8920
+      └─ IZAKHONO DNS control     :8900
 
-Control interfaces bind to loopback: RUNTIME control :8790 and EDGE control :8795.
+Control interfaces bind to loopback: RUNTIME control :8790, EDGE control :8795 and DNS control :8900. DNS data-plane starts safely on 127.0.0.1:5353 and moves to authoritative port 53 only during deliberate public-edge activation.
 
 ## Identity plane
 
