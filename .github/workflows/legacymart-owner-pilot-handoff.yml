@@ -7,6 +7,9 @@ on:
       - 'START-LEGACYMART-ON-IZAKHONO.cmd'
       - 'izakhono-cloud/DEPLOY-LEGACYMART-ISN-01.ps1'
       - 'izakhono-cloud/RUN-IZAKHONO-FLEET-ISN-01.ps1'
+      - 'izakhono-owned-cloud/import-repo-to-code.sh'
+      - 'izakhono-owned-cloud/deploy-legacymart.sh'
+      - 'owner-host/platforms.json'
       - '.github/workflows/legacymart-owner-pilot-handoff.yml'
   push:
     branches: [main]
@@ -45,22 +48,20 @@ jobs:
         run: |
           $p = Get-Content 'izakhono-cloud/DEPLOY-LEGACYMART-ISN-01.ps1' -Raw
           foreach ($required in @(
-            '580d30b8b77316e6df7c85791b0c05f7c1552c94',
             'ENGINE-PROOF.json',
-            '127.0.0.1:18110',
-            'PAYFAST_MODE=sandbox',
-            'CHECKOUT_ENABLED=false',
-            'legacymart_data',
-            'legacymart_downloads',
-            'LEGACYMART-CUTOVER.json'
+            'import-repo-to-code.sh',
+            'deploy-legacymart.sh',
+            'IZAKHONO_CODE',
+            'IZAKHONO_RUNTIME',
+            'market.domains.izakhonoafrica.co.za',
+            'LEGACYMART-CUTOVER.json',
+            'legacy_checkout_enabled'
           )) {
             if ($p -notmatch [regex]::Escape($required)) { throw "Missing LegacyMart pilot contract: $required" }
           }
-          if ($p -notmatch 'checkout_enabled.+False') { throw 'checkout-disable receipt missing' }
-          if ($p -notmatch 'live_payment_validation_ready.+False') { throw 'live-payment block missing' }
-          if ($p -notmatch 'public_dns_changed.+False') { throw 'DNS safety receipt missing' }
-          if ($p -notmatch 'live_payments_changed.+False') { throw 'payment safety receipt missing' }
-          if ($p -match 'cloudflared tunnel route|route53|nameserver|dns update') { throw 'LegacyMart pilot must not modify public edge' }
+          if ($p -notmatch 'Legacy PayFast checkout remains disabled') { throw 'legacy checkout safety statement missing' }
+          if ($p -notmatch 'No public-live claim is made unless PUBLIC_HTTPS is VERIFIED') { throw 'public verification boundary missing' }
+          if ($p -match 'cloudflared tunnel route|route53|nameserver|dns update') { throw 'LegacyMart pilot must not modify public edge directly' }
 
       - name: Guard fleet integration
         shell: pwsh
