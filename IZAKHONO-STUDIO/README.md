@@ -6,8 +6,9 @@ IZAKHONO CREATIVE SUITE is the unified evolution of IZAKHONO STUDIO: an original
 
 ## Commercial model
 
-- **USD $5/month** list price for the complete core suite.
-- No separate core-app subscriptions.
+- **USD $5/month** for the Creative Suite core.
+- **USD $15/month** for the Gamer plan, including the full Creative Suite plus Gamer Studio.
+- No separate per-tool subscriptions inside each plan.
 - Expensive AI generation is controlled through a starter allowance plus optional top-ups so the $5 plan remains sustainable.
 - Public checkout is not considered live until the selected gateway, legal pages, reconciliation and end-to-end payment flow are verified.
 - The current South African portfolio gateway is ZAR-first, so local settlement mapping must be configured separately rather than hard-coding an invented conversion.
@@ -41,6 +42,7 @@ IZAKHONO CREATIVE SUITE is the unified evolution of IZAKHONO STUDIO: an original
 - **Canvas** — design, social, posters, thumbnails and templates.
 - **Photo Lab** — raster/photo editing.
 - **Campaign Engine** — portfolio-scale advertising production.
+- **Gamer Studio** — stream overlays, gaming thumbnails, esports cards and gaming creator assets (USD $15/month Gamer plan).
 - **Vector** — SVG illustration, logos and paths.
 - **Layout** — multi-page publishing and print.
 - **Cut** — video editing.
@@ -91,4 +93,4 @@ The v0.3 code has passed the repository CI build. That is **not** a public-live 
 - AI provider gateway with spend controls.
 - Collaboration/comments.
 - Authorised social publishing queue and analytics.
-- $5 product registration in IZAKHONO Pay after settlement mapping and end-to-end checkout verification.
+- $5 Creative and $15 Gamer product registration in IZAKHONO Pay after settlement mapping and end-to-end checkout verification.
