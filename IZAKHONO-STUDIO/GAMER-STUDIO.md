@@ -1,6 +1,6 @@
 # IZAKHONO GAMER STUDIO
 
-Gamer Studio is a first-class module inside the USD $5/month IZAKHONO Creative Suite. It is not a separate subscription.
+Gamer Studio is a dedicated USD $15/month plan. It includes the complete USD $5/month IZAKHONO Creative Suite plus Gamer Studio.
 
 ## Working v1
 - Stream overlay canvas.
@@ -26,4 +26,4 @@ Gamer Studio is a first-class module inside the USD $5/month IZAKHONO Creative S
 - Controller-first navigation and accessibility testing where relevant.
 
 ## Product rule
-Gaming tools inherit the same $5 core subscription, privacy, no-lock-in and owned-first infrastructure rules as the rest of IZAKHONO Creative Suite.
+Pricing rule: Creative Suite is USD $5/month. Gamer Studio is USD $15/month and includes Creative Suite. Gaming still inherits the same privacy, no-lock-in and owned-first infrastructure rules.
