@@ -1,6 +1,7 @@
 import React from 'react';
 import App from './App.jsx';
-import PhotoLab from './PhotoLab.jsx';\nimport SwitchCenter from './SwitchCenter.jsx';
+import PhotoLab from './PhotoLab.jsx';
+import SwitchCenter from './SwitchCenter.jsx';
 import { SUITE_PRICE, SUITE_PROMISES, SUITE_TOOLS } from './suiteCatalog.js';
 
 function Status({ value }) {
