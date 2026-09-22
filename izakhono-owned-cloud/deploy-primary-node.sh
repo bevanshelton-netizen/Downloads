@@ -42,7 +42,13 @@ bash "$HERE/stack-status.sh" | tee -a "$REPORT"
   echo "GITHUB_RUNTIME_DEPENDENCY=NO"
   echo "VERCEL_RUNTIME_DEPENDENCY=NO"
   echo "GROWTH_OS_V2=DEPLOYED_TO_IZAKHONO_RUNTIME"
-  echo "DNS_NODE=SAFE_LOOPBACK_READY"\n  echo "PUBLIC_EDGE=$([ -f /etc/izakhono/tls/fullchain.pem ] && echo READY_FOR_DIRECT_CUTOVER || echo PENDING_TLS)"
+  DNS_HEALTH="$(curl -fsS http://127.0.0.1:8900/health 2>/dev/null || true)"
+  if [ -n "$DNS_HEALTH" ] && node -e 'const x=JSON.parse(process.argv[1]); if(x.product!=="IZAKHONO DNS NODE"||x.status!=="healthy"||x.authoritative!==true||x.recursive!==false)process.exit(2)' "$DNS_HEALTH"; then
+    echo "DNS_NODE=HEALTHY_AUTHORITATIVE_NON_RECURSIVE"
+  else
+    echo "DNS_NODE=NOT_PROVED"
+  fi
+  echo "PUBLIC_EDGE=$([ -f /etc/izakhono/tls/fullchain.pem ] && echo READY_FOR_DIRECT_CUTOVER || echo PENDING_TLS_OR_TUNNEL)"
   echo "PHYSICAL_REPLICA=REQUIRES_SEPARATE_HOST"
   echo "Completed: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 } | tee -a "$REPORT"

@@ -42,6 +42,7 @@ install_component "IZAKHONO CI WORKER NODE" "izakhono-ci-worker-node"
 install_component "IZAKHONO BACKUP NODE" "izakhono-backup-node"
 install_component "IZAKHONO REPLICA NODE" "izakhono-replica-node"
 install_component "IZAKHONO FAILOVER NODE" "izakhono-failover-node"
+install_component "IZAKHONO DNS NODE" "izakhono-dns-node"
 
 if [ "${IZAKHONO_EDGE_MODE:-direct}" = "tunnel" ]; then
   (cd "$ROOT/izakhono-edge-node" && IZAKHONO_EDGE_MODE=tunnel bash install-linux.sh)
@@ -69,6 +70,7 @@ echo "CI_WORKER=INSTALLED"
 echo "BACKUP=INSTALLED"
 echo "REPLICA=INSTALLED"
 echo "FAILOVER=INSTALLED"
+echo "DNS=INSTALLED_SAFE_LOOPBACK"
 echo "EDGE=$EDGE_STATUS"
 echo
 echo "Next:"
