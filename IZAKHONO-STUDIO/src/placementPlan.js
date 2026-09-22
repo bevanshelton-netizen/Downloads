@@ -1,5 +1,33 @@
 export const AD_PLACEMENT_PLAN = [
   {
+    "id": "izakhono-gamer",
+    "brand": "IZAKHONO GAMER STUDIO",
+    "objective": "gamer-plan-subscriptions",
+    "audience": [
+      "gamers",
+      "streamers",
+      "esports teams",
+      "gaming creators",
+      "independent game developers"
+    ],
+    "ownedPlacements": [
+      "KORA gaming and entertainment surfaces where contextually appropriate",
+      "ALLEGRO creator surfaces where contextually appropriate",
+      "IZAKHONO portfolio cross-promo",
+      "IZAKHONO STUDIO campaign packs"
+    ],
+    "externalOrganicTargets": [
+      "YouTube",
+      "TikTok",
+      "Instagram",
+      "Facebook",
+      "X"
+    ],
+    "message": "Stream graphics, gaming thumbnails, esports creative and the full IZAKHONO Creative Suite for USD $15/month.",
+    "cta": "JOIN GAMER STUDIO",
+    "status": "campaign-prepared-hold-until-public-and-payment-verified"
+  },
+  {
     "id": "kora",
     "brand": "KORA",
     "objective": "audience-growth-and-one-time-purchases",
