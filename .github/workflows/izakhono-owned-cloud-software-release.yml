@@ -78,17 +78,23 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22.22.3
-          cache: npm
-          cache-dependency-path: izakhono-growth-os/package-lock.json
+          node-version: 22
       - name: Install
-        run: npm ci
+        run: npm install --no-audit --no-fund
       - name: Production build
         run: npm run build
-      - name: Preserve safe-write contract
+      - name: Preserve owned-v2 and safe-write contract
         run: |
-          grep -R -q 'liveAdWrites:false' app
-          grep -R -q 'campaigns paused' app lib
+          grep -q 'liveAdWrites:false' app/api/status/route.ts
+          grep -q 'runtime:"IZAKHONO OWNED CLOUD"' app/api/status/route.ts
+          grep -qi 'campaigns paused' app/api/plan/route.ts
+          grep -q 'service:"growth-os-v2"' app/api/health/route.ts
+          grep -q 'GROWTH_OS_PUBLIC_BASE_URL' 'app/api/oauth/[provider]/readiness/route.ts'
+          ! grep -R -n 'izakhono-growth-os.vercel.app' app lib
+          grep -q 'growth.write' app/api/approvals/route.ts
+          grep -q 'growth.write' 'app/api/approvals/[id]/decision/route.ts'
+          grep -q 'growth.read' app/api/stats/route.ts
+          grep -q 'httpOnly:true' app/api/auth/login/route.ts
 
   release-status:
     runs-on: ubuntu-latest
