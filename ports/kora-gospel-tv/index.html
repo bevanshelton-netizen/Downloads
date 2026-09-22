@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#08101f">
-<meta name="description" content="KORA GOSPEL TV — a 24/7 Gospel-only television network for worship, the Word, testimonies, Gospel music, children, churches and Christian stories from Africa to the world.">
-<title>KORA GOSPEL TV — Faith. Worship. Word.</title>
+<meta name="description" content="YHVH GOSPEL TV — a 24/7 Gospel-only television network for worship, the Word, testimonies, Gospel music, children, churches and Christian stories from Africa to the world.">
+<title>YHVH GOSPEL TV — Faith. Worship. Word.</title>
 <style>
 :root{
   --ink:#07111f;--ink2:#0c1930;--panel:#101f38;--gold:#f5c451;--gold2:#ffe29a;
@@ -96,7 +96,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 50px;color:var(--muted)}.
 <div class="topbar"><div class="wrap"><span><strong>GOSPEL ONLY.</strong> 24 hours a day • 7 days a week • Africa to the world</span><span>Churches • Artists • Choirs • Families • Ministries</span></div></div>
 <nav>
   <div class="wrap navrow">
-    <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span><span>KORA GOSPEL TV<small>FAITH • WORSHIP • WORD</small></span></a>
+    <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span><span>YHVH GOSPEL TV<small>FAITH • WORSHIP • WORD</small></span></a>
     <div class="links"><a href="#watch">Watch Live</a><a href="#shows">Shows</a><a href="#guide">TV Guide</a><a href="#submit">Submit</a><a href="#prayer">Prayer</a></div>
     <div class="actions"><button class="btn" onclick="document.querySelector('#submit').scrollIntoView()">Partner</button><button class="btn live" onclick="document.querySelector('#watch').scrollIntoView()">● WATCH LIVE</button></div>
   </div>
@@ -110,7 +110,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 50px;color:var(--muted)}.
     <div class="stageContent">
       <span class="livePill"><span class="dot"></span> LIVE CHANNEL</span>
       <h1>THE SOUND OF <em>FAITH</em> HAS A HOME.</h1>
-      <p>KORA GOSPEL TV is a dedicated Gospel television network for worship, preaching, testimony, Gospel music, children, church services and Christian stories — broadcasting Africa’s faith to the world.</p>
+      <p>YHVH GOSPEL TV is a dedicated Gospel television network for worship, preaching, testimony, Gospel music, children, church services and Christian stories — broadcasting Africa’s faith to the world.</p>
       <div class="stageActions">
         <button class="btn gold" id="watchButton">▶ Start Watching</button>
         <button class="btn" onclick="document.querySelector('#guide').scrollIntoView()">View TV Guide</button>
@@ -120,7 +120,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 50px;color:var(--muted)}.
   </div>
   <aside class="side">
     <div class="card now">
-      <div class="eyebrow">Now on KORA GOSPEL TV</div>
+      <div class="eyebrow">Now on YHVH GOSPEL TV</div>
       <div class="nowTitle" id="nowTitle">Morning Glory</div>
       <div class="muted" id="nowMeta">Worship • Scripture • Prayer</div>
       <div class="progress"><span id="nowProgress"></span></div>
@@ -172,7 +172,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 50px;color:var(--muted)}.
 <section class="section" id="guide">
 <div class="wrap">
   <div class="eyebrow">24/7 guide</div>
-  <h2>Today on KORA GOSPEL TV.</h2>
+  <h2>Today on YHVH GOSPEL TV.</h2>
   <p class="sectionIntro">The launch schedule automatically cycles by Johannesburg time. Live events can override any slot when a verified broadcast feed is scheduled.</p>
   <div class="guide">
     <div class="guideHead"><span>Time</span><span>Programme</span><span>Format</span><span>Audience</span></div>
@@ -244,7 +244,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 50px;color:var(--muted)}.
 </main>
 
 <footer><div class="wrap footerGrid">
-  <div><div class="brand"><span class="mark"></span><span>KORA GOSPEL TV<small>AFRICA TO THE WORLD</small></span></div><p class="notice">A Gospel-only digital television network. Broadcast rights, music rights, participant releases and ministry permissions must be cleared before publication or transmission.</p></div>
+  <div><div class="brand"><span class="mark"></span><span>YHVH GOSPEL TV<small>AFRICA TO THE WORLD</small></span></div><p class="notice">A Gospel-only digital television network. Broadcast rights, music rights, participant releases and ministry permissions must be cleared before publication or transmission.</p></div>
   <div><h4>Watch</h4><a href="#watch">Live Channel</a><a href="#guide">TV Guide</a><a href="#shows">Programmes</a></div>
   <div><h4>Join</h4><a href="#submit">Submit Content</a><a href="#submit">Partner</a><a href="#prayer">Prayer Request</a></div>
   <div><h4>Network</h4><a href="#submit">Churches</a><a href="#submit">Artists & Choirs</a><a href="#submit">Sponsors</a></div>
@@ -282,13 +282,13 @@ function renderGuide(){
  document.querySelector("#miniGuide").innerHTML=next.map(x=>'<div class="slot"><time>'+x[0]+'</time><div><b>'+x[1]+'</b><small>'+x[2]+'</small></div></div>').join("")||'<div class="muted">New broadcast day begins at 00:00.</div>';
 }
 renderGuide();setInterval(renderGuide,60000);
-async function shareChannel(){try{if(navigator.share){await navigator.share({title:"KORA GOSPEL TV",text:"Faith. Worship. Word. Africa to the World.",url:location.href})}else{await navigator.clipboard.writeText(location.href);alert("Channel link copied.")}}catch(e){}}
+async function shareChannel(){try{if(navigator.share){await navigator.share({title:"YHVH GOSPEL TV",text:"Faith. Worship. Word. Africa to the World.",url:location.href})}else{await navigator.clipboard.writeText(location.href);alert("Channel link copied.")}}catch(e){}}
 document.querySelector("#watchButton").addEventListener("click",async()=>{
  try{
    const r=await fetch("/api/channel");const j=await r.json();
    if(j.liveEmbedUrl){location.href=j.liveEmbedUrl;return}
-   alert("KORA GOSPEL TV is on air in launch mode. A live broadcast feed can be attached without changing the channel experience.");
- }catch(e){alert("KORA GOSPEL TV is ready for its live broadcast feed.")}
+   alert("YHVH GOSPEL TV is on air in launch mode. A live broadcast feed can be attached without changing the channel experience.");
+ }catch(e){alert("YHVH GOSPEL TV is ready for its live broadcast feed.")}
 });
 const GOSPEL_EXTERNAL_INTAKE="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/kora-gospel-intake";
 function ownedSubmissionUrl(){
