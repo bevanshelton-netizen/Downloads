@@ -87,7 +87,7 @@ export default function GlobalIntake({primaryUrl,externalUrl}:Props){
     </label>
     <label style={{display:'flex',gap:10,alignItems:'flex-start',color:'#c9d5e5',fontSize:13,lineHeight:1.5}}>
       <input name="rightsAttested" type="checkbox" style={{marginTop:3}}/>
-      I understand that submission does not equal broadcast approval and that KORA will separately verify content, music, participant and territory rights before transmission.
+      I understand that submission does not equal broadcast approval and that YHVH GOSPEL TV will separately verify content, music, participant and territory rights before transmission.
     </label>
     <div style={{display:'flex',gap:12,alignItems:'center',flexWrap:'wrap'}}>
       <button disabled={busy} type="submit" style={{border:0,borderRadius:999,padding:'13px 18px',background:'#f5c451',color:'#2d2108',fontWeight:900,cursor:busy?'wait':'pointer'}}>{busy?'Sending…':'Submit to the Global Desk'}</button>
