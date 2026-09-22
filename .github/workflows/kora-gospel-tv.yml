@@ -14,6 +14,7 @@ on:
       - "kora-network/public/gospel-syndication.json"
       - "kora-network/public/gospel-global.json"
       - "kora-network/public/gospel-commercial.json"
+      - "kora-network/public/gospel-hybrid-gateway.json"
       - "ports/kora-gospel-tv/WORLDWIDE.md"
       - ".github/workflows/kora-gospel-tv.yml"
   push:
@@ -49,6 +50,9 @@ jobs:
           grep -q 'yfawrenhudjomhnglfhq.supabase.co/functions/v1/kora-gospel-intake' kora-network/public/gospel-syndication.json
           grep -q '"pricing_mode": "proposal-based"' kora-network/public/gospel-commercial.json
           grep -q '"editorial_independence": true' kora-network/public/gospel-commercial.json
+          grep -q '"policy": "owned-first-external-fallback"' kora-network/public/gospel-hybrid-gateway.json
+          grep -q '"global_front_door": "/gospel/live"' kora-network/public/gospel-hybrid-gateway.json
+          grep -q "kora-gospel-hybrid-gateway" kora-network/app/api/gospel/hybrid-status/route.ts
 
       - name: Start isolated Gospel TV runtime
         run: |
