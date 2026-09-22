@@ -2,7 +2,7 @@ import Link from 'next/link';
 import GlobalIntake from './intake-client';
 
 export const metadata={
-  title:'Join YHVH GOSPEL TV Worldwide',
+  title:{ absolute:'Join YHVH GOSPEL TV Worldwide' },
   description:'Global Gospel content, church, artist, broadcaster, event, sponsor and distribution-partner intake.'
 };
 
