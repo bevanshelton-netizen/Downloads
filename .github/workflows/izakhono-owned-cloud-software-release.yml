@@ -1,0 +1,101 @@
+name: IZAKHONO OWNED CLOUD Software Release Gate
+
+on:
+  push:
+    branches: [release/izakhono-owned-cloud-software-complete]
+    paths:
+      - "izakhono-*-node/**"
+      - "izakhono-owned-cloud/**"
+      - "izakhono-growth-os/**"
+      - ".github/workflows/izakhono-owned-cloud-software-release.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "izakhono-*-node/**"
+      - "izakhono-owned-cloud/**"
+      - "izakhono-growth-os/**"
+      - ".github/workflows/izakhono-owned-cloud-software-release.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  static-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+      - name: Run static software acceptance
+        run: bash izakhono-owned-cloud/software-acceptance.sh
+
+  node-self-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - izakhono-data-node
+          - izakhono-runtime-node
+          - izakhono-edge-node
+          - izakhono-object-node
+          - izakhono-queue-node
+          - izakhono-auth-node
+          - izakhono-analytics-node
+          - izakhono-notify-node
+          - izakhono-ai-gateway-node
+          - izakhono-code-node
+          - izakhono-backup-node
+          - izakhono-ci-worker-node
+          - izakhono-replica-node
+          - izakhono-dns-node
+          - izakhono-package-node
+          - izakhono-failover-node
+          - izakhono-witness-node
+    defaults:
+      run:
+        working-directory: ${{ matrix.service }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+      - name: Verify zero runtime dependencies
+        run: test "$(node -e 'console.log(Object.keys(require("./package.json").dependencies||{}).length)')" = "0"
+      - name: Run service self-test
+        run: npm run check
+
+  growth-os-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: izakhono-growth-os
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+          cache: npm
+          cache-dependency-path: izakhono-growth-os/package-lock.json
+      - name: Install
+        run: npm ci
+      - name: Production build
+        run: npm run build
+      - name: Preserve safe-write contract
+        run: |
+          grep -R -q 'liveAdWrites:false' app
+          grep -R -q 'campaigns paused' app lib
+
+  release-status:
+    runs-on: ubuntu-latest
+    needs: [static-acceptance,node-self-tests,growth-os-build]
+    steps:
+      - name: Mark software acceptance
+        run: |
+          echo "IZAKHONO OWNED CLOUD"
+          echo "SOFTWARE_COMPLETE_PHYSICAL_ACTIVATION_PENDING"
+          echo "No claim of physical HA, DNS delegation or public cutover is made by this CI gate."
