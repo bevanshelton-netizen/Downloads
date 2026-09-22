@@ -44,25 +44,10 @@ export default function CommercialLead({primaryUrl,externalUrl}:Props){
     };
 
     try{
-      let fallback=false;
-      try{
-        const owned=await post(primaryUrl.replace(/\/$/,'')+'/api/submissions',payload);
-        if(owned.r.ok){
-          setStatus('Commercial enquiry received by IZAKHONO. Reference: '+owned.body.reference);
-          setRoute('OWNED · AUTHORITATIVE');form.reset();return;
-        }
-        if(owned.r.status>=500||[404,405].includes(owned.r.status))fallback=true;
-        else throw new Error(owned.body.error||'Unable to submit.');
-      }catch(err){
-        if(err instanceof TypeError||String(err instanceof Error?err.message:'').includes('Failed to fetch'))fallback=true;
-        else throw err;
-      }
-      if(!fallback)throw new Error('Unable to submit right now.');
-
-      const ext=await post(externalUrl,payload);
-      if(!ext.r.ok)throw new Error(ext.body.error||'Both commercial intake routes are temporarily unavailable.');
-      setStatus('Commercial enquiry received through the resilience route. Reference: '+ext.body.reference);
-      setRoute('EXTERNAL BUFFER · PENDING IZAKHONO REVIEW');form.reset();
+      const ext=await post(externalUrl,{...payload,sourceChannel:'yhvh-external-commercial-launch'});
+      if(!ext.r.ok)throw new Error(ext.body.error||'Commercial intake is temporarily unavailable.');
+      setStatus('Commercial enquiry received. Reference: '+ext.body.reference);
+      setRoute('PUBLIC LAUNCH INTAKE · PENDING IZAKHONO REVIEW');form.reset();
     }catch(err){
       setStatus(err instanceof Error?err.message:'Unable to submit right now.');setRoute('');
     }finally{setBusy(false)}

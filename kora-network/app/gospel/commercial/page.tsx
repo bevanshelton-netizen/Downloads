@@ -23,7 +23,7 @@ export default function CommercialDesk(){
       <Link href="/gospel" style={{color:'#ffe29a',fontWeight:900,textDecoration:'none'}}>← YHVH GOSPEL TV</Link>
       <div style={{marginTop:22,color:'#f5c451',fontWeight:900,fontSize:12,letterSpacing:'.14em'}}>GLOBAL COMMERCIAL DESK</div>
       <h1 style={{fontSize:'clamp(3rem,8vw,6.6rem)',lineHeight:.88,letterSpacing:'-.06em',margin:'12px 0 18px'}}>PARTNER WITH<br/><span style={{color:'#f5c451'}}>GOSPEL TV.</span></h1>
-      <p style={{maxWidth:850,fontSize:18,lineHeight:1.65,color:'#c7d4e4'}}>Build reach around faith, Gospel music, family programming and live events through sponsorship, advertising, distribution and production partnerships. Pricing is proposal-based while we establish inventory, territory and delivery requirements.</p>
+      <p style={{maxWidth:850,fontSize:18,lineHeight:1.65,color:'#c7d4e4'}}>Build reach around faith, Gospel music, family programming and live events through sponsorship, advertising, distribution and production partnerships. We are open for business now. Pricing is proposal-based so we can close launch sponsorship, advertising, event-broadcast and distribution deals without adding paid infrastructure first.</p>
 
       <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(250px,1fr))',gap:14,margin:'30px 0'}}>
         {offers.map(o=><article key={o.id} style={{padding:22,border:'1px solid rgba(255,255,255,.13)',borderRadius:22,background:'rgba(255,255,255,.045)'}}>
@@ -34,7 +34,7 @@ export default function CommercialDesk(){
       <CommercialLead primaryUrl={primaryUrl} externalUrl={externalUrl}/>
 
       <section style={{marginTop:26,display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(250px,1fr))',gap:14}}>
-        <article style={{padding:20,borderRadius:20,background:'#0b1c31',border:'1px solid rgba(255,255,255,.12)'}}><b style={{color:'#83f0c4'}}>OWNED FIRST</b><p style={{color:'#aebed1',lineHeight:1.55}}>Commercial enquiries try the IZAKHONO-owned Gospel runtime first and use the external buffer only for resilience.</p></article>
+        <article style={{padding:20,borderRadius:20,background:'#0b1c31',border:'1px solid rgba(255,255,255,.12)'}}><b style={{color:'#83f0c4'}}>OWNED FIRST</b><p style={{color:'#aebed1',lineHeight:1.55}}>Commercial enquiries are captured immediately through the zero-cost public launch path and remain subject to IZAKHONO review and control.</p></article>
         <article style={{padding:20,borderRadius:20,background:'#0b1c31',border:'1px solid rgba(255,255,255,.12)'}}><b style={{color:'#8ed8ff'}}>GLOBAL REACH</b><p style={{color:'#aebed1',lineHeight:1.55}}>Vercel and other approved external platforms expand discovery and distribution while IZAKHONO remains the authoritative control plane.</p></article>
         <article style={{padding:20,borderRadius:20,background:'#0b1c31',border:'1px solid rgba(255,255,255,.12)'}}><b style={{color:'#ffe29a'}}>EDITORIAL INDEPENDENCE</b><p style={{color:'#aebed1',lineHeight:1.55}}>Sponsorship and advertising never create automatic broadcast, ministry or editorial approval.</p></article>
       </section>
