@@ -1,10 +1,11 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App.jsx';
+import SuiteShell from './SuiteShell.jsx';
 import './styles.css';
+import './suite.css';
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <App />
+    <SuiteShell />
   </React.StrictMode>,
 );
