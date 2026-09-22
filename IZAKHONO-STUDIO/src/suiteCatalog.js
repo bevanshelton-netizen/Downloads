@@ -33,6 +33,14 @@ export const SUITE_TOOLS = [
     replaces: 'Manual creative resizing and campaign packaging',
   },
   {
+    id: 'gamer',
+    name: 'Gamer Studio',
+    kicker: 'Gaming + esports',
+    status: 'working-v1',
+    description: 'Stream overlays, gaming thumbnails, esports cards, vertical covers and the foundation for clips, emotes, sprites and game-dev assets.',
+    replaces: 'Separate streamer branding, thumbnail and esports creative tools',
+  },
+  {
     id: 'vector',
     name: 'Vector',
     kicker: 'Logos + illustration',
