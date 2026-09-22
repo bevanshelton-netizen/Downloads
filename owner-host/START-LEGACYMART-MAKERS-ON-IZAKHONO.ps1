@@ -6,7 +6,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 Write-Host ""
-Write-Host "LEGACYMART MAKERS - IZAKHONO OWNED INFRASTRUCTURE" -ForegroundColor Gold
+Write-Host "LEGACYMART MAKERS - IZAKHONO OWNED INFRASTRUCTURE" -ForegroundColor Yellow
 Write-Host "Reference shop: BEVAN SHELTON(TM)" -ForegroundColor Cyan
 Write-Host "Target: IZAKHONO CODE -> RUNTIME -> EDGE/FORTRESS" -ForegroundColor Cyan
 Write-Host ""
