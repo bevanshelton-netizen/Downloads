@@ -2,6 +2,7 @@ import React from 'react';
 import App from './App.jsx';
 import PhotoLab from './PhotoLab.jsx';
 import SwitchCenter from './SwitchCenter.jsx';
+import GamerStudio from './GamerStudio.jsx';
 import { SUITE_PRICE, SUITE_PROMISES, SUITE_TOOLS } from './suiteCatalog.js';
 
 function Status({ value }) {
@@ -17,7 +18,7 @@ export default function SuiteShell() {
         <div className="suite-hero-copy">
           <div className="suite-pill">IZAKHONO CREATIVE SUITE • ORIGINAL PRODUCT</div>
           <h1>One creative universe. <em>{SUITE_PRICE.label}.</em></h1>
-          <p className="suite-lead">A unified alternative to expensive, fragmented creative software: design, photo, vector, publishing, video, motion, audio, documents, AI, assets and distribution under one IZAKHONO roof.</p>
+          <p className="suite-lead">A unified alternative to expensive, fragmented creative software: design, photo, gaming, vector, publishing, video, motion, audio, documents, AI, assets and distribution under one IZAKHONO roof.</p>
           <div className="suite-price-row">
             <div className="suite-price"><strong>$5</strong><span>USD / month</span></div>
             <div className="suite-price-copy">
@@ -27,7 +28,7 @@ export default function SuiteShell() {
           </div>
           <div className="suite-cta-row">
             <a className="suite-primary-link" href="#switch-center">Switch to IZAKHONO</a>
-            <a className="suite-secondary-link" href="#design-studio">Open Design Studio</a>
+            <a className="suite-secondary-link" href="#gamer-studio">Open Gamer Studio</a>
           </div>
         </div>
 
@@ -74,7 +75,9 @@ export default function SuiteShell() {
         </div>
       </section>
 
-      <SwitchCenter />\n\n      <PhotoLab />
+      <SwitchCenter />
+
+      <GamerStudio />\n\n      <PhotoLab />
 
       <section className="suite-commercial">
         <div>
