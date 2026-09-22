@@ -28,7 +28,7 @@ export default function GospelPage() {
             </div>
           </div>
         </div>
-        <div style={{marginTop:14,display:'flex',gap:16,flexWrap:'wrap'}}><a href="/gospel/commercial" style={{color:'#f5c451',fontWeight:900,textDecoration:'none'}}>Sponsor / advertise →</a><a href="/gospel/join" style={{color:'#7ff0bd',fontWeight:900,textDecoration:'none'}}>Join the global network →</a><a href="/gospel/worldwide" style={{color:'#ffe29a',fontWeight:900,textDecoration:'none'}}>Worldwide network →</a><a href="/gospel/distribution" style={{color:'#ffe29a',fontWeight:900,textDecoration:'none'}}>View distribution map →</a><a href={primaryUrl.replace(/\/$/,'') + '/control.html'} target="_blank" rel="noopener noreferrer" style={{color:'#8ed8ff',fontWeight:900,textDecoration:'none'}}>Owner control room ↗</a></div>
+        <div style={{marginTop:14,display:'flex',gap:16,flexWrap:'wrap'}}><a href="/gospel/commercial" style={{color:'#f5c451',fontWeight:900,textDecoration:'none'}}>Sponsor / advertise →</a><a href="/gospel/join" style={{color:'#7ff0bd',fontWeight:900,textDecoration:'none'}}>Join the global network →</a><a href="/gospel/worldwide" style={{color:'#ffe29a',fontWeight:900,textDecoration:'none'}}>Worldwide network →</a><a href="/gospel/distribution" style={{color:'#ffe29a',fontWeight:900,textDecoration:'none'}}>View distribution map →</a></div>
       </section>
 
       <section style={{width:'min(1180px,92vw)',margin:'0 auto',padding:'10px 0 34px'}}>
@@ -66,27 +66,17 @@ export default function GospelPage() {
       </section>
 
       <section style={{width:'min(1180px,92vw)',margin:'0 auto',padding:'24px 0 70px'}}>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:16}}>
-          <article style={{padding:22,border:'1px solid rgba(255,255,255,.13)',borderRadius:22,background:'rgba(255,255,255,.05)'}}>
-            <small style={{color:'#ffe29a',fontWeight:900,letterSpacing:'.12em'}}>PRIMARY</small>
-            <h2 style={{margin:'8px 0'}}>IZAKHONO-owned origin</h2>
-            <p style={{color:'#b8c5d8',lineHeight:1.55}}>Source of truth for the channel runtime, programme state, submissions, prayer intake and future live broadcast feed.</p>
-          </article>
-          <article style={{padding:22,border:'1px solid rgba(255,255,255,.13)',borderRadius:22,background:'rgba(255,255,255,.05)'}}>
-            <small style={{color:'#ffe29a',fontWeight:900,letterSpacing:'.12em'}}>DISTRIBUTION</small>
-            <h2 style={{margin:'8px 0'}}>Vercel discovery layer</h2>
-            <p style={{color:'#b8c5d8',lineHeight:1.55}}>Provides YHVH GOSPEL TV with a fast external discovery surface while IZAKHONO remains authoritative.</p>
-          </article>
-          <article style={{padding:22,border:'1px solid rgba(255,255,255,.13)',borderRadius:22,background:'rgba(255,255,255,.05)'}}>
-            <small style={{color:'#ffe29a',fontWeight:900,letterSpacing:'.12em'}}>FALLBACK</small>
-            <h2 style={{margin:'8px 0'}}>GitHub Pages mirror</h2>
-            <p style={{color:'#b8c5d8',lineHeight:1.55}}>A lightweight public fallback for continuity and discoverability if a primary or external compute layer is temporarily unavailable.</p>
-          </article>
-          <article style={{padding:22,border:'1px solid rgba(255,255,255,.13)',borderRadius:22,background:'rgba(255,255,255,.05)'}}>
-            <small style={{color:'#ffe29a',fontWeight:900,letterSpacing:'.12em'}}>NEXT</small>
-            <h2 style={{margin:'8px 0'}}>Social + smart-TV reach</h2>
-            <p style={{color:'#b8c5d8',lineHeight:1.55}}>External video and social platforms can carry trailers, clips and approved simulcasts while the owned channel remains authoritative.</p>
-          </article>
+        <div style={{position:'relative',overflow:'hidden',minHeight:440,borderRadius:30,border:'1px solid rgba(245,196,81,.16)',background:'linear-gradient(135deg,#091729,#050c18)'}}>
+          <img src="/images/yhvh-broadcast-globe.svg" alt="YHVH Gospel TV global broadcast network graphic" style={{position:'absolute',right:'-3%',top:'50%',transform:'translateY(-50%)',width:'min(720px,70%)',height:'auto',opacity:.92}}/>
+          <div style={{position:'relative',zIndex:2,padding:34,maxWidth:570}}>
+            <small style={{color:'#f5c451',fontWeight:900,letterSpacing:'.14em'}}>WORLDWIDE GOSPEL</small>
+            <h2 style={{fontFamily:'Georgia,serif',fontSize:'clamp(2.8rem,5vw,4.8rem)',lineHeight:.92,margin:'10px 0 14px'}}>One Gospel family. Many nations.</h2>
+            <p style={{color:'#c6d2df',lineHeight:1.75}}>Africa, the Americas, Europe, Asia, the Caribbean and the Pacific — bringing churches, artists, choirs, worship traditions and Christian stories into one professional Gospel media destination.</p>
+            <div style={{display:'flex',gap:10,flexWrap:'wrap',marginTop:18}}>
+              <a href="/gospel/join" style={{padding:'12px 18px',borderRadius:999,background:'#f5c451',color:'#2d2108',fontWeight:900,textDecoration:'none'}}>Join the network →</a>
+              <a href="/gospel/worldwide" style={{padding:'12px 18px',borderRadius:999,border:'1px solid rgba(255,255,255,.18)',color:'#fff',fontWeight:900,textDecoration:'none'}}>Explore worldwide Gospel</a>
+            </div>
+          </div>
         </div>
       </section>
     </main>
