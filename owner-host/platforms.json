@@ -46,6 +46,12 @@
       "deploy": "izakhono-cloud/DEPLOY-CHANCELLOR-ISN-01.ps1"
     },
     {
+      "id": "legacymart",
+      "hostnameEnv": "LEGACYMART_PUBLIC_HOST",
+      "defaultHostname": "market.domains.izakhonoafrica.co.za",
+      "deploy": "izakhono-owned-cloud/deploy-legacymart.sh"
+    },
+    {
       "id": "izakhono-pay",
       "hostnameEnv": "IZAKHONO_PAY_PUBLIC_HOST",
       "deploy": "izakhono-owned-cloud/go-live-izakhono-pay.sh"
