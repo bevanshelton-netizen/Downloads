@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#08101f">
-<meta name="description" content="YHVH GOSPEL TV — a 24/7 Gospel-only television network for worship, the Word, testimonies, Gospel music, children, churches and Christian stories from Africa to the world.">
+<meta name="description" content="YHVH GOSPEL TV — a premium Gospel-only television network for worship, the Word, Gospel music, testimony, families, churches and Christian stories from Africa to the world.">\n<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <title>YHVH GOSPEL TV — Faith. Worship. Word.</title>
 <style>
 :root{
@@ -90,13 +90,96 @@ footer{border-top:1px solid var(--line);padding:34px 0 50px;color:var(--muted)}.
 @media(max-width:900px){
   .links{display:none}.heroGrid,.formGrid,.prayerGrid{grid-template-columns:1fr}.grid4{grid-template-columns:1fr 1fr}.channelBands{grid-template-columns:1fr}.heroGrid{gap:14px}.stage{min-height:520px}.stageContent{padding:26px}.guideHead,.guideRow{grid-template-columns:72px 1fr}.guideHead span:nth-child(n+3),.guideRow span:nth-child(n+3){display:none}.metrics{grid-template-columns:1fr 1fr}.footerGrid{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.topbar .wrap{display:block}.topbar .wrap span:last-child{display:none}.brand>span{font-size:.86rem}.actions .btn:not(.live){display:none}.grid4{grid-template-columns:1fr}.stage{min-height:570px}.stage h1{font-size:3.35rem}.metrics,.footerGrid{grid-template-columns:1fr}.section{padding:38px 0}}
-</style>
+
+/* YHVH premium visual system */
+:root{
+  --ivory:#fffaf0;--champagne:#f9e8bb;--navy:#050c18;--navy2:#091526;
+  --royal:#15274b;--wine2:#4b1029;--gold3:#c8912b;
+}
+body{font-family:"Manrope",Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:
+radial-gradient(circle at 8% 6%,rgba(95,58,168,.18),transparent 24%),
+radial-gradient(circle at 90% 2%,rgba(245,196,81,.14),transparent 22%),
+linear-gradient(180deg,#050c18 0%,#07111f 38%,#081323 100%);}
+h1,h2,.serif,.nowTitle,.show h3,.band strong,.prayer h2{font-family:"Cormorant Garamond",Georgia,serif;}
+.launchRibbon{background:linear-gradient(90deg,#3a0c21,#6a1534 48%,#271428);border-bottom:1px solid rgba(245,196,81,.22);color:#fff4d2;padding:10px 16px;text-align:center;font-weight:800;letter-spacing:.14em;font-size:.72rem;text-transform:uppercase;}
+.launchRibbon b{color:#ffe29a}
+nav{background:rgba(5,12,24,.86);border-bottom:1px solid rgba(245,196,81,.13);box-shadow:0 8px 28px rgba(0,0,0,.18)}
+.brand img{width:50px;height:50px;object-fit:contain;filter:drop-shadow(0 8px 16px rgba(0,0,0,.35))}
+.mark{display:none}
+.links a{position:relative;padding:8px 0}
+.links a:after{content:"";position:absolute;left:0;right:100%;bottom:1px;height:1px;background:linear-gradient(90deg,var(--gold),transparent);transition:right .2s ease}
+.links a:hover:after{right:0}
+.btn{transition:transform .18s ease,border-color .18s ease,background .18s ease;box-shadow:0 8px 22px rgba(0,0,0,.12)}
+.btn:hover{transform:translateY(-2px);border-color:rgba(245,196,81,.45)}
+.btn.gold{box-shadow:0 12px 28px rgba(229,157,29,.18)}
+.hero{padding:38px 0 34px}
+.heroGrid{grid-template-columns:minmax(0,1.45fr) minmax(290px,.72fr);gap:20px}
+.stage{min-height:610px;border-radius:32px;border:1px solid rgba(245,196,81,.18);background:
+linear-gradient(180deg,rgba(3,8,17,.05),rgba(3,8,17,.91)),
+radial-gradient(circle at 68% 31%,rgba(245,196,81,.29),transparent 17%),
+radial-gradient(circle at 34% 22%,rgba(125,21,56,.32),transparent 27%),
+linear-gradient(135deg,#25142f 0%,#122343 44%,#050c18 100%);}
+.stage:before{background:
+linear-gradient(180deg,transparent 0 68%,rgba(2,6,13,.38) 100%),
+repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 1px,transparent 1px 96px);opacity:.6}
+.stage:after{content:"";position:absolute;width:420px;height:420px;right:-100px;top:-120px;border-radius:50%;border:1px solid rgba(245,196,81,.16);box-shadow:0 0 0 50px rgba(245,196,81,.025),0 0 0 100px rgba(245,196,81,.018)}
+.heroLogo{position:absolute;top:30px;left:34px;width:min(360px,52%);height:auto;z-index:4;filter:drop-shadow(0 18px 35px rgba(0,0,0,.4))}
+.stageArt{position:absolute;right:4%;top:19%;width:min(390px,44%);aspect-ratio:1;z-index:2;opacity:.86}
+.halo{position:absolute;inset:8%;border-radius:50%;background:radial-gradient(circle,rgba(255,239,187,.2) 0 19%,rgba(245,196,81,.07) 20% 37%,transparent 38%);border:1px solid rgba(245,196,81,.18);box-shadow:inset 0 0 70px rgba(245,196,81,.08),0 0 80px rgba(245,196,81,.08)}
+.halo:before,.halo:after{content:"";position:absolute;background:linear-gradient(180deg,rgba(255,245,211,.95),rgba(245,196,81,.45));left:50%;top:20%;transform:translateX(-50%);border-radius:99px}
+.halo:before{width:5px;height:58%}
+.halo:after{width:42%;height:5px;top:42%}
+.orbit{position:absolute;inset:0;border:1px solid rgba(255,255,255,.08);border-radius:50%;transform:rotate(-17deg)}
+.orbit:after{content:"AFRICA • AMERICAS • EUROPE • ASIA • CARIBBEAN • PACIFIC";position:absolute;left:8%;right:8%;bottom:7%;font-size:.58rem;letter-spacing:.18em;text-align:center;color:rgba(255,246,218,.6);line-height:1.5}
+.stageContent{padding:38px;max-width:790px}
+.stage h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:clamp(3.3rem,7vw,6.3rem);line-height:.82;letter-spacing:-.045em;font-weight:700;text-wrap:balance}
+.stage h1 em{color:#ffd56d;text-shadow:0 2px 28px rgba(245,196,81,.18)}
+.stage p{font-size:1.05rem;max-width:650px}
+.livePill{background:rgba(139,19,52,.92);border:1px solid rgba(255,255,255,.16);box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.card{background:linear-gradient(180deg,rgba(15,31,56,.96),rgba(7,18,34,.97));border-color:rgba(245,196,81,.11)}
+.card,.show,.band,.guide,.prayer{box-shadow:0 18px 48px rgba(0,0,0,.18)}
+.eyebrow{font-family:"Manrope",sans-serif;color:#f7d681}
+.nowTitle{font-size:1.65rem;line-height:1.05}
+.section{padding:64px 0}
+.section h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:clamp(2.6rem,5vw,4.5rem);line-height:.96;letter-spacing:-.035em;max-width:900px}
+.sectionIntro{font-size:1rem;line-height:1.8}
+.revenueShell{position:relative;overflow:hidden;padding:34px;border:1px solid rgba(245,196,81,.18);border-radius:30px;background:
+radial-gradient(circle at 85% 5%,rgba(245,196,81,.16),transparent 26%),
+linear-gradient(135deg,rgba(75,16,41,.63),rgba(9,21,38,.96) 58%,rgba(10,28,44,.96));}
+.revenueShell:before{content:"✦";position:absolute;right:28px;top:16px;font-family:Georgia,serif;font-size:7rem;line-height:1;color:rgba(245,196,81,.08)}
+.channelBands{gap:18px}
+.band{position:relative;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025));border-color:rgba(245,196,81,.12);padding:26px}
+.band:before{content:"";position:absolute;left:0;top:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent)}
+.band strong{font-size:1.45rem;color:#fff8e8}
+.offerIcon{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;margin-bottom:18px;border:1px solid rgba(245,196,81,.3);background:rgba(245,196,81,.08);color:#ffe29a;font-size:1.25rem}
+.show{min-height:290px;border-color:rgba(245,196,81,.09);background:
+linear-gradient(180deg,transparent 0 42%,rgba(4,10,20,.92) 100%),
+radial-gradient(circle at 75% 22%,color-mix(in srgb,var(--accent) 65%,transparent),transparent 34%),
+linear-gradient(145deg,#182c4c,#091425)}
+.show:after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,rgba(255,255,255,.05),transparent 38%);pointer-events:none}
+.showIcon{width:54px;height:54px;border:1px solid rgba(255,255,255,.16);border-radius:50%;display:grid;place-items:center;background:rgba(5,12,24,.44);backdrop-filter:blur(8px);font-size:1.55rem}
+.show h3{font-size:1.65rem;line-height:1}
+.globalRibbon{margin-top:26px;display:flex;gap:8px;flex-wrap:wrap}
+.globalRibbon span{padding:8px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.11);background:rgba(255,255,255,.04);color:#d7e1ee;font-size:.76rem;font-weight:700;letter-spacing:.05em}
+.guideHead{background:linear-gradient(90deg,rgba(245,196,81,.14),rgba(125,21,56,.12));}
+.formGrid .card h3{font-family:"Cormorant Garamond",Georgia,serif;font-size:1.8rem}
+input,textarea,select{background:rgba(4,12,23,.75);border-color:rgba(255,255,255,.11)}
+.prayer{border-color:rgba(245,196,81,.18);background:
+radial-gradient(circle at 82% 10%,rgba(245,196,81,.22),transparent 24%),
+radial-gradient(circle at 10% 80%,rgba(95,58,168,.18),transparent 28%),
+linear-gradient(135deg,#3a0d25,#111b38 58%,#07111f)}
+.metric{background:rgba(255,255,255,.045);border-color:rgba(245,196,81,.12)}
+footer{background:rgba(3,8,16,.42)}
+footer .brand img{width:64px;height:64px}
+@media(max-width:900px){.heroLogo{width:min(310px,65%)}.stageArt{right:-5%;top:20%;width:52%}.stage{min-height:590px}.stage h1{font-size:clamp(3rem,12vw,5.2rem)}}
+@media(max-width:560px){.launchRibbon{font-size:.61rem;letter-spacing:.09em}.stage{min-height:670px}.heroLogo{top:22px;left:22px;width:72%}.stageArt{width:78%;right:-25%;top:17%;opacity:.55}.stageContent{padding:24px}.stage h1{font-size:3.55rem}.stage p{font-size:.96rem}.revenueShell{padding:22px}.section{padding:48px 0}}
+\n</style>
 </head>
 <body>\n<div style="background:#123c32;color:#dffff1;padding:10px 16px;text-align:center;font-weight:900;letter-spacing:.06em;font-size:.78rem">ZERO-BUDGET PUBLIC LAUNCH • EXTERNAL DELIVERY ACTIVE • IZAKHONO AUTHORITY RETAINED</div>
 <div class="topbar"><div class="wrap"><span><strong>GOSPEL ONLY.</strong> 24 hours a day • 7 days a week • Africa to the world</span><span>Churches • Artists • Choirs • Families • Ministries</span></div></div>
 <nav>
   <div class="wrap navrow">
-    <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span><span>YHVH GOSPEL TV<small>FAITH • WORSHIP • WORD</small></span></a>
+    <a class="brand" href="#top"><img src="/Downloads/kora-network/public/images/yhvh-gospel-tv-logo-dove.png" alt="" aria-hidden="true"><span>YHVH GOSPEL TV<small>FAITH • WORSHIP • WORD</small></span></a>
     <div class="links"><a href="#watch">Watch Live</a><a href="#shows">Shows</a><a href="#guide">TV Guide</a><a href="#submit">Submit</a><a href="#prayer">Prayer</a></div>
     <div class="actions"><button class="btn" onclick="document.querySelector('#submit').scrollIntoView()">Partner</button><button class="btn live" onclick="document.querySelector('#watch').scrollIntoView()">● WATCH LIVE</button></div>
   </div>
@@ -142,18 +225,20 @@ footer{border-top:1px solid var(--line);padding:34px 0 50px;color:var(--muted)}.
 
 <section class="section" id="revenue">
 <div class="wrap">
+<div class="revenueShell">
   <div class="eyebrow">Open for business now</div>
   <h2>Help build the channel — and reach a Gospel audience.</h2>
   <p class="sectionIntro">YHVH GOSPEL TV is launching on a zero-budget public stack so revenue can fund the infrastructure we need next. We are accepting commercial enquiries now for launch sponsorship, Gospel event broadcasts and faith-aligned advertising.</p>
   <div class="channelBands">
-    <div class="band"><strong>Founding Sponsor</strong><p>Become an early commercial partner around launch visibility, agreed brand inventory and growth campaigns. Editorial control is never for sale.</p><a class="btn gold" href="https://kora-network.vercel.app/gospel/commercial?utm_source=yhvh_pages&utm_medium=founding_sponsor&utm_campaign=revenue_sprint">Request proposal →</a></div>
-    <div class="band"><strong>Broadcast Your Gospel Event</strong><p>Church services, Gospel concerts, conferences, revivals and worship events can enquire about broadcast, simulcast and production support.</p><a class="btn gold" href="https://kora-network.vercel.app/gospel/commercial?utm_source=yhvh_pages&utm_medium=event_broadcast&utm_campaign=revenue_sprint">Discuss an event →</a></div>
-    <div class="band"><strong>Faith-aligned Advertising</strong><p>Reach viewers through suitable brand campaigns and sponsorship opportunities. All advertising remains subject to channel suitability review.</p><a class="btn gold" href="https://kora-network.vercel.app/gospel/commercial?utm_source=yhvh_pages&utm_medium=advertising&utm_campaign=revenue_sprint">Advertise with us →</a></div>
+    <div class="band"><div class="offerIcon">✦</div><strong>Founding Sponsor</strong><p>Become an early commercial partner around launch visibility, agreed brand inventory and growth campaigns. Editorial control is never for sale.</p><a class="btn gold" href="https://kora-network.vercel.app/gospel/commercial?utm_source=yhvh_pages&utm_medium=founding_sponsor&utm_campaign=revenue_sprint">Request proposal →</a></div>
+    <div class="band"><div class="offerIcon">◉</div><strong>Broadcast Your Gospel Event</strong><p>Church services, Gospel concerts, conferences, revivals and worship events can enquire about broadcast, simulcast and production support.</p><a class="btn gold" href="https://kora-network.vercel.app/gospel/commercial?utm_source=yhvh_pages&utm_medium=event_broadcast&utm_campaign=revenue_sprint">Discuss an event →</a></div>
+    <div class="band"><div class="offerIcon">◇</div><strong>Faith-aligned Advertising</strong><p>Reach viewers through suitable brand campaigns and sponsorship opportunities. All advertising remains subject to channel suitability review.</p><a class="btn gold" href="https://kora-network.vercel.app/gospel/commercial?utm_source=yhvh_pages&utm_medium=advertising&utm_campaign=revenue_sprint">Advertise with us →</a></div>
   </div>
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
     <a class="btn" target="_blank" rel="noopener noreferrer" href="https://wa.me/?text=YHVH%20GOSPEL%20TV%20is%20live.%20Faith.%20Worship.%20Word.%20Africa%20to%20the%20World.%20Watch%20and%20share:%20https%3A%2F%2Fbevanshelton-netizen.github.io%2FDownloads%2Fyhvh-gospel-tv%2F">Share on WhatsApp</a>
     <a class="btn" href="mailto:?subject=YHVH%20GOSPEL%20TV%20is%20live&body=Faith.%20Worship.%20Word.%20Africa%20to%20the%20World.%0A%0AWatch:%20https%3A%2F%2Fbevanshelton-netizen.github.io%2FDownloads%2Fyhvh-gospel-tv%2F%0ACommercial%20partnerships:%20https%3A%2F%2Fkora-network.vercel.app%2Fgospel%2Fcommercial">Share by email</a>
   </div>
+</div>
 </div>
 </section>
 
@@ -161,16 +246,16 @@ footer{border-top:1px solid var(--line);padding:34px 0 50px;color:var(--muted)}.
 <div class="wrap">
   <div class="eyebrow">Flagship programming</div>
   <h2>A full Gospel television schedule.</h2>
-  <p class="sectionIntro">Built as a real channel, not a playlist: recurring shows, daily blocks, premieres, live services, children’s programming, documentaries, interviews and late-night worship.</p>
+  <p class="sectionIntro">Built as a real channel, not a playlist: recurring shows, daily blocks, premieres, live services, children’s programming, documentaries, interviews and late-night worship.</p><div class="globalRibbon"><span>Africa</span><span>Americas</span><span>Europe</span><span>Asia</span><span>Caribbean</span><span>Pacific</span><span>Every nation welcome</span></div>
   <div class="grid4">
-    <article class="show" style="--accent:#f1b943"><div class="showIcon">☀️</div><h3>Morning Glory</h3><p>Sunrise worship, scripture, devotion and prayer to start the day.</p></article>
-    <article class="show" style="--accent:#7d1538"><div class="showIcon">🎙️</div><h3>The Word</h3><p>Preaching and teaching from trusted pastors and ministries across Africa and beyond.</p></article>
-    <article class="show" style="--accent:#5f3aa8"><div class="showIcon">🎵</div><h3>Gospel Africa</h3><p>Music videos, live sessions, choirs, worship teams and artist premieres.</p></article>
-    <article class="show" style="--accent:#26856f"><div class="showIcon">🌍</div><h3>Faith Without Borders</h3><p>Global Christian stories, missionaries, community impact and conversations.</p></article>
-    <article class="show" style="--accent:#b45629"><div class="showIcon">👨‍👩‍👧‍👦</div><h3>Gospel Kids</h3><p>Safe Bible stories, music, values, animation and family faith programming.</p></article>
-    <article class="show" style="--accent:#3b6599"><div class="showIcon">🕊️</div><h3>Testimony Hour</h3><p>Real stories of hope, recovery, restoration, faith and changed lives.</p></article>
-    <article class="show" style="--accent:#936c20"><div class="showIcon">🎼</div><h3>Choirs of Africa</h3><p>Church choirs, mass choirs, traditional Gospel and powerful live performances.</p></article>
-    <article class="show" style="--accent:#833e79"><div class="showIcon">✨</div><h3>Revival Nights</h3><p>Evening worship, live church services, crusades, conferences and altar moments.</p></article>
+    <article class="show" style="--accent:#f1b943"><div class="showIcon">☼</div><h3>Morning Glory</h3><p>Sunrise worship, scripture, devotion and prayer to start the day.</p></article>
+    <article class="show" style="--accent:#7d1538"><div class="showIcon">✦</div><h3>The Word</h3><p>Preaching and teaching from trusted pastors and ministries across Africa and beyond.</p></article>
+    <article class="show" style="--accent:#5f3aa8"><div class="showIcon">♫</div><h3>Gospel Africa</h3><p>Music videos, live sessions, choirs, worship teams and artist premieres.</p></article>
+    <article class="show" style="--accent:#26856f"><div class="showIcon">◎</div><h3>Faith Without Borders</h3><p>Global Christian stories, missionaries, community impact and conversations.</p></article>
+    <article class="show" style="--accent:#b45629"><div class="showIcon">♡</div><h3>Gospel Kids</h3><p>Safe Bible stories, music, values, animation and family faith programming.</p></article>
+    <article class="show" style="--accent:#3b6599"><div class="showIcon">◇</div><h3>Testimony Hour</h3><p>Real stories of hope, recovery, restoration, faith and changed lives.</p></article>
+    <article class="show" style="--accent:#936c20"><div class="showIcon">♬</div><h3>Choirs of Africa</h3><p>Church choirs, mass choirs, traditional Gospel and powerful live performances.</p></article>
+    <article class="show" style="--accent:#833e79"><div class="showIcon">✧</div><h3>Revival Nights</h3><p>Evening worship, live church services, crusades, conferences and altar moments.</p></article>
   </div>
 </div>
 </section>
@@ -262,7 +347,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 50px;color:var(--muted)}.
 </main>
 
 <footer><div class="wrap footerGrid">
-  <div><div class="brand"><span class="mark"></span><span>YHVH GOSPEL TV<small>AFRICA TO THE WORLD</small></span></div><p class="notice">A Gospel-only digital television network. Broadcast rights, music rights, participant releases and ministry permissions must be cleared before publication or transmission.</p></div>
+  <div><div class="brand"><img src="/Downloads/kora-network/public/images/yhvh-gospel-tv-logo-dove.png" alt="YHVH Gospel TV"><span>YHVH GOSPEL TV<small>AFRICA TO THE WORLD</small></span></div><p class="notice">A Gospel-only digital television network. Broadcast rights, music rights, participant releases and ministry permissions must be cleared before publication or transmission.</p></div>
   <div><h4>Watch</h4><a href="#watch">Live Channel</a><a href="#guide">TV Guide</a><a href="#shows">Programmes</a></div>
   <div><h4>Join</h4><a href="#submit">Submit Content</a><a href="#submit">Partner</a><a href="#prayer">Prayer Request</a></div>
   <div><h4>Network</h4><a href="#submit">Churches</a><a href="#submit">Artists & Choirs</a><a href="#submit">Sponsors</a></div>
