@@ -24,6 +24,10 @@ curl -fsS "$CODE_URL/health" >/dev/null || fail "IZAKHONO CODE NODE is not healt
 
 ADMIN_KEY="$(awk -F= '$1=="IZAKHONO_CODE_ADMIN_KEY"{sub(/^[^=]*=/,"");print;exit}' "$CODE_ENV")"
 [ -n "$ADMIN_KEY" ] || fail "CODE admin key is unavailable"
+OLD_READ_ID=""
+if [ -f "$OUT_ENV" ]; then
+  OLD_READ_ID="$(awk -F= '$1=="IZAKHONO_CODE_REPO_TOKEN_ID"{sub(/^[^=]*=/,"");print;exit}' "$OUT_ENV" 2>/dev/null || true)"
+fi
 
 TMP="$(mktemp -d)"
 WRITE_ID=""
@@ -63,8 +67,12 @@ curl -fsS -X POST -H "content-type: application/json" -H "x-izakhono-key: $ADMIN
 WRITE_ID=""
 unset WRITE_TOKEN BASIC_WRITE
 
+if [ -n "$OLD_READ_ID" ]; then
+  curl -fsS -X POST -H "content-type: application/json" -H "x-izakhono-key: $ADMIN_KEY" --data '{}'     "$CODE_URL/v1/repos/$REPO_SLUG/tokens/$OLD_READ_ID/revoke" >/dev/null 2>&1 || true
+fi
 issue_token read deployment-reader "$TMP/read.json"
-READ_TOKEN="$(node -e 'const x=require(process.argv[1]);if(!x.value)process.exit(2);process.stdout.write(x.value)' "$TMP/read.json")"
+READ_TOKEN="$(node -e 'const x=require(process.argv[1]);if(!x.value||!x.token?.id)process.exit(2);process.stdout.write(x.value)' "$TMP/read.json")"
+READ_ID="$(node -e 'const x=require(process.argv[1]);process.stdout.write(x.token.id)' "$TMP/read.json")"
 BASIC_READ="$(node -e 'process.stdout.write(Buffer.from("git:"+process.argv[1]).toString("base64"))' "$READ_TOKEN")"
 git -c "http.extraHeader=Authorization: Basic $BASIC_READ" ls-remote "$GIT_URL" refs/heads/main | grep -q 'refs/heads/main'   || fail "Owned CODE verification failed: main branch unavailable"
 
@@ -73,11 +81,12 @@ TMP_ENV="$TMP/source.env"
 cat > "$TMP_ENV" <<EOF
 IZAKHONO_CODE_REPO_URL=$GIT_URL
 IZAKHONO_CODE_REPO_TOKEN=$READ_TOKEN
+IZAKHONO_CODE_REPO_TOKEN_ID=$READ_ID
 IZAKHONO_CODE_REPO_SLUG=$REPO_SLUG
 IZAKHONO_APPROVED_EXTERNAL_FALLBACK=$SOURCE_URL
 EOF
 install -o root -g izakhono -m 0640 "$TMP_ENV" "$OUT_ENV"
-unset READ_TOKEN BASIC_READ
+unset READ_TOKEN READ_ID BASIC_READ
 
 echo "IZAKHONO CODE mirror ready."
 echo "Owned repository: $GIT_URL"
