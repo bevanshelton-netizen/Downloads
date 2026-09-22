@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "service": "izakhono-creative-suite",
+  "version": "0.4.0",
+  "runtime": "external-static-fallback",
+  "registration_enabled": false,
+  "checkout_enabled": false
+}
