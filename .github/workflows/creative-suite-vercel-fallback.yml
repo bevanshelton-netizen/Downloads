@@ -1,0 +1,117 @@
+name: Creative Suite Vercel Fallback Deploy
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: creative-suite-vercel-fallback
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: kora-production
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: team_XSHdQaQxmXGD1HlK2E4nehif
+      PROJECT_NAME: izakhono-creative-suite
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Require existing Vercel account credentials
+        run: |
+          test -n "$VERCEL_TOKEN" || { echo "Missing VERCEL_TOKEN"; exit 1; }
+          test -n "$VERCEL_ORG_ID" || { echo "Missing VERCEL_ORG_ID"; exit 1; }
+
+      - name: Create or locate isolated Creative Suite project
+        id: project
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/creative-suite-project.json <<'JSON'
+          {
+            "name": "izakhono-creative-suite",
+            "framework": "vite",
+            "rootDirectory": "IZAKHONO-STUDIO",
+            "gitRepository": {
+              "type": "github",
+              "repo": "bevanshelton-netizen/Downloads"
+            }
+          }
+          JSON
+
+          CODE="$(curl -sS -o /tmp/vercel-create.json -w "%{http_code}"             -X POST "https://api.vercel.com/v11/projects?teamId=$VERCEL_ORG_ID"             -H "Authorization: Bearer $VERCEL_TOKEN"             -H "Content-Type: application/json"             --data-binary @/tmp/creative-suite-project.json)"
+
+          if [[ "$CODE" =~ ^2 ]]; then
+            cp /tmp/vercel-create.json /tmp/vercel-project.json
+          elif [ "$CODE" = "409" ]; then
+            curl -fsS               "https://api.vercel.com/v9/projects/$PROJECT_NAME?teamId=$VERCEL_ORG_ID"               -H "Authorization: Bearer $VERCEL_TOKEN"               > /tmp/vercel-project.json
+          else
+            echo "Vercel project creation failed with HTTP $CODE"
+            cat /tmp/vercel-create.json
+            exit 1
+          fi
+
+          PROJECT_ID="$(node -e "const fs=require('fs');const x=JSON.parse(fs.readFileSync('/tmp/vercel-project.json','utf8'));if(!x.id)process.exit(2);process.stdout.write(x.id)")"
+          echo "project_id=$PROJECT_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Link Creative Suite root
+        working-directory: IZAKHONO-STUDIO
+        env:
+          PROJECT_ID: ${{ steps.project.outputs.project_id }}
+        run: |
+          mkdir -p .vercel
+          node -e "require('fs').writeFileSync('.vercel/project.json',JSON.stringify({orgId:process.env.VERCEL_ORG_ID,projectId:process.env.PROJECT_ID,projectName:process.env.PROJECT_NAME}))"
+
+      - name: Pull external project settings
+        working-directory: IZAKHONO-STUDIO
+        run: npx --yes vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
+
+      - name: Build external artifact
+        working-directory: IZAKHONO-STUDIO
+        run: npx --yes vercel@latest build --prod --token="$VERCEL_TOKEN"
+
+      - name: Deploy external fallback
+        id: deploy
+        working-directory: IZAKHONO-STUDIO
+        run: |
+          set -euo pipefail
+          URL="$(npx --yes vercel@latest deploy --prebuilt --prod --token="$VERCEL_TOKEN" | tail -n 1)"
+          test -n "$URL"
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+
+      - name: Verify external fallback
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 20); do
+            if curl -fsS "$URL/health" > /tmp/creative-health.json; then break; fi
+            sleep 3
+          done
+          node -e "const x=require('/tmp/creative-health.json');if(x.ok!==true||x.service!=='izakhono-creative-suite'||x.checkout_enabled!==false||x.registration_enabled!==false)process.exit(2)"
+          curl -fsS "$URL/" | grep -Fq "IZAKHONO CREATIVE SUITE"
+
+      - name: Publish fallback result
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
+          PROJECT_ID: ${{ steps.project.outputs.project_id }}
+        run: |
+          {
+            echo "## Creative Suite External Fallback"
+            echo "- URL: $URL"
+            echo "- Target: production fallback"
+            echo "- Vercel project: $PROJECT_ID"
+            echo "- Commit: ${GITHUB_SHA::7}"
+            echo "- Registration: disabled"
+            echo "- Checkout: disabled"
+            echo "- Health: passed"
+            echo "- Source of truth: IZAKHONO-owned"
+          } >> "$GITHUB_STEP_SUMMARY"
