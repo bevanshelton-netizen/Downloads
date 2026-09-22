@@ -1,0 +1,33 @@
+{
+  "schema": "kora.gospel-tv.hybrid-gateway/v1",
+  "authority": "IZAKHONO",
+  "policy": "owned-first-external-fallback",
+  "global_front_door": "/gospel/live",
+  "health_status": "/api/gospel/hybrid-status",
+  "owned": {
+    "role": "authoritative-origin",
+    "health": "https://gospel.domains.izakhonoafrica.co.za/health",
+    "expected_service": "kora-gospel-tv",
+    "expected_runtime": "izakhono-owned"
+  },
+  "external": {
+    "kora_vercel": {
+      "role": "global-front-door-and-discovery",
+      "url": "https://kora-network.vercel.app/gospel"
+    },
+    "github_pages": {
+      "role": "public-watch-fallback",
+      "url": "https://bevanshelton-netizen.github.io/Downloads/kora-gospel-tv/"
+    },
+    "supabase": {
+      "role": "resilient-public-intake-buffer",
+      "authoritative": false
+    }
+  },
+  "rules": [
+    "Viewer watch routing prefers the IZAKHONO-owned origin only when its health identity is verified.",
+    "When the owned origin is unreachable, viewers are sent to the external public mirror rather than a dead hostname.",
+    "External services do not become editorial or commercial systems of record.",
+    "Routing decisions are non-sticky and re-evaluated on each gateway request."
+  ]
+}\n
