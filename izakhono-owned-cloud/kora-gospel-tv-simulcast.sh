@@ -65,7 +65,7 @@ if [ -f "$PID_FILE" ]; then
 fi
 
 {
-  echo "[$(date -Iseconds)] Starting KORA GOSPEL TV simulcast"
+  echo "[$(date -Iseconds)] Starting YHVH GOSPEL TV simulcast"
   echo "[$(date -Iseconds)] Master input configured"
   echo "[$(date -Iseconds)] Enabled outputs: ${#outputs[@]}"
   echo "[$(date -Iseconds)] Transcode mode: $MODE"
@@ -83,7 +83,7 @@ if ! kill -0 "$pid" 2>/dev/null; then
   fail "Simulcast process exited during startup"
 fi
 
-echo "KORA GOSPEL TV SIMULCAST STARTED"
+echo "YHVH GOSPEL TV SIMULCAST STARTED"
 echo "PID=$pid"
 echo "OUTPUTS=${#outputs[@]}"
 echo "LOG=$LOG_FILE"

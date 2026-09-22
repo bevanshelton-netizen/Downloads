@@ -25,7 +25,7 @@ function Fail([int]$Code, [string]$Message) {
     exit $Code
 }
 
-Add-Line "KORA GOSPEL TV - PUBLIC VERIFICATION"
+Add-Line "YHVH GOSPEL TV - PUBLIC VERIFICATION"
 Add-Line ("Timestamp: {0}" -f (Get-Date).ToString("s"))
 Add-Line ("Hostname: {0}" -f $Hostname)
 Add-Line ""
@@ -85,11 +85,11 @@ Add-Line "Public Gospel TV page: PASS"
 Add-Line ""
 Add-Line "RESULT: PASS"
 Add-Line ("PUBLIC URL: https://{0}" -f $Hostname)
-Add-Line "KORA GOSPEL TV: PUBLIC HTTPS LIVE AND VERIFIED"
+Add-Line "YHVH GOSPEL TV: PUBLIC HTTPS LIVE AND VERIFIED"
 $lines | Set-Content -LiteralPath $report -Encoding UTF8
 
 Write-Host ""
-Write-Host "KORA GOSPEL TV: PUBLIC HTTPS LIVE AND VERIFIED" -ForegroundColor Green
+Write-Host "YHVH GOSPEL TV: PUBLIC HTTPS LIVE AND VERIFIED" -ForegroundColor Green
 Write-Host ("https://{0}" -f $Hostname) -ForegroundColor Green
 Write-Host ("Report: {0}" -f $report) -ForegroundColor Cyan
 exit 0

@@ -55,9 +55,9 @@ $domains = Join-Path $state "START-IZAKHONO-DOMAINS-OWNER-HOST.ps1"
 $gospel = Join-Path $state "START-KORA-GOSPEL-TV-ON-IZAKHONO.ps1"
 $verify = Join-Path $state "VERIFY-KORA-GOSPEL-TV-PUBLIC.ps1"
 
-Log "KORA GOSPEL TV — IZAKHONO OWNED INFRASTRUCTURE GO-LIVE"
+Log "YHVH GOSPEL TV — IZAKHONO OWNED INFRASTRUCTURE GO-LIVE"
 Log ("Started: {0}" -f (Get-Date).ToString("s"))
-Log "Path: PUBLIC INTERNET -> IZAKHONO DNS -> EDGE/TLS -> NODE 01 / ISN-01 -> KORA GOSPEL TV"
+Log "Path: PUBLIC INTERNET -> IZAKHONO DNS -> EDGE/TLS -> NODE 01 / ISN-01 -> YHVH GOSPEL TV"
 Log ""
 
 try {
@@ -81,7 +81,7 @@ if ($code -ne 0) {
 }
 Log "IZAKHONO DNS + PUBLIC EDGE: PASS"
 
-$code = Run-Stage "2/3 KORA GOSPEL TV DEPLOYMENT" $gospel
+$code = Run-Stage "2/3 YHVH GOSPEL TV DEPLOYMENT" $gospel
 if ($code -eq 20) {
     Stop-With 20 "Gospel TV runtime deployed, but parent DNS/router cutover is still required."
 }
@@ -91,7 +91,7 @@ if ($code -eq 21) {
 if ($code -ne 0) {
     Stop-With $code ("KORA Gospel TV deployment failed with code {0}." -f $code)
 }
-Log "KORA GOSPEL TV DEPLOYMENT: PASS"
+Log "YHVH GOSPEL TV DEPLOYMENT: PASS"
 
 $code = Run-Stage "3/3 INDEPENDENT PUBLIC VERIFICATION" $verify
 if ($code -ne 0) {
@@ -100,7 +100,7 @@ if ($code -ne 0) {
 Log "PUBLIC VERIFICATION: PASS"
 Log ""
 Log "RESULT: LIVE"
-Log "KORA GOSPEL TV: PUBLIC HTTPS LIVE AND VERIFIED"
+Log "YHVH GOSPEL TV: PUBLIC HTTPS LIVE AND VERIFIED"
 Log "https://gospel.domains.izakhonoafrica.co.za"
 Log ("Completed: {0}" -f (Get-Date).ToString("s"))
 Log ("Report: {0}" -f $report)

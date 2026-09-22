@@ -1,9 +1,15 @@
 {
   "schema": "kora.gospel-tv.global/v1",
   "authoritative_origin": "IZAKHONO",
-  "brand": "KORA GOSPEL TV",
+  "brand": "YHVH GOSPEL TV",
   "promise": "Faith. Worship. Word. Africa to the World.",
   "operating_model": "global network with one owned control plane and region-specific distribution, language, scheduling and compliance layers",
+  "coverage_policy": {
+    "scope": "every recognised nation and inhabited territory",
+    "routing": "country-to-regional-edition with worldwide feed fallback",
+    "inclusion": "Each edition is locally led and culturally centred, but open to people of every race, skin colour and nationality.",
+    "no_exclusion": true
+  },
   "regions": [
     {
       "id": "africa",
@@ -16,13 +22,42 @@
       "status": "launch-region"
     },
     {
+      "id": "south-america",
+      "name": "South America",
+      "anchor_timezones": [
+        "America/Sao_Paulo",
+        "America/Argentina/Buenos_Aires",
+        "America/Bogota"
+      ],
+      "status": "edition-ready"
+    },
+    {
+      "id": "central-america-mexico",
+      "name": "Central America & Mexico",
+      "anchor_timezones": [
+        "America/Mexico_City",
+        "America/Guatemala",
+        "America/Panama"
+      ],
+      "status": "edition-ready"
+    },
+    {
+      "id": "caribbean",
+      "name": "Caribbean",
+      "anchor_timezones": [
+        "America/Jamaica",
+        "America/Puerto_Rico"
+      ],
+      "status": "edition-ready"
+    },
+    {
       "id": "europe",
       "name": "Europe",
       "anchor_timezones": [
         "Europe/London",
         "Europe/Paris"
       ],
-      "status": "distribution-ready"
+      "status": "edition-ready"
     },
     {
       "id": "north-america",
@@ -32,34 +67,36 @@
         "America/Chicago",
         "America/Los_Angeles"
       ],
-      "status": "distribution-ready"
+      "status": "edition-ready"
     },
     {
-      "id": "latin-america",
-      "name": "Latin America & Caribbean",
-      "anchor_timezones": [
-        "America/Sao_Paulo",
-        "America/Mexico_City"
-      ],
-      "status": "distribution-ready"
-    },
-    {
-      "id": "asia-pacific",
-      "name": "Asia-Pacific",
+      "id": "asia",
+      "name": "Asia",
       "anchor_timezones": [
         "Asia/Kolkata",
         "Asia/Singapore",
-        "Australia/Sydney"
+        "Asia/Tokyo"
       ],
-      "status": "distribution-ready"
+      "status": "edition-ready"
     },
     {
-      "id": "middle-east",
-      "name": "Middle East",
+      "id": "middle-east-north-africa",
+      "name": "Middle East & North Africa",
       "anchor_timezones": [
-        "Asia/Dubai"
+        "Asia/Dubai",
+        "Africa/Cairo"
       ],
       "status": "rights-regulatory-review-required"
+    },
+    {
+      "id": "oceania-pacific",
+      "name": "Oceania & Pacific",
+      "anchor_timezones": [
+        "Australia/Sydney",
+        "Pacific/Auckland",
+        "Pacific/Fiji"
+      ],
+      "status": "edition-ready"
     }
   ],
   "languages": [
@@ -187,7 +224,9 @@
     "Every territory must pass rights, platform-policy and local regulatory review before targeted distribution.",
     "Language versions must preserve the original meaning and may not alter doctrine, testimony, attribution or rights metadata.",
     "Viewer data must be minimized and handled according to the applicable territory and platform requirements.",
-    "External platform outages degrade reach only; they do not replace or override the owned master channel."
+    "External platform outages degrade reach only; they do not replace or override the owned master channel.",
+    "Every recognised nation receives a regional edition route and the worldwide feed remains available as fallback.",
+    "Regional identity means locally led programming and language relevance; it never permits racial or nationality exclusion."
   ],
   "phases": [
     {

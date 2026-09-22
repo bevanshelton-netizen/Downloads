@@ -2,8 +2,8 @@ import Link from 'next/link';
 import CommercialLead from './commercial-client';
 
 export const metadata={
-  title:'Sponsor & Advertise — KORA GOSPEL TV',
-  description:'Commercial partnerships, sponsorship, event broadcast, distribution and production opportunities with KORA GOSPEL TV.'
+  title:'Sponsor & Advertise — YHVH GOSPEL TV',
+  description:'Commercial partnerships, sponsorship, event broadcast, distribution and production opportunities with YHVH GOSPEL TV.'
 };
 
 const offers=[
@@ -20,7 +20,7 @@ export default function CommercialDesk(){
   const externalUrl=process.env.NEXT_PUBLIC_GOSPEL_EXTERNAL_INTAKE_URL||'https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/kora-gospel-intake';
   return <main id="main-content" style={{minHeight:'100vh',background:'radial-gradient(circle at 12% 0%,rgba(125,21,56,.25),transparent 30%),radial-gradient(circle at 90% 0%,rgba(245,196,81,.17),transparent 27%),#06101c',color:'#fff',padding:'54px 0 80px'}}>
     <div style={{width:'min(1140px,92vw)',margin:'0 auto'}}>
-      <Link href="/gospel" style={{color:'#ffe29a',fontWeight:900,textDecoration:'none'}}>← KORA GOSPEL TV</Link>
+      <Link href="/gospel" style={{color:'#ffe29a',fontWeight:900,textDecoration:'none'}}>← YHVH GOSPEL TV</Link>
       <div style={{marginTop:22,color:'#f5c451',fontWeight:900,fontSize:12,letterSpacing:'.14em'}}>GLOBAL COMMERCIAL DESK</div>
       <h1 style={{fontSize:'clamp(3rem,8vw,6.6rem)',lineHeight:.88,letterSpacing:'-.06em',margin:'12px 0 18px'}}>PARTNER WITH<br/><span style={{color:'#f5c451'}}>GOSPEL TV.</span></h1>
       <p style={{maxWidth:850,fontSize:18,lineHeight:1.65,color:'#c7d4e4'}}>Build reach around faith, Gospel music, family programming and live events through sponsorship, advertising, distribution and production partnerships. Pricing is proposal-based while we establish inventory, territory and delivery requirements.</p>

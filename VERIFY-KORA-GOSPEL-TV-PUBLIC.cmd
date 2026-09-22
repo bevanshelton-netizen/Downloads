@@ -6,7 +6,7 @@ set "URL=https://raw.githubusercontent.com/bevanshelton-netizen/Downloads/main/o
 
 if not exist "%STATE%" mkdir "%STATE%"
 
-echo Downloading latest KORA GOSPEL TV public verifier...
+echo Downloading latest YHVH GOSPEL TV public verifier...
 powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; Invoke-WebRequest -UseBasicParsing '%URL%' -OutFile '%SCRIPT%'"
 if not "%ERRORLEVEL%"=="0" (
   echo Could not download the public verifier.
@@ -18,7 +18,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%SCRIPT%"
 set "CODE=%ERRORLEVEL%"
 echo.
 if "%CODE%"=="0" (
-  echo KORA GOSPEL TV: PUBLIC HTTPS LIVE AND VERIFIED
+  echo YHVH GOSPEL TV: PUBLIC HTTPS LIVE AND VERIFIED
 ) else (
   echo Verification returned code %CODE%.
   echo See KORA-GOSPEL-TV-PUBLIC-VERIFY.txt on the Desktop for the exact blocker.

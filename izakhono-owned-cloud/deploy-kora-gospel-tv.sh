@@ -27,7 +27,7 @@ if [ -z "$REPO_URL" ] && [ -f "$SOURCE_ENV" ]; then
 fi
 [ -n "$REPO_URL" ] || fail "IZAKHONO CODE source is not configured."
 if [[ "$REPO_URL" != http://127.0.0.1:8860/git/* ]] && [ "${ALLOW_EXTERNAL_SOURCE:-0}" != "1" ]; then
-  fail "External source refused. KORA GOSPEL TV must deploy from IZAKHONO CODE."
+  fail "External source refused. YHVH GOSPEL TV must deploy from IZAKHONO CODE."
 fi
 
 for cmd in git curl node tar; do need "$cmd"; done
@@ -71,8 +71,8 @@ if [ ! -d "$RELEASE" ]; then
   sudo chown -R izakhono:izakhono "$RELEASE"
 fi
 
-test -f "$RELEASE/server.mjs" || fail "KORA GOSPEL TV server.mjs missing."
-test -f "$RELEASE/index.html" || fail "KORA GOSPEL TV index.html missing."
+test -f "$RELEASE/server.mjs" || fail "YHVH GOSPEL TV server.mjs missing."
+test -f "$RELEASE/index.html" || fail "YHVH GOSPEL TV index.html missing."
 node --check "$RELEASE/server.mjs"
 
 BODY="$(node - "$APP" "$HOSTNAME" "$RELEASE" <<'NODE'
@@ -91,7 +91,7 @@ DEPLOYMENT_ID="$(node -e 'const x=JSON.parse(process.argv[1]);if(!x.id)process.e
 
 HEALTH="$(curl -fsS -H "Host: $HOSTNAME" "$PROXY_URL/health")"
 node -e 'const x=JSON.parse(process.argv[1]);if(x.ok!==true||x.service!=="kora-gospel-tv"||x.runtime!=="izakhono-owned")process.exit(2)' "$HEALTH"
-curl -fsS -H "Host: $HOSTNAME" "$PROXY_URL/" | grep -q "KORA GOSPEL TV"
+curl -fsS -H "Host: $HOSTNAME" "$PROXY_URL/" | grep -q "YHVH GOSPEL TV"
 curl -fsS -H "Host: $HOSTNAME" "$PROXY_URL/" | grep -q "GOSPEL ONLY"
 
 EDGE="NOT_RUNNING"
@@ -118,7 +118,7 @@ const [path,hostname,revision,deploymentId,edge,publicHttps]=process.argv.slice(
 fs.writeFileSync(path,JSON.stringify({
   schema:"izakhono.kora-gospel-tv-deployment/v1",
   app:"kora-gospel-tv",
-  product:"KORA GOSPEL TV",
+  product:"YHVH GOSPEL TV",
   hostname,revision,deployment_id:deploymentId,
   source:"IZAKHONO_CODE",runtime:"IZAKHONO_RUNTIME",edge,public_https:publicHttps,
   data_store:"/var/lib/izakhono-runtime/data/kora-gospel-tv",
@@ -131,7 +131,7 @@ sudo install -o root -g izakhono -m 0640 "$TMP_REPORT" "$REPORT"
 rm -f "$TMP_REPORT"
 
 cat <<EOF
-KORA GOSPEL TV OWNED DEPLOYMENT
+YHVH GOSPEL TV OWNED DEPLOYMENT
 APP=$APP
 HOSTNAME=$HOSTNAME
 REVISION=$RESOLVED

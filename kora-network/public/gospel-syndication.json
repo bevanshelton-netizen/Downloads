@@ -70,6 +70,6 @@
     }
   ],
   "secrets_policy": "stream keys and partner credentials live only in protected host environment files",
-  "editorial_policy": "external distribution never bypasses KORA GOSPEL TV editorial approval",
+  "editorial_policy": "external distribution never bypasses YHVH GOSPEL TV editorial approval",
   "intake_policy": "Public intake tries the IZAKHONO owned runtime first, then uses the external resilience buffer only when the owned route is unavailable."
 }

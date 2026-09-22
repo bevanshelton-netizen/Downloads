@@ -82,7 +82,7 @@ export default function GlobalIntake({primaryUrl,externalUrl}:Props){
       <label style={labelStyle}>Name / organisation<input name="name" maxLength={120} required style={fieldStyle}/></label>
       <label style={labelStyle}>Email or phone<input name="contact" maxLength={160} required style={fieldStyle}/></label>
     </div>
-    <label style={labelStyle}>Tell us what you want to bring to KORA GOSPEL TV
+    <label style={labelStyle}>Tell us what you want to bring to YHVH GOSPEL TV
       <textarea name="message" maxLength={1600} required style={{...fieldStyle,minHeight:130,resize:'vertical'}}/>
     </label>
     <label style={{display:'flex',gap:10,alignItems:'flex-start',color:'#c9d5e5',fontSize:13,lineHeight:1.5}}>

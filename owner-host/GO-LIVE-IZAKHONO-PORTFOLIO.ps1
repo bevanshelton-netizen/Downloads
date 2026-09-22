@@ -68,7 +68,7 @@ export IZAKHONO_REVENUE_HOSTNAME='revenue.domains.izakhonoafrica.co.za'
 export MEMORY_MANIA_HOSTNAME='memorymania.domains.izakhonoafrica.co.za'
 export CROWNE_HAIR_HOSTNAME='hair.domains.izakhonoafrica.co.za'
 
-echo "=== DEPLOY KORA GOSPEL TV ==="
+echo "=== DEPLOY YHVH GOSPEL TV ==="
 bash izakhono-owned-cloud/deploy-kora-gospel-tv.sh main
 
 echo "=== DEPLOY KORA KIDS ==="
@@ -107,7 +107,7 @@ Log "IZAKHONO RUNTIME + SHARED EDGE: PASS"
 Log ""
 
 $targets = @(
-  @{ Name="KORA GOSPEL TV"; Host="gospel.domains.izakhonoafrica.co.za"; Service="kora-gospel-tv" },
+  @{ Name="YHVH GOSPEL TV"; Host="gospel.domains.izakhonoafrica.co.za"; Service="kora-gospel-tv" },
   @{ Name="KORA KIDS"; Host="korakids.domains.izakhonoafrica.co.za"; Service="kora-kids" },
   @{ Name="IZAKHONO REVENUE DESK"; Host="revenue.domains.izakhonoafrica.co.za"; Service="izakhono-revenue-desk" },
   @{ Name="MEMORY MANIA"; Host="memorymania.domains.izakhonoafrica.co.za"; Service="memory-mania" },

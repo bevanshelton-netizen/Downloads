@@ -20,7 +20,7 @@ fi
 
 cat >/etc/systemd/system/kora-gospel-reconcile.service <<'UNIT'
 [Unit]
-Description=KORA GOSPEL TV external intake reconciliation
+Description=YHVH GOSPEL TV external intake reconciliation
 After=network-online.target
 Wants=network-online.target
 
@@ -40,7 +40,7 @@ UNIT
 
 cat >/etc/systemd/system/kora-gospel-reconcile.timer <<'UNIT'
 [Unit]
-Description=Run KORA GOSPEL TV intake reconciliation every five minutes
+Description=Run YHVH GOSPEL TV intake reconciliation every five minutes
 
 [Timer]
 OnBootSec=2min

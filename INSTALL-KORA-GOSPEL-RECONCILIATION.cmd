@@ -1,6 +1,6 @@
 @echo off
 setlocal
-title KORA GOSPEL TV - INSTALL RECONCILIATION
+title YHVH GOSPEL TV - INSTALL RECONCILIATION
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0owner-host\INSTALL-KORA-GOSPEL-RECONCILIATION.ps1"
 set CODE=%ERRORLEVEL%
 echo.

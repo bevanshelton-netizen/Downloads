@@ -12,7 +12,7 @@ $ownedLauncher = Join-Path $PSScriptRoot "START-KORA-GOSPEL-TV-ON-IZAKHONO.ps1"
 if (-not (Test-Path $ownedLauncher)) { throw "Owned Gospel launcher not found: $ownedLauncher" }
 
 Write-Host ""
-Write-Host "KORA GOSPEL TV - HYBRID ACTIVATION" -ForegroundColor Yellow
+Write-Host "YHVH GOSPEL TV - HYBRID ACTIVATION" -ForegroundColor Yellow
 Write-Host "Primary: IZAKHONO owned infrastructure" -ForegroundColor Cyan
 Write-Host "External: KORA/Vercel + public fallback + Supabase intake" -ForegroundColor Cyan
 Write-Host ""

@@ -5,7 +5,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 Write-Host ""
-Write-Host "KORA GOSPEL TV - IZAKHONO OWNED INFRASTRUCTURE" -ForegroundColor Yellow
+Write-Host "YHVH GOSPEL TV - IZAKHONO OWNED INFRASTRUCTURE" -ForegroundColor Yellow
 Write-Host "Target: ISN-01 -> IZAKHONO CODE -> RUNTIME -> EDGE" -ForegroundColor Cyan
 Write-Host ""
 
@@ -29,10 +29,10 @@ export KORA_GOSPEL_TV_HOSTNAME='$escapedHost'
 bash izakhono-owned-cloud/deploy-kora-gospel-tv.sh main
 "@
 $linux | & wsl.exe -d Ubuntu-24.04 -u root -- bash -s
-if ($LASTEXITCODE -ne 0) { throw "KORA GOSPEL TV owned-infrastructure deployment failed." }
+if ($LASTEXITCODE -ne 0) { throw "YHVH GOSPEL TV owned-infrastructure deployment failed." }
 
 Write-Host ""
-Write-Host "KORA GOSPEL TV: DEPLOYED TO IZAKHONO RUNTIME" -ForegroundColor Green
+Write-Host "YHVH GOSPEL TV: DEPLOYED TO IZAKHONO RUNTIME" -ForegroundColor Green
 Write-Host "Hostname: $Hostname" -ForegroundColor Green
 
 try {
@@ -67,10 +67,10 @@ if ($edgeCode -ne 0) { throw "IZAKHONO-owned public edge activation failed (code
 
 $public = Invoke-WebRequest -UseBasicParsing -TimeoutSec 12 "https://$Hostname/health"
 $health = $public.Content | ConvertFrom-Json
-if ($health.ok -ne $true -or $health.service -ne "kora-gospel-tv") { throw "Public KORA GOSPEL TV health verification failed." }
+if ($health.ok -ne $true -or $health.service -ne "kora-gospel-tv") { throw "Public YHVH GOSPEL TV health verification failed." }
 
 Write-Host ""
-Write-Host "KORA GOSPEL TV: PUBLIC HTTPS LIVE AND VERIFIED" -ForegroundColor Green
+Write-Host "YHVH GOSPEL TV: PUBLIC HTTPS LIVE AND VERIFIED" -ForegroundColor Green
 Write-Host "https://$Hostname" -ForegroundColor Green
 Start-Process "https://$Hostname"
 exit 0

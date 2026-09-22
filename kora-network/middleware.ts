@@ -63,6 +63,8 @@ export async function middleware(request: NextRequest) {
     || pathname.startsWith('/open-library/')
     || pathname === '/music'
     || pathname.startsWith('/music/')
+    || pathname === '/gospel'
+    || pathname.startsWith('/gospel/')
     || pathname === '/perform-live'
     || pathname.startsWith('/perform-live/')
     || pathname === '/artists'

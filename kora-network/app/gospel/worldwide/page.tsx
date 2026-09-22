@@ -12,15 +12,15 @@ const regions = [
 const languages = ['English','French','Portuguese','Spanish','Swahili','isiZulu','isiXhosa','Arabic','Hindi','Indonesian','Simplified Chinese','Yoruba','Hausa'];
 
 export const metadata = {
-  title: 'KORA GOSPEL TV Worldwide',
-  description: 'Global KORA GOSPEL TV distribution, languages and regional broadcast architecture.'
+  title: 'YHVH GOSPEL TV Worldwide',
+  description: 'Global YHVH GOSPEL TV distribution, languages and regional broadcast architecture.'
 };
 
 export default function WorldwideGospel() {
   return (
     <main id="main-content" style={{minHeight:'100vh',background:'radial-gradient(circle at 10% 0%,rgba(65,93,176,.24),transparent 30%),radial-gradient(circle at 95% 10%,rgba(245,196,81,.16),transparent 24%),#06101c',color:'#fff',padding:'54px 0 80px'}}>
       <div style={{width:'min(1160px,92vw)',margin:'0 auto'}}>
-        <Link href="/gospel" style={{color:'#ffe29a',fontWeight:800,textDecoration:'none'}}>← KORA GOSPEL TV</Link>
+        <Link href="/gospel" style={{color:'#ffe29a',fontWeight:800,textDecoration:'none'}}>← YHVH GOSPEL TV</Link>
         <div style={{marginTop:20,fontSize:12,fontWeight:900,letterSpacing:'.14em',color:'#8ed8ff'}}>WORLDWIDE NETWORK</div>
         <h1 style={{fontSize:'clamp(3rem,8vw,7rem)',lineHeight:.87,letterSpacing:'-.06em',margin:'12px 0 18px'}}>AFRICA TO<br/><span style={{color:'#f5c451'}}>THE WORLD.</span></h1>
         <p style={{maxWidth:850,color:'#c4d0df',lineHeight:1.65,fontSize:18}}>One IZAKHONO-controlled Gospel network, distributed globally through regional time zones, multilingual versions, external video platforms, smart-TV/OTT partners and local ministry relationships.</p>

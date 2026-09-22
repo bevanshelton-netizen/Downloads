@@ -13,14 +13,14 @@ const lanes = [
 
 export const metadata = {
   title: 'Gospel TV Distribution | KORA',
-  description: 'KORA GOSPEL TV distribution topology: IZAKHONO-owned origin with external reach and fallback lanes.'
+  description: 'YHVH GOSPEL TV distribution topology: IZAKHONO-owned origin with external reach and fallback lanes.'
 };
 
 export default function GospelDistributionMap() {
   return (
     <main id="main-content" style={{minHeight:'100vh',background:'#07111f',color:'#fff',padding:'56px 0 80px'}}>
       <div style={{width:'min(1120px,92vw)',margin:'0 auto'}}>
-        <Link href="/gospel" style={{color:'#ffe29a',fontWeight:800,textDecoration:'none'}}>← KORA GOSPEL TV</Link>
+        <Link href="/gospel" style={{color:'#ffe29a',fontWeight:800,textDecoration:'none'}}>← YHVH GOSPEL TV</Link>
         <div style={{marginTop:20,fontSize:12,fontWeight:900,letterSpacing:'.14em',color:'#ffe29a'}}>HYBRID DISTRIBUTION MAP</div>
         <h1 style={{fontSize:'clamp(2.7rem,7vw,5.6rem)',lineHeight:.9,letterSpacing:'-.055em',margin:'12px 0 18px'}}>One master feed.<br/>Many roads out.</h1>
         <p style={{maxWidth:820,color:'#b8c5d8',lineHeight:1.65,fontSize:18}}>IZAKHONO remains authoritative. External services extend audience reach, resilience and discovery. A failure on an outside platform is treated as degraded distribution, not loss of the channel.</p>
