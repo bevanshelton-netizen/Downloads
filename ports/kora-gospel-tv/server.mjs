@@ -171,7 +171,7 @@ createServer(async (req,res)=>{
         policy:"owned-primary-external-distribution",
         primary:{provider:"IZAKHONO",role:"origin-control-plane",url:"https://gospel.domains.izakhonoafrica.co.za",authoritative:true},
         external:[
-          {provider:"KORA/Vercel",role:"distribution-discovery",url:"https://kora-network.vercel.app/gospel",authoritative:false},
+          {provider:"Vercel",role:"distribution-discovery",url:"https://kora-network.vercel.app/gospel",authoritative:false},
           {provider:"GitHub Pages",role:"public-fallback",url:"https://bevanshelton-netizen.github.io/Downloads/kora-gospel-tv/",authoritative:false}
         ]
       }
