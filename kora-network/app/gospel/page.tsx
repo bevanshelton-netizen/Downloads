@@ -23,6 +23,18 @@ export default function GospelPage() {
         <div style={{marginTop:12,display:'flex',gap:16,flexWrap:'wrap'}}><a href="/gospel/commercial" style={{color:'#f5c451',fontWeight:900,textDecoration:'none'}}>Sponsor / advertise →</a><a href="/gospel/join" style={{color:'#7ff0bd',fontWeight:900,textDecoration:'none'}}>Join the global network →</a><a href="/gospel/worldwide" style={{color:'#ffe29a',fontWeight:900,textDecoration:'none'}}>Worldwide network →</a><a href="/gospel/distribution" style={{color:'#ffe29a',fontWeight:900,textDecoration:'none'}}>View distribution map →</a><a href={primaryUrl.replace(/\/$/,'') + '/control.html'} target="_blank" rel="noopener noreferrer" style={{color:'#8ed8ff',fontWeight:900,textDecoration:'none'}}>Owner control room ↗</a></div>
       </section>
 
+      <section style={{width:'min(1180px,92vw)',margin:'0 auto',padding:'10px 0 34px'}}>
+        <div style={{padding:24,borderRadius:26,border:'1px solid rgba(245,196,81,.28)',background:'linear-gradient(135deg,rgba(125,21,56,.34),rgba(10,23,43,.92))'}}>
+          <div style={{fontSize:12,fontWeight:900,letterSpacing:'.14em',color:'#ffe29a'}}>REVENUE SPRINT · OPEN FOR BUSINESS</div>
+          <h2 style={{fontSize:'clamp(2rem,4vw,3.4rem)',margin:'10px 0 12px'}}>Sponsor. Advertise. Broadcast your Gospel event.</h2>
+          <p style={{maxWidth:820,color:'#c7d4e4',lineHeight:1.6}}>YHVH GOSPEL TV is live on a zero-budget public stack so revenue can fund the infrastructure we need next. Commercial enquiries are open now.</p>
+          <div style={{display:'flex',gap:10,flexWrap:'wrap',marginTop:16}}>
+            <a href="/gospel/commercial?utm_source=gospel_home&utm_medium=revenue_sprint&utm_campaign=launch" style={{padding:'12px 18px',borderRadius:999,background:'#f5c451',color:'#2d2108',fontWeight:900,textDecoration:'none'}}>Request commercial proposal →</a>
+            <a href="https://wa.me/?text=YHVH%20GOSPEL%20TV%20is%20live.%20Faith.%20Worship.%20Word.%20Africa%20to%20the%20World.%20https%3A%2F%2Fkora-network.vercel.app%2Fgospel" target="_blank" rel="noopener noreferrer" style={{padding:'12px 18px',borderRadius:999,border:'1px solid rgba(255,255,255,.18)',color:'#fff',fontWeight:900,textDecoration:'none'}}>Share on WhatsApp</a>
+          </div>
+        </div>
+      </section>
+
       <section style={{width:'min(1180px,92vw)',margin:'0 auto',padding:'24px 0 70px'}}>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:16}}>
           <article style={{padding:22,border:'1px solid rgba(255,255,255,.13)',borderRadius:22,background:'rgba(255,255,255,.05)'}}>
