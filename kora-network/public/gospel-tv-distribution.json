@@ -9,7 +9,7 @@
   },
   "external": [
     {
-      "provider": "KORA/Vercel",
+      "provider": "Vercel",
       "role": "distribution-discovery",
       "url": "https://kora-network.vercel.app/gospel",
       "authoritative": false
