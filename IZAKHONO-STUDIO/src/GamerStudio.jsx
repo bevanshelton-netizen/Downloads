@@ -150,9 +150,10 @@ export default function GamerStudio() {
   return (
     <section className="gamer-studio" id="gamer-studio">
       <div className="suite-section-copy">
-        <span className="suite-eyebrow">GAMER STUDIO • WORKING V1</span>
+        <span className="suite-eyebrow">GAMER STUDIO • $15/MONTH • WORKING V1</span>
         <h2>Built for players, streamers and esports.</h2>
-        <p>Create stream overlays, gaming thumbnails, esports cards and vertical covers in-browser. The next gaming layer connects clips, highlights, emotes, team kits, sprites, textures, trailers and developer assets into the same suite.</p>
+        <p>The Gamer plan is USD $15/month and includes the full $5 Creative Suite plus Gamer Studio. Create stream overlays, gaming thumbnails, esports cards and vertical covers in-browser. The next gaming layer connects clips, highlights, emotes, team kits, sprites, textures, trailers and developer assets.</p>
+        <div className="gamer-price-band"><strong>$15</strong><span>USD / month • Creative Suite + Gamer Studio</span></div>
       </div>
 
       <div className="gamer-grid">
