@@ -143,6 +143,18 @@ export const PORTFOLIO = [
     font: 'Archivo Black',
     visualCue: 'Website mockups • phone and laptop • business owner • enquiry flow',
   },
+  {
+    id: 'izakhono-gamer',
+    name: 'IZAKHONO GAMER STUDIO',
+    category: 'Gaming creator & esports suite',
+    audience: 'gamers, streamers, esports teams and game creators',
+    promise: 'Create stream graphics, gaming thumbnails, esports media and creator assets with the full Creative Suite included.',
+    cta: 'JOIN FOR $15',
+    accent: '#42f5c5',
+    background: '#070913',
+    font: 'Archivo Black',
+    visualCue: 'Gameplay energy • stream overlay • esports player • creator setup • game-dev assets',
+  },
 ];
 
 export const CAMPAIGN_LEVELS = [
