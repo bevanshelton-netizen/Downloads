@@ -4,6 +4,7 @@ import GospelDistribution from './gospel-distribution';
 export const metadata: Metadata = {
   title: 'YHVH GOSPEL TV',
   description: 'YHVH GOSPEL TV — Gospel-only television on IZAKHONO-owned infrastructure with resilient external distribution.',
+  applicationName: 'YHVH GOSPEL TV',
 };
 
 export default function GospelPage() {
@@ -12,6 +13,7 @@ export default function GospelPage() {
 
   return (
     <main id="main-content" style={{minHeight:'100vh',background:'radial-gradient(circle at 12% 0%,rgba(95,58,168,.24),transparent 30%),radial-gradient(circle at 100% 10%,rgba(245,196,81,.14),transparent 24%),#07111f',color:'#fff'}}>
+      <style>{`.top, body > footer, .autoAiPromo, .globalShareButton { display:none !important; } body { background:#07111f; }`}</style>
       <section style={{width:'min(1180px,92vw)',margin:'0 auto',padding:'72px 0 34px'}}>
         <img src="/images/yhvh-gospel-tv-logo-dove.png" alt="YHVH Gospel TV" style={{display:'block',width:'min(430px,82vw)',height:'auto',marginBottom:24}} />
         <div style={{display:'inline-flex',gap:8,alignItems:'center',padding:'8px 12px',borderRadius:999,background:'#7d1538',fontWeight:900,fontSize:12,letterSpacing:'.12em'}}>● GOSPEL ONLY</div>
