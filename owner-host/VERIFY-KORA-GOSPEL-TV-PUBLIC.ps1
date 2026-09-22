@@ -7,7 +7,7 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-$report = Join-Path ([Environment]::GetFolderPath("Desktop")) "KORA-GOSPEL-TV-PUBLIC-VERIFY.txt"
+$report = Join-Path ([Environment]::GetFolderPath("Desktop")) "YHVH-GOSPEL-TV-PUBLIC-VERIFY.txt"
 $lines = New-Object System.Collections.Generic.List[string]
 
 function Add-Line([string]$Text) {
