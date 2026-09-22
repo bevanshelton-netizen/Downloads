@@ -124,7 +124,7 @@ DEPLOYMENT_ID="$(node -e 'const x=JSON.parse(process.argv[1]);if(!x.id)process.e
 
 HEALTH="$(curl -fsS -H "Host: $HOSTNAME" "$PROXY_URL/health")"
 node -e 'const x=JSON.parse(process.argv[1]);if(x.ok!==true||x.service!=="izakhono-creative-suite"||x.checkout_enabled!==false||x.registration_enabled!==false)process.exit(2)' "$HEALTH"
-curl -fsS -H "Host: $HOSTNAME" "$PROXY_URL/" | grep -Fq "IZAKHONO CREATIVE SUITE"
+curl -fsS -H "Host: $HOSTNAME" "$PROXY_URL/" | grep -Fq '<div id="root"></div>'
 
 EDGE="NOT_RUNNING"
 if systemctl is-active --quiet izakhono-edge-node 2>/dev/null; then
