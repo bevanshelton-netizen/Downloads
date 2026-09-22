@@ -18,7 +18,7 @@ if (-not (Test-Admin)) {
 
 $state = Join-Path $env:ProgramData "IZAKHONO\ISN-01"
 New-Item -ItemType Directory -Force -Path $state | Out-Null
-$report = Join-Path ([Environment]::GetFolderPath("Desktop")) "KORA-GOSPEL-TV-GO-LIVE-REPORT.txt"
+$report = Join-Path ([Environment]::GetFolderPath("Desktop")) "YHVH-GOSPEL-TV-GO-LIVE-REPORT.txt"
 $lines = New-Object System.Collections.Generic.List[string]
 
 function Log([string]$Text) {
@@ -95,7 +95,7 @@ Log "YHVH GOSPEL TV DEPLOYMENT: PASS"
 
 $code = Run-Stage "3/3 INDEPENDENT PUBLIC VERIFICATION" $verify
 if ($code -ne 0) {
-    Stop-With $code ("Public verification failed with code {0}. Check KORA-GOSPEL-TV-PUBLIC-VERIFY.txt on the Desktop." -f $code)
+    Stop-With $code ("Public verification failed with code {0}. Check YHVH-GOSPEL-TV-PUBLIC-VERIFY.txt on the Desktop." -f $code)
 }
 Log "PUBLIC VERIFICATION: PASS"
 Log ""
