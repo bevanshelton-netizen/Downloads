@@ -89,7 +89,7 @@ if ($code -eq 21) {
     Stop-With 21 "Gospel TV runtime deployed, but public TCP 80/443 or trusted TLS still needs to complete."
 }
 if ($code -ne 0) {
-    Stop-With $code ("KORA Gospel TV deployment failed with code {0}." -f $code)
+    Stop-With $code ("YHVH GOSPEL TV deployment failed with code {0}." -f $code)
 }
 Log "YHVH GOSPEL TV DEPLOYMENT: PASS"
 
