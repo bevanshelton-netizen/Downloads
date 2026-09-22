@@ -1,6 +1,7 @@
 import React from 'react';
 import App from './App.jsx';
 import PhotoLab from './PhotoLab.jsx';
+import SwitchCenter from './SwitchCenter.jsx';
 import { SUITE_PRICE, SUITE_PROMISES, SUITE_TOOLS } from './suiteCatalog.js';
 
 function Status({ value }) {
@@ -25,7 +26,7 @@ export default function SuiteShell() {
             </div>
           </div>
           <div className="suite-cta-row">
-            <a className="suite-primary-link" href="#photo-lab">Open Photo Lab</a>
+            <a className="suite-primary-link" href="#switch-center">Switch to IZAKHONO</a>
             <a className="suite-secondary-link" href="#design-studio">Open Design Studio</a>
           </div>
         </div>
@@ -73,7 +74,7 @@ export default function SuiteShell() {
         </div>
       </section>
 
-      <PhotoLab />
+      <SwitchCenter />\n\n      <PhotoLab />
 
       <section className="suite-commercial">
         <div>
