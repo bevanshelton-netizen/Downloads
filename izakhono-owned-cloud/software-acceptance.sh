@@ -78,6 +78,8 @@ grep -q '127.0.0.1' izakhono-owned-cloud/deploy-fortress-protector.sh || fail "F
 pass "FORTRESS private protection boundary"
 
 grep -q 'IZAKHONO_DNS_CONTROL_PORT || 8900' izakhono-dns-node/server.mjs || fail "DNS control port contract missing"
+grep -q 'IZAKHONO DNS NODE.*izakhono-dns-node' izakhono-owned-cloud/install-owned-stack.sh || fail "DNS missing from primary installer"
+grep -q 'probe_json DNS http://127.0.0.1:8900/health' izakhono-owned-cloud/first-host-proof.sh || fail "DNS missing from first-host proof"
 grep -q 'process.env.PORT || 8910' izakhono-package-node/server.mjs || fail "PACKAGE port contract missing"
 grep -q 'PORT || 8920' izakhono-failover-node/server.mjs || fail "FAILOVER port contract missing"
 grep -q 'PORT || 8930' izakhono-witness-node/server.mjs || fail "WITNESS port contract missing"
