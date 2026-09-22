@@ -33,7 +33,7 @@ export default function SuiteShell() {
         </div>
 
         <div className="suite-scorecard">
-          <span>V0.3 CREATIVE SUITE</span>
+          <span>V0.4 CREATIVE SUITE</span>
           <strong>{SUITE_TOOLS.length}</strong>
           <b>connected tool families</b>
           <div>
@@ -77,7 +77,9 @@ export default function SuiteShell() {
 
       <SwitchCenter />
 
-      <GamerStudio />\n\n      <PhotoLab />
+      <GamerStudio />
+
+      <PhotoLab />
 
       <section className="suite-commercial">
         <div>
