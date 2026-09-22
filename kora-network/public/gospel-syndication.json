@@ -12,7 +12,7 @@
     },
     {
       "id": "kora-vercel",
-      "name": "KORA / Vercel",
+      "name": "Vercel external distribution",
       "type": "external",
       "role": "web-distribution",
       "status": "configured"
