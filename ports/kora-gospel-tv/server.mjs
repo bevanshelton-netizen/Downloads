@@ -158,12 +158,12 @@ createServer(async (req,res)=>{
   const url=new URL(req.url||"/","http://localhost");
 
   if(url.pathname==="/health"||url.pathname==="/api/health"){
-    return json(res,200,{ok:true,service:"kora-gospel-tv",product:"KORA GOSPEL TV",runtime:"izakhono-owned",version:"hybrid-1"},{"access-control-allow-origin":"*"});
+    return json(res,200,{ok:true,service:"kora-gospel-tv",product:"YHVH GOSPEL TV",runtime:"izakhono-owned",version:"hybrid-1"},{"access-control-allow-origin":"*"});
   }
 
   if(url.pathname==="/api/channel" && req.method==="GET"){
     return json(res,200,{
-      name:"KORA GOSPEL TV",
+      name:"YHVH GOSPEL TV",
       promise:"Faith. Worship. Word. Africa to the World.",
       mode:validEmbed(LIVE_EMBED_URL)?"live-feed":"launch-mode",
       liveEmbedUrl:validEmbed(LIVE_EMBED_URL),
@@ -230,4 +230,4 @@ createServer(async (req,res)=>{
     res.writeHead(200,baseHeaders(types[ext]||"application/octet-stream",data.length,ext===".html"?"no-store":"public, max-age=3600"));
     if(req.method==="HEAD") return res.end();res.end(data);
   }catch{send(res,404,"Not found")}
-}).listen(PORT,HOST,()=>console.log(`KORA GOSPEL TV listening on http://${HOST}:${PORT}`));
+}).listen(PORT,HOST,()=>console.log(`YHVH GOSPEL TV listening on http://${HOST}:${PORT}`));
