@@ -738,3 +738,25 @@
 @media (max-width: 640px) {
   .gamer-roadmap { grid-template-columns: 1fr; }
 }
+\n
+.gamer-price-band {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  width: fit-content;
+  margin-top: 18px;
+  padding: 12px 16px;
+  border: 1px solid rgba(184,255,61,.45);
+  border-radius: 16px;
+  background: rgba(184,255,61,.07);
+}
+.gamer-price-band strong {
+  color: var(--suite-lime);
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 34px;
+}
+.gamer-price-band span {
+  color: #c5cedb;
+  font-size: 12px;
+  font-weight: 700;
+}
