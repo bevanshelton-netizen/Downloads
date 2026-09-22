@@ -23,7 +23,7 @@ if "%CODE%"=="0" (
   echo YHVH GOSPEL TV: PUBLIC HTTPS LIVE AND VERIFIED
 ) else (
   echo GO-LIVE stopped with code %CODE%.
-  echo See KORA-GOSPEL-TV-GO-LIVE-REPORT.txt on the Desktop.
+  echo See YHVH-GOSPEL-TV-GO-LIVE-REPORT.txt on the Desktop.
 )
 pause
 exit /b %CODE%
