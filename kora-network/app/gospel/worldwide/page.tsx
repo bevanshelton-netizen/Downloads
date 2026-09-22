@@ -50,7 +50,7 @@ export default function WorldwideGospel() {
 
         <section style={{marginTop:44,display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(250px,1fr))',gap:14}}>
           {[
-            ['01','Global web','IZAKHONO + KORA + external web distribution'],
+            ['01','Global web','IZAKHONO + external web distribution'],
             ['02','Global social','Approved live simulcasts, trailers, clips and premieres'],
             ['03','Living room','Smart-TV, OTT and connected-TV distribution'],
             ['04','Local partnerships','Churches, Gospel artists, broadcasters and event partners'],
