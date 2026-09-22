@@ -5,8 +5,8 @@ import { FormEvent, useState } from 'react';
 type Props={primaryUrl:string;externalUrl:string};
 type Result={ok?:boolean;reference?:string;route?:string;error?:string};
 
-const field={width:'100%',border:'1px solid rgba(255,255,255,.14)',background:'#081526',color:'#fff',borderRadius:14,padding:'12px 13px'} as const;
-const label={display:'grid',gap:7,fontSize:14,fontWeight:800,color:'#dce6f3'} as const;
+const field={width:'100%',border:'1px solid rgba(255,255,255,.12)',background:'rgba(4,12,23,.82)',color:'#fff',borderRadius:14,padding:'13px 14px',outline:'none'} as const;
+const label={display:'grid',gap:7,fontSize:13,fontWeight:800,color:'#dce6f3',letterSpacing:'.01em'} as const;
 
 export default function CommercialLead({primaryUrl,externalUrl}:Props){
   const [busy,setBusy]=useState(false);
@@ -47,13 +47,18 @@ export default function CommercialLead({primaryUrl,externalUrl}:Props){
       const ext=await post(externalUrl,{...payload,sourceChannel:'yhvh-external-commercial-launch'});
       if(!ext.r.ok)throw new Error(ext.body.error||'Commercial intake is temporarily unavailable.');
       setStatus('Commercial enquiry received. Reference: '+ext.body.reference);
-      setRoute('PUBLIC LAUNCH INTAKE · PENDING IZAKHONO REVIEW');form.reset();
+      setRoute('ENQUIRY RECEIVED · IZAKHONO COMMERCIAL REVIEW');form.reset();
     }catch(err){
       setStatus(err instanceof Error?err.message:'Unable to submit right now.');setRoute('');
     }finally{setBusy(false)}
   }
 
-  return <form onSubmit={submit} style={{display:'grid',gap:14,padding:24,border:'1px solid rgba(255,255,255,.14)',borderRadius:24,background:'rgba(255,255,255,.045)'}}>
+  return <form onSubmit={submit} style={{display:'grid',gap:16,padding:28,border:'1px solid rgba(255,255,255,.09)',borderRadius:22,background:'linear-gradient(180deg,rgba(10,27,48,.96),rgba(6,18,33,.98))',boxShadow:'inset 0 1px 0 rgba(255,255,255,.03)'}}>
+    <div>
+      <div style={{color:'#f5c451',fontWeight:900,fontSize:11,letterSpacing:'.14em'}}>COMMERCIAL BRIEF</div>
+      <h3 style={{fontFamily:'Cormorant Garamond, Georgia, serif',fontSize:'2.3rem',lineHeight:1,margin:'8px 0 8px'}}>Request a proposal.</h3>
+      <p style={{margin:0,color:'#9fb0c4',lineHeight:1.6,fontSize:14}}>Share enough detail for us to understand the opportunity. No payment is taken on this form.</p>
+    </div>
     <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:12}}>
       <label style={label}>Opportunity
         <select name="package" defaultValue="founding-partner" required style={field}>
@@ -78,8 +83,8 @@ export default function CommercialLead({primaryUrl,externalUrl}:Props){
     <label style={label}>Tell us what you want to achieve
       <textarea name="message" maxLength={1600} required style={{...field,minHeight:130,resize:'vertical'}}/>
     </label>
-    <button disabled={busy} type="submit" style={{justifySelf:'start',border:0,borderRadius:999,padding:'13px 20px',background:'#f5c451',color:'#2d2108',fontWeight:900,cursor:busy?'wait':'pointer'}}>{busy?'Sending…':'Request Commercial Proposal'}</button>
-    {route&&<div style={{fontSize:12,fontWeight:900,letterSpacing:'.08em',color:route.startsWith('OWNED')?'#83f0c4':'#ffe29a'}}>{route}</div>}
+    <button disabled={busy} type="submit" style={{justifySelf:'start',border:0,borderRadius:999,padding:'14px 21px',background:'linear-gradient(135deg,#f5c451,#dda03a)',color:'#2d2108',fontWeight:900,cursor:busy?'wait':'pointer',boxShadow:'0 12px 28px rgba(229,157,29,.18)'}}>{busy?'Sending…':'Request Commercial Proposal →'}</button>
+    {route&&<div style={{padding:'10px 12px',borderRadius:12,border:'1px solid rgba(131,240,196,.22)',background:'rgba(131,240,196,.06)',fontSize:11,fontWeight:900,letterSpacing:'.08em',color:'#9cf1ce'}}>{route}</div>}
     <div aria-live="polite" style={{minHeight:22,color:'#e9f0fa'}}>{status}</div>
     <p style={{margin:0,fontSize:12,color:'#91a4bc',lineHeight:1.55}}>Commercial participation does not buy programme placement, ministry endorsement or editorial approval. All advertising, sponsorship and event integrations remain subject to Gospel TV brand, rights and suitability review.</p>
   </form>;
