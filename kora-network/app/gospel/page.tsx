@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function GospelPage() {
   const primaryUrl = process.env.KORA_GOSPEL_PRIMARY_URL || 'https://gospel.domains.izakhonoafrica.co.za';
-  const pagesUrl = process.env.KORA_GOSPEL_PAGES_URL || 'https://bevanshelton-netizen.github.io/Downloads/kora-gospel-tv/';
+  const pagesUrl = process.env.KORA_GOSPEL_PAGES_URL || 'https://bevanshelton-netizen.github.io/Downloads/yhvh-gospel-tv/';
 
   return (
     <main id="main-content" style={{minHeight:'100vh',background:'radial-gradient(circle at 12% 0%,rgba(95,58,168,.24),transparent 30%),radial-gradient(circle at 100% 10%,rgba(245,196,81,.14),transparent 24%),#07111f',color:'#fff'}}>
@@ -18,7 +18,7 @@ export default function GospelPage() {
         <img src="/images/yhvh-gospel-tv-logo-dove.png" alt="YHVH Gospel TV" style={{display:'block',width:'min(430px,82vw)',height:'auto',marginBottom:24}} />
         <div style={{display:'inline-flex',gap:8,alignItems:'center',padding:'8px 12px',borderRadius:999,background:'#7d1538',fontWeight:900,fontSize:12,letterSpacing:'.12em'}}>● GOSPEL ONLY</div>
         <h1 style={{fontSize:'clamp(3.4rem,8vw,7.2rem)',lineHeight:.86,letterSpacing:'-.065em',margin:'20px 0 18px',maxWidth:980}}>YHVH<br/><span style={{color:'#f5c451'}}>GOSPEL TV</span></h1>
-        <p style={{fontSize:'clamp(1rem,2vw,1.2rem)',lineHeight:1.65,maxWidth:820,color:'#dbe4f1'}}>Faith. Worship. Word. Africa to the World. The channel is owned and controlled on IZAKHONO infrastructure, while Vercel and GitHub Pages remain active as distribution and resilience layers.</p>
+        <p style={{fontSize:'clamp(1rem,2vw,1.2rem)',lineHeight:1.65,maxWidth:820,color:'#dbe4f1'}}>Faith. Worship. Word. Africa to the World. Public delivery is live on zero-cost external infrastructure now, while IZAKHONO remains the channel authority and preferred owned origin.</p>
         <GospelDistribution primaryUrl={primaryUrl} pagesUrl={pagesUrl} />
         <div style={{marginTop:12,display:'flex',gap:16,flexWrap:'wrap'}}><a href="/gospel/commercial" style={{color:'#f5c451',fontWeight:900,textDecoration:'none'}}>Sponsor / advertise →</a><a href="/gospel/join" style={{color:'#7ff0bd',fontWeight:900,textDecoration:'none'}}>Join the global network →</a><a href="/gospel/worldwide" style={{color:'#ffe29a',fontWeight:900,textDecoration:'none'}}>Worldwide network →</a><a href="/gospel/distribution" style={{color:'#ffe29a',fontWeight:900,textDecoration:'none'}}>View distribution map →</a><a href={primaryUrl.replace(/\/$/,'') + '/control.html'} target="_blank" rel="noopener noreferrer" style={{color:'#8ed8ff',fontWeight:900,textDecoration:'none'}}>Owner control room ↗</a></div>
       </section>
