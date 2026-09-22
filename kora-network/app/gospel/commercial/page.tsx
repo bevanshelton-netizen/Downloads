@@ -10,7 +10,7 @@ const offers=[
   {id:'founding-partner',title:'Founding / Presenting Partner',copy:'High-visibility channel association, launch campaigns and agreed brand inventory without editorial control.'},
   {id:'programme-sponsor',title:'Programme Sponsor',copy:'Sponsor suitable recurring Gospel programmes, segments or family-safe content lanes.'},
   {id:'event-broadcast',title:'Live Event Broadcast',copy:'Broadcast or simulcast Gospel concerts, conferences, worship events and revivals after technical and rights clearance.'},
-  {id:'regional-distribution',title:'Regional Distribution',copy:'Work with KORA on territory, platform, OTT, smart-TV and syndication distribution opportunities.'},
+  {id:'regional-distribution',title:'Regional Distribution',copy:'Work with YHVH GOSPEL TV on territory, platform, OTT, smart-TV and syndication distribution opportunities.'},
   {id:'advertising',title:'Faith-aligned Advertising',copy:'Brand messages and campaigns suitable for a Gospel and family audience, subject to approval.'},
   {id:'production-services',title:'Production Services',copy:'Remote production, recording, packaging, graphics, channel integration and event broadcast support.'}
 ];
@@ -35,7 +35,7 @@ export default function CommercialDesk(){
 
       <section style={{marginTop:26,display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(250px,1fr))',gap:14}}>
         <article style={{padding:20,borderRadius:20,background:'#0b1c31',border:'1px solid rgba(255,255,255,.12)'}}><b style={{color:'#83f0c4'}}>OWNED FIRST</b><p style={{color:'#aebed1',lineHeight:1.55}}>Commercial enquiries try the IZAKHONO-owned Gospel runtime first and use the external buffer only for resilience.</p></article>
-        <article style={{padding:20,borderRadius:20,background:'#0b1c31',border:'1px solid rgba(255,255,255,.12)'}}><b style={{color:'#8ed8ff'}}>GLOBAL REACH</b><p style={{color:'#aebed1',lineHeight:1.55}}>KORA/Vercel and other approved platforms expand discovery and distribution while IZAKHONO remains the authoritative control plane.</p></article>
+        <article style={{padding:20,borderRadius:20,background:'#0b1c31',border:'1px solid rgba(255,255,255,.12)'}}><b style={{color:'#8ed8ff'}}>GLOBAL REACH</b><p style={{color:'#aebed1',lineHeight:1.55}}>Vercel and other approved external platforms expand discovery and distribution while IZAKHONO remains the authoritative control plane.</p></article>
         <article style={{padding:20,borderRadius:20,background:'#0b1c31',border:'1px solid rgba(255,255,255,.12)'}}><b style={{color:'#ffe29a'}}>EDITORIAL INDEPENDENCE</b><p style={{color:'#aebed1',lineHeight:1.55}}>Sponsorship and advertising never create automatic broadcast, ministry or editorial approval.</p></article>
       </section>
     </div>
