@@ -12,6 +12,7 @@ on:
       - 'ports/izakhono-one/**'
       - 'ports/kora-kids/**'
       - 'portfolio-growth/**'
+      - 'IZAKHONO-STUDIO/**'
       - '.github/workflows/doxa-sure-pages.yml'
 
 permissions:
@@ -33,6 +34,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node for Creative Suite
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build Creative Suite external fallback
+        working-directory: IZAKHONO-STUDIO
+        run: |
+          npm install --no-audit --no-fund
+          npm run build -- --base=/Downloads/creative-suite/
+
       - name: Assemble stable static gateway
         shell: bash
         run: |
@@ -42,6 +54,7 @@ jobs:
           mkdir -p _site/izakhono-one
           mkdir -p _site/portfolio-growth
           mkdir -p _site/kora-kids
+          mkdir -p _site/creative-suite
 
           # Revenue Sprint is the production front door at the Pages root.
           cp ports/revenue-sprint/index.html _site/index.html
@@ -62,6 +75,9 @@ jobs:
           # Publish the original KORA KIDS Tumi & Tala prototype.
           cp -R ports/kora-kids/. _site/kora-kids/
 
+          # Publish IZAKHONO Creative Suite as an external static fallback.
+          cp -R IZAKHONO-STUDIO/dist/. _site/creative-suite/
+
           touch _site/.nojekyll
 
       - name: Configure and enable Pages
@@ -77,6 +93,26 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Verify Creative Suite external fallback
+        shell: bash
+        run: |
+          set -euo pipefail
+          CREATIVE="https://bevanshelton-netizen.github.io/Downloads/creative-suite/"
+          HEALTH="https://bevanshelton-netizen.github.io/Downloads/creative-suite/health.json"
+          ok=0
+          for i in $(seq 1 36); do
+            rm -f /tmp/creative.html /tmp/creative-health.json
+            if curl -fsSL -o /tmp/creative.html "$CREATIVE" &&
+               curl -fsSL -o /tmp/creative-health.json "$HEALTH" &&
+               grep -Fq '<div id="root"></div>' /tmp/creative.html &&
+               node -e 'const x=require("/tmp/creative-health.json");if(x.ok!==true||x.service!=="izakhono-creative-suite"||x.registration_enabled!==false||x.checkout_enabled!==false)process.exit(2)'; then
+              ok=1
+              break
+            fi
+            sleep 5
+          done
+          test "$ok" -eq 1
 
       - name: Verify KORA KIDS public route
         shell: bash
