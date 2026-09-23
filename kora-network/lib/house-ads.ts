@@ -37,7 +37,7 @@ export const houseAds: HouseAd[] = [
     name: 'Learner Driver SA',
     body: 'Prepare for motorcycles, Code 08, Code 10 and Code 14 with mock tests, road signs, live simulators and 12 official languages.',
     cta: 'START LEARNING FREE',
-    clickUrl: 'https://kora-network.vercel.app/learner-driver?utm_source=kora&utm_medium=owned_house_ad&utm_campaign=learner_driver_sa_launch&utm_content=house_ad',
+    clickUrl: 'https://learner-driver-sa-bevan2.vercel.app/?utm_source=kora&utm_medium=owned_house_ad&utm_campaign=learner_driver_sa_launch&utm_content=house_ad',
     accent: '#18c98b',
   },
   {
