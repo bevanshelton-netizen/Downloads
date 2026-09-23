@@ -28,3 +28,11 @@ jobs:
           RESPONSE="$(curl -fsS             -X POST             -H 'content-type: application/json'             --data '{"displayName":"IZAKHONO Bridge CI","email":"bridge-ci@izakhono.test","consent":true,"campaign":"public-bridge-ci"}'             https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-interest)"
           echo "$RESPONSE"
           node -e 'const x=JSON.parse(process.argv[1]); if(x.accepted!==true) process.exit(2)' "$RESPONSE"
+
+
+      - name: Verify public launch page
+        run: |
+          HTML="$(curl -fsS https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-public)"
+          echo "$HTML" | grep -q "IZAKHONO ONE"
+          echo "$HTML" | grep -q "Founding 1,000"
+          echo "$HTML" | grep -q "ONE AI owned runtime activating"
