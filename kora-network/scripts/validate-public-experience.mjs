@@ -48,6 +48,8 @@ check('Controlled launch serves brand partners', comingSoon.includes('href=\"/ad
 const middleware = read('middleware.ts');
 check('Creator overview stays public during controlled launch', middleware.includes("pathname === '/creators'"));
 check('Brand overview stays public during controlled launch', middleware.includes("pathname === '/advertise'"));
+check('Public partner gateway stays public during controlled launch', middleware.includes("pathname === '/partners'") && middleware.includes("pathname.startsWith('/partners/')"));
+check('Authenticated partner desk is not publicly whitelisted', !middleware.includes("pathname === '/partner'") && !middleware.includes("pathname.startsWith('/partner/')"));
 check('Creator application is not broadly whitelisted', !middleware.includes("pathname.startsWith('/creators')"));
 check('Advertiser operations are not publicly whitelisted', !middleware.includes("pathname.startsWith('/advertiser')"));
 check('Production remains fail-closed', middleware.includes('if (!publicLaunchEnabled && !authenticated && !alwaysPublic)'));
@@ -68,6 +70,7 @@ for (const route of ['/admin', '/account', '/studio', '/advertiser']) {
   check(`Sitemap excludes private surface ${route}`, !sitemap.includes(`'${route}'`));
 }
 check('Sitemap includes creators and brands', sitemap.includes("'/creators'") && sitemap.includes("'/advertise'"));
+check('Sitemap includes public partner pilot and excludes private partner desk', sitemap.includes("'/partners'") && sitemap.includes("'/partners/pilot'") && !sitemap.includes("'/partner'"));
 
 const manifest = read('app/manifest.ts');
 check('Installable manifest names KORA', manifest.includes("name: 'KORA Network'") && manifest.includes("display: 'standalone'"));
