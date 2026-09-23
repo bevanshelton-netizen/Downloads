@@ -46,8 +46,8 @@ check('Existing databases are verified rather than rebuilt', db.includes('profil
 check('Fresh bootstrap retains the destructive-operation guard', db.includes('BOOTSTRAP FRESH KORA DATABASE') && db.includes('bootstrap-production-db.sh'));
 check('Database ensure carries ticket hardening before artist discovery', db.indexOf('017_ticket_payment_hardening.sql') >= 0 && db.indexOf('018_artist_discovery.sql') > db.indexOf('017_ticket_payment_hardening.sql'));
 check('Database ensure carries artist discovery before ticket settlements', db.indexOf('018_artist_discovery.sql') >= 0 && db.indexOf('019_ticket_settlements.sql') > db.indexOf('018_artist_discovery.sql'));
-check('Database ensure carries schemas 20 through 23 in order', db.indexOf('020_allegro_video_handoff.sql') > db.indexOf('019_ticket_settlements.sql') && db.indexOf('021_tour2screen.sql') > db.indexOf('020_allegro_video_handoff.sql') && db.indexOf('022_music_screen_release_gate.sql') > db.indexOf('021_tour2screen.sql') && db.indexOf('023_partner_gateway.sql') > db.indexOf('022_music_screen_release_gate.sql'));
-check('Database ensure requires schema 23', db.includes('schema version 23') && db.includes('version\" != \"23\"'));
+check('Database ensure carries schemas 20 through 24 in order', db.indexOf('020_allegro_video_handoff.sql') > db.indexOf('019_ticket_settlements.sql') && db.indexOf('021_tour2screen.sql') > db.indexOf('020_allegro_video_handoff.sql') && db.indexOf('022_music_screen_release_gate.sql') > db.indexOf('021_tour2screen.sql') && db.indexOf('023_partner_gateway.sql') > db.indexOf('022_music_screen_release_gate.sql') && db.indexOf('024_partner_pilot.sql') > db.indexOf('023_partner_gateway.sql'));
+check('Database ensure requires schema 24', db.includes('schema version 24') && db.includes('version\" != \"24\"'));
 check('Private beta refuses an already-public database', db.includes('public-launch switch is already enabled'));
 check('Database ensure requires at least one active channel', db.includes('active seeded channel') && db.includes('live_channels'));
 
