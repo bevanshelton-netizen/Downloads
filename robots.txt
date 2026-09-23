@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /Downloads/one/
+Allow: /Downloads/izakhono-one/
+Sitemap: https://bevanshelton-netizen.github.io/Downloads/one/sitemap.xml
