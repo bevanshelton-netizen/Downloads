@@ -32,9 +32,12 @@ jobs:
           ok=0
           for i in $(seq 1 12); do
             rm -f /tmp/one-canon.html /tmp/one-port.html /tmp/one-health.html /tmp/one-canon.h /tmp/one-port.h
-            if curl -fsSL --max-time 12 -D /tmp/one-canon.h -o /tmp/one-canon.html "$CANON" &&
-               curl -fsSL --max-time 12 -D /tmp/one-port.h -o /tmp/one-port.html "$PORT" &&
-               curl -fsSL --max-time 12 -o /tmp/one-health.html "$HEALTH" &&
+            canon_code="$(curl -sSL --max-time 12 -D /tmp/one-canon.h -o /tmp/one-canon.html -w '%{http_code}' "$CANON" || true)"
+            port_code="$(curl -sSL --max-time 12 -D /tmp/one-port.h -o /tmp/one-port.html -w '%{http_code}' "$PORT" || true)"
+            health_code="$(curl -sSL --max-time 12 -o /tmp/one-health.html -w '%{http_code}' "$HEALTH" || true)"
+            if [ "$canon_code" = "200" ] &&
+               [ "$port_code" = "200" ] &&
+               [ "$health_code" = "200" ] &&
                grep -q 'IZAKHONO ONE' /tmp/one-canon.html &&
                grep -q 'IZAKHONO ONE' /tmp/one-port.html &&
                grep -q 'FREE 3-MINUTE BUSINESS HEALTH CHECK' /tmp/one-health.html &&
