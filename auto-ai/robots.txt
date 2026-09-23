@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://auto-ai-eosin.vercel.app/sitemap.xml

@@ -7,6 +7,11 @@ on:
       - main
     paths:
       - 'auto-ai/share-widget.js'
+      - 'auto-ai/index.html'
+      - 'auto-ai/robots.txt'
+      - 'auto-ai/sitemap.xml'
+      - 'auto-ai/dc98e762923b831ef7edbc2ff9cdd39a.txt'
+      - '.github/workflows/auto-ai-vercel-deploy.yml'
 
 permissions:
   contents: read

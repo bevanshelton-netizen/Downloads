@@ -22,7 +22,7 @@ const publicPaths = [
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') || 'https://kora.example';
+  const base = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') || 'https://kora-network.vercel.app';
   const now = new Date();
   return publicPaths.map((path, index): MetadataRoute.Sitemap[number] => ({
     url: `${base}${path}`,

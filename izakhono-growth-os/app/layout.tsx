@@ -4,9 +4,20 @@ import "./globals.css";
 import ShareButton from "./share-button";
 import LearnerDriverPromo from "./learner-driver-promo";
 
+const publicBase = process.env.GROWTH_OS_PUBLIC_BASE_URL || "https://izakhono-growth-os.vercel.app";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(publicBase),
   title:"IZAKHONO GROWTH OS",
-  description:"AI-assisted multilingual marketing command centre for paid ads, organic social, landing pages, leads, attribution and compliance."
+  description:"AI-assisted multilingual marketing command centre for paid ads, organic social, landing pages, leads, attribution and compliance.",
+  alternates:{canonical:"/"},
+  robots:{index:true,follow:true},
+  openGraph:{
+    type:"website",
+    url:"/",
+    title:"IZAKHONO GROWTH OS",
+    description:"AI-assisted multilingual marketing command centre for paid ads, organic social, landing pages, leads, attribution and compliance."
+  }
 };
 
 export default function RootLayout({children}:{children:React.ReactNode}) {
