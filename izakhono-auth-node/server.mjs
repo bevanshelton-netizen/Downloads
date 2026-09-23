@@ -17,6 +17,14 @@ const COOKIE_DOMAIN=process.env.IZAKHONO_AUTH_COOKIE_DOMAIN || "";
 const LOGIN_LIMIT_PER_MIN=Math.min(100,Math.max(3,Number(process.env.IZAKHONO_AUTH_LOGIN_LIMIT_PER_MIN || 12)));
 const LOCK_AFTER=Math.min(20,Math.max(3,Number(process.env.IZAKHONO_AUTH_LOCK_AFTER || 5)));
 const LOCK_MINUTES=Math.min(1440,Math.max(1,Number(process.env.IZAKHONO_AUTH_LOCK_MINUTES || 15)));
+const PUBLIC_SIGNUP=String(process.env.IZAKHONO_AUTH_PUBLIC_SIGNUP||"false").toLowerCase()==="true";
+const REQUIRE_EMAIL_VERIFICATION=String(process.env.IZAKHONO_AUTH_REQUIRE_EMAIL_VERIFICATION||"true").toLowerCase()!=="false";
+const PUBLIC_BASE_URL=(process.env.IZAKHONO_AUTH_PUBLIC_BASE_URL||"https://one.domains.izakhonoafrica.co.za").replace(/\/$/,"");
+const NOTIFY_URL=(process.env.IZAKHONO_NOTIFY_URL||"http://127.0.0.1:8840").replace(/\/$/,"");
+const NOTIFY_KEY=process.env.IZAKHONO_NOTIFY_KEY||"";
+const VERIFY_HOURS=Math.min(72,Math.max(1,Number(process.env.IZAKHONO_AUTH_VERIFY_HOURS||24)));
+const RESET_MINUTES=Math.min(120,Math.max(10,Number(process.env.IZAKHONO_AUTH_RESET_MINUTES||30)));
+const PUBLIC_ACTION_LIMIT_PER_HOUR=Math.min(50,Math.max(2,Number(process.env.IZAKHONO_AUTH_PUBLIC_ACTION_LIMIT_PER_HOUR||10)));
 
 mkdirSync(dirname(DB_PATH),{recursive:true});
 
