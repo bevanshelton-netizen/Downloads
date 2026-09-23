@@ -97,6 +97,12 @@
       "hostnameEnv": "KORA_GOSPEL_TV_PUBLIC_HOST",
       "defaultHostname": "gospel.domains.izakhonoafrica.co.za",
       "deploy": "izakhono-owned-cloud/deploy-kora-gospel-tv.sh"
+    },
+    {
+      "id": "izakhono-one-ai",
+      "hostnameEnv": "IZAKHONO_ONE_AI_PUBLIC_HOST",
+      "defaultHostname": "one.domains.izakhonoafrica.co.za",
+      "deploy": "izakhono-owned-cloud/deploy-izakhono-one-ai.sh"
     }
   ]
 }
