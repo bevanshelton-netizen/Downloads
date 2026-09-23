@@ -1,0 +1,119 @@
+name: Learner Driver SA Public Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'learner-driver-sa-v6-live/**'
+      - '.github/workflows/learner-driver-sa-vercel-deploy.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: learner-driver-sa-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: kora-production
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: team_XSHdQaQxmXGD1HlK2E4nehif
+      VERCEL_PROJECT_ID: prj_nwiFFxlyRSkh17kqBabfFMT4VlZg
+      PRODUCTION_ALIAS: https://learner-driver-sa-bevan2.vercel.app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Require existing Vercel credentials
+        run: |
+          test -n "$VERCEL_TOKEN" || { echo "Missing VERCEL_TOKEN"; exit 1; }
+          test -n "$VERCEL_ORG_ID" || { echo "Missing VERCEL_ORG_ID"; exit 1; }
+          test -n "$VERCEL_PROJECT_ID" || { echo "Missing VERCEL_PROJECT_ID"; exit 1; }
+
+      - name: Disable Vercel Authentication for public production
+        shell: bash
+        run: |
+          set -euo pipefail
+          CODE="$(curl -sS -o /tmp/project-update.json -w "%{http_code}"             -X PATCH "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID?teamId=$VERCEL_ORG_ID"             -H "Authorization: Bearer $VERCEL_TOKEN"             -H "Content-Type: application/json"             --data '{"ssoProtection":null}')"
+          if [[ ! "$CODE" =~ ^2 ]]; then
+            echo "Could not disable Vercel Authentication. HTTP $CODE"
+            cat /tmp/project-update.json
+            exit 1
+          fi
+          echo "Vercel Authentication disabled for Learner Driver SA project."
+
+      - name: Link standalone Learner Driver SA project
+        working-directory: learner-driver-sa-v6-live
+        run: |
+          mkdir -p .vercel
+          node -e "require('fs').writeFileSync('.vercel/project.json', JSON.stringify({orgId:process.env.VERCEL_ORG_ID,projectId:process.env.VERCEL_PROJECT_ID,projectName:'learner-driver-sa'}))"
+
+      - name: Deploy standalone production
+        id: deploy
+        working-directory: learner-driver-sa-v6-live
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="$(npx --yes vercel@latest deploy --prod --yes --token="$VERCEL_TOKEN" | tail -n 1)"
+          test -n "$URL"
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Learner Driver SA deployment: $URL"
+
+      - name: Verify immutable deployment is public and correctly branded
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 20); do
+            CODE="$(curl -sS -L -o /tmp/learner.html -w "%{http_code}" "$URL/" || true)"
+            if [ "$CODE" = "200" ]; then break; fi
+            sleep 3
+          done
+          test "$CODE" = "200"
+          grep -q "Learner Driver SA" /tmp/learner.html
+          ! grep -q "KORA NETWORK" /tmp/learner.html
+          ! grep -qi "vercel.com/sso-api" /tmp/learner.html
+          grep -Eq "Code 08|CODE 08" /tmp/learner.html
+          grep -Eq "Code 10|CODE 10" /tmp/learner.html
+          grep -Eq "Code 14|CODE 14" /tmp/learner.html
+          echo "Immutable deployment public verification passed."
+
+      - name: Verify production alias is public
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 20); do
+            CODE="$(curl -sS -L -o /tmp/alias.html -w "%{http_code}" "$PRODUCTION_ALIAS/" || true)"
+            if [ "$CODE" = "200" ]; then break; fi
+            sleep 3
+          done
+          test "$CODE" = "200"
+          grep -q "Learner Driver SA" /tmp/alias.html
+          ! grep -q "KORA NETWORK" /tmp/alias.html
+          ! grep -qi "vercel.com/sso-api" /tmp/alias.html
+          echo "Production alias is public and standalone."
+
+      - name: Publish deployment summary
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          {
+            echo "## Learner Driver SA Public Deploy"
+            echo "- Standalone project: learner-driver-sa"
+            echo "- Production alias: $PRODUCTION_ALIAS"
+            echo "- Deployment URL: $URL"
+            echo "- Vercel Authentication: disabled"
+            echo "- Public HTTPS 200: verified"
+            echo "- Learner Driver SA branding: verified"
+            echo "- KORA branding: absent"
+            echo "- Commit: ${GITHUB_SHA::7}"
+          } >> "$GITHUB_STEP_SUMMARY"
