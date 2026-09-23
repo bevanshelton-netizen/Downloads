@@ -385,6 +385,61 @@ function requirePermission(req,res,permission){
   return session;
 }
 
+function ensurePublicDefaults(){
+  db.prepare("INSERT OR IGNORE INTO roles(name,description) VALUES('member','Public IZAKHONO ONE member')").run();
+  db.prepare("INSERT OR IGNORE INTO permissions(code,description) VALUES('one.ai.chat','Use IZAKHONO ONE AI chat')").run();
+  db.prepare("INSERT OR IGNORE INTO role_permissions(role_name,permission_code) VALUES('member','one.ai.chat')").run();
+}
+ensurePublicDefaults();
+
+db.prepare(`
+  UPDATE users SET email_verified_at=COALESCE(email_verified_at,created_at)
+  WHERE email_verified_at IS NULL
+    AND id IN (SELECT user_id FROM user_roles WHERE role_name!='member')
+`).run();
+
+async function notifyRequest(path,method,body){
+  if(!NOTIFY_KEY) throw new Error("NOTIFY_NOT_CONFIGURED");
+  const response=await fetch(NOTIFY_URL+path,{
+    method,
+    headers:{"content-type":"application/json","x-izakhono-key":NOTIFY_KEY},
+    body:body==null?undefined:JSON.stringify(body),
+    signal:AbortSignal.timeout(5000)
+  });
+  const payload=await response.json().catch(()=>({}));
+  if(!response.ok) throw new Error(payload?.error||("NOTIFY_HTTP_"+response.status));
+  return payload;
+}
+
+async function sendAccountEmail(user,kind,token){
+  const verify=kind==="verify";
+  const template=verify?"one.account.verify":"one.account.reset";
+  const link=PUBLIC_BASE_URL+(verify?"/account/verify?token=":"/account/reset?token=")+encodeURIComponent(token);
+  await notifyRequest("/v1/templates/"+encodeURIComponent(template),"PUT",{
+    channel:"email",
+    subject:verify?"Verify your IZAKHONO ONE account":"Reset your IZAKHONO ONE password",
+    body:verify
+      ?"Hello {{displayName}},\n\nVerify your IZAKHONO ONE account using this secure link:\n{{link}}\n\nThis link expires automatically."
+      :"Hello {{displayName}},\n\nReset your IZAKHONO ONE password using this secure link:\n{{link}}\n\nIf you did not request this, ignore this message."
+  });
+  await notifyRequest("/v1/recipients/"+encodeURIComponent(user.id)+"/channels","POST",{channel:"email",address:user.email});
+  await notifyRequest("/v1/send","POST",{
+    recipientRef:user.id,
+    channel:"email",
+    templateId:template,
+    variables:{displayName:user.display_name,link},
+    idempotencyKey:kind+":"+user.id+":"+sha256(token)
+  });
+}
+
+function issueOneTimeToken(table,userId,ttlSql){
+  const raw=randomBytes(32).toString("base64url");
+  db.prepare("UPDATE "+table+" SET used_at=datetime('now') WHERE user_id=? AND used_at IS NULL").run(userId);
+  db.prepare("INSERT INTO "+table+"(id,user_id,token_hash,expires_at) VALUES(?,?,?,datetime('now',?))")
+    .run(randomUUID(),userId,sha256(raw),ttlSql);
+  return raw;
+}
+
 function bootstrapDefaults(userId){
   db.exec("BEGIN IMMEDIATE");
   try{
@@ -392,12 +447,14 @@ function bootstrapDefaults(userId){
     for(const [code,description] of [
       ["auth.admin","Manage users, roles, permissions and service identities"],
       ["growth.read","Read Growth OS data"],
-      ["growth.write","Perform approved Growth OS mutations"]
+      ["growth.write","Perform approved Growth OS mutations"],
+      ["one.ai.chat","Use IZAKHONO ONE AI chat"]
     ]){
       db.prepare("INSERT OR IGNORE INTO permissions(code,description) VALUES(?,?)").run(code,description);
       db.prepare("INSERT OR IGNORE INTO role_permissions(role_name,permission_code) VALUES('owner',?)").run(code);
     }
     db.prepare("INSERT OR IGNORE INTO user_roles(user_id,role_name) VALUES(?,'owner')").run(userId);
+    db.prepare("UPDATE users SET email_verified_at=COALESCE(email_verified_at,datetime('now')) WHERE id=?").run(userId);
     db.exec("COMMIT");
   }catch(error){db.exec("ROLLBACK");throw error;}
 }
