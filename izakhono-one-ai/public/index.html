@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#071815">
+<title>IZAKHONO ONE — One account. One AI. Everything.</title>
+<meta name="description" content="IZAKHONO ONE brings AI, productivity, media, education, business and developer tools into one privacy-first ecosystem.">
+<style>
+:root{--ink:#071815;--deep:#0b2c27;--teal:#0d6a61;--mint:#dff5ef;--gold:#d4ad4c;--cream:#f7f4ec;--line:#d9e5e1;--muted:#64746f;--card:#fff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--cream);color:var(--ink)}a{text-decoration:none;color:inherit}
+.top{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:15px 5vw;background:rgba(7,24,21,.96);color:#fff;border-bottom:1px solid rgba(212,173,76,.3);backdrop-filter:blur(14px)}
+.brand{display:flex;align-items:center;gap:12px}.mark{width:42px;height:42px;border-radius:14px;background:var(--gold);display:grid;place-items:center;color:#0d2c27;font-weight:1000}.brand b{display:block;letter-spacing:.12em}.brand small{display:block;color:#bcd6d0;font-size:.68rem;letter-spacing:.08em;margin-top:2px}.top nav{display:flex;gap:18px;align-items:center;font-size:.78rem;font-weight:800}.top nav a{color:#e8f3f1}.hero{padding:86px 7vw 74px;background:radial-gradient(circle at 78% 18%,rgba(212,173,76,.2),transparent 28%),linear-gradient(135deg,#071815,#0b3832 60%,#0d5a52);color:#fff;display:grid;grid-template-columns:1.05fr .95fr;gap:42px;align-items:center}.ey{font-size:.7rem;letter-spacing:.2em;font-weight:900;color:var(--gold);text-transform:uppercase}.hero h1{font:600 clamp(3.4rem,8vw,7.7rem)/.86 Georgia,serif;letter-spacing:-.05em;margin:14px 0 24px}.hero p{max-width:700px;color:#d5e6e2;font-size:1.08rem;line-height:1.7}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}.btn{display:inline-flex;padding:14px 19px;border-radius:999px;font-weight:900;font-size:.84rem;align-items:center;justify-content:center}.btn.gold{background:var(--gold);color:#132d29}.btn.outline{border:1px solid rgba(255,255,255,.35);color:#fff}.hero-panel{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:30px;padding:28px;box-shadow:0 25px 70px rgba(0,0,0,.22)}.hero-panel h3{font:600 1.7rem Georgia,serif;margin:0 0 12px}.hero-panel ul{padding:0;margin:0;list-style:none;display:grid;gap:11px}.hero-panel li{display:flex;gap:10px;align-items:center;color:#d8e8e4}.hero-panel i{width:9px;height:9px;border-radius:50%;background:var(--gold);flex:0 0 auto}.strip{display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-bottom:1px solid var(--line);padding:0 6vw}.strip div{padding:22px;border-right:1px solid var(--line)}.strip div:last-child{border:0}.strip b{display:block;font-size:.82rem}.strip span{display:block;color:var(--muted);font-size:.74rem;margin-top:4px}.section{padding:72px 6vw}.head{display:flex;justify-content:space-between;gap:30px;align-items:end;margin-bottom:28px}.head h2{font:600 clamp(2.2rem,5vw,4.5rem) Georgia,serif;letter-spacing:-.03em;margin:8px 0 0}.head p{max-width:710px;color:var(--muted);line-height:1.65}.filters{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:20px}.filters button{border:1px solid var(--line);background:#fff;color:#385650;border-radius:999px;padding:9px 13px;font-weight:800;cursor:pointer}.filters button.active{background:var(--deep);color:#fff;border-color:var(--deep)}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:20px;display:flex;flex-direction:column;min-height:250px}.card .status{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;font-weight:900;color:#337c73}.card h3{font:600 1.25rem Georgia,serif;margin:10px 0}.card p{color:var(--muted);line-height:1.5;font-size:.85rem;flex:1}.meta{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 15px}.pill{font-size:.62rem;font-weight:900;padding:6px 8px;border-radius:999px;background:#edf5f2;color:#4f6c66}.open{display:inline-flex;justify-content:center;padding:11px 14px;border-radius:999px;background:var(--deep);color:#fff;font-weight:900;font-size:.78rem}.open.disabled{background:#e8eeec;color:#7a8884;pointer-events:none}.promise{margin:0 6vw 70px;border-radius:30px;padding:46px;background:linear-gradient(135deg,#d8b45a,#f0d89b);display:grid;grid-template-columns:1fr auto;gap:30px;align-items:center}.promise h2{font:600 clamp(2rem,4vw,3.5rem) Georgia,serif;margin:8px 0}.promise p{max-width:800px;line-height:1.65}.small{font-size:.76rem;color:#52655f}.empty{padding:28px;border:1px dashed #c8d9d5;border-radius:18px;background:#fff;color:#6b817c}footer{padding:34px 6vw;background:#071815;color:#a8c0bb;display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-size:.78rem}footer b{color:#ead18f}
+@media(max-width:1100px){.grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:820px){.hero{grid-template-columns:1fr}.strip{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:repeat(2,1fr)}.head{display:block}.promise{grid-template-columns:1fr}.top nav a:not(:last-child){display:none}}@media(max-width:520px){.grid,.strip{grid-template-columns:1fr}.hero{padding:55px 6vw}.hero h1{font-size:3.6rem}.card{min-height:220px}}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="#top"><span class="mark">1</span><span><b>IZAKHONO ONE</b><small>ONE ACCOUNT · ONE AI · EVERYTHING</small></span></a>
+  <nav><a href="#products">Products</a><a href="#principles">Principles</a><a href="#products">Explore</a></nav>
+</header>
+
+<main id="top">
+<section class="hero">
+  <div>
+    <div class="ey">Built in Africa · for the world</div>
+    <h1>One<br>AI.<br>Everything.</h1>
+    <p>IZAKHONO ONE is the front door to an owned ecosystem of productivity, search, media, education, business, commerce and developer tools—designed to be simpler, more private and cheaper than buying separate stacks.</p>
+    <div class="actions"><a class="btn gold" href="#products">Explore available products</a><a class="btn outline" href="#principles">Why IZAKHONO ONE</a></div>
+  </div>
+  <aside class="hero-panel">
+    <h3>The operating promise</h3>
+    <ul>
+      <li><i></i><span>No behavioural profiling or advertising IDs.</span></li>
+      <li><i></i><span>Owned infrastructure and owned AI first.</span></li>
+      <li><i></i><span>External providers are reversible overflow, not lock-in.</span></li>
+      <li><i></i><span>Open import/export and easier switching.</span></li>
+      <li><i></i><span>Artificial limits avoided where capacity allows.</span></li>
+      <li><i></i><span>Lower-cost target versus comparable Microsoft/Google paid tools.</span></li>
+    </ul>
+  </aside>
+</section>
+
+<section class="strip">
+  <div><b>ONE ACCOUNT</b><span>Unified identity across the ecosystem</span></div>
+  <div><b>ONE AI</b><span>Shared intelligence instead of disconnected bots</span></div>
+  <div><b>OWNED-FIRST</b><span>Compute, data and runtime under IZAKHONO control</span></div>
+  <div><b>NO TRACKING</b><span>No behavioural ad profile</span></div>
+</section>
+
+<section class="section" id="products">
+  <div class="head"><div><div class="ey">Public product directory</div><h2>Use what is ready. See what is coming.</h2></div><p>Only products with a usable public route get an active Open button. Target-only or unfinished products remain visible without pretending they are live.</p></div>
+  <div class="filters">
+    <button class="active" data-filter="all">All</button>
+    <button data-filter="temporary-public">Public now</button>
+    <button data-filter="owned-public-verified">Owned live</button>
+    <button data-filter="pilot">Pilot</button>
+    <button data-filter="building">Building</button>
+  </div>
+  <div id="grid" class="grid"><div class="empty">Loading the IZAKHONO portfolio…</div></div>
+</section>
+
+<section class="promise" id="principles">
+  <div>
+    <div class="ey" style="color:#4d3510">IZAKHONO LOW-COST GUARANTEE</div>
+    <h2>Cheaper should come from architecture—not hidden tracking.</h2>
+    <p>Our commercial target is to price directly comparable paid products below Microsoft and Google equivalents by sharing one account, one AI, one data layer and one infrastructure stack. Where real compute or storage constraints exist, we publish a fair-use rule rather than pretending capacity is infinite.</p>
+    <div class="small">Public pricing is only shown after a product passes its commercial gate.</div>
+  </div>
+</section>
+</main>
+
+<footer><span><b>IZAKHONO ONE</b> · IZAKHONO AFRICA</span><span>Owned-first · privacy-first · externally reversible</span></footer>
+
+<script>
+const grid=document.getElementById('grid');
+let products=[];
+let active='all';
+
+function card(p){
+  const usable=Boolean(p.public_url);
+  const state=p.public_status==='owned-public-verified'?'Owned live':p.public_status==='temporary-public'?'Public bridge':p.public_status==='target-defined'?'Coming online':'In build';
+  return `<article class="card" data-public="${p.public_status}" data-commercial="${p.commercial_status}">
+    <span class="status">${state}</span>
+    <h3>${escapeHtml(p.name)}</h3>
+    <p>${escapeHtml(p.next_blocker||'Commercial readiness is being verified.')}</p>
+    <div class="meta"><span class="pill">${escapeHtml(p.commercial_status)}</span><span class="pill">${escapeHtml(p.public_status)}</span></div>
+    ${usable?`<a class="open" href="${escapeAttr(p.public_url)}" target="_blank" rel="noopener">Open product</a>`:`<span class="open disabled">Coming online</span>`}
+  </article>`;
+}
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function escapeAttr(s){return escapeHtml(s)}
+function render(){
+  const rows=products.filter(p=>active==='all'||p.public_status===active||p.commercial_status===active);
+  grid.innerHTML=rows.length?rows.map(card).join(''):'<div class="empty">No products match this filter.</div>';
+}
+document.querySelectorAll('.filters button').forEach(btn=>btn.addEventListener('click',()=>{
+  document.querySelectorAll('.filters button').forEach(x=>x.classList.remove('active'));
+  btn.classList.add('active');active=btn.dataset.filter;render();
+}));
+fetch('/v1/public-products').then(r=>{if(!r.ok)throw new Error('catalogue unavailable');return r.json()}).then(d=>{products=d.products||[];render()}).catch(()=>{grid.innerHTML='<div class="empty">The public catalogue is temporarily unavailable.</div>'});
+</script>
+</body>
+</html>
