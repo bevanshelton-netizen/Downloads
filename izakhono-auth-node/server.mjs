@@ -141,6 +141,32 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS audit_time_idx ON audit_ledger(occurred_at DESC);
   CREATE INDEX IF NOT EXISTS audit_actor_idx ON audit_ledger(actor_type,actor_ref,occurred_at DESC);
 `);
+const userColumns=new Set(db.prepare("PRAGMA table_info(users)").all().map(x=>x.name));
+if(!userColumns.has("email_verified_at")) db.exec("ALTER TABLE users ADD COLUMN email_verified_at TEXT");
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS email_verifications(
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    token_hash TEXT NOT NULL UNIQUE,
+    expires_at TEXT NOT NULL,
+    used_at TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+  );
+  CREATE INDEX IF NOT EXISTS email_verifications_user_idx ON email_verifications(user_id,expires_at);
+
+  CREATE TABLE IF NOT EXISTS password_resets(
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    token_hash TEXT NOT NULL UNIQUE,
+    expires_at TEXT NOT NULL,
+    used_at TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+  );
+  CREATE INDEX IF NOT EXISTS password_resets_user_idx ON password_resets(user_id,expires_at);
+`);
 
 const loginBuckets=new Map();
 
