@@ -74,6 +74,8 @@ export async function middleware(request: NextRequest) {
     || pathname.startsWith('/legal/')
     || pathname === '/creators'
     || pathname === '/advertise'
+    || pathname === '/partners'
+    || pathname.startsWith('/partners/')
     || pathname === '/login'
     || pathname === '/forgot-password'
     || pathname === '/reset-password'
