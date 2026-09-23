@@ -1,0 +1,54 @@
+name: IZAKHONO Public Sellable Rollout Gate
+
+on:
+  pull_request:
+    paths:
+      - "izakhono-one-ai/public-sellable-rollout.json"
+      - "IZAKHONO-SELLABLE-PUBLIC-PRODUCT-GATE.md"
+      - "IZAKHONO-LOW-COST-GUARANTEE.md"
+      - "owner-host/platforms.json"
+      - "izakhono-owned-cloud/deploy-izakhono-one-ai.sh"
+      - ".github/workflows/izakhono-public-sellable-rollout-gate.yml"
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate JSON and rollout invariants
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const r=JSON.parse(fs.readFileSync('izakhono-one-ai/public-sellable-rollout.json','utf8'));
+          const ids=new Set(), targets=new Set();
+          const validPublic=new Set(r.statuses.public);
+          const validCommercial=new Set(r.statuses.commercial);
+          for(const p of r.products){
+            if(!p.id||ids.has(p.id)) throw new Error('duplicate/missing product id: '+p.id);
+            ids.add(p.id);
+            if(!validPublic.has(p.public_status)) throw new Error('bad public status '+p.id);
+            if(!validCommercial.has(p.commercial_status)) throw new Error('bad commercial status '+p.id);
+            if(p.owned_target){
+              const u=new URL(p.owned_target);
+              if(u.protocol!=='https:') throw new Error('owned target must be https: '+p.id);
+              if(targets.has(u.hostname)) throw new Error('duplicate owned hostname: '+u.hostname);
+              targets.add(u.hostname);
+            }
+            if(p.fallback){
+              const u=new URL(p.fallback);
+              if(u.protocol!=='https:') throw new Error('fallback must be https: '+p.id);
+            }
+            if(['sellable','verified-live'].includes(p.commercial_status)){
+              if(!p.owned_target && !p.fallback) throw new Error('sellable product lacks public address: '+p.id);
+              if(['not-routed','target-defined'].includes(p.public_status)) throw new Error('sellable product lacks verified/temporary public route: '+p.id);
+              if(/required|gated|not-cleared|not-required-for-technical-pilot/i.test(p.payment||'')) throw new Error('sellable product has unresolved payment gate: '+p.id);
+            }
+          }
+          console.log('Public/sellable rollout registry valid:',r.products.length,'products');
+          NODE
+      - name: Validate ONE AI owned deployment
+        run: |
+          bash -n izakhono-owned-cloud/deploy-izakhono-one-ai.sh
+          node --check izakhono-one-ai/server.mjs
+          node -e 'const x=JSON.parse(require("fs").readFileSync("owner-host/platforms.json","utf8")); const p=x.platforms.find(p=>p.id==="izakhono-one-ai"); if(!p||p.defaultHostname!=="one.domains.izakhonoafrica.co.za") process.exit(2)'
