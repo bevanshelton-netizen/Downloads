@@ -44,6 +44,9 @@ jobs:
           bash -n owner-host/install-cloudflare-tunnel.sh
           bash -n owner-host/status.sh
           grep -q 'deploy-growth-os-v2.sh main' owner-host/bootstrap-linux.sh
+          grep -q 'configure-izakhono-one-ai.sh' owner-host/bootstrap-linux.sh
+          grep -q 'deploy-izakhono-one-ai.sh main' owner-host/bootstrap-linux.sh
+          grep -q 'one.domains.izakhonoafrica.co.za' owner-host/bootstrap-linux.sh
           grep -q 'configure-growth-os.sh' owner-host/bootstrap-linux.sh
           grep -q 'growth-os-v2.json' owner-host/status.sh
           grep -q 'owned-public-edge.json' owner-host/status.sh
@@ -57,6 +60,8 @@ jobs:
           bash -n izakhono-owned-cloud/import-repo-to-code.sh
           bash -n izakhono-owned-cloud/deploy-legacymart.sh
           bash -n izakhono-owned-cloud/deploy-izakhono-one-ai.sh
+          bash -n izakhono-owned-cloud/configure-izakhono-one-ai.sh
+          bash -n izakhono-gpu-compute-node/install-linux.sh
           bash -n izakhono-owned-cloud/activate-owned-public-edge.sh
           bash -n izakhono-owned-cloud/activate-tailscale-funnel.sh
           node --check growth-os-v2/server.mjs
@@ -85,6 +90,9 @@ jobs:
           grep -q 'IZAKHONO_PUBLIC_EXTRA_HOSTS' izakhono-owned-cloud/activate-owned-public-edge.sh
           grep -q 'IZAKHONO_EDGE_MODE=hybrid' izakhono-owned-cloud/activate-owned-public-edge.sh
           grep -q 'GROWTH_OS_V2=DEPLOYED_TO_IZAKHONO_RUNTIME' izakhono-owned-cloud/deploy-primary-node.sh
+          grep -q 'IZAKHONO_AUTH_PUBLIC_SIGNUP' izakhono-owned-cloud/configure-izakhono-one-ai.sh
+          grep -q 'IZAKHONO_ONE_CHAT_READY' izakhono-owned-cloud/configure-izakhono-one-ai.sh
+          grep -q 'sellable-gate-ready-for-final-commercial-review' izakhono-owned-cloud/deploy-izakhono-one-ai.sh
           grep -q 'tailscale funnel --bg' izakhono-owned-cloud/activate-tailscale-funnel.sh
           grep -q '/v1/apps/$APP/aliases' izakhono-owned-cloud/activate-tailscale-funnel.sh
           grep -q 'IZAKHONO EDGE -> FORTRESS -> RUNTIME' izakhono-owned-cloud/activate-tailscale-funnel.sh

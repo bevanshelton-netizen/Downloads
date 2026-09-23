@@ -10,14 +10,15 @@
 :root{--ink:#071815;--deep:#0b2c27;--teal:#0d6a61;--mint:#dff5ef;--gold:#d4ad4c;--cream:#f7f4ec;--line:#d9e5e1;--muted:#64746f;--card:#fff}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--cream);color:var(--ink)}a{text-decoration:none;color:inherit}
 .top{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:15px 5vw;background:rgba(7,24,21,.96);color:#fff;border-bottom:1px solid rgba(212,173,76,.3);backdrop-filter:blur(14px)}
-.brand{display:flex;align-items:center;gap:12px}.mark{width:42px;height:42px;border-radius:14px;background:var(--gold);display:grid;place-items:center;color:#0d2c27;font-weight:1000}.brand b{display:block;letter-spacing:.12em}.brand small{display:block;color:#bcd6d0;font-size:.68rem;letter-spacing:.08em;margin-top:2px}.top nav{display:flex;gap:18px;align-items:center;font-size:.78rem;font-weight:800}.top nav a{color:#e8f3f1}.hero{padding:86px 7vw 74px;background:radial-gradient(circle at 78% 18%,rgba(212,173,76,.2),transparent 28%),linear-gradient(135deg,#071815,#0b3832 60%,#0d5a52);color:#fff;display:grid;grid-template-columns:1.05fr .95fr;gap:42px;align-items:center}.ey{font-size:.7rem;letter-spacing:.2em;font-weight:900;color:var(--gold);text-transform:uppercase}.hero h1{font:600 clamp(3.4rem,8vw,7.7rem)/.86 Georgia,serif;letter-spacing:-.05em;margin:14px 0 24px}.hero p{max-width:700px;color:#d5e6e2;font-size:1.08rem;line-height:1.7}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}.btn{display:inline-flex;padding:14px 19px;border-radius:999px;font-weight:900;font-size:.84rem;align-items:center;justify-content:center}.btn.gold{background:var(--gold);color:#132d29}.btn.outline{border:1px solid rgba(255,255,255,.35);color:#fff}.hero-panel{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:30px;padding:28px;box-shadow:0 25px 70px rgba(0,0,0,.22)}.hero-panel h3{font:600 1.7rem Georgia,serif;margin:0 0 12px}.hero-panel ul{padding:0;margin:0;list-style:none;display:grid;gap:11px}.hero-panel li{display:flex;gap:10px;align-items:center;color:#d8e8e4}.hero-panel i{width:9px;height:9px;border-radius:50%;background:var(--gold);flex:0 0 auto}.strip{display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-bottom:1px solid var(--line);padding:0 6vw}.strip div{padding:22px;border-right:1px solid var(--line)}.strip div:last-child{border:0}.strip b{display:block;font-size:.82rem}.strip span{display:block;color:var(--muted);font-size:.74rem;margin-top:4px}.section{padding:72px 6vw}.head{display:flex;justify-content:space-between;gap:30px;align-items:end;margin-bottom:28px}.head h2{font:600 clamp(2.2rem,5vw,4.5rem) Georgia,serif;letter-spacing:-.03em;margin:8px 0 0}.head p{max-width:710px;color:var(--muted);line-height:1.65}.filters{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:20px}.filters button{border:1px solid var(--line);background:#fff;color:#385650;border-radius:999px;padding:9px 13px;font-weight:800;cursor:pointer}.filters button.active{background:var(--deep);color:#fff;border-color:var(--deep)}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:20px;display:flex;flex-direction:column;min-height:250px}.card .status{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;font-weight:900;color:#337c73}.card h3{font:600 1.25rem Georgia,serif;margin:10px 0}.card p{color:var(--muted);line-height:1.5;font-size:.85rem;flex:1}.meta{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 15px}.pill{font-size:.62rem;font-weight:900;padding:6px 8px;border-radius:999px;background:#edf5f2;color:#4f6c66}.open{display:inline-flex;justify-content:center;padding:11px 14px;border-radius:999px;background:var(--deep);color:#fff;font-weight:900;font-size:.78rem}.open.disabled{background:#e8eeec;color:#7a8884;pointer-events:none}.promise{margin:0 6vw 70px;border-radius:30px;padding:46px;background:linear-gradient(135deg,#d8b45a,#f0d89b);display:grid;grid-template-columns:1fr auto;gap:30px;align-items:center}.promise h2{font:600 clamp(2rem,4vw,3.5rem) Georgia,serif;margin:8px 0}.promise p{max-width:800px;line-height:1.65}.small{font-size:.76rem;color:#52655f}.empty{padding:28px;border:1px dashed #c8d9d5;border-radius:18px;background:#fff;color:#6b817c}footer{padding:34px 6vw;background:#071815;color:#a8c0bb;display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-size:.78rem}footer b{color:#ead18f}
-@media(max-width:1100px){.grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:820px){.hero{grid-template-columns:1fr}.strip{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:repeat(2,1fr)}.head{display:block}.promise{grid-template-columns:1fr}.top nav a:not(:last-child){display:none}}@media(max-width:520px){.grid,.strip{grid-template-columns:1fr}.hero{padding:55px 6vw}.hero h1{font-size:3.6rem}.card{min-height:220px}}
+.brand{display:flex;align-items:center;gap:12px}.mark{width:42px;height:42px;border-radius:14px;background:var(--gold);display:grid;place-items:center;color:#0d2c27;font-weight:1000}.brand b{display:block;letter-spacing:.12em}.brand small{display:block;color:#bcd6d0;font-size:.68rem;letter-spacing:.08em;margin-top:2px}.top nav{display:flex;gap:18px;align-items:center;font-size:.78rem;font-weight:800}.top nav a{color:#e8f3f1}.hero{padding:86px 7vw 74px;background:radial-gradient(circle at 78% 18%,rgba(212,173,76,.2),transparent 28%),linear-gradient(135deg,#071815,#0b3832 60%,#0d5a52);color:#fff;display:grid;grid-template-columns:1.05fr .95fr;gap:42px;align-items:center}.ey{font-size:.7rem;letter-spacing:.2em;font-weight:900;color:var(--gold);text-transform:uppercase}.hero h1{font:600 clamp(3.4rem,8vw,7.7rem)/.86 Georgia,serif;letter-spacing:-.05em;margin:14px 0 24px}.hero p{max-width:700px;color:#d5e6e2;font-size:1.08rem;line-height:1.7}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}.btn{display:inline-flex;padding:14px 19px;border-radius:999px;font-weight:900;font-size:.84rem;align-items:center;justify-content:center}.btn.gold{background:var(--gold);color:#132d29}.btn.outline{border:1px solid rgba(255,255,255,.35);color:#fff}.hero-panel{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:30px;padding:28px;box-shadow:0 25px 70px rgba(0,0,0,.22)}.hero-panel h3{font:600 1.7rem Georgia,serif;margin:0 0 12px}.hero-panel ul{padding:0;margin:0;list-style:none;display:grid;gap:11px}.hero-panel li{display:flex;gap:10px;align-items:center;color:#d8e8e4}.hero-panel i{width:9px;height:9px;border-radius:50%;background:var(--gold);flex:0 0 auto}.strip{display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-bottom:1px solid var(--line);padding:0 6vw}.strip div{padding:22px;border-right:1px solid var(--line)}.strip div:last-child{border:0}.strip b{display:block;font-size:.82rem}.strip span{display:block;color:var(--muted);font-size:.74rem;margin-top:4px}.section{padding:72px 6vw}.head{display:flex;justify-content:space-between;gap:30px;align-items:end;margin-bottom:28px}.head h2{font:600 clamp(2.2rem,5vw,4.5rem) Georgia,serif;letter-spacing:-.03em;margin:8px 0 0}.head p{max-width:710px;color:var(--muted);line-height:1.65}.filters{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:20px}.filters button{border:1px solid var(--line);background:#fff;color:#385650;border-radius:999px;padding:9px 13px;font-weight:800;cursor:pointer}.filters button.active{background:var(--deep);color:#fff;border-color:var(--deep)}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:20px;display:flex;flex-direction:column;min-height:250px}.card .status{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;font-weight:900;color:#337c73}.card h3{font:600 1.25rem Georgia,serif;margin:10px 0}.card p{color:var(--muted);line-height:1.5;font-size:.85rem;flex:1}.meta{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 15px}.pill{font-size:.62rem;font-weight:900;padding:6px 8px;border-radius:999px;background:#edf5f2;color:#4f6c66}.open{display:inline-flex;justify-content:center;padding:11px 14px;border-radius:999px;background:var(--deep);color:#fff;font-weight:900;font-size:.78rem}.open.disabled{background:#e8eeec;color:#7a8884;pointer-events:none}.promise{margin:0 6vw 70px;border-radius:30px;padding:46px;background:linear-gradient(135deg,#d8b45a,#f0d89b);display:grid;grid-template-columns:1fr auto;gap:30px;align-items:center}.promise h2{font:600 clamp(2rem,4vw,3.5rem) Georgia,serif;margin:8px 0}.promise p{max-width:800px;line-height:1.65}.small{font-size:.76rem;color:#52655f}.empty{padding:28px;border:1px dashed #c8d9d5;border-radius:18px;background:#fff;color:#6b817c}
+.ai-shell{padding:72px 6vw;background:#edf6f3}.ai-wrap{display:grid;grid-template-columns:360px 1fr;gap:18px;max-width:1280px;margin:0 auto}.account-card,.chat-card{background:#fff;border:1px solid var(--line);border-radius:26px;box-shadow:0 16px 45px rgba(12,70,62,.08)}.account-card{padding:22px}.account-card h3,.chat-card h3{font:600 1.5rem Georgia,serif;margin:6px 0 8px}.account-card p{font-size:.82rem;color:var(--muted);line-height:1.5}.tabs{display:flex;gap:7px;margin:16px 0}.tabs button{flex:1;border:1px solid var(--line);background:#f8fbfa;border-radius:999px;padding:9px;font-weight:800;cursor:pointer}.tabs button.active{background:var(--deep);color:white}.auth-form{display:none;gap:10px}.auth-form.active{display:grid}.auth-form input{width:100%;border:1px solid var(--line);border-radius:13px;padding:12px;font:inherit}.auth-form button,.chat-send,.account-action{border:0;background:var(--deep);color:#fff;border-radius:999px;padding:11px 15px;font-weight:900;cursor:pointer}.auth-note{min-height:22px;margin-top:10px;font-size:.75rem;color:#6c7e79}.account-live{display:none}.account-live.active{display:block}.account-live b{display:block}.entitlement{margin:14px 0;padding:12px;border-radius:14px;background:#edf7f4;font-size:.78rem;color:#3d625b}.account-action{background:#e9f0ee;color:#244d46;border:1px solid #d0dfdb}.chat-card{display:flex;flex-direction:column;min-height:540px;overflow:hidden}.chat-head{padding:20px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:15px;align-items:center}.chat-head span{font-size:.7rem;color:#68817b}.chat-log{flex:1;padding:22px;display:flex;flex-direction:column;gap:12px;overflow:auto;max-height:520px;background:linear-gradient(180deg,#fcfefd,#f6faf8)}.msg{max-width:82%;padding:12px 14px;border-radius:17px;white-space:pre-wrap;line-height:1.5;font-size:.9rem}.msg.user{align-self:flex-end;background:#0b544d;color:#fff;border-bottom-right-radius:5px}.msg.ai{align-self:flex-start;background:#fff;border:1px solid var(--line);border-bottom-left-radius:5px}.chat-input{display:flex;gap:10px;padding:16px;border-top:1px solid var(--line);background:#fff}.chat-input textarea{flex:1;min-height:50px;max-height:150px;resize:vertical;border:1px solid var(--line);border-radius:16px;padding:12px;font:inherit}.chat-send{align-self:flex-end}.chat-lock{margin:auto;text-align:center;max-width:430px;color:#687c77}.chat-lock b{display:block;font:600 1.4rem Georgia,serif;color:#173f39;margin-bottom:7px}footer{padding:34px 6vw;background:#071815;color:#a8c0bb;display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-size:.78rem}footer b{color:#ead18f}
+@media(max-width:1100px){.grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:820px){.hero{grid-template-columns:1fr}.strip{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:repeat(2,1fr)}.head{display:block}.promise{grid-template-columns:1fr}.ai-wrap{grid-template-columns:1fr}.top nav a:not(:last-child){display:none}}@media(max-width:520px){.grid,.strip{grid-template-columns:1fr}.hero{padding:55px 6vw}.hero h1{font-size:3.6rem}.card{min-height:220px}}
 </style>
 </head>
 <body>
 <header class="top">
   <a class="brand" href="#top"><span class="mark">1</span><span><b>IZAKHONO ONE</b><small>ONE ACCOUNT · ONE AI · EVERYTHING</small></span></a>
-  <nav><a href="#products">Products</a><a href="#principles">Principles</a><a href="#products">Explore</a></nav>
+  <nav><a href="#ai">ONE AI</a><a href="#products">Products</a><a href="#principles">Principles</a><a href="#ai">Sign in</a></nav>
 </header>
 
 <main id="top">
@@ -26,7 +27,7 @@
     <div class="ey">Built in Africa · for the world</div>
     <h1>One<br>AI.<br>Everything.</h1>
     <p>IZAKHONO ONE is the front door to an owned ecosystem of productivity, search, media, education, business, commerce and developer tools—designed to be simpler, more private and cheaper than buying separate stacks.</p>
-    <div class="actions"><a class="btn gold" href="#products">Explore available products</a><a class="btn outline" href="#principles">Why IZAKHONO ONE</a></div>
+    <div class="actions"><a class="btn gold" href="#ai">Open ONE AI</a><a class="btn outline" href="#products">Explore products</a></div>
   </div>
   <aside class="hero-panel">
     <h3>The operating promise</h3>
@@ -46,6 +47,52 @@
   <div><b>ONE AI</b><span>Shared intelligence instead of disconnected bots</span></div>
   <div><b>OWNED-FIRST</b><span>Compute, data and runtime under IZAKHONO control</span></div>
   <div><b>NO TRACKING</b><span>No behavioural ad profile</span></div>
+</section>
+
+<section class="ai-shell" id="ai">
+  <div class="head" style="max-width:1280px;margin-left:auto;margin-right:auto">
+    <div><div class="ey">IZAKHONO ONE AI</div><h2>Your AI. One account.</h2></div>
+    <p>Register once, sign in securely and use the same IZAKHONO identity across the ecosystem. The pilot has no artificial daily message cap configured; real compute capacity and abuse protections still apply.</p>
+  </div>
+  <div class="ai-wrap">
+    <aside class="account-card">
+      <div id="signedOut">
+        <div class="ey">IZAKHONO ACCOUNT</div><h3>Welcome</h3><p>Create an account or sign in. Email verification and recovery use IZAKHONO NOTIFY through a replaceable mail transport.</p>
+        <div class="tabs"><button class="active" data-auth-tab="login">Sign in</button><button data-auth-tab="register">Register</button><button data-auth-tab="recover">Recover</button></div>
+        <form class="auth-form active" id="loginForm">
+          <input id="loginEmail" type="email" autocomplete="email" placeholder="Email address" required>
+          <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Password" minlength="12" required>
+          <input id="loginTotp" inputmode="numeric" pattern="[0-9]{6}" placeholder="MFA code (only if enabled)">
+          <button>Sign in</button>
+        </form>
+        <form class="auth-form" id="registerForm">
+          <input id="registerName" autocomplete="name" placeholder="Your name" required>
+          <input id="registerEmail" type="email" autocomplete="email" placeholder="Email address" required>
+          <input id="registerPassword" type="password" autocomplete="new-password" placeholder="Password — at least 12 characters" minlength="12" required>
+          <button>Create account</button>
+        </form>
+        <form class="auth-form" id="recoverForm">
+          <input id="recoverEmail" type="email" autocomplete="email" placeholder="Email address" required>
+          <button>Send recovery link</button>
+        </form>
+        <div class="auth-note" id="authNote"></div>
+      </div>
+      <div class="account-live" id="signedIn">
+        <div class="ey">SIGNED IN</div><h3 id="accountName">IZAKHONO member</h3><p id="accountEmail"></p>
+        <div class="entitlement" id="entitlement">Loading entitlement…</div>
+        <button class="account-action" id="logoutButton">Sign out</button>
+      </div>
+    </aside>
+
+    <section class="chat-card">
+      <div class="chat-head"><div><div class="ey">ONE AI CHAT</div><h3>Ask IZAKHONO ONE</h3></div><span id="chatStatus">Sign in to begin</span></div>
+      <div class="chat-log" id="chatLog"><div class="chat-lock" id="chatLock"><b>Your private AI workspace</b><span>Sign in or create an IZAKHONO ACCOUNT to start chatting.</span></div></div>
+      <form class="chat-input" id="chatForm">
+        <textarea id="chatText" placeholder="Ask IZAKHONO ONE…" disabled required></textarea>
+        <button class="chat-send" id="chatSend" disabled>Send</button>
+      </form>
+    </section>
+  </div>
 </section>
 
 <section class="section" id="products">
@@ -74,8 +121,123 @@
 
 <script>
 const grid=document.getElementById('grid');
+const authNote=document.getElementById('authNote');
+const signedOut=document.getElementById('signedOut');
+const signedIn=document.getElementById('signedIn');
+const accountName=document.getElementById('accountName');
+const accountEmail=document.getElementById('accountEmail');
+const entitlement=document.getElementById('entitlement');
+const chatLog=document.getElementById('chatLog');
+const chatLock=document.getElementById('chatLock');
+const chatText=document.getElementById('chatText');
+const chatSend=document.getElementById('chatSend');
+const chatStatus=document.getElementById('chatStatus');
+let account=null;
+let conversation=[];
 let products=[];
 let active='all';
+
+async function api(path,options={}){
+  const r=await fetch(path,{credentials:'same-origin',headers:{'content-type':'application/json',...(options.headers||{})},...options});
+  const body=await r.json().catch(()=>({error:'Unexpected server response'}));
+  if(!r.ok) throw Object.assign(new Error(body.error||'Request failed'),{status:r.status,body});
+  return body;
+}
+function setAuthNote(message,isError=false){authNote.textContent=message||'';authNote.style.color=isError?'#9b3e38':'#55716b'}
+function showAccount(data){
+  account=data;
+  const on=Boolean(data?.user);
+  signedOut.style.display=on?'none':'block';
+  signedIn.classList.toggle('active',on);
+  chatText.disabled=!on;chatSend.disabled=!on;
+  chatStatus.textContent=on?'Ready · '+(data.entitlement?.plan||'member'):'Sign in to begin';
+  if(on){
+    accountName.textContent=data.user.displayName||'IZAKHONO member';
+    accountEmail.textContent=data.user.email||'';
+    const u=data.entitlement?.usage||{};
+    entitlement.textContent=(data.entitlement?.fairUse?'Fair-use pilot · no artificial daily cap':'Daily allowance active')+' · '+(u.requests||0)+' request'+((u.requests||0)===1?'':'s')+' today';
+    if(chatLock) chatLock.remove();
+  }else{
+    conversation=[];
+    chatLog.innerHTML='<div class="chat-lock" id="chatLock"><b>Your private AI workspace</b><span>Sign in or create an IZAKHONO ACCOUNT to start chatting.</span></div>';
+  }
+}
+async function refreshAccount(){
+  try{showAccount(await api('/v1/account/me',{method:'GET',headers:{}}))}
+  catch{showAccount(null)}
+}
+document.querySelectorAll('[data-auth-tab]').forEach(btn=>btn.addEventListener('click',()=>{
+  document.querySelectorAll('[data-auth-tab]').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.auth-form').forEach(x=>x.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(btn.dataset.authTab+'Form').classList.add('active');
+  setAuthNote('');
+}));
+document.getElementById('loginForm').addEventListener('submit',async e=>{
+  e.preventDefault();setAuthNote('Signing in…');
+  try{
+    await api('/v1/account/login',{method:'POST',body:JSON.stringify({email:loginEmail.value,password:loginPassword.value,totp:loginTotp.value||undefined})});
+    setAuthNote('');await refreshAccount();
+  }catch(err){setAuthNote(err.body?.code==='EMAIL_VERIFICATION_REQUIRED'?'Please verify your email first.':err.message,true)}
+});
+document.getElementById('registerForm').addEventListener('submit',async e=>{
+  e.preventDefault();setAuthNote('Creating your account…');
+  try{
+    const x=await api('/v1/account/register',{method:'POST',body:JSON.stringify({displayName:registerName.value,email:registerEmail.value,password:registerPassword.value})});
+    setAuthNote(x.requiresVerification?'Account created. Check your email to verify it.':'Account created. You can sign in now.');
+    document.querySelector('[data-auth-tab="login"]').click();
+    loginEmail.value=registerEmail.value;
+  }catch(err){setAuthNote(err.message,true)}
+});
+document.getElementById('recoverForm').addEventListener('submit',async e=>{
+  e.preventDefault();setAuthNote('Requesting recovery…');
+  try{
+    await api('/v1/account/recovery/request',{method:'POST',body:JSON.stringify({email:recoverEmail.value})});
+    setAuthNote('If that account exists, a recovery link has been sent.');
+  }catch(err){setAuthNote(err.message,true)}
+});
+document.getElementById('logoutButton').addEventListener('click',async()=>{
+  try{await api('/v1/account/logout',{method:'POST',body:'{}'})}catch{}
+  showAccount(null);
+});
+function addMessage(role,text){
+  const el=document.createElement('div');el.className='msg '+role;el.textContent=text;chatLog.appendChild(el);chatLog.scrollTop=chatLog.scrollHeight;
+}
+document.getElementById('chatForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const text=chatText.value.trim();if(!text||!account)return;
+  chatText.value='';addMessage('user',text);conversation.push({role:'user',content:text});
+  chatSend.disabled=true;chatStatus.textContent='Thinking…';
+  try{
+    const r=await api('/v1/one/chat',{method:'POST',body:JSON.stringify({messages:conversation,temperature:.4})});
+    const answer=r.choices?.[0]?.message?.content||'No answer was returned.';
+    conversation.push({role:'assistant',content:answer});addMessage('ai',answer);
+    const u=r.entitlement?.usage||{};
+    entitlement.textContent=(r.entitlement?.fairUse?'Fair-use pilot · no artificial daily cap':'Daily allowance active')+' · '+(u.requests||0)+' request'+((u.requests||0)===1?'':'s')+' today';
+    chatStatus.textContent='Ready · '+(r.model||'IZAKHONO ONE');
+  }catch(err){addMessage('ai','Unable to complete that request: '+err.message);chatStatus.textContent='Ready'}
+  finally{chatSend.disabled=false}
+});
+async function handleAccountLink(){
+  const params=new URLSearchParams(location.search);
+  if(location.pathname==='/account/verify'&&params.get('token')){
+    document.querySelector('[data-auth-tab="login"]').click();
+    try{await api('/v1/account/verify',{method:'POST',body:JSON.stringify({token:params.get('token')})});setAuthNote('Email verified. You can sign in now.')}
+    catch(err){setAuthNote(err.message,true)}
+    history.replaceState({},'', '/#ai');
+    location.hash='ai';
+  }
+  if(location.pathname==='/account/reset'&&params.get('token')){
+    const next=prompt('Choose a new password (at least 12 characters).');
+    if(next){
+      try{await api('/v1/account/recovery/reset',{method:'POST',body:JSON.stringify({token:params.get('token'),password:next})});alert('Password reset. You can sign in now.')}
+      catch(err){alert(err.message)}
+    }
+    history.replaceState({},'', '/#ai');
+    location.hash='ai';
+  }
+}
+handleAccountLink().finally(refreshAccount);
 
 function card(p){
   const usable=Boolean(p.public_url);

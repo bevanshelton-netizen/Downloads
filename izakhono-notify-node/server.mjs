@@ -401,6 +401,28 @@ const server=createServer(async(req,res)=>{
       return json(res,201,{template:{id,name,channel:body.channel}});
     }
 
+    const templateMatch=url.pathname.match(/^\/v1\/templates\/([^/]+)$/);
+    if(req.method==="PUT" && templateMatch){
+      const name=decodeURIComponent(templateMatch[1]);
+      if(!/^[A-Za-z0-9_.:-]{2,100}$/.test(name)) return json(res,400,{error:"Invalid template name"});
+      const body=await readJson(req);
+      if(!validChannel(body?.channel)) return json(res,400,{error:"Invalid channel"});
+      if(typeof body?.body!=="string" || !body.body.trim() || body.body.length>20000) return json(res,400,{error:"Invalid body"});
+      const existing=db.prepare("SELECT id FROM templates WHERE name=?").get(name);
+      const id=existing?.id||randomUUID();
+      db.prepare(`
+        INSERT INTO templates(id,name,channel,subject,body)
+        VALUES(?,?,?,?,?)
+        ON CONFLICT(name) DO UPDATE SET
+          channel=excluded.channel,
+          subject=excluded.subject,
+          body=excluded.body,
+          updated_at=datetime('now')
+      `).run(id,name,body.channel,typeof body.subject==="string"?body.subject.slice(0,500):null,body.body);
+      audit("template.upsert",id,"success",{channel:body.channel,name});
+      return json(res,200,{template:{id,name,channel:body.channel}});
+    }
+
     const channelsMatch=url.pathname.match(/^\/v1\/recipients\/([^/]+)\/channels$/);
     if(req.method==="POST" && channelsMatch){
       const recipient=decodeURIComponent(channelsMatch[1]);

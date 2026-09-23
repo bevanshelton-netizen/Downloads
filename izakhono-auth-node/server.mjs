@@ -17,6 +17,14 @@ const COOKIE_DOMAIN=process.env.IZAKHONO_AUTH_COOKIE_DOMAIN || "";
 const LOGIN_LIMIT_PER_MIN=Math.min(100,Math.max(3,Number(process.env.IZAKHONO_AUTH_LOGIN_LIMIT_PER_MIN || 12)));
 const LOCK_AFTER=Math.min(20,Math.max(3,Number(process.env.IZAKHONO_AUTH_LOCK_AFTER || 5)));
 const LOCK_MINUTES=Math.min(1440,Math.max(1,Number(process.env.IZAKHONO_AUTH_LOCK_MINUTES || 15)));
+const PUBLIC_SIGNUP=String(process.env.IZAKHONO_AUTH_PUBLIC_SIGNUP||"false").toLowerCase()==="true";
+const REQUIRE_EMAIL_VERIFICATION=String(process.env.IZAKHONO_AUTH_REQUIRE_EMAIL_VERIFICATION||"true").toLowerCase()!=="false";
+const PUBLIC_BASE_URL=(process.env.IZAKHONO_AUTH_PUBLIC_BASE_URL||"https://one.domains.izakhonoafrica.co.za").replace(/\/$/,"");
+const NOTIFY_URL=(process.env.IZAKHONO_NOTIFY_URL||"http://127.0.0.1:8840").replace(/\/$/,"");
+const NOTIFY_KEY=process.env.IZAKHONO_NOTIFY_KEY||"";
+const VERIFY_HOURS=Math.min(72,Math.max(1,Number(process.env.IZAKHONO_AUTH_VERIFY_HOURS||24)));
+const RESET_MINUTES=Math.min(120,Math.max(10,Number(process.env.IZAKHONO_AUTH_RESET_MINUTES||30)));
+const PUBLIC_ACTION_LIMIT_PER_HOUR=Math.min(50,Math.max(2,Number(process.env.IZAKHONO_AUTH_PUBLIC_ACTION_LIMIT_PER_HOUR||10)));
 
 mkdirSync(dirname(DB_PATH),{recursive:true});
 
@@ -132,6 +140,32 @@ db.exec(`
 
   CREATE INDEX IF NOT EXISTS audit_time_idx ON audit_ledger(occurred_at DESC);
   CREATE INDEX IF NOT EXISTS audit_actor_idx ON audit_ledger(actor_type,actor_ref,occurred_at DESC);
+`);
+const userColumns=new Set(db.prepare("PRAGMA table_info(users)").all().map(x=>x.name));
+if(!userColumns.has("email_verified_at")) db.exec("ALTER TABLE users ADD COLUMN email_verified_at TEXT");
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS email_verifications(
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    token_hash TEXT NOT NULL UNIQUE,
+    expires_at TEXT NOT NULL,
+    used_at TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+  );
+  CREATE INDEX IF NOT EXISTS email_verifications_user_idx ON email_verifications(user_id,expires_at);
+
+  CREATE TABLE IF NOT EXISTS password_resets(
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    token_hash TEXT NOT NULL UNIQUE,
+    expires_at TEXT NOT NULL,
+    used_at TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+  );
+  CREATE INDEX IF NOT EXISTS password_resets_user_idx ON password_resets(user_id,expires_at);
 `);
 
 const loginBuckets=new Map();
@@ -270,14 +304,14 @@ function verifyTotp(secret,code){
   return false;
 }
 
-function rateAllowed(req,email){
-  const key=ip(req)+"|"+email;
+function rateAllowed(req,subject,limit=LOGIN_LIMIT_PER_MIN,windowMs=60000){
+  const key=ip(req)+"|"+subject;
   const now=Date.now();
   const item=loginBuckets.get(key)||{count:0,windowStart:now};
-  if(now-item.windowStart>=60000){item.count=0;item.windowStart=now;}
+  if(now-item.windowStart>=windowMs){item.count=0;item.windowStart=now;}
   item.count++;
   loginBuckets.set(key,item);
-  return item.count<=LOGIN_LIMIT_PER_MIN;
+  return item.count<=limit;
 }
 setInterval(()=>{
   const cutoff=Date.now()-5*60000;
@@ -299,6 +333,7 @@ function permissionsForUser(userId){
 function publicUser(user){
   return {
     id:user.id,email:user.email,displayName:user.display_name,status:user.status,
+    emailVerified:Boolean(user.email_verified_at),
     mfaEnabled:Boolean(user.totp_enabled),
     roles:rolesForUser(user.id),
     permissions:permissionsForUser(user.id)
@@ -350,6 +385,61 @@ function requirePermission(req,res,permission){
   return session;
 }
 
+function ensurePublicDefaults(){
+  db.prepare("INSERT OR IGNORE INTO roles(name,description) VALUES('member','Public IZAKHONO ONE member')").run();
+  db.prepare("INSERT OR IGNORE INTO permissions(code,description) VALUES('one.ai.chat','Use IZAKHONO ONE AI chat')").run();
+  db.prepare("INSERT OR IGNORE INTO role_permissions(role_name,permission_code) VALUES('member','one.ai.chat')").run();
+}
+ensurePublicDefaults();
+
+db.prepare(`
+  UPDATE users SET email_verified_at=COALESCE(email_verified_at,created_at)
+  WHERE email_verified_at IS NULL
+    AND id IN (SELECT user_id FROM user_roles WHERE role_name!='member')
+`).run();
+
+async function notifyRequest(path,method,body){
+  if(!NOTIFY_KEY) throw new Error("NOTIFY_NOT_CONFIGURED");
+  const response=await fetch(NOTIFY_URL+path,{
+    method,
+    headers:{"content-type":"application/json","x-izakhono-key":NOTIFY_KEY},
+    body:body==null?undefined:JSON.stringify(body),
+    signal:AbortSignal.timeout(5000)
+  });
+  const payload=await response.json().catch(()=>({}));
+  if(!response.ok) throw new Error(payload?.error||("NOTIFY_HTTP_"+response.status));
+  return payload;
+}
+
+async function sendAccountEmail(user,kind,token){
+  const verify=kind==="verify";
+  const template=verify?"one.account.verify":"one.account.reset";
+  const link=PUBLIC_BASE_URL+(verify?"/account/verify?token=":"/account/reset?token=")+encodeURIComponent(token);
+  await notifyRequest("/v1/templates/"+encodeURIComponent(template),"PUT",{
+    channel:"email",
+    subject:verify?"Verify your IZAKHONO ONE account":"Reset your IZAKHONO ONE password",
+    body:verify
+      ?"Hello {{displayName}},\n\nVerify your IZAKHONO ONE account using this secure link:\n{{link}}\n\nThis link expires automatically."
+      :"Hello {{displayName}},\n\nReset your IZAKHONO ONE password using this secure link:\n{{link}}\n\nIf you did not request this, ignore this message."
+  });
+  await notifyRequest("/v1/recipients/"+encodeURIComponent(user.id)+"/channels","POST",{channel:"email",address:user.email});
+  await notifyRequest("/v1/send","POST",{
+    recipientRef:user.id,
+    channel:"email",
+    templateId:template,
+    variables:{displayName:user.display_name,link},
+    idempotencyKey:kind+":"+user.id+":"+sha256(token)
+  });
+}
+
+function issueOneTimeToken(table,userId,ttlSql){
+  const raw=randomBytes(32).toString("base64url");
+  db.prepare("UPDATE "+table+" SET used_at=datetime('now') WHERE user_id=? AND used_at IS NULL").run(userId);
+  db.prepare("INSERT INTO "+table+"(id,user_id,token_hash,expires_at) VALUES(?,?,?,datetime('now',?))")
+    .run(randomUUID(),userId,sha256(raw),ttlSql);
+  return raw;
+}
+
 function bootstrapDefaults(userId){
   db.exec("BEGIN IMMEDIATE");
   try{
@@ -357,12 +447,14 @@ function bootstrapDefaults(userId){
     for(const [code,description] of [
       ["auth.admin","Manage users, roles, permissions and service identities"],
       ["growth.read","Read Growth OS data"],
-      ["growth.write","Perform approved Growth OS mutations"]
+      ["growth.write","Perform approved Growth OS mutations"],
+      ["one.ai.chat","Use IZAKHONO ONE AI chat"]
     ]){
       db.prepare("INSERT OR IGNORE INTO permissions(code,description) VALUES(?,?)").run(code,description);
       db.prepare("INSERT OR IGNORE INTO role_permissions(role_name,permission_code) VALUES('owner',?)").run(code);
     }
     db.prepare("INSERT OR IGNORE INTO user_roles(user_id,role_name) VALUES(?,'owner')").run(userId);
+    db.prepare("UPDATE users SET email_verified_at=COALESCE(email_verified_at,datetime('now')) WHERE id=?").run(userId);
     db.exec("COMMIT");
   }catch(error){db.exec("ROLLBACK");throw error;}
 }
@@ -390,7 +482,10 @@ const server=createServer(async(req,res)=>{
         status:"healthy",
         users:Number(db.prepare("SELECT count(*) AS count FROM users").get()?.count||0),
         activeSessions:Number(db.prepare("SELECT count(*) AS count FROM sessions WHERE revoked_at IS NULL AND datetime(expires_at)>datetime('now')").get()?.count||0),
-        thirdPartyAuthRequired:false
+        thirdPartyAuthRequired:false,
+        publicSignup:PUBLIC_SIGNUP,
+        emailVerificationRequired:REQUIRE_EMAIL_VERIFICATION,
+        recoveryConfigured:Boolean(NOTIFY_KEY)
       });
     }
 
@@ -413,6 +508,91 @@ const server=createServer(async(req,res)=>{
       return json(res,201,{user:publicUser(db.prepare("SELECT * FROM users WHERE id=?").get(id))});
     }
 
+    if(req.method==="POST" && url.pathname==="/v1/register"){
+      if(!PUBLIC_SIGNUP) return json(res,403,{error:"Public signup is not enabled"});
+      if(REQUIRE_EMAIL_VERIFICATION && !NOTIFY_KEY) return json(res,503,{error:"Account verification delivery is not configured"});
+      const body=await readJson(req);
+      const email=normalizeEmail(body?.email);
+      if(!rateAllowed(req,"register:"+email,PUBLIC_ACTION_LIMIT_PER_HOUR,3600000)) return json(res,429,{error:"Too many signup attempts"});
+      if(!validPassword(body?.password)) return json(res,400,{error:"Password must be 12-256 characters"});
+      const displayName=String(body?.displayName||"").trim().slice(0,120);
+      if(displayName.length<2) return json(res,400,{error:"Display name is required"});
+      if(db.prepare("SELECT 1 AS ok FROM users WHERE email=?").get(email)) return json(res,409,{error:"Account already exists"});
+      const next=createPassword(body.password);
+      const id=randomUUID();
+      db.prepare("INSERT INTO users(id,email,display_name,password_hash,password_salt,email_verified_at) VALUES(?,?,?,?,?,?)")
+        .run(id,email,displayName,next.hash,next.salt,REQUIRE_EMAIL_VERIFICATION?null:new Date().toISOString());
+      db.prepare("INSERT OR IGNORE INTO user_roles(user_id,role_name) VALUES(?,'member')").run(id);
+      const user=db.prepare("SELECT * FROM users WHERE id=?").get(id);
+      try{
+        if(REQUIRE_EMAIL_VERIFICATION){
+          const token=issueOneTimeToken("email_verifications",id,"+"+VERIFY_HOURS+" hours");
+          await sendAccountEmail(user,"verify",token);
+        }
+      }catch(error){
+        db.prepare("DELETE FROM users WHERE id=?").run(id);
+        audit(req,"anonymous",null,"register","user",id,"failed",{reason:"verification_delivery"});
+        throw error;
+      }
+      audit(req,"anonymous",null,"register","user",id,"success",{verificationRequired:REQUIRE_EMAIL_VERIFICATION});
+      return json(res,201,{registered:true,requiresVerification:REQUIRE_EMAIL_VERIFICATION,user:publicUser(user)});
+    }
+
+    if(req.method==="POST" && url.pathname==="/v1/verify-email"){
+      const body=await readJson(req);
+      const raw=String(body?.token||"");
+      if(raw.length<20 || raw.length>200) return json(res,400,{error:"Invalid verification token"});
+      const row=db.prepare("SELECT v.id,v.user_id FROM email_verifications v WHERE v.token_hash=? AND v.used_at IS NULL AND datetime(v.expires_at)>datetime('now')").get(sha256(raw));
+      if(!row) return json(res,400,{error:"Verification token is invalid or expired"});
+      db.exec("BEGIN IMMEDIATE");
+      try{
+        db.prepare("UPDATE users SET email_verified_at=datetime('now'),updated_at=datetime('now') WHERE id=?").run(row.user_id);
+        db.prepare("UPDATE email_verifications SET used_at=datetime('now') WHERE id=?").run(row.id);
+        db.exec("COMMIT");
+      }catch(error){db.exec("ROLLBACK");throw error;}
+      audit(req,"anonymous",null,"email.verify","user",row.user_id,"success",{});
+      return json(res,200,{verified:true});
+    }
+
+    if(req.method==="POST" && url.pathname==="/v1/recovery/request"){
+      const body=await readJson(req);
+      let email;
+      try{email=normalizeEmail(body?.email);}catch{return json(res,202,{accepted:true});}
+      if(!rateAllowed(req,"recover:"+email,PUBLIC_ACTION_LIMIT_PER_HOUR,3600000)) return json(res,202,{accepted:true});
+      const user=db.prepare("SELECT * FROM users WHERE email=? AND status='active'").get(email);
+      if(user && (!REQUIRE_EMAIL_VERIFICATION || user.email_verified_at) && NOTIFY_KEY){
+        try{
+          const token=issueOneTimeToken("password_resets",user.id,"+"+RESET_MINUTES+" minutes");
+          await sendAccountEmail(user,"reset",token);
+          audit(req,"anonymous",null,"password.recovery.request","user",user.id,"success",{});
+        }catch(error){
+          audit(req,"anonymous",null,"password.recovery.request","user",user.id,"failed",{reason:"delivery"});
+          console.error("password recovery delivery",error);
+        }
+      }
+      return json(res,202,{accepted:true});
+    }
+
+    if(req.method==="POST" && url.pathname==="/v1/recovery/reset"){
+      const body=await readJson(req);
+      const raw=String(body?.token||"");
+      if(raw.length<20 || raw.length>200) return json(res,400,{error:"Reset token is invalid or expired"});
+      if(!validPassword(body?.password)) return json(res,400,{error:"Password must be 12-256 characters"});
+      const row=db.prepare("SELECT id,user_id FROM password_resets WHERE token_hash=? AND used_at IS NULL AND datetime(expires_at)>datetime('now')").get(sha256(raw));
+      if(!row) return json(res,400,{error:"Reset token is invalid or expired"});
+      const next=createPassword(body.password);
+      db.exec("BEGIN IMMEDIATE");
+      try{
+        db.prepare("UPDATE users SET password_hash=?,password_salt=?,failed_attempts=0,lock_until=NULL,updated_at=datetime('now') WHERE id=?")
+          .run(next.hash,next.salt,row.user_id);
+        db.prepare("UPDATE password_resets SET used_at=datetime('now') WHERE id=?").run(row.id);
+        db.prepare("UPDATE sessions SET revoked_at=datetime('now') WHERE user_id=? AND revoked_at IS NULL").run(row.user_id);
+        db.exec("COMMIT");
+      }catch(error){db.exec("ROLLBACK");throw error;}
+      audit(req,"anonymous",null,"password.recovery.reset","user",row.user_id,"success",{});
+      return json(res,200,{reset:true});
+    }
+
     if(req.method==="POST" && url.pathname==="/v1/login"){
       const body=await readJson(req);
       let email;
@@ -426,6 +606,10 @@ const server=createServer(async(req,res)=>{
       if(!user || user.status!=="active"){
         audit(req,"anonymous",null,"login","user",email,"failed",{reason:"invalid"});
         return json(res,401,{error:"Invalid credentials"});
+      }
+      if(REQUIRE_EMAIL_VERIFICATION && !user.email_verified_at){
+        audit(req,"anonymous",null,"login","user",user.id,"blocked",{reason:"email_unverified"});
+        return json(res,403,{error:"Email verification required",code:"EMAIL_VERIFICATION_REQUIRED"});
       }
       if(user.lock_until && new Date(user.lock_until).getTime()>Date.now()){
         audit(req,"anonymous",null,"login","user",user.id,"blocked",{reason:"locked"});
@@ -505,7 +689,7 @@ const server=createServer(async(req,res)=>{
       if(!validPassword(body?.password)) return json(res,400,{error:"Password must be 12-256 characters"});
       const {salt,hash}=createPassword(body.password);
       const id=randomUUID();
-      db.prepare("INSERT INTO users(id,email,display_name,password_hash,password_salt) VALUES(?,?,?,?,?)")
+      db.prepare("INSERT INTO users(id,email,display_name,password_hash,password_salt,email_verified_at) VALUES(?,?,?,?,?,datetime('now'))")
         .run(id,email,String(body?.displayName||email).slice(0,120),hash,salt);
       audit(req,"user",admin.user.id,"user.create","user",id,"success",{});
       return json(res,201,{user:publicUser(db.prepare("SELECT * FROM users WHERE id=?").get(id))});
@@ -591,6 +775,7 @@ const server=createServer(async(req,res)=>{
     const message=error instanceof Error?error.message:"Unknown error";
     if(message==="BODY_TOO_LARGE") return json(res,413,{error:"Request body too large"});
     if(["INVALID_EMAIL","WEAK_PASSWORD"].includes(message)) return json(res,400,{error:message});
+    if(message==="NOTIFY_NOT_CONFIGURED") return json(res,503,{error:"Account notification delivery is not configured"});
     if(String(error?.message||"").includes("UNIQUE constraint failed")){
       return json(res,409,{error:"Resource already exists"});
     }
@@ -602,4 +787,5 @@ const server=createServer(async(req,res)=>{
 server.listen(PORT,HOST,()=>{
   console.log(`IZAKHONO AUTH NODE listening on http://${HOST}:${PORT}`);
   if(!BOOTSTRAP_KEY) console.warn("WARNING: IZAKHONO_AUTH_BOOTSTRAP_KEY missing; first-user bootstrap is disabled.");
+  if(PUBLIC_SIGNUP && REQUIRE_EMAIL_VERIFICATION && !NOTIFY_KEY) console.warn("WARNING: public signup requires IZAKHONO_NOTIFY_KEY for verification delivery.");
 });

@@ -1,6 +1,8 @@
 import { createServer } from "node:http";
-import { readFileSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 import { timingSafeEqual } from "node:crypto";
+import { dirname } from "node:path";
+import { DatabaseSync } from "node:sqlite";
 import { resolve } from "node:path";
 
 const HOST=process.env.HOST || "127.0.0.1";
@@ -11,9 +13,29 @@ const GATEWAY_KEY=process.env.IZAKHONO_ONE_AI_GATEWAY_KEY || "";
 const MODEL_ALIAS=process.env.IZAKHONO_ONE_AI_MODEL_ALIAS || "izakhono-one";
 const MAX_BODY=Math.min(10*1024*1024,Math.max(65536,Number(process.env.IZAKHONO_ONE_AI_MAX_BODY_BYTES || 2*1024*1024)));
 const TIMEOUT_MS=Math.min(300000,Math.max(1000,Number(process.env.IZAKHONO_ONE_AI_TIMEOUT_MS || 90000)));
+const AUTH_URL=(process.env.IZAKHONO_ONE_AUTH_URL||"http://127.0.0.1:8820").replace(/\/$/,"");
+const USAGE_DB=resolve(process.env.IZAKHONO_ONE_USAGE_DB||"./data/one-ai.sqlite");
+const FREE_DAILY_REQUESTS=Math.max(0,Number(process.env.IZAKHONO_ONE_FREE_DAILY_REQUESTS||0));
+const CHAT_READY=String(process.env.IZAKHONO_ONE_CHAT_READY||"true").toLowerCase()!=="false";
+const COOKIE_NAME="izakhono_one_session";
 const CAPABILITIES=JSON.parse(readFileSync(resolve(new URL("./capabilities.json",import.meta.url).pathname),"utf8"));
 const ROLLOUT=JSON.parse(readFileSync(resolve(new URL("./public-sellable-rollout.json",import.meta.url).pathname),"utf8"));
 const PUBLIC_INDEX=readFileSync(resolve(new URL("./public/index.html",import.meta.url).pathname),"utf8");
+
+mkdirSync(dirname(USAGE_DB),{recursive:true});
+const usageDb=new DatabaseSync(USAGE_DB);
+usageDb.exec(`
+  PRAGMA journal_mode=WAL;
+  CREATE TABLE IF NOT EXISTS usage_daily(
+    user_id TEXT NOT NULL,
+    day TEXT NOT NULL,
+    requests INTEGER NOT NULL DEFAULT 0,
+    input_tokens INTEGER NOT NULL DEFAULT 0,
+    output_tokens INTEGER NOT NULL DEFAULT 0,
+    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY(user_id,day)
+  );
+`);
 
 function json(res,status,body,headers={}){
   const payload=JSON.stringify(body);
@@ -63,6 +85,86 @@ function authed(req){
   const raw=auth.startsWith("Bearer ")?auth.slice(7).trim():String(req.headers["x-api-key"]||"");
   return Boolean(SERVICE_KEY)&&secureEqual(raw,SERVICE_KEY);
 }
+function sameOrigin(req){
+  const origin=String(req.headers.origin||"");
+  if(!origin) return true;
+  try{return new URL(origin).host===String(req.headers.host||"");}catch{return false;}
+}
+function cookieToken(req){
+  const auth=String(req.headers.authorization||"");
+  if(auth.startsWith("Bearer ")) return auth.slice(7).trim();
+  const cookies=String(req.headers.cookie||"").split(";").map(x=>x.trim());
+  for(const cookie of cookies){
+    if(cookie.startsWith(COOKIE_NAME+"=")) return decodeURIComponent(cookie.slice(COOKIE_NAME.length+1));
+  }
+  return "";
+}
+function sessionCookie(token,maxAge){
+  return COOKIE_NAME+"="+encodeURIComponent(token)+"; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age="+Math.max(60,Number(maxAge||43200));
+}
+function clearSessionCookie(){
+  return COOKIE_NAME+"=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0";
+}
+async function authRequest(path,{method="GET",body=null,token=""}={}){
+  const response=await fetch(AUTH_URL+path,{
+    method,
+    headers:{
+      "accept":"application/json",
+      ...(body!=null?{"content-type":"application/json"}:{}),
+      ...(token?{"authorization":"Bearer "+token}:{})
+    },
+    body:body==null?undefined:JSON.stringify(body),
+    signal:AbortSignal.timeout(7000)
+  });
+  const payload=await response.json().catch(()=>({error:"AUTH_INVALID_JSON"}));
+  return {response,payload};
+}
+async function accountForRequest(req){
+  const token=cookieToken(req);
+  if(!token) return null;
+  const result=await authRequest("/v1/me",{token});
+  if(!result.response.ok) return null;
+  return {token,user:result.payload.user};
+}
+function today(){
+  return new Date().toISOString().slice(0,10);
+}
+function usageFor(userId){
+  const row=usageDb.prepare("SELECT requests,input_tokens,output_tokens FROM usage_daily WHERE user_id=? AND day=?").get(userId,today());
+  return {
+    day:today(),
+    requests:Number(row?.requests||0),
+    inputTokens:Number(row?.input_tokens||0),
+    outputTokens:Number(row?.output_tokens||0),
+    dailyRequestLimit:FREE_DAILY_REQUESTS||null,
+    fairUse:FREE_DAILY_REQUESTS===0
+  };
+}
+function recordUsage(userId,payload,messages){
+  const input=Number(payload?.usage?.prompt_tokens||payload?.usage?.input_tokens||0) || Math.ceil(messages.reduce((n,m)=>n+String(m.content||"").length,0)/4);
+  const output=Number(payload?.usage?.completion_tokens||payload?.usage?.output_tokens||0) || Math.ceil(String(payload?.choices?.[0]?.message?.content||"").length/4);
+  usageDb.prepare(`
+    INSERT INTO usage_daily(user_id,day,requests,input_tokens,output_tokens)
+    VALUES(?,?,1,?,?)
+    ON CONFLICT(user_id,day) DO UPDATE SET
+      requests=usage_daily.requests+1,
+      input_tokens=usage_daily.input_tokens+excluded.input_tokens,
+      output_tokens=usage_daily.output_tokens+excluded.output_tokens,
+      updated_at=datetime('now')
+  `).run(userId,today(),input,output);
+}
+function publicEntitlement(userId){
+  const usage=usageFor(userId);
+  return {
+    plan:"free-pilot",
+    chat:true,
+    dailyRequestLimit:usage.dailyRequestLimit,
+    fairUse:usage.fairUse,
+    note:usage.fairUse?"No artificial daily message cap is configured; real capacity and abuse protections still apply.":"Daily request allowance is capacity-controlled.",
+    usage
+  };
+}
+
 async function readJson(req){
   let total=0;const chunks=[];
   for await(const chunk of req){
@@ -144,6 +246,16 @@ const server=createServer(async(req,res)=>{
       return html(res,200,PUBLIC_INDEX);
     }
     if(req.method==="GET"&&url.pathname==="/health"){
+      let accountReachable=false,publicSignup=false,emailVerificationRequired=true;
+      try{
+        const auth=await fetch(AUTH_URL+"/health",{signal:AbortSignal.timeout(1500)});
+        if(auth.ok){
+          const h=await auth.json();
+          accountReachable=h.status==="healthy";
+          publicSignup=Boolean(h.publicSignup);
+          emailVerificationRequired=h.emailVerificationRequired!==false;
+        }
+      }catch{}
       return json(res,200,{
         product:"IZAKHONO ONE AI",
         status:"healthy",
@@ -151,7 +263,11 @@ const server=createServer(async(req,res)=>{
         gateway:GATEWAY_URL.origin,
         capabilityCount:CAPABILITIES.replacements.length,
         tracking:false,
-        promptPersistence:false
+        promptPersistence:false,
+        chatReady:CHAT_READY,
+        accountReachable,
+        publicSignup,
+        emailVerificationRequired
       });
     }
     if(req.method==="GET"&&url.pathname==="/v1/capabilities"){
@@ -166,6 +282,84 @@ const server=createServer(async(req,res)=>{
         products:publicProducts()
       });
     }
+    if(req.method==="GET" && (url.pathname==="/account/verify" || url.pathname==="/account/reset")){
+      return html(res,200,PUBLIC_INDEX);
+    }
+
+    if(req.method==="POST" && url.pathname==="/v1/account/register"){
+      if(!sameOrigin(req)) return json(res,403,{error:"Origin not allowed"});
+      const body=await readJson(req);
+      const result=await authRequest("/v1/register",{method:"POST",body});
+      return json(res,result.response.status,result.payload);
+    }
+
+    if(req.method==="POST" && url.pathname==="/v1/account/verify"){
+      if(!sameOrigin(req)) return json(res,403,{error:"Origin not allowed"});
+      const body=await readJson(req);
+      const result=await authRequest("/v1/verify-email",{method:"POST",body});
+      return json(res,result.response.status,result.payload);
+    }
+
+    if(req.method==="POST" && url.pathname==="/v1/account/login"){
+      if(!sameOrigin(req)) return json(res,403,{error:"Origin not allowed"});
+      const body=await readJson(req);
+      const result=await authRequest("/v1/login",{method:"POST",body});
+      if(!result.response.ok) return json(res,result.response.status,result.payload);
+      const token=result.payload?.token;
+      if(!token) return json(res,502,{error:"AUTH_SESSION_MISSING"});
+      return json(res,200,{user:result.payload.user,expiresInSeconds:result.payload.expiresInSeconds},{
+        "set-cookie":sessionCookie(token,result.payload.expiresInSeconds)
+      });
+    }
+
+    if(req.method==="GET" && url.pathname==="/v1/account/me"){
+      const account=await accountForRequest(req);
+      if(!account) return json(res,401,{error:"Authentication required"});
+      return json(res,200,{user:account.user,entitlement:publicEntitlement(account.user.id)});
+    }
+
+    if(req.method==="POST" && url.pathname==="/v1/account/logout"){
+      if(!sameOrigin(req)) return json(res,403,{error:"Origin not allowed"});
+      const token=cookieToken(req);
+      if(token) await authRequest("/v1/logout",{method:"POST",body:{},token}).catch(()=>null);
+      return json(res,200,{loggedOut:true},{"set-cookie":clearSessionCookie()});
+    }
+
+    if(req.method==="POST" && url.pathname==="/v1/account/recovery/request"){
+      if(!sameOrigin(req)) return json(res,403,{error:"Origin not allowed"});
+      const body=await readJson(req);
+      const result=await authRequest("/v1/recovery/request",{method:"POST",body});
+      return json(res,result.response.status,result.payload);
+    }
+
+    if(req.method==="POST" && url.pathname==="/v1/account/recovery/reset"){
+      if(!sameOrigin(req)) return json(res,403,{error:"Origin not allowed"});
+      const body=await readJson(req);
+      const result=await authRequest("/v1/recovery/reset",{method:"POST",body});
+      return json(res,result.response.status,result.payload);
+    }
+
+    if(req.method==="GET" && url.pathname==="/v1/account/usage"){
+      const account=await accountForRequest(req);
+      if(!account) return json(res,401,{error:"Authentication required"});
+      return json(res,200,{entitlement:publicEntitlement(account.user.id)});
+    }
+
+    if(req.method==="POST" && url.pathname==="/v1/one/chat"){
+      if(!CHAT_READY) return json(res,503,{error:"AI capacity is not attached yet"});
+      if(!sameOrigin(req)) return json(res,403,{error:"Origin not allowed"});
+      const account=await accountForRequest(req);
+      if(!account) return json(res,401,{error:"Authentication required"});
+      if(!Array.isArray(account.user.permissions) || !account.user.permissions.includes("one.ai.chat")) return json(res,403,{error:"AI chat is not enabled for this account"});
+      const current=usageFor(account.user.id);
+      if(FREE_DAILY_REQUESTS>0 && current.requests>=FREE_DAILY_REQUESTS) return json(res,429,{error:"Daily fair-use allowance reached",entitlement:publicEntitlement(account.user.id)});
+      const body=await readJson(req);
+      const messages=normalizeMessages(body.messages);
+      const payload=await chat({...body,messages});
+      recordUsage(account.user.id,payload,messages);
+      return json(res,200,{...payload,entitlement:publicEntitlement(account.user.id)});
+    }
+
     if(!authed(req)) return json(res,401,{error:"Unauthorized"});
     if(req.method==="POST"&&url.pathname==="/v1/chat/completions"){
       const body=await readJson(req);

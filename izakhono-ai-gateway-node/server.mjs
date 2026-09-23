@@ -500,6 +500,17 @@ const server=createServer(async(req,res)=>{
       `).all()});
     }
 
+    const rotateClient=url.pathname.match(/^\/v1\/admin\/clients\/([^/]+)\/rotate-key$/);
+    if(req.method==="POST" && rotateClient){
+      const id=decodeURIComponent(rotateClient[1]);
+      const client=db.prepare("SELECT id,name FROM clients WHERE id=?").get(id);
+      if(!client) return json(res,404,{error:"Client not found"});
+      const raw="iza_ai_"+randomBytes(32).toString("base64url");
+      db.prepare("UPDATE clients SET key_hash=?,prefix=?,updated_at=datetime('now') WHERE id=?")
+        .run(sha256(raw),raw.slice(0,14),id);
+      return json(res,200,{client:{id:client.id,name:client.name},apiKey:raw});
+    }
+
     if(req.method==="GET" && url.pathname==="/v1/admin/usage"){
       const day=url.searchParams.get("day")||dayUtc();
       const rows=db.prepare(`

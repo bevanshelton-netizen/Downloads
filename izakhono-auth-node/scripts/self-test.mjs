@@ -1,10 +1,29 @@
 import { spawn } from "node:child_process";
+import { createServer } from "node:http";
 import { createHmac, randomBytes } from "node:crypto";
 import { mkdirSync,rmSync } from "node:fs";
 import { resolve } from "node:path";
 
 const root=resolve("./.self-test");
 const port=19620;
+const notifyPort=19621;
+let lastNotify=null;
+const notifyServer=createServer(async(req,res)=>{
+  let raw="";for await(const chunk of req)raw+=chunk;
+  const payload=raw?JSON.parse(raw):{};
+  if(req.headers["x-izakhono-key"]!=="notify-test"){res.writeHead(401,{"content-type":"application/json"});return res.end('{"error":"Unauthorized"}');}
+  if(req.method==="PUT"&&req.url.startsWith("/v1/templates/")){
+    res.writeHead(200,{"content-type":"application/json"});return res.end(JSON.stringify({template:{name:decodeURIComponent(req.url.split("/").pop()),channel:payload.channel}}));
+  }
+  if(req.method==="POST"&&/\/v1\/recipients\/[^/]+\/channels/.test(req.url)){
+    res.writeHead(200,{"content-type":"application/json"});return res.end('{"configured":true}');
+  }
+  if(req.method==="POST"&&req.url==="/v1/send"){
+    lastNotify=payload;
+    res.writeHead(201,{"content-type":"application/json"});return res.end('{"message":{"id":"message-test"}}');
+  }
+  res.writeHead(404,{"content-type":"application/json"});res.end('{"error":"not found"}');
+}).listen(notifyPort,"127.0.0.1");
 const bootstrap=randomBytes(24).toString("hex");
 const enc=randomBytes(32).toString("base64");
 rmSync(root,{recursive:true,force:true});
@@ -19,7 +38,12 @@ const child=spawn(process.execPath,["server.mjs"],{
     IZAKHONO_AUTH_BOOTSTRAP_KEY:bootstrap,
     IZAKHONO_AUTH_ENCRYPTION_KEY:enc,
     IZAKHONO_AUTH_LOGIN_LIMIT_PER_MIN:"20",
-    IZAKHONO_AUTH_LOCK_AFTER:"5"
+    IZAKHONO_AUTH_LOCK_AFTER:"5",
+    IZAKHONO_AUTH_PUBLIC_SIGNUP:"true",
+    IZAKHONO_AUTH_REQUIRE_EMAIL_VERIFICATION:"true",
+    IZAKHONO_AUTH_PUBLIC_BASE_URL:"https://one.example.test",
+    IZAKHONO_NOTIFY_URL:`http://127.0.0.1:${notifyPort}`,
+    IZAKHONO_NOTIFY_KEY:"notify-test"
   },
   stdio:["ignore","pipe","pipe"]
 });
@@ -73,6 +97,31 @@ try{
     email:"second@example.com",password:"another secure password"
   },{"x-bootstrap-key":bootstrap});
   if(x.r.status!==409) throw new Error("Bootstrap single-use gate failed");
+
+  lastNotify=null;
+  x=await post("/v1/register",{
+    email:"member@example.com",displayName:"Member",password:"member secure password 1234"
+  });
+  if(x.r.status!==201 || x.body.requiresVerification!==true || !lastNotify?.variables?.link) throw new Error("Public registration/verification dispatch failed");
+
+  x=await post("/v1/login",{email:"member@example.com",password:"member secure password 1234"});
+  if(x.r.status!==403 || x.body.code!=="EMAIL_VERIFICATION_REQUIRED") throw new Error("Unverified account login gate failed");
+
+  const verifyToken=new URL(lastNotify.variables.link).searchParams.get("token");
+  x=await post("/v1/verify-email",{token:verifyToken});
+  if(!x.r.ok || x.body.verified!==true) throw new Error("Email verification failed");
+
+  x=await post("/v1/login",{email:"member@example.com",password:"member secure password 1234"});
+  if(!x.r.ok || !x.body.user.permissions.includes("one.ai.chat")) throw new Error("Verified public member login failed");
+
+  lastNotify=null;
+  x=await post("/v1/recovery/request",{email:"member@example.com"});
+  if(x.r.status!==202 || !lastNotify?.variables?.link) throw new Error("Recovery request failed");
+  const resetToken=new URL(lastNotify.variables.link).searchParams.get("token");
+  x=await post("/v1/recovery/reset",{token:resetToken,password:"new member secure password 5678"});
+  if(!x.r.ok || x.body.reset!==true) throw new Error("Password reset failed");
+  x=await post("/v1/login",{email:"member@example.com",password:"new member secure password 5678"});
+  if(!x.r.ok) throw new Error("Login after recovery failed");
 
   x=await post("/v1/login",{email:"owner@example.com",password:"wrong-password-000"});
   if(x.r.status!==401) throw new Error("Wrong password was accepted");
@@ -128,6 +177,7 @@ try{
   console.log("IZAKHONO AUTH NODE SELF TEST: PASS");
 }finally{
   child.kill("SIGTERM");
+  notifyServer.close();
   await sleep(150);
   rmSync(root,{recursive:true,force:true});
 }
