@@ -165,15 +165,34 @@ jobs:
           HEALTH="${PORT_BASE}health-check/"
           CLINIC="${PORT_BASE}clinic/"
           CONTRACTORS="${PORT_BASE}contractors/"
+          GUIDE="${PORT_BASE}guides/how-to-price-a-job-for-profit/"
           PORTFOLIO="https://bevanshelton-netizen.github.io/Downloads/portfolio-growth/"
           LAUNCH="https://bevanshelton-netizen.github.io/Downloads/portfolio-growth/launch/?platform=fortress"
-          curl -fsSL "$BASE" | grep -q 'IZAKHONO ONE'
-          curl -fsSL "$PORT_BASE" | grep -q 'IZAKHONO ONE'
-          curl -fsSL "$HEALTH" | grep -q 'FREE 3-MINUTE BUSINESS HEALTH CHECK'
-          curl -fsSL "$CLINIC" | grep -q 'Business Clinic'
-          curl -fsSL "$CONTRACTORS" | grep -q 'Contractors'
-          curl -fsSL "$PORTFOLIO" | grep -q 'IZAKHONO PORTFOLIO'
-          curl -fsSL "$LAUNCH" | grep -q 'IZAKHONO PORTFOLIO'
-          # Zero-tracking gate for the public resilience route.
-          curl -fsSL "$PORT_BASE" -o /tmp/izakhono-one-static.html
-          ! grep -Eqi 'utm_|googletagmanager|google-analytics|facebook[^<]*(pixel|track)|hotjar|clarity\.ms|mixpanel|amplitude|plausible|matomo|portfolio-growth/bridge\.js' /tmp/izakhono-one-static.html
+          ok=0
+          for i in $(seq 1 36); do
+            rm -f /tmp/one-base.html /tmp/one-port.html /tmp/one-health.html /tmp/one-clinic.html /tmp/one-contractors.html /tmp/one-guide.html /tmp/portfolio.html /tmp/launch.html
+            if curl -fsSL -o /tmp/one-base.html "$BASE" &&
+               curl -fsSL -o /tmp/one-port.html "$PORT_BASE" &&
+               curl -fsSL -o /tmp/one-health.html "$HEALTH" &&
+               curl -fsSL -o /tmp/one-clinic.html "$CLINIC" &&
+               curl -fsSL -o /tmp/one-contractors.html "$CONTRACTORS" &&
+               curl -fsSL -o /tmp/one-guide.html "$GUIDE" &&
+               curl -fsSL -o /tmp/portfolio.html "$PORTFOLIO" &&
+               curl -fsSL -o /tmp/launch.html "$LAUNCH" &&
+               grep -q 'IZAKHONO ONE' /tmp/one-base.html &&
+               grep -q 'IZAKHONO ONE' /tmp/one-port.html &&
+               grep -q 'FREE 3-MINUTE BUSINESS HEALTH CHECK' /tmp/one-health.html &&
+               grep -q 'Business Clinic' /tmp/one-clinic.html &&
+               grep -q 'Contractors' /tmp/one-contractors.html &&
+               grep -q 'Stop quoting from instinct' /tmp/one-guide.html &&
+               grep -q 'IZAKHONO PORTFOLIO' /tmp/portfolio.html &&
+               grep -q 'IZAKHONO PORTFOLIO' /tmp/launch.html; then
+              ok=1
+              break
+            fi
+            sleep 5
+          done
+          test "$ok" -eq 1
+          cat /tmp/one-base.html /tmp/one-port.html /tmp/one-health.html /tmp/one-clinic.html /tmp/one-contractors.html /tmp/one-guide.html > /tmp/izakhono-one-privacy.html
+          # Standing ONE privacy rule: no passive telemetry/tracking/profiling/ad identifiers.
+          ! grep -Eqi 'utm_|googletagmanager|google-analytics|facebook[^<]*(pixel|track)|hotjar|clarity\.ms|mixpanel|amplitude|plausible|matomo|portfolio-growth/bridge\.js|izakhono-growth-event|iz_one_anon|iz_portfolio_anon' /tmp/izakhono-one-privacy.html
