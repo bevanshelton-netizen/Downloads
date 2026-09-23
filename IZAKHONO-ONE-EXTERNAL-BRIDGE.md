@@ -1,5 +1,13 @@
 # IZAKHONO ONE — External Bridge
 
+Stable public entry:
+
+https://bevanshelton-netizen.github.io/Downloads/one/
+
+Canonical resilience entry:
+
+https://bevanshelton-netizen.github.io/Downloads/izakhono-one/
+
 Temporary public bridge:
 
 https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-hub
