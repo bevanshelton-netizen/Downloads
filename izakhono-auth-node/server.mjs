@@ -304,14 +304,14 @@ function verifyTotp(secret,code){
   return false;
 }
 
-function rateAllowed(req,email){
-  const key=ip(req)+"|"+email;
+function rateAllowed(req,subject,limit=LOGIN_LIMIT_PER_MIN,windowMs=60000){
+  const key=ip(req)+"|"+subject;
   const now=Date.now();
   const item=loginBuckets.get(key)||{count:0,windowStart:now};
-  if(now-item.windowStart>=60000){item.count=0;item.windowStart=now;}
+  if(now-item.windowStart>=windowMs){item.count=0;item.windowStart=now;}
   item.count++;
   loginBuckets.set(key,item);
-  return item.count<=LOGIN_LIMIT_PER_MIN;
+  return item.count<=limit;
 }
 setInterval(()=>{
   const cutoff=Date.now()-5*60000;
@@ -333,6 +333,7 @@ function permissionsForUser(userId){
 function publicUser(user){
   return {
     id:user.id,email:user.email,displayName:user.display_name,status:user.status,
+    emailVerified:Boolean(user.email_verified_at),
     mfaEnabled:Boolean(user.totp_enabled),
     roles:rolesForUser(user.id),
     permissions:permissionsForUser(user.id)
