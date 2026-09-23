@@ -1,0 +1,14 @@
+{
+  "schema": "izakhono.owner-agent-request/v1",
+  "id": "one-local-model-20260923-01",
+  "enabled": true,
+  "action": "activate-one-local-model",
+  "requested_at": "2026-09-23T05:15:00Z",
+  "expires_at": "2026-10-31T23:59:59Z",
+  "max_attempts": 2,
+  "params": {
+    "model": "qwen2.5:3b",
+    "hostname": "one.domains.izakhonoafrica.co.za"
+  },
+  "note": "Approved IZAKHONO ONE bootstrap inference activation. Agent supports allow-listed actions only."
+}
