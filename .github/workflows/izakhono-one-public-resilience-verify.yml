@@ -38,7 +38,7 @@ jobs:
         run: |
           set -euo pipefail
           grep -q 'IZAKHONO ONE' one/index.html
-          grep -q 'No application analytics' one/index.html
+          grep -qi 'no application analytics' one/index.html
           grep -q 'manifest.webmanifest' one/index.html
           grep -q 'serviceWorker' one/index.html
           grep -q 'application/ld+json' one/index.html
