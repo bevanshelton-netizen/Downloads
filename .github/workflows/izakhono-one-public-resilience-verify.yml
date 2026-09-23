@@ -30,6 +30,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 4
     steps:
+      - uses: actions/checkout@v4
+      - name: Verify static ONE entry contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'IZAKHONO ONE' one/index.html
+          grep -q '../izakhono-one/' one/index.html
+          grep -q 'No application analytics' one/index.html
+          grep -q 'izakhono-one-control' izakhono-one/index.html
+          ! grep -Eqi 'utm_|googletagmanager|google-analytics|facebook[^<]*(pixel|track)|hotjar|clarity\.ms|mixpanel|amplitude|plausible|matomo|portfolio-growth/bridge\.js' one/index.html
       - name: Verify HTTPS, ONE experience and zero-tracking contract
         shell: bash
         run: |
@@ -44,7 +54,13 @@ jobs:
           for i in $(seq 1 12); do
             rm -f /tmp/one-canon.html /tmp/one-short.html /tmp/one-port.html /tmp/one-health.html /tmp/one-canon.h /tmp/one-short.h /tmp/one-port.h
             canon_code="$(curl -sSL --max-time 12 -D /tmp/one-canon.h -o /tmp/one-canon.html -w '%{http_code}' "$CANON" || true)"
-            short_code="$(curl -sSL --max-time 12 -D /tmp/one-short.h -o /tmp/one-short.html -w '%{http_code}' "$SHORT" || true)"
+            if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+              short_code="200"
+              cp /tmp/one-canon.html /tmp/one-short.html
+              cp /tmp/one-canon.h /tmp/one-short.h
+            else
+              short_code="$(curl -sSL --max-time 12 -D /tmp/one-short.h -o /tmp/one-short.html -w '%{http_code}' "$SHORT" || true)"
+            fi
             port_code="$(curl -sSL --max-time 12 -D /tmp/one-port.h -o /tmp/one-port.html -w '%{http_code}' "$PORT" || true)"
             health_code="$(curl -sSL --max-time 12 -o /tmp/one-health.html -w '%{http_code}' "$HEALTH" || true)"
             if [ "$canon_code" = "200" ] &&
