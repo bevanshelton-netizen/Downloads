@@ -1,0 +1,73 @@
+name: Growth OS Vercel Production Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'izakhono-growth-os/**'
+      - '.github/workflows/growth-os-vercel-deploy.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: growth-os-vercel-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: kora-production
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: team_XSHdQaQxmXGD1HlK2E4nehif
+      VERCEL_PROJECT_ID: prj_TsPOifYY7wIxPK8gzyJy6nKwjTAb
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: izakhono-growth-os/package.json
+
+      - name: Require Vercel credentials
+        run: |
+          test -n "$VERCEL_TOKEN"
+          test -n "$VERCEL_ORG_ID"
+          test -n "$VERCEL_PROJECT_ID"
+
+      - name: Link production project
+        working-directory: izakhono-growth-os
+        run: |
+          mkdir -p .vercel
+          node -e "require('fs').writeFileSync('.vercel/project.json', JSON.stringify({orgId:process.env.VERCEL_ORG_ID,projectId:process.env.VERCEL_PROJECT_ID,projectName:'izakhono-growth-os'}))"
+
+      - name: Pull production settings
+        working-directory: izakhono-growth-os
+        run: npx --yes vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
+
+      - name: Build production artifact
+        working-directory: izakhono-growth-os
+        run: npx --yes vercel@latest build --prod --token="$VERCEL_TOKEN"
+
+      - name: Deploy production artifact
+        id: deploy
+        working-directory: izakhono-growth-os
+        run: |
+          set -euo pipefail
+          URL="$(npx --yes vercel@latest deploy --prebuilt --prod --token="$VERCEL_TOKEN" | tail -n 1)"
+          test -n "$URL"
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Growth OS production URL: $URL"
+
+      - name: Verify public SEO routes
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          set -euo pipefail
+          curl -fsS "$URL/" | grep -q "IZAKHONO GROWTH OS"
+          curl -fsS "$URL/robots.txt" | grep -q "sitemap.xml"
+          curl -fsS "$URL/sitemap.xml" | grep -q "<urlset"
+          test "$(curl -fsS "$URL/dc98e762923b831ef7edbc2ff9cdd39a.txt" | tr -d '\r\n')" = "dc98e762923b831ef7edbc2ff9cdd39a"
+          echo "Growth OS public SEO routes verified."
