@@ -24,15 +24,15 @@ These are **cost targets, not yet public commercial promises**. Final pricing on
 
 ## Growth sequence
 
-**Founding 1,000.** Acquire the first 1,000 activated users through the existing IZAKHONO portfolio, referrals, founder-led content, partners, campuses and owned media. Do not burn cash on broad paid advertising.
+**Founding 1,000.** Acquire the first 1,000 activated users through the existing IZAKHONO portfolio, word of mouth, founder-led content, partners, campuses and owned media. Do not burn cash on broad paid advertising.
 
-**Product-market proof.** Measure activation, D7/D30 retention, weekly use across two or more IZAKHONO capabilities, referral conversion and cost per active account.
+**Product-market proof.** Measure activation, D7/D30 retention, weekly use across two or more IZAKHONO capabilities and cost per active account.
 
 **Scale.** Once economics are proven, expand education/business licensing, reseller/partner channels and only then profitable paid media.
 
 ## Distribution engine
 
-Every activated member receives a personal invite link. Referral attribution is only attached to account registration/activation; there is no behavioural tracking cookie and no cross-site profile.
+Every member can share the same plain public IZAKHONO ONE link. There are no personal referral identifiers, campaign/source parameters, behavioural tracking cookies or cross-site profiles.
 
 Every public IZAKHONO surface should expose a native Share action. Portfolio products should route users toward ONE Account instead of creating new identity silos.
 
@@ -50,8 +50,8 @@ Partnership distribution should prioritise education/training networks, SMEs, BP
 
 The north-star metric is **weekly active accounts using at least two IZAKHONO capabilities**.
 
-The board/CEO dashboard should always show activation, D7/D30 retention, referrals per active user, partner-sourced activations, AI cost per active account, gross margin, CAC, payback, successful task rate, support rate, uptime and latency.
+The board/CEO dashboard should always show activation, D7/D30 retention, aggregate active-account growth, AI cost per active account, gross margin, CAC from explicitly approved paid campaigns, payback, successful task rate, support rate, uptime and latency.
 
 ## Non-negotiables
 
-No behavioural tracking. No fake scarcity. No broad paid advertising before economics are measured. No final public pricing before cost proof. No “live” claims without verification. No referral system that becomes a surveillance system.
+No behavioural tracking. No fake scarcity. No broad paid advertising before economics are measured. No final public pricing before cost proof. No “live” claims without verification. No referral attribution system at all: sharing stays identifier-free.
