@@ -246,6 +246,16 @@ const server=createServer(async(req,res)=>{
       return html(res,200,PUBLIC_INDEX);
     }
     if(req.method==="GET"&&url.pathname==="/health"){
+      let accountReachable=false,publicSignup=false,emailVerificationRequired=true;
+      try{
+        const auth=await fetch(AUTH_URL+"/health",{signal:AbortSignal.timeout(1500)});
+        if(auth.ok){
+          const h=await auth.json();
+          accountReachable=h.status==="healthy";
+          publicSignup=Boolean(h.publicSignup);
+          emailVerificationRequired=h.emailVerificationRequired!==false;
+        }
+      }catch{}
       return json(res,200,{
         product:"IZAKHONO ONE AI",
         status:"healthy",
@@ -254,7 +264,10 @@ const server=createServer(async(req,res)=>{
         capabilityCount:CAPABILITIES.replacements.length,
         tracking:false,
         promptPersistence:false,
-        chatReady:CHAT_READY
+        chatReady:CHAT_READY,
+        accountReachable,
+        publicSignup,
+        emailVerificationRequired
       });
     }
     if(req.method==="GET"&&url.pathname==="/v1/capabilities"){
