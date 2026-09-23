@@ -95,7 +95,28 @@ jobs:
           test "$ok" -eq 1
           ! grep -Eqi 'utm_|googletagmanager|google-analytics|facebook[^<]*(pixel|track)|hotjar|clarity\.ms|mixpanel|amplitude|plausible|matomo|portfolio-growth/bridge\.js' /tmp/one-port.html
           ! grep -Eqi 'utm_|googletagmanager|google-analytics|facebook[^<]*(pixel|track)|hotjar|clarity\.ms|mixpanel|amplitude|plausible|matomo|portfolio-growth/bridge\.js' /tmp/one-short.html
-          echo "IZAKHONO ONE external static resilience route VERIFIED"
+          if [ "${GITHUB_EVENT_NAME}" != "pull_request" ]; then
+            MANIFEST_URL="${SHORT}manifest.webmanifest"
+            SW_URL="${SHORT}sw.js"
+            OFFLINE_URL="${SHORT}offline.html"
+            manifest_code="$(curl -sSL --max-time 12 -D /tmp/one-manifest.h -o /tmp/one-manifest.json -w '%{http_code}' "$MANIFEST_URL" || true)"
+            sw_code="$(curl -sSL --max-time 12 -D /tmp/one-sw.h -o /tmp/one-sw.js -w '%{http_code}' "$SW_URL" || true)"
+            offline_code="$(curl -sSL --max-time 12 -D /tmp/one-offline.h -o /tmp/one-offline.html -w '%{http_code}' "$OFFLINE_URL" || true)"
+            test "$manifest_code" = "200"
+            test "$sw_code" = "200"
+            test "$offline_code" = "200"
+            node - <<'NODE'
+            const fs=require('fs');
+            const m=JSON.parse(fs.readFileSync('/tmp/one-manifest.json','utf8'));
+            if(m.name!=='IZAKHONO ONE'||m.display!=='standalone'||m.start_url!=='/Downloads/one/'||m.scope!=='/Downloads/one/') process.exit(1);
+            const sw=fs.readFileSync('/tmp/one-sw.js','utf8');
+            if(!sw.includes("izakhono-one-shell-v1")||!sw.includes("/Downloads/one/")) process.exit(2);
+            if(/supabase|localStorage|sessionStorage|access[_-]?token|owner[_-]?token|workspace[_-]?key/i.test(sw)) process.exit(3);
+            const offline=fs.readFileSync('/tmp/one-offline.html','utf8');
+            if(!offline.includes('No workspace credentials are cached')) process.exit(4);
+            NODE
+          fi
+          echo "IZAKHONO ONE external static resilience route + PWA assets VERIFIED"
 
       - name: Verify Supabase external ONE bridge
         shell: bash
