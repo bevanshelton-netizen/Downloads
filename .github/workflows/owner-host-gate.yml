@@ -217,7 +217,9 @@ jobs:
           if ($ownedLaunch -notmatch 'START-IZAKHONO-ONE-OWNED-LAUNCH.ps1') { throw 'ONE owned-launch CMD handoff missing' }
           $ownedLaunchPs = Get-Content 'owner-host/START-IZAKHONO-ONE-OWNED-LAUNCH.ps1' -Raw
           if ($ownedLaunchPs -notmatch 'INSTALL-IZAKHONO-OWNER-AGENT.ps1') { throw 'ONE owned-launch Owner Agent step missing' }
-          if ($ownedLaunchPs -notmatch 'START-IZAKHONO-ONE-AI-LOCAL-MODEL.ps1') { throw 'ONE owned-launch model/runtime step missing' }
+          if ($ownedLaunchPs -notmatch 'owner-agent.sh') { throw 'ONE owned-launch Owner Agent execution missing' }
+          if ($ownedLaunchPs -match 'START-IZAKHONO-ONE-AI-LOCAL-MODEL.ps1') { throw 'ONE owned-launch must not race the Owner Agent with direct activation' }
+          if ($ownedLaunchPs -notmatch 'one-local-model-20260923-01') { throw 'ONE owned-launch approved request receipt check missing' }
           if ($ownedLaunchPs -notmatch 'START-IZAKHONO-ONE-DEPLOYMENT-READINESS.ps1') { throw 'ONE owned-launch readiness step missing' }
           if ($ownedLaunchPs -notmatch 'IZAKHONO-ONE-OWNED-LAUNCH-STATUS.txt') { throw 'ONE owned-launch Desktop status missing' }
           if ($ownedLaunchPs -notmatch 'External resilience route: PRESERVED / NOT MODIFIED') { throw 'ONE owned-launch resilience-preservation contract missing' }
