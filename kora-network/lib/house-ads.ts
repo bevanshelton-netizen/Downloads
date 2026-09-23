@@ -36,8 +36,8 @@ export const houseAds: HouseAd[] = [
     id: 'learner-driver-sa',
     name: 'Learner Driver SA',
     body: 'Prepare for motorcycles, Code 08, Code 10 and Code 14 with mock tests, road signs, live simulators and 12 official languages.',
-    cta: 'START PREPARING',
-    clickUrl: 'https://learner-driver-sa-bevan2.vercel.app/?utm_source=kora&utm_medium=owned_network&utm_campaign=learner_driver_sa_launch&utm_content=house_ad',
+    cta: 'START LEARNING FREE',
+    clickUrl: 'https://kora-network.vercel.app/learner-driver?utm_source=kora&utm_medium=owned_house_ad&utm_campaign=learner_driver_sa_launch&utm_content=house_ad',
     accent: '#18c98b',
   },
   {
@@ -68,14 +68,16 @@ export const houseAds: HouseAd[] = [
 
 const ROTATION_MINUTES = 5;
 const ROTATION = [
+  'learner-driver-sa',
   'faisready-bundle-direct',
   'faisready-re5-direct',
   'auto-ai',
-  'faisready-bundle-direct',
+  'learner-driver-sa',
   'growth-desk',
   'faisready-re5-direct',
   'faisready-bundle-direct',
   'mandatory-regulatory-exams',
+  'learner-driver-sa',
   'auto-ai',
   'faisready-re5-direct',
   'growth-desk',
