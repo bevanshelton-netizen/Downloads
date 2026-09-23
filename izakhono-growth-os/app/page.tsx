@@ -98,6 +98,18 @@ export default function GrowthOS(){
     localStorage.setItem("growth-os-drafts",JSON.stringify(drafts));
   },[drafts]);
 
+  useEffect(()=>{
+    if(brand==="IZAKHONO ONE"){
+      setForm(v=>({
+        ...v,
+        name:"Founding 1,000",
+        objective:"activated_accounts",
+        industry:"Professional services",
+        budget:0
+      }));
+    }
+  },[brand]);
+
   const approved=drafts.filter(d=>d.status==="APPROVED").length;
   const connected=0;
   const readyScore=useMemo(()=>Math.min(100,42 + drafts.length*4 + approved*5),[drafts,approved]);
@@ -246,7 +258,7 @@ function CampaignBuilder({brand,form,setForm,plan,planning,buildPlan,saveDraft}:
       <div className="formRow">
         <label>Objective<select value={form.objective} onChange={e=>setForm({...form,objective:e.target.value})}>
           <option value="leads">Lead generation</option><option value="sales">Sales</option><option value="awareness">Awareness</option>
-          <option value="enrolments">Enrolments</option><option value="app_installs">App installs</option>
+          <option value="enrolments">Enrolments</option><option value="app_installs">App installs</option><option value="activated_accounts">Activated accounts / Founding 1,000</option>
         </select></label>
         <label>Budget (ZAR)<input type="number" min="0" value={form.budget} onChange={e=>setForm({...form,budget:Number(e.target.value)})}/></label>
       </div>

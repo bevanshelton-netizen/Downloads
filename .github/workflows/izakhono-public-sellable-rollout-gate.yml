@@ -12,6 +12,10 @@ on:
       - "izakhono-mail-relay-adapter/**"
       - "IZAKHONO-SELLABLE-PUBLIC-PRODUCT-GATE.md"
       - "IZAKHONO-LOW-COST-GUARANTEE.md"
+      - "IZAKHONO-ONE-CEO-GROWTH-STRATEGY.md"
+      - "IZAKHONO-STUDIO/IZAKHONO-ONE-LAUNCH-BRIEF.md"
+      - "IZAKHONO-STUDIO/src/portfolio.js"
+      - "izakhono-growth-os/**"
       - "owner-host/platforms.json"
       - "izakhono-owned-cloud/deploy-izakhono-one-ai.sh"
       - ".github/workflows/izakhono-public-sellable-rollout-gate.yml"
@@ -52,6 +56,18 @@ jobs:
             }
           }
           console.log('Public/sellable rollout registry valid:',r.products.length,'products');
+
+          const growth=JSON.parse(fs.readFileSync('izakhono-one-ai/growth-strategy.json','utf8'));
+          const benchmark=JSON.parse(fs.readFileSync('izakhono-one-ai/competitor-benchmark.json','utf8'));
+          const campaign=JSON.parse(fs.readFileSync('izakhono-one-ai/launch-campaign.json','utf8'));
+          if(growth.guardrails?.some(x=>/behavioural tracking/i.test(x))!==true) throw new Error('growth privacy guardrail missing');
+          if(!growth.growth_loops?.some(x=>x.id==='referral')) throw new Error('referral growth loop missing');
+          if(campaign.objective!=='activated_accounts') throw new Error('launch campaign objective must be activated accounts');
+          const incumbentEntry=Math.min(...benchmark.sources.flatMap(s=>s.plans.map(p=>Number(p.usd_per_user_month))).filter(Number.isFinite));
+          const target=Number(benchmark.izakhono_targets.business_entry_usd_user_month);
+          if(!(target>0 && target<incumbentEntry)) throw new Error('business-entry target must undercut benchmark entry pricing');
+          if(target>=5) throw new Error('business-entry target must remain below US$5 until strategy changes explicitly');
+          console.log('Growth strategy valid: business entry target',target,'< incumbent entry',incumbentEntry);
           NODE
       - name: Validate ONE AI owned deployment
         run: |

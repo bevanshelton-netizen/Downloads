@@ -1,0 +1,190 @@
+{
+  "schema": "izakhono.one-growth-strategy/v1",
+  "product": "IZAKHONO ONE",
+  "objective": "Build a global privacy-first, lower-cost digital ecosystem that grows primarily through product value, referrals, partnerships and owned media before scaling paid acquisition.",
+  "positioning": {
+    "headline": "One account. One AI. Everything.",
+    "promise": "A simpler, private, lower-cost alternative to fragmented productivity and AI stacks.",
+    "differentiators": [
+      "No behavioural tracking or advertising IDs",
+      "Owned-first AI and infrastructure",
+      "One account across the ecosystem",
+      "Open import/export and low switching friction",
+      "African languages and local relevance",
+      "Lower total cost than comparable Microsoft/Google stacks",
+      "Fair-use access instead of artificial message scarcity where capacity allows"
+    ]
+  },
+  "audiences": [
+    {
+      "id": "individuals",
+      "priority": 1,
+      "need": "Affordable AI + daily productivity without lock-in or profiling"
+    },
+    {
+      "id": "small-business",
+      "priority": 1,
+      "need": "Email, docs, storage, AI, websites, finance and marketing in one lower-cost stack"
+    },
+    {
+      "id": "education",
+      "priority": 1,
+      "need": "Classroom, administration, AI tutoring, collaboration and content"
+    },
+    {
+      "id": "creators",
+      "priority": 2,
+      "need": "AI, design, audio, video, publishing and audience growth"
+    },
+    {
+      "id": "developers",
+      "priority": 2,
+      "need": "Code, cloud, data, APIs and AI without fragmented vendors"
+    },
+    {
+      "id": "enterprise-public-sector",
+      "priority": 3,
+      "need": "Private deployable infrastructure, data control, procurement simplicity and localisation"
+    }
+  ],
+  "launch_phases": [
+    {
+      "id": "founders",
+      "name": "Founding 1,000",
+      "goal": "Acquire 1,000 activated accounts through referrals, existing IZAKHONO audiences and partners before meaningful paid media.",
+      "paid_media": "off-except-small-tests"
+    },
+    {
+      "id": "proof",
+      "name": "Product-Market Proof",
+      "goal": "Prove activation, retention, referral and cost-per-active-user economics.",
+      "paid_media": "small-approved-tests"
+    },
+    {
+      "id": "scale",
+      "name": "Scale",
+      "goal": "Expand partner distribution, business/education licensing and profitable paid acquisition.",
+      "paid_media": "only-when-ltv-cac-proofed"
+    }
+  ],
+  "pricing_targets": {
+    "note": "Targets only. Final public prices require cost proof and sellable gate.",
+    "free": {
+      "usd": 0,
+      "goal": "Useful core access and fair-use AI where capacity permits"
+    },
+    "individual": {
+      "usd": 3.5,
+      "goal": "Global entry subscription below major incumbent business-entry pricing"
+    },
+    "business_entry": {
+      "usd_per_user_month": 4.5,
+      "goal": "Below US$5/user/month and below comparable entry business suites"
+    },
+    "education": {
+      "usd_per_user_month": 2,
+      "goal": "Volume/institutional access with educator/admin tooling"
+    },
+    "creator": {
+      "usd_per_month": 5,
+      "goal": "Existing approved Creative Suite core price"
+    },
+    "gamer": {
+      "usd_per_month": 15,
+      "goal": "Premium gaming/creator bundle"
+    }
+  },
+  "growth_loops": [
+    {
+      "id": "referral",
+      "mechanism": "Every activated account receives a personal invite link. Referrals are counted only after the referred account successfully activates/signs in."
+    },
+    {
+      "id": "share",
+      "mechanism": "Native share/copy/WhatsApp/email actions on public product surfaces."
+    },
+    {
+      "id": "portfolio-cross-sell",
+      "mechanism": "Every IZAKHONO product can route users into ONE Account and ONE AI without separate identity stacks."
+    },
+    {
+      "id": "education",
+      "mechanism": "Edu-Build learners/facilitators become a structured adoption channel for ONE Classroom/AI."
+    },
+    {
+      "id": "business",
+      "mechanism": "Bundle ONE with websites, SUPER ACCOUNTANT, WorkNow, payments and marketing for small businesses."
+    },
+    {
+      "id": "creator",
+      "mechanism": "Creators generate campaign assets in IZAKHONO Studio and distribute through Growth OS."
+    }
+  ],
+  "channels": {
+    "owned": [
+      "IZAKHONO ONE launchpad",
+      "KORA network",
+      "Edu-Build",
+      "FAISReady",
+      "WorkNow",
+      "LegacyMart",
+      "email",
+      "portfolio cross-promotion"
+    ],
+    "organic": [
+      "Facebook",
+      "Instagram",
+      "LinkedIn",
+      "TikTok",
+      "YouTube",
+      "X",
+      "community groups",
+      "SEO",
+      "press"
+    ],
+    "partnerships": [
+      "schools and training providers",
+      "SMEs and chambers",
+      "BPO/GBS ecosystem",
+      "banks and insurers",
+      "creative organisations",
+      "resellers and campus partners"
+    ],
+    "paid": "Approval-gated. Start only after conversion and retention economics are measured."
+  },
+  "kpis": {
+    "north_star": "weekly_active_accounts_using_two_or_more_IZAKHONO_capabilities",
+    "activation": "account verified + first useful AI/product action",
+    "retention": [
+      "D7 active",
+      "D30 active",
+      "weekly multi-product use"
+    ],
+    "growth": [
+      "activated referrals per active member",
+      "partner-sourced activated accounts",
+      "organic share rate"
+    ],
+    "economics": [
+      "cost per active account",
+      "AI inference cost per active account",
+      "gross margin",
+      "CAC",
+      "payback period"
+    ],
+    "quality": [
+      "successful task rate",
+      "support rate",
+      "public uptime",
+      "response latency"
+    ]
+  },
+  "guardrails": [
+    "No behavioural tracking",
+    "No fake scarcity",
+    "No paid campaign activation without approval",
+    "No public price until cost proof supports it",
+    "No live claims without independent verification",
+    "Referral attribution is one-time account attribution, not cross-site behavioural tracking"
+  ]
+}

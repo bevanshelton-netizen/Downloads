@@ -1,5 +1,17 @@
 export const PORTFOLIO = [
   {
+    id: 'izakhono-one',
+    name: 'IZAKHONO ONE',
+    category: 'AI, productivity & digital ecosystem',
+    audience: 'individuals, small businesses, educators, creators and developers',
+    promise: 'One account, one AI and an expanding suite of privacy-first tools designed to replace fragmented digital subscriptions at a lower total cost.',
+    cta: 'JOIN THE FOUNDING 1,000',
+    accent: '#d4ad4c',
+    background: '#071815',
+    font: 'Archivo Black',
+    visualCue: 'One unified workspace • AI chat • documents • cloud • creative tools • African technology • privacy-first',
+  },
+  {
     id: 'allegro',
     name: 'ALLEGRO',
     category: 'Music & entertainment',
