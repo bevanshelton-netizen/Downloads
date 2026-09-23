@@ -98,6 +98,18 @@ export default function GrowthOS(){
     localStorage.setItem("growth-os-drafts",JSON.stringify(drafts));
   },[drafts]);
 
+  useEffect(()=>{
+    if(brand==="IZAKHONO ONE"){
+      setForm(v=>({
+        ...v,
+        name:"Founding 1,000",
+        objective:"activated_accounts",
+        industry:"Professional services",
+        budget:0
+      }));
+    }
+  },[brand]);
+
   const approved=drafts.filter(d=>d.status==="APPROVED").length;
   const connected=0;
   const readyScore=useMemo(()=>Math.min(100,42 + drafts.length*4 + approved*5),[drafts,approved]);
