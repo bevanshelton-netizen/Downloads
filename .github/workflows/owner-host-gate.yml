@@ -10,6 +10,7 @@ on:
       - 'START-GROWTH-OS-V2-ON-IZAKHONO.cmd'
       - 'START-CREATIVE-SUITE-ON-IZAKHONO.cmd'
       - 'START-IZAKHONO-TAILSCALE-BRIDGE.cmd'
+      - 'START-IZAKHONO-ONE-AI-LOCAL-MODEL.cmd'
       - 'owner-host/START-IZAKHONO-DOMAINS-OWNER-HOST.ps1'
       - 'izakhono-edge-node/**'
       - 'izakhono-owned-cloud/**'
@@ -60,6 +61,7 @@ jobs:
           bash -n izakhono-owned-cloud/import-repo-to-code.sh
           bash -n izakhono-owned-cloud/deploy-legacymart.sh
           bash -n izakhono-owned-cloud/deploy-izakhono-one-ai.sh
+          bash -n izakhono-owned-cloud/activate-local-model-engine.sh
           bash -n izakhono-owned-cloud/configure-izakhono-one-ai.sh
           bash -n izakhono-gpu-compute-node/install-linux.sh
           bash -n izakhono-model-worker-node/install-linux.sh
@@ -97,6 +99,11 @@ jobs:
           grep -q 'izakhono-mail-relay' izakhono-owned-cloud/configure-izakhono-one-ai.sh
           grep -q 'IZAKHONO_ONE_CHAT_READY' izakhono-owned-cloud/configure-izakhono-one-ai.sh
           grep -q 'sellable-gate-ready-for-final-commercial-review' izakhono-owned-cloud/deploy-izakhono-one-ai.sh
+          grep -q '127.0.0.1:$ENGINE_PORT:11434' izakhono-owned-cloud/activate-local-model-engine.sh
+          grep -q 'IZAKHONO_MODEL_WORKER_MODELS' izakhono-owned-cloud/activate-local-model-engine.sh
+          grep -q 'configure-izakhono-one-ai.sh' izakhono-owned-cloud/activate-local-model-engine.sh
+          grep -q 'deploy-izakhono-one-ai.sh main' izakhono-owned-cloud/activate-local-model-engine.sh
+          ! grep -q -- '--privileged' izakhono-owned-cloud/activate-local-model-engine.sh
           grep -q 'tailscale funnel --bg' izakhono-owned-cloud/activate-tailscale-funnel.sh
           grep -q '/v1/apps/$APP/aliases' izakhono-owned-cloud/activate-tailscale-funnel.sh
           grep -q 'IZAKHONO EDGE -> FORTRESS -> RUNTIME' izakhono-owned-cloud/activate-tailscale-funnel.sh
@@ -117,6 +124,7 @@ jobs:
             'owner-host/START-GROWTH-OS-V2-ON-IZAKHONO.ps1',
             'owner-host/START-CREATIVE-SUITE-ON-IZAKHONO.ps1',
             'owner-host/START-IZAKHONO-TAILSCALE-BRIDGE.ps1',
+            'owner-host/START-IZAKHONO-ONE-AI-LOCAL-MODEL.ps1',
             'izakhono-cloud/DEPLOY-KORA-ISN-01.ps1',
             'izakhono-cloud/DEPLOY-LEGACYMART-ISN-01.ps1'
           )
@@ -169,3 +177,9 @@ jobs:
           $tailscalePs = Get-Content 'owner-host/START-IZAKHONO-TAILSCALE-BRIDGE.ps1' -Raw
           if ($tailscalePs -notmatch 'tailscale up') { throw 'Tailscale one-time auth handoff missing' }
           if ($tailscalePs -notmatch 'activate-tailscale-funnel.sh') { throw 'Tailscale bridge activation handoff missing' }
+          $oneLocal = Get-Content 'START-IZAKHONO-ONE-AI-LOCAL-MODEL.cmd' -Raw
+          if ($oneLocal -notmatch 'START-IZAKHONO-ONE-AI-LOCAL-MODEL.ps1') { throw 'ONE AI local-model CMD handoff missing' }
+          $oneLocalPs = Get-Content 'owner-host/START-IZAKHONO-ONE-AI-LOCAL-MODEL.ps1' -Raw
+          if ($oneLocalPs -notmatch 'Ubuntu-24.04') { throw 'ONE AI local-model WSL target missing' }
+          if ($oneLocalPs -notmatch 'activate-local-model-engine.sh') { throw 'ONE AI local-model activation handoff missing' }
+          if ($oneLocalPs -notmatch 'IZAKHONO-ONE-LOCAL-MODEL-REPORT.json') { throw 'ONE AI local-model Desktop receipt missing' }
