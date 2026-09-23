@@ -1,81 +1,80 @@
 {
-  "version": 6,
-  "updated": "2026-09-21",
-  "mode": "verified-live-portfolio-growth",
+  "version": 7,
+  "updated": "2026-09-23",
+  "mode": "maximum-reach-owned-media",
   "slotMinutes": 5,
   "paidSpendZAR": 0,
-  "priority": "verified-live-revenue-and-audience-growth",
+  "priority": "faisready-maximum-reach-with-verified-claims",
   "rotation": [
     {
       "slot": 1,
       "brand": "FAISReady",
-      "offer": "RE1 + RE5 Complete Bundle — R549 direct iKhokha checkout",
+      "offer": "RE1, RE3, RE4 & RE5 — one platform",
       "destination": "https://faisready-revenue.vercel.app/"
     },
     {
       "slot": 2,
-      "brand": "Learner Driver SA",
-      "offer": "Learner-driver preparation for Codes 08, 10, 14 and motorcycles",
-      "destination": "https://kora-network.vercel.app/learner-driver"
-    },
-    {
-      "slot": 3,
-      "brand": "KORA",
-      "offer": "African digital entertainment, music, creators and live experiences",
-      "destination": "https://kora-network.vercel.app/"
-    },
-    {
-      "slot": 4,
       "brand": "FAISReady",
       "offer": "RE5 Complete Prep — R299 direct iKhokha checkout",
       "destination": "https://faisready-revenue.vercel.app/"
     },
     {
+      "slot": 3,
+      "brand": "FAISReady",
+      "offer": "RE1 Complete Prep — R399 order capture",
+      "destination": "https://faisready-revenue.vercel.app/"
+    },
+    {
+      "slot": 4,
+      "brand": "FAISReady",
+      "offer": "RE3 Complete Prep — R399 order capture",
+      "destination": "https://faisready-revenue.vercel.app/"
+    },
+    {
       "slot": 5,
-      "brand": "The Chancellor",
-      "offer": "R500 Business Readiness Audit",
-      "destination": "https://the-chancellor.vercel.app/"
+      "brand": "FAISReady",
+      "offer": "RE4 Complete Prep — R399 order capture",
+      "destination": "https://faisready-revenue.vercel.app/"
     },
     {
       "slot": 6,
-      "brand": "ALLEGRO VIBEZ",
-      "offer": "Discover music across cultures and support artists",
-      "destination": "https://allegro-vibez.vercel.app/"
+      "brand": "FAISReady",
+      "offer": "RE1 + RE5 Bundle — R549 direct iKhokha checkout",
+      "destination": "https://faisready-revenue.vercel.app/"
     },
     {
       "slot": 7,
       "brand": "Mandatory Regulatory Exams",
-      "offer": "Find the regulatory exam that applies to you and start preparing",
-      "destination": "https://mandatory-regulatory-exams.vercel.app/"
+      "offer": "Find your RE exam and prepare on FAISReady",
+      "destination": "https://faisready-revenue.vercel.app/"
     },
     {
       "slot": 8,
+      "brand": "FAISReady",
+      "offer": "Financial-services exam preparation from one platform",
+      "destination": "https://faisready-revenue.vercel.app/"
+    },
+    {
+      "slot": 9,
       "brand": "AUTO AI",
       "offer": "R99 Repair Quote Second Opinion"
     },
     {
-      "slot": 9,
-      "brand": "KORA",
-      "offer": "Explore KORA — built in Africa for the world",
-      "destination": "https://kora-network.vercel.app/"
-    },
-    {
       "slot": 10,
-      "brand": "Learner Driver SA",
-      "offer": "Start learning and practise before test day",
-      "destination": "https://kora-network.vercel.app/learner-driver"
+      "brand": "FAISReady",
+      "offer": "RE5 — R299 direct checkout",
+      "destination": "https://faisready-revenue.vercel.app/"
     },
     {
       "slot": 11,
-      "brand": "ALLEGRO VIBEZ",
-      "offer": "More than music — a global discovery and creator platform",
-      "destination": "https://allegro-vibez.vercel.app/"
+      "brand": "IZAKHONO Business Growth Desk",
+      "offer": "Business solutions assessment"
     },
     {
       "slot": 12,
-      "brand": "The Chancellor",
-      "offer": "Diagnose first, then choose the right business growth pathway",
-      "destination": "https://the-chancellor.vercel.app/"
+      "brand": "FAISReady",
+      "offer": "RE1 + RE5 Bundle — R549 direct checkout",
+      "destination": "https://faisready-revenue.vercel.app/"
     }
   ],
   "rules": [
@@ -85,6 +84,10 @@
     "Keep external paid-media spend at R0 unless explicitly approved.",
     "Use tracked destination links for owned cross-promotion.",
     "Do not imply regulator endorsement, guaranteed exam passes, guaranteed earnings or guaranteed business outcomes.",
-    "Only offers with verified direct iKhokha links may be described as direct checkout."
+    "Only offers with verified direct iKhokha links may be described as direct checkout.",
+    "Prioritise FAISReady across all suitable owned professional, career, education and business inventory.",
+    "Keep unrelated child-focused, religious, security-sensitive or inappropriate-context surfaces excluded from FAISReady house ads.",
+    "Use one destination for FAISReady: https://faisready-revenue.vercel.app/.",
+    "Do not imply direct checkout for RE1, RE3 or RE4 until exact merchant links are verified."
   ]
 }
