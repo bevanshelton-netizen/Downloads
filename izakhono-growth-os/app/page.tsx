@@ -246,7 +246,7 @@ function CampaignBuilder({brand,form,setForm,plan,planning,buildPlan,saveDraft}:
       <div className="formRow">
         <label>Objective<select value={form.objective} onChange={e=>setForm({...form,objective:e.target.value})}>
           <option value="leads">Lead generation</option><option value="sales">Sales</option><option value="awareness">Awareness</option>
-          <option value="enrolments">Enrolments</option><option value="app_installs">App installs</option>
+          <option value="enrolments">Enrolments</option><option value="app_installs">App installs</option><option value="activated_accounts">Activated accounts / Founding 1,000</option>
         </select></label>
         <label>Budget (ZAR)<input type="number" min="0" value={form.budget} onChange={e=>setForm({...form,budget:Number(e.target.value)})}/></label>
       </div>
