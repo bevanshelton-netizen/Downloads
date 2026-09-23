@@ -1,0 +1,41 @@
+{
+  "doctrine": "IZAKHONO SELLABLE PUBLIC PRODUCT GATE",
+  "rule": "A product is not commercially ready until a member of the public can discover it, understand it, sign up, pay where applicable, receive access, use it, get support, and leave/export without manual intervention.",
+  "required_gates": [
+    "verified_public_url",
+    "clear_value_proposition",
+    "self_service_signup",
+    "account_recovery",
+    "pricing_published",
+    "payment_path_verified",
+    "receipt_or_invoice",
+    "terms_of_service",
+    "privacy_policy",
+    "refund_or_cancellation_policy",
+    "support_route",
+    "onboarding",
+    "usage_or_entitlement_visibility",
+    "data_export_or_portability",
+    "service_health_or_status_visibility",
+    "security_and_abuse_controls",
+    "mobile_usable",
+    "accessibility_baseline",
+    "analytics_without_tracking_or_behavioural_profiling"
+  ],
+  "statuses": [
+    "foundation",
+    "building",
+    "pilot",
+    "sellable",
+    "verified-live"
+  ],
+  "sellable_definition": "Every revenue product must pass all applicable commercial gates. Free products must still pass signup, support, portability, privacy, security, onboarding and public-access gates.",
+  "payments": {
+    "preferred": "IZAKHONO PAY",
+    "current_gateway": "iKhokha where commercially suitable",
+    "legal_merchant": "IZAKHONO AFRICA (PTY) LTD trading as the relevant brand unless a separately verified legal merchant applies",
+    "no_fake_checkout": true
+  },
+  "public_address_rule": "Every product must have a stable public web address. Temporary external hosting is acceptable only when reversible and clearly tracked toward an IZAKHONO-owned hostname.",
+  "limits_rule": "Avoid artificial feature/message limits. Where compute, storage, abuse prevention or third-party cost creates a real constraint, expose a fair-use or capacity rule honestly rather than advertising literal unlimited access."
+}
