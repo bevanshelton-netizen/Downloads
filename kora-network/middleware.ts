@@ -58,6 +58,9 @@ export async function middleware(request: NextRequest) {
   const alwaysPublic = pathname === '/'
     || pathname === '/learner-driver'
     || pathname === '/coming-soon'
+    || pathname === '/robots.txt'
+    || pathname === '/sitemap.xml'
+    || pathname === '/dc98e762923b831ef7edbc2ff9cdd39a.txt'
     || pathname === '/open-africa'
     || pathname === '/open-library'
     || pathname.startsWith('/open-library/')
