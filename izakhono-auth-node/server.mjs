@@ -482,7 +482,10 @@ const server=createServer(async(req,res)=>{
         status:"healthy",
         users:Number(db.prepare("SELECT count(*) AS count FROM users").get()?.count||0),
         activeSessions:Number(db.prepare("SELECT count(*) AS count FROM sessions WHERE revoked_at IS NULL AND datetime(expires_at)>datetime('now')").get()?.count||0),
-        thirdPartyAuthRequired:false
+        thirdPartyAuthRequired:false,
+        publicSignup:PUBLIC_SIGNUP,
+        emailVerificationRequired:REQUIRE_EMAIL_VERIFICATION,
+        recoveryConfigured:Boolean(NOTIFY_KEY)
       });
     }
 
@@ -604,6 +607,10 @@ const server=createServer(async(req,res)=>{
         audit(req,"anonymous",null,"login","user",email,"failed",{reason:"invalid"});
         return json(res,401,{error:"Invalid credentials"});
       }
+      if(REQUIRE_EMAIL_VERIFICATION && !user.email_verified_at){
+        audit(req,"anonymous",null,"login","user",user.id,"blocked",{reason:"email_unverified"});
+        return json(res,403,{error:"Email verification required",code:"EMAIL_VERIFICATION_REQUIRED"});
+      }
       if(user.lock_until && new Date(user.lock_until).getTime()>Date.now()){
         audit(req,"anonymous",null,"login","user",user.id,"blocked",{reason:"locked"});
         return json(res,423,{error:"Account temporarily locked"});
@@ -682,7 +689,7 @@ const server=createServer(async(req,res)=>{
       if(!validPassword(body?.password)) return json(res,400,{error:"Password must be 12-256 characters"});
       const {salt,hash}=createPassword(body.password);
       const id=randomUUID();
-      db.prepare("INSERT INTO users(id,email,display_name,password_hash,password_salt) VALUES(?,?,?,?,?)")
+      db.prepare("INSERT INTO users(id,email,display_name,password_hash,password_salt,email_verified_at) VALUES(?,?,?,?,?,datetime('now'))")
         .run(id,email,String(body?.displayName||email).slice(0,120),hash,salt);
       audit(req,"user",admin.user.id,"user.create","user",id,"success",{});
       return json(res,201,{user:publicUser(db.prepare("SELECT * FROM users WHERE id=?").get(id))});
@@ -768,6 +775,7 @@ const server=createServer(async(req,res)=>{
     const message=error instanceof Error?error.message:"Unknown error";
     if(message==="BODY_TOO_LARGE") return json(res,413,{error:"Request body too large"});
     if(["INVALID_EMAIL","WEAK_PASSWORD"].includes(message)) return json(res,400,{error:message});
+    if(message==="NOTIFY_NOT_CONFIGURED") return json(res,503,{error:"Account notification delivery is not configured"});
     if(String(error?.message||"").includes("UNIQUE constraint failed")){
       return json(res,409,{error:"Resource already exists"});
     }
@@ -779,4 +787,5 @@ const server=createServer(async(req,res)=>{
 server.listen(PORT,HOST,()=>{
   console.log(`IZAKHONO AUTH NODE listening on http://${HOST}:${PORT}`);
   if(!BOOTSTRAP_KEY) console.warn("WARNING: IZAKHONO_AUTH_BOOTSTRAP_KEY missing; first-user bootstrap is disabled.");
+  if(PUBLIC_SIGNUP && REQUIRE_EMAIL_VERIFICATION && !NOTIFY_KEY) console.warn("WARNING: public signup requires IZAKHONO_NOTIFY_KEY for verification delivery.");
 });
