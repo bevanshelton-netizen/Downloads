@@ -55,6 +55,10 @@ async function post(path,body){
   const r=await fetch(`http://127.0.0.1:${notifyPort}${path}`,{method:"POST",headers,body:JSON.stringify(body)});
   return {r,body:await r.json()};
 }
+async function put(path,body){
+  const r=await fetch(`http://127.0.0.1:${notifyPort}${path}`,{method:"PUT",headers,body:JSON.stringify(body)});
+  return {r,body:await r.json()};
+}
 async function waitMessage(id,state){
   for(let i=0;i<80;i++){
     await sleep(100);
@@ -72,6 +76,9 @@ try{
   let x=await post("/v1/templates",{name:"welcome-email",channel:"email",subject:"Welcome {{first}}",body:"Hello {{first}}"});
   if(!x.r.ok) throw new Error("Email template failed");
   const emailTemplate=x.body.template.id;
+
+  x=await put("/v1/templates/welcome-email",{channel:"email",subject:"Welcome again {{first}}",body:"Hello again {{first}}"});
+  if(!x.r.ok || x.body.template.name!=="welcome-email") throw new Error("Template upsert failed");
 
   x=await post("/v1/recipients/user-1/channels",{channel:"email",address:"person@example.com"});
   if(!x.r.ok) throw new Error("Recipient email failed");
