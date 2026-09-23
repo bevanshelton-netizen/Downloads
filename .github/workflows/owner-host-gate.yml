@@ -11,6 +11,7 @@ on:
       - 'START-CREATIVE-SUITE-ON-IZAKHONO.cmd'
       - 'START-IZAKHONO-TAILSCALE-BRIDGE.cmd'
       - 'START-IZAKHONO-ONE-AI-LOCAL-MODEL.cmd'
+      - 'INSTALL-IZAKHONO-OWNER-AGENT.cmd'
       - 'owner-host/START-IZAKHONO-DOMAINS-OWNER-HOST.ps1'
       - 'izakhono-edge-node/**'
       - 'izakhono-owned-cloud/**'
@@ -44,6 +45,7 @@ jobs:
           bash -n owner-host/bootstrap-linux.sh
           bash -n owner-host/install-cloudflare-tunnel.sh
           bash -n owner-host/status.sh
+          bash -n owner-host/owner-agent.sh
           grep -q 'deploy-growth-os-v2.sh main' owner-host/bootstrap-linux.sh
           grep -q 'configure-izakhono-one-ai.sh' owner-host/bootstrap-linux.sh
           grep -q 'deploy-izakhono-one-ai.sh main' owner-host/bootstrap-linux.sh
@@ -104,6 +106,12 @@ jobs:
           grep -q 'configure-izakhono-one-ai.sh' izakhono-owned-cloud/activate-local-model-engine.sh
           grep -q 'deploy-izakhono-one-ai.sh main' izakhono-owned-cloud/activate-local-model-engine.sh
           ! grep -q -- '--privileged' izakhono-owned-cloud/activate-local-model-engine.sh
+          node -e 'const x=JSON.parse(require("fs").readFileSync("owner-host/control/desired-state.json","utf8")); const ok=new Set(["activate-one-local-model","configure-one-ai","deploy-one-ai","verify-one-ai"]); if(!x.id||!ok.has(x.action)||typeof x.enabled!=="boolean")process.exit(2); if(x.params?.hostname&&!String(x.params.hostname).endsWith(".izakhonoafrica.co.za"))process.exit(3)'
+          grep -q 'const allowed=new Set(\["activate-one-local-model","configure-one-ai","deploy-one-ai","verify-one-ai"\])' owner-host/owner-agent.sh
+          grep -q 'hostname outside approved IZAKHONO namespace' owner-host/owner-agent.sh
+          grep -q 'Refusing unapproved Git origin' owner-host/owner-agent.sh
+          ! grep -Eq '(^|[^A-Za-z])eval([^A-Za-z]|$)' owner-host/owner-agent.sh
+          ! grep -q '"command"' owner-host/control/desired-state.json
           grep -q 'tailscale funnel --bg' izakhono-owned-cloud/activate-tailscale-funnel.sh
           grep -q '/v1/apps/$APP/aliases' izakhono-owned-cloud/activate-tailscale-funnel.sh
           grep -q 'IZAKHONO EDGE -> FORTRESS -> RUNTIME' izakhono-owned-cloud/activate-tailscale-funnel.sh
@@ -125,6 +133,7 @@ jobs:
             'owner-host/START-CREATIVE-SUITE-ON-IZAKHONO.ps1',
             'owner-host/START-IZAKHONO-TAILSCALE-BRIDGE.ps1',
             'owner-host/START-IZAKHONO-ONE-AI-LOCAL-MODEL.ps1',
+            'owner-host/INSTALL-IZAKHONO-OWNER-AGENT.ps1',
             'izakhono-cloud/DEPLOY-KORA-ISN-01.ps1',
             'izakhono-cloud/DEPLOY-LEGACYMART-ISN-01.ps1'
           )
@@ -183,3 +192,9 @@ jobs:
           if ($oneLocalPs -notmatch 'Ubuntu-24.04') { throw 'ONE AI local-model WSL target missing' }
           if ($oneLocalPs -notmatch 'activate-local-model-engine.sh') { throw 'ONE AI local-model activation handoff missing' }
           if ($oneLocalPs -notmatch 'IZAKHONO-ONE-LOCAL-MODEL-REPORT.json') { throw 'ONE AI local-model Desktop receipt missing' }
+          $ownerAgent = Get-Content 'INSTALL-IZAKHONO-OWNER-AGENT.cmd' -Raw
+          if ($ownerAgent -notmatch 'INSTALL-IZAKHONO-OWNER-AGENT.ps1') { throw 'Owner Agent CMD handoff missing' }
+          $ownerAgentPs = Get-Content 'owner-host/INSTALL-IZAKHONO-OWNER-AGENT.ps1' -Raw
+          if ($ownerAgentPs -notmatch 'New-ScheduledTaskTrigger') { throw 'Owner Agent scheduled trigger missing' }
+          if ($ownerAgentPs -notmatch 'owner-agent.sh') { throw 'Owner Agent WSL handoff missing' }
+          if ($ownerAgentPs -notmatch 'Arbitrary command execution from the control document: DISABLED') { throw 'Owner Agent trust boundary status missing' }
