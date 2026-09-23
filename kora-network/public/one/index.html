@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#071815">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="description" content="IZAKHONO ONE is a privacy-first business and AI workspace from IZAKHONO AFRICA. Open ONE Control, ONE Business and device-local AI from one stable public entry.">
+<link rel="canonical" href="https://kora-network.vercel.app/one/">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="sitemap" type="application/xml" href="./sitemap.xml">
+<meta property="og:type" content="website">
+<meta property="og:title" content="IZAKHONO ONE">
+<meta property="og:description" content="One privacy-first workspace for business and AI.">
+<meta property="og:url" content="https://kora-network.vercel.app/one/">
+<meta name="twitter:card" content="summary">
+<title>IZAKHONO ONE — Privacy-first business and AI workspace</title>
+<style>
+:root{--ink:#071815;--deep:#0a2925;--teal:#0d6a61;--gold:#d5af4b;--cream:#f7f4ec;--muted:#a9bbb5;--line:#ffffff1a}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--ink);color:#fff;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+body{min-height:100vh;min-height:100svh;background:radial-gradient(circle at 15% 0,#17453f 0,#071815 38%,#040c0a 100%)}
+main{max-width:1050px;margin:auto;padding:clamp(36px,8vw,88px) 6vw 64px}.ey{font-size:.72rem;letter-spacing:.18em;font-weight:950;color:#8be0cb;text-transform:uppercase}
+h1{font:600 clamp(3.3rem,10vw,7.4rem)/.88 Georgia,serif;letter-spacing:-.06em;margin:16px 0 20px}.lead{max-width:760px;color:#c2d2cd;font-size:clamp(1rem,2.6vw,1.22rem);line-height:1.7}
+.actions{display:flex;gap:11px;flex-wrap:wrap;margin-top:28px}.btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:999px;padding:13px 18px;font:inherit;font-weight:950;text-decoration:none;cursor:pointer}.gold{background:var(--gold);color:#18352f}.ghost{background:#ffffff0c;color:#fff;border:1px solid #ffffff21}.hide{display:none!important}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-top:42px}.card{border:1px solid var(--line);background:#ffffff08;border-radius:20px;padding:18px}.card b{display:block}.card p{color:#aebfba;font-size:.83rem;line-height:1.55;margin-bottom:0}.badge{display:inline-flex;margin-bottom:10px;padding:5px 8px;border-radius:999px;background:#163f34;color:#b7ffdf;font-size:.65rem;font-weight:950}
+.privacy{margin-top:38px;padding:17px;border:1px solid #d5af4b44;background:#d5af4b12;border-radius:17px;color:#f0e0b6;line-height:1.6}.status{margin-top:14px;color:var(--muted);font-size:.78rem}.status strong{color:#b7ffdf}.foot{margin-top:46px;padding-top:18px;border-top:1px solid var(--line);color:#849b94;font-size:.76rem}
+@media(max-width:780px){.grid{grid-template-columns:1fr}h1{font-size:clamp(3.1rem,17vw,5.8rem)}.actions .btn{width:100%}}
+</style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"IZAKHONO ONE","applicationCategory":"BusinessApplication","operatingSystem":"Web","url":"https://kora-network.vercel.app/one/","description":"Privacy-first business and AI workspace from IZAKHONO AFRICA.","offers":{"@type":"Offer","price":"0","priceCurrency":"ZAR","description":"Public pilot access; commercial modules remain separately gated."},"publisher":{"@type":"Organization","name":"IZAKHONO AFRICA (PTY) LTD"}}
+</script>
+</head>
+<body>
+<main>
+<div class="ey">IZAKHONO AFRICA · ONE PUBLIC PILOT</div>
+<h1>One workspace.<br>Business + AI.</h1>
+<p class="lead">Open IZAKHONO ONE Control to create or reopen your workspace, run the current Business tools, and use Device AI on compatible browsers. The owned NODE 01 route remains the long-term authority while this external route keeps the product usable now.</p>
+<div class="actions">
+<a class="btn gold" href="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-control">Open ONE Control</a>
+<button id="install" class="btn ghost hide" type="button">Install IZAKHONO ONE</button>
+<a class="btn ghost" href="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-device-ai">Open Device AI</a>
+</div>
+<div id="net" class="status">Checking connection…</div>
+<section class="grid">
+<div class="card"><span class="badge">LIVE</span><b>ONE Control</b><p>One front door for workspace access, recovery key handling and live ONE tools.</p></div>
+<div class="card"><span class="badge">BETA LIVE</span><b>ONE Device AI</b><p>Compact browser-local AI on compatible WebGPU devices. Prompt processing stays on the device through IZAKHONO application code.</p></div>
+<div class="card"><span class="badge">OWNED PATH</span><b>NODE 01</b><p>The owned runtime remains the intended primary authority and can take traffic back after DNS/TLS/public verification.</p></div>
+</section>
+<div class="privacy"><b>Privacy rule:</b> this launch shell contains no application analytics, behavioural profiling, advertising IDs, referral attribution or campaign parameters. Its service worker caches only this public static shell. It does not cache Supabase application responses, workspace access keys or user data.</div>
+<div class="foot">IZAKHONO ONE · IZAKHONO AFRICA (PTY) LTD · External resilience, owned-first architecture.</div>
+</main>
+<script>
+const net=document.getElementById('net'),install=document.getElementById('install');let deferred=null;
+function online(){net.innerHTML=navigator.onLine?'<strong>Online</strong> · ONE Control can be opened.':'Offline · this launch screen remains available, but live ONE services require a connection.'}
+addEventListener('online',online);addEventListener('offline',online);online();
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;install.classList.remove('hide')});
+install.addEventListener('click',async()=>{if(!deferred)return;deferred.prompt();await deferred.userChoice.catch(()=>null);deferred=null;install.classList.add('hide')});
+addEventListener('appinstalled',()=>{install.classList.add('hide')});
+if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{}))}
+</script>
+</body>
+</html>
