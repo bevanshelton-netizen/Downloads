@@ -82,12 +82,31 @@ Write-Host "Installing or refreshing the allow-listed IZAKHONO Owner Agent..." -
 $agent = Join-Path $state "INSTALL-IZAKHONO-OWNER-AGENT.ps1"
 Invoke-RemoteIzakhonoScript -RemotePath "owner-host/INSTALL-IZAKHONO-OWNER-AGENT.ps1" -LocalPath $agent
 
-Write-Host "Activating the owned ONE AI model/runtime..." -ForegroundColor Cyan
-$modelScript = Join-Path $state "START-IZAKHONO-ONE-AI-LOCAL-MODEL.ps1"
-Invoke-WebRequest -UseBasicParsing "https://raw.githubusercontent.com/bevanshelton-netizen/Downloads/main/owner-host/START-IZAKHONO-ONE-AI-LOCAL-MODEL.ps1" -OutFile $modelScript
-& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $modelScript -Model $Model -Hostname $Hostname
-if ($LASTEXITCODE -ne 0) { throw "ONE local-model/runtime activation failed with exit code $LASTEXITCODE" }
+Write-Host "Requesting the approved ONE activation through the allow-listed Owner Agent..." -ForegroundColor Cyan
+& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cd /opt/izakhono-source/Downloads && bash owner-host/owner-agent.sh"
+if ($LASTEXITCODE -ne 0) { throw "Owner Agent invocation failed with exit code $LASTEXITCODE" }
 
+$ownerAgentState = $null
+for ($i = 0; $i -lt 360; $i++) {
+  $raw = (& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cat /var/lib/izakhono-owner-agent/state.json 2>/dev/null || true") -join [Environment]::NewLine
+  if ($raw.Trim()) {
+    try { $ownerAgentState = $raw | ConvertFrom-Json } catch { $ownerAgentState = $null }
+  }
+  if ($ownerAgentState -and $ownerAgentState.request_id -eq "one-local-model-20260923-01") {
+    if ($ownerAgentState.status -eq "success") { break }
+    if ($ownerAgentState.status -eq "blocked-dirty-source") { throw "Owner Agent blocked because the owner-host source checkout has local changes." }
+    if ($ownerAgentState.status -eq "failed" -and [int]$ownerAgentState.attempts -ge 2) {
+      throw "Owner Agent exhausted the approved activation attempts. Inspect $($ownerAgentState.log_path)."
+    }
+  }
+  Start-Sleep -Seconds 5
+}
+
+if (-not $ownerAgentState -or $ownerAgentState.request_id -ne "one-local-model-20260923-01" -or $ownerAgentState.status -ne "success") {
+  throw "Owner Agent did not produce a successful ONE activation receipt."
+}
+
+Write-Host "Owner Agent activation receipt: SUCCESS" -ForegroundColor Green
 Write-Host "Running the authoritative ONE deployment-readiness preflight..." -ForegroundColor Cyan
 $readinessScript = Join-Path $state "START-IZAKHONO-ONE-DEPLOYMENT-READINESS.ps1"
 Invoke-WebRequest -UseBasicParsing "https://raw.githubusercontent.com/bevanshelton-netizen/Downloads/main/owner-host/START-IZAKHONO-ONE-DEPLOYMENT-READINESS.ps1" -OutFile $readinessScript
@@ -97,12 +116,6 @@ if ($LASTEXITCODE -ne 0) { throw "ONE readiness preflight failed with exit code 
 $readinessPath = Join-Path $desktop "IZAKHONO-ONE-DEPLOYMENT-READINESS.json"
 if (-not (Test-Path $readinessPath)) { throw "Readiness receipt was not copied to the Desktop." }
 $readiness = Get-Content $readinessPath -Raw | ConvertFrom-Json
-
-$ownerAgentStateRaw = (& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cat /var/lib/izakhono-owner-agent/state.json 2>/dev/null || true") -join [Environment]::NewLine
-$ownerAgentState = $null
-if ($ownerAgentStateRaw.Trim()) {
-  try { $ownerAgentState = $ownerAgentStateRaw | ConvertFrom-Json } catch {}
-}
 
 $releaseClass = "OWNED ROUTE NOT READY"
 if ($readiness.readiness.public_pilot_ready -eq $true) {
