@@ -47,12 +47,26 @@ bash izakhono-owned-cloud/install-owned-stack.sh
 bash izakhono-owned-cloud/deploy-fortress-protector.sh
 bash izakhono-owned-cloud/configure-growth-os.sh
 bash izakhono-owned-cloud/configure-stack-backup.sh
+bash izakhono-owned-cloud/configure-izakhono-one-ai.sh
 
 if [ ! -f /etc/izakhono/code-source.env ]; then
   bash izakhono-owned-cloud/migrate-source-to-code.sh
 fi
 
 bash izakhono-owned-cloud/first-host-proof.sh
+
+echo "Deploying IZAKHONO ONE AI to the owned runtime..."
+export IZAKHONO_ONE_AI_HOSTNAME="${IZAKHONO_ONE_AI_HOSTNAME:-one.domains.izakhonoafrica.co.za}"
+bash izakhono-owned-cloud/deploy-izakhono-one-ai.sh main
+ONE_AI_STATE="RUNTIME_VERIFIED"
+if [ -f /var/lib/izakhono-deploy/izakhono-one-ai.json ]; then
+  if grep -q '"public_https": "VERIFIED"' /var/lib/izakhono-deploy/izakhono-one-ai.json 2>/dev/null; then
+    ONE_AI_STATE="PUBLIC_HTTPS_VERIFIED"
+  fi
+  if grep -q '"sellable_status": "sellable-gate-ready-for-final-commercial-review"' /var/lib/izakhono-deploy/izakhono-one-ai.json 2>/dev/null; then
+    ONE_AI_STATE="SELLABLE_GATE_READY_FOR_FINAL_COMMERCIAL_REVIEW"
+  fi
+fi
 
 echo "Deploying IZAKHONO Growth OS v2 to the owned runtime..."
 export GROWTH_OS_V2_HOSTNAME="${GROWTH_OS_V2_HOSTNAME:-growth.domains.izakhonoafrica.co.za}"
@@ -79,7 +93,7 @@ fi
 
 OWNED_EDGE_STATE="NOT_ATTEMPTED"
 set +e
-IZAKHONO_PUBLIC_EXTRA_HOSTS="${IZAKHONO_PUBLIC_EXTRA_HOSTS:-growth.domains.izakhonoafrica.co.za}" \
+IZAKHONO_PUBLIC_EXTRA_HOSTS="${IZAKHONO_PUBLIC_EXTRA_HOSTS:-growth.domains.izakhonoafrica.co.za,one.domains.izakhonoafrica.co.za}" \
   bash izakhono-owned-cloud/activate-owned-public-edge.sh
 OWNED_EDGE_CODE=$?
 set -e
@@ -91,9 +105,9 @@ case "$OWNED_EDGE_CODE" in
 esac
 
 SOURCE_COMMIT="$(git rev-parse HEAD)"
-node - "$REPORT" "$SOURCE_COMMIT" "$TUNNEL_STATE" "$GROWTH_OS_STATE" "$OWNED_EDGE_STATE" <<'NODE'
+node - "$REPORT" "$SOURCE_COMMIT" "$TUNNEL_STATE" "$GROWTH_OS_STATE" "$ONE_AI_STATE" "$OWNED_EDGE_STATE" <<'NODE'
 const fs=require("fs");
-const [path,commit,tunnel,growthOs,ownedEdge]=process.argv.slice(2);
+const [path,commit,tunnel,growthOs,oneAi,ownedEdge]=process.argv.slice(2);
 const body={
   schema:"izakhono.owner-host/v1",
   node_name:"ISN-01",
@@ -103,6 +117,7 @@ const body={
   edge_origin:"http://127.0.0.1:8780",
   fortress_private_control_plane:true,
   growth_os_v2:growthOs,
+  izakhono_one_ai:oneAi,
   tunnel_state:tunnel,
   owned_public_edge_state:ownedEdge,
   source_of_truth:"IZAKHONO CODE after bootstrap migration",
@@ -126,4 +141,6 @@ else
   echo "PUBLIC INGRESS: owned-edge state=$OWNED_EDGE_STATE; tunnel token may still be required at /etc/izakhono/cloudflare-tunnel.token"
 fi
 echo "GROWTH OS v2: deployed to IZAKHONO RUNTIME and health-gated"
+echo "IZAKHONO ONE AI: $ONE_AI_STATE"
+echo "ONE AI public signup remains gated by verified email delivery; chat remains gated by verified model capacity."
 echo "KORA and other applications remain behind their own readiness/payment gates until deployed."
