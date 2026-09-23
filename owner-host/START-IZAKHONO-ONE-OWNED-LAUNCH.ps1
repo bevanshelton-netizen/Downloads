@@ -36,6 +36,7 @@ $state = Join-Path $env:ProgramData "IZAKHONO\ONE-OWNED-LAUNCH"
 New-Item -ItemType Directory -Force -Path $state | Out-Null
 $desktop = [Environment]::GetFolderPath("Desktop")
 $summaryPath = Join-Path $desktop "IZAKHONO-ONE-OWNED-LAUNCH-STATUS.txt"
+$edgeReceiptPath = Join-Path $desktop "IZAKHONO-ONE-OWNED-EDGE.json"
 
 Write-Host ""
 Write-Host "IZAKHONO ONE — OWNED LAUNCH" -ForegroundColor Cyan
@@ -82,7 +83,16 @@ Write-Host "Installing or refreshing the allow-listed IZAKHONO Owner Agent..." -
 $agent = Join-Path $state "INSTALL-IZAKHONO-OWNER-AGENT.ps1"
 Invoke-RemoteIzakhonoScript -RemotePath "owner-host/INSTALL-IZAKHONO-OWNER-AGENT.ps1" -LocalPath $agent
 
-Write-Host "Requesting the approved ONE activation through the allow-listed Owner Agent..." -ForegroundColor Cyan
+$controlRaw = (& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cat /opt/izakhono-source/Downloads/owner-host/control/desired-state.json") -join [Environment]::NewLine
+if (-not $controlRaw.Trim()) { throw "Owner Agent control document is unavailable." }
+try { $control = $controlRaw | ConvertFrom-Json } catch { throw "Owner Agent control document is invalid JSON." }
+if ($control.enabled -ne $true -or $control.action -ne "activate-one-local-model") {
+  throw "Current Owner Agent request is not an enabled ONE local-model activation."
+}
+$expectedRequestId = [string]$control.id
+if ([string]::IsNullOrWhiteSpace($expectedRequestId)) { throw "Owner Agent request ID is missing." }
+
+Write-Host "Requesting approved ONE activation: $expectedRequestId" -ForegroundColor Cyan
 & wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cd /opt/izakhono-source/Downloads && bash owner-host/owner-agent.sh"
 if ($LASTEXITCODE -ne 0) { throw "Owner Agent invocation failed with exit code $LASTEXITCODE" }
 
@@ -92,7 +102,7 @@ for ($i = 0; $i -lt 360; $i++) {
   if ($raw.Trim()) {
     try { $ownerAgentState = $raw | ConvertFrom-Json } catch { $ownerAgentState = $null }
   }
-  if ($ownerAgentState -and $ownerAgentState.request_id -eq "one-local-model-20260923-01") {
+  if ($ownerAgentState -and $ownerAgentState.request_id -eq $expectedRequestId) {
     if ($ownerAgentState.status -eq "success") { break }
     if ($ownerAgentState.status -eq "blocked-dirty-source") { throw "Owner Agent blocked because the owner-host source checkout has local changes." }
     if ($ownerAgentState.status -eq "failed" -and [int]$ownerAgentState.attempts -ge 2) {
@@ -102,11 +112,44 @@ for ($i = 0; $i -lt 360; $i++) {
   Start-Sleep -Seconds 5
 }
 
-if (-not $ownerAgentState -or $ownerAgentState.request_id -ne "one-local-model-20260923-01" -or $ownerAgentState.status -ne "success") {
+if (-not $ownerAgentState -or $ownerAgentState.request_id -ne $expectedRequestId -or $ownerAgentState.status -ne "success") {
   throw "Owner Agent did not produce a successful ONE activation receipt."
 }
 
 Write-Host "Owner Agent activation receipt: SUCCESS" -ForegroundColor Green
+
+Write-Host "Activating/staging owned DNS, TLS and EDGE for ONE..." -ForegroundColor Cyan
+$escapedHost = $Hostname.Replace("'","''")
+$edgeLinux = @"
+set +e
+cd /opt/izakhono-source/Downloads
+export IZAKHONO_PUBLIC_HOSTNAME='$escapedHost'
+export IZAKHONO_PUBLIC_ZONE='domains.izakhonoafrica.co.za'
+export IZAKHONO_PUBLIC_EXTRA_HOSTS='$escapedHost'
+bash izakhono-owned-cloud/activate-owned-public-edge.sh
+rc=$?
+exit $rc
+"@
+$edgeLinux | & wsl.exe -d Ubuntu-24.04 -u root -- bash -s
+$edgeExit = $LASTEXITCODE
+if ($edgeExit -notin @(0,20,21)) {
+  throw "Owned DNS/TLS/EDGE activation failed unexpectedly with exit code $edgeExit."
+}
+
+$edgeRaw = (& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cat /var/lib/izakhono-deploy/owned-public-edge.json 2>/dev/null || true") -join [Environment]::NewLine
+$edgeState = $null
+if ($edgeRaw.Trim()) {
+  $edgeRaw | Set-Content -Path $edgeReceiptPath -Encoding UTF8
+  try { $edgeState = $edgeRaw | ConvertFrom-Json } catch { $edgeState = $null }
+}
+$edgeAction = switch ($edgeExit) {
+  0 { "OWNED EDGE LOCALLY PROVED" }
+  20 { "PARENT DNS / ROUTER ACTION REQUIRED" }
+  21 { "TLS / PORTS ACTION REQUIRED" }
+  default { "OWNED EDGE STATUS UNKNOWN" }
+}
+Write-Host "Owned EDGE result: $edgeAction" -ForegroundColor $(if($edgeExit -eq 0){"Green"}else{"Yellow"})
+
 Write-Host "Running the authoritative ONE deployment-readiness preflight..." -ForegroundColor Cyan
 $readinessScript = Join-Path $state "START-IZAKHONO-ONE-DEPLOYMENT-READINESS.ps1"
 Invoke-WebRequest -UseBasicParsing "https://raw.githubusercontent.com/bevanshelton-netizen/Downloads/main/owner-host/START-IZAKHONO-ONE-DEPLOYMENT-READINESS.ps1" -OutFile $readinessScript
@@ -144,6 +187,18 @@ if ($ownerAgentState) {
   $lines += "Owner Agent source commit: $($ownerAgentState.source_commit)"
 }
 
+$lines += "Owned EDGE action: $edgeAction"
+if ($edgeState) {
+  $lines += "Owned public IPv4: $($edgeState.public_ipv4)"
+  $lines += "Parent delegation observed: $($edgeState.parent_delegation_observed)"
+  $lines += "Hostname resolves to owner IP: $($edgeState.hostname_resolves_to_owner_ip)"
+  $lines += "TLS ready: $($edgeState.tls_ready)"
+  $lines += "EDGE direct: $($edgeState.edge_direct)"
+  if ($edgeState.required_inbound_ports) {
+    $lines += "Required inbound ports: $($edgeState.required_inbound_ports -join ', ')"
+  }
+}
+
 if ($readiness.blockers.Count -gt 0) {
   $lines += "Blockers: $($readiness.blockers -join ', ')"
 } else {
@@ -171,4 +226,7 @@ if ($readiness.blockers.Count -gt 0) {
 }
 
 Write-Host "Desktop status: $summaryPath" -ForegroundColor Green
+if (Test-Path $edgeReceiptPath) {
+  Write-Host "Desktop EDGE/DNS receipt: $edgeReceiptPath" -ForegroundColor Green
+}
 Write-Host "External resilience remains untouched." -ForegroundColor Green
