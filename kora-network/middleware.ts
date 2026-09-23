@@ -54,6 +54,18 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
+  // IZAKHONO ONE is an isolated external public-pilot shell.
+  // It bypasses KORA launch/session gates and preserves NODE 01 as the owned authority.
+  if (pathname === '/one' || pathname === '/one/') {
+    const destination = request.nextUrl.clone();
+    destination.pathname = '/one/index.html';
+    return NextResponse.rewrite(destination);
+  }
+
+  if (pathname.startsWith('/one/')) {
+    return response;
+  }
+
   // Public-beta discovery routes stay informational/free; payment, private and readiness gates stay intact.
   const alwaysPublic = pathname === '/'
     || pathname === '/learner-driver'
