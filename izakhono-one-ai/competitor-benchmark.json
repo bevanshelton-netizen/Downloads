@@ -1,0 +1,68 @@
+{
+  "schema": "izakhono.competitor-benchmark/v1",
+  "checked_at": "2026-09-23",
+  "currency": "USD",
+  "basis": "public annual-commitment monthly-equivalent business pricing; tax excluded where source states it",
+  "sources": [
+    {
+      "vendor": "Google",
+      "url": "https://workspace.google.com/pricing?feature=chat&hl=en_za",
+      "plans": [
+        {
+          "name": "Workspace Business Starter",
+          "usd_per_user_month": 7
+        },
+        {
+          "name": "Workspace Business Standard",
+          "usd_per_user_month": 14
+        },
+        {
+          "name": "Workspace Business Plus",
+          "usd_per_user_month": 22
+        }
+      ]
+    },
+    {
+      "vendor": "Microsoft",
+      "url": "https://www.microsoft.com/en-za/microsoft-365/business/with-teams-plans-and-pricing",
+      "plans": [
+        {
+          "name": "Microsoft 365 Business Basic",
+          "usd_per_user_month": 7
+        },
+        {
+          "name": "Microsoft 365 Business Standard",
+          "usd_per_user_month": 14
+        },
+        {
+          "name": "Microsoft 365 Business Premium",
+          "usd_per_user_month": 22
+        }
+      ]
+    },
+    {
+      "vendor": "Microsoft",
+      "url": "https://www.microsoft.com/en-za/microsoft-365/business/no-teams-plans-and-pricing",
+      "plans": [
+        {
+          "name": "Microsoft 365 Business Basic (no Teams)",
+          "usd_per_user_month": 5.4
+        },
+        {
+          "name": "Microsoft 365 Business Standard (no Teams)",
+          "usd_per_user_month": 10.79
+        },
+        {
+          "name": "Microsoft 365 Business Premium (no Teams)",
+          "usd_per_user_month": 18.79
+        }
+      ]
+    }
+  ],
+  "izakhono_targets": {
+    "individual_usd_month": 3.5,
+    "business_entry_usd_user_month": 4.5,
+    "education_usd_user_month": 2,
+    "rule": "Targets are not public sell prices until internal cost proof and sellable gate are green."
+  }
+}
