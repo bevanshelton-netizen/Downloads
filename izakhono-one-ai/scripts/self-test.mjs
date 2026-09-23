@@ -9,6 +9,7 @@ rmSync(usage,{force:true});
 const authPort=18971,gatewayPort=18972,onePort=18970;
 const sessions=new Map();
 const users=new Map();
+let userCounter=0;
 
 function json(res,status,body,headers={}){
   const p=JSON.stringify(body);res.writeHead(status,{"content-type":"application/json",...headers});res.end(p);
@@ -19,12 +20,14 @@ const authServer=createServer(async(req,res)=>{
   const u=new URL(req.url,"http://localhost");
   const b=req.method==="POST"?await body(req):{};
   if(req.method==="POST"&&u.pathname==="/v1/register"){
-    users.set(b.email,{id:"user-1",email:b.email,displayName:b.displayName,emailVerified:true,permissions:["one.ai.chat"],roles:["member"]});
-    return json(res,201,{registered:true,requiresVerification:false,user:users.get(b.email)});
+    const user={id:"user-"+(++userCounter),email:b.email,displayName:b.displayName,emailVerified:true,permissions:["one.ai.chat"],roles:["member"]};
+    users.set(b.email,user);
+    return json(res,201,{registered:true,requiresVerification:false,user});
   }
   if(req.method==="POST"&&u.pathname==="/v1/login"){
     const user=users.get(b.email);if(!user)return json(res,401,{error:"Invalid credentials"});
-    sessions.set("auth-token",user);return json(res,200,{token:"auth-token",expiresInSeconds:43200,user});
+    const token="auth-token-"+user.id;
+    sessions.set(token,user);return json(res,200,{token,expiresInSeconds:43200,user});
   }
   if(req.method==="GET"&&u.pathname==="/v1/me"){
     const token=String(req.headers.authorization||"").replace(/^Bearer\s+/,"");
@@ -78,6 +81,35 @@ try{
   r=await fetch(`http://127.0.0.1:${onePort}/v1/account/me`,{headers:{cookie}});
   const me=await r.json();if(!r.ok||me.user.email!=="public@example.com"||me.entitlement.fairUse!==true)throw new Error("account/entitlement lookup failed");
 
+  if(me.growth?.foundingMember?.memberNo!==1)throw new Error("founding member #1 not assigned");
+  r=await fetch(`http://127.0.0.1:${onePort}/v1/growth/referral`,{headers:{cookie}});
+  const referral=await r.json();
+  if(!r.ok||!referral.growth?.referral?.code||!referral.growth?.referral?.shareUrl)throw new Error("referral profile missing");
+  const referralCode=referral.growth.referral.code;
+
+  r=await fetch(`http://127.0.0.1:${onePort}/v1/account/register`,{
+    method:"POST",headers:{"content-type":"application/json"},
+    body:JSON.stringify({displayName:"Referred User",email:"referred@example.com",password:"strong password 67890",referralCode,campaign:"switch-to-one-test"})
+  });
+  if(r.status!==201)throw new Error("referred account register failed: "+await r.text());
+
+  r=await fetch(`http://127.0.0.1:${onePort}/v1/account/login`,{
+    method:"POST",headers:{"content-type":"application/json"},
+    body:JSON.stringify({email:"referred@example.com",password:"strong password 67890"})
+  });
+  const referredLogin=await r.json();
+  if(!r.ok||referredLogin.foundingMember?.memberNo!==2)throw new Error("referred founding member activation failed");
+  const referredCookie=r.headers.get("set-cookie")?.split(";")[0];
+  if(!referredCookie)throw new Error("referred session cookie missing");
+
+  r=await fetch(`http://127.0.0.1:${onePort}/v1/growth/referral`,{headers:{cookie}});
+  const referralAfter=await r.json();
+  if(!r.ok||referralAfter.growth?.referral?.activated!==1)throw new Error("activated referral was not credited");
+
+  r=await fetch(`http://127.0.0.1:${onePort}/v1/growth/status`);
+  const growthStatus=await r.json();
+  if(!r.ok||growthStatus.foundingMembers!==2||growthStatus.activatedReferrals!==1||growthStatus.behaviouralTracking!==false)throw new Error("public growth status failed");
+
   r=await fetch(`http://127.0.0.1:${onePort}/v1/one/chat`,{method:"POST",headers:{"content-type":"application/json",cookie},body:JSON.stringify({messages:[{role:"user",content:"hello"}]})});
   const chat=await r.json();if(!r.ok||chat.choices?.[0]?.message?.content!=="owned one ai ok")throw new Error("public chat failed");
   if(chat.entitlement?.usage?.requests!==1)throw new Error("usage accounting failed");
@@ -88,7 +120,7 @@ try{
   r=await fetch(`http://127.0.0.1:${onePort}/v1/plan`,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({request:"test"})});
   if(r.status!==401)throw new Error("internal protected endpoint did not fail closed");
 
-  console.log("IZAKHONO ONE public account + chat self-test passed.");
+  console.log("IZAKHONO ONE account + chat + Founding 1000 growth self-test passed.");
 }finally{
   child.kill("SIGTERM");
   authServer.close();gatewayServer.close();
