@@ -75,6 +75,17 @@ try{
   const client=await adminPost("/v1/admin/clients",{
     name:"growth-os",allowedAliases:["nexai-default"],dailyRequests:2,dailyTokens:1000
   });
+  const oldClientKey=client.apiKey;
+  const rotated=await adminPost("/v1/admin/clients/"+client.client.id+"/rotate-key",{});
+  if(!rotated.apiKey || rotated.apiKey===oldClientKey) throw new Error("Client key rotation failed");
+  client.apiKey=rotated.apiKey;
+
+  let oldKeyCheck=await fetch(`http://127.0.0.1:${gatewayPort}/v1/chat/completions`,{
+    method:"POST",
+    headers:{"content-type":"application/json","authorization":"Bearer "+oldClientKey},
+    body:JSON.stringify({model:"nexai-default",messages:[{role:"user",content:"old key"}]})
+  });
+  if(oldKeyCheck.status!==401) throw new Error("Rotated client key remained valid");
 
   let r=await fetch(`http://127.0.0.1:${gatewayPort}/v1/chat/completions`,{
     method:"POST",
