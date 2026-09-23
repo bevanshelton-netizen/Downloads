@@ -1,0 +1,57 @@
+{
+  "schema": "izakhono.one-launch-campaign/v1",
+  "name": "Switch to ONE",
+  "objective": "activated_accounts",
+  "primary_message": "One account. One AI. Everything.",
+  "supporting_messages": [
+    "Stop paying separately for fragmented tools.",
+    "No behavioural tracking.",
+    "Bring your work with you. Keep your files portable.",
+    "Built in Africa for the world.",
+    "AI, productivity, creativity, education and business tools under one account."
+  ],
+  "calls_to_action": [
+    "Join the Founding 1,000",
+    "Open IZAKHONO ONE",
+    "Invite someone who should stop overpaying",
+    "Bring your work. Keep control."
+  ],
+  "organic_sequence": [
+    {
+      "day": 1,
+      "theme": "Manifesto",
+      "goal": "Explain why ONE exists"
+    },
+    {
+      "day": 2,
+      "theme": "Price",
+      "goal": "Show the cost-fragmentation problem without publishing unproven final pricing"
+    },
+    {
+      "day": 3,
+      "theme": "Privacy",
+      "goal": "Explain no tracking/profiling"
+    },
+    {
+      "day": 4,
+      "theme": "One Account",
+      "goal": "Demonstrate cross-product simplicity"
+    },
+    {
+      "day": 5,
+      "theme": "ONE AI",
+      "goal": "Show owned-first AI architecture"
+    },
+    {
+      "day": 6,
+      "theme": "Switching",
+      "goal": "Promote portability/import strategy"
+    },
+    {
+      "day": 7,
+      "theme": "Founding Members",
+      "goal": "Drive verified registrations and referrals"
+    }
+  ],
+  "paid_media_policy": "No broad paid launch until D7/D30 retention and cost-per-active-account are measurable. All paid campaigns remain approval-gated in Growth OS."
+}
