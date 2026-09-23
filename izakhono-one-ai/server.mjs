@@ -1,6 +1,8 @@
 import { createServer } from "node:http";
-import { readFileSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 import { timingSafeEqual } from "node:crypto";
+import { dirname } from "node:path";
+import { DatabaseSync } from "node:sqlite";
 import { resolve } from "node:path";
 
 const HOST=process.env.HOST || "127.0.0.1";
@@ -11,9 +13,28 @@ const GATEWAY_KEY=process.env.IZAKHONO_ONE_AI_GATEWAY_KEY || "";
 const MODEL_ALIAS=process.env.IZAKHONO_ONE_AI_MODEL_ALIAS || "izakhono-one";
 const MAX_BODY=Math.min(10*1024*1024,Math.max(65536,Number(process.env.IZAKHONO_ONE_AI_MAX_BODY_BYTES || 2*1024*1024)));
 const TIMEOUT_MS=Math.min(300000,Math.max(1000,Number(process.env.IZAKHONO_ONE_AI_TIMEOUT_MS || 90000)));
+const AUTH_URL=(process.env.IZAKHONO_ONE_AUTH_URL||"http://127.0.0.1:8820").replace(/\/$/,"");
+const USAGE_DB=resolve(process.env.IZAKHONO_ONE_USAGE_DB||"./data/one-ai.sqlite");
+const FREE_DAILY_REQUESTS=Math.max(0,Number(process.env.IZAKHONO_ONE_FREE_DAILY_REQUESTS||0));
+const COOKIE_NAME="izakhono_one_session";
 const CAPABILITIES=JSON.parse(readFileSync(resolve(new URL("./capabilities.json",import.meta.url).pathname),"utf8"));
 const ROLLOUT=JSON.parse(readFileSync(resolve(new URL("./public-sellable-rollout.json",import.meta.url).pathname),"utf8"));
 const PUBLIC_INDEX=readFileSync(resolve(new URL("./public/index.html",import.meta.url).pathname),"utf8");
+
+mkdirSync(dirname(USAGE_DB),{recursive:true});
+const usageDb=new DatabaseSync(USAGE_DB);
+usageDb.exec(`
+  PRAGMA journal_mode=WAL;
+  CREATE TABLE IF NOT EXISTS usage_daily(
+    user_id TEXT NOT NULL,
+    day TEXT NOT NULL,
+    requests INTEGER NOT NULL DEFAULT 0,
+    input_tokens INTEGER NOT NULL DEFAULT 0,
+    output_tokens INTEGER NOT NULL DEFAULT 0,
+    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY(user_id,day)
+  );
+`);
 
 function json(res,status,body,headers={}){
   const payload=JSON.stringify(body);
