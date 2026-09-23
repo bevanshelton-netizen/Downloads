@@ -505,6 +505,91 @@ const server=createServer(async(req,res)=>{
       return json(res,201,{user:publicUser(db.prepare("SELECT * FROM users WHERE id=?").get(id))});
     }
 
+    if(req.method==="POST" && url.pathname==="/v1/register"){
+      if(!PUBLIC_SIGNUP) return json(res,403,{error:"Public signup is not enabled"});
+      if(REQUIRE_EMAIL_VERIFICATION && !NOTIFY_KEY) return json(res,503,{error:"Account verification delivery is not configured"});
+      const body=await readJson(req);
+      const email=normalizeEmail(body?.email);
+      if(!rateAllowed(req,"register:"+email,PUBLIC_ACTION_LIMIT_PER_HOUR,3600000)) return json(res,429,{error:"Too many signup attempts"});
+      if(!validPassword(body?.password)) return json(res,400,{error:"Password must be 12-256 characters"});
+      const displayName=String(body?.displayName||"").trim().slice(0,120);
+      if(displayName.length<2) return json(res,400,{error:"Display name is required"});
+      if(db.prepare("SELECT 1 AS ok FROM users WHERE email=?").get(email)) return json(res,409,{error:"Account already exists"});
+      const next=createPassword(body.password);
+      const id=randomUUID();
+      db.prepare("INSERT INTO users(id,email,display_name,password_hash,password_salt,email_verified_at) VALUES(?,?,?,?,?,?)")
+        .run(id,email,displayName,next.hash,next.salt,REQUIRE_EMAIL_VERIFICATION?null:new Date().toISOString());
+      db.prepare("INSERT OR IGNORE INTO user_roles(user_id,role_name) VALUES(?,'member')").run(id);
+      const user=db.prepare("SELECT * FROM users WHERE id=?").get(id);
+      try{
+        if(REQUIRE_EMAIL_VERIFICATION){
+          const token=issueOneTimeToken("email_verifications",id,"+"+VERIFY_HOURS+" hours");
+          await sendAccountEmail(user,"verify",token);
+        }
+      }catch(error){
+        db.prepare("DELETE FROM users WHERE id=?").run(id);
+        audit(req,"anonymous",null,"register","user",id,"failed",{reason:"verification_delivery"});
+        throw error;
+      }
+      audit(req,"anonymous",null,"register","user",id,"success",{verificationRequired:REQUIRE_EMAIL_VERIFICATION});
+      return json(res,201,{registered:true,requiresVerification:REQUIRE_EMAIL_VERIFICATION,user:publicUser(user)});
+    }
+
+    if(req.method==="POST" && url.pathname==="/v1/verify-email"){
+      const body=await readJson(req);
+      const raw=String(body?.token||"");
+      if(raw.length<20 || raw.length>200) return json(res,400,{error:"Invalid verification token"});
+      const row=db.prepare("SELECT v.id,v.user_id FROM email_verifications v WHERE v.token_hash=? AND v.used_at IS NULL AND datetime(v.expires_at)>datetime('now')").get(sha256(raw));
+      if(!row) return json(res,400,{error:"Verification token is invalid or expired"});
+      db.exec("BEGIN IMMEDIATE");
+      try{
+        db.prepare("UPDATE users SET email_verified_at=datetime('now'),updated_at=datetime('now') WHERE id=?").run(row.user_id);
+        db.prepare("UPDATE email_verifications SET used_at=datetime('now') WHERE id=?").run(row.id);
+        db.exec("COMMIT");
+      }catch(error){db.exec("ROLLBACK");throw error;}
+      audit(req,"anonymous",null,"email.verify","user",row.user_id,"success",{});
+      return json(res,200,{verified:true});
+    }
+
+    if(req.method==="POST" && url.pathname==="/v1/recovery/request"){
+      const body=await readJson(req);
+      let email;
+      try{email=normalizeEmail(body?.email);}catch{return json(res,202,{accepted:true});}
+      if(!rateAllowed(req,"recover:"+email,PUBLIC_ACTION_LIMIT_PER_HOUR,3600000)) return json(res,202,{accepted:true});
+      const user=db.prepare("SELECT * FROM users WHERE email=? AND status='active'").get(email);
+      if(user && (!REQUIRE_EMAIL_VERIFICATION || user.email_verified_at) && NOTIFY_KEY){
+        try{
+          const token=issueOneTimeToken("password_resets",user.id,"+"+RESET_MINUTES+" minutes");
+          await sendAccountEmail(user,"reset",token);
+          audit(req,"anonymous",null,"password.recovery.request","user",user.id,"success",{});
+        }catch(error){
+          audit(req,"anonymous",null,"password.recovery.request","user",user.id,"failed",{reason:"delivery"});
+          console.error("password recovery delivery",error);
+        }
+      }
+      return json(res,202,{accepted:true});
+    }
+
+    if(req.method==="POST" && url.pathname==="/v1/recovery/reset"){
+      const body=await readJson(req);
+      const raw=String(body?.token||"");
+      if(raw.length<20 || raw.length>200) return json(res,400,{error:"Reset token is invalid or expired"});
+      if(!validPassword(body?.password)) return json(res,400,{error:"Password must be 12-256 characters"});
+      const row=db.prepare("SELECT id,user_id FROM password_resets WHERE token_hash=? AND used_at IS NULL AND datetime(expires_at)>datetime('now')").get(sha256(raw));
+      if(!row) return json(res,400,{error:"Reset token is invalid or expired"});
+      const next=createPassword(body.password);
+      db.exec("BEGIN IMMEDIATE");
+      try{
+        db.prepare("UPDATE users SET password_hash=?,password_salt=?,failed_attempts=0,lock_until=NULL,updated_at=datetime('now') WHERE id=?")
+          .run(next.hash,next.salt,row.user_id);
+        db.prepare("UPDATE password_resets SET used_at=datetime('now') WHERE id=?").run(row.id);
+        db.prepare("UPDATE sessions SET revoked_at=datetime('now') WHERE user_id=? AND revoked_at IS NULL").run(row.user_id);
+        db.exec("COMMIT");
+      }catch(error){db.exec("ROLLBACK");throw error;}
+      audit(req,"anonymous",null,"password.recovery.reset","user",row.user_id,"success",{});
+      return json(res,200,{reset:true});
+    }
+
     if(req.method==="POST" && url.pathname==="/v1/login"){
       const body=await readJson(req);
       let email;
