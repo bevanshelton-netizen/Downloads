@@ -35,7 +35,7 @@
       "public_status": "temporary-public",
       "commercial_status": "pilot",
       "payment": "not-required-for-public-ecosystem-pilot; ONE Business remains separately gated; commercial ONE AI checkout remains gated",
-      "next_blocker": "external ecosystem hub is public; ONE AI chat remains gated pending verified runtime, while owned NODE 01 activation and commercial gates continue"
+      "next_blocker": "external ecosystem hub is public; ONE AI chat remains gated while the owned route still requires verified SMTP and public HTTPS, followed by commercial pricing/payment/legal gates"
     },
     {
       "id": "izakhono-flagship",
