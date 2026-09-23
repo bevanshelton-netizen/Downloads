@@ -79,28 +79,40 @@ async function upgradeTls(socket){
     s.once("secureConnect",()=>{clearTimeout(t);resolve(s)});s.once("error",reject);
   });
 }
-async function sendMail({to,subject,body}){
+async function openSmtpSession(){
   if(!configured())throw new Error("SMTP_NOT_CONFIGURED");
-  if(!validEmail(to))throw new Error("INVALID_RECIPIENT");
   let socket=SMTP_SECURE?await secureSocket():await plainSocket();
   socket.setTimeout(TIMEOUT_MS,()=>socket.destroy(new Error("SMTP_TIMEOUT")));
   let read=makeReplyReader(socket);
-  try{
-    await command(socket,read,null,[220]);
+  await command(socket,read,null,[220]);
+  await command(socket,read,"EHLO izakhono-one",[250]);
+  if(!SMTP_SECURE&&SMTP_STARTTLS){
+    await command(socket,read,"STARTTLS",[220]);
+    socket=await upgradeTls(socket);
+    socket.setTimeout(TIMEOUT_MS,()=>socket.destroy(new Error("SMTP_TIMEOUT")));
+    read=makeReplyReader(socket);
     await command(socket,read,"EHLO izakhono-one",[250]);
-    if(!SMTP_SECURE&&SMTP_STARTTLS){
-      await command(socket,read,"STARTTLS",[220]);
-      socket=await upgradeTls(socket);
-      socket.setTimeout(TIMEOUT_MS,()=>socket.destroy(new Error("SMTP_TIMEOUT")));
-      read=makeReplyReader(socket);
-      await command(socket,read,"EHLO izakhono-one",[250]);
-    }
-    if(SMTP_USER){
-      if(!SMTP_PASSWORD)throw new Error("SMTP_PASSWORD_MISSING");
-      await command(socket,read,"AUTH LOGIN",[334]);
-      await command(socket,read,b64(SMTP_USER),[334]);
-      await command(socket,read,b64(SMTP_PASSWORD),[235]);
-    }
+  }
+  if(SMTP_USER){
+    if(!SMTP_PASSWORD)throw new Error("SMTP_PASSWORD_MISSING");
+    await command(socket,read,"AUTH LOGIN",[334]);
+    await command(socket,read,b64(SMTP_USER),[334]);
+    await command(socket,read,b64(SMTP_PASSWORD),[235]);
+  }
+  return {socket,read};
+}
+async function probeSmtp(){
+  const {socket,read}=await openSmtpSession();
+  try{await command(socket,read,"QUIT",[221]).catch(()=>null);return {ready:true};}
+  finally{socket.destroy();}
+}
+
+async function sendMail({to,subject,body}){
+  if(!configured())throw new Error("SMTP_NOT_CONFIGURED");
+  if(!validEmail(to))throw new Error("INVALID_RECIPIENT");
+  const session=await openSmtpSession();
+  const socket=session.socket,read=session.read;
+  try{
     await command(socket,read,"MAIL FROM:<"+SMTP_FROM+">",[250]);
     await command(socket,read,"RCPT TO:<"+to+">",[250,251]);
     await command(socket,read,"DATA",[354]);
@@ -129,6 +141,10 @@ createServer(async(req,res)=>{
     const u=new URL(req.url||"/","http://localhost");
     if(req.method==="GET"&&u.pathname==="/health")return json(res,200,{service:"IZAKHONO MAIL RELAY ADAPTER",status:"healthy",configured:configured(),smtpSecure:SMTP_SECURE,starttls:SMTP_STARTTLS,tracking:false,messagePersistence:false});
     if(!ADAPTER_KEY||!safeEqual(req.headers["x-izakhono-adapter-key"],ADAPTER_KEY))return json(res,401,{error:"Unauthorized"});
+    if(req.method==="POST"&&u.pathname==="/v1/probe"){
+      const result=await probeSmtp();
+      return json(res,200,result);
+    }
     if(req.method==="POST"&&u.pathname==="/v1/send"){
       const payload=await readJson(req);
       if(payload?.channel!=="email")return json(res,400,{error:"Email channel required"});
