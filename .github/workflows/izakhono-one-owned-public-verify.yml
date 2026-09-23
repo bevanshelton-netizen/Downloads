@@ -1,0 +1,91 @@
+name: IZAKHONO ONE Owned Public Verify
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/30 * * * *'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/izakhono-one-owned-public-verify.yml'
+      - 'IZAKHONO-ONE-DEPLOYMENT-READINESS.md'
+      - 'owner-host/START-IZAKHONO-ONE-OWNED-LAUNCH.ps1'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/izakhono-one-owned-public-verify.yml'
+      - 'IZAKHONO-ONE-DEPLOYMENT-READINESS.md'
+      - 'owner-host/START-IZAKHONO-ONE-OWNED-LAUNCH.ps1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: izakhono-one-owned-public-verify
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify owned-route launch contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'one.domains.izakhonoafrica.co.za' izakhono-one-ai/deployment-plan.json
+          grep -q 'no_live_claim_before_independent_https_verification' izakhono-one-ai/deployment-plan.json
+          grep -q 'START-IZAKHONO-ONE-OWNED-LAUNCH.cmd' IZAKHONO-ONE-DEPLOYMENT-READINESS.md
+          grep -q 'External resilience route: PRESERVED / VERIFIED INDEPENDENTLY' owner-host/START-IZAKHONO-ONE-OWNED-LAUNCH.ps1
+
+  verify-owned-public:
+    if: github.event_name != 'pull_request'
+    needs: contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Verify exact HTTPS 200 and owned ONE release
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT='https://one.domains.izakhonoafrica.co.za/'
+          HEALTH='https://one.domains.izakhonoafrica.co.za/health'
+
+          root_code="$(curl -sSL --max-time 12 -o /tmp/one-owned-root.html -w '%{http_code}' "$ROOT" || true)"
+          health_code="$(curl -sSL --max-time 12 -o /tmp/one-owned-health.json -w '%{http_code}' "$HEALTH" || true)"
+
+          test "$root_code" = '200'
+          test "$health_code" = '200'
+          grep -q 'IZAKHONO ONE' /tmp/one-owned-root.html
+
+          node <<'NODE'
+          const fs=require('fs');
+          const x=JSON.parse(fs.readFileSync('/tmp/one-owned-health.json','utf8'));
+          const required={
+            product:'IZAKHONO ONE AI',
+            status:'healthy',
+            tracking:false,
+            promptPersistence:false,
+            chatReady:true,
+            accountReachable:true,
+            publicSignup:true,
+            emailVerificationRequired:true
+          };
+          for(const [k,v] of Object.entries(required)){
+            if(x[k]!==v){
+              console.error('owned ONE health mismatch',k,'expected',v,'got',x[k]);
+              process.exit(2);
+            }
+          }
+          NODE
+
+          ! grep -Eqi 'utm_|googletagmanager|google-analytics|facebook[^<]*(pixel|track)|hotjar|clarity\.ms|mixpanel|amplitude|plausible|matomo|portfolio-growth/bridge\.js' /tmp/one-owned-root.html
+
+          echo 'IZAKHONO ONE OWNED ROUTE: VERIFIED LIVE'
+          echo 'HTTPS_ROOT=200'
+          echo 'HTTPS_HEALTH=200'
+          echo 'CHAT_READY=true'
+          echo 'ACCOUNT_REACHABLE=true'
+          echo 'PUBLIC_SIGNUP=true'
+          echo 'TRACKING=false'
