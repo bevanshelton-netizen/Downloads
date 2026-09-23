@@ -1,0 +1,24 @@
+{
+  "name": "IZAKHONO ONE",
+  "short_name": "ONE",
+  "description": "Privacy-first business and AI workspace from IZAKHONO AFRICA.",
+  "id": "/one/",
+  "start_url": "/one/",
+  "scope": "/one/",
+  "display": "standalone",
+  "background_color": "#071815",
+  "theme_color": "#071815",
+  "categories": [
+    "business",
+    "productivity",
+    "utilities"
+  ],
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
