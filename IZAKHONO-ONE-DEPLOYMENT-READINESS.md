@@ -16,6 +16,18 @@ This pack separates **technical deployment**, **public pilot**, and **commercial
 
 **VERIFIED LIVE** is only used after an independent public check proves the intended release is reachable.
 
+## One-click owned launch
+
+Run on the owner Windows machine:
+
+```
+START-IZAKHONO-ONE-OWNED-LAUNCH.cmd
+```
+
+This is the canonical end-to-end owner-host entry point. It bootstraps the owner host if required, installs/refreshes the allow-listed Owner Agent, executes the approved ONE local-model activation, deploys ONE, runs the readiness preflight and preserves the verified external resilience route.
+
+The independent GitHub workflow `IZAKHONO ONE Owned Public Verify` checks the owned hostname after activation. The owned route is only **VERIFIED LIVE** when that external verifier sees exact HTTPS 200 on both `/` and `/health`, the expected ONE AI health contract, public signup, account reachability, chat readiness and zero tracking.
+
 ## One-click readiness check
 
 Run on the owner Windows machine:
