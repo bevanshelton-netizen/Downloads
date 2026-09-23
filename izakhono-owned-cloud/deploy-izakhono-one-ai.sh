@@ -35,7 +35,7 @@ for cmd in git curl node tar; do need "$cmd"; done
 [ -f "$RUNTIME_ENV" ] || fail "IZAKHONO RUNTIME NODE is not installed."
 [ -f "$APP_ENV" ] || fail "IZAKHONO ONE AI environment is missing: $APP_ENV"
 
-for key in IZAKHONO_ONE_AI_KEY IZAKHONO_ONE_AI_GATEWAY_KEY; do
+for key in IZAKHONO_ONE_AI_KEY IZAKHONO_ONE_AI_GATEWAY_KEY IZAKHONO_ONE_AUTH_URL; do
   value="$(sudo awk -F= -v k="$key" '$1==k{sub(/^[^=]*=/,"");print;exit}' "$APP_ENV")"
   [ -n "$value" ] || fail "$key is missing from $APP_ENV"
 done
@@ -99,6 +99,9 @@ DEPLOYMENT_ID="$(node -e 'const x=JSON.parse(process.argv[1]);if(!x.id)process.e
 
 HEALTH="$(curl -fsS -H "Host: $HOSTNAME" "$PROXY_URL/health")"
 node -e 'const x=JSON.parse(process.argv[1]);if(x.status!=="healthy"||x.product!=="IZAKHONO ONE AI")process.exit(2)' "$HEALTH"
+CHAT_READY="$(node -e 'const x=JSON.parse(process.argv[1]);process.stdout.write(String(x.chatReady===true))' "$HEALTH")"
+PUBLIC_SIGNUP="$(node -e 'const x=JSON.parse(process.argv[1]);process.stdout.write(String(x.publicSignup===true))' "$HEALTH")"
+ACCOUNT_REACHABLE="$(node -e 'const x=JSON.parse(process.argv[1]);process.stdout.write(String(x.accountReachable===true))' "$HEALTH")"
 
 EDGE="NOT_RUNNING"
 if systemctl is-active --quiet izakhono-edge-node 2>/dev/null; then
@@ -117,9 +120,9 @@ if curl -fsS --max-time 8 "https://$HOSTNAME/health" >/tmp/izakhono-one-ai-publi
 fi
 
 TMP_REPORT="$(mktemp)"
-node - "$TMP_REPORT" "$HOSTNAME" "$RESOLVED" "$DEPLOYMENT_ID" "$EDGE" "$PUBLIC_HTTPS" <<'NODE'
+node - "$TMP_REPORT" "$HOSTNAME" "$RESOLVED" "$DEPLOYMENT_ID" "$EDGE" "$PUBLIC_HTTPS" "$CHAT_READY" "$PUBLIC_SIGNUP" "$ACCOUNT_REACHABLE" <<'NODE'
 const fs=require("fs");
-const [path,hostname,revision,deploymentId,edge,publicHttps]=process.argv.slice(2);
+const [path,hostname,revision,deploymentId,edge,publicHttps,chatReady,publicSignup,accountReachable]=process.argv.slice(2);
 fs.writeFileSync(path,JSON.stringify({
   schema:"izakhono.one-ai-deployment/v1",
   app:"izakhono-one-ai",
@@ -133,7 +136,12 @@ fs.writeFileSync(path,JSON.stringify({
   public_https:publicHttps,
   gpu_compute:"private-behind-gateway",
   external_overflow:"reversible",
-  sellable_status:publicHttps==="VERIFIED"?"public-service-ready-not-commercially-cleared":"not-publicly-verified",
+  account_reachable:accountReachable==="true",
+  public_signup:publicSignup==="true",
+  chat_ready:chatReady==="true",
+  sellable_status:publicHttps==="VERIFIED"&&chatReady==="true"&&publicSignup==="true"
+    ?"sellable-gate-ready-for-final-commercial-review"
+    :"not-yet-sellable",
   generated_at:new Date().toISOString()
 },null,2)+"\n");
 NODE
@@ -150,5 +158,8 @@ SOURCE=IZAKHONO_CODE
 RUNTIME_HEALTH=VERIFIED
 EDGE=$EDGE
 PUBLIC_HTTPS=$PUBLIC_HTTPS
+ACCOUNT_REACHABLE=$ACCOUNT_REACHABLE
+PUBLIC_SIGNUP=$PUBLIC_SIGNUP
+CHAT_READY=$CHAT_READY
 RECEIPT=$REPORT
 EOF
