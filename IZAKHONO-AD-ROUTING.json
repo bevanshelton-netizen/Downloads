@@ -1,6 +1,6 @@
 {
-  "version": 4,
-  "updated": "2026-09-22",
+  "version": 5,
+  "updated": "2026-09-23",
   "strategy": "owned-media-first",
   "publishingPolicy": {
     "ownedMedia": "prepare-and-publish-when-destination-is-verified-live",
@@ -119,24 +119,33 @@
       "ownedPlacements": [
         "Mandatory Regulatory Exams platform",
         "The Chancellor business surfaces",
-        "WorkNow career and professional-development surfaces",
-        "IZAKHONO Revenue / Growth Desk surfaces",
+        "WorkNow career surfaces",
+        "IZAKHONO Revenue Desk",
+        "IZAKHONO Revenue OS",
+        "IZAKHONO Growth OS",
         "IZAKHONO Group professional surfaces",
-        "KORA network business/professional display inventory where contextually appropriate",
+        "KORA professional/business display inventory where contextually appropriate",
+        "Allegro professional/business cross-promo where contextually appropriate",
+        "AUTO AI cross-promo only in general portfolio recommendation inventory",
+        "EDU-BUILD adult/professional cross-promo only, excluding student learning areas where irrelevant",
         "IZAKHONO STUDIO campaign packs",
+        "portfolio-growth surfaces",
+        "owner-host portfolio launcher",
         "IZAKHONO portfolio cross-promo"
       ],
       "externalOrganicTargets": [
-        "LinkedIn",
         "Facebook",
         "Instagram",
+        "LinkedIn",
         "X",
+        "TikTok",
         "YouTube",
-        "WhatsApp share flows"
+        "WhatsApp share flows",
+        "Google Business Profile"
       ],
       "message": "RE1, RE3, RE4 and RE5 regulatory exam preparation on one FAISReady platform. Independent exam-preparation support; no regulator endorsement or pass guarantee.",
       "cta": "START PREPARING",
-      "status": "owned-media-active-re5-and-bundle-direct-checkout-re1-re3-re4-order-capture",
+      "status": "maximum-owned-reach-active-external-publishing-awaits-connected-accounts",
       "destination": "https://faisready-revenue.vercel.app/",
       "offers": [
         "RE5 Complete Prep — R299 — direct iKhokha checkout",
@@ -149,6 +158,19 @@
         "Do not imply FSCA affiliation or endorsement.",
         "Do not guarantee an examination pass.",
         "Only RE5 R299 and the RE1 + RE5 R549 bundle may be described as direct iKhokha checkout until other merchant links are verified."
+      ],
+      "distributionMode": "maximum-reach-zero-paid-spend",
+      "frequencyPolicy": "high-frequency-house-ad-with-creative-rotation",
+      "creativeAngles": [
+        "career growth",
+        "exam readiness",
+        "one platform for RE1 RE3 RE4 RE5",
+        "RE5 R299",
+        "RE1 R399",
+        "RE3 R399",
+        "RE4 R399",
+        "RE1 + RE5 bundle R549",
+        "employer/team preparation"
       ]
     },
     {
