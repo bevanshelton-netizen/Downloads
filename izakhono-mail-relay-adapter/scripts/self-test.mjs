@@ -35,6 +35,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 for(let i=0;i<30;i++){try{const r=await fetch(`http://127.0.0.1:${adapterPort}/health`);if(r.ok)break}catch{}await sleep(100)}
 try{
   let r=await fetch(`http://127.0.0.1:${adapterPort}/health`);let h=await r.json();if(!r.ok||h.configured!==true)throw new Error("health/config failed");
+  r=await fetch(`http://127.0.0.1:${adapterPort}/v1/probe`,{method:"POST",headers:{"content-type":"application/json","x-izakhono-adapter-key":key},body:"{}"});let probe=await r.json();if(!r.ok||probe.ready!==true)throw new Error("SMTP probe failed");
   r=await fetch(`http://127.0.0.1:${adapterPort}/v1/send`,{method:"POST",headers:{"content-type":"application/json","x-izakhono-adapter-key":key},body:JSON.stringify({messageId:"m1",recipientRef:"u1",channel:"email",to:"person@example.com",subject:"Verify IZAKHONO",body:"Hello\n.Link"})});
   const j=await r.json();if(r.status!==202||j.accepted!==true)throw new Error("send failed "+JSON.stringify(j));
   await sleep(100);
