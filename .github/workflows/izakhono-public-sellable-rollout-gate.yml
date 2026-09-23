@@ -52,3 +52,7 @@ jobs:
           bash -n izakhono-owned-cloud/deploy-izakhono-one-ai.sh
           node --check izakhono-one-ai/server.mjs
           node -e 'const x=JSON.parse(require("fs").readFileSync("owner-host/platforms.json","utf8")); const p=x.platforms.find(p=>p.id==="izakhono-one-ai"); if(!p||p.defaultHostname!=="one.domains.izakhonoafrica.co.za") process.exit(2)'
+      - name: ONE AI launchpad self-test
+        run: |
+          cd izakhono-one-ai
+          npm run check

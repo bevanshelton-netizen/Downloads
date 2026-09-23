@@ -12,6 +12,8 @@ const MODEL_ALIAS=process.env.IZAKHONO_ONE_AI_MODEL_ALIAS || "izakhono-one";
 const MAX_BODY=Math.min(10*1024*1024,Math.max(65536,Number(process.env.IZAKHONO_ONE_AI_MAX_BODY_BYTES || 2*1024*1024)));
 const TIMEOUT_MS=Math.min(300000,Math.max(1000,Number(process.env.IZAKHONO_ONE_AI_TIMEOUT_MS || 90000)));
 const CAPABILITIES=JSON.parse(readFileSync(resolve(new URL("./capabilities.json",import.meta.url).pathname),"utf8"));
+const ROLLOUT=JSON.parse(readFileSync(resolve(new URL("./public-sellable-rollout.json",import.meta.url).pathname),"utf8"));
+const PUBLIC_INDEX=readFileSync(resolve(new URL("./public/index.html",import.meta.url).pathname),"utf8");
 
 function json(res,status,body,headers={}){
   const payload=JSON.stringify(body);
@@ -23,6 +25,32 @@ function json(res,status,body,headers={}){
     ...headers
   });
   res.end(payload);
+}
+function html(res,status,body){
+  res.writeHead(status,{
+    "content-type":"text/html; charset=utf-8",
+    "content-length":Buffer.byteLength(body),
+    "cache-control":"public, max-age=120",
+    "x-content-type-options":"nosniff",
+    "content-security-policy":"default-src 'self'; img-src 'self' data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+  });
+  res.end(body);
+}
+function publicProducts(){
+  return ROLLOUT.products.map(p=>({
+    id:p.id,
+    name:p.name,
+    public_status:p.public_status,
+    commercial_status:p.commercial_status,
+    payment:p.payment,
+    next_blocker:p.next_blocker,
+    public_url:p.public_status==="owned-public-verified"
+      ? p.owned_target
+      : p.public_status==="temporary-public"
+        ? p.fallback
+        : null,
+    owned_target:p.owned_target||null
+  }));
 }
 function secureEqual(a,b){
   const aa=Buffer.from(typeof a==="string"?a:"");
@@ -112,6 +140,9 @@ async function chat(body){
 const server=createServer(async(req,res)=>{
   try{
     const url=new URL(req.url||"/","http://localhost");
+    if(req.method==="GET"&&url.pathname==="/"){
+      return html(res,200,PUBLIC_INDEX);
+    }
     if(req.method==="GET"&&url.pathname==="/health"){
       return json(res,200,{
         product:"IZAKHONO ONE AI",
@@ -125,6 +156,15 @@ const server=createServer(async(req,res)=>{
     }
     if(req.method==="GET"&&url.pathname==="/v1/capabilities"){
       return json(res,200,CAPABILITIES);
+    }
+    if(req.method==="GET"&&url.pathname==="/v1/public-products"){
+      return json(res,200,{
+        product:"IZAKHONO ONE",
+        updated_at:ROLLOUT.updated_at,
+        pricing_policy:"Target lower than directly comparable Microsoft/Google paid plans",
+        artificial_limits_avoided:true,
+        products:publicProducts()
+      });
     }
     if(!authed(req)) return json(res,401,{error:"Unauthorized"});
     if(req.method==="POST"&&url.pathname==="/v1/chat/completions"){
