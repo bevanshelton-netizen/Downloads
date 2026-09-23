@@ -1,0 +1,22 @@
+[Unit]
+Description=IZAKHONO GPU COMPUTE NODE
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=izakhono
+Group=izakhono
+WorkingDirectory=/opt/izakhono-gpu-compute-node
+EnvironmentFile=/etc/izakhono/gpu-compute-node.env
+ExecStart=/usr/bin/node /opt/izakhono-gpu-compute-node/server.mjs
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/izakhono-gpu-compute
+
+[Install]
+WantedBy=multi-user.target
