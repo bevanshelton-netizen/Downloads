@@ -49,8 +49,10 @@ if [ -f "$MAIL_ENV" ]; then
     sleep 1
     MAIL_HEALTH="$(curl -fsS http://127.0.0.1:8870/health)"
     node -e 'const x=JSON.parse(process.argv[1]);if(x.status!=="healthy"||x.configured!==true)process.exit(2)' "$MAIL_HEALTH"
+    MAIL_PROBE="$(curl -fsS -X POST http://127.0.0.1:8870/v1/probe -H "content-type: application/json" -H "x-izakhono-adapter-key: $MAIL_KEY" --data '{}')"
+    node -e 'const x=JSON.parse(process.argv[1]);if(x.ready!==true)process.exit(2)' "$MAIL_PROBE"
     EMAIL_ADAPTER=http://127.0.0.1:8870/v1/send
-    EMAIL_TRANSPORT="izakhono-mail-relay"
+    EMAIL_TRANSPORT="izakhono-mail-relay-verified-smtp"
   fi
 fi
 GATEWAY_ADMIN="$(value "$GATEWAY_ENV" IZAKHONO_AI_GATEWAY_ADMIN_KEY)"
