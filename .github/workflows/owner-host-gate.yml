@@ -13,6 +13,7 @@ on:
       - 'START-IZAKHONO-ONE-AI-LOCAL-MODEL.cmd'
       - 'INSTALL-IZAKHONO-OWNER-AGENT.cmd'
       - 'START-IZAKHONO-ONE-DEPLOYMENT-READINESS.cmd'
+      - 'START-IZAKHONO-ONE-OWNED-LAUNCH.cmd'
       - 'owner-host/START-IZAKHONO-DOMAINS-OWNER-HOST.ps1'
       - 'izakhono-edge-node/**'
       - 'izakhono-owned-cloud/**'
@@ -141,6 +142,7 @@ jobs:
             'owner-host/START-IZAKHONO-ONE-AI-LOCAL-MODEL.ps1',
             'owner-host/INSTALL-IZAKHONO-OWNER-AGENT.ps1',
             'owner-host/START-IZAKHONO-ONE-DEPLOYMENT-READINESS.ps1',
+            'owner-host/START-IZAKHONO-ONE-OWNED-LAUNCH.ps1',
             'izakhono-cloud/DEPLOY-KORA-ISN-01.ps1',
             'izakhono-cloud/DEPLOY-LEGACYMART-ISN-01.ps1'
           )
@@ -211,3 +213,12 @@ jobs:
           if ($readinessPs -notmatch 'preflight-izakhono-one.sh') { throw 'Deployment readiness Linux handoff missing' }
           if ($readinessPs -notmatch 'IZAKHONO-ONE-DEPLOYMENT-READINESS.json') { throw 'Deployment readiness JSON Desktop receipt missing' }
           if ($readinessPs -notmatch 'IZAKHONO-ONE-DEPLOYMENT-READINESS.txt') { throw 'Deployment readiness text Desktop receipt missing' }
+          $ownedLaunch = Get-Content 'START-IZAKHONO-ONE-OWNED-LAUNCH.cmd' -Raw
+          if ($ownedLaunch -notmatch 'START-IZAKHONO-ONE-OWNED-LAUNCH.ps1') { throw 'ONE owned-launch CMD handoff missing' }
+          $ownedLaunchPs = Get-Content 'owner-host/START-IZAKHONO-ONE-OWNED-LAUNCH.ps1' -Raw
+          if ($ownedLaunchPs -notmatch 'INSTALL-IZAKHONO-OWNER-AGENT.ps1') { throw 'ONE owned-launch Owner Agent step missing' }
+          if ($ownedLaunchPs -notmatch 'START-IZAKHONO-ONE-AI-LOCAL-MODEL.ps1') { throw 'ONE owned-launch model/runtime step missing' }
+          if ($ownedLaunchPs -notmatch 'START-IZAKHONO-ONE-DEPLOYMENT-READINESS.ps1') { throw 'ONE owned-launch readiness step missing' }
+          if ($ownedLaunchPs -notmatch 'IZAKHONO-ONE-OWNED-LAUNCH-STATUS.txt') { throw 'ONE owned-launch Desktop status missing' }
+          if ($ownedLaunchPs -notmatch 'External resilience route: PRESERVED / NOT MODIFIED') { throw 'ONE owned-launch resilience-preservation contract missing' }
+          if ($ownedLaunchPs -notmatch 'one.domains.izakhonoafrica.co.za') { throw 'ONE owned-launch hostname missing' }
