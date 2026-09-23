@@ -6,6 +6,7 @@ on:
       - "izakhono-one-ai/**"
       - "IZAKHONO-EVERYTHING-CHARTER.md"
       - "IZAKHONO-LOW-COST-GUARANTEE.md"
+      - "IZAKHONO-SELLABLE-PUBLIC-PRODUCT-GATE.md"
       - ".github/workflows/izakhono-gpu-compute-node-gate.yml"
   workflow_dispatch:
 jobs:
@@ -26,4 +27,4 @@ jobs:
           npm run check
       - name: Validate capability and pricing JSON
         run: |
-          node -e "JSON.parse(require('fs').readFileSync('izakhono-one-ai/capabilities.json','utf8'));JSON.parse(require('fs').readFileSync('izakhono-one-ai/ecosystem.json','utf8'));JSON.parse(require('fs').readFileSync('izakhono-one-ai/pricing-doctrine.json','utf8'));console.log('JSON contracts valid')"
+          node -e "JSON.parse(require('fs').readFileSync('izakhono-one-ai/capabilities.json','utf8'));JSON.parse(require('fs').readFileSync('izakhono-one-ai/ecosystem.json','utf8'));JSON.parse(require('fs').readFileSync('izakhono-one-ai/pricing-doctrine.json','utf8'));JSON.parse(require('fs').readFileSync('izakhono-one-ai/sellable-gate.json','utf8'));console.log('JSON contracts valid')"
