@@ -66,15 +66,21 @@ jobs:
           HUB_HEALTH="${HUB}?health=1"
           DEVICE="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-device-ai"
           DEVICE_HEALTH="${DEVICE}?health=1"
+          CONTROL="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-control"
+          CONTROL_HEALTH="${CONTROL}?health=1"
           hub_code="$(curl -sSL --max-time 20 -D /tmp/one-hub.h -o /tmp/one-hub.html -w '%{http_code}' "$HUB" || true)"
           health_code="$(curl -sSL --max-time 20 -o /tmp/one-hub-health.json -w '%{http_code}' "$HUB_HEALTH" || true)"
           device_code="$(curl -sSL --max-time 20 -D /tmp/one-device.h -o /tmp/one-device.html -w '%{http_code}' "$DEVICE" || true)"
           device_health_code="$(curl -sSL --max-time 20 -o /tmp/one-device-health.json -w '%{http_code}' "$DEVICE_HEALTH" || true)"
-          echo "hub_code=$hub_code health_code=$health_code device_code=$device_code device_health_code=$device_health_code"
+          control_code="$(curl -sSL --max-time 20 -D /tmp/one-control.h -o /tmp/one-control.html -w '%{http_code}' "$CONTROL" || true)"
+          control_health_code="$(curl -sSL --max-time 20 -o /tmp/one-control-health.json -w '%{http_code}' "$CONTROL_HEALTH" || true)"
+          echo "hub_code=$hub_code health_code=$health_code device_code=$device_code device_health_code=$device_health_code control_code=$control_code control_health_code=$control_health_code"
           test "$hub_code" = "200"
           test "$health_code" = "200"
           test "$device_code" = "200"
           test "$device_health_code" = "200"
+          test "$control_code" = "200"
+          test "$control_health_code" = "200"
           echo "health_json=$(cat /tmp/one-hub-health.json)"
           echo "device_health_json=$(cat /tmp/one-device-health.json)"
           node - <<'NODE'
@@ -89,6 +95,7 @@ jobs:
           if(x.ok!==true||x.product!=='IZAKHONO ONE'||x.route!=='external-resilience') process.exit(2);
           if(x.public_hub!==true||x.one_ai_chat!==false||x.device_ai_beta!==true) process.exit(3);
           if(x.device_ai_url!=='https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-device-ai') process.exit(31);
+          if(x.control_center!==true||x.control_center_url!=='https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-control') process.exit(32);
           if(x.tracking!==false||x.behavioural_profiling!==false||x.advertising_ids!==false||x.referral_attribution!==false) process.exit(4);
           if(x.owned_authority!=='NODE 01') process.exit(5);
           const deviceHtml=fs.readFileSync('/tmp/one-device.html','utf8');
@@ -98,5 +105,12 @@ jobs:
           if(d.ok!==true||d.product!=='IZAKHONO ONE Device AI'||d.route!=='external-device-ai') process.exit(8);
           if(d.model_runtime!=='webllm'||d.prompt_transport!=='device-local'||d.server_prompt_persistence!==false) process.exit(9);
           if(d.tracking!==false||d.behavioural_profiling!==false||d.advertising_ids!==false||d.owned_authority!=='NODE 01'||d.beta!==true) process.exit(10);
+          const controlHtml=fs.readFileSync('/tmp/one-control.html','utf8');
+          if(!/^<!doctype html>/i.test(controlHtml)||!controlHtml.includes('IZAKHONO ONE')||!controlHtml.includes('CONTROL')) process.exit(11);
+          if(!controlHtml.includes('Download recovery key')||!controlHtml.includes('Reveal key')||!controlHtml.includes('Lock this device')) process.exit(12);
+          if(forbidden.test(controlHtml)) process.exit(13);
+          const c=JSON.parse(fs.readFileSync('/tmp/one-control-health.json','utf8'));
+          if(c.ok!==true||c.product!=='IZAKHONO ONE Control Center'||c.route!=='external-resilience') process.exit(14);
+          if(c.workspace_access!=='capability-key'||c.tracking!==false||c.behavioural_profiling!==false||c.advertising_ids!==false||c.referral_attribution!==false||c.owned_authority!=='NODE 01') process.exit(15);
           NODE
-          echo "IZAKHONO ONE Supabase external bridge + Device AI VERIFIED"
+          echo "IZAKHONO ONE Supabase external bridge + Device AI + Control Center VERIFIED"
