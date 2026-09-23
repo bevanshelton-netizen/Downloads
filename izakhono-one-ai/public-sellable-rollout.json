@@ -1,0 +1,241 @@
+{
+  "schema": "izakhono.public-sellable-rollout/v1",
+  "updated_at": "2026-09-23",
+  "policy": {
+    "owned_first": true,
+    "external_fallback_reversible": true,
+    "sellable_gate": "IZAKHONO-SELLABLE-PUBLIC-PRODUCT-GATE.md",
+    "pricing_gate": "IZAKHONO-LOW-COST-GUARANTEE.md",
+    "live_claim_requires_public_verification": true,
+    "fake_checkout_forbidden": true,
+    "artificial_limits_avoided": true
+  },
+  "statuses": {
+    "public": [
+      "not-routed",
+      "target-defined",
+      "temporary-public",
+      "owned-public-unverified",
+      "owned-public-verified"
+    ],
+    "commercial": [
+      "foundation",
+      "building",
+      "pilot",
+      "sellable",
+      "verified-live"
+    ]
+  },
+  "products": [
+    {
+      "id": "izakhono-one-ai",
+      "name": "IZAKHONO ONE AI",
+      "owned_target": "https://one.domains.izakhonoafrica.co.za",
+      "fallback": null,
+      "public_status": "target-defined",
+      "commercial_status": "building",
+      "payment": "not-required-for-technical-pilot",
+      "next_blocker": "owner-host deployment + public HTTPS + account/entitlement layer"
+    },
+    {
+      "id": "izakhono-flagship",
+      "name": "IZAKHONO",
+      "owned_target": "https://izakhono.co.za",
+      "fallback": null,
+      "public_status": "target-defined",
+      "commercial_status": "building",
+      "payment": "portfolio-dependent",
+      "next_blocker": "public verification and sellable-gate audit"
+    },
+    {
+      "id": "growth-os-v2",
+      "name": "IZAKHONO Growth OS",
+      "owned_target": "https://growth.domains.izakhonoafrica.co.za",
+      "fallback": null,
+      "public_status": "target-defined",
+      "commercial_status": "pilot",
+      "payment": "not-cleared",
+      "next_blocker": "public HTTPS verification + commercial gate"
+    },
+    {
+      "id": "creative-suite",
+      "name": "IZAKHONO Creative Suite",
+      "owned_target": "https://creative.domains.izakhonoafrica.co.za",
+      "fallback": null,
+      "public_status": "target-defined",
+      "commercial_status": "pilot",
+      "payment": "gateway-gated",
+      "next_blocker": "public HTTPS + signup/checkout acceptance"
+    },
+    {
+      "id": "allegro-vibez",
+      "name": "ALLEGRO-VIBEZ",
+      "owned_target": null,
+      "fallback": "https://allegro-vibez.vercel.app",
+      "public_status": "temporary-public",
+      "commercial_status": "pilot",
+      "payment": "fixed-products-registration-required",
+      "next_blocker": "owned hostname + sellable gate"
+    },
+    {
+      "id": "the-chancellor",
+      "name": "THE CHANCELLOR",
+      "owned_target": null,
+      "fallback": null,
+      "public_status": "not-routed",
+      "commercial_status": "pilot",
+      "payment": "fixed-products-registration-required",
+      "next_blocker": "stable public address + payment catalogue"
+    },
+    {
+      "id": "kora-network",
+      "name": "KORA",
+      "owned_target": null,
+      "fallback": null,
+      "public_status": "not-routed",
+      "commercial_status": "pilot",
+      "payment": "gateway-compatible-not-e2e-cleared",
+      "next_blocker": "owned hostname + public verification + commercial gates"
+    },
+    {
+      "id": "faisready",
+      "name": "FAISReady",
+      "owned_target": null,
+      "fallback": null,
+      "public_status": "not-routed",
+      "commercial_status": "pilot",
+      "payment": "adapter-upgrade-required-for-ikhokha-redirect",
+      "next_blocker": "stable public address + live checkout acceptance"
+    },
+    {
+      "id": "auto-ai",
+      "name": "AUTO AI",
+      "owned_target": "https://autoai.izakhonoafrica.co.za",
+      "fallback": null,
+      "public_status": "target-defined",
+      "commercial_status": "pilot",
+      "payment": "gateway-registration-ready",
+      "next_blocker": "public HTTPS + payment E2E"
+    },
+    {
+      "id": "ecd360",
+      "name": "EDU-BUILD Institute Super Portal",
+      "owned_target": null,
+      "fallback": null,
+      "public_status": "not-routed",
+      "commercial_status": "pilot",
+      "payment": "gateway-registration-ready-e2e-required",
+      "next_blocker": "stable public address + account onboarding + payment acceptance"
+    },
+    {
+      "id": "doxa-sure",
+      "name": "DOXA-SURE",
+      "owned_target": null,
+      "fallback": null,
+      "public_status": "not-routed",
+      "commercial_status": "pilot",
+      "payment": "nonregulated-services-only",
+      "next_blocker": "stable public address + regulated-boundary review"
+    },
+    {
+      "id": "legacymart",
+      "name": "LegacyMart Makers",
+      "owned_target": "https://market.domains.izakhonoafrica.co.za",
+      "fallback": null,
+      "public_status": "target-defined",
+      "commercial_status": "pilot",
+      "payment": "reference-checkout-gated",
+      "next_blocker": "owner-host public HTTPS + verified reference checkout"
+    },
+    {
+      "id": "memory-mania",
+      "name": "Memory Mania",
+      "owned_target": "https://memorymania.domains.izakhonoafrica.co.za",
+      "fallback": null,
+      "public_status": "target-defined",
+      "commercial_status": "pilot",
+      "payment": "not-cleared",
+      "next_blocker": "public HTTPS + commercial gate"
+    },
+    {
+      "id": "kora-kids",
+      "name": "KORA Kids",
+      "owned_target": "https://korakids.domains.izakhonoafrica.co.za",
+      "fallback": null,
+      "public_status": "target-defined",
+      "commercial_status": "pilot",
+      "payment": "not-cleared",
+      "next_blocker": "public HTTPS + child-safety/commercial gate"
+    },
+    {
+      "id": "kora-gospel-tv",
+      "name": "YHVH Gospel TV",
+      "owned_target": "https://gospel.domains.izakhonoafrica.co.za",
+      "fallback": null,
+      "public_status": "target-defined",
+      "commercial_status": "pilot",
+      "payment": "not-cleared",
+      "next_blocker": "public HTTPS + monetisation gate"
+    },
+    {
+      "id": "izakhono-revenue-desk",
+      "name": "IZAKHONO Revenue Desk",
+      "owned_target": "https://revenue.domains.izakhonoafrica.co.za",
+      "fallback": "https://kora-network.vercel.app/izakhono-revenue/",
+      "public_status": "temporary-public",
+      "commercial_status": "pilot",
+      "payment": "portfolio-routing",
+      "next_blocker": "owned public HTTPS"
+    },
+    {
+      "id": "crowne-hair",
+      "name": "CROWNÉ Hair by Netty",
+      "owned_target": "https://hair.domains.izakhonoafrica.co.za",
+      "fallback": null,
+      "public_status": "target-defined",
+      "commercial_status": "pilot",
+      "payment": "separate-merchant-required",
+      "next_blocker": "merchant/payment separation + public verification"
+    },
+    {
+      "id": "izakhono-domains",
+      "name": "IZAKHONO Domains",
+      "owned_target": "https://domains.izakhonoafrica.co.za",
+      "fallback": null,
+      "public_status": "target-defined",
+      "commercial_status": "pilot",
+      "payment": "not-cleared",
+      "next_blocker": "public HTTPS + checkout safety gate"
+    },
+    {
+      "id": "izakhono-pay",
+      "name": "IZAKHONO PAY",
+      "owned_target": null,
+      "fallback": null,
+      "public_status": "not-routed",
+      "commercial_status": "foundation",
+      "payment": "infrastructure-service",
+      "next_blocker": "public gateway hostname only after security/E2E acceptance"
+    },
+    {
+      "id": "yenzanow",
+      "name": "YenZaNow",
+      "owned_target": null,
+      "fallback": null,
+      "public_status": "temporary-public",
+      "commercial_status": "pilot",
+      "payment": "not-cleared",
+      "next_blocker": "record canonical public URL + owned-host cutover"
+    },
+    {
+      "id": "matric-rewrite",
+      "name": "Matric Rewrite Prep Academy",
+      "owned_target": null,
+      "fallback": null,
+      "public_status": "temporary-public",
+      "commercial_status": "pilot",
+      "payment": "final-price-required",
+      "next_blocker": "record canonical public URL + final pricing"
+    }
+  ]
+}
