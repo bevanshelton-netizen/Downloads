@@ -5,6 +5,7 @@ AUTH_ENV=/etc/izakhono/auth-node.env
 NOTIFY_ENV=/etc/izakhono/notify-node.env
 GATEWAY_ENV=/etc/izakhono/ai-gateway-node.env
 GPU_ENV=/etc/izakhono/gpu-compute-node.env
+MAIL_ENV=/etc/izakhono/mail-relay.env
 APP_ENV=/etc/izakhono/apps/izakhono-one-ai.env
 REPORT_DIR=/var/lib/izakhono-deploy
 REPORT=$REPORT_DIR/izakhono-one-ai-config.json
@@ -34,6 +35,24 @@ done
 
 NOTIFY_KEY="$(value "$NOTIFY_ENV" IZAKHONO_NOTIFY_KEY)"
 EMAIL_ADAPTER="$(value "$NOTIFY_ENV" IZAKHONO_EMAIL_ADAPTER_URL)"
+EMAIL_TRANSPORT="none"
+if [ -n "$EMAIL_ADAPTER" ]; then EMAIL_TRANSPORT="configured-fallback"; fi
+if [ -f "$MAIL_ENV" ]; then
+  SMTP_HOST="$(value "$MAIL_ENV" IZAKHONO_SMTP_HOST)"
+  SMTP_FROM="$(value "$MAIL_ENV" IZAKHONO_SMTP_FROM)"
+  MAIL_KEY="$(value "$MAIL_ENV" IZAKHONO_MAIL_ADAPTER_KEY)"
+  if [ -n "$SMTP_HOST" ] && [ -n "$SMTP_FROM" ] && [ -n "$MAIL_KEY" ]; then
+    put_env "$NOTIFY_ENV" IZAKHONO_EMAIL_ADAPTER_URL http://127.0.0.1:8870/v1/send
+    put_env "$NOTIFY_ENV" IZAKHONO_NOTIFY_ADAPTER_KEY "$MAIL_KEY"
+    sudo systemctl restart izakhono-mail-relay-adapter
+    sudo systemctl restart izakhono-notify-node
+    sleep 1
+    MAIL_HEALTH="$(curl -fsS http://127.0.0.1:8870/health)"
+    node -e 'const x=JSON.parse(process.argv[1]);if(x.status!=="healthy"||x.configured!==true)process.exit(2)' "$MAIL_HEALTH"
+    EMAIL_ADAPTER=http://127.0.0.1:8870/v1/send
+    EMAIL_TRANSPORT="izakhono-mail-relay"
+  fi
+fi
 GATEWAY_ADMIN="$(value "$GATEWAY_ENV" IZAKHONO_AI_GATEWAY_ADMIN_KEY)"
 GPU_KEY="$(value "$GPU_ENV" IZAKHONO_GPU_COMPUTE_KEY)"
 [ -n "$NOTIFY_KEY" ] || fail "IZAKHONO NOTIFY key missing"
@@ -110,12 +129,12 @@ NODE
 fi
 put_env "$APP_ENV" IZAKHONO_ONE_CHAT_READY "$CHAT_READY"
 
-node - "$REPORT" "$SIGNUP_ENABLED" "$CHAT_READY" "$GPU_WORKERS" "$MODEL_ALIAS" "$GPU_MODEL_ALIAS" <<'NODE'
+node - "$REPORT" "$SIGNUP_ENABLED" "$CHAT_READY" "$GPU_WORKERS" "$MODEL_ALIAS" "$GPU_MODEL_ALIAS" "$EMAIL_TRANSPORT" <<'NODE'
 const fs=require("fs");
-const [path,signup,chatReady,workers,modelAlias,gpuAlias]=process.argv.slice(2);
+const [path,signup,chatReady,workers,modelAlias,gpuAlias,emailTransport]=process.argv.slice(2);
 fs.writeFileSync(path,JSON.stringify({
   schema:"izakhono.one-ai-config/v1",
-  account:{public_signup:signup==="true",email_verification:true,recovery:true},
+  account:{public_signup:signup==="true",email_verification:true,recovery:true,email_transport:emailTransport},
   ai:{model_alias:modelAlias,gpu_model_alias:gpuAlias,chat_ready:chatReady==="true",healthy_gpu_workers:Number(workers),gateway:"IZAKHONO_AI_GATEWAY"},
   usage:{consumer_daily_message_cap:null,fair_use:true},
   secrets_exposed:false,
@@ -125,9 +144,10 @@ NODE
 sudo chown root:izakhono "$REPORT"
 sudo chmod 0640 "$REPORT"
 
-unset NOTIFY_KEY GATEWAY_ADMIN CLIENT_KEY ONE_SERVICE_KEY
+unset NOTIFY_KEY GATEWAY_ADMIN CLIENT_KEY ONE_SERVICE_KEY MAIL_KEY SMTP_HOST SMTP_FROM
 echo "IZAKHONO ONE configured."
 echo "PUBLIC_SIGNUP=$SIGNUP_ENABLED"
+echo "EMAIL_TRANSPORT=$EMAIL_TRANSPORT"
 echo "CHAT_READY=$CHAT_READY"
 echo "HEALTHY_GPU_WORKERS=$GPU_WORKERS"
 echo "Receipt: $REPORT"
