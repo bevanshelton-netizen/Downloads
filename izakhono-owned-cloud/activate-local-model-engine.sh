@@ -59,7 +59,7 @@ RUN_ARGS=(
 )
 
 if command -v nvidia-smi >/dev/null 2>&1; then
-  if docker run --rm --gpus all "$IMAGE" sh -lc 'exit 0' >/dev/null 2>&1; then
+  if docker info --format '{{json .Runtimes}}' 2>/dev/null | grep -qi 'nvidia'; then
     RUN_ARGS+=(--gpus all)
     GPU_MODE="nvidia-gpu"
   fi
@@ -98,7 +98,7 @@ put_env "$MODEL_ENV" IZAKHONO_MODEL_ENGINE_URL "http://127.0.0.1:$ENGINE_PORT"
 put_env "$MODEL_ENV" IZAKHONO_MODEL_ENGINE_CHAT_PATH "/v1/chat/completions"
 put_env "$MODEL_ENV" IZAKHONO_MODEL_ENGINE_KEY ""
 put_env "$MODEL_ENV" IZAKHONO_MODEL_ENGINE_ALLOWLIST "127.0.0.1,localhost,::1"
-put_env "$MODEL_ENV" IZAKHONO_MODEL_WORKER_MODELS "$MODEL_JSON"
+put_env "$MODEL_ENV" IZAKHONO_MODEL_WORKER_MODELS "'$MODEL_JSON'"
 put_env "$MODEL_ENV" IZAKHONO_MODEL_WORKER_ALLOW_CPU "true"
 
 systemctl restart izakhono-model-worker-node
