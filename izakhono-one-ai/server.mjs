@@ -16,6 +16,7 @@ const TIMEOUT_MS=Math.min(300000,Math.max(1000,Number(process.env.IZAKHONO_ONE_A
 const AUTH_URL=(process.env.IZAKHONO_ONE_AUTH_URL||"http://127.0.0.1:8820").replace(/\/$/,"");
 const USAGE_DB=resolve(process.env.IZAKHONO_ONE_USAGE_DB||"./data/one-ai.sqlite");
 const FREE_DAILY_REQUESTS=Math.max(0,Number(process.env.IZAKHONO_ONE_FREE_DAILY_REQUESTS||0));
+const CHAT_READY=String(process.env.IZAKHONO_ONE_CHAT_READY||"true").toLowerCase()!=="false";
 const COOKIE_NAME="izakhono_one_session";
 const CAPABILITIES=JSON.parse(readFileSync(resolve(new URL("./capabilities.json",import.meta.url).pathname),"utf8"));
 const ROLLOUT=JSON.parse(readFileSync(resolve(new URL("./public-sellable-rollout.json",import.meta.url).pathname),"utf8"));
@@ -252,7 +253,8 @@ const server=createServer(async(req,res)=>{
         gateway:GATEWAY_URL.origin,
         capabilityCount:CAPABILITIES.replacements.length,
         tracking:false,
-        promptPersistence:false
+        promptPersistence:false,
+        chatReady:CHAT_READY
       });
     }
     if(req.method==="GET"&&url.pathname==="/v1/capabilities"){
@@ -331,6 +333,7 @@ const server=createServer(async(req,res)=>{
     }
 
     if(req.method==="POST" && url.pathname==="/v1/one/chat"){
+      if(!CHAT_READY) return json(res,503,{error:"AI capacity is not attached yet"});
       if(!sameOrigin(req)) return json(res,403,{error:"Origin not allowed"});
       const account=await accountForRequest(req);
       if(!account) return json(res,401,{error:"Authentication required"});
