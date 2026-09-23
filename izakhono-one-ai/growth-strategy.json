@@ -1,7 +1,7 @@
 {
   "schema": "izakhono.one-growth-strategy/v1",
   "product": "IZAKHONO ONE",
-  "objective": "Build a global privacy-first, lower-cost digital ecosystem that grows primarily through product value, referrals, partnerships and owned media before scaling paid acquisition.",
+  "objective": "Build a global privacy-first, lower-cost digital ecosystem that grows primarily through product value, word of mouth, partnerships and owned media before scaling paid acquisition.",
   "positioning": {
     "headline": "One account. One AI. Everything.",
     "promise": "A simpler, private, lower-cost alternative to fragmented productivity and AI stacks.",
@@ -51,13 +51,13 @@
     {
       "id": "founders",
       "name": "Founding 1,000",
-      "goal": "Acquire 1,000 activated accounts through referrals, existing IZAKHONO audiences and partners before meaningful paid media.",
+      "goal": "Acquire 1,000 activated accounts through existing IZAKHONO audiences, privacy-preserving sharing and partners before meaningful paid media.",
       "paid_media": "off-except-small-tests"
     },
     {
       "id": "proof",
       "name": "Product-Market Proof",
-      "goal": "Prove activation, retention, referral and cost-per-active-user economics.",
+      "goal": "Prove activation, retention and cost-per-active-user economics.",
       "paid_media": "small-approved-tests"
     },
     {
@@ -96,12 +96,8 @@
   },
   "growth_loops": [
     {
-      "id": "referral",
-      "mechanism": "Every activated account receives a personal invite link. Referrals are counted only after the referred account successfully activates/signs in."
-    },
-    {
       "id": "share",
-      "mechanism": "Native share/copy/WhatsApp/email actions on public product surfaces."
+      "mechanism": "Native share/copy/WhatsApp/email actions use the same plain public URL for everyone. No personal referral IDs, campaign parameters or source attribution."
     },
     {
       "id": "portfolio-cross-sell",
@@ -161,9 +157,7 @@
       "weekly multi-product use"
     ],
     "growth": [
-      "activated referrals per active member",
-      "partner-sourced activated accounts",
-      "organic share rate"
+      "aggregate active-account growth"
     ],
     "economics": [
       "cost per active account",
@@ -185,6 +179,6 @@
     "No paid campaign activation without approval",
     "No public price until cost proof supports it",
     "No live claims without independent verification",
-    "Referral attribution is one-time account attribution, not cross-site behavioural tracking"
+    "No personal referral IDs, campaign attribution or source-tracking parameters"
   ]
 }

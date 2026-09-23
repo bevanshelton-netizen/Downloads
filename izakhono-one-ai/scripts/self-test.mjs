@@ -82,33 +82,28 @@ try{
   const me=await r.json();if(!r.ok||me.user.email!=="public@example.com"||me.entitlement.fairUse!==true)throw new Error("account/entitlement lookup failed");
 
   if(me.growth?.foundingMember?.memberNo!==1)throw new Error("founding member #1 not assigned");
+  if(me.growth?.sharing?.referralTracking!==false||me.growth?.sharing?.campaignAttribution!==false)throw new Error("account sharing privacy contract failed");
+
   r=await fetch(`http://127.0.0.1:${onePort}/v1/growth/referral`,{headers:{cookie}});
-  const referral=await r.json();
-  if(!r.ok||!referral.growth?.referral?.code||!referral.growth?.referral?.shareUrl)throw new Error("referral profile missing");
-  const referralCode=referral.growth.referral.code;
+  const referralDisabled=await r.json();
+  if(r.status!==410||referralDisabled.referralTracking!==false||referralDisabled.campaignAttribution!==false)throw new Error("legacy referral endpoint did not fail closed");
 
   r=await fetch(`http://127.0.0.1:${onePort}/v1/account/register`,{
     method:"POST",headers:{"content-type":"application/json"},
-    body:JSON.stringify({displayName:"Referred User",email:"referred@example.com",password:"strong password 67890",referralCode,campaign:"switch-to-one-test"})
+    body:JSON.stringify({displayName:"Second User",email:"second@example.com",password:"strong password 67890",referralCode:"LEGACY-CODE",campaign:"legacy-campaign"})
   });
-  if(r.status!==201)throw new Error("referred account register failed: "+await r.text());
+  if(r.status!==201)throw new Error("second account register failed: "+await r.text());
 
   r=await fetch(`http://127.0.0.1:${onePort}/v1/account/login`,{
     method:"POST",headers:{"content-type":"application/json"},
-    body:JSON.stringify({email:"referred@example.com",password:"strong password 67890"})
+    body:JSON.stringify({email:"second@example.com",password:"strong password 67890"})
   });
-  const referredLogin=await r.json();
-  if(!r.ok||referredLogin.foundingMember?.memberNo!==2)throw new Error("referred founding member activation failed");
-  const referredCookie=r.headers.get("set-cookie")?.split(";")[0];
-  if(!referredCookie)throw new Error("referred session cookie missing");
-
-  r=await fetch(`http://127.0.0.1:${onePort}/v1/growth/referral`,{headers:{cookie}});
-  const referralAfter=await r.json();
-  if(!r.ok||referralAfter.growth?.referral?.activated!==1)throw new Error("activated referral was not credited");
+  const secondLogin=await r.json();
+  if(!r.ok||secondLogin.foundingMember?.memberNo!==2)throw new Error("second founding member activation failed");
 
   r=await fetch(`http://127.0.0.1:${onePort}/v1/growth/status`);
   const growthStatus=await r.json();
-  if(!r.ok||growthStatus.foundingMembers!==2||growthStatus.activatedReferrals!==1||growthStatus.behaviouralTracking!==false)throw new Error("public growth status failed");
+  if(!r.ok||growthStatus.foundingMembers!==2||growthStatus.referralTracking!==false||growthStatus.campaignAttribution!==false||growthStatus.behaviouralTracking!==false||growthStatus.advertisingIdentifiers!==false)throw new Error("public growth privacy status failed");
 
   r=await fetch(`http://127.0.0.1:${onePort}/v1/one/chat`,{method:"POST",headers:{"content-type":"application/json",cookie},body:JSON.stringify({messages:[{role:"user",content:"hello"}]})});
   const chat=await r.json();if(!r.ok||chat.choices?.[0]?.message?.content!=="owned one ai ok")throw new Error("public chat failed");
@@ -120,7 +115,7 @@ try{
   r=await fetch(`http://127.0.0.1:${onePort}/v1/plan`,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({request:"test"})});
   if(r.status!==401)throw new Error("internal protected endpoint did not fail closed");
 
-  console.log("IZAKHONO ONE account + chat + Founding 1000 growth self-test passed.");
+  console.log("IZAKHONO ONE account + chat + zero-attribution Founding 1000 self-test passed.");
 }finally{
   child.kill("SIGTERM");
   authServer.close();gatewayServer.close();

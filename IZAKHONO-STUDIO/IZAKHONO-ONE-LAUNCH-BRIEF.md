@@ -4,7 +4,7 @@
 **Switch to ONE**
 
 ## Primary objective
-Acquire the first **1,000 activated founding accounts** through owned media, referrals, portfolio cross-promotion and partners before scaling paid acquisition.
+Acquire the first **1,000 activated founding accounts** through owned media, word of mouth, portfolio cross-promotion and partners before scaling paid acquisition.
 
 ## Core proposition
 **One account. One AI. Everything.**
@@ -35,7 +35,7 @@ Day 3: Privacy and no profiling
 Day 4: One account across the ecosystem  
 Day 5: ONE AI and owned compute  
 Day 6: Switching/import/export  
-Day 7: Founding-member referral push
+Day 7: Founding-member privacy-safe sharing push
 
 ## Channel order
 Owned portfolio placements first: IZAKHONO ONE, KORA, Edu-Build, FAISReady, WorkNow, LegacyMart and portfolio email.
@@ -58,7 +58,7 @@ These are targets, not public promises.
 ## Measurement
 North star: weekly active accounts using two or more IZAKHONO capabilities.
 
-Supporting measures: activation, D7/D30 retention, activated referrals/member, partner activations, AI cost/active user, gross margin, support rate, successful task rate, uptime and latency.
+Supporting measures: activation, D7/D30 retention, aggregate active-account growth, AI cost/active user, gross margin, support rate, successful task rate, uptime and latency.
 
 ## Privacy
-Referral attribution happens only at account registration/activation. No tracking pixel, behavioural advertising profile or cross-site referral cookie.
+Sharing uses one plain public link for everyone. No referral identifier, campaign/source parameter, tracking pixel, behavioural advertising profile or cross-site cookie.

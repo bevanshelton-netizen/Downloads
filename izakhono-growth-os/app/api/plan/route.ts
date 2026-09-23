@@ -31,9 +31,9 @@ export async function POST(request:Request) {
     language: body.language || "English",
     allocations,
     preflight: objective==="activated_accounts" ? [
-      "Prioritise owned channels, referrals and partner distribution before broad paid spend.",
+      "Prioritise owned channels, privacy-preserving sharing and partner distribution before broad paid spend.",
       "Do not publish final price claims until the IZAKHONO cost-proof gate is green.",
-      "Use one-time account attribution only; no behavioural tracking or cross-site profiling.",
+      "Use plain share links only; no referral IDs, campaign/source attribution, behavioural tracking or cross-site profiling.",
       "Create any paid campaigns paused and obtain approval before activation."
     ] : finance ? [
       "Keep claims educational; no guaranteed profits or returns.",
@@ -46,7 +46,7 @@ export async function POST(request:Request) {
       "Create campaigns paused and obtain approval before activation."
     ],
     note:objective==="activated_accounts"
-      ? "Founding 1,000 launch planner. Paid allocation remains deliberately small until activation, retention and referral economics are proven."
+      ? "Founding 1,000 launch planner. Paid allocation remains deliberately small until activation, retention and unit economics are proven."
       : "Deterministic launch planner. Live platform data will replace assumptions once accounts are connected."
   });
 }
