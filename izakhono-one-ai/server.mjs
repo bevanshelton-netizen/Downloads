@@ -84,6 +84,86 @@ function authed(req){
   const raw=auth.startsWith("Bearer ")?auth.slice(7).trim():String(req.headers["x-api-key"]||"");
   return Boolean(SERVICE_KEY)&&secureEqual(raw,SERVICE_KEY);
 }
+function sameOrigin(req){
+  const origin=String(req.headers.origin||"");
+  if(!origin) return true;
+  try{return new URL(origin).host===String(req.headers.host||"");}catch{return false;}
+}
+function cookieToken(req){
+  const auth=String(req.headers.authorization||"");
+  if(auth.startsWith("Bearer ")) return auth.slice(7).trim();
+  const cookies=String(req.headers.cookie||"").split(";").map(x=>x.trim());
+  for(const cookie of cookies){
+    if(cookie.startsWith(COOKIE_NAME+"=")) return decodeURIComponent(cookie.slice(COOKIE_NAME.length+1));
+  }
+  return "";
+}
+function sessionCookie(token,maxAge){
+  return COOKIE_NAME+"="+encodeURIComponent(token)+"; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age="+Math.max(60,Number(maxAge||43200));
+}
+function clearSessionCookie(){
+  return COOKIE_NAME+"=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0";
+}
+async function authRequest(path,{method="GET",body=null,token=""}={}){
+  const response=await fetch(AUTH_URL+path,{
+    method,
+    headers:{
+      "accept":"application/json",
+      ...(body!=null?{"content-type":"application/json"}:{}),
+      ...(token?{"authorization":"Bearer "+token}:{})
+    },
+    body:body==null?undefined:JSON.stringify(body),
+    signal:AbortSignal.timeout(7000)
+  });
+  const payload=await response.json().catch(()=>({error:"AUTH_INVALID_JSON"}));
+  return {response,payload};
+}
+async function accountForRequest(req){
+  const token=cookieToken(req);
+  if(!token) return null;
+  const result=await authRequest("/v1/me",{token});
+  if(!result.response.ok) return null;
+  return {token,user:result.payload.user};
+}
+function today(){
+  return new Date().toISOString().slice(0,10);
+}
+function usageFor(userId){
+  const row=usageDb.prepare("SELECT requests,input_tokens,output_tokens FROM usage_daily WHERE user_id=? AND day=?").get(userId,today());
+  return {
+    day:today(),
+    requests:Number(row?.requests||0),
+    inputTokens:Number(row?.input_tokens||0),
+    outputTokens:Number(row?.output_tokens||0),
+    dailyRequestLimit:FREE_DAILY_REQUESTS||null,
+    fairUse:FREE_DAILY_REQUESTS===0
+  };
+}
+function recordUsage(userId,payload,messages){
+  const input=Number(payload?.usage?.prompt_tokens||payload?.usage?.input_tokens||0) || Math.ceil(messages.reduce((n,m)=>n+String(m.content||"").length,0)/4);
+  const output=Number(payload?.usage?.completion_tokens||payload?.usage?.output_tokens||0) || Math.ceil(String(payload?.choices?.[0]?.message?.content||"").length/4);
+  usageDb.prepare(`
+    INSERT INTO usage_daily(user_id,day,requests,input_tokens,output_tokens)
+    VALUES(?,?,1,?,?)
+    ON CONFLICT(user_id,day) DO UPDATE SET
+      requests=usage_daily.requests+1,
+      input_tokens=usage_daily.input_tokens+excluded.input_tokens,
+      output_tokens=usage_daily.output_tokens+excluded.output_tokens,
+      updated_at=datetime('now')
+  `).run(userId,today(),input,output);
+}
+function publicEntitlement(userId){
+  const usage=usageFor(userId);
+  return {
+    plan:"free-pilot",
+    chat:true,
+    dailyRequestLimit:usage.dailyRequestLimit,
+    fairUse:usage.fairUse,
+    note:usage.fairUse?"No artificial daily message cap is configured; real capacity and abuse protections still apply.":"Daily request allowance is capacity-controlled.",
+    usage
+  };
+}
+
 async function readJson(req){
   let total=0;const chunks=[];
   for await(const chunk of req){
