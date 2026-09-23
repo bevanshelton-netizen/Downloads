@@ -1,0 +1,30 @@
+name: IZAKHONO GPU Compute Node Gate
+on:
+  pull_request:
+    paths:
+      - "izakhono-gpu-compute-node/**"
+      - "izakhono-one-ai/**"
+      - "IZAKHONO-EVERYTHING-CHARTER.md"
+      - "IZAKHONO-LOW-COST-GUARANTEE.md"
+      - "IZAKHONO-SELLABLE-PUBLIC-PRODUCT-GATE.md"
+      - ".github/workflows/izakhono-gpu-compute-node-gate.yml"
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Syntax check
+        run: |
+          node --check izakhono-gpu-compute-node/server.mjs
+          node --check izakhono-one-ai/server.mjs
+      - name: GPU compute self-test
+        run: |
+          cd izakhono-gpu-compute-node
+          npm run check
+      - name: Validate capability and pricing JSON
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('izakhono-one-ai/capabilities.json','utf8'));JSON.parse(require('fs').readFileSync('izakhono-one-ai/ecosystem.json','utf8'));JSON.parse(require('fs').readFileSync('izakhono-one-ai/pricing-doctrine.json','utf8'));JSON.parse(require('fs').readFileSync('izakhono-one-ai/sellable-gate.json','utf8'));console.log('JSON contracts valid')"

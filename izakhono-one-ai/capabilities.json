@@ -1,0 +1,325 @@
+{
+  "product": "IZAKHONO ONE",
+  "ai": "IZAKHONO ONE AI",
+  "principle": "One account. One AI. One private knowledge layer. Owned-first compute. Externally reversible.",
+  "privacy": {
+    "tracking": false,
+    "behaviouralProfiling": false,
+    "advertisingIds": false,
+    "promptPersistenceByControlPlane": false
+  },
+  "replacements": [
+    {
+      "id": "search",
+      "name": "IZAKHONO Search",
+      "replaces": [
+        "Google Search",
+        "Google Discover"
+      ],
+      "ai": [
+        "answer engine",
+        "research",
+        "summarisation",
+        "local/African relevance"
+      ],
+      "status": "foundation"
+    },
+    {
+      "id": "mail",
+      "name": "IZAKHONO Mail",
+      "replaces": [
+        "Gmail"
+      ],
+      "ai": [
+        "draft",
+        "summarise",
+        "prioritise",
+        "search",
+        "reply assistance"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "drive",
+      "name": "IZAKHONO Drive",
+      "replaces": [
+        "Google Drive"
+      ],
+      "ai": [
+        "semantic file search",
+        "organise",
+        "summarise",
+        "permissions assistance"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "docs",
+      "name": "IZAKHONO Docs",
+      "replaces": [
+        "Google Docs"
+      ],
+      "ai": [
+        "write",
+        "rewrite",
+        "research",
+        "format",
+        "collaborate"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "sheets",
+      "name": "IZAKHONO Sheets",
+      "replaces": [
+        "Google Sheets"
+      ],
+      "ai": [
+        "formulas",
+        "analysis",
+        "forecasting",
+        "cleaning",
+        "automation"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "slides",
+      "name": "IZAKHONO Slides",
+      "replaces": [
+        "Google Slides"
+      ],
+      "ai": [
+        "deck creation",
+        "speaker notes",
+        "visual planning",
+        "summarisation"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "calendar",
+      "name": "IZAKHONO Calendar",
+      "replaces": [
+        "Google Calendar"
+      ],
+      "ai": [
+        "schedule",
+        "agenda planning",
+        "conflict detection",
+        "follow-ups"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "meet",
+      "name": "IZAKHONO Meet",
+      "replaces": [
+        "Google Meet"
+      ],
+      "ai": [
+        "live notes",
+        "transcription",
+        "translation",
+        "action items"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "maps",
+      "name": "IZAKHONO Maps",
+      "replaces": [
+        "Google Maps"
+      ],
+      "ai": [
+        "route reasoning",
+        "local discovery",
+        "business context",
+        "trip planning"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "photos",
+      "name": "IZAKHONO Photos",
+      "replaces": [
+        "Google Photos"
+      ],
+      "ai": [
+        "private semantic search",
+        "albums",
+        "cleanup",
+        "captioning"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "video",
+      "name": "IZAKHONO Video",
+      "replaces": [
+        "YouTube",
+        "YouTube Studio"
+      ],
+      "ai": [
+        "discovery",
+        "captions",
+        "translation",
+        "creator tools",
+        "moderation assistance"
+      ],
+      "status": "foundation"
+    },
+    {
+      "id": "classroom",
+      "name": "IZAKHONO Classroom",
+      "replaces": [
+        "Google Classroom"
+      ],
+      "ai": [
+        "AI lecturers",
+        "lesson plans",
+        "progress",
+        "revision",
+        "assessment support"
+      ],
+      "status": "foundation"
+    },
+    {
+      "id": "forms",
+      "name": "IZAKHONO Forms",
+      "replaces": [
+        "Google Forms"
+      ],
+      "ai": [
+        "form creation",
+        "survey analysis",
+        "workflow routing"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "translate",
+      "name": "IZAKHONO Translate",
+      "replaces": [
+        "Google Translate"
+      ],
+      "ai": [
+        "African languages",
+        "documents",
+        "speech",
+        "context-aware translation"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "keep",
+      "name": "IZAKHONO Notes",
+      "replaces": [
+        "Google Keep"
+      ],
+      "ai": [
+        "capture",
+        "organise",
+        "recall",
+        "task extraction"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "contacts",
+      "name": "IZAKHONO Contacts",
+      "replaces": [
+        "Google Contacts"
+      ],
+      "ai": [
+        "deduplicate",
+        "relationship context",
+        "safe lookup"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "cloud",
+      "name": "IZAKHONO Cloud",
+      "replaces": [
+        "Google Cloud"
+      ],
+      "ai": [
+        "deploy",
+        "operate",
+        "observe",
+        "cost/capacity guidance"
+      ],
+      "status": "foundation"
+    },
+    {
+      "id": "developer",
+      "name": "IZAKHONO Code",
+      "replaces": [
+        "Google developer tooling",
+        "Firebase developer workflows"
+      ],
+      "ai": [
+        "code",
+        "review",
+        "CI/CD",
+        "debug",
+        "deploy"
+      ],
+      "status": "foundation"
+    },
+    {
+      "id": "auth",
+      "name": "IZAKHONO Account",
+      "replaces": [
+        "Google Account",
+        "Google Sign-In"
+      ],
+      "ai": [
+        "permission explanations",
+        "security assistance"
+      ],
+      "status": "foundation"
+    },
+    {
+      "id": "data",
+      "name": "IZAKHONO Data",
+      "replaces": [
+        "Firebase data services"
+      ],
+      "ai": [
+        "query assistance",
+        "schema help",
+        "backups",
+        "data workflows"
+      ],
+      "status": "foundation"
+    },
+    {
+      "id": "business",
+      "name": "IZAKHONO Business",
+      "replaces": [
+        "Google Business Profile"
+      ],
+      "ai": [
+        "profile management",
+        "customer responses",
+        "local discovery"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "news",
+      "name": "IZAKHONO News",
+      "replaces": [
+        "Google News"
+      ],
+      "ai": [
+        "briefings",
+        "source comparison",
+        "topic tracking"
+      ],
+      "status": "planned"
+    }
+  ]
+}

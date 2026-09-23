@@ -1,0 +1,54 @@
+{
+  "doctrine": "IZAKHONO LOW-COST GUARANTEE",
+  "objective": "For directly comparable paid Microsoft and Google products, target a lower customer price and lower total cost of ownership.",
+  "rules": {
+    "competitorBenchmarkRequired": true,
+    "targetRelativePricePct": 70,
+    "hardCeilingRelativePricePct": 95,
+    "freeTierRequiredWhereTechnicallySustainable": true,
+    "noPerMessageConsumerBillingByDefault": true,
+    "noBehaviouralAdSubsidy": true,
+    "ownedInfrastructureFirst": true,
+    "ownedInferenceFirst": true,
+    "externalOverflowOnly": true,
+    "openImportExport": true,
+    "oneAccountBundle": true
+  },
+  "economics": {
+    "customerMetric": "total_monthly_cost_for_equivalent_capability",
+    "infrastructureMetric": "cost_per_active_user_and_cost_per_inference",
+    "pricingAction": "If a feature cannot sustainably undercut the comparable incumbent, reduce external-compute dependence, optimise the stack, or keep it gated instead of hiding the cost."
+  },
+  "bundles": [
+    {
+      "id": "free",
+      "name": "IZAKHONO ONE Free",
+      "intent": "Core daily tools, limited AI, no tracking"
+    },
+    {
+      "id": "one",
+      "name": "IZAKHONO ONE",
+      "intent": "Full productivity suite + generous AI"
+    },
+    {
+      "id": "creator",
+      "name": "IZAKHONO ONE Creator",
+      "intent": "Creative/media tools + AI"
+    },
+    {
+      "id": "business",
+      "name": "IZAKHONO ONE Business",
+      "intent": "Business admin, collaboration, security and AI"
+    },
+    {
+      "id": "education",
+      "name": "IZAKHONO ONE Education",
+      "intent": "Classroom, admin, AI lecturers and collaboration"
+    },
+    {
+      "id": "developer",
+      "name": "IZAKHONO ONE Developer",
+      "intent": "Code, cloud, data, functions and AI"
+    }
+  ]
+}
