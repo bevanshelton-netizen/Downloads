@@ -19,6 +19,10 @@ Privacy contract:
 - no advertising IDs;
 - no false claim that infrastructure/security logs maintained by hosting providers do not exist.
 
+ONE Control Center: https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-control
+
 Device AI beta: https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-device-ai
+
+The Control Center is the external workspace front door. It uses the existing ONE capability-key model, masks the key by default, supports explicit reveal/copy/recovery-file export, and does not enable the unfinished Supabase Auth identity surface.
 
 The Device AI beta uses a compact browser-local model and is not equivalent to the full owned ONE AI runtime. The external bridge is a public ecosystem hub, not the final owned AI authority. NODE 01 remains the intended authority.

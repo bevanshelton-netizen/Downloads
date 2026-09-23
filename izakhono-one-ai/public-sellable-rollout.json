@@ -35,8 +35,10 @@
       "public_status": "temporary-public",
       "commercial_status": "pilot",
       "payment": "not-required-for-public-ecosystem/device-AI pilot; ONE Business remains separately gated; commercial owned ONE AI checkout remains gated",
-      "next_blocker": "external ecosystem hub and device-local AI beta are available; owned full ONE AI still requires NODE 01 activation receipt, verified SMTP/recovery and public HTTPS, followed by commercial pricing/payment/legal gates",
-      "device_ai_beta": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-device-ai"
+      "next_blocker": "external Control Center, ecosystem hub and device-local AI beta are available; full identity auth remains gated by production SMTP plus authenticated-surface hardening, while owned full ONE AI still requires NODE 01 activation receipt and public HTTPS",
+      "device_ai_beta": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-device-ai",
+      "control_center": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-control",
+      "account_mode": "workspace-capability-key bridge; public Supabase Auth deferred pending SMTP and authenticated-surface hardening"
     },
     {
       "id": "izakhono-flagship",
