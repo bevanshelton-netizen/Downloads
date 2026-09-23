@@ -31,11 +31,11 @@
       "id": "izakhono-one-ai",
       "name": "IZAKHONO ONE AI",
       "owned_target": "https://one.domains.izakhonoafrica.co.za",
-      "fallback": null,
-      "public_status": "target-defined",
+      "fallback": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-hub",
+      "public_status": "temporary-public",
       "commercial_status": "pilot",
-      "payment": "not-required-for-public-technical-pilot; commercial checkout remains gated",
-      "next_blocker": "owner-host execution + verified SMTP + public HTTPS; commercial pricing/payment/legal gate follows public pilot"
+      "payment": "not-required-for-public-ecosystem-pilot; ONE Business remains separately gated; commercial ONE AI checkout remains gated",
+      "next_blocker": "external ecosystem hub is public; ONE AI chat remains gated while the owned route still requires verified SMTP and public HTTPS, followed by commercial pricing/payment/legal gates"
     },
     {
       "id": "izakhono-flagship",
