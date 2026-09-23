@@ -154,8 +154,7 @@ jobs:
           done
           test "$ok" -eq 1
 
-      - name: Verify legacy IZAKHONO ONE public routes
-        continue-on-error: true
+      - name: Verify IZAKHONO ONE static resilience route
         shell: bash
         run: |
           set -euo pipefail
@@ -171,3 +170,6 @@ jobs:
           curl -fsSL "$CONTRACTORS" | grep -q 'Contractors'
           curl -fsSL "$PORTFOLIO" | grep -q 'IZAKHONO PORTFOLIO'
           curl -fsSL "$LAUNCH" | grep -q 'IZAKHONO PORTFOLIO'
+          # Zero-tracking gate for the public resilience route.
+          curl -fsSL "$BASE" -o /tmp/izakhono-one-static.html
+          ! grep -Eqi 'utm_|googletagmanager|google-analytics|facebook[^<]*(pixel|track)|hotjar|clarity\.ms|mixpanel|amplitude|plausible|matomo|portfolio-growth/bridge\.js' /tmp/izakhono-one-static.html
