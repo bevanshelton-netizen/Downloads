@@ -63,12 +63,14 @@ jobs:
           HUB_HEALTH="${HUB}?health=1"
           hub_code="$(curl -sSL --max-time 20 -D /tmp/one-hub.h -o /tmp/one-hub.html -w '%{http_code}' "$HUB" || true)"
           health_code="$(curl -sSL --max-time 20 -o /tmp/one-hub-health.json -w '%{http_code}' "$HUB_HEALTH" || true)"
+          echo "hub_code=$hub_code health_code=$health_code"
           test "$hub_code" = "200"
           test "$health_code" = "200"
           grep -q 'IZAKHONO ONE' /tmp/one-hub.html
-          grep -q 'ONE ACCOUNT · ONE AI · EVERYTHING' /tmp/one-hub.html
+          grep -q 'External hosting gets us online' /tmp/one-hub.html
           grep -qi '^content-type: text/html' /tmp/one-hub.h
           ! grep -Eqi 'utm_|googletagmanager|google-analytics|facebook[^<]*(pixel|track)|hotjar|clarity\.ms|mixpanel|amplitude|plausible|matomo|portfolio-growth/bridge\.js' /tmp/one-hub.html
+          echo "health_json=$(cat /tmp/one-hub-health.json)"
           node - <<'NODE'
           const fs=require('fs');
           const x=JSON.parse(fs.readFileSync('/tmp/one-hub-health.json','utf8'));
