@@ -1,6 +1,6 @@
 import { createServer } from "node:http";
 import { mkdirSync, readFileSync } from "node:fs";
-import { randomBytes, timingSafeEqual } from "node:crypto";
+import { timingSafeEqual } from "node:crypto";
 import { dirname } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { resolve } from "node:path";
@@ -37,23 +37,6 @@ usageDb.exec(`
     updated_at TEXT NOT NULL DEFAULT (datetime('now')),
     PRIMARY KEY(user_id,day)
   );
-
-  CREATE TABLE IF NOT EXISTS referral_codes(
-    code TEXT PRIMARY KEY,
-    user_id TEXT NOT NULL UNIQUE,
-    created_at TEXT NOT NULL DEFAULT (datetime('now'))
-  );
-
-  CREATE TABLE IF NOT EXISTS growth_attribution(
-    user_id TEXT PRIMARY KEY,
-    referrer_user_id TEXT,
-    referral_code TEXT,
-    campaign TEXT,
-    registered_at TEXT NOT NULL DEFAULT (datetime('now')),
-    activated_at TEXT
-  );
-  CREATE INDEX IF NOT EXISTS growth_attribution_referrer_idx
-    ON growth_attribution(referrer_user_id,activated_at);
 
   CREATE TABLE IF NOT EXISTS founding_members(
     user_id TEXT PRIMARY KEY,
@@ -178,22 +161,6 @@ function recordUsage(userId,payload,messages){
       updated_at=datetime('now')
   `).run(userId,today(),input,output);
 }
-function cleanGrowthCode(value,max=80){
-  const v=String(value||"").trim();
-  return /^[A-Za-z0-9._:-]{1,80}$/.test(v)&&v.length<=max?v:null;
-}
-function referralCodeFor(userId){
-  const existing=usageDb.prepare("SELECT code FROM referral_codes WHERE user_id=?").get(userId);
-  if(existing?.code) return existing.code;
-  for(let i=0;i<8;i++){
-    const code="ONE-"+randomBytes(5).toString("hex").toUpperCase();
-    try{
-      usageDb.prepare("INSERT INTO referral_codes(code,user_id) VALUES(?,?)").run(code,userId);
-      return code;
-    }catch{}
-  }
-  throw new Error("REFERRAL_CODE_CREATE_FAILED");
-}
 function foundingMemberFor(userId){
   const existing=usageDb.prepare("SELECT member_no,activated_at FROM founding_members WHERE user_id=?").get(userId);
   if(existing) return {memberNo:Number(existing.member_no),activatedAt:existing.activated_at};
@@ -209,51 +176,31 @@ function foundingMemberFor(userId){
     return row?{memberNo:Number(row.member_no),activatedAt:row.activated_at}:null;
   }
 }
-function recordGrowthRegistration(userId,referralCode,campaign){
-  const code=cleanGrowthCode(referralCode,40);
-  const campaignCode=cleanGrowthCode(campaign,80);
-  let referrer=null;
-  if(code){
-    const row=usageDb.prepare("SELECT user_id FROM referral_codes WHERE code=?").get(code);
-    if(row?.user_id && row.user_id!==userId) referrer=row.user_id;
-  }
-  usageDb.prepare(`
-    INSERT INTO growth_attribution(user_id,referrer_user_id,referral_code,campaign)
-    VALUES(?,?,?,?)
-    ON CONFLICT(user_id) DO NOTHING
-  `).run(userId,referrer,code,campaignCode);
-}
 function activateGrowthUser(userId){
-  usageDb.prepare("UPDATE growth_attribution SET activated_at=COALESCE(activated_at,datetime('now')) WHERE user_id=?").run(userId);
   return foundingMemberFor(userId);
 }
 function growthProfile(userId){
-  const code=referralCodeFor(userId);
-  const activated=Number(usageDb.prepare("SELECT count(*) AS n FROM growth_attribution WHERE referrer_user_id=? AND activated_at IS NOT NULL").get(userId)?.n||0);
-  const pending=Number(usageDb.prepare("SELECT count(*) AS n FROM growth_attribution WHERE referrer_user_id=? AND activated_at IS NULL").get(userId)?.n||0);
-  const founding=foundingMemberFor(userId);
   return {
-    foundingMember:founding,
+    foundingMember:foundingMemberFor(userId),
     foundingLimit:FOUNDING_MEMBER_LIMIT,
-    referral:{
-      code,
-      shareUrl:PUBLIC_BASE_URL+"/?ref="+encodeURIComponent(code)+"#ai",
-      activated,
-      pending
+    sharing:{
+      shareUrl:PUBLIC_BASE_URL+"/#ai",
+      referralTracking:false,
+      campaignAttribution:false
     }
   };
 }
 function publicGrowthStatus(){
   const founding=Number(usageDb.prepare("SELECT count(*) AS n FROM founding_members").get()?.n||0);
-  const activatedReferrals=Number(usageDb.prepare("SELECT count(*) AS n FROM growth_attribution WHERE activated_at IS NOT NULL AND referrer_user_id IS NOT NULL").get()?.n||0);
   return {
-    campaign:"Founding 1,000",
+    program:"Founding 1,000",
     foundingMembers:founding,
     foundingLimit:FOUNDING_MEMBER_LIMIT,
     remaining:Math.max(0,FOUNDING_MEMBER_LIMIT-founding),
-    activatedReferrals,
-    tracking:"one-time account attribution only",
-    behaviouralTracking:false
+    referralTracking:false,
+    campaignAttribution:false,
+    behaviouralTracking:false,
+    advertisingIdentifiers:false
   };
 }
 
@@ -398,9 +345,6 @@ const server=createServer(async(req,res)=>{
       const body=await readJson(req);
       const authBody={displayName:body?.displayName,email:body?.email,password:body?.password};
       const result=await authRequest("/v1/register",{method:"POST",body:authBody});
-      if(result.response.ok && result.payload?.user?.id){
-        recordGrowthRegistration(result.payload.user.id,body?.referralCode,body?.campaign);
-      }
       return json(res,result.response.status,result.payload);
     }
 
@@ -458,9 +402,7 @@ const server=createServer(async(req,res)=>{
     }
 
     if(req.method==="GET" && url.pathname==="/v1/growth/referral"){
-      const account=await accountForRequest(req);
-      if(!account) return json(res,401,{error:"Authentication required"});
-      return json(res,200,{growth:growthProfile(account.user.id)});
+      return json(res,410,{error:"REFERRAL_ATTRIBUTION_DISABLED",referralTracking:false,campaignAttribution:false});
     }
 
     if(req.method==="POST" && url.pathname==="/v1/one/chat"){
