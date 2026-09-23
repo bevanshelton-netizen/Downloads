@@ -62,7 +62,9 @@ jobs:
           const benchmark=JSON.parse(fs.readFileSync('izakhono-one-ai/competitor-benchmark.json','utf8'));
           const campaign=JSON.parse(fs.readFileSync('izakhono-one-ai/launch-campaign.json','utf8'));
           if(growth.guardrails?.some(x=>/behavioural tracking/i.test(x))!==true) throw new Error('growth privacy guardrail missing');
-          if(!growth.growth_loops?.some(x=>x.id==='referral')) throw new Error('referral growth loop missing');
+          if(growth.growth_loops?.some(x=>x.id==='referral')) throw new Error('referral attribution loop is forbidden');
+          if(!growth.growth_loops?.some(x=>x.id==='share' && /plain public URL/i.test(x.mechanism||''))) throw new Error('privacy-safe share loop missing');
+          if(growth.guardrails?.some(x=>/personal referral IDs/i.test(x))!==true) throw new Error('zero-attribution guardrail missing');
           if(campaign.objective!=='activated_accounts') throw new Error('launch campaign objective must be activated accounts');
           const incumbentEntry=Math.min(...benchmark.sources.flatMap(s=>s.plans.map(p=>Number(p.usd_per_user_month))).filter(Number.isFinite));
           const target=Number(benchmark.izakhono_targets.business_entry_usd_user_month);
