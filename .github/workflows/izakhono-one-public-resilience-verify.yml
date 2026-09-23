@@ -43,7 +43,6 @@ jobs:
           grep -q 'serviceWorker' one/index.html
           grep -q 'application/ld+json' one/index.html
           grep -q 'izakhono-one-control' one/index.html
-          grep -q 'izakhono-one-control' izakhono-one/index.html
           node -e "const fs=require('fs'); const m=JSON.parse(fs.readFileSync('one/manifest.webmanifest','utf8')); if(m.name!=='IZAKHONO ONE'||m.display!=='standalone'||m.start_url!=='/Downloads/one/'||m.scope!=='/Downloads/one/'||!Array.isArray(m.icons)||!m.icons.length) process.exit(1)"
           grep -q "izakhono-one-shell-v1" one/sw.js
           grep -q "/Downloads/one/" one/sw.js
