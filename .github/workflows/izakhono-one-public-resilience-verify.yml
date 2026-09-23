@@ -7,12 +7,15 @@ on:
       - 'izakhono-one/**'
       - 'ports/izakhono-one/**'
       - 'izakhono-one-ai/public-sellable-rollout.json'
+      - 'IZAKHONO-ONE-EXTERNAL-BRIDGE.md'
       - '.github/workflows/izakhono-one-public-resilience-verify.yml'
   push:
     branches: [main]
     paths:
       - 'izakhono-one/**'
       - 'ports/izakhono-one/**'
+      - 'izakhono-one-ai/public-sellable-rollout.json'
+      - 'IZAKHONO-ONE-EXTERNAL-BRIDGE.md'
       - '.github/workflows/izakhono-one-public-resilience-verify.yml'
 
 permissions:
@@ -61,12 +64,19 @@ jobs:
           set -euo pipefail
           HUB="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-hub"
           HUB_HEALTH="${HUB}?health=1"
+          DEVICE="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-device-ai"
+          DEVICE_HEALTH="${DEVICE}?health=1"
           hub_code="$(curl -sSL --max-time 20 -D /tmp/one-hub.h -o /tmp/one-hub.html -w '%{http_code}' "$HUB" || true)"
           health_code="$(curl -sSL --max-time 20 -o /tmp/one-hub-health.json -w '%{http_code}' "$HUB_HEALTH" || true)"
-          echo "hub_code=$hub_code health_code=$health_code"
+          device_code="$(curl -sSL --max-time 20 -D /tmp/one-device.h -o /tmp/one-device.html -w '%{http_code}' "$DEVICE" || true)"
+          device_health_code="$(curl -sSL --max-time 20 -o /tmp/one-device-health.json -w '%{http_code}' "$DEVICE_HEALTH" || true)"
+          echo "hub_code=$hub_code health_code=$health_code device_code=$device_code device_health_code=$device_health_code"
           test "$hub_code" = "200"
           test "$health_code" = "200"
+          test "$device_code" = "200"
+          test "$device_health_code" = "200"
           echo "health_json=$(cat /tmp/one-hub-health.json)"
+          echo "device_health_json=$(cat /tmp/one-device-health.json)"
           node - <<'NODE'
           const fs=require('fs');
           const html=fs.readFileSync('/tmp/one-hub.html','utf8');
@@ -77,8 +87,16 @@ jobs:
           if(forbidden.test(html)) process.exit(13);
           const x=JSON.parse(fs.readFileSync('/tmp/one-hub-health.json','utf8'));
           if(x.ok!==true||x.product!=='IZAKHONO ONE'||x.route!=='external-resilience') process.exit(2);
-          if(x.public_hub!==true||x.one_ai_chat!==false) process.exit(3);
+          if(x.public_hub!==true||x.one_ai_chat!==false||x.device_ai_beta!==true) process.exit(3);
+          if(x.device_ai_url!=='https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-device-ai') process.exit(31);
           if(x.tracking!==false||x.behavioural_profiling!==false||x.advertising_ids!==false||x.referral_attribution!==false) process.exit(4);
           if(x.owned_authority!=='NODE 01') process.exit(5);
+          const deviceHtml=fs.readFileSync('/tmp/one-device.html','utf8');
+          if(!/^<!doctype html>/i.test(deviceHtml)||!deviceHtml.includes('IZAKHONO ONE')||!deviceHtml.includes('Device AI')) process.exit(6);
+          if(forbidden.test(deviceHtml)) process.exit(7);
+          const d=JSON.parse(fs.readFileSync('/tmp/one-device-health.json','utf8'));
+          if(d.ok!==true||d.product!=='IZAKHONO ONE Device AI'||d.route!=='external-device-ai') process.exit(8);
+          if(d.model_runtime!=='webllm'||d.prompt_transport!=='device-local'||d.server_prompt_persistence!==false) process.exit(9);
+          if(d.tracking!==false||d.behavioural_profiling!==false||d.advertising_ids!==false||d.owned_authority!=='NODE 01'||d.beta!==true) process.exit(10);
           NODE
-          echo "IZAKHONO ONE Supabase external bridge VERIFIED"
+          echo "IZAKHONO ONE Supabase external bridge + Device AI VERIFIED"
