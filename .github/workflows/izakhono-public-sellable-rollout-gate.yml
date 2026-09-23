@@ -3,7 +3,11 @@ name: IZAKHONO Public Sellable Rollout Gate
 on:
   pull_request:
     paths:
-      - "izakhono-one-ai/public-sellable-rollout.json"
+      - "izakhono-one-ai/**"
+      - "izakhono-auth-node/**"
+      - "izakhono-notify-node/**"
+      - "izakhono-ai-gateway-node/**"
+      - "izakhono-gpu-compute-node/**"
       - "IZAKHONO-SELLABLE-PUBLIC-PRODUCT-GATE.md"
       - "IZAKHONO-LOW-COST-GUARANTEE.md"
       - "owner-host/platforms.json"
@@ -50,7 +54,13 @@ jobs:
       - name: Validate ONE AI owned deployment
         run: |
           bash -n izakhono-owned-cloud/deploy-izakhono-one-ai.sh
+          bash -n izakhono-owned-cloud/configure-izakhono-one-ai.sh
+          bash -n izakhono-gpu-compute-node/install-linux.sh
           node --check izakhono-one-ai/server.mjs
+          node --check izakhono-auth-node/server.mjs
+          node --check izakhono-notify-node/server.mjs
+          node --check izakhono-ai-gateway-node/server.mjs
+          node --check izakhono-gpu-compute-node/server.mjs
           node -e 'const x=JSON.parse(require("fs").readFileSync("owner-host/platforms.json","utf8")); const p=x.platforms.find(p=>p.id==="izakhono-one-ai"); if(!p||p.defaultHostname!=="one.domains.izakhonoafrica.co.za") process.exit(2)'
       - name: ONE AI launchpad self-test
         run: |
