@@ -6,7 +6,7 @@ function source(){
   const first=location.pathname.split('/').filter(Boolean)[0];
   return (host.includes('github.io')&&first?first:host)||'owned-network';
 }
-const url=new URL('https://kora-network.vercel.app/learner-driver');
+const url=new URL('https://learner-driver-sa-bevan2.vercel.app/');
 url.searchParams.set('utm_source',source());
 url.searchParams.set('utm_medium','owned_network');
 url.searchParams.set('utm_campaign','learner_driver_sa_launch');
