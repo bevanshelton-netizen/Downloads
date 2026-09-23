@@ -56,12 +56,13 @@ jobs:
           bash -n izakhono-owned-cloud/deploy-creative-suite.sh
           bash -n izakhono-owned-cloud/import-repo-to-code.sh
           bash -n izakhono-owned-cloud/deploy-legacymart.sh
+          bash -n izakhono-owned-cloud/deploy-izakhono-one-ai.sh
           bash -n izakhono-owned-cloud/activate-owned-public-edge.sh
           bash -n izakhono-owned-cloud/activate-tailscale-funnel.sh
           node --check growth-os-v2/server.mjs
           bash -n izakhono-edge-node/install-linux.sh
           node --check izakhono-edge-node/server.mjs
-          node -e 'const x=JSON.parse(require("fs").readFileSync("owner-host/platforms.json","utf8"));if(!x.platforms.some(p=>p.id==="izakhono-domains"&&p.defaultHostname==="domains.izakhonoafrica.co.za"))process.exit(2);if(!x.platforms.some(p=>p.id==="growth-os-v2"&&p.defaultHostname==="growth.domains.izakhonoafrica.co.za"))process.exit(3);if(!x.platforms.some(p=>p.id==="legacymart"&&p.defaultHostname==="market.domains.izakhonoafrica.co.za"))process.exit(4);if(!x.platforms.some(p=>p.id==="creative-suite"&&p.defaultHostname==="creative.domains.izakhonoafrica.co.za"))process.exit(5)'
+          node -e 'const x=JSON.parse(require("fs").readFileSync("owner-host/platforms.json","utf8"));if(!x.platforms.some(p=>p.id==="izakhono-domains"&&p.defaultHostname==="domains.izakhonoafrica.co.za"))process.exit(2);if(!x.platforms.some(p=>p.id==="growth-os-v2"&&p.defaultHostname==="growth.domains.izakhonoafrica.co.za"))process.exit(3);if(!x.platforms.some(p=>p.id==="legacymart"&&p.defaultHostname==="market.domains.izakhonoafrica.co.za"))process.exit(4);if(!x.platforms.some(p=>p.id==="creative-suite"&&p.defaultHostname==="creative.domains.izakhonoafrica.co.za"))process.exit(5);if(!x.platforms.some(p=>p.id==="izakhono-one-ai"&&p.defaultHostname==="one.domains.izakhonoafrica.co.za"))process.exit(6)'
           PORT=13000 HOST=127.0.0.1 node growth-os-v2/server.mjs >/tmp/growth-os-v2.log 2>&1 &
           PID=$!
           trap 'kill $PID 2>/dev/null || true' EXIT
