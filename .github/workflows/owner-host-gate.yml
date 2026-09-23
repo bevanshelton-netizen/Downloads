@@ -62,6 +62,8 @@ jobs:
           bash -n izakhono-owned-cloud/deploy-izakhono-one-ai.sh
           bash -n izakhono-owned-cloud/configure-izakhono-one-ai.sh
           bash -n izakhono-gpu-compute-node/install-linux.sh
+          bash -n izakhono-model-worker-node/install-linux.sh
+          bash -n izakhono-mail-relay-adapter/install-linux.sh
           bash -n izakhono-owned-cloud/activate-owned-public-edge.sh
           bash -n izakhono-owned-cloud/activate-tailscale-funnel.sh
           node --check growth-os-v2/server.mjs
@@ -91,6 +93,8 @@ jobs:
           grep -q 'IZAKHONO_EDGE_MODE=hybrid' izakhono-owned-cloud/activate-owned-public-edge.sh
           grep -q 'GROWTH_OS_V2=DEPLOYED_TO_IZAKHONO_RUNTIME' izakhono-owned-cloud/deploy-primary-node.sh
           grep -q 'IZAKHONO_AUTH_PUBLIC_SIGNUP' izakhono-owned-cloud/configure-izakhono-one-ai.sh
+          grep -q 'IZAKHONO_EMAIL_ADAPTER_URL' izakhono-owned-cloud/configure-izakhono-one-ai.sh
+          grep -q 'izakhono-mail-relay' izakhono-owned-cloud/configure-izakhono-one-ai.sh
           grep -q 'IZAKHONO_ONE_CHAT_READY' izakhono-owned-cloud/configure-izakhono-one-ai.sh
           grep -q 'sellable-gate-ready-for-final-commercial-review' izakhono-owned-cloud/deploy-izakhono-one-ai.sh
           grep -q 'tailscale funnel --bg' izakhono-owned-cloud/activate-tailscale-funnel.sh

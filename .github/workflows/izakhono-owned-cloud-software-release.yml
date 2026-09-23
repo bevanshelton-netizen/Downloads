@@ -5,6 +5,7 @@ on:
     branches: [release/izakhono-owned-cloud-software-complete]
     paths:
       - "izakhono-*-node/**"
+      - "izakhono-mail-relay-adapter/**"
       - "izakhono-owned-cloud/**"
       - "izakhono-growth-os/**"
       - ".github/workflows/izakhono-owned-cloud-software-release.yml"
@@ -48,6 +49,8 @@ jobs:
           - izakhono-notify-node
           - izakhono-ai-gateway-node
           - izakhono-gpu-compute-node
+          - izakhono-model-worker-node
+          - izakhono-mail-relay-adapter
           - izakhono-code-node
           - izakhono-backup-node
           - izakhono-ci-worker-node

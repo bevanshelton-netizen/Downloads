@@ -8,6 +8,8 @@ on:
       - "izakhono-notify-node/**"
       - "izakhono-ai-gateway-node/**"
       - "izakhono-gpu-compute-node/**"
+      - "izakhono-model-worker-node/**"
+      - "izakhono-mail-relay-adapter/**"
       - "IZAKHONO-SELLABLE-PUBLIC-PRODUCT-GATE.md"
       - "IZAKHONO-LOW-COST-GUARANTEE.md"
       - "owner-host/platforms.json"
@@ -56,6 +58,10 @@ jobs:
           bash -n izakhono-owned-cloud/deploy-izakhono-one-ai.sh
           bash -n izakhono-owned-cloud/configure-izakhono-one-ai.sh
           bash -n izakhono-gpu-compute-node/install-linux.sh
+          bash -n izakhono-model-worker-node/install-linux.sh
+          bash -n izakhono-mail-relay-adapter/install-linux.sh
+          node --check izakhono-model-worker-node/server.mjs
+          node --check izakhono-mail-relay-adapter/server.mjs
           node --check izakhono-one-ai/server.mjs
           node --check izakhono-auth-node/server.mjs
           node --check izakhono-notify-node/server.mjs
