@@ -2,6 +2,8 @@ name: IZAKHONO ONE Public Resilience Verify
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '*/30 * * * *'
   pull_request:
     paths:
       - 'izakhono-one/**'
