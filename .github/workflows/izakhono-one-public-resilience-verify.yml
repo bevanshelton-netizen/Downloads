@@ -8,6 +8,7 @@ on:
     paths:
       - 'izakhono-one/**'
       - 'one/**'
+      - 'robots.txt'
       - 'ports/izakhono-one/**'
       - 'izakhono-one-ai/public-sellable-rollout.json'
       - 'IZAKHONO-ONE-EXTERNAL-BRIDGE.md'
@@ -17,6 +18,7 @@ on:
     paths:
       - 'izakhono-one/**'
       - 'one/**'
+      - 'robots.txt'
       - 'ports/izakhono-one/**'
       - 'izakhono-one-ai/public-sellable-rollout.json'
       - 'IZAKHONO-ONE-EXTERNAL-BRIDGE.md'
@@ -38,7 +40,19 @@ jobs:
           grep -q 'IZAKHONO ONE' one/index.html
           grep -q '../izakhono-one/' one/index.html
           grep -q 'No application analytics' one/index.html
+          grep -q 'manifest.webmanifest' one/index.html
+          grep -q 'serviceWorker' one/index.html
+          grep -q 'application/ld+json' one/index.html
+          grep -q 'izakhono-one-control' one/index.html
           grep -q 'izakhono-one-control' izakhono-one/index.html
+          node -e "const fs=require('fs'); const m=JSON.parse(fs.readFileSync('one/manifest.webmanifest','utf8')); if(m.name!=='IZAKHONO ONE'||m.display!=='standalone'||m.start_url!=='/Downloads/one/'||m.scope!=='/Downloads/one/'||!Array.isArray(m.icons)||!m.icons.length) process.exit(1)"
+          grep -q "izakhono-one-shell-v1" one/sw.js
+          grep -q "/Downloads/one/" one/sw.js
+          ! grep -Eqi 'supabase|localStorage|sessionStorage|access[_-]?token|owner[_-]?token|workspace[_-]?key' one/sw.js
+          grep -q 'No workspace credentials are cached' one/offline.html
+          grep -q '<svg' one/icon.svg
+          grep -q 'https://bevanshelton-netizen.github.io/Downloads/one/' one/sitemap.xml
+          grep -q 'Sitemap: https://bevanshelton-netizen.github.io/Downloads/one/sitemap.xml' robots.txt
           ! grep -Eqi 'utm_|googletagmanager|google-analytics|facebook[^<]*(pixel|track)|hotjar|clarity\.ms|mixpanel|amplitude|plausible|matomo|portfolio-growth/bridge\.js' one/index.html
       - name: Verify HTTPS, ONE experience and zero-tracking contract
         shell: bash
