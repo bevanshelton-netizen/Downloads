@@ -1,5 +1,13 @@
 # IZAKHONO ONE — External Bridge
 
+## Current status — 23 September 2026
+
+**EXTERNAL PUBLIC PILOT: ACTIVE / INDEPENDENTLY VERIFIED**
+
+The external public-pilot route is the active front door while the owned NODE 01 route remains separately gated. The latest independent `IZAKHONO ONE Public Resilience Verify` check passed the HTTPS, PWA, zero-tracking, Supabase hub, ONE Control and Device AI contracts.
+
+This does **not** mark the full owned ONE AI route `VERIFIED LIVE`. The owned route still requires physical NODE 01 activation, SMTP/recovery proof, parent DNS restoration for `izakhonoafrica.co.za`, trusted TLS and independent owned-route HTTPS verification. GitHub issue #405 tracks that owned-route blocker.
+
 Stable public entry:
 
 https://bevanshelton-netizen.github.io/Downloads/one/
