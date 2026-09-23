@@ -1,3 +1,4 @@
+// Learner Driver SA remains an external standalone product; KORA advertises only.
 export type HouseAd = {
   id: string;
   name: string;
