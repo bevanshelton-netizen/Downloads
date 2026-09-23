@@ -1,0 +1,21 @@
+[Unit]
+Description=IZAKHONO MAIL RELAY ADAPTER
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=izakhono
+Group=izakhono
+WorkingDirectory=/opt/izakhono-mail-relay-adapter
+EnvironmentFile=/etc/izakhono/mail-relay.env
+ExecStart=/usr/bin/node /opt/izakhono-mail-relay-adapter/server.mjs
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
