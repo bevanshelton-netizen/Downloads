@@ -50,7 +50,7 @@ export default async function PartnerDashboard() {
         <div className="eyebrow">KORA PARTNER DESK</div>
         <h1>Acquisition evidence, without surrendering platform control.</h1>
         <p>Referrals are first-party KORA events. Partner conversion callbacks remain reported until reconciliation verifies them.</p>
-        <div className="actions"><Link className="secondary" href="/partners">Public Partner Gateway</Link></div>
+        <div className="actions"><Link className="secondary" href="/partners">Public Partner Gateway</Link><Link className="secondary" href="/partner/pilot">90-Day Pilot Control Room</Link></div>
       </section>
 
       <section className="grid three">
