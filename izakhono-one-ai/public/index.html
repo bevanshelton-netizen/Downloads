@@ -54,7 +54,7 @@
 </section>
 
 <section class="founding-strip">
-  <div><div class="ey">PRODUCT-LED GROWTH</div><h2>Founding members help build the network.</h2><p>Every activated member gets a personal invite link. We count a referral only after the invited person activates an account. No tracking pixels, no behavioural profile and no cross-site referral cookie.</p></div>
+  <div><div class="ey">PRODUCT-LED GROWTH</div><h2>Founding members help build the network.</h2><p>Every member can share the same plain IZAKHONO ONE link. We do not use personal referral IDs, campaign-attribution parameters, tracking pixels, behavioural profiles or cross-site cookies.</p></div>
   <div class="founding-count"><b id="foundingRemaining">1,000</b><span>Founding places remaining</span></div>
 </section>
 
@@ -90,9 +90,9 @@
         <div class="ey">SIGNED IN</div><h3 id="accountName">IZAKHONO member</h3><p id="accountEmail"></p>
         <div class="entitlement" id="entitlement">Loading entitlement…</div>
         <div class="growth-card" id="growthCard">
-          <small>FOUNDING MEMBER GROWTH LOOP</small>
+          <small>FOUNDING MEMBER SHARE</small>
           <b id="foundingMemberLabel">Founding membership loading…</b>
-          <p id="referralStats">Your personal invite link will appear here.</p>
+          <p id="referralStats">Share ONE without referral IDs or tracking.</p>
           <div class="growth-actions">
             <button type="button" id="copyInvite">Copy invite</button>
             <button type="button" id="shareInvite">Share</button>
@@ -156,10 +156,7 @@ const referralStats=document.getElementById('referralStats');
 const copyInvite=document.getElementById('copyInvite');
 const shareInvite=document.getElementById('shareInvite');
 const whatsappInvite=document.getElementById('whatsappInvite');
-const growthParams=new URLSearchParams(location.search);
-const incomingReferral=growthParams.get('ref');
-const incomingCampaign=growthParams.get('campaign')||'switch-to-one-organic';
-let inviteUrl='';
+let inviteUrl=location.origin+'/#ai';
 let account=null;
 let conversation=[];
 let products=[];
@@ -187,10 +184,9 @@ function showAccount(data){
     const g=data.growth||{};
     const f=g.foundingMember;
     foundingMemberLabel.textContent=f?'Founding Member #'+f.memberNo:'Founding allocation currently full';
-    const r=g.referral||{};
-    inviteUrl=r.shareUrl||'';
-    referralStats.textContent=(r.activated||0)+' activated referral'+((r.activated||0)===1?'':'s')+(r.pending?' · '+r.pending+' pending':'');
-    if(inviteUrl) whatsappInvite.href='https://wa.me/?text='+encodeURIComponent('Join me on IZAKHONO ONE — One account. One AI. Everything. '+inviteUrl);
+    inviteUrl=location.origin+'/#ai';
+    referralStats.textContent='Share ONE with no referral ID, campaign tag or tracking.';
+    whatsappInvite.href='https://wa.me/?text='+encodeURIComponent('Join me on IZAKHONO ONE — One account. One AI. Everything. '+inviteUrl);
     if(chatLock) chatLock.remove();
   }else{
     conversation=[];
@@ -218,7 +214,7 @@ document.getElementById('loginForm').addEventListener('submit',async e=>{
 document.getElementById('registerForm').addEventListener('submit',async e=>{
   e.preventDefault();setAuthNote('Creating your account…');
   try{
-    const x=await api('/v1/account/register',{method:'POST',body:JSON.stringify({displayName:registerName.value,email:registerEmail.value,password:registerPassword.value,referralCode:incomingReferral||undefined,campaign:incomingCampaign})});
+    const x=await api('/v1/account/register',{method:'POST',body:JSON.stringify({displayName:registerName.value,email:registerEmail.value,password:registerPassword.value})});
     setAuthNote(x.requiresVerification?'Account created. Check your email to verify it.':'Account created. You can sign in now.');
     document.querySelector('[data-auth-tab="login"]').click();
     loginEmail.value=registerEmail.value;
@@ -246,7 +242,7 @@ shareInvite.addEventListener('click',async()=>{
   try{if(navigator.share)await navigator.share(payload);else await navigator.clipboard.writeText(inviteUrl)}catch(e){}
 });
 document.getElementById('globalShare').addEventListener('click',async()=>{
-  const url=location.origin+'/?campaign=switch-to-one-share';
+  const url=location.origin+'/';
   const payload={title:'IZAKHONO ONE',text:'One account. One AI. Everything. Privacy-first and built to cost less.',url};
   try{if(navigator.share)await navigator.share(payload);else{await navigator.clipboard.writeText(url);alert('IZAKHONO ONE link copied.')}}catch(e){}
 });
