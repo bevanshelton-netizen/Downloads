@@ -267,6 +267,83 @@ const server=createServer(async(req,res)=>{
         products:publicProducts()
       });
     }
+    if(req.method==="GET" && (url.pathname==="/account/verify" || url.pathname==="/account/reset")){
+      return html(res,200,PUBLIC_INDEX);
+    }
+
+    if(req.method==="POST" && url.pathname==="/v1/account/register"){
+      if(!sameOrigin(req)) return json(res,403,{error:"Origin not allowed"});
+      const body=await readJson(req);
+      const result=await authRequest("/v1/register",{method:"POST",body});
+      return json(res,result.response.status,result.payload);
+    }
+
+    if(req.method==="POST" && url.pathname==="/v1/account/verify"){
+      if(!sameOrigin(req)) return json(res,403,{error:"Origin not allowed"});
+      const body=await readJson(req);
+      const result=await authRequest("/v1/verify-email",{method:"POST",body});
+      return json(res,result.response.status,result.payload);
+    }
+
+    if(req.method==="POST" && url.pathname==="/v1/account/login"){
+      if(!sameOrigin(req)) return json(res,403,{error:"Origin not allowed"});
+      const body=await readJson(req);
+      const result=await authRequest("/v1/login",{method:"POST",body});
+      if(!result.response.ok) return json(res,result.response.status,result.payload);
+      const token=result.payload?.token;
+      if(!token) return json(res,502,{error:"AUTH_SESSION_MISSING"});
+      return json(res,200,{user:result.payload.user,expiresInSeconds:result.payload.expiresInSeconds},{
+        "set-cookie":sessionCookie(token,result.payload.expiresInSeconds)
+      });
+    }
+
+    if(req.method==="GET" && url.pathname==="/v1/account/me"){
+      const account=await accountForRequest(req);
+      if(!account) return json(res,401,{error:"Authentication required"});
+      return json(res,200,{user:account.user,entitlement:publicEntitlement(account.user.id)});
+    }
+
+    if(req.method==="POST" && url.pathname==="/v1/account/logout"){
+      if(!sameOrigin(req)) return json(res,403,{error:"Origin not allowed"});
+      const token=cookieToken(req);
+      if(token) await authRequest("/v1/logout",{method:"POST",body:{},token}).catch(()=>null);
+      return json(res,200,{loggedOut:true},{"set-cookie":clearSessionCookie()});
+    }
+
+    if(req.method==="POST" && url.pathname==="/v1/account/recovery/request"){
+      if(!sameOrigin(req)) return json(res,403,{error:"Origin not allowed"});
+      const body=await readJson(req);
+      const result=await authRequest("/v1/recovery/request",{method:"POST",body});
+      return json(res,result.response.status,result.payload);
+    }
+
+    if(req.method==="POST" && url.pathname==="/v1/account/recovery/reset"){
+      if(!sameOrigin(req)) return json(res,403,{error:"Origin not allowed"});
+      const body=await readJson(req);
+      const result=await authRequest("/v1/recovery/reset",{method:"POST",body});
+      return json(res,result.response.status,result.payload);
+    }
+
+    if(req.method==="GET" && url.pathname==="/v1/account/usage"){
+      const account=await accountForRequest(req);
+      if(!account) return json(res,401,{error:"Authentication required"});
+      return json(res,200,{entitlement:publicEntitlement(account.user.id)});
+    }
+
+    if(req.method==="POST" && url.pathname==="/v1/one/chat"){
+      if(!sameOrigin(req)) return json(res,403,{error:"Origin not allowed"});
+      const account=await accountForRequest(req);
+      if(!account) return json(res,401,{error:"Authentication required"});
+      if(!Array.isArray(account.user.permissions) || !account.user.permissions.includes("one.ai.chat")) return json(res,403,{error:"AI chat is not enabled for this account"});
+      const current=usageFor(account.user.id);
+      if(FREE_DAILY_REQUESTS>0 && current.requests>=FREE_DAILY_REQUESTS) return json(res,429,{error:"Daily fair-use allowance reached",entitlement:publicEntitlement(account.user.id)});
+      const body=await readJson(req);
+      const messages=normalizeMessages(body.messages);
+      const payload=await chat({...body,messages});
+      recordUsage(account.user.id,payload,messages);
+      return json(res,200,{...payload,entitlement:publicEntitlement(account.user.id)});
+    }
+
     if(!authed(req)) return json(res,401,{error:"Unauthorized"});
     if(req.method==="POST"&&url.pathname==="/v1/chat/completions"){
       const body=await readJson(req);
