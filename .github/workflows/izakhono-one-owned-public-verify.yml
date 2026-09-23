@@ -45,6 +45,28 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 4
     steps:
+      - name: Diagnose public DNS chain
+        shell: bash
+        run: |
+          set +e
+          echo '=== PARENT ZONE: izakhonoafrica.co.za NS ==='
+          dig +short NS izakhonoafrica.co.za
+          echo '=== DELEGATED ZONE: domains.izakhonoafrica.co.za NS ==='
+          dig +short NS domains.izakhonoafrica.co.za
+          echo '=== OWNED NAMESERVER ADDRESSES ==='
+          echo 'ns1.izakhonoafrica.co.za A:'
+          dig +short A ns1.izakhonoafrica.co.za
+          echo 'ns2.izakhonoafrica.co.za A:'
+          dig +short A ns2.izakhonoafrica.co.za
+          echo '=== ONE RECORDS ==='
+          echo 'A:'
+          dig +short A one.domains.izakhonoafrica.co.za
+          echo 'AAAA:'
+          dig +short AAAA one.domains.izakhonoafrica.co.za
+          echo '=== TRACE (tail) ==='
+          dig +trace one.domains.izakhonoafrica.co.za 2>&1 | tail -n 40
+          exit 0
+
       - name: Verify exact HTTPS 200 and owned ONE release
         shell: bash
         run: |
@@ -54,6 +76,9 @@ jobs:
 
           root_code="$(curl -sSL --max-time 12 -o /tmp/one-owned-root.html -w '%{http_code}' "$ROOT" || true)"
           health_code="$(curl -sSL --max-time 12 -o /tmp/one-owned-health.json -w '%{http_code}' "$HEALTH" || true)"
+
+          echo "HTTPS_ROOT=$root_code"
+          echo "HTTPS_HEALTH=$health_code"
 
           test "$root_code" = '200'
           test "$health_code" = '200'
