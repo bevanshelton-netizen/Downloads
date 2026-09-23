@@ -1,0 +1,246 @@
+{
+  "doctrine": {
+    "name": "IZAKHONO EVERYTHING",
+    "owner": "IZAKHONO AFRICA",
+    "rule": "Own every core capability. External infrastructure, APIs and providers are reversible bootstrap or overflow only.",
+    "no_tracking": true,
+    "no_behavioural_profiling": true,
+    "no_advertising_ids": true,
+    "open_import_export": true,
+    "one_account": true,
+    "one_ai": true,
+    "owned_compute_primary": true,
+    "external_fallback_reversible": true,
+    "live_claim_requires_verification": true
+  },
+  "quality_bar": [
+    "privacy",
+    "simplicity",
+    "interoperability",
+    "African languages and local relevance",
+    "accessibility",
+    "cost efficiency",
+    "data portability",
+    "cross-product integration",
+    "reliability",
+    "owner control"
+  ],
+  "pillars": [
+    {
+      "id": "one",
+      "name": "IZAKHONO ONE",
+      "scope": "identity, home, universal navigation and AI operating layer"
+    },
+    {
+      "id": "ai",
+      "name": "IZAKHONO ONE AI",
+      "scope": "assistant, agents, search/reasoning, orchestration, memory/knowledge with user control"
+    },
+    {
+      "id": "compute",
+      "name": "IZAKHONO GPU COMPUTE",
+      "scope": "owned inference workers, scheduling, model serving, capacity pooling"
+    },
+    {
+      "id": "cloud",
+      "name": "IZAKHONO CLOUD",
+      "scope": "compute, deployment, runtime, edge, TLS, DNS, observability and failover"
+    },
+    {
+      "id": "code",
+      "name": "IZAKHONO CODE",
+      "scope": "repositories, editor, issues, pull requests, CI/CD, packages and releases"
+    },
+    {
+      "id": "data",
+      "name": "IZAKHONO DATA",
+      "scope": "database, realtime, storage, backups, search and data APIs"
+    },
+    {
+      "id": "auth",
+      "name": "IZAKHONO ACCOUNT",
+      "scope": "identity, sessions, MFA, organisations, permissions and device trust"
+    },
+    {
+      "id": "security",
+      "name": "FORTRESS",
+      "scope": "fraud prevention, trust, malware/site protection, risk scoring and policy enforcement"
+    },
+    {
+      "id": "pay",
+      "name": "IZAKHONO PAY",
+      "scope": "merchant payments, routing, ledger, reconciliation, subscriptions and payouts"
+    }
+  ],
+  "product_families": [
+    {
+      "family": "Productivity",
+      "products": [
+        "Mail",
+        "Calendar",
+        "Contacts",
+        "Docs",
+        "Sheets",
+        "Slides",
+        "Forms",
+        "Notes",
+        "Tasks",
+        "Drive",
+        "Meet"
+      ]
+    },
+    {
+      "family": "Discovery",
+      "products": [
+        "Search",
+        "News",
+        "Maps",
+        "Translate",
+        "Browser",
+        "Knowledge"
+      ]
+    },
+    {
+      "family": "Media",
+      "products": [
+        "KORA Music",
+        "KORA Video",
+        "YHVH Gospel TV",
+        "Radio",
+        "Podcasting",
+        "Photos",
+        "Creator Studio"
+      ]
+    },
+    {
+      "family": "Creative",
+      "products": [
+        "Creative Suite",
+        "Design",
+        "Photo",
+        "Vector",
+        "Video",
+        "Motion",
+        "Audio",
+        "Publishing",
+        "Game Creator"
+      ]
+    },
+    {
+      "family": "Commerce",
+      "products": [
+        "LegacyMart Makers",
+        "Shop Builder",
+        "Payments",
+        "Orders",
+        "Shipping",
+        "CRM",
+        "Business Profiles"
+      ]
+    },
+    {
+      "family": "Finance",
+      "products": [
+        "SUPER ACCOUNTANT",
+        "SUPER CFO",
+        "Tax",
+        "Payroll",
+        "Assets",
+        "Insurance Guardian",
+        "FAISReady"
+      ]
+    },
+    {
+      "family": "Education",
+      "products": [
+        "Edu-Build Super Portal",
+        "Classroom",
+        "AI Lecturers",
+        "Assessments",
+        "Certificates",
+        "Learners App",
+        "Matric Rewrite"
+      ]
+    },
+    {
+      "family": "Work",
+      "products": [
+        "WorkNow",
+        "Recruiter",
+        "CV",
+        "Employer Portal",
+        "Training",
+        "International Work"
+      ]
+    },
+    {
+      "family": "Mobility",
+      "products": [
+        "AUTO AI",
+        "Learner Driver",
+        "Diagnostics",
+        "Vehicle Marketplace",
+        "Shelton Motor Company"
+      ]
+    },
+    {
+      "family": "Communications",
+      "products": [
+        "Chat",
+        "Communities",
+        "Voice",
+        "Video Calling",
+        "Mail",
+        "Notifications"
+      ]
+    },
+    {
+      "family": "Developer",
+      "products": [
+        "CODE",
+        "Cloud",
+        "Runtime",
+        "Queue",
+        "API Gateway",
+        "GPU Compute",
+        "Functions",
+        "Analytics",
+        "Monitoring"
+      ]
+    },
+    {
+      "family": "Security",
+      "products": [
+        "FORTRESS",
+        "DOXA-SURE",
+        "Identity Protection",
+        "Fraud Intelligence",
+        "Device Trust"
+      ]
+    },
+    {
+      "family": "Operating System",
+      "products": [
+        "IZAKHONO OS",
+        "App Store",
+        "Files",
+        "Settings",
+        "Backup",
+        "Device Sync"
+      ]
+    },
+    {
+      "family": "Business",
+      "products": [
+        "Website Builder",
+        "Marketing",
+        "Ads Studio",
+        "Social Publishing",
+        "CRM",
+        "ERP",
+        "Bookings",
+        "Support Desk"
+      ]
+    }
+  ]
+}
