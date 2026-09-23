@@ -1,0 +1,109 @@
+{
+  "schema": "izakhono.one-deployment-plan/v1",
+  "product": "IZAKHONO ONE",
+  "target_hostname": "one.domains.izakhonoafrica.co.za",
+  "source_branch": "main",
+  "deployment_model": "owned-first with reversible external fallback",
+  "release_states": [
+    "CODE_READY",
+    "OWNER_MACHINE_READY",
+    "TECHNICAL_RUNTIME_READY",
+    "PUBLIC_PILOT_READY",
+    "COMMERCIAL_READY",
+    "VERIFIED_LIVE"
+  ],
+  "stages": [
+    {
+      "id": "code",
+      "name": "Canonical release",
+      "required": true,
+      "evidence": [
+        "main branch",
+        "green CI",
+        "public sellable rollout gate",
+        "owned cloud software release gate"
+      ],
+      "target_state": "CODE_READY"
+    },
+    {
+      "id": "owner-agent",
+      "name": "Owner machine automation",
+      "required": true,
+      "evidence": [
+        "INSTALL-IZAKHONO-OWNER-AGENT.cmd installed",
+        "/var/lib/izakhono-owner-agent/state.json"
+      ],
+      "target_state": "OWNER_MACHINE_READY"
+    },
+    {
+      "id": "model",
+      "name": "Owned inference activation",
+      "required": true,
+      "evidence": [
+        "izakhono-one-local-model.json",
+        "chat_ready=true",
+        "healthy model worker registered in GPU Compute"
+      ],
+      "target_state": "TECHNICAL_RUNTIME_READY"
+    },
+    {
+      "id": "runtime",
+      "name": "Owned runtime deployment",
+      "required": true,
+      "evidence": [
+        "izakhono-one-ai.json",
+        "source=IZAKHONO_CODE",
+        "runtime=IZAKHONO_RUNTIME",
+        "local /health healthy"
+      ],
+      "target_state": "TECHNICAL_RUNTIME_READY"
+    },
+    {
+      "id": "mail",
+      "name": "Account verification and recovery",
+      "required_for_public_pilot": true,
+      "evidence": [
+        "SMTP handshake probe ready=true",
+        "public_signup=true"
+      ],
+      "target_state": "PUBLIC_PILOT_READY"
+    },
+    {
+      "id": "edge",
+      "name": "Public routing",
+      "required_for_public_pilot": true,
+      "evidence": [
+        "EDGE health",
+        "independent HTTPS 200",
+        "public /health identifies IZAKHONO ONE AI"
+      ],
+      "target_state": "PUBLIC_PILOT_READY"
+    },
+    {
+      "id": "commercial",
+      "name": "Commercial release",
+      "required_for_sales": true,
+      "evidence": [
+        "final pricing approved by cost proof",
+        "Terms of Service",
+        "Privacy Policy",
+        "Refund/Cancellation Policy",
+        "support route",
+        "verified payment -> receipt/invoice -> entitlement flow"
+      ],
+      "target_state": "COMMERCIAL_READY"
+    }
+  ],
+  "deployment_commands": {
+    "owner_agent_install": "INSTALL-IZAKHONO-OWNER-AGENT.cmd",
+    "local_model_activation": "START-IZAKHONO-ONE-AI-LOCAL-MODEL.cmd",
+    "readiness_check": "START-IZAKHONO-ONE-DEPLOYMENT-READINESS.cmd"
+  },
+  "rules": {
+    "no_live_claim_before_independent_https_verification": true,
+    "no_public_signup_without_verified_recovery_delivery": true,
+    "no_commercial_claim_before_payment_and_legal_gate": true,
+    "no_fake_checkout": true,
+    "behavioural_tracking": false
+  }
+}
