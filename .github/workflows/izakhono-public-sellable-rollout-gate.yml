@@ -13,6 +13,7 @@ on:
       - "IZAKHONO-SELLABLE-PUBLIC-PRODUCT-GATE.md"
       - "IZAKHONO-LOW-COST-GUARANTEE.md"
       - "IZAKHONO-ONE-CEO-GROWTH-STRATEGY.md"
+      - "IZAKHONO-ONE-DEPLOYMENT-READINESS.md"
       - "IZAKHONO-STUDIO/IZAKHONO-ONE-LAUNCH-BRIEF.md"
       - "IZAKHONO-STUDIO/src/portfolio.js"
       - "izakhono-growth-os/**"
@@ -68,11 +69,23 @@ jobs:
           if(!(target>0 && target<incumbentEntry)) throw new Error('business-entry target must undercut benchmark entry pricing');
           if(target>=5) throw new Error('business-entry target must remain below US$5 until strategy changes explicitly');
           console.log('Growth strategy valid: business entry target',target,'< incumbent entry',incumbentEntry);
+
+          const deployment=JSON.parse(fs.readFileSync('izakhono-one-ai/deployment-plan.json','utf8'));
+          if(deployment.target_hostname!=='one.domains.izakhonoafrica.co.za') throw new Error('ONE deployment hostname drifted');
+          if(deployment.rules?.no_live_claim_before_independent_https_verification!==true) throw new Error('public verification rule missing');
+          if(deployment.rules?.no_public_signup_without_verified_recovery_delivery!==true) throw new Error('signup/recovery gate missing');
+          if(deployment.rules?.no_commercial_claim_before_payment_and_legal_gate!==true) throw new Error('commercial gate missing');
+          const one=r.products.find(p=>p.id==='izakhono-one-ai');
+          if(!one) throw new Error('ONE rollout entry missing');
+          if(/account\/entitlement layer/i.test(one.next_blocker||'')) throw new Error('stale ONE blocker still references built account layer');
+          if(!/SMTP/i.test(one.next_blocker||'')||!/public HTTPS/i.test(one.next_blocker||'')) throw new Error('ONE rollout blockers do not match deployment plan');
+          console.log('Deployment plan valid:',deployment.release_states.join(' -> '));
           NODE
       - name: Validate ONE AI owned deployment
         run: |
           bash -n izakhono-owned-cloud/deploy-izakhono-one-ai.sh
           bash -n izakhono-owned-cloud/configure-izakhono-one-ai.sh
+          bash -n izakhono-owned-cloud/preflight-izakhono-one.sh
           bash -n izakhono-gpu-compute-node/install-linux.sh
           bash -n izakhono-model-worker-node/install-linux.sh
           bash -n izakhono-mail-relay-adapter/install-linux.sh

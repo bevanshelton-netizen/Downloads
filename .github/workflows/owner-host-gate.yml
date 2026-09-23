@@ -12,6 +12,7 @@ on:
       - 'START-IZAKHONO-TAILSCALE-BRIDGE.cmd'
       - 'START-IZAKHONO-ONE-AI-LOCAL-MODEL.cmd'
       - 'INSTALL-IZAKHONO-OWNER-AGENT.cmd'
+      - 'START-IZAKHONO-ONE-DEPLOYMENT-READINESS.cmd'
       - 'owner-host/START-IZAKHONO-DOMAINS-OWNER-HOST.ps1'
       - 'izakhono-edge-node/**'
       - 'izakhono-owned-cloud/**'
@@ -65,6 +66,7 @@ jobs:
           bash -n izakhono-owned-cloud/deploy-izakhono-one-ai.sh
           bash -n izakhono-owned-cloud/activate-local-model-engine.sh
           bash -n izakhono-owned-cloud/configure-izakhono-one-ai.sh
+          bash -n izakhono-owned-cloud/preflight-izakhono-one.sh
           bash -n izakhono-gpu-compute-node/install-linux.sh
           bash -n izakhono-model-worker-node/install-linux.sh
           bash -n izakhono-mail-relay-adapter/install-linux.sh
@@ -101,6 +103,10 @@ jobs:
           grep -q 'izakhono-mail-relay' izakhono-owned-cloud/configure-izakhono-one-ai.sh
           grep -q 'IZAKHONO_ONE_CHAT_READY' izakhono-owned-cloud/configure-izakhono-one-ai.sh
           grep -q 'sellable-gate-ready-for-final-commercial-review' izakhono-owned-cloud/deploy-izakhono-one-ai.sh
+          grep -q 'izakhono.one-deployment-readiness/v1' izakhono-owned-cloud/preflight-izakhono-one.sh
+          grep -q 'GO_TECHNICAL_RUNTIME_ONLY' izakhono-owned-cloud/preflight-izakhono-one.sh
+          grep -q 'GO_PUBLIC_PILOT' izakhono-owned-cloud/preflight-izakhono-one.sh
+          grep -q 'GO_COMMERCIAL' izakhono-owned-cloud/preflight-izakhono-one.sh
           grep -q '127.0.0.1:$ENGINE_PORT:11434' izakhono-owned-cloud/activate-local-model-engine.sh
           grep -q 'IZAKHONO_MODEL_WORKER_MODELS' izakhono-owned-cloud/activate-local-model-engine.sh
           grep -q 'configure-izakhono-one-ai.sh' izakhono-owned-cloud/activate-local-model-engine.sh
@@ -134,6 +140,7 @@ jobs:
             'owner-host/START-IZAKHONO-TAILSCALE-BRIDGE.ps1',
             'owner-host/START-IZAKHONO-ONE-AI-LOCAL-MODEL.ps1',
             'owner-host/INSTALL-IZAKHONO-OWNER-AGENT.ps1',
+            'owner-host/START-IZAKHONO-ONE-DEPLOYMENT-READINESS.ps1',
             'izakhono-cloud/DEPLOY-KORA-ISN-01.ps1',
             'izakhono-cloud/DEPLOY-LEGACYMART-ISN-01.ps1'
           )
@@ -198,3 +205,9 @@ jobs:
           if ($ownerAgentPs -notmatch 'New-ScheduledTaskTrigger') { throw 'Owner Agent scheduled trigger missing' }
           if ($ownerAgentPs -notmatch 'owner-agent.sh') { throw 'Owner Agent WSL handoff missing' }
           if ($ownerAgentPs -notmatch 'Arbitrary command execution from the control document: DISABLED') { throw 'Owner Agent trust boundary status missing' }
+          $readiness = Get-Content 'START-IZAKHONO-ONE-DEPLOYMENT-READINESS.cmd' -Raw
+          if ($readiness -notmatch 'START-IZAKHONO-ONE-DEPLOYMENT-READINESS.ps1') { throw 'Deployment readiness CMD handoff missing' }
+          $readinessPs = Get-Content 'owner-host/START-IZAKHONO-ONE-DEPLOYMENT-READINESS.ps1' -Raw
+          if ($readinessPs -notmatch 'preflight-izakhono-one.sh') { throw 'Deployment readiness Linux handoff missing' }
+          if ($readinessPs -notmatch 'IZAKHONO-ONE-DEPLOYMENT-READINESS.json') { throw 'Deployment readiness JSON Desktop receipt missing' }
+          if ($readinessPs -notmatch 'IZAKHONO-ONE-DEPLOYMENT-READINESS.txt') { throw 'Deployment readiness text Desktop receipt missing' }

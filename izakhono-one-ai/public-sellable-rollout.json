@@ -33,9 +33,9 @@
       "owned_target": "https://one.domains.izakhonoafrica.co.za",
       "fallback": null,
       "public_status": "target-defined",
-      "commercial_status": "building",
-      "payment": "not-required-for-technical-pilot",
-      "next_blocker": "owner-host deployment + public HTTPS + account/entitlement layer"
+      "commercial_status": "pilot",
+      "payment": "not-required-for-public-technical-pilot; commercial checkout remains gated",
+      "next_blocker": "owner-host execution + verified SMTP + public HTTPS; commercial pricing/payment/legal gate follows public pilot"
     },
     {
       "id": "izakhono-flagship",
