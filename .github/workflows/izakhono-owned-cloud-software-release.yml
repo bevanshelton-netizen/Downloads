@@ -47,6 +47,7 @@ jobs:
           - izakhono-analytics-node
           - izakhono-notify-node
           - izakhono-ai-gateway-node
+          - izakhono-gpu-compute-node
           - izakhono-code-node
           - izakhono-backup-node
           - izakhono-ci-worker-node
