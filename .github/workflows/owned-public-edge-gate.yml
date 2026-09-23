@@ -125,3 +125,7 @@ jobs:
           $ps=Get-Content 'owner-host/START-IZAKHONO-PUBLIC-EDGE.ps1' -Raw
           if($ps -notmatch 'Ubuntu-24.04'){ throw 'WSL target missing' }
           if($ps -notmatch 'activate-owned-public-edge.sh'){ throw 'cutover handoff missing' }
+          if($ps -notmatch 'IZAKHONO-PARENT-DNS-HANDOFF.txt'){ throw 'parent DNS Desktop handoff missing' }
+          if($ps -notmatch 'one.domains.izakhonoafrica.co.za'){ throw 'ONE owned hostname missing from parent DNS handoff' }
+          if($ps -notmatch 'UDP 53'){ throw 'DNS UDP router handoff missing' }
+          if($ps -notmatch 'TCP 443'){ throw 'HTTPS router handoff missing' }
