@@ -708,6 +708,31 @@ $('schoolJoinTop')?.addEventListener('click',openSchoolSignup);
 $('closeSchoolDialog')?.addEventListener('click',closeSchoolSignup);
 $('cancelSchoolDialog')?.addEventListener('click',closeSchoolSignup);
 
+const FABRIC_OWNED='https://fabric.izakhonoafrica.co.za';
+const FABRIC_EXTERNAL='https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway-event';
+async function ldsaFabricPost(url,body,timeoutMs){
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeoutMs);
+  try{
+    const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:controller.signal});
+    const data=await response.json().catch(()=>({}));
+    return {ok:response.ok||response.status===202,status:response.status,...data};
+  }catch(error){return {ok:false,error:error?.name==='AbortError'?'timeout':String(error?.message||error)}}
+  finally{clearTimeout(timer)}
+}
+async function mirrorSchoolLead(payload){
+  const ref=('school:'+payload.school_name+':'+payload.phone).toLowerCase().replace(/[^a-z0-9:+._-]+/g,'-').slice(0,180);
+  const body={
+    platform_id:'learner-driver-sa',event_type:'lead.created',subject_ref:ref,
+    contact:{name:payload.contact_name||payload.school_name,email:payload.email||'',phone:payload.phone,company:payload.school_name,role:'driving school partner',source:'learner-driver-school-signup'},
+    opportunity:{title:payload.school_name+' — driving school partnership',value:0,currency:'ZAR',source:'learner-driver-school-signup'},
+    note:[payload.province,payload.area,payload.categories,payload.teaching_languages].filter(Boolean).join(' · ').slice(0,1000)
+  };
+  const primary=await ldsaFabricPost(FABRIC_OWNED+'/api/fabric/intake',body,1200);
+  if(primary.ok)return {...primary,route:'owned-primary'};
+  const external=await ldsaFabricPost(FABRIC_EXTERNAL,{...body,fabric_bridge:true},3000);
+  return external.ok?{...external,route:'external-resilience'}:{ok:false,route:'unavailable'};
+}
+
 $('schoolForm')?.addEventListener('submit',async(e)=>{
   e.preventDefault();
   const form=e.currentTarget;
@@ -744,6 +769,7 @@ $('schoolForm')?.addEventListener('submit',async(e)=>{
       body:JSON.stringify(payload)
     });
     if(!res.ok) throw new Error(`Signup failed (${res.status})`);
+    await mirrorSchoolLead(payload).catch(()=>null);
     localStorage.setItem('ldsa-school-submit-at',String(Date.now()));
     schoolStatus.textContent='✅ Thank you. Your driving school registration has been received for verification.';
     schoolStatus.className='form-status';
