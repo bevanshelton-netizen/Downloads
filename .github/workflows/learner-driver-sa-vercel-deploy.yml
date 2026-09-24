@@ -2,6 +2,11 @@ name: Learner Driver SA Public Deploy
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'learner-driver-sa-v6-live/**'
+      - '.github/workflows/learner-driver-sa-vercel-deploy.yml'
 
 permissions:
   contents: read
