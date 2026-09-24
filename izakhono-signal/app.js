@@ -1,6 +1,6 @@
 const BASE="https://bevanshelton-netizen.github.io/Downloads/";
 const campaigns=[
- {id:"auto-ai",name:"AUTO AI",status:"live",url:"https://auto-ai-eosin.vercel.app/",tagline:"Understand your car before you spend.",aud:"Motorists, out-of-plan vehicle owners, used-car buyers, families and fleets.",offer:"FREE safety help • R79 Vehicle Health • R99 Quote Review • R149 Used-Car Buyer Check",posts:[
+ {id:"auto-ai",name:"AUTO AI",status:"live",url:"https://autoai.izakhonoafrica.co.za/",tagline:"Understand your car before you spend.",aud:"Motorists, out-of-plan vehicle owners, used-car buyers, families and fleets.",offer:"FREE safety help • R79 Vehicle Health • R99 Quote Review • R149 Used-Car Buyer Check",posts:[
   "Something wrong with your car? Ask AUTO AI before you start replacing parts. Free safety-first help, plain language and no workshop jargon.",
   "Got a mechanic’s quotation and not sure what you’re paying for? AUTO AI Repair Quote Second Opinion — R99.",
   "Buying a used car? Check the warning signs before you buy someone else’s problem. AUTO AI Used-Car Buyer Check — R149."
