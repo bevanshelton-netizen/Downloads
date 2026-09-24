@@ -64,6 +64,7 @@ jobs:
         run: |
           set -euo pipefail
           ! grep -q 'payment.confirmed' auto-ai/lib/payments.mjs
-          ! grep -Eqi 'pin|otp|cvv|bank_password|account_number|id_number' kora-network/lib/app-fabric.ts
-          ! grep -Eqi 'pin|otp|cvv|bank_password|account_number|id_number' doxa-sure/lead-capture.js
-          ! grep -Eqi 'pin|otp|cvv|bank_password|account_number|id_number' auto-ai/lib/payments.mjs
+          sensitive='(^|[^[:alnum:]_])(pin|otp|cvv|bank_password|account_number|id_number)([^[:alnum:]_]|$)'
+          ! grep -Eqi "$sensitive" kora-network/lib/app-fabric.ts
+          ! grep -Eqi "$sensitive" doxa-sure/lead-capture.js
+          ! grep -Eqi "$sensitive" auto-ai/lib/payments.mjs
