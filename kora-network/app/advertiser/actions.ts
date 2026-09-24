@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { legal } from '@/lib/legal';
 import { getPlatformReleaseState } from '@/lib/platform-state';
+import { emitKoraLead } from '@/lib/app-fabric';
 
 function catLocalToIso(value: string) {
   const withSeconds = value.length === 16 ? `${value}:00` : value;
@@ -61,5 +62,18 @@ export async function createCampaign(formData: FormData) {
     ends_at: endIso,
   });
   if (error) redirect(`/advertiser?error=${encodeURIComponent(error.message)}`);
+
+  await emitKoraLead({
+    subjectRef:`advertiser:${user.id}`,
+    name:user.email || name,
+    email:user.email,
+    company:name,
+    role:'advertiser',
+    source:'kora-advertiser-campaign',
+    title:`${name} — KORA advertiser relationship`,
+    value:budget,
+    note:`Campaign created · budget R${budget.toFixed(2)} · reward pool R${rewardPool.toFixed(2)}`,
+  }).catch(()=>null);
+
   revalidatePath('/advertiser');
 }
