@@ -1,0 +1,186 @@
+name: KORA KIDS Final Creative Lock
+
+on:
+  push:
+    paths:
+      - "kora-kids-final-lock/**"
+      - "kora-kids-mastering/**"
+      - "kora-kids-audio-intake/**"
+      - "kora-kids-finishing/**"
+      - "owner-host/FINALISE-KORA-KIDS-EPISODE1.ps1"
+      - "FINALISE-KORA-KIDS-EPISODE1.cmd"
+      - ".github/workflows/kora-kids-final-lock.yml"
+  pull_request:
+    paths:
+      - "kora-kids-final-lock/**"
+      - "kora-kids-mastering/**"
+      - "kora-kids-audio-intake/**"
+      - "kora-kids-finishing/**"
+      - "owner-host/FINALISE-KORA-KIDS-EPISODE1.ps1"
+      - "FINALISE-KORA-KIDS-EPISODE1.cmd"
+      - ".github/workflows/kora-kids-final-lock.yml"
+
+jobs:
+  final-creative-lock-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Ensure local media tools
+        run: |
+          set -euo pipefail
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y ffmpeg espeak-ng
+          fi
+          ffmpeg -version >/dev/null
+          ffprobe -version >/dev/null
+
+      - name: Validate finalisation workers
+        run: |
+          node --check kora-kids-final-lock/worker.mjs
+          node --check kora-kids-mastering/worker.mjs
+          node --check kora-kids-audio-intake/worker.mjs
+          node --check kora-kids-finishing/worker.mjs
+
+      - name: Build approved Episode 1 finishing proof
+        run: |
+          rm -rf /tmp/ep1-render /tmp/ep1-finish /tmp/kora-workspace /tmp/final-lock /tmp/master-final
+          mkdir -p /tmp/kora-workspace
+          node kora-kids-render-worker/worker.mjs             --input kora-kids-render-worker/fixtures/lebo-jabu-approved-job.json             --output /tmp/ep1-render             --mode proof
+          node kora-kids-finishing/worker.mjs             --job kora-kids-render-worker/fixtures/lebo-jabu-approved-job.json             --picture /tmp/ep1-render/episode-guide.mp4             --config kora-kids-finishing/episode1-finishing.json             --output /tmp/ep1-finish
+          test -s /tmp/ep1-finish/finishing-result.json
+          test -s /tmp/ep1-finish/episode-polished-guide.mp4
+
+      - name: Build synthetic final creative media
+        run: |
+          ffmpeg -y -f lavfi -i "sine=frequency=245:sample_rate=48000:duration=5.5" -af "volume=0.08" -ac 1 /tmp/lebo-final.wav
+          ffmpeg -y -f lavfi -i "sine=frequency=392:sample_rate=48000:duration=6" -af "volume=0.025" -ac 2 /tmp/theme-final.wav
+          for cue in hello question proud happy sneeze goodbye; do
+            ffmpeg -y -f lavfi -i "sine=frequency=$((180 + ${#cue} * 9)):sample_rate=48000:duration=0.7" -af "volume=0.05" -ac 1 "/tmp/jabu-$cue.wav"
+          done
+
+      - name: Import voice, music and all six Jabu cues privately
+        run: |
+          node kora-kids-audio-intake/worker.mjs             --type voice --input /tmp/lebo-final.wav             --metadata kora-kids-audio-intake/fixtures/voice-metadata.json             --workspace /tmp/kora-workspace >/tmp/voice-import.json
+
+          node kora-kids-audio-intake/worker.mjs             --type music --input /tmp/theme-final.wav             --metadata kora-kids-audio-intake/fixtures/music-metadata.json             --workspace /tmp/kora-workspace >/tmp/music-import.json
+
+          for cue in hello question proud happy sneeze goodbye; do
+            cat > "/tmp/jabu-$cue.json" <<JSON
+          {
+            "schema":"kora-kids.audio-intake/v1",
+            "type":"sfx",
+            "seriesId":"lebo-jabu",
+            "episodeSlug":"jam-day-under-the-baobab",
+            "language":"en-ZA",
+            "cueId":"jabu-$cue",
+            "originalName":"jabu-$cue.wav",
+            "rightsCleared":true
+          }
+          JSON
+            node kora-kids-audio-intake/worker.mjs               --type sfx --input "/tmp/jabu-$cue.wav"               --metadata "/tmp/jabu-$cue.json"               --workspace /tmp/kora-workspace >"/tmp/jabu-$cue-import.json"
+          done
+
+      - name: Approve imported assets through private Audio Desk API
+        env:
+          KORA_KIDS_STUDIO_WORKSPACE: /tmp/kora-workspace
+        run: |
+          node kora-kids-studio/server.mjs >/tmp/final-lock-studio.log 2>&1 &
+          echo $! >/tmp/final-lock-studio.pid
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:8890/api/audio-assets >/tmp/audio-assets.json && break
+            sleep 1
+          done
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const base="http://127.0.0.1:8890",headers={"content-type":"application/json"};
+          let items=JSON.parse(fs.readFileSync("/tmp/audio-assets.json","utf8")).assets;
+          if(items.length!==8) { console.error("expected 8 assets, got",items.length); process.exit(2); }
+          for(const asset of items){
+            for(const gate of ["performance","technical","final"]){
+              const r=await fetch(base+"/api/audio-assets/"+asset.id+"/review",{method:"POST",headers,body:JSON.stringify({gate,approved:true})});
+              if(!r.ok){console.error(await r.text());process.exit(3)}
+            }
+          }
+          items=(await (await fetch(base+"/api/audio-assets")).json()).assets;
+          if(!items.every(x=>x.approvedForMastering===true&&Object.values(x.review).every(Boolean))) process.exit(4);
+          const cues=new Set(items.filter(x=>x.type==="sfx").map(x=>x.cueId));
+          for(const c of ["jabu-hello","jabu-question","jabu-proud","jabu-happy","jabu-sneeze","jabu-goodbye"]) if(!cues.has(c)) process.exit(5);
+          NODE
+
+      - name: Stop private studio
+        if: always()
+        run: |
+          test ! -f /tmp/final-lock-studio.pid || kill "$(cat /tmp/final-lock-studio.pid)" || true
+
+      - name: Create final creative lock
+        run: |
+          node kora-kids-final-lock/worker.mjs             --workspace /tmp/kora-workspace             --config kora-kids-final-lock/config.json             --finishing-result /tmp/ep1-finish/finishing-result.json             --output /tmp/final-lock
+          test -s /tmp/final-lock/creative-lock.json
+          test -s /tmp/final-lock/mastering-inputs.json
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const x=JSON.parse(fs.readFileSync("/tmp/final-lock/creative-lock.json","utf8"));
+          if(x.creativeLock!==true||x.readyForMastering!==true||x.releaseApproved!==false||x.published!==false) process.exit(2);
+          if(Object.keys(x.assets?.sfx||{}).length!==6) process.exit(3);
+          if(!Object.values(x.checks||{}).every(Boolean)) process.exit(4);
+          NODE
+
+      - name: Build master candidate from exact creative-locked assets
+        run: |
+          VOICE="$(node -p 'require("/tmp/final-lock/mastering-inputs.json").voicePath')"
+          MUSIC="$(node -p 'require("/tmp/final-lock/mastering-inputs.json").musicPath')"
+          node kora-kids-mastering/worker.mjs             --job kora-kids-render-worker/fixtures/lebo-jabu-approved-job.json             --animatic /tmp/ep1-finish/episode-polished-guide.mp4             --voice "$VOICE"             --music "$MUSIC"             --creative-lock /tmp/final-lock/creative-lock.json             --approval kora-kids-mastering/fixtures/mastering-approval.json             --captions /tmp/ep1-render/captions.vtt             --output /tmp/master-final
+
+      - name: Validate creative-locked master candidate
+        run: |
+          test -s /tmp/master-final/master-candidate.mp4
+          test -s /tmp/master-final/mastering-result.json
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const x=JSON.parse(fs.readFileSync("/tmp/master-final/mastering-result.json","utf8"));
+          const fail=[];
+          const ok=(n,v)=>{if(!v)fail.push(n)};
+          ok("master-candidate",x.masterCandidate===true);
+          ok("creative-lock-used",x.creativeLockUsed===true);
+          ok("jabu-scripted-cues",x.jabuSfxMixed?.length===5);
+          ok("technical-pass",x.technical?.pass===true);
+          ok("not-broadcast",x.broadcastMaster===false);
+          ok("release-still-required",x.releaseApprovalRequired===true);
+          if(fail.length){console.error("Failed:",fail.join(", "));process.exit(2)}
+          NODE
+
+      - name: Prove incomplete creative set is refused
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const root="/tmp/kora-workspace/audio-assets";
+          for(const id of fs.readdirSync(root)){
+            const p=root+"/"+id+"/manifest.json";
+            const x=JSON.parse(fs.readFileSync(p,"utf8"));
+            if(x.cueId==="jabu-goodbye"){
+              x.approvedForMastering=false;
+              x.review.final=false;
+              fs.writeFileSync(p,JSON.stringify(x,null,2));
+              break;
+            }
+          }
+          NODE
+          if node kora-kids-final-lock/worker.mjs             --workspace /tmp/kora-workspace             --config kora-kids-final-lock/config.json             --finishing-result /tmp/ep1-finish/finishing-result.json             --output /tmp/should-not-lock; then
+            echo "Final creative lock incorrectly accepted a missing approved Jabu cue" >&2
+            exit 2
+          fi
+
+      - name: Upload final creative-lock proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: lebo-jabu-final-creative-lock-proof
+          path: |
+            /tmp/final-lock/creative-lock.json
+            /tmp/final-lock/mastering-inputs.json
+            /tmp/master-final/mastering-result.json
+          retention-days: 7
