@@ -1,13 +1,13 @@
 {
   "schema": "izakhono.owner-agent-request/v1",
-  "id": "yhvh-gospel-tv-owned-proof-20260925-05",
+  "id": "yhvh-gospel-tv-owned-proof-20260925-06",
   "enabled": true,
   "action": "deploy-yhvh-gospel-tv",
-  "requested_at": "2026-09-25T07:32:00Z",
+  "requested_at": "2026-09-25T11:40:00Z",
   "expires_at": "2026-10-31T23:59:59Z",
   "max_attempts": 3,
   "params": {
     "hostname": "gospel.domains.izakhonoafrica.co.za"
   },
-  "note": "YHVH Gospel TV owned proof rollout after Owner Agent shell-expansion fix. Synchronize from approved source into IZAKHONO CODE as needed, execute from IZAKHONO CODE, install/refresh YHVH Gospel Engine v2, bind the channel runtime to yhvh-gospel-engine with a protected local-only token, deploy to IZAKHONO RUNTIME, activate owned EDGE/TLS/DNS, and expose only the sanitized deployment proof endpoint. Preserve external Vercel/GitHub Pages as resilience. No behavioural tracking, profiling, silent analytics or persisted IP identifiers. Success requires independent public HTTPS health with product_id=yhvh-gospel-tv, engine_id=yhvh-gospel-engine, engine_authoritative=true, and sanitized receipt source=IZAKHONO_CODE/runtime=IZAKHONO_RUNTIME."
+  "note": "Final YHVH owned execution-proof rollout. Synchronize approved source into IZAKHONO CODE if needed, execute from IZAKHONO CODE, install/refresh YHVH Gospel Engine v2, deploy YHVH Gospel TV to IZAKHONO RUNTIME, activate owned EDGE/TLS/DNS or reversible outbound last-mile transport if required, and generate /var/lib/izakhono-deploy/yhvh-owner-agent-proof.json. Public verification must prove this exact request_id, action=deploy-yhvh-gospel-tv, status=success, exit_code=0, source_authority=IZAKHONO_CODE, product_id=yhvh-gospel-tv, engine_id=yhvh-gospel-engine, with secrets/log paths not exposed. Preserve Vercel and GitHub Pages as resilience only. No behavioural tracking, profiling, silent analytics or persisted IP identifiers."
 }
