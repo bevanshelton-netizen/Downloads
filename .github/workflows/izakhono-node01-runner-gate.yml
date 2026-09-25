@@ -1,0 +1,56 @@
+name: IZAKHONO NODE01 Runner Bootstrap Gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'owner-host/install-github-actions-runner.sh'
+      - 'owner-host/INSTALL-IZAKHONO-NODE01-GITHUB-RUNNER.ps1'
+      - 'START-IZAKHONO-NODE01-GITHUB-RUNNER.cmd'
+      - '.github/workflows/izakhono-node01-runner-gate.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'owner-host/install-github-actions-runner.sh'
+      - 'owner-host/INSTALL-IZAKHONO-NODE01-GITHUB-RUNNER.ps1'
+      - 'START-IZAKHONO-NODE01-GITHUB-RUNNER.cmd'
+      - '.github/workflows/izakhono-node01-runner-gate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  linux-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate NODE01 runner installer
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n owner-host/install-github-actions-runner.sh
+          grep -q 'IZAKHONO-NODE01' owner-host/install-github-actions-runner.sh
+          grep -q 'RUNNER_LABELS.*izakhono' owner-host/install-github-actions-runner.sh
+          grep -q 'token_persisted:false' owner-host/install-github-actions-runner.sh
+          grep -q 'external_compute_authority:false' owner-host/install-github-actions-runner.sh
+          grep -q -- '--token-stdin' owner-host/install-github-actions-runner.sh
+          ! grep -Eq 'echo .*TOKEN|printf .*TOKEN' owner-host/install-github-actions-runner.sh
+
+  windows-contract:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse secure Windows bootstrap
+        shell: pwsh
+        run: |
+          $path='owner-host/INSTALL-IZAKHONO-NODE01-GITHUB-RUNNER.ps1'
+          $tokens=$null; $errors=$null
+          [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $path),[ref]$tokens,[ref]$errors) | Out-Null
+          if($errors.Count -gt 0){ $errors | ForEach-Object { Write-Error $_.Message }; exit 1 }
+          $ps=Get-Content $path -Raw
+          if($ps -notmatch 'registration-token'){ throw 'Short-lived GitHub runner registration flow missing' }
+          if($ps -notmatch 'install-github-actions-runner.sh --token-stdin'){ throw 'stdin token handoff missing' }
+          if($ps -notmatch 'token_persisted'){ throw 'token persistence verification missing' }
+          if($ps -notmatch 'authority'){ throw 'NODE01 authority verification missing' }
+          $cmd=Get-Content 'START-IZAKHONO-NODE01-GITHUB-RUNNER.cmd' -Raw
+          if($cmd -notmatch 'INSTALL-IZAKHONO-NODE01-GITHUB-RUNNER.ps1'){ throw 'CMD handoff mismatch' }
