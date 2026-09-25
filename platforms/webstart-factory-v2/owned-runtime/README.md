@@ -4,7 +4,7 @@ This is the owned-first delivery route for WebStart.
 
 ## Endpoints
 - Builder: `/` or `/builder`
-- Published customer site: `/sites/<slug>`
+- Published customer site: `/<slug>`
 - Health: `/health`
 
 ## Environment
@@ -23,7 +23,7 @@ curl -fsS http://127.0.0.1:8288/health
 1. Replace `webstart.example.com` in the Caddyfile with the owned hostname.
 2. Point DNS to the owned public endpoint.
 3. Add the Caddyfile to the owned EDGE/TLS service.
-4. Verify HTTPS returns 200 for `/health`, `/`, and one published `/sites/<slug>`.
+4. Verify HTTPS returns 200 for `/health`, `/`, and one published `/<slug>`.
 5. Only after successful verification make the owned route primary.
 6. Keep the external Vercel renderer as a reversible fallback.
 
