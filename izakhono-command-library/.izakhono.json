@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "name": "IZAKHONO Command Library",
+  "slug": "izakhono-command-library",
+  "build_context": ".",
+  "dockerfile_path": "Dockerfile",
+  "container_port": 8788,
+  "health_path": "/healthz",
+  "branch": "main",
+  "alpha": {
+    "preflight": true,
+    "rehearsal": false,
+    "windows_package": false
+  },
+  "privacy": {
+    "tracking": false,
+    "prompt_logging": false
+  },
+  "runtime": {
+    "primary": "IZAKHONO-owned",
+    "external_adapters_replaceable": true
+  }
+}
