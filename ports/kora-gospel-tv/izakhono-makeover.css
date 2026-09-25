@@ -1,0 +1,15 @@
+/* YHVH GOSPEL TV — International finishing layer */
+html{scroll-behavior:smooth}
+body{font-size:16px;line-height:1.64}
+.wrap{width:min(1180px,calc(100% - 40px))}
+.navrow{min-height:78px}
+.btn{min-height:46px;transition:transform .18s ease,box-shadow .18s ease}
+.btn:hover{transform:translateY(-2px)}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.hero{padding:52px 0 34px}
+.heroGrid{gap:30px}
+.stage{border-radius:28px;box-shadow:0 30px 90px rgba(0,0,0,.38)}
+.links a{position:relative}.links a:after{content:"";position:absolute;left:0;right:100%;bottom:-6px;height:1px;background:var(--gold);transition:right .18s ease}.links a:hover:after{right:0}
+@media(max-width:860px){.heroGrid{grid-template-columns:1fr}.links{display:none}.navrow{min-height:70px}.stage{min-height:440px}}
+@media(max-width:520px){.wrap{width:min(100% - 28px,1180px)}.actions{gap:7px}.btn{padding-inline:12px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
