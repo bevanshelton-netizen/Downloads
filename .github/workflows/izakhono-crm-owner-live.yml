@@ -7,6 +7,11 @@ on:
     paths:
       - 'deploy/IZAKHONO_CRM_OWNER_LIVE'
       - '.github/workflows/izakhono-crm-owner-live.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'deploy/IZAKHONO_CRM_OWNER_LIVE'
+      - '.github/workflows/izakhono-crm-owner-live.yml'
 
 permissions:
   contents: read
