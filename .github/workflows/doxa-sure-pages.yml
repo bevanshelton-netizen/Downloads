@@ -12,6 +12,8 @@ on:
       - 'ports/izakhono-one/**'
       - 'one/**'
       - 'ports/kora-kids/**'
+      - 'yhvh-gospel-tv/**'
+      - 'ports/kora-gospel-tv/**'
       - 'portfolio-growth/**'
       - 'IZAKHONO-STUDIO/**'
       - '.github/workflows/doxa-sure-pages.yml'
@@ -90,6 +92,8 @@ jobs:
           mkdir -p _site/ports/izakhono-one
           mkdir -p _site/portfolio-growth
           mkdir -p _site/kora-kids
+          mkdir -p _site/yhvh-gospel-tv
+          mkdir -p _site/ports/kora-gospel-tv
           mkdir -p _site/creative-suite
 
           cp ports/revenue-sprint/index.html _site/index.html
@@ -101,6 +105,8 @@ jobs:
           cp -R one/. _site/one/
           cp -R ports/izakhono-one/. _site/ports/izakhono-one/
           cp -R ports/kora-kids/. _site/kora-kids/
+          cp -R yhvh-gospel-tv/. _site/yhvh-gospel-tv/
+          cp -R ports/kora-gospel-tv/. _site/ports/kora-gospel-tv/
           cp -R IZAKHONO-STUDIO/dist/. _site/creative-suite/
           touch _site/.nojekyll
 
@@ -158,6 +164,32 @@ jobs:
       - name: Deploy prebuilt gateway
         id: deployment
         uses: actions/deploy-pages@v4
+
+  verify-yhvh-gospel:
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify YHVH Gospel TV public resilience route
+        shell: bash
+        run: |
+          set -euo pipefail
+          FRONT="https://bevanshelton-netizen.github.io/Downloads/yhvh-gospel-tv/"
+          CHANNEL="https://bevanshelton-netizen.github.io/Downloads/ports/kora-gospel-tv/"
+          ok=0
+          for i in $(seq 1 24); do
+            rm -f /tmp/yhvh-front.html /tmp/yhvh-channel.html
+            if curl -fsSL --connect-timeout 4 --max-time 8 -o /tmp/yhvh-front.html "$FRONT" &&
+               curl -fsSL --connect-timeout 4 --max-time 8 -o /tmp/yhvh-channel.html "$CHANNEL" &&
+               grep -Fqi 'YHVH GOSPEL TV' /tmp/yhvh-front.html &&
+               grep -Fqi 'YHVH GOSPEL TV' /tmp/yhvh-channel.html; then
+              ok=1
+              break
+            fi
+            sleep 5
+          done
+          test "$ok" -eq 1
+          echo "YHVH_GOSPEL_PAGES_RESILIENCE=VERIFIED"
 
   verify-creative-suite:
     needs: deploy
