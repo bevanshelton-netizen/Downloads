@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [ "\${EUID:-$(id -u)}" -ne 0 ]; then
+if [ "${EUID:-$(id -u)}" -ne 0 ]; then
   exec sudo -E bash "$0" "$@"
 fi
 
-ROOT="\${IZAKHONO_OWNER_AGENT_ROOT:-/opt/izakhono-source/Downloads}"
+ROOT="${IZAKHONO_OWNER_AGENT_ROOT:-/opt/izakhono-source/Downloads}"
 CONTROL_PATH="${IZAKHONO_OWNER_CONTROL_PATH:-owner-host/control/desired-state.json}"
 case "$CONTROL_PATH" in
   owner-host/control/*.json) ;;
