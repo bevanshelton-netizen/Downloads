@@ -1,0 +1,107 @@
+name: IZAKHONO ONE Owner Runner Activation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/izakhono-one-owner-runner-activation.yml'
+      - 'owner-host/control/desired-state.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: izakhono-one-owner-runner-activation
+  cancel-in-progress: false
+
+jobs:
+  activate-on-owned-runner:
+    runs-on: [self-hosted, linux, x64, izakhono]
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify approved ONE request contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs=require('fs');
+          const x=JSON.parse(fs.readFileSync('owner-host/control/desired-state.json','utf8'));
+          if(x.enabled!==true) throw new Error('owner request is not enabled');
+          if(x.action!=='activate-one-local-model') throw new Error('unexpected owner action');
+          if(x.params?.hostname!=='one.domains.izakhonoafrica.co.za') throw new Error('unexpected hostname');
+          if(!x.id) throw new Error('request id missing');
+          console.log('APPROVED_REQUEST='+x.id);
+          NODE
+
+      - name: Execute allow-listed owner agent on IZAKHONO infrastructure
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo -E bash owner-host/owner-agent.sh
+
+      - name: Verify owner-agent receipt and local ONE health
+        shell: bash
+        run: |
+          set -euo pipefail
+          REQUEST_ID="$(node -e "const x=require('./owner-host/control/desired-state.json');process.stdout.write(x.id)")"
+          sudo test -s /var/lib/izakhono-owner-agent/state.json
+          sudo node - "$REQUEST_ID" <<'NODE'
+          const fs=require('fs');
+          const request=process.argv[2];
+          const x=JSON.parse(fs.readFileSync('/var/lib/izakhono-owner-agent/state.json','utf8'));
+          if(x.request_id!==request) throw new Error('receipt request id mismatch');
+          if(x.status!=='success') throw new Error('owner agent did not report success: '+x.status);
+          console.log('OWNER_AGENT_STATUS=success');
+          console.log('OWNER_AGENT_SOURCE_COMMIT='+String(x.source_commit||''));
+          NODE
+          curl -fsS --max-time 8 -H 'Host: one.domains.izakhonoafrica.co.za' http://127.0.0.1:8080/health >/tmp/one-owned-local-health.json
+          node - <<'NODE'
+          const x=require('/tmp/one-owned-local-health.json');
+          if(x.product!=='IZAKHONO ONE AI'||x.status!=='healthy') process.exit(2);
+          if(x.tracking!==false||x.promptPersistence!==false||x.chatReady!==true||x.accountReachable!==true) process.exit(3);
+          console.log('OWNED_LOCAL_RUNTIME=VERIFIED');
+          console.log('TRACKING=false');
+          NODE
+
+  verify-owned-public-independently:
+    needs: activate-on-owned-runner
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Strict independent DNS and HTTPS verification
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT='https://one.domains.izakhonoafrica.co.za/'
+          HEALTH='https://one.domains.izakhonoafrica.co.za/health'
+          echo '=== DNS ==='
+          dig +short A one.domains.izakhonoafrica.co.za || true
+          root_code="$(curl -sSL --max-time 15 -o /tmp/root.html -w '%{http_code}' "$ROOT" || true)"
+          health_code="$(curl -sSL --max-time 15 -o /tmp/health.json -w '%{http_code}' "$HEALTH" || true)"
+          echo "HTTPS_ROOT=$root_code"
+          echo "HTTPS_HEALTH=$health_code"
+          test "$root_code" = '200'
+          test "$health_code" = '200'
+          grep -q 'IZAKHONO ONE' /tmp/root.html
+          node - <<'NODE'
+          const x=require('/tmp/health.json');
+          const required={
+            product:'IZAKHONO ONE AI',
+            status:'healthy',
+            tracking:false,
+            promptPersistence:false,
+            chatReady:true,
+            accountReachable:true,
+            publicSignup:true,
+            emailVerificationRequired:true
+          };
+          for(const [k,v] of Object.entries(required)) if(x[k]!==v) throw new Error(k+' mismatch');
+          NODE
+          ! grep -Eqi 'utm_|googletagmanager|google-analytics|facebook[^<]*(pixel|track)|hotjar|clarity\.ms|mixpanel|amplitude|plausible|matomo|portfolio-growth/bridge\.js' /tmp/root.html
+          echo 'IZAKHONO ONE OWNED ROUTE: VERIFIED LIVE'
+          echo 'OWNED_AUTHORITY=NODE 01'
+          echo 'TRACKING=false'
