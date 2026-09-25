@@ -20,9 +20,6 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
-  group: izakhono-static-pages
-  cancel-in-progress: true
 
 jobs:
   build-gateway:
@@ -78,6 +75,9 @@ jobs:
 
   deploy:
     needs: build-gateway
+    concurrency:
+      group: izakhono-static-pages
+      cancel-in-progress: true
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
