@@ -1,0 +1,979 @@
+{
+  "schema": "izakhono.portfolio-watch/v1",
+  "operator": "IZAKHONO AFRICA (PTY) LTD",
+  "policy": "owned-first, externally reversible, privacy-preserving, material-changes-only",
+  "inherit_future_platforms": true,
+  "default_interval_minutes": 360,
+  "platforms": [
+    {
+      "id": "izakhono-flagship",
+      "name": "IZAKHONO",
+      "categories": [
+        "productivity",
+        "websites",
+        "ai"
+      ],
+      "sources": [
+        {
+          "name": "Microsoft 365 Blog",
+          "url": "https://www.microsoft.com/en-us/microsoft-365/blog/"
+        },
+        {
+          "name": "Google Workspace Updates",
+          "url": "https://workspaceupdates.googleblog.com/"
+        },
+        {
+          "name": "OpenAI News",
+          "url": "https://openai.com/news/"
+        }
+      ]
+    },
+    {
+      "id": "growth-os-v2",
+      "name": "IZAKHONO Growth OS",
+      "categories": [
+        "websites",
+        "ai",
+        "accounting"
+      ],
+      "sources": [
+        {
+          "name": "HubSpot Product Updates",
+          "url": "https://product.hubspot.com/blog"
+        },
+        {
+          "name": "Wix Blog",
+          "url": "https://www.wix.com/blog"
+        },
+        {
+          "name": "Zoho News",
+          "url": "https://www.zoho.com/news/"
+        }
+      ]
+    },
+    {
+      "id": "creative-suite",
+      "name": "IZAKHONO Creative Suite",
+      "categories": [
+        "design",
+        "ai",
+        "gaming"
+      ],
+      "sources": [
+        {
+          "name": "Canva Newsroom",
+          "url": "https://www.canva.com/newsroom/news/"
+        },
+        {
+          "name": "Canva Pricing",
+          "url": "https://www.canva.com/pricing/"
+        },
+        {
+          "name": "Adobe Express Pricing",
+          "url": "https://www.adobe.com/express/pricing"
+        },
+        {
+          "name": "Adobe Express Blog",
+          "url": "https://blog.adobe.com/en/topics/adobe-express"
+        }
+      ]
+    },
+    {
+      "id": "kora-network",
+      "name": "KORA",
+      "categories": [
+        "music",
+        "video",
+        "ecommerce"
+      ],
+      "sources": [
+        {
+          "name": "Spotify Newsroom",
+          "url": "https://newsroom.spotify.com/"
+        },
+        {
+          "name": "YouTube Official Blog",
+          "url": "https://blog.youtube/"
+        },
+        {
+          "name": "SoundCloud Blog",
+          "url": "https://soundcloud.com/company/newsroom"
+        }
+      ]
+    },
+    {
+      "id": "kora-cinema",
+      "name": "KORA Cinema",
+      "categories": [
+        "video",
+        "ai"
+      ],
+      "sources": [
+        {
+          "name": "Netflix Tech Blog",
+          "url": "https://netflixtechblog.com/"
+        },
+        {
+          "name": "YouTube Official Blog",
+          "url": "https://blog.youtube/"
+        },
+        {
+          "name": "Vimeo Blog",
+          "url": "https://vimeo.com/blog"
+        }
+      ]
+    },
+    {
+      "id": "kora-partner-gateway",
+      "name": "KORA Partner Gateway",
+      "categories": [
+        "music",
+        "ecommerce",
+        "fintech"
+      ],
+      "sources": [
+        {
+          "name": "Spotify for Artists",
+          "url": "https://artists.spotify.com/blog"
+        },
+        {
+          "name": "Bandcamp Daily",
+          "url": "https://daily.bandcamp.com/"
+        },
+        {
+          "name": "Stripe Product News",
+          "url": "https://stripe.com/blog/product"
+        }
+      ]
+    },
+    {
+      "id": "kora-gospel-tv",
+      "name": "KORA Gospel TV",
+      "categories": [
+        "video",
+        "music"
+      ],
+      "sources": [
+        {
+          "name": "YouTube Official Blog",
+          "url": "https://blog.youtube/"
+        },
+        {
+          "name": "Vimeo Blog",
+          "url": "https://vimeo.com/blog"
+        },
+        {
+          "name": "Spotify Newsroom",
+          "url": "https://newsroom.spotify.com/"
+        }
+      ]
+    },
+    {
+      "id": "kora-kids",
+      "name": "KORA Kids",
+      "categories": [
+        "video",
+        "education",
+        "security"
+      ],
+      "sources": [
+        {
+          "name": "YouTube Official Blog",
+          "url": "https://blog.youtube/"
+        },
+        {
+          "name": "Common Sense Media Research",
+          "url": "https://www.commonsensemedia.org/research"
+        },
+        {
+          "name": "UNICEF Digital Safety",
+          "url": "https://www.unicef.org/innocenti/topics/digital-technology"
+        }
+      ]
+    },
+    {
+      "id": "allegro-vibez",
+      "name": "Allegro-Vibez",
+      "categories": [
+        "music",
+        "ecommerce",
+        "fintech"
+      ],
+      "sources": [
+        {
+          "name": "Spotify Newsroom",
+          "url": "https://newsroom.spotify.com/"
+        },
+        {
+          "name": "SoundCloud Newsroom",
+          "url": "https://soundcloud.com/company/newsroom"
+        },
+        {
+          "name": "Bandcamp Daily",
+          "url": "https://daily.bandcamp.com/"
+        }
+      ]
+    },
+    {
+      "id": "allegro-radio",
+      "name": "Allegro Radio",
+      "categories": [
+        "music",
+        "video",
+        "regulatory"
+      ],
+      "sources": [
+        {
+          "name": "Spotify Newsroom",
+          "url": "https://newsroom.spotify.com/"
+        },
+        {
+          "name": "YouTube Official Blog",
+          "url": "https://blog.youtube/"
+        },
+        {
+          "name": "ICASA Notices",
+          "url": "https://www.icasa.org.za/pages/notices"
+        }
+      ]
+    },
+    {
+      "id": "edu-build",
+      "name": "EDU-BUILD INSTITUTE – Shelton Campuses",
+      "categories": [
+        "education",
+        "regulatory"
+      ],
+      "sources": [
+        {
+          "name": "QCTO News",
+          "url": "https://www.qcto.org.za/news.html"
+        },
+        {
+          "name": "SAQA News",
+          "url": "https://www.saqa.org.za/news/"
+        },
+        {
+          "name": "SACE News",
+          "url": "https://www.sace.org.za/pages/news"
+        }
+      ],
+      "alert_threshold": 3
+    },
+    {
+      "id": "ecd360",
+      "name": "ECD360 / EDU-BUILD AI Campus",
+      "categories": [
+        "education",
+        "regulatory",
+        "ai"
+      ],
+      "sources": [
+        {
+          "name": "QCTO News",
+          "url": "https://www.qcto.org.za/news.html"
+        },
+        {
+          "name": "SAQA News",
+          "url": "https://www.saqa.org.za/news/"
+        },
+        {
+          "name": "UNICEF Early Childhood Development",
+          "url": "https://www.unicef.org/education/early-childhood-education"
+        }
+      ],
+      "alert_threshold": 3
+    },
+    {
+      "id": "faisready",
+      "name": "FAISReady",
+      "categories": [
+        "education",
+        "regulatory",
+        "fintech"
+      ],
+      "sources": [
+        {
+          "name": "FSCA News",
+          "url": "https://www.fsca.co.za/News%20Documents/Forms/AllItems.aspx"
+        },
+        {
+          "name": "Financial Planning Institute News",
+          "url": "https://fpi.co.za/news/"
+        },
+        {
+          "name": "CFP Board News",
+          "url": "https://www.cfp.net/news"
+        }
+      ],
+      "alert_threshold": 3
+    },
+    {
+      "id": "doxa-sure",
+      "name": "DOXA-SURE",
+      "categories": [
+        "insurance",
+        "security",
+        "fintech"
+      ],
+      "sources": [
+        {
+          "name": "FSCA News",
+          "url": "https://www.fsca.co.za/News%20Documents/Forms/AllItems.aspx"
+        },
+        {
+          "name": "South African Insurance Association",
+          "url": "https://www.saia.co.za/news"
+        },
+        {
+          "name": "Interpol Financial Crime",
+          "url": "https://www.interpol.int/en/Crimes/Financial-crime"
+        }
+      ]
+    },
+    {
+      "id": "auto-ai",
+      "name": "AUTO AI",
+      "categories": [
+        "automotive",
+        "ai"
+      ],
+      "sources": [
+        {
+          "name": "RepairPal Car Care Advice",
+          "url": "https://repairpal.com/blog"
+        },
+        {
+          "name": "CARFAX News",
+          "url": "https://www.carfax.com/blog"
+        },
+        {
+          "name": "Google AI Blog",
+          "url": "https://blog.google/technology/ai/"
+        }
+      ]
+    },
+    {
+      "id": "learner-driver-sa",
+      "name": "Learner Driver SA",
+      "categories": [
+        "automotive",
+        "education",
+        "regulatory"
+      ],
+      "sources": [
+        {
+          "name": "South African Government Transport",
+          "url": "https://www.gov.za/about-sa/transport"
+        },
+        {
+          "name": "RTMC News",
+          "url": "https://www.rtmc.co.za/index.php/newsroom"
+        },
+        {
+          "name": "Arrive Alive",
+          "url": "https://www.arrivealive.mobi/"
+        }
+      ],
+      "alert_threshold": 3
+    },
+    {
+      "id": "diagnostic-vehicle",
+      "name": "Diagnostic Vehicle App",
+      "categories": [
+        "automotive",
+        "ai"
+      ],
+      "sources": [
+        {
+          "name": "RepairPal Car Care Advice",
+          "url": "https://repairpal.com/blog"
+        },
+        {
+          "name": "OBD Solutions Blog",
+          "url": "https://www.obdsol.com/knowledgebase/"
+        },
+        {
+          "name": "Google AI Blog",
+          "url": "https://blog.google/technology/ai/"
+        }
+      ]
+    },
+    {
+      "id": "pimp-my-old-car",
+      "name": "Pimp My Old Car",
+      "categories": [
+        "automotive",
+        "design",
+        "ai"
+      ],
+      "sources": [
+        {
+          "name": "Adobe Firefly",
+          "url": "https://www.adobe.com/products/firefly.html"
+        },
+        {
+          "name": "Canva Newsroom",
+          "url": "https://www.canva.com/newsroom/news/"
+        },
+        {
+          "name": "Google AI Blog",
+          "url": "https://blog.google/technology/ai/"
+        }
+      ]
+    },
+    {
+      "id": "worknow",
+      "name": "WorkNow",
+      "categories": [
+        "jobs",
+        "ai",
+        "regulatory"
+      ],
+      "sources": [
+        {
+          "name": "LinkedIn Talent Blog",
+          "url": "https://www.linkedin.com/business/talent/blog"
+        },
+        {
+          "name": "Indeed Hiring Lab",
+          "url": "https://www.hiringlab.org/"
+        },
+        {
+          "name": "ILO News",
+          "url": "https://www.ilo.org/resource/news"
+        }
+      ]
+    },
+    {
+      "id": "memory-mania",
+      "name": "Memory Mania",
+      "categories": [
+        "gaming",
+        "education",
+        "ai"
+      ],
+      "sources": [
+        {
+          "name": "Unity Blog",
+          "url": "https://unity.com/blog"
+        },
+        {
+          "name": "Epic Games News",
+          "url": "https://www.epicgames.com/site/en-US/news"
+        },
+        {
+          "name": "Google AI Blog",
+          "url": "https://blog.google/technology/ai/"
+        }
+      ]
+    },
+    {
+      "id": "music-school",
+      "name": "IZAKHONO Music School",
+      "categories": [
+        "education",
+        "music",
+        "ai"
+      ],
+      "sources": [
+        {
+          "name": "Yousician Blog",
+          "url": "https://yousician.com/blog"
+        },
+        {
+          "name": "Spotify Newsroom",
+          "url": "https://newsroom.spotify.com/"
+        },
+        {
+          "name": "Google AI Blog",
+          "url": "https://blog.google/technology/ai/"
+        }
+      ]
+    },
+    {
+      "id": "recording-studio",
+      "name": "IZAKHONO Recording Studio",
+      "categories": [
+        "music",
+        "design",
+        "ai"
+      ],
+      "sources": [
+        {
+          "name": "BandLab Blog",
+          "url": "https://blog.bandlab.com/"
+        },
+        {
+          "name": "Adobe Audio",
+          "url": "https://www.adobe.com/products/audition.html"
+        },
+        {
+          "name": "SoundCloud Newsroom",
+          "url": "https://soundcloud.com/company/newsroom"
+        }
+      ]
+    },
+    {
+      "id": "crowne-hair",
+      "name": "CROWNÉ by Netty",
+      "categories": [
+        "ecommerce",
+        "fashion",
+        "ai"
+      ],
+      "sources": [
+        {
+          "name": "Shopify Editions",
+          "url": "https://www.shopify.com/editions"
+        },
+        {
+          "name": "TikTok Business Blog",
+          "url": "https://ads.tiktok.com/business/en/blog"
+        },
+        {
+          "name": "Canva Newsroom",
+          "url": "https://www.canva.com/newsroom/news/"
+        }
+      ]
+    },
+    {
+      "id": "legacymart",
+      "name": "LegacyMart",
+      "categories": [
+        "ecommerce",
+        "fintech",
+        "ai"
+      ],
+      "sources": [
+        {
+          "name": "Shopify Editions",
+          "url": "https://www.shopify.com/editions"
+        },
+        {
+          "name": "Etsy News",
+          "url": "https://www.etsy.com/news"
+        },
+        {
+          "name": "Amazon Selling Partner Blog",
+          "url": "https://sell.amazon.com/blog"
+        }
+      ]
+    },
+    {
+      "id": "business-websites-supercool",
+      "name": "Business Websites / Supercool",
+      "categories": [
+        "websites",
+        "design",
+        "ai"
+      ],
+      "sources": [
+        {
+          "name": "Wix Blog",
+          "url": "https://www.wix.com/blog"
+        },
+        {
+          "name": "Squarespace Blog",
+          "url": "https://www.squarespace.com/blog"
+        },
+        {
+          "name": "Canva Newsroom",
+          "url": "https://www.canva.com/newsroom/news/"
+        }
+      ]
+    },
+    {
+      "id": "yenzanow",
+      "name": "Yenzanow",
+      "categories": [
+        "websites",
+        "jobs",
+        "ecommerce"
+      ],
+      "sources": [
+        {
+          "name": "Thumbtack Blog",
+          "url": "https://www.thumbtack.com/blog/"
+        },
+        {
+          "name": "Taskrabbit Blog",
+          "url": "https://www.taskrabbit.com/blog"
+        },
+        {
+          "name": "Google Small Business",
+          "url": "https://smallbusiness.withgoogle.com/"
+        }
+      ]
+    },
+    {
+      "id": "the-chancellor",
+      "name": "The Chancellor",
+      "categories": [
+        "education",
+        "ai",
+        "productivity"
+      ],
+      "sources": [
+        {
+          "name": "Khan Academy Blog",
+          "url": "https://blog.khanacademy.org/"
+        },
+        {
+          "name": "Coursera Blog",
+          "url": "https://blog.coursera.org/"
+        },
+        {
+          "name": "OpenAI News",
+          "url": "https://openai.com/news/"
+        }
+      ]
+    },
+    {
+      "id": "matric-rewrite-academy",
+      "name": "Matric Rewrite Academy",
+      "categories": [
+        "education",
+        "regulatory",
+        "ai"
+      ],
+      "sources": [
+        {
+          "name": "Department of Basic Education News",
+          "url": "https://www.education.gov.za/Newsroom.aspx"
+        },
+        {
+          "name": "South African Government Education",
+          "url": "https://www.gov.za/about-sa/education"
+        },
+        {
+          "name": "Khan Academy Blog",
+          "url": "https://blog.khanacademy.org/"
+        }
+      ]
+    },
+    {
+      "id": "super-accountant",
+      "name": "IZAKHONO Super Accountant",
+      "categories": [
+        "accounting",
+        "fintech",
+        "ai",
+        "regulatory"
+      ],
+      "sources": [
+        {
+          "name": "Xero Blog",
+          "url": "https://blog.xero.com/"
+        },
+        {
+          "name": "QuickBooks Blog",
+          "url": "https://quickbooks.intuit.com/r/"
+        },
+        {
+          "name": "SARS News",
+          "url": "https://www.sars.gov.za/latest-news/"
+        }
+      ],
+      "alert_threshold": 3
+    },
+    {
+      "id": "fortress",
+      "name": "FORTRESS",
+      "categories": [
+        "security",
+        "fintech",
+        "ai"
+      ],
+      "sources": [
+        {
+          "name": "Microsoft Security Blog",
+          "url": "https://www.microsoft.com/en-us/security/blog/"
+        },
+        {
+          "name": "Cloudflare Security",
+          "url": "https://blog.cloudflare.com/tag/security/"
+        },
+        {
+          "name": "Interpol Financial Crime",
+          "url": "https://www.interpol.int/en/Crimes/Financial-crime"
+        }
+      ],
+      "alert_threshold": 3
+    },
+    {
+      "id": "connecta",
+      "name": "Connecta",
+      "categories": [
+        "social",
+        "security",
+        "ai"
+      ],
+      "sources": [
+        {
+          "name": "Meta Newsroom",
+          "url": "https://about.fb.com/news/"
+        },
+        {
+          "name": "TikTok Newsroom",
+          "url": "https://newsroom.tiktok.com/"
+        },
+        {
+          "name": "YouTube Official Blog",
+          "url": "https://blog.youtube/"
+        }
+      ]
+    },
+    {
+      "id": "izakhono-one-ai",
+      "name": "IZAKHONO ONE AI",
+      "categories": [
+        "ai",
+        "productivity",
+        "infrastructure"
+      ],
+      "sources": [
+        {
+          "name": "OpenAI News",
+          "url": "https://openai.com/news/"
+        },
+        {
+          "name": "Google AI Blog",
+          "url": "https://blog.google/technology/ai/"
+        },
+        {
+          "name": "Microsoft AI Blog",
+          "url": "https://blogs.microsoft.com/ai/"
+        }
+      ]
+    },
+    {
+      "id": "izakhono-code",
+      "name": "IZAKHONO CODE",
+      "categories": [
+        "infrastructure",
+        "ai"
+      ],
+      "sources": [
+        {
+          "name": "GitHub Changelog",
+          "url": "https://github.blog/changelog/"
+        },
+        {
+          "name": "GitLab Releases",
+          "url": "https://about.gitlab.com/releases/"
+        },
+        {
+          "name": "Vercel Changelog",
+          "url": "https://vercel.com/changelog"
+        }
+      ]
+    },
+    {
+      "id": "izakhono-work",
+      "name": "IZAKHONO WORK",
+      "categories": [
+        "productivity",
+        "infrastructure",
+        "ai"
+      ],
+      "sources": [
+        {
+          "name": "Microsoft 365 Blog",
+          "url": "https://www.microsoft.com/en-us/microsoft-365/blog/"
+        },
+        {
+          "name": "Google Workspace Updates",
+          "url": "https://workspaceupdates.googleblog.com/"
+        },
+        {
+          "name": "Notion Releases",
+          "url": "https://www.notion.com/releases"
+        }
+      ]
+    },
+    {
+      "id": "izakhono-cloud",
+      "name": "IZAKHONO CLOUD",
+      "categories": [
+        "infrastructure",
+        "security"
+      ],
+      "sources": [
+        {
+          "name": "Vercel Changelog",
+          "url": "https://vercel.com/changelog"
+        },
+        {
+          "name": "Cloudflare Blog",
+          "url": "https://blog.cloudflare.com/"
+        },
+        {
+          "name": "AWS What's New",
+          "url": "https://aws.amazon.com/new/"
+        }
+      ]
+    },
+    {
+      "id": "izakhono-send",
+      "name": "IZAKHONO SEND",
+      "categories": [
+        "communications",
+        "security"
+      ],
+      "sources": [
+        {
+          "name": "WeTransfer Blog",
+          "url": "https://wetransfer.com/blog"
+        },
+        {
+          "name": "Dropbox Blog",
+          "url": "https://blog.dropbox.com/"
+        },
+        {
+          "name": "Cloudflare Security",
+          "url": "https://blog.cloudflare.com/tag/security/"
+        }
+      ]
+    },
+    {
+      "id": "izakhono-pay",
+      "name": "IZAKHONO PAY",
+      "categories": [
+        "fintech",
+        "security",
+        "regulatory"
+      ],
+      "sources": [
+        {
+          "name": "iKhokha Blog",
+          "url": "https://www.ikhokha.com/blog"
+        },
+        {
+          "name": "Stripe Product News",
+          "url": "https://stripe.com/blog/product"
+        },
+        {
+          "name": "PayFast Blog",
+          "url": "https://payfast.io/blog/"
+        }
+      ]
+    },
+    {
+      "id": "izakhono-domains",
+      "name": "IZAKHONO Domains",
+      "categories": [
+        "infrastructure",
+        "websites",
+        "security"
+      ],
+      "sources": [
+        {
+          "name": "Cloudflare Blog",
+          "url": "https://blog.cloudflare.com/"
+        },
+        {
+          "name": "ICANN News",
+          "url": "https://www.icann.org/news"
+        },
+        {
+          "name": "Vercel Changelog",
+          "url": "https://vercel.com/changelog"
+        }
+      ]
+    },
+    {
+      "id": "izakhono-revenue-desk",
+      "name": "IZAKHONO Revenue Desk",
+      "categories": [
+        "accounting",
+        "fintech",
+        "ai"
+      ],
+      "sources": [
+        {
+          "name": "Xero Blog",
+          "url": "https://blog.xero.com/"
+        },
+        {
+          "name": "Stripe Product News",
+          "url": "https://stripe.com/blog/product"
+        },
+        {
+          "name": "HubSpot Product Updates",
+          "url": "https://product.hubspot.com/blog"
+        }
+      ]
+    },
+    {
+      "id": "blockchain-academy",
+      "name": "IZAKHONO Blockchain & Digital Finance Academy",
+      "categories": [
+        "education",
+        "fintech",
+        "regulatory"
+      ],
+      "sources": [
+        {
+          "name": "Ethereum Blog",
+          "url": "https://blog.ethereum.org/"
+        },
+        {
+          "name": "Coinbase Blog",
+          "url": "https://www.coinbase.com/blog"
+        },
+        {
+          "name": "FSCA News",
+          "url": "https://www.fsca.co.za/News%20Documents/Forms/AllItems.aspx"
+        }
+      ]
+    },
+    {
+      "id": "izakhono-os",
+      "name": "IZAKHONO OS",
+      "categories": [
+        "productivity",
+        "infrastructure",
+        "security",
+        "ai"
+      ],
+      "sources": [
+        {
+          "name": "Windows Blog",
+          "url": "https://blogs.windows.com/"
+        },
+        {
+          "name": "Apple Newsroom",
+          "url": "https://www.apple.com/newsroom/"
+        },
+        {
+          "name": "Google Chrome Blog",
+          "url": "https://blog.google/products/chrome/"
+        }
+      ]
+    },
+    {
+      "id": "zeely-style",
+      "name": "IZAKHONO Small-Business Growth Platform",
+      "categories": [
+        "websites",
+        "design",
+        "ai"
+      ],
+      "sources": [
+        {
+          "name": "Zeely Blog",
+          "url": "https://zeely.ai/blog"
+        },
+        {
+          "name": "Canva Newsroom",
+          "url": "https://www.canva.com/newsroom/news/"
+        },
+        {
+          "name": "HubSpot Product Updates",
+          "url": "https://product.hubspot.com/blog"
+        }
+      ]
+    }
+  ]
+}
