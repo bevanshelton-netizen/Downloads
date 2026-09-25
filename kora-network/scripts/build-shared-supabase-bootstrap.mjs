@@ -6,7 +6,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..');
 const supabaseDir = join(root, 'supabase');
 const outputDir = join(root, 'artifacts');
-const outputPath = join(outputDir, 'kora-shared-supabase-bootstrap-schema23.sql');
+const outputPath = join(outputDir, 'kora-shared-supabase-bootstrap-schema24.sql');
 const sources = [
   "000_fresh_install.sql",
   "006_broadcast_rewards.sql",
@@ -26,7 +26,8 @@ const sources = [
   "020_allegro_video_handoff.sql",
   "021_tour2screen.sql",
   "022_music_screen_release_gate.sql",
-  "023_partner_gateway.sql"
+  "023_partner_gateway.sql",
+  "024_partner_pilot.sql"
 ];
 
 function isolate(sql) {
@@ -37,7 +38,7 @@ function isolate(sql) {
 }
 
 const parts = [];
-parts.push(`-- KORA NETWORK — SHARED SUPABASE BOOTSTRAP (SCHEMA 23)
+parts.push(`-- KORA NETWORK — SHARED SUPABASE BOOTSTRAP (SCHEMA 24)
 -- Creates KORA objects only inside schema "kora".
 -- Supabase Auth is intentionally shared as the IZAKHONO identity backbone.
 -- The Data API is NOT exposed here; exposure happens only after RLS/security verification.
@@ -69,8 +70,8 @@ DO $$
 DECLARE v_schema integer;
 BEGIN
   SELECT schema_version INTO v_schema FROM kora.platform_release_state WHERE singleton=true;
-  IF COALESCE(v_schema,0) <> 23 THEN
-    RAISE EXCEPTION 'KORA shared bootstrap incomplete: expected schema version 23, found %', COALESCE(v_schema,0);
+  IF COALESCE(v_schema,0) <> 24 THEN
+    RAISE EXCEPTION 'KORA shared bootstrap incomplete: expected schema version 24, found %', COALESCE(v_schema,0);
   END IF;
 END
 $$;

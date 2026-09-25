@@ -83,8 +83,13 @@ if [[ "$version" == "22" ]]; then
   psql "$SUPABASE_DB_URL" -X -v ON_ERROR_STOP=1 -f supabase/023_partner_gateway.sql
   version="$(psql "$SUPABASE_DB_URL" -X -A -t -v ON_ERROR_STOP=1 -c "select schema_version from public.platform_release_state where singleton=true;")"
 fi
-if [[ "$version" != "23" ]]; then
-  echo "KORA production database is not at schema version 23: ${version:-missing}." >&2
+if [[ "$version" == "23" ]]; then
+  echo "Applying incremental schema 24 KORA commercial partner pilot."
+  psql "$SUPABASE_DB_URL" -X -v ON_ERROR_STOP=1 -f supabase/024_partner_pilot.sql
+  version="$(psql "$SUPABASE_DB_URL" -X -A -t -v ON_ERROR_STOP=1 -c "select schema_version from public.platform_release_state where singleton=true;")"
+fi
+if [[ "$version" != "24" ]]; then
+  echo "KORA production database is not at schema version 24: ${version:-missing}." >&2
   exit 1
 fi
 
@@ -101,4 +106,4 @@ if ! [[ "$channel_count" =~ ^[0-9]+$ ]] || (( channel_count < 1 )); then
 fi
 
 release_name="$(psql "$SUPABASE_DB_URL" -X -A -t -v ON_ERROR_STOP=1 -c "select release_name from public.platform_release_state where singleton=true;")"
-echo "KORA database verified: schema=23, release=${release_name:-unknown}, active_channels=$channel_count, public_launch=false."
+echo "KORA database verified: schema=24, release=${release_name:-unknown}, active_channels=$channel_count, public_launch=false."

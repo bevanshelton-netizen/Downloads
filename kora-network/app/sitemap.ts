@@ -12,6 +12,8 @@ const publicPaths = [
   '/kids',
   '/creators',
   '/advertise',
+  '/partners',
+  '/partners/pilot',
   '/legal/terms',
   '/legal/privacy',
   '/legal/content-policy',
