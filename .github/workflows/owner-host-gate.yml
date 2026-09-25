@@ -136,6 +136,11 @@ jobs:
           grep -q 'const allowed=new Set(\["activate-one-local-model","configure-one-ai","deploy-one-ai","verify-one-ai","deploy-yhvh-gospel-tv"\])' owner-host/owner-agent.sh
           grep -q 'deploy-yhvh-gospel-tv)' owner-host/owner-agent.sh
           grep -q 'deploy-kora-gospel-tv.sh' owner-host/owner-agent.sh
+          grep -q 'yhvh-owner-agent-proof.json' owner-host/owner-agent.sh
+          grep -q 'izakhono.yhvh-owner-agent-proof/v1' owner-host/owner-agent.sh
+          grep -q 'secrets_exposed:false' owner-host/owner-agent.sh
+          grep -q 'log_path_exposed:false' owner-host/owner-agent.sh
+          ! grep -q 'log_path:log' owner-host/owner-agent.sh
           grep -q 'hostname outside approved IZAKHONO namespace' owner-host/owner-agent.sh
           grep -q 'sync-owner-source.sh' owner-host/owner-agent.sh
           grep -q 'SOURCE_AUTHORITY=IZAKHONO_CODE' owner-host/sync-owner-source.sh
