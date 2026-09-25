@@ -58,8 +58,8 @@ const principles=[
 ];
 
 export default function CommercialDesk(){
-  const primaryUrl=process.env.KORA_GOSPEL_PRIMARY_URL||'https://gospel.domains.izakhonoafrica.co.za';
-  const externalUrl=process.env.NEXT_PUBLIC_GOSPEL_EXTERNAL_INTAKE_URL||'https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/kora-gospel-intake';
+  const primaryUrl=process.env.YHVH_GOSPEL_PRIMARY_URL||process.env.KORA_GOSPEL_PRIMARY_URL||'https://gospel.domains.izakhonoafrica.co.za';
+  const externalUrl=process.env.NEXT_PUBLIC_YHVH_GOSPEL_EXTERNAL_INTAKE_URL||process.env.NEXT_PUBLIC_GOSPEL_EXTERNAL_INTAKE_URL||'https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/kora-gospel-intake';
 
   return <main id="main-content" className="yhvhCommercial">
     <style>{`

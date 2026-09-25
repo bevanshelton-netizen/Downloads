@@ -1,39 +1,62 @@
 {
-  "schema": "kora.gospel-tv.commercial/v1",
+  "schema": "yhvh.gospel-tv.commercial/v2",
   "pricing_mode": "proposal-based",
   "currency_policy": "quote in agreed transaction currency",
   "editorial_independence": true,
+  "intake_routing": "izakhono-owned-first-external-buffer",
+  "qualification_status": "manual-review-required",
   "offers": [
     {
       "id": "founding-partner",
       "status": "available",
-      "price": "quote"
+      "price": "quote",
+      "commercial_goal": "channel launch and presenting partnership"
     },
     {
       "id": "programme-sponsor",
       "status": "available",
-      "price": "quote"
+      "price": "quote",
+      "commercial_goal": "recurring programme sponsorship"
     },
     {
       "id": "event-broadcast",
       "status": "available",
-      "price": "quote"
+      "price": "quote",
+      "commercial_goal": "live or delayed Gospel event coverage"
     },
     {
       "id": "regional-distribution",
       "status": "available",
-      "price": "quote"
+      "price": "quote",
+      "commercial_goal": "territory, OTT, FAST, CTV or broadcaster distribution"
     },
     {
       "id": "advertising",
       "status": "available",
-      "price": "quote"
+      "price": "quote",
+      "commercial_goal": "faith-aligned brand campaigns"
     },
     {
       "id": "production-services",
       "status": "available",
-      "price": "quote"
+      "price": "quote",
+      "commercial_goal": "recording, packaging, graphics and broadcast production"
     }
   ],
+  "commercial_pipeline": [
+    "enquiry",
+    "qualification",
+    "rights-and-suitability-review",
+    "proposal",
+    "agreement",
+    "delivery",
+    "reconciliation"
+  ],
+  "privacy": {
+    "behavioural_tracking": false,
+    "profiling": false,
+    "silent_analytics": false,
+    "operational_lead_records_only": true
+  },
   "rule": "Payment or commercial agreement never creates automatic editorial or broadcast approval."
 }

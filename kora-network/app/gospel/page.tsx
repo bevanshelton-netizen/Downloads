@@ -33,8 +33,8 @@ const shows=[
 ];
 
 export default function GospelPage() {
-  const primaryUrl = process.env.KORA_GOSPEL_PRIMARY_URL || 'https://gospel.domains.izakhonoafrica.co.za';
-  const pagesUrl = process.env.KORA_GOSPEL_PAGES_URL || 'https://bevanshelton-netizen.github.io/Downloads/yhvh-gospel-tv/';
+  const primaryUrl = process.env.YHVH_GOSPEL_PRIMARY_URL || process.env.KORA_GOSPEL_PRIMARY_URL || 'https://gospel.domains.izakhonoafrica.co.za';
+  const pagesUrl = process.env.YHVH_GOSPEL_PAGES_URL || process.env.KORA_GOSPEL_PAGES_URL || 'https://bevanshelton-netizen.github.io/Downloads/yhvh-gospel-tv/';
 
   return (
     <main id="main-content" className="yhvhLaunch">
