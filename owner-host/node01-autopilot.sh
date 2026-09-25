@@ -29,6 +29,8 @@ local_one="NOT_VERIFIED"
 owned_edge="NOT_ATTEMPTED"
 owned_edge_exit=0
 public_https="NOT_VERIFIED"
+drop01_watch="NOT_RUN"
+drop01_watch_exit=0
 
 if [ -n "$(git -C "$ROOT" status --porcelain)" ]; then
   source_state="BLOCKED_DIRTY"
@@ -95,11 +97,33 @@ NODE
   fi
 fi
 
+if [ -f "$ROOT/owner-host/drop01-milestone-watch.mjs" ]; then
+  set +e
+  node "$ROOT/owner-host/drop01-milestone-watch.mjs" >/tmp/allegro-drop01-milestone-watch.json 2>/tmp/allegro-drop01-milestone-watch.err
+  drop01_watch_exit=$?
+  set -e
+  if [ "$drop01_watch_exit" -eq 0 ]; then
+    if node -e 'const fs=require("fs");const x=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));process.exit(x.ok===true?0:1)' /tmp/allegro-drop01-milestone-watch.json >/dev/null 2>&1; then
+      if grep -q '"skipped":true' /tmp/allegro-drop01-milestone-watch.json 2>/dev/null; then
+        drop01_watch="SCHEDULED_NOT_DUE"
+      else
+        drop01_watch="CHECKED"
+      fi
+    else
+      drop01_watch="INVALID_RESULT"
+    fi
+  else
+    drop01_watch="FAILED_$drop01_watch_exit"
+  fi
+else
+  drop01_watch="WATCHER_MISSING"
+fi
+
 ended="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 commit="$(git -C "$ROOT" rev-parse HEAD 2>/dev/null || true)"
-node - "$REPORT" "$started" "$ended" "$commit" "$source_state" "$agent_state" "$runner_state" "$local_one" "$owned_edge" "$owned_edge_exit" "$public_https" <<'NODE'
+node - "$REPORT" "$started" "$ended" "$commit" "$source_state" "$agent_state" "$runner_state" "$local_one" "$owned_edge" "$owned_edge_exit" "$public_https" "$drop01_watch" "$drop01_watch_exit" <<'NODE'
 const fs=require('fs');
-const [path,started,ended,commit,source,agent,runner,localOne,edge,edgeExit,publicHttps]=process.argv.slice(2);
+const [path,started,ended,commit,source,agent,runner,localOne,edge,edgeExit,publicHttps,drop01Watch,drop01WatchExit]=process.argv.slice(2);
 fs.writeFileSync(path,JSON.stringify({
   schema:'izakhono.node01-autopilot/v1',
   node:'NODE01',
@@ -112,6 +136,8 @@ fs.writeFileSync(path,JSON.stringify({
   owned_edge_state:edge,
   owned_edge_exit:Number(edgeExit),
   public_https:publicHttps,
+  allegro_drop01_milestone_watch:drop01Watch,
+  allegro_drop01_milestone_watch_exit:Number(drop01WatchExit),
   live_claim:false,
   independent_https_verification_required:true,
   external_resilience_preserved:true,
@@ -129,5 +155,6 @@ echo "GITHUB_RUNNER=$runner_state"
 echo "ONE_LOCAL=$local_one"
 echo "OWNED_EDGE=$owned_edge"
 echo "PUBLIC_HTTPS=$public_https"
+echo "ALLEGRO_DROP01_MILESTONE_WATCH=$drop01_watch"
 echo "LIVE_CLAIM=false"
 echo "RECEIPT=$REPORT"
