@@ -321,6 +321,27 @@ function CreativeLab({brand}:{brand:string}){
 
 function OrganicSocial({brand}:{brand:string}){
   const days=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  if(brand==="IZAKHONO ONE"){
+    const launch=[
+      ["FOUNDER VIDEO","Try ONE AI without an account","Show the public AI, select Quick, load it and ask one useful question."],
+      ["CAROUSEL","Why device-local matters","Explain that prompts stay on the device after the model loads; no behavioural profile or ad IDs."],
+      ["DEMO","ONE AI for business","Show Business mode turning rough notes into a practical action plan."],
+      ["DEMO","ONE AI for study","Show Study mode explaining one topic simply and testing understanding."],
+      ["FOUNDER POST","Why we built IZAKHONO ONE","Tell the owned-first story: African-built, privacy-first, externally resilient, owned server route still being completed."],
+      ["QUICK START","The fastest first try","Recommend Quick mode first on compatible WebGPU browsers and explain the larger model choices."],
+      ["FOUNDING 1,000","Join after you try it","Invite people who see value to join the Founding 1,000; share the same plain public link."]
+    ];
+    return <div className="stack">
+      <section className="heroCard"><div><span className="kicker">FOUNDING 1,000 · SEVEN-DAY R0 LAUNCH</span><h2>One message. One plain link. Seven useful reasons to try ONE.</h2><p>Publish founder-led demonstrations and education before asking for registration. Every post uses the same public ONE URL with no UTM parameters, referral code, source tag or behavioural tracking.</p></div><a className="primary heroLink" href={ONE_PUBLIC_URL} target="_blank" rel="noreferrer">Open public ONE →</a></section>
+      <section className="calendar">
+        {days.map((d,i)=><article key={d}><b>{d}</b><span>Launch day {i+1}</span><div className="post"><small>{launch[i][0]}</small><strong>{launch[i][1]}</strong><em>{launch[i][2]}</em></div></article>)}
+      </section>
+      <section className="twoCol">
+        <div className="card"><span className="kicker">DISTRIBUTION ORDER</span><h3>Use owned reach before paid reach.</h3><div className="rules"><span>Founder channels</span><span>IZAKHONO portfolio</span><span>Edu-Build campuses</span><span>Partners</span><span>Community groups</span><span>Owned media</span></div></div>
+        <div className="card"><span className="kicker">PUBLISHING BOUNDARY</span><h3>Ready copy, disconnected publishers.</h3><p className="measurementCopy">Growth OS now contains the launch sequence, but live social account connectors are still disconnected. External publishing may use a replaceable adapter; no post is claimed published until that account is connected and the write succeeds.</p><div className="rules"><span>Plain link only</span><span>R0 paid spend</span><span>No clickstream</span><span>No referral attribution</span></div></div>
+      </section>
+    </div>;
+  }
   return <div className="stack">
     <section className="heroCard"><div><span className="kicker">ORGANIC + PAID TOGETHER</span><h2>Stop treating social content and ads as separate worlds.</h2><p>Turn winning organic posts into paid candidates, reuse paid creative organically, and keep one multilingual content calendar.</p></div><button className="primary">＋ Schedule content</button></section>
     <section className="calendar">
