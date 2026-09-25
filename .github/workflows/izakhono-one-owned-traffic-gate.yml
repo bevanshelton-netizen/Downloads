@@ -48,3 +48,27 @@ jobs:
           node -e 'const x=JSON.parse(process.argv[1]); if(x.program!=="Founding 1,000"||x.tracking!==false||x.referralAttribution!==false||x.campaignAttribution!==false) process.exit(2)' "$STATUS"
           echo "$PAGE" | grep -q "No personal referral ID or campaign-attribution code is created"
           echo "$PAGE" | grep -q "No attribution machinery hiding behind the invitation"
+
+
+  verify-share-kit-and-connectors:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify ONE share kit and Social Command connector UI
+        run: |
+          ONE="$(curl -fsSL --max-time 20 https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-public)"
+          echo "$ONE" | grep -q "SHARE KIT"
+          echo "$ONE" | grep -q "Ready-to-post launch copy"
+          echo "$ONE" | grep -q ">WhatsApp<"
+          echo "$ONE" | grep -q ">Facebook<"
+          echo "$ONE" | grep -q "Instagram / TikTok"
+          echo "$ONE" | grep -q ">LinkedIn<"
+          echo "$ONE" | grep -q ">X<"
+          echo "$ONE" | grep -q ">Email<"
+          ! echo "$ONE" | grep -Eqi 'utm_|izakhono-one-public\?campaign=|izakhono-one-public\?ref='
+
+          SOCIAL="$(curl -fsSL --max-time 20 https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/social-command-app)"
+          echo "$SOCIAL" | grep -q "Facebook Pages"
+          echo "$SOCIAL" | grep -q "Instagram Business"
+          echo "$SOCIAL" | grep -q "Threads"
+          echo "$SOCIAL" | grep -q "Create/bind automatically"
+          echo "$SOCIAL" | grep -q "same secure OAuth/Vault flow"
