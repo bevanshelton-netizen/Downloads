@@ -1,0 +1,21 @@
+{
+  "schema": "kora-kids.audition-submission/v1",
+  "seriesId": "lebo-jabu",
+  "episodeSlug": "jam-day-under-the-baobab",
+  "role": "Lebo",
+  "language": "en-ZA",
+  "performerDisplayName": "ENTER DISPLAY NAME",
+  "performerConsentConfirmed": false,
+  "guardianConsentRequired": false,
+  "guardianConsentConfirmed": false,
+  "recordingEvaluationRights": true,
+  "productionRightsContracted": false,
+  "files": {
+    "A": "C:\\path\\LEBO_EP01_A_1.wav",
+    "B": "C:\\path\\LEBO_EP01_B_1.wav",
+    "C": "C:\\path\\LEBO_EP01_C_1.wav",
+    "D": "C:\\path\\LEBO_EP01_D_1.wav",
+    "E": "C:\\path\\LEBO_EP01_E_1.wav",
+    "F": "C:\\path\\LEBO_EP01_F_1.wav"
+  }
+}

@@ -1,0 +1,262 @@
+name: KORA KIDS Casting and Recording Desk
+
+on:
+  push:
+    paths:
+      - "kora-kids-casting/**"
+      - "kora-kids-studio/**"
+      - "kora-kids-audio-intake/**"
+      - "owner-host/IMPORT-KORA-KIDS-LEBO-AUDITION.ps1"
+      - "owner-host/PREPARE-KORA-KIDS-LEBO-SESSION.ps1"
+      - "owner-host/ASSEMBLE-KORA-KIDS-LEBO-VOICE.ps1"
+      - "IMPORT-KORA-KIDS-LEBO-AUDITION.cmd"
+      - "PREPARE-KORA-KIDS-LEBO-SESSION.cmd"
+      - "ASSEMBLE-KORA-KIDS-LEBO-VOICE.cmd"
+      - ".github/workflows/kora-kids-casting.yml"
+  pull_request:
+    paths:
+      - "kora-kids-casting/**"
+      - "kora-kids-studio/**"
+      - "kora-kids-audio-intake/**"
+      - "owner-host/IMPORT-KORA-KIDS-LEBO-AUDITION.ps1"
+      - "owner-host/PREPARE-KORA-KIDS-LEBO-SESSION.ps1"
+      - "owner-host/ASSEMBLE-KORA-KIDS-LEBO-VOICE.ps1"
+      - "IMPORT-KORA-KIDS-LEBO-AUDITION.cmd"
+      - "PREPARE-KORA-KIDS-LEBO-SESSION.cmd"
+      - "ASSEMBLE-KORA-KIDS-LEBO-VOICE.cmd"
+      - ".github/workflows/kora-kids-casting.yml"
+
+jobs:
+  casting-recording-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Ensure local media tools
+        run: |
+          set -euo pipefail
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y ffmpeg
+          fi
+          ffmpeg -version >/dev/null
+          ffprobe -version >/dev/null
+
+      - name: Validate casting runtime
+        run: |
+          node --check kora-kids-casting/audition-intake.mjs
+          node --check kora-kids-casting/recording-session.mjs
+          node --check kora-kids-casting/assemble-voice-master.mjs
+          node --check kora-kids-studio/server.mjs
+          node --check kora-kids-audio-intake/worker.mjs
+
+      - name: Build six synthetic audition sides
+        run: |
+          rm -rf /tmp/kora-casting /tmp/audition-sides /tmp/lebo-session-master
+          mkdir -p /tmp/kora-casting /tmp/audition-sides
+          i=0
+          for side in A B C D E F; do
+            i=$((i+1))
+            ffmpeg -y -f lavfi -i "sine=frequency=$((240 + i * 13)):sample_rate=48000:duration=2" -ac 1 "/tmp/audition-sides/$side.wav"
+          done
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const x=JSON.parse(fs.readFileSync("kora-kids-casting/audition-submission.template.json","utf8"));
+          x.performerDisplayName="CI Lebo Performer";
+          x.performerConsentConfirmed=true;
+          x.guardianConsentRequired=false;
+          x.guardianConsentConfirmed=false;
+          x.recordingEvaluationRights=true;
+          x.productionRightsContracted=true;
+          for(const s of ["A","B","C","D","E","F"])x.files[s]="/tmp/audition-sides/"+s+".wav";
+          fs.writeFileSync("/tmp/audition-metadata.json",JSON.stringify(x,null,2));
+          NODE
+
+      - name: Import audition privately
+        run: |
+          node kora-kids-casting/audition-intake.mjs \
+            --metadata /tmp/audition-metadata.json \
+            --workspace /tmp/kora-casting >/tmp/audition-result.json
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const x=JSON.parse(fs.readFileSync("/tmp/audition-result.json","utf8"));
+          if(x.role!=="Lebo"||x.performerDisplayName!=="CI Lebo Performer"||Object.keys(x.files||{}).length!==6)process.exit(2);
+          if(JSON.stringify(x).includes("privatePath"))process.exit(3);
+          if(x.selected!==false||Object.values(x.review||{}).some(Boolean))process.exit(4);
+          NODE
+
+      - name: Start private Casting Desk
+        env:
+          KORA_KIDS_STUDIO_WORKSPACE: /tmp/kora-casting
+        run: |
+          node kora-kids-studio/server.mjs >/tmp/kora-casting-studio.log 2>&1 &
+          echo $! >/tmp/kora-casting-studio.pid
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:8890/api/casting >/tmp/casting.json && break
+            sleep 1
+          done
+
+      - name: Prove selection is blocked before review
+        run: |
+          CID="$(node -p 'require("/tmp/audition-result.json").id')"
+          CODE="$(curl -sS -o /tmp/blocked-select.json -w "%{http_code}" -X POST "http://127.0.0.1:8890/api/casting/$CID/select" -H "content-type: application/json" -d '{}')"
+          test "$CODE" = "409"
+          grep -q "casting review incomplete" /tmp/blocked-select.json
+
+      - name: Review and explicitly select Lebo
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const base="http://127.0.0.1:8890",headers={"content-type":"application/json"};
+          const cid=JSON.parse(fs.readFileSync("/tmp/audition-result.json","utf8")).id;
+          for(const gate of ["naturalPerformance","diction","emotionalRange","comicTiming","southAfricanRhythm","childFriendly","technical","rightsReady"]){
+            const r=await fetch(base+"/api/casting/"+cid+"/review",{method:"POST",headers,body:JSON.stringify({gate,approved:true})});
+            if(!r.ok){console.error(await r.text());process.exit(2)}
+          }
+          const selected=await fetch(base+"/api/casting/"+cid+"/select",{method:"POST",headers,body:"{}"});
+          if(!selected.ok){console.error(await selected.text());process.exit(3)}
+          const items=(await (await fetch(base+"/api/casting")).json()).candidates;
+          if(items.length!==1||items[0].selected!==true||items[0].score!==100)process.exit(4);
+          if(JSON.stringify(items).includes("privatePath"))process.exit(5);
+          NODE
+
+      - name: Stop Casting Desk
+        if: always()
+        run: |
+          test ! -f /tmp/kora-casting-studio.pid || kill "$(cat /tmp/kora-casting-studio.pid)" || true
+
+      - name: Prepare selected performer's 17-line Episode 1 session
+        run: |
+          CID="$(node -p 'require("/tmp/audition-result.json").id')"
+          node kora-kids-casting/recording-session.mjs \
+            --mode prepare \
+            --candidate "$CID" \
+            --workspace /tmp/kora-casting >/tmp/session-prepared.json
+          SESSION="$(node -p 'require("/tmp/session-prepared.json").privateSessionPath')"
+          test -s "$SESSION"
+          node --input-type=module - "$SESSION" <<'NODE'
+          import fs from "node:fs";
+          const x=JSON.parse(fs.readFileSync(process.argv[2],"utf8"));
+          if(x.lineCount!==17||x.lines.length!==17||x.complete!==false||x.readyForAssembly!==false)process.exit(2);
+          if(!x.lines.every(l=>l.speaker==="Lebo"&&l.endSeconds>l.startSeconds&&!l.take))process.exit(3);
+          NODE
+
+      - name: Prove incomplete takes are refused
+        run: |
+          SESSION="$(node -p 'require("/tmp/session-prepared.json").privateSessionPath')"
+          node --input-type=module - "$SESSION" <<'NODE'
+          import fs from "node:fs";
+          const session=JSON.parse(fs.readFileSync(process.argv[2],"utf8"));
+          fs.writeFileSync("/tmp/incomplete-takes.json",JSON.stringify({[session.lines[0].id]:{path:"/tmp/audition-sides/A.wav",approved:true,reviewer:"CI"}}));
+          NODE
+          if node kora-kids-casting/recording-session.mjs \
+            --mode attach --session "$SESSION" --takes /tmp/incomplete-takes.json --workspace /tmp/kora-casting; then
+            echo "Session manager incorrectly accepted incomplete takes" >&2
+            exit 2
+          fi
+
+      - name: Record synthetic takes for all 17 Lebo lines
+        run: |
+          SESSION="$(node -p 'require("/tmp/session-prepared.json").privateSessionPath')"
+          mkdir -p /tmp/lebo-takes
+          node --input-type=module - "$SESSION" <<'NODE'
+          import fs from "node:fs";
+          import { spawnSync } from "node:child_process";
+          const x=JSON.parse(fs.readFileSync(process.argv[2],"utf8")),takes={};
+          x.lines.forEach((l,i)=>{
+            const path="/tmp/lebo-takes/"+l.id+".wav";
+            const r=spawnSync("ffmpeg",["-y","-f","lavfi","-i","sine=frequency="+(250+(i+1)*7)+":sample_rate=48000:duration=1.1","-ac","1",path],{stdio:"inherit"});
+            if(r.status!==0)process.exit(10+i);
+            if(!fs.existsSync(path))process.exit(40+i);
+            takes[l.id]={path,approved:true,reviewer:"CI director"};
+          });
+          fs.writeFileSync("/tmp/all-takes.json",JSON.stringify(takes,null,2));
+          NODE
+
+      - name: Attach all approved takes and assemble 420-second voice master
+        run: |
+          SESSION="$(node -p 'require("/tmp/session-prepared.json").privateSessionPath')"
+          node kora-kids-casting/recording-session.mjs \
+            --mode attach --session "$SESSION" --takes /tmp/all-takes.json --workspace /tmp/kora-casting
+          node kora-kids-casting/assemble-voice-master.mjs \
+            --session "$SESSION" \
+            --output /tmp/lebo-session-master
+          test -s /tmp/lebo-session-master/lebo-episode1-voice-master.wav
+          test -s /tmp/lebo-session-master/voice-master-result.json
+          ffprobe -v error -show_entries format=duration -show_entries stream=codec_name,sample_rate,channels -of json /tmp/lebo-session-master/lebo-episode1-voice-master.wav >/tmp/voice-probe.json
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const r=JSON.parse(fs.readFileSync("/tmp/lebo-session-master/voice-master-result.json","utf8"));
+          const p=JSON.parse(fs.readFileSync("/tmp/voice-probe.json","utf8"));
+          const a=p.streams[0],dur=Number(p.format.duration);
+          if(r.lineCount!==17||r.durationSeconds!==420||r.finalPerformanceApproved!==false)process.exit(2);
+          if(a.codec_name!=="pcm_s24le"||Number(a.sample_rate)!==48000||a.channels!==1)process.exit(3);
+          if(Math.abs(dur-420)>.1)process.exit(4);
+          NODE
+
+      - name: Register assembled Lebo voice master in Audio Desk
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const r=JSON.parse(fs.readFileSync("/tmp/lebo-session-master/voice-master-result.json","utf8"));
+          const m={
+            schema:"kora-kids.audio-intake/v1",type:"voice",seriesId:"lebo-jabu",episodeSlug:"jam-day-under-the-baobab",language:"en-ZA",
+            character:"Lebo",performerDisplayName:r.performerDisplayName,originalName:"lebo-episode1-voice-master.wav",
+            performerConsentConfirmed:true,guardianConsentRequired:false,guardianConsentConfirmed:false,
+            voiceRights:{recording:true,distribution:true,localisation:true,territories:["worldwide"],media:["streaming","broadcast","apps","promotional-clips"],term:"CI fixture only"}
+          };
+          fs.writeFileSync("/tmp/voice-master-intake.json",JSON.stringify(m,null,2));
+          NODE
+          node kora-kids-audio-intake/worker.mjs \
+            --type voice \
+            --input /tmp/lebo-session-master/lebo-episode1-voice-master.wav \
+            --metadata /tmp/voice-master-intake.json \
+            --workspace /tmp/kora-casting >/tmp/audio-intake-result.json
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const x=JSON.parse(fs.readFileSync("/tmp/audio-intake-result.json","utf8"));
+          if(x.type!=="voice"||x.character!=="Lebo"||x.approvedForMastering!==false)process.exit(2);
+          if(x.review?.rights!==true||x.review?.performance!==false||x.review?.technical!==false||x.review?.final!==false)process.exit(3);
+          NODE
+
+      - name: Verify privacy-safe Casting and Recording Desk APIs
+        env:
+          KORA_KIDS_STUDIO_WORKSPACE: /tmp/kora-casting
+        run: |
+          node kora-kids-studio/server.mjs >/tmp/kora-casting-final.log 2>&1 &
+          echo $! >/tmp/kora-casting-final.pid
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:8890/api/casting >/tmp/casting-final.json && \
+            curl -fsS http://127.0.0.1:8890/api/recording-sessions >/tmp/sessions-final.json && \
+            curl -fsS http://127.0.0.1:8890/api/audio-assets >/tmp/audio-final.json && break
+            sleep 1
+          done
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const c=fs.readFileSync("/tmp/casting-final.json","utf8"),s=fs.readFileSync("/tmp/sessions-final.json","utf8"),a=fs.readFileSync("/tmp/audio-final.json","utf8");
+          const C=JSON.parse(c).candidates,S=JSON.parse(s).sessions,A=JSON.parse(a).assets;
+          if(C.length!==1||C[0].selected!==true||C[0].score!==100)process.exit(2);
+          if(S.length!==1||S[0].approvedTakeCount!==17||S[0].readyForAssembly!==true)process.exit(3);
+          if(A.length!==1||A[0].approvedForMastering!==false)process.exit(4);
+          const raw=c+s+a;
+          if(raw.includes("privatePath")||raw.includes("/tmp/kora-casting/casting")||raw.includes("/tmp/kora-casting/recording-sessions"))process.exit(5);
+          NODE
+
+      - name: Stop final Casting Desk
+        if: always()
+        run: |
+          test ! -f /tmp/kora-casting-final.pid || kill "$(cat /tmp/kora-casting-final.pid)" || true
+
+      - name: Upload casting proof manifests
+        uses: actions/upload-artifact@v4
+        with:
+          name: lebo-casting-recording-proof
+          path: |
+            /tmp/audition-result.json
+            /tmp/session-prepared.json
+            /tmp/lebo-session-master/voice-master-result.json
+            /tmp/audio-intake-result.json
+          retention-days: 7
