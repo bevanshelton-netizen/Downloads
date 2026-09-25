@@ -1,0 +1,164 @@
+{
+  "schema": "izakhono.platform.manifest.v1",
+  "platform_id": "izakhono-digital-finance",
+  "name": "IZAKHONO Digital Finance Academy",
+  "operator": "IZAKHONO AFRICA (PTY) LTD",
+  "trading_name": "IZAKHONO Digital Finance Academy",
+  "status": "EXTERNAL LIVE VERIFIED",
+  "authoritative_source": "bevanshelton-netizen/izakhono-builder:apps/izakhono-digital-finance",
+  "owned_target": "NODE01 via IZAKHONO CODE -> RUNTIME -> FORTRESS -> EDGE/TLS -> IZAKHONO DNS",
+  "public_route": "https://izakhono-digital-finance.vercel.app",
+  "external_fallback": "https://izakhono-digital-finance.vercel.app — Vercel production resilience route, deployment dpl_HgzMUrUE4Sv21sygEu2fdG9D1tG3",
+  "engine": {
+    "type": "Independent Python 3 stdlib HTTP engine",
+    "entrypoint": "engine.py",
+    "health_endpoint": "/healthz",
+    "status_endpoint": "/api/v1/status",
+    "catalog_endpoint": "/api/v1/catalog"
+  },
+  "data": {
+    "learning_progress": "Browser-local in MVP",
+    "analytics": "None",
+    "tracking": "None",
+    "customer_records": "Not collected in MVP",
+    "institutional_automation_state": "SQLite pseudonymous learner/event/outbox store; protected admin routes only",
+    "pii": "Not accepted by the workforce automation store"
+  },
+  "payments": {
+    "preferred_gateway": "iKhokha",
+    "state": "GATED_PENDING_VERIFIED_PRODUCT_CHECKOUT",
+    "rule": "No checkout is presented as live until a product-specific payment URL, settlement path and entitlement flow are verified end-to-end."
+  },
+  "legal": {
+    "degree_claim": false,
+    "accreditation_claim": false,
+    "financial_advice": false,
+    "education_only": true
+  },
+  "positioning": "Multilingual global institutional digital-finance capability platform, with individual learning retained as an open-access entry route.",
+  "institutional": {
+    "audiences": [
+      "banks",
+      "payment institutions",
+      "regulators",
+      "central banks",
+      "fintechs",
+      "insurers",
+      "professional services",
+      "universities and training networks",
+      "global corporates",
+      "industry associations",
+      "development finance",
+      "NGOs and multilateral programmes"
+    ],
+    "delivery": [
+      "executive briefing",
+      "workforce academy",
+      "specialist lab",
+      "private institutional academy",
+      "public/customer education"
+    ],
+    "commercial_model": "Quote-based institutional licence, cohort or custom programme agreement"
+  },
+  "localisation": {
+    "interface_locales": [
+      "en",
+      "fr",
+      "es",
+      "pt",
+      "ar",
+      "sw",
+      "zu",
+      "zh",
+      "hi",
+      "de"
+    ],
+    "full_course_rule": "A locale is only marketed as fully available after translation QA and subject-matter review.",
+    "layers": [
+      "interface",
+      "learning content",
+      "jurisdiction overlay",
+      "institution overlay"
+    ]
+  },
+  "automation": {
+    "state": "ZERO-TOUCH CORE BUILT / VERIFIED LOCALLY; runtime secrets, protected question bank and optional external adapters pending",
+    "target_routine_administration": "90-95%",
+    "decision_endpoint": "/api/v1/automation/evaluate",
+    "persistence": "SQLite pseudonymous learner state, events and automation outbox",
+    "privacy": "Pseudonymous learner references only; unapproved/PII fields rejected",
+    "automated_normal_path": [
+      "onboarding decision",
+      "baseline routing",
+      "role-based pathway assignment",
+      "progress decisioning",
+      "remediation routing",
+      "completion eligibility",
+      "certificate eligibility decision",
+      "management reporting event"
+    ],
+    "human_governance_required_for": [
+      "regulatory content changes",
+      "translation release approval",
+      "identity anomalies",
+      "security or fraud incidents",
+      "learner appeals",
+      "regulated-advice escalations",
+      "institution policy conflicts",
+      "payment disputes or refunds"
+    ],
+    "production_adapters_pending": [
+      "institution-specific SSO or identity mapping when required",
+      "protected production question bank content",
+      "external email/SMS/push delivery when required",
+      "named identity-aware certificate rendering when required",
+      "consumer iKhokha checkout/settlement if individual sales are enabled",
+      "external BI/dashboard export when required"
+    ],
+    "protected_admin_endpoints": [
+      "/api/v1/admin/automation/event",
+      "/api/v1/admin/automation/report",
+      "/api/v1/admin/automation/outbox",
+      "/api/v1/admin/automation/outbox/ack"
+    ],
+    "admin_auth": "Bearer token via IZAKHONO_DF_ADMIN_TOKEN",
+    "zero_touch_core": {
+      "institutional_license_and_seat_entitlement": "built",
+      "pseudonymous_roster_provisioning": "built",
+      "learner_access_tokens": "built",
+      "automated_assessment_service": "built; protected runtime question bank required",
+      "remediation_and_completion_decisioning": "built",
+      "signed_pseudonymous_completion_records": "built",
+      "in_app_action_feed": "built",
+      "institutional_reporting": "built"
+    },
+    "runtime_secrets": [
+      "IZAKHONO_DF_ADMIN_TOKEN",
+      "IZAKHONO_DF_LEARNER_SIGNING_KEY",
+      "IZAKHONO_DF_CREDENTIAL_SIGNING_KEY"
+    ],
+    "runtime_mounts": [
+      "IZAKHONO_DF_QUESTION_BANK"
+    ]
+  },
+  "external_live_evidence": {
+    "provider": "Vercel",
+    "deployment_id": "dpl_HgzMUrUE4Sv21sygEu2fdG9D1tG3",
+    "deployment_state": "READY",
+    "verified_at": "2026-09-25T03:10:04Z",
+    "checks": {
+      "root_https_200": true,
+      "expected_product_marker": true,
+      "healthz_https_200_ok": true,
+      "status_api_https_200": true,
+      "tracking_false": true,
+      "analytics_false": true,
+      "learner_writes_false": true,
+      "protected_admin_route_closed_404": true,
+      "protected_learner_route_closed_404": true,
+      "protected_automation_write_route_closed_404": true
+    },
+    "boundary": "External route serves public learning/institutional content only. Protected workforce automation remains on the owned engine."
+  },
+  "owned_public_status": "NOT YET OWNED LIVE VERIFIED; NODE01 deployment package is prepared and must pass machine-side plus DNS/TLS/EDGE/backup/rollback acceptance."
+}
