@@ -98,3 +98,23 @@ The reconciliation is single-writer. It freezes public writes on the active stan
 After success, standby stateful services remain stopped and the standby is marked **re-baseline required**. Re-establish the warm standby from the newly active primary before considering HA readiness restored.
 
 No multi-master database merge is attempted.
+
+
+## Controlled failover now promotes state before routing
+
+The controlled physical failover sequence no longer routes traffic to a merely staged standby.
+
+After the primary is fenced and the standby acquires a newer verified WITNESS fencing token, `controlled-failover-drill.sh execute` invokes the guarded standby promotion transaction itself. It requires the resulting proof to match the old primary token and the new standby token, confirms BACKUP encryption-key lineage was preserved, and re-checks RUNTIME/EDGE WITNESS authority.
+
+Only after those checks pass may the trusted route/DNS switch run.
+
+Therefore the enforced order is:
+
+    PRIMARY FENCED
+      → STANDBY WITNESS LEADER
+      → STAGED RECOVERY PROMOTED
+      → STATE SERVICES HEALTHY
+      → WITNESS AUTHORITY REVERIFIED
+      → ROUTE SWITCHED
+
+A failover report now records `state_promoted_before_route=true` and its next gate is `DATA_SAFE_RECONCILED_FAILBACK`.
