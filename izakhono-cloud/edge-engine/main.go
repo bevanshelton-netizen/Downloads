@@ -258,6 +258,11 @@ func (e *Engine) serveHTTPS(w http.ResponseWriter, r *http.Request) {
 }
 
 func (e *Engine) serveHTTP(w http.ResponseWriter, r *http.Request) {
+	host := normalizeHost(r.Host)
+	if e.routes[host] == nil {
+		http.NotFound(w, r)
+		return
+	}
 	if strings.HasPrefix(r.URL.Path, "/.well-known/acme-challenge/") {
 		if e.cfg.ACMEWebroot == "" {
 			http.NotFound(w, r)
@@ -276,11 +281,6 @@ func (e *Engine) serveHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		w.Header().Set("Cache-Control", "no-store")
 		_, _ = w.Write(data)
-		return
-	}
-	host := normalizeHost(r.Host)
-	if e.routes[host] == nil {
-		http.NotFound(w, r)
 		return
 	}
 	target := "https://" + host + r.URL.RequestURI()
