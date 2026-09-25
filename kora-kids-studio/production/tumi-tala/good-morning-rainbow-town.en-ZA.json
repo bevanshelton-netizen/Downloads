@@ -1,0 +1,574 @@
+{
+  "schema": "kora-kids.production-pack/v1",
+  "series": {
+    "id": "tumi-tala",
+    "title": "Tumi & Tala"
+  },
+  "episode": {
+    "number": 1,
+    "slug": "good-morning-rainbow-town",
+    "title": "Good Morning, Rainbow Town!"
+  },
+  "language": {
+    "code": "en-ZA",
+    "name": "English (South Africa)",
+    "finalVoiceApproved": false
+  },
+  "status": "production-candidate",
+  "audience": "2-6",
+  "targetDurationSeconds": 420,
+  "learningObjectives": [
+    "Count a simple five-step morning routine",
+    "Practise friendly greetings",
+    "Build confidence with age-appropriate self-care routines"
+  ],
+  "factNotes": [
+    "Morning routines differ across families and communities; present the five-step routine as one friendly example, not a universal rule.",
+    "Do not imply that all African children, homes, foods or mornings look the same.",
+    "Any local-language greeting added later must be reviewed by a fluent speaker before release."
+  ],
+  "musicDirection": {
+    "theme": "Bright original KORA KIDS morning theme with hand percussion, light marimba-like colour and warm acoustic textures.",
+    "rule": "Use original melodies only; do not imitate or interpolate an existing children's song or soundtrack.",
+    "cues": [
+      "rainbow-town-dawn",
+      "five-little-steps",
+      "piko-repeat",
+      "busi-bus-bounce",
+      "warm-morning-outro"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "s01",
+      "durationSeconds": 60,
+      "location": "Tumi and Tala's Rainbow Town home street at sunrise",
+      "characters": [
+        "Tumi",
+        "Tala",
+        "Piko"
+      ],
+      "action": "Sunlight reaches Rainbow Town. Tumi stretches, Tala taps a gentle wake-up rhythm, and Piko repeats their morning greeting.",
+      "dialogue": [
+        {
+          "speaker": "Tumi",
+          "text": "Good morning, Rainbow Town! I’m awake… almost!",
+          "emotion": "sleepy-happy"
+        },
+        {
+          "speaker": "Tala",
+          "text": "Morning, Tumi! Stretch up high, then touch the sky.",
+          "emotion": "bright"
+        },
+        {
+          "speaker": "Piko",
+          "text": "Good morning! Good morning!",
+          "emotion": "chirpy",
+          "performance": "short bird-like repeat"
+        },
+        {
+          "speaker": "Tumi",
+          "text": "Ready for our five little morning steps?",
+          "emotion": "curious"
+        }
+      ],
+      "shots": [
+        {
+          "id": "s01a",
+          "seconds": 14,
+          "framing": "wide",
+          "action": "Rainbow Town sunrise and home street; Tumi appears at window.",
+          "expressionFocus": [
+            {
+              "speaker": "Tumi",
+              "emotion": "sleepy-happy"
+            }
+          ]
+        },
+        {
+          "id": "s01b",
+          "seconds": 16,
+          "framing": "medium",
+          "action": "Tala enters with a soft clap rhythm.",
+          "expressionFocus": [
+            {
+              "speaker": "Tala",
+              "emotion": "bright"
+            }
+          ]
+        },
+        {
+          "id": "s01c",
+          "seconds": 14,
+          "framing": "close",
+          "action": "Piko lands and repeats the greeting.",
+          "expressionFocus": [
+            {
+              "speaker": "Piko",
+              "emotion": "chirpy"
+            }
+          ]
+        },
+        {
+          "id": "s01d",
+          "seconds": 16,
+          "framing": "wide-push",
+          "action": "All three point to five colourful step icons.",
+          "expressionFocus": [
+            {
+              "speaker": "Tumi",
+              "emotion": "curious"
+            },
+            {
+              "speaker": "Tala",
+              "emotion": "excited"
+            }
+          ]
+        }
+      ],
+      "musicCue": "rainbow-town-dawn",
+      "sfx": [
+        "morning-birds",
+        "soft-claps",
+        "piko-chirp"
+      ],
+      "subtitleTrack": true,
+      "culturalNotes": [
+        "Keep homes and streets contemporary and varied; avoid treating one housing style as representative of Africa."
+      ]
+    },
+    {
+      "id": "s02",
+      "durationSeconds": 80,
+      "location": "Bathroom and dressing area",
+      "characters": [
+        "Tumi",
+        "Tala",
+        "Piko"
+      ],
+      "action": "The friends practise steps one to four: stretch, brush, wash and get dressed, using counting and repetition.",
+      "dialogue": [
+        {
+          "speaker": "Tala",
+          "text": "Step one: stretch. One!",
+          "emotion": "encouraging"
+        },
+        {
+          "speaker": "Tumi",
+          "text": "Step two: brush. Two!",
+          "emotion": "playful"
+        },
+        {
+          "speaker": "Piko",
+          "text": "One! Two!",
+          "emotion": "repeat"
+        },
+        {
+          "speaker": "Tala",
+          "text": "Step three: wash. Three!",
+          "emotion": "encouraging"
+        },
+        {
+          "speaker": "Tumi",
+          "text": "Step four: clothes. Four! We’re nearly there.",
+          "emotion": "proud"
+        }
+      ],
+      "shots": [
+        {
+          "id": "s02a",
+          "seconds": 18,
+          "framing": "tracking",
+          "action": "Stretch sequence with large number one graphic.",
+          "expressionFocus": [
+            {
+              "speaker": "Tala",
+              "emotion": "encouraging"
+            }
+          ]
+        },
+        {
+          "id": "s02b",
+          "seconds": 20,
+          "framing": "close-montage",
+          "action": "Age-appropriate tooth-brushing guide beat; no product branding.",
+          "expressionFocus": [
+            {
+              "speaker": "Tumi",
+              "emotion": "playful"
+            }
+          ]
+        },
+        {
+          "id": "s02c",
+          "seconds": 20,
+          "framing": "two-shot",
+          "action": "Wash face and hands; Piko repeats numbers.",
+          "expressionFocus": [
+            {
+              "speaker": "Piko",
+              "emotion": "repeat"
+            }
+          ]
+        },
+        {
+          "id": "s02d",
+          "seconds": 22,
+          "framing": "medium-comedy",
+          "action": "Tumi briefly puts a shirt on backwards, laughs, then fixes it.",
+          "expressionFocus": [
+            {
+              "speaker": "Tumi",
+              "emotion": "proud"
+            }
+          ]
+        }
+      ],
+      "musicCue": "five-little-steps",
+      "sfx": [
+        "water-soft",
+        "brush-rhythm",
+        "fabric-rustle"
+      ],
+      "subtitleTrack": true,
+      "culturalNotes": []
+    },
+    {
+      "id": "s03",
+      "durationSeconds": 95,
+      "location": "Rainbow Town kitchen and breakfast table",
+      "characters": [
+        "Tumi",
+        "Tala",
+        "Piko"
+      ],
+      "action": "Step five is breakfast. The children count five colourful fruit pieces and practise taking turns.",
+      "dialogue": [
+        {
+          "speaker": "Tumi",
+          "text": "Step five: breakfast. Five!",
+          "emotion": "delighted"
+        },
+        {
+          "speaker": "Tala",
+          "text": "Let’s count the fruit together: one, two, three, four, five.",
+          "emotion": "musical"
+        },
+        {
+          "speaker": "Piko",
+          "text": "Five! Five!",
+          "emotion": "chirpy"
+        },
+        {
+          "speaker": "Tumi",
+          "text": "You choose one first, Tala. Then I’ll choose one.",
+          "emotion": "kind"
+        },
+        {
+          "speaker": "Tala",
+          "text": "Thank you. Taking turns makes the table happy.",
+          "emotion": "warm"
+        }
+      ],
+      "shots": [
+        {
+          "id": "s03a",
+          "seconds": 20,
+          "framing": "overhead",
+          "action": "Five generic fruit pieces appear one at a time.",
+          "expressionFocus": [
+            {
+              "speaker": "Tala",
+              "emotion": "musical"
+            }
+          ]
+        },
+        {
+          "id": "s03b",
+          "seconds": 25,
+          "framing": "close-montage",
+          "action": "Count each fruit with a simple number card.",
+          "expressionFocus": [
+            {
+              "speaker": "Piko",
+              "emotion": "chirpy"
+            }
+          ]
+        },
+        {
+          "id": "s03c",
+          "seconds": 25,
+          "framing": "two-shot",
+          "action": "Tumi offers Tala first choice; Tala thanks him.",
+          "expressionFocus": [
+            {
+              "speaker": "Tumi",
+              "emotion": "kind"
+            },
+            {
+              "speaker": "Tala",
+              "emotion": "warm"
+            }
+          ]
+        },
+        {
+          "id": "s03d",
+          "seconds": 25,
+          "framing": "wide",
+          "action": "They finish breakfast and place the five step icons in order.",
+          "expressionFocus": [
+            {
+              "speaker": "Tumi",
+              "emotion": "delighted"
+            }
+          ]
+        }
+      ],
+      "musicCue": "piko-repeat",
+      "sfx": [
+        "plate-soft",
+        "fruit-plops",
+        "piko-chirp"
+      ],
+      "subtitleTrack": true,
+      "culturalNotes": [
+        "Breakfast remains generic and optional; do not imply one meal represents children across Africa."
+      ]
+    },
+    {
+      "id": "s04",
+      "durationSeconds": 110,
+      "location": "Rainbow Town street and Busi Bus stop",
+      "characters": [
+        "Tumi",
+        "Tala",
+        "Piko",
+        "Busi Bus"
+      ],
+      "action": "The friends walk to Busi Bus, recap the five steps with movement, and greet neighbours politely.",
+      "dialogue": [
+        {
+          "speaker": "Tala",
+          "text": "Can we remember all five steps without looking?",
+          "emotion": "challenge-playful"
+        },
+        {
+          "speaker": "Tumi",
+          "text": "One, stretch. Two, brush. Three, wash. Four, clothes. Five, breakfast!",
+          "emotion": "confident"
+        },
+        {
+          "speaker": "Piko",
+          "text": "One, two, three, four, five!",
+          "emotion": "sing-song"
+        },
+        {
+          "speaker": "Tala",
+          "text": "Good morning, neighbours!",
+          "emotion": "friendly"
+        },
+        {
+          "speaker": "Tumi",
+          "text": "Every family can have a different morning routine. This is our Rainbow Town way today.",
+          "emotion": "warm-informative",
+          "factReviewRequired": true
+        },
+        {
+          "speaker": "Busi Bus",
+          "text": "Beep-beep!",
+          "emotion": "friendly",
+          "performance": "soft musical bus horn; no human speech required"
+        }
+      ],
+      "shots": [
+        {
+          "id": "s04a",
+          "seconds": 24,
+          "framing": "tracking",
+          "action": "Walk-and-count recap with five large icons.",
+          "expressionFocus": [
+            {
+              "speaker": "Tumi",
+              "emotion": "confident"
+            }
+          ]
+        },
+        {
+          "id": "s04b",
+          "seconds": 26,
+          "framing": "montage",
+          "action": "Friendly morning waves to varied neighbours without focusing on any single cultural stereotype.",
+          "expressionFocus": [
+            {
+              "speaker": "Tala",
+              "emotion": "friendly"
+            }
+          ]
+        },
+        {
+          "id": "s04c",
+          "seconds": 30,
+          "framing": "medium",
+          "action": "Tumi gives the routine-differences line directly to camera.",
+          "expressionFocus": [
+            {
+              "speaker": "Tumi",
+              "emotion": "warm-informative"
+            }
+          ]
+        },
+        {
+          "id": "s04d",
+          "seconds": 30,
+          "framing": "wide-comedy",
+          "action": "Busi Bus arrives slowly, smiles and gives a gentle musical beep.",
+          "expressionFocus": [
+            {
+              "speaker": "Busi Bus",
+              "emotion": "friendly"
+            }
+          ]
+        }
+      ],
+      "musicCue": "busi-bus-bounce",
+      "sfx": [
+        "footsteps-light",
+        "neighbour-waves",
+        "bus-soft-beep"
+      ],
+      "subtitleTrack": true,
+      "culturalNotes": [
+        "Neighbour visuals should show everyday diversity without tokenising clothing, skin tone, language or disability."
+      ]
+    },
+    {
+      "id": "s05",
+      "durationSeconds": 75,
+      "location": "Busi Bus stop in warm morning light",
+      "characters": [
+        "Tumi",
+        "Tala",
+        "Piko",
+        "Busi Bus"
+      ],
+      "action": "They sing a short original recap, invite children to count the steps, and say goodbye.",
+      "dialogue": [
+        {
+          "speaker": "Tala",
+          "text": "Five little steps and we’re ready to go!",
+          "emotion": "joyful"
+        },
+        {
+          "speaker": "Tumi",
+          "text": "One, two, three, four, five. You did it with us!",
+          "emotion": "joyful"
+        },
+        {
+          "speaker": "Piko",
+          "text": "Hooray! Hooray!",
+          "emotion": "chirpy"
+        },
+        {
+          "speaker": "Tala",
+          "text": "Good morning, Rainbow Town!",
+          "emotion": "musical"
+        },
+        {
+          "speaker": "Tumi",
+          "text": "See you next time for another adventure.",
+          "emotion": "warm"
+        },
+        {
+          "speaker": "Busi Bus",
+          "text": "Beep-beep!",
+          "emotion": "goodbye",
+          "performance": "soft musical goodbye horn"
+        }
+      ],
+      "shots": [
+        {
+          "id": "s05a",
+          "seconds": 18,
+          "framing": "wide-sunset",
+          "action": "Warm morning group shot beside Busi Bus.",
+          "expressionFocus": [
+            {
+              "speaker": "Tala",
+              "emotion": "joyful"
+            }
+          ]
+        },
+        {
+          "id": "s05b",
+          "seconds": 20,
+          "framing": "medium",
+          "action": "Tumi counts five on fingers; Tala mirrors him.",
+          "expressionFocus": [
+            {
+              "speaker": "Tumi",
+              "emotion": "joyful"
+            }
+          ]
+        },
+        {
+          "id": "s05c",
+          "seconds": 18,
+          "framing": "close",
+          "action": "Piko chirps hooray and bounces.",
+          "expressionFocus": [
+            {
+              "speaker": "Piko",
+              "emotion": "chirpy"
+            }
+          ]
+        },
+        {
+          "id": "s05d",
+          "seconds": 19,
+          "framing": "close-to-wide",
+          "action": "Everyone waves; Busi Bus gives a soft beep; end card.",
+          "expressionFocus": [
+            {
+              "speaker": "Tumi",
+              "emotion": "warm"
+            },
+            {
+              "speaker": "Tala",
+              "emotion": "musical"
+            }
+          ]
+        }
+      ],
+      "musicCue": "warm-morning-outro",
+      "sfx": [
+        "piko-chirp",
+        "bus-goodbye",
+        "soft-applause"
+      ],
+      "subtitleTrack": true,
+      "culturalNotes": []
+    }
+  ],
+  "reviewState": {
+    "scriptLock": false,
+    "factLock": false,
+    "languagePerformance": false,
+    "culturalContext": false,
+    "childSafety": false,
+    "musicOriginality": false,
+    "finalMaster": false
+  },
+  "qualityBibles": {
+    "voice": "kora-kids-studio/bibles/tumi-tala-voice-bible.json",
+    "sound": "kora-kids-studio/bibles/kora-kids-sound-bible.json",
+    "animation": "kora-kids-studio/bibles/tumi-tala-animation-bible.json"
+  },
+  "performanceLocks": {
+    "voiceCasting": "pending-human-cast",
+    "pikoSoundDesign": "guide-vocabulary-locked",
+    "busiBusSoundDesign": "guide-vocabulary-locked",
+    "themeMusic": "composition-brief-locked",
+    "animationStyle": "quality-bible-locked",
+    "finalPerformanceApproval": false
+  }
+}
