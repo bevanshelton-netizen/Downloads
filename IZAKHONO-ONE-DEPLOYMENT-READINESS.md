@@ -16,6 +16,20 @@ This pack separates **technical deployment**, **public pilot**, and **commercial
 
 **VERIFIED LIVE** is only used after an independent public check proves the intended release is reachable.
 
+## R0 public launch mode
+
+The public pilot does **not** require purchase of a custom domain.
+
+At a zero-cash budget, the approved route is:
+
+1. Stable public front door: `https://bevanshelton-netizen.github.io/Downloads/one/`
+2. External resilience/control: the already verified Supabase ONE hub/control/device-AI endpoints.
+3. Owned server authority: ISN-01 / another verified IZAKHONO sovereign node.
+4. Direct owned-runtime public transport: the existing outbound Tailscale Funnel adapter, launched with `START-IZAKHONO-ONE-R0-BRIDGE.cmd`.
+5. A branded custom domain is deferred as an optional future branding upgrade.
+
+The R0 bridge requires no purchased domain, no public IPv4 and no inbound router port forwarding. Tailscale remains a replaceable transport adapter and never becomes ONE's engine authority.
+
 ## One-click owned launch
 
 Run on the owner Windows machine:
@@ -47,7 +61,7 @@ to the Windows Desktop.
 
 1. Owner Agent / local-model request must execute on the physical owner host.
 2. SMTP must complete a real handshake before public signup is enabled.
-3. `https://one.domains.izakhonoafrica.co.za` must pass an independent HTTPS health check.
+3. The selected direct owned-runtime public endpoint (R0 bridge or future custom domain) must pass an independent HTTPS health check before that direct owned route is called VERIFIED LIVE.
 
 Commercial checkout remains a later gate; it is not required for the free/public technical pilot.
 
