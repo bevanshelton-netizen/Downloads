@@ -18,6 +18,7 @@ const AUDIO_ASSETS = join(WORKSPACE, "audio-assets");
 const LOCALISATION_PACKS = join(REPO, "kora-kids-localisation", "packs");
 const LOCALISATION_REVIEWS = join(WORKSPACE, "localisations");
 const RELEASES = join(WORKSPACE, "releases");
+const FINISHED = join(WORKSPACE, "finished");
 const RENDER_WORKER = join(REPO, "kora-kids-render-worker", "worker.mjs");
 
 const types={".html":"text/html; charset=utf-8",".js":"text/javascript; charset=utf-8",".json":"application/json; charset=utf-8",".svg":"image/svg+xml",".css":"text/css; charset=utf-8"};
@@ -64,6 +65,7 @@ async function listJobs(){
  await mkdir(AUDIO_ASSETS,{recursive:true});
  await mkdir(LOCALISATION_REVIEWS,{recursive:true});
  await mkdir(RELEASES,{recursive:true});
+ await mkdir(FINISHED,{recursive:true});
  const names=(await readdir(JOBS)).filter(x=>x.endsWith(".json"));
  const out=[];
  for(const n of names){try{out.push(await json(join(JOBS,n)))}catch{}}
@@ -135,6 +137,18 @@ async function updateLocalisationReview(code,gate,approved){
  await writeFile(path,JSON.stringify(state,null,2)+"\n");
  return {...state,targetName:pack.targetName,region:pack.region,voice:pack.voice,textDirection:pack.textDirection,status:pack.status};
 }
+async function listFinishingPackages(){
+ await mkdir(FINISHED,{recursive:true});
+ const entries=await readdir(FINISHED,{withFileTypes:true});
+ const out=[];
+ for(const e of entries){
+  if(!e.isDirectory())continue;
+  const resultPath=join(FINISHED,e.name,"finishing-result.json");
+  if(!existsSync(resultPath))continue;
+  try{out.push(await json(resultPath))}catch{}
+ }
+ return out.sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
+}
 async function listReleases(){
  await mkdir(RELEASES,{recursive:true});
  const entries=await readdir(RELEASES,{withFileTypes:true});
@@ -203,13 +217,14 @@ async function updateJob(id,fn){
 createServer(async(req,res)=>{
  try{
   const url=new URL(req.url||"/","http://localhost");
-  if(url.pathname==="/health") return send(res,200,{ok:true,service:"kora-kids-studio",runtime:"izakhono-owner-local",version:"factory-8",public:false});
+  if(url.pathname==="/health") return send(res,200,{ok:true,service:"kora-kids-studio",runtime:"izakhono-owner-local",version:"factory-9",public:false});
   if(url.pathname==="/api/catalog"&&req.method==="GET") return send(res,200,await catalog());
   if(url.pathname==="/api/jobs"&&req.method==="GET") return send(res,200,{jobs:await listJobs()});
   if(url.pathname==="/api/renders"&&req.method==="GET") return send(res,200,{renders:await listRenders()});
   if(url.pathname==="/api/audio-assets"&&req.method==="GET") return send(res,200,{assets:await listAudioAssets()});
   if(url.pathname==="/api/localisations"&&req.method==="GET") return send(res,200,{localisations:await listLocalisations()});
   if(url.pathname==="/api/releases"&&req.method==="GET") return send(res,200,{releases:await listReleases()});
+  if(url.pathname==="/api/finishing"&&req.method==="GET") return send(res,200,{finishing:await listFinishingPackages()});
   if(url.pathname==="/api/jobs"&&req.method==="POST"){
    const input=await readBody(req); const c=await catalog();
    const series=c.series.find(x=>x.id===(input.seriesId||c.defaultSeries));

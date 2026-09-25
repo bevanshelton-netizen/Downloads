@@ -1,0 +1,132 @@
+name: KORA KIDS Episode 1 Finishing
+
+on:
+  push:
+    paths:
+      - "kora-kids-finishing/**"
+      - "kora-kids-render-worker/**"
+      - "kora-kids-studio/**"
+      - "owner-host/BUILD-KORA-KIDS-EPISODE1.ps1"
+      - "BUILD-KORA-KIDS-EPISODE1.cmd"
+      - ".github/workflows/kora-kids-finishing.yml"
+  pull_request:
+    paths:
+      - "kora-kids-finishing/**"
+      - "kora-kids-render-worker/**"
+      - "kora-kids-studio/**"
+      - "owner-host/BUILD-KORA-KIDS-EPISODE1.ps1"
+      - "BUILD-KORA-KIDS-EPISODE1.cmd"
+      - ".github/workflows/kora-kids-finishing.yml"
+
+jobs:
+  episode1-finishing-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Ensure local media tools
+        run: |
+          set -euo pipefail
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y ffmpeg espeak-ng
+          fi
+          ffmpeg -version >/dev/null
+          ffprobe -version >/dev/null
+
+      - name: Validate finishing workers
+        run: |
+          node --check kora-kids-render-worker/worker.mjs
+          node --check kora-kids-finishing/worker.mjs
+          node --check kora-kids-studio/server.mjs
+          node -e 'const x=require("./kora-kids-finishing/episode1-finishing.json"); if(x.seriesId!=="lebo-jabu"||x.episodeSlug!=="jam-day-under-the-baobab"||x.short?.resolution!=="1080x1920"||x.jabuGuidePalette?.length!==6) process.exit(2)'
+
+      - name: Render approved Episode 1 proof picture
+        run: |
+          rm -rf /tmp/kora-ep1-render /tmp/kora-ep1-finish
+          node kora-kids-render-worker/worker.mjs             --input kora-kids-render-worker/fixtures/lebo-jabu-approved-job.json             --output /tmp/kora-ep1-render             --mode proof
+
+      - name: Build Episode 1 finishing package
+        run: |
+          node kora-kids-finishing/worker.mjs             --job kora-kids-render-worker/fixtures/lebo-jabu-approved-job.json             --picture /tmp/kora-ep1-render/episode-guide.mp4             --config kora-kids-finishing/episode1-finishing.json             --output /tmp/kora-ep1-finish
+
+      - name: Validate finished media
+        run: |
+          set -euo pipefail
+          for f in             /tmp/kora-ep1-finish/episode-polished-guide.mp4             /tmp/kora-ep1-finish/audio/kora-kids-theme-guide.wav             /tmp/kora-ep1-finish/social/episode1-short-guide.mp4             /tmp/kora-ep1-finish/social/episode1-thumbnail-guide.jpg             /tmp/kora-ep1-finish/finishing-result.json; do
+            test -s "$f"
+          done
+          for cue in hello question proud happy sneeze goodbye; do
+            test -s "/tmp/kora-ep1-finish/sfx/jabu-$cue.wav"
+          done
+          ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,width,height -of json /tmp/kora-ep1-finish/social/episode1-short-guide.mp4 >/tmp/short-video.json
+          ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of json /tmp/kora-ep1-finish/episode-polished-guide.mp4 >/tmp/polished-audio.json
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const result=JSON.parse(fs.readFileSync("/tmp/kora-ep1-finish/finishing-result.json","utf8"));
+          const short=JSON.parse(fs.readFileSync("/tmp/short-video.json","utf8")).streams[0];
+          const audio=JSON.parse(fs.readFileSync("/tmp/polished-audio.json","utf8")).streams[0];
+          const fail=[];
+          const ok=(n,v)=>{if(!v)fail.push(n)};
+          ok("finishing-qc",result.qc?.pass===true);
+          ok("vertical-short",short?.width===1080&&short?.height===1920);
+          ok("short-h264",short?.codec_name==="h264");
+          ok("guide-aac",audio?.codec_name==="aac");
+          ok("theme-original-guide",result.creativeGuide?.originalThemeGuide===true);
+          ok("jabu-six-cues",result.creativeGuide?.jabuGuidePalette?.length===6);
+          ok("not-broadcast",result.broadcastMaster===false);
+          ok("not-release-ready",result.releaseReady===false);
+          ok("not-published",result.published===false);
+          ok("final-voice-pending",result.approvals?.finalVoice===false);
+          ok("final-music-pending",result.approvals?.finalMusicPerformance===false);
+          ok("short-final-pending",result.approvals?.shortFinal===false);
+          if(fail.length){console.error("Failed:",fail.join(", "));process.exit(2)}
+          NODE
+
+      - name: Prove unapproved Episode 1 job is refused
+        run: |
+          node -e 'const fs=require("fs");const x=require("./kora-kids-render-worker/fixtures/lebo-jabu-approved-job.json");x.status="review";x.publishable=false;fs.writeFileSync("/tmp/ep1-unapproved.json",JSON.stringify(x))'
+          if node kora-kids-finishing/worker.mjs             --job /tmp/ep1-unapproved.json             --picture /tmp/kora-ep1-render/episode-guide.mp4             --config kora-kids-finishing/episode1-finishing.json             --output /tmp/should-not-finish; then
+            echo "Finishing worker incorrectly accepted an unapproved Episode 1 job" >&2
+            exit 2
+          fi
+
+      - name: Verify private Finishing Desk sees the package
+        env:
+          KORA_KIDS_STUDIO_WORKSPACE: ${{ runner.temp }}/kora-kids-studio
+        run: |
+          mkdir -p "$KORA_KIDS_STUDIO_WORKSPACE/finished/episode1-ci"
+          cp /tmp/kora-ep1-finish/finishing-result.json "$KORA_KIDS_STUDIO_WORKSPACE/finished/episode1-ci/finishing-result.json"
+          node kora-kids-studio/server.mjs >/tmp/kora-finish-studio.log 2>&1 &
+          echo $! >/tmp/kora-finish-studio.pid
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:8890/api/finishing >/tmp/finishing.json && break
+            sleep 1
+          done
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const x=JSON.parse(fs.readFileSync("/tmp/finishing.json","utf8")).finishing;
+          if(x.length!==1) process.exit(2);
+          if(x[0].qc?.pass!==true||x[0].releaseReady!==false||x[0].published!==false) process.exit(3);
+          if(x[0].creativeGuide?.jabuGuidePalette?.length!==6) process.exit(4);
+          NODE
+
+      - name: Stop private studio
+        if: always()
+        run: |
+          test ! -f /tmp/kora-finish-studio.pid || kill "$(cat /tmp/kora-finish-studio.pid)" || true
+
+      - name: Upload Episode 1 finishing proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: lebo-jabu-episode1-finishing-proof
+          path: |
+            /tmp/kora-ep1-finish/episode-polished-guide.mp4
+            /tmp/kora-ep1-finish/audio/kora-kids-theme-guide.wav
+            /tmp/kora-ep1-finish/sfx
+            /tmp/kora-ep1-finish/social
+            /tmp/kora-ep1-finish/finishing-result.json
+          retention-days: 7
