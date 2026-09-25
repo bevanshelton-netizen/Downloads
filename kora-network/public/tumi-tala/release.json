@@ -27,5 +27,6 @@
     "childDataCollection": false,
     "directChildPurchases": false,
     "externalAuthoritative": false
-  }
+  },
+  "qualityProfile": "izakhono-premium-v1"
 }
