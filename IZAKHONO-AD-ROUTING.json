@@ -1,6 +1,6 @@
 {
-  "version": 5,
-  "updated": "2026-09-23",
+  "version": 6,
+  "updated": "2026-09-25",
   "strategy": "owned-media-first",
   "publishingPolicy": {
     "ownedMedia": "prepare-and-publish-when-destination-is-verified-live",
@@ -33,7 +33,7 @@
         "Facebook",
         "X"
       ],
-      "message": "Stream graphics, gaming thumbnails, esports creative and the full IZAKHONO Creative Suite for USD $15/month.",
+      "message": "Create stream graphics, gaming thumbnails, esports creative and local gameplay highlights with the full IZAKHONO Creative Suite for USD $15/month.",
       "cta": "JOIN GAMER STUDIO",
       "offer": "USD $15/month — includes the USD $5 Creative Suite plus Gamer Studio",
       "status": "campaign-prepared-hold-until-public-and-payment-verified",
@@ -45,8 +45,16 @@
         "cancellation and reconciliation tested"
       ],
       "claimRules": [
-        "Do not claim native live streaming, platform publishing, game capture or game-engine integration until those features are verified.",
+        "Local Clip Lab may be described as gameplay video import, moment marking, reframing and browser-local WebM export on supported browsers.",
+        "Do not claim native game capture, direct live streaming, direct platform publishing or guaranteed audio export until those capabilities are verified.",
         "Do not publish sales ads until the destination and payment gates pass."
+      ],
+      "creativeAngles": [
+        "turn gameplay moments into posts",
+        "one gamer brand across stream thumbnails and clips",
+        "esports team and sponsor creative",
+        "local-first privacy",
+        "USD $15 including Creative Suite"
       ]
     },
     {
