@@ -1,0 +1,29 @@
+[Unit]
+Description=IZAKHONO EDGE owned ingress engine
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=izakhono-edge
+Group=izakhono-edge
+ExecStart=/usr/local/sbin/izakhono-edge-engine -config /etc/izakhono-edge/config.json
+Restart=always
+RestartSec=3
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+SystemCallArchitectures=native
+RestrictAddressFamilies=AF_INET AF_INET6
+
+[Install]
+WantedBy=multi-user.target

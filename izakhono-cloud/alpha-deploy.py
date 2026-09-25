@@ -15,7 +15,6 @@ import argparse
 import hashlib
 import importlib.util
 import json
-import os
 import subprocess
 import sys
 import time
@@ -41,9 +40,14 @@ def canonical(value: object) -> bytes:
 
 
 def run(argv: list[str], *, cwd: Path | None = None, capture: bool = True) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(argv, cwd=str(cwd) if cwd else None, check=True, text=True,
-                          stdout=subprocess.PIPE if capture else None,
-                          stderr=subprocess.PIPE if capture else None)
+    return subprocess.run(
+        argv,
+        cwd=str(cwd) if cwd else None,
+        check=True,
+        text=True,
+        stdout=subprocess.PIPE if capture else None,
+        stderr=subprocess.PIPE if capture else None,
+    )
 
 
 def docker_available() -> bool:
@@ -91,6 +95,16 @@ def wait_health(url: str, timeout: float) -> tuple[bool, str]:
     return False, last
 
 
+def container_logs(container_id: str) -> str:
+    p = subprocess.run(
+        ["docker", "logs", "--tail", "120", container_id],
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
+    return (p.stdout or "").strip()[-8000:]
+
+
 def build_and_probe(plan: dict, root: Path, *, timeout: float) -> dict:
     source = plan["source"]
     build_context = ensure_inside(root, root / source["build_context"], "build_context")
@@ -113,11 +127,35 @@ def build_and_probe(plan: dict, root: Path, *, timeout: float) -> dict:
     try:
         result = run([
             "docker", "run", "-d", "--name", name,
-            "--read-only", "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
-            "--pids-limit", "128", "--memory", "512m", "--cpus", "1.0",
-            "-p", f"127.0.0.1::{port}", image_id,
+            "--read-only",
+            "--cap-drop", "ALL",
+            "--cap-add", "CHOWN",
+            "--cap-add", "SETUID",
+            "--cap-add", "SETGID",
+            "--security-opt", "no-new-privileges",
+            "--pids-limit", "128",
+            "--memory", "512m",
+            "--cpus", "1.0",
+            "--tmpfs", "/tmp:rw,noexec,nosuid,nodev,size=64m",
+            "--tmpfs", "/run:rw,nosuid,nodev,size=16m",
+            "--tmpfs", "/var/cache/nginx:rw,nosuid,nodev,size=64m",
+            "-e", "HOME=/tmp",
+            "-p", f"127.0.0.1::{port}",
+            image_id,
         ])
         container_id = result.stdout.strip()
+
+        time.sleep(0.25)
+        initial = json.loads(run(["docker", "inspect", container_id]).stdout)[0]
+        state = initial.get("State", {})
+        if state.get("Running") is not True:
+            logs = container_logs(container_id)
+            raise RuntimeError(
+                "container exited before health probe: "
+                f"status={state.get('Status')} exit_code={state.get('ExitCode')}; "
+                f"logs: {logs or 'no container logs'}"
+            )
+
         mapping = run(["docker", "port", container_id, f"{port}/tcp"]).stdout.strip().splitlines()[0]
         host_port = mapping.rsplit(":", 1)[-1]
         url = f"http://127.0.0.1:{host_port}{health_path}"
@@ -138,10 +176,12 @@ def build_and_probe(plan: dict, root: Path, *, timeout: float) -> dict:
                 "readonly_rootfs": bool(host_config.get("ReadonlyRootfs")),
                 "privileged": bool(host_config.get("Privileged")),
                 "cap_drop": host_config.get("CapDrop") or [],
+                "cap_add": host_config.get("CapAdd") or [],
                 "security_opt": host_config.get("SecurityOpt") or [],
                 "pids_limit": host_config.get("PidsLimit"),
                 "memory": host_config.get("Memory"),
                 "nano_cpus": host_config.get("NanoCpus"),
+                "tmpfs": host_config.get("Tmpfs") or {},
             },
             "truth_boundary": {
                 "owner_node_public_https_verified": False,
@@ -151,7 +191,9 @@ def build_and_probe(plan: dict, root: Path, *, timeout: float) -> dict:
         }
         proof["proof_sha256"] = hashlib.sha256(canonical(proof)).hexdigest()
         if not passed:
-            raise RuntimeError(f"health gate failed: {detail}")
+            logs = container_logs(container_id)
+            suffix = f"; container logs: {logs}" if logs else ""
+            raise RuntimeError(f"health gate failed: {detail}{suffix}")
         return proof
     finally:
         if container_id:
