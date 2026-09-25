@@ -145,6 +145,11 @@ function authenticated(req){
   return secureEqual(req.headers["x-izakhono-key"],SERVICE_KEY);
 }
 
+function localRequest(req){
+  const address=String(req.socket?.remoteAddress||"").toLowerCase();
+  return address==="127.0.0.1" || address==="::1" || address==="::ffff:127.0.0.1";
+}
+
 async function readBody(req,limit=1024*1024){
   let total=0;
   const chunks=[];
@@ -210,6 +215,38 @@ const server=createServer(async(req,res)=>{
         eventCount:Number(count?.count||0),
         liveWrites:true,
         thirdPartyDatabase:false
+      });
+    }
+
+    const campaignSales=url.pathname.match(/^\/v1\/local\/campaigns\/([^/]+)\/sales$/);
+    if(req.method==="GET" && campaignSales){
+      if(!localRequest(req)) return json(res,403,{error:"Loopback only"});
+      const campaign=decodeURIComponent(campaignSales[1]);
+      const brand=String(url.searchParams.get("brand")||"").trim();
+      if(!brand) return json(res,400,{error:"brand is required"});
+      const row=db.prepare(`
+        SELECT
+          coalesce(sum(CASE WHEN event_name='payment' THEN coalesce(value,0) ELSE 0 END),0) AS paid,
+          coalesce(sum(CASE WHEN event_name='refund' THEN abs(coalesce(value,0)) ELSE 0 END),0) AS refunded,
+          count(*) FILTER (WHERE event_name='payment') AS payment_count,
+          coalesce(sum(CASE
+            WHEN event_name='payment' THEN max(1,coalesce(cast(json_extract(metadata_json,'$.quantity') AS INTEGER),1))
+            ELSE 0
+          END),0) AS units
+        FROM events
+        WHERE brand=? AND campaign=? AND event_name IN ('payment','refund')
+      `).get(brand,campaign);
+      const paid=Number(row?.paid||0);
+      const refunded=Number(row?.refunded||0);
+      return json(res,200,{
+        source:"IZAKHONO DATA NODE",
+        brand,
+        campaign,
+        paid_sales:Math.max(0,paid-refunded),
+        gross_paid:paid,
+        refunded,
+        payment_count:Number(row?.payment_count||0),
+        units:Number(row?.units||0)
       });
     }
 
