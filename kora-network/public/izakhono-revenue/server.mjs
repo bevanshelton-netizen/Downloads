@@ -14,10 +14,17 @@ const types = {
   '.txt': 'text/plain; charset=utf-8',
 };
 
+const securityHeaders = {
+  'x-content-type-options': 'nosniff',
+  'x-frame-options': 'DENY',
+  'referrer-policy': 'strict-origin-when-cross-origin',
+  'permissions-policy': 'camera=(), microphone=(), geolocation=()',
+};
+
 createServer(async (request, response) => {
   const pathname = new URL(request.url || '/', 'http://localhost').pathname;
   if (pathname === '/health') {
-    response.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
+    response.writeHead(200, { ...securityHeaders, 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
     response.end(JSON.stringify({ ok: true, service: 'izakhono-revenue-desk', runtime: 'izakhono-owned', revision }));
     return;
   }
@@ -32,6 +39,7 @@ createServer(async (request, response) => {
   try {
     const body = await readFile(resolved);
     response.writeHead(200, {
+      ...securityHeaders,
       'content-type': types[extname(resolved)] || 'application/octet-stream',
       'cache-control': extname(resolved) === '.html' ? 'no-cache' : 'public, max-age=300',
       'x-content-type-options': 'nosniff',
@@ -40,7 +48,7 @@ createServer(async (request, response) => {
     });
     response.end(body);
   } catch {
-    response.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });
+    response.writeHead(404, { ...securityHeaders, 'content-type': 'text/plain; charset=utf-8' });
     response.end('Not found');
   }
 }).listen(port, '0.0.0.0', () => {
