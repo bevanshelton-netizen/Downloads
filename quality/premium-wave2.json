@@ -1,0 +1,67 @@
+{
+  "schema": "izakhono.premium-wave/v1",
+  "wave": 2,
+  "qualityProfile": "izakhono-premium-v1",
+  "objective": "Premiumize the remaining public product surfaces while enforcing premium operational behaviour for payment and domain infrastructure.",
+  "customerProducts": [
+    {
+      "id": "growth-os-v2",
+      "source": "izakhono-growth-os",
+      "marker": "izakhono-premium-v1"
+    },
+    {
+      "id": "memory-mania",
+      "source": "memory-mania",
+      "marker": "izakhono-premium-v1"
+    },
+    {
+      "id": "crowne-hair",
+      "source": "crowne-hair",
+      "marker": "izakhono-premium-v1"
+    },
+    {
+      "id": "izakhono-revenue-desk",
+      "source": "kora-network/public/izakhono-revenue",
+      "marker": "izakhono-premium-v1"
+    },
+    {
+      "id": "kora-gospel-tv",
+      "source": "ports/kora-gospel-tv",
+      "marker": "izakhono-premium-v1"
+    },
+    {
+      "id": "izakhono-one-ai",
+      "source": "izakhono-one-ai",
+      "marker": "izakhono-premium-v1"
+    },
+    {
+      "id": "ecd360",
+      "source": "external:bevanshelton-netizen/edubuild-ecd360",
+      "marker": "dedicated-repository premium pass"
+    },
+    {
+      "id": "legacymart",
+      "source": "external:bevanshelton-netizen/bevanshelton-netizen-legacymart",
+      "marker": "dedicated-repository premium pass"
+    }
+  ],
+  "infrastructureProducts": [
+    {
+      "id": "izakhono-pay",
+      "requirement": "loopback-only runtime plus explicit go-live and provider verification"
+    },
+    {
+      "id": "izakhono-domains",
+      "requirement": "owned-code authority plus checkout fail-closed until registrar readiness"
+    }
+  ],
+  "guarantees": [
+    "visible keyboard focus",
+    "44px interaction baseline",
+    "reduced-motion support",
+    "high-contrast compatibility",
+    "coarse-pointer touch uplift",
+    "owned-first authority",
+    "external infrastructure remains reversible"
+  ]
+}
