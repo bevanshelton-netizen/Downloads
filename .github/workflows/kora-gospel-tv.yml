@@ -120,7 +120,13 @@ jobs:
           cat > "$RUNNER_TEMP/reconcile-receipt.json" <<'JSON'
           {"authority":"IZAKHONO","source_authoritative":false,"worker":"ci-reconciler","scanned":3,"imported":2,"duplicates":1,"failed":0,"completed_at":"2026-09-22T08:30:00Z"}
           JSON
-          GOSPEL_TV_DATA_DIR="$RUNNER_TEMP/kora-gospel-tv" GOSPEL_TV_CONTROL_TOKEN="ci-owner-control-token-1234567890" YHVH_GOSPEL_ENGINE_TOKEN="ci-owner-engine-token-1234567890" YHVH_GOSPEL_ENGINE_URL="http://127.0.0.1:8892" GOSPEL_RECONCILE_RECEIPT="$RUNNER_TEMP/reconcile-receipt.json" HOST=127.0.0.1 PORT=8188 node ports/kora-gospel-tv/server.mjs >"$RUNNER_TEMP/kora-gospel-tv.log" 2>&1 &
+          cat > "$RUNNER_TEMP/yhvh-deployment-receipt.json" <<'JSON'
+          {"schema":"izakhono.yhvh-gospel-tv-deployment/v2","product":"YHVH GOSPEL TV","product_id":"yhvh-gospel-tv","legacy_runtime_id":"kora-gospel-tv","engine_id":"yhvh-gospel-engine","engine_authoritative":true,"hostname":"gospel.domains.izakhonoafrica.co.za","revision":"ci-revision","source":"IZAKHONO_CODE","runtime":"IZAKHONO_RUNTIME","edge":"VERIFIED","engine":"VERIFIED_V2_INDEPENDENT","public_https":"VERIFIED","generated_at":"2026-09-25T10:00:00Z"}
+          JSON
+          cat > "$RUNNER_TEMP/yhvh-owner-agent-proof.json" <<'JSON'
+          {"schema":"izakhono.yhvh-owner-agent-proof/v1","product_id":"yhvh-gospel-tv","engine_id":"yhvh-gospel-engine","request_id":"ci-yhvh-owner-proof","action":"deploy-yhvh-gospel-tv","status":"success","attempts":1,"exit_code":0,"source_commit":"ci-revision","source_authority":"IZAKHONO_CODE","started_at":"2026-09-25T09:59:00Z","ended_at":"2026-09-25T10:00:00Z","secrets_exposed":false,"log_path_exposed":false}
+          JSON
+          GOSPEL_TV_DATA_DIR="$RUNNER_TEMP/kora-gospel-tv" GOSPEL_TV_CONTROL_TOKEN="ci-owner-control-token-1234567890" YHVH_GOSPEL_ENGINE_TOKEN="ci-owner-engine-token-1234567890" YHVH_GOSPEL_ENGINE_URL="http://127.0.0.1:8892" GOSPEL_RECONCILE_RECEIPT="$RUNNER_TEMP/reconcile-receipt.json" YHVH_DEPLOYMENT_RECEIPT="$RUNNER_TEMP/yhvh-deployment-receipt.json" YHVH_OWNER_AGENT_PROOF="$RUNNER_TEMP/yhvh-owner-agent-proof.json" HOST=127.0.0.1 PORT=8188 node ports/kora-gospel-tv/server.mjs >"$RUNNER_TEMP/kora-gospel-tv.log" 2>&1 &
           echo $! > "$RUNNER_TEMP/kora-gospel-tv.pid"
           for i in {1..20}; do
             curl -fsS http://127.0.0.1:8188/health && exit 0
@@ -139,6 +145,11 @@ jobs:
           curl -fsS http://127.0.0.1:8188/api/channel | grep -q '"engine":{"available":true'
           curl -fsS http://127.0.0.1:8188/api/channel | grep -q '"title":"'
           curl -fsS http://127.0.0.1:8188/api/control/status -H 'authorization: Bearer ci-owner-control-token-1234567890' | grep -q '"engine":{"available":true'
+          DEPLOYMENT="$(curl -fsS http://127.0.0.1:8188/api/deployment/status)"
+          echo "$DEPLOYMENT" | grep -q '"request_id":"ci-yhvh-owner-proof"'
+          echo "$DEPLOYMENT" | grep -q '"source_authority":"IZAKHONO_CODE"'
+          echo "$DEPLOYMENT" | grep -q '"secrets_exposed":false'
+          echo "$DEPLOYMENT" | grep -q '"log_path_exposed":false'
 
       - name: Verify web survives engine outage
         run: |
