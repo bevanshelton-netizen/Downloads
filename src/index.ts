@@ -128,7 +128,7 @@ async function bumpLimit(env: Env, key: string, limit: number) {
 }
 async function enforceLeadRate(req: Request, env: Env, email: string) {
   const salt = env.ABUSE_SALT || env.ADMIN_SECRET || 'bootstrap-no-secret';
-  const ip = req.headers.get('cf-connecting-ip') || 'unknown';
+  const ip = req.headers.get('cf-connecting-ip') || (req.headers.get('x-forwarded-for')||'').split(',')[0].trim() || req.headers.get('x-real-ip') || 'unknown';
   const ipKey = 'lead-ip:' + await sha256(`${salt}:${todayUtc()}:${ip}`);
   const emailKey = 'lead-email:' + await sha256(`${salt}:${todayUtc()}:${email}`);
   const ipOk = await bumpLimit(env, ipKey, LEADS_PER_IP_DAY);
@@ -267,7 +267,7 @@ async function handleApi(req: Request, env: Env, url: URL): Promise<Response> {
     const raw = await req.text(), params = new URLSearchParams(raw), form: Record<string,string> = {}; for (const [k,v] of params) form[k]=v;
     const paymentId = cleanText(form.m_payment_id, 100); if (!paymentId) return new Response('BAD REQUEST',{status:400});
     const row = await env.DB.prepare('SELECT * FROM payment_intents WHERE id=?').bind(paymentId).first<any>(); if (!row) return new Response('NOT FOUND',{status:404});
-    const sourceIp = req.headers.get('cf-connecting-ip') || '';
+    const sourceIp = req.headers.get('cf-connecting-ip') || (req.headers.get('x-forwarded-for')||'').split(',')[0].trim() || req.headers.get('x-real-ip') || '';
     const valid = await validatePayFastItn(cfg,{ form, expectedAmountZar:Number(row.amount_minor)/100, sourceIp });
     if (!valid.ok) { await audit(env,row.platform_id,'payfast','payment.itn_rejected','payment_intent',row.id,{reason:valid.reason}); return new Response('INVALID',{status:400}); }
     if (form.payment_status !== 'COMPLETE') { await env.DB.prepare(`UPDATE payment_intents SET status='failed',updated_at=CURRENT_TIMESTAMP WHERE id=? AND status!='paid'`).bind(row.id).run(); return new Response('OK',{status:200}); }
