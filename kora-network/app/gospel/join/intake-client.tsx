@@ -50,7 +50,7 @@ export default function GlobalIntake({primaryUrl,externalUrl}:Props){
         message:String(fd.get('message')||''),
         onAir:false,
         rightsAttested,
-        sourceChannel:'kora-global-acquisition-desk',
+        sourceChannel:'yhvh-global-acquisition-desk',
         details:{
           partnerClass,
           website:String(fd.get('website')||''),
