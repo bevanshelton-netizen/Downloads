@@ -34,7 +34,7 @@ jobs:
           grep -q 'token_persisted:false' owner-host/install-github-actions-runner.sh
           grep -q 'external_compute_authority:false' owner-host/install-github-actions-runner.sh
           grep -q -- '--token-stdin' owner-host/install-github-actions-runner.sh
-          ! grep -Eq 'echo .*TOKEN|printf .*TOKEN' owner-host/install-github-actions-runner.sh
+          ! grep -Eq 'echo .*\\$TOKEN|printf .*\\$TOKEN' owner-host/install-github-actions-runner.sh
 
   windows-contract:
     runs-on: windows-latest
