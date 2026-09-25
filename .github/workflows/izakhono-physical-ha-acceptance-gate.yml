@@ -2,7 +2,7 @@ name: IZAKHONO PHYSICAL HA Acceptance Gate
 
 on:
   push:
-    branches: [build/physical-ha-acceptance]
+    branches: [build/physical-ha-acceptance, build/passive-standby-role]
     paths:
       - "izakhono-owned-cloud/prove-physical-ha.sh"
       - ".github/workflows/izakhono-physical-ha-acceptance-gate.yml"
@@ -30,6 +30,8 @@ jobs:
           grep -q 'three distinct machine identities' izakhono-owned-cloud/prove-physical-ha.sh
           grep -q 'FORTRESS' izakhono-owned-cloud/prove-physical-ha.sh
           grep -q 'standby_fail_closed_probe' izakhono-owned-cloud/prove-physical-ha.sh
+          grep -q 'STANDBY_ROLE' izakhono-owned-cloud/prove-physical-ha.sh
+          grep -q 'background_mutators_stopped:true' izakhono-owned-cloud/prove-physical-ha.sh
           ! grep -q 'systemctl stop' izakhono-owned-cloud/prove-physical-ha.sh
           ! grep -q '/approve' izakhono-owned-cloud/prove-physical-ha.sh
           ! grep -q 'ROUTE_SWITCHED' izakhono-owned-cloud/prove-physical-ha.sh

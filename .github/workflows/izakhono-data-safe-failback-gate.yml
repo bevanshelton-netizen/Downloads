@@ -2,7 +2,7 @@ name: IZAKHONO DATA-SAFE FAILBACK Gate
 
 on:
   push:
-    branches: [build/data-safe-failback-reconciliation]
+    branches: [build/data-safe-failback-reconciliation, build/passive-standby-role]
     paths:
       - "izakhono-owned-cloud/reconcile-failback-state.sh"
       - "izakhono-owned-cloud/controlled-failback.sh"
@@ -48,5 +48,7 @@ jobs:
           grep -q 'NEW_TOKEN' izakhono-owned-cloud/reconcile-failback-state.sh
           grep -q 'data_reconciled:true' izakhono-owned-cloud/reconcile-failback-state.sh
           grep -q 'standby_requires_rebaseline:true' izakhono-owned-cloud/reconcile-failback-state.sh
+          grep -q 'standby_service_role:"PASSIVE"' izakhono-owned-cloud/reconcile-failback-state.sh
+          grep -q 'set-standby-role.sh passive' izakhono-owned-cloud/reconcile-failback-state.sh
           grep -q 'reconcile-failback-state.sh execute instead' izakhono-owned-cloud/controlled-failback.sh
           ! grep -q 'multi_master_merge:true' izakhono-owned-cloud/reconcile-failback-state.sh

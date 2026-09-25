@@ -118,3 +118,35 @@ Therefore the enforced order is:
       → ROUTE SWITCHED
 
 A failover report now records `state_promoted_before_route=true` and its next gate is `DATA_SAFE_RECONCILED_FAILBACK`.
+
+
+## Passive standby worker role
+
+A prepared standby is now explicitly **PASSIVE** while it does not hold WITNESS leadership.
+
+The passive role stops autonomous background mutators that could diverge local state even without public traffic:
+
+- CI WORKER;
+- NOTIFY delivery worker;
+- scheduled BACKUP service;
+- MODEL WORKER;
+- GPU compute control service;
+- mail relay adapter.
+
+The standby role controller is installed at:
+
+    /opt/izakhono-owned-cloud/set-standby-role.sh
+
+Standby preparation runs:
+
+    sudo bash /opt/izakhono-owned-cloud/set-standby-role.sh passive
+
+Physical HA acceptance refuses a standby without a valid PASSIVE role proof.
+
+During controlled failover, after primary fencing, newer standby WITNESS leadership and live-state promotion are all proven, the failover controller activates background workers with the exact fencing token:
+
+    IZAKHONO_STANDBY_ROLE_CONFIRM=ACTIVATE-WITH-WITNESS
+    IZAKHONO_STANDBY_ROLE_FENCING_TOKEN=<new-token>
+    sudo bash /opt/izakhono-owned-cloud/set-standby-role.sh active
+
+The public route moves only after that ACTIVE proof succeeds. Data-safe failback returns the standby to PASSIVE after the route moves back to the reconciled primary.

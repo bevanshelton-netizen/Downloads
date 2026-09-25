@@ -2,10 +2,11 @@ name: IZAKHONO Controlled HA Drill Gate
 
 on:
   push:
-    branches: [build/controlled-ha-failover-drill, build/failover-promotes-verified-state]
+    branches: [build/controlled-ha-failover-drill, build/failover-promotes-verified-state, build/passive-standby-role]
     paths:
       - "izakhono-owned-cloud/controlled-failover-drill.sh"
       - "izakhono-owned-cloud/controlled-failback.sh"
+      - "izakhono-owned-cloud/set-standby-role.sh"
       - "izakhono-owned-cloud/route-switch-template.sh"
       - ".github/workflows/izakhono-controlled-ha-drill-gate.yml"
   pull_request:
@@ -32,6 +33,7 @@ jobs:
         run: |
           bash -n izakhono-owned-cloud/controlled-failover-drill.sh
           bash -n izakhono-owned-cloud/controlled-failback.sh
+          bash -n izakhono-owned-cloud/set-standby-role.sh
           bash -n izakhono-owned-cloud/route-switch-template.sh
       - name: Prove plan mode is non-destructive
         run: |
@@ -58,5 +60,7 @@ jobs:
           grep -q 'state_promoted_before_route:true' izakhono-owned-cloud/controlled-failover-drill.sh
           grep -q 'backup_encryption_lineage_preserved' izakhono-owned-cloud/controlled-failover-drill.sh
           grep -q 'DATA_SAFE_RECONCILED_FAILBACK' izakhono-owned-cloud/controlled-failover-drill.sh
+          grep -q 'ACTIVATE-WITH-WITNESS' izakhono-owned-cloud/controlled-failover-drill.sh
+          grep -q 'standby_background_role_active_before_route:true' izakhono-owned-cloud/controlled-failover-drill.sh
           ! grep -q 'eval ' izakhono-owned-cloud/controlled-failover-drill.sh
           ! grep -q 'eval ' izakhono-owned-cloud/controlled-failback.sh

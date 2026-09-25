@@ -138,7 +138,7 @@ recover_pre_route(){
     echo "Drill failed before route switch. Attempting conservative recovery to original primary..."
     remote "$STANDBY" "sudo -n systemctl stop izakhono-edge-node izakhono-runtime-node" >/dev/null 2>&1 || true
     if [ "$STATE_PROMOTED" -eq 1 ]; then
-      remote "$STANDBY" "sudo -n systemctl stop izakhono-data-node izakhono-object-node izakhono-queue-node izakhono-auth-node izakhono-analytics-node izakhono-notify-node izakhono-ai-gateway-node izakhono-code-node izakhono-backup-node" >/dev/null 2>&1 || true
+      remote "$STANDBY" "sudo -n bash /opt/izakhono-owned-cloud/set-standby-role.sh passive >/dev/null 2>&1 || true; sudo -n systemctl stop izakhono-data-node izakhono-object-node izakhono-queue-node izakhono-auth-node izakhono-analytics-node izakhono-notify-node izakhono-ai-gateway-node izakhono-code-node izakhono-backup-node" >/dev/null 2>&1 || true
     fi
     remote "$PRIMARY" "sudo -n systemctl start izakhono-runtime-node izakhono-edge-node" >/dev/null 2>&1 || true
   else
@@ -217,6 +217,15 @@ process.stdout.write(String(ok));
 }
 echo "Standby live state promoted and verified for fencing token $NEW_TOKEN."
 
+echo "Activating standby background role under verified WITNESS leadership..."
+remote "$STANDBY" "sudo -n env IZAKHONO_STANDBY_ROLE_CONFIRM=ACTIVATE-WITH-WITNESS IZAKHONO_STANDBY_ROLE_FENCING_TOKEN='$NEW_TOKEN' bash /opt/izakhono-owned-cloud/set-standby-role.sh active" >/dev/null
+ROLE_PROOF="$(remote "$STANDBY" "sudo -n cat /var/lib/izakhono-deploy/proofs/standby-service-role.json")"
+ROLE_OK="$(ROLE_PROOF="$ROLE_PROOF" T="$NEW_TOKEN" node -e '
+const x=JSON.parse(process.env.ROLE_PROOF),t=Number(process.env.T);
+process.stdout.write(String(x.status==="PASS"&&x.role==="ACTIVE"&&x.mutators_active===true&&x.automatic_activation===false&&Number(x.witness_fencing_token)===t));
+')"
+[ "$ROLE_OK" = "true" ] || { echo "Standby active-role proof does not match WITNESS leadership."; exit 231; }
+
 IZAKHONO_FAILOVER_TARGET=standby IZAKHONO_FAILOVER_FENCING_TOKEN="$NEW_TOKEN" IZAKHONO_FAILOVER_PREVIOUS_TOKEN="$PRIMARY_TOKEN" "$ROUTE_SCRIPT"
 ROUTE_SWITCHED=1
 
@@ -243,6 +252,7 @@ const report={
   primary_fenced:true,
   automatic_failback:false,
   state_promoted_before_route:true,
+  standby_background_role_active_before_route:true,
   promotion_proof:"/var/lib/izakhono-deploy/proofs/standby-state-promoted.json",
   cluster_id:p.clusterId,
   fencing:{previous:Number(process.env.OLD_TOKEN),active:Number(process.env.NEW_TOKEN),monotonic:Number(process.env.NEW_TOKEN)>Number(process.env.OLD_TOKEN)},

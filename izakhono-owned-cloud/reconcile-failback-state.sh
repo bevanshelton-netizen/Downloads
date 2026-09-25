@@ -304,6 +304,15 @@ echo "Switching trusted route back to reconciled primary..."
 IZAKHONO_FAILOVER_TARGET=primary IZAKHONO_FAILOVER_FENCING_TOKEN="$NEW_TOKEN" IZAKHONO_FAILOVER_PREVIOUS_TOKEN="$STANDBY_TOKEN" "$ROUTE_SCRIPT"
 ROUTE_SWITCHED=1
 
+echo "Returning standby autonomous workers to PASSIVE role..."
+remote "$STANDBY" "sudo -n bash /opt/izakhono-owned-cloud/set-standby-role.sh passive" >/dev/null
+PASSIVE_PROOF="$(remote "$STANDBY" "sudo -n cat /var/lib/izakhono-deploy/proofs/standby-service-role.json")"
+PASSIVE_OK="$(PASSIVE_PROOF="$PASSIVE_PROOF" node -e '
+const x=JSON.parse(process.env.PASSIVE_PROOF);
+process.stdout.write(String(x.status==="PASS"&&x.role==="PASSIVE"&&x.mutators_stopped===true&&x.automatic_activation===false));
+')"
+[ "$PASSIVE_OK" = "true" ] || { echo "Standby passive-role proof failed after reconciled failback."; exit 32; }
+
 PRIMARY_HASH="$(printf '%s' "$PM" | sha256sum | awk '{print $1}')"
 STANDBY_HASH="$(printf '%s' "$SM" | sha256sum | awk '{print $1}')"
 
@@ -341,6 +350,8 @@ const report={
   route_switched:true,
   data_reconciled:true,
   standby_stateful_services_stopped:true,
+  standby_service_role:"PASSIVE",
+  standby_background_mutators_stopped:true,
   standby_requires_rebaseline:true,
   automatic_failback:false,
   completed_at:new Date().toISOString()

@@ -50,6 +50,15 @@ jobs:
           grep -q 'Backup encryption-key lineage mismatch' izakhono-owned-cloud/reconcile-failback-state.sh
           grep -q 'data_reconciled:true' izakhono-owned-cloud/reconcile-failback-state.sh
           grep -q 'reconcile-failback-state.sh execute instead' izakhono-owned-cloud/controlled-failback.sh
+      - name: Prove passive standby background-worker fencing contract
+        run: |
+          bash -n izakhono-owned-cloud/set-standby-role.sh
+          grep -q 'ACTIVATE-WITH-WITNESS' izakhono-owned-cloud/set-standby-role.sh
+          grep -q 'automatic_activation:false' izakhono-owned-cloud/set-standby-role.sh
+          grep -q 'background_mutators_stopped:true' izakhono-owned-cloud/prove-physical-ha.sh
+          grep -q 'STANDBY_MUTATORS' izakhono-owned-cloud/prove-physical-ha.sh
+          grep -q 'standby_background_role_active_before_route:true' izakhono-owned-cloud/controlled-failover-drill.sh
+          grep -q 'standby_service_role:"PASSIVE"' izakhono-owned-cloud/reconcile-failback-state.sh
 
   node-self-tests:
     runs-on: ubuntu-latest
