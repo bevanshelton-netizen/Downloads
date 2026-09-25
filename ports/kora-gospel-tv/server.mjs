@@ -217,7 +217,7 @@ async function controlStatus(){
   const reconciliation=await readReconciliation();
   const engine=await readEngineState();
   const counts=records.reduce((acc,row)=>{acc[row.category]=(acc[row.category]||0)+1;return acc},{});
-  const applicants=records.filter(row=>String(row.source_channel||row.sourceChannel||"")==="kora-global-acquisition-desk");
+  const applicants=records.filter(row=>["yhvh-global-acquisition-desk","kora-global-acquisition-desk"].includes(String(row.source_channel||row.sourceChannel||"")));
   const classes=applicants.reduce((acc,row)=>{
     const key=String(row.details?.partnerClass||"unspecified");
     acc[key]=(acc[key]||0)+1;
@@ -365,7 +365,7 @@ createServer(async (req,res)=>{
       if(!clean(data.message,1600)) return json(res,400,{error:"Please add a message."},cors);
       const sourceChannel=clean(data.sourceChannel||"yhvh-owned",60);
       const details=cleanDetails(data.details);
-      if(sourceChannel==="kora-global-acquisition-desk"){
+      if(["yhvh-global-acquisition-desk","kora-global-acquisition-desk"].includes(sourceChannel)){
         if(details.charterVersion!=="2026-09-25"||details.charterAccepted!=="true") return json(res,400,{error:"The current YHVH Partner & Contributor Charter must be accepted."},cors);
         if(details.editorialIndependence!=="true") return json(res,400,{error:"Editorial independence must be acknowledged."},cors);
         if(data.rightsAttested!==true) return json(res,400,{error:"Rights and permissions attestation is required."},cors);
