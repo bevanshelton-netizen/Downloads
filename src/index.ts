@@ -282,6 +282,68 @@ async function handleApi(req: Request, env: Env, url: URL): Promise<Response> {
     const row = await env.DB.prepare('SELECT id,status,amount_minor,currency,package_code,paid_at FROM payment_intents WHERE id=?').bind(statusMatch[1]).first<any>();
     if (!row) return fail(req, env, 'Payment not found', 404); return json(req, env, {ok:true,payment:row});
   }
+
+  if (url.pathname === '/api/tips' && req.method === 'POST') {
+    const b=await body(req),p=await platform(env,cleanText(b.platform||'videonomy',60)); if(!p) return fail(req,env,'Unknown platform',404);
+    const creatorId=cleanText(b.creator_id,100),videoId=cleanText(b.video_id,100)||null;
+    const payerName=cleanText(b.name,120),payerEmail=cleanEmail(b.email);
+    const amountMinor=Math.round(Number(b.amount_minor));
+    if(!creatorId||!Number.isInteger(amountMinor)||amountMinor<TIP_MIN_MINOR||amountMinor>TIP_MAX_MINOR) return fail(req,env,'Tip must be between R10 and R10,000');
+    if(payerEmail && !validEmail(payerEmail)) return fail(req,env,'Valid email required when supplied');
+    const creator=await env.DB.prepare("SELECT id,platform_id,display_name,handle FROM creators WHERE id=? AND platform_id=? AND status='active'").bind(creatorId,p.id).first<any>();
+    if(!creator) return fail(req,env,'Creator not found',404);
+    if(videoId){
+      const video=await env.DB.prepare("SELECT id FROM videos WHERE id=? AND creator_id=? AND status='published'").bind(videoId,creator.id).first<any>();
+      if(!video) return fail(req,env,'Video not found',404);
+    }
+    const cfg=iKhokhaConfig(req,env); if(!cfg) return fail(req,env,'iKhokha payment activation is not configured yet',503);
+    const paymentId=id('cpay');
+    await env.DB.prepare(`INSERT INTO creator_payments(id,platform_id,creator_id,video_id,kind,payer_name,payer_email,amount_minor,currency,provider,status)
+      VALUES(?,?,?,?, 'tip',?,?,?,'ZAR','ikhokha','pending')`).bind(paymentId,p.id,creator.id,videoId,payerName||null,payerEmail||null,amountMinor).run();
+    try{
+      const link=await createIKhokhaPaymentLink(cfg,{paymentId,amountMinor,currency:'ZAR',description:`Tip to @${creator.handle} on VIDEONOMY`,externalEntityId:creator.id});
+      await env.DB.prepare("UPDATE creator_payments SET provider_ref=?,status='processing',updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(link.providerRef,paymentId).run();
+      await audit(env,p.id,'public','creator_tip.started','creator_payment',paymentId,{creator_id:creator.id,video_id:videoId,amount_minor:amountMinor});
+      return json(req,env,{ok:true,payment_id:paymentId,checkout_url:link.checkoutUrl,provider:'ikhokha'},201);
+    }catch(e:any){
+      await env.DB.prepare("UPDATE creator_payments SET status='failed',updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(paymentId).run();
+      await audit(env,p.id,'ikhokha','creator_tip.link_failed','creator_payment',paymentId,{message:String(e?.message||e).slice(0,300)});
+      return fail(req,env,'Could not start secure payment',502);
+    }
+  }
+  if (url.pathname === '/api/ikhokha/webhook' && req.method === 'POST') {
+    const cfg=iKhokhaConfig(req,env); if(!cfg) return new Response('NOT CONFIGURED',{status:503});
+    const raw=await req.text(),appId=req.headers.get('ik-appid')||'',sig=req.headers.get('ik-sign')||'';
+    if(!await verifyIKhokhaWebhook(cfg,url.pathname,raw,appId,sig)) return new Response('FORBIDDEN',{status:403});
+    let payload:any; try{payload=JSON.parse(raw)}catch{return new Response('BAD REQUEST',{status:400})}
+    const paymentId=cleanText(payload.externalTransactionID,100),providerRef=cleanText(payload.paylinkID,100);
+    if(!paymentId||!providerRef) return new Response('BAD REQUEST',{status:400});
+    const row=await env.DB.prepare("SELECT * FROM creator_payments WHERE id=? AND provider='ikhokha'").bind(paymentId).first<any>();
+    if(!row) return new Response('NOT FOUND',{status:404});
+    if(row.provider_ref && row.provider_ref!==providerRef) { await audit(env,row.platform_id,'ikhokha','creator_tip.webhook_rejected','creator_payment',row.id,{reason:'provider_ref_mismatch'}); return new Response('FORBIDDEN',{status:403}); }
+    const success=payload.status==='SUCCESS' && payload.responseCode==='00';
+    if(!success){
+      if(row.status!=='paid') await env.DB.prepare("UPDATE creator_payments SET status='failed',provider_ref=COALESCE(provider_ref,?),updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(providerRef,row.id).run();
+      return new Response('OK',{status:200});
+    }
+    if(row.status!=='paid'){
+      const gross=Number(row.amount_minor),creatorMinor=Math.floor(gross*0.90),platformMinor=gross-creatorMinor;
+      await env.DB.batch([
+        env.DB.prepare("UPDATE creator_payments SET status='paid',provider_ref=COALESCE(provider_ref,?),paid_at=COALESCE(paid_at,CURRENT_TIMESTAMP),updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(providerRef,row.id),
+        env.DB.prepare(`INSERT OR IGNORE INTO ledger_entries(id,platform_id,creator_id,video_id,currency,gross_minor,external_cost_minor,creator_minor,platform_minor,source,status,creator_payment_id)
+          VALUES(?,?,?,?, 'ZAR',?,0,?,?,'tip','pending',?)`).bind(id('led'),row.platform_id,row.creator_id,row.video_id,gross,creatorMinor,platformMinor,row.id),
+      ]);
+      if(row.payer_email) await env.DB.prepare("INSERT INTO email_jobs(id,platform_id,template,recipient,payload_json,status) VALUES(?,?,?,?,?,'queued')").bind(id('eml'),row.platform_id,'creator_tip_receipt',row.payer_email,JSON.stringify({payment_id:row.id,creator_id:row.creator_id,amount_minor:gross,currency:'ZAR'})).run();
+      await audit(env,row.platform_id,'ikhokha','creator_tip.paid','creator_payment',row.id,{provider_ref:providerRef});
+    }
+    return new Response('OK',{status:200});
+  }
+  const creatorPaymentMatch=url.pathname.match(/^\/api\/creator-payments\/([^/]+)$/);
+  if(creatorPaymentMatch && req.method==='GET'){
+    const row=await env.DB.prepare("SELECT id,status,amount_minor,currency,creator_id,video_id,paid_at FROM creator_payments WHERE id=?").bind(creatorPaymentMatch[1]).first<any>();
+    if(!row) return fail(req,env,'Payment not found',404);
+    return json(req,env,{ok:true,payment:row});
+  }
   if (url.pathname === '/api/data-requests' && req.method === 'POST') {
     const b=await body(req),p=await platform(env,cleanText(b.platform||'videonomy',60)); if(!p) return fail(req,env,'Unknown platform',404); const email=cleanEmail(b.email),type=cleanText(b.request_type,30);
     if(!validEmail(email)||!['access','correction','deletion','objection'].includes(type)) return fail(req,env,'Valid email and request type required'); const rid=id('dsr');
