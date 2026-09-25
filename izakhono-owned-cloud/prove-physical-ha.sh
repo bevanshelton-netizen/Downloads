@@ -75,6 +75,9 @@ STANDBY_RESTORE="$(remote "$STANDBY" "sudo -n cat /var/lib/izakhono-deploy/proof
 STANDBY_WITNESS="$(remote "$STANDBY" "sudo -n cat /var/lib/izakhono-deploy/proofs/witness-standby-enforce.json")" || {
   echo "Standby witness enforce proof missing."; exit 18;
 }
+STANDBY_ROLE="$(remote "$STANDBY" "sudo -n cat /var/lib/izakhono-deploy/proofs/standby-service-role.json")" || {
+  echo "Standby passive-role proof missing."; exit 181;
+}
 STANDBY_RUNTIME="$(remote "$STANDBY" "curl -fsS http://127.0.0.1:8790/health")" || { echo "Standby RUNTIME health failed."; exit 19; }
 STANDBY_EDGE="$(remote "$STANDBY" "curl -fsS http://127.0.0.1:8795/health")" || { echo "Standby EDGE health failed."; exit 20; }
 
@@ -101,7 +104,7 @@ STANDBY_WITNESS_URL="$(remote "$STANDBY" "sudo -n awk -F= '$1=="IZAKHONO_WITNESS
   exit 24
 }
 
-PRIMARY_FIRST="$PRIMARY_FIRST" PRIMARY_WITNESS="$PRIMARY_WITNESS" PRIMARY_RUNTIME="$PRIMARY_RUNTIME" PRIMARY_EDGE="$PRIMARY_EDGE" PRIMARY_FORTRESS="$PRIMARY_FORTRESS" STANDBY_PREPARED="$STANDBY_PREPARED" STANDBY_RESTORE="$STANDBY_RESTORE" STANDBY_WITNESS="$STANDBY_WITNESS" STANDBY_RUNTIME="$STANDBY_RUNTIME" STANDBY_EDGE="$STANDBY_EDGE" WITNESS_HEALTH="$WITNESS_HEALTH" PRIMARY_HASH="$PRIMARY_HASH" STANDBY_HASH="$STANDBY_HASH" WITNESS_HASH="$WITNESS_HASH" CLUSTER_ID="$PRIMARY_CLUSTER" WITNESS_URL="$PRIMARY_WITNESS_URL" MAX_AGE_MINUTES="$MAX_AGE_MINUTES" REPORT="$REPORT" node - <<'NODE'
+PRIMARY_FIRST="$PRIMARY_FIRST" PRIMARY_WITNESS="$PRIMARY_WITNESS" PRIMARY_RUNTIME="$PRIMARY_RUNTIME" PRIMARY_EDGE="$PRIMARY_EDGE" PRIMARY_FORTRESS="$PRIMARY_FORTRESS" STANDBY_PREPARED="$STANDBY_PREPARED" STANDBY_RESTORE="$STANDBY_RESTORE" STANDBY_WITNESS="$STANDBY_WITNESS" STANDBY_ROLE="$STANDBY_ROLE" STANDBY_RUNTIME="$STANDBY_RUNTIME" STANDBY_EDGE="$STANDBY_EDGE" WITNESS_HEALTH="$WITNESS_HEALTH" PRIMARY_HASH="$PRIMARY_HASH" STANDBY_HASH="$STANDBY_HASH" WITNESS_HASH="$WITNESS_HASH" CLUSTER_ID="$PRIMARY_CLUSTER" WITNESS_URL="$PRIMARY_WITNESS_URL" MAX_AGE_MINUTES="$MAX_AGE_MINUTES" REPORT="$REPORT" node - <<'NODE'
 const fs=require("fs");
 
 function parse(name){
@@ -120,6 +123,7 @@ const primaryFortress=parse("PRIMARY_FORTRESS");
 const standbyPrepared=parse("STANDBY_PREPARED");
 const standbyRestore=parse("STANDBY_RESTORE");
 const standbyWitness=parse("STANDBY_WITNESS");
+const standbyRole=parse("STANDBY_ROLE");
 const standbyRuntime=parse("STANDBY_RUNTIME");
 const standbyEdge=parse("STANDBY_EDGE");
 const witnessHealth=parse("WITNESS_HEALTH");
@@ -139,6 +143,7 @@ if(!Number.isFinite(age) || age<0 || age>Number(process.env.MAX_AGE_MINUTES)) fa
 if(standbyWitness.mode!=="enforce" || standbyWitness.role!=="standby" || standbyWitness.write_fencing_enabled!==true || standbyWitness.standby_fail_closed_probe!==true) fail("Standby witness enforcement proof invalid.",42);
 if(standbyRuntime.witness?.mode!=="enforce" || standbyEdge.witness?.mode!=="enforce") fail("Standby RUNTIME/EDGE are not in witness enforce mode.",43);
 if(standbyRuntime.witness?.leaseValid===true || standbyEdge.witness?.leaseValid===true) fail("Standby unexpectedly holds leadership while primary is certified active.",44);
+if(standbyRole.status!=="PASS" || standbyRole.role!=="PASSIVE" || standbyRole.mutators_stopped!==true || standbyRole.automatic_activation!==false) fail("Standby autonomous mutators are not proven passive.",441);
 
 if(witnessHealth.product!=="IZAKHONO WITNESS NODE" || witnessHealth.status!=="healthy") fail("Witness health contract invalid.",45);
 if(witnessHealth.independentFailureDomainRequired!==true || witnessHealth.leaseReceipts!=="Ed25519") fail("Witness arbitration safety flags invalid.",46);
@@ -178,7 +183,9 @@ const report={
     replica_restore:"STAGED_AND_VERIFIED",
     replica_age_minutes:age,
     max_rpo_age_minutes:Number(process.env.MAX_AGE_MINUTES),
-    live_directories_modified:false
+    live_directories_modified:false,
+    service_role:"PASSIVE",
+    background_mutators_stopped:true
   },
   next_gate:"CONTROLLED_PHYSICAL_FAILOVER_DRILL",
   proved_at:new Date().toISOString()
