@@ -7,6 +7,8 @@ on:
     paths:
       - "ports/kora-gospel-tv/**"
       - "yhvh-gospel-tv/**"
+      - "owner-host/owner-agent.sh"
+      - "owner-host/control/desired-state.json"
       - "kora-network/app/gospel/**"
       - "kora-network/app/api/gospel/**"
       - ".github/workflows/kora-gospel-public-verify.yml"
