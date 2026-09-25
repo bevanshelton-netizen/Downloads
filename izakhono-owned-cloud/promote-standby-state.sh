@@ -68,7 +68,7 @@ const plan={
   ],
   promoted_service_envs:[
     "data-node.env","object-node.env","queue-node.env","auth-node.env",
-    "analytics-node.env","notify-node.env","ai-gateway-node.env","code-node.env"
+    "analytics-node.env","notify-node.env","ai-gateway-node.env","code-node.env","backup-node.env"
   ],
   preserved_node_specific_state:[
     "/etc/izakhono/runtime-node.env","/etc/izakhono/edge-node.env",
@@ -107,6 +107,7 @@ services=(
   izakhono-notify-node
   izakhono-ai-gateway-node
   izakhono-code-node
+  izakhono-backup-node
 )
 
 declare -A health=(
@@ -118,6 +119,7 @@ declare -A health=(
   [izakhono-notify-node]=http://127.0.0.1:8840/health
   [izakhono-ai-gateway-node]=http://127.0.0.1:8850/health
   [izakhono-code-node]=http://127.0.0.1:8860/health
+  [izakhono-backup-node]=http://127.0.0.1:8870/health
 )
 
 echo "Stopping stateful services for local state cutover..."
@@ -197,6 +199,7 @@ const report={
     "izakhono-data","izakhono-object","izakhono-queue","izakhono-auth",
     "izakhono-analytics","izakhono-notify","izakhono-ai-gateway","izakhono-code"
   ],
+  backup_encryption_lineage_preserved:true,
   node_specific_runtime_state_preserved:true,
   dns_changed:false,
   public_route_changed:false,
