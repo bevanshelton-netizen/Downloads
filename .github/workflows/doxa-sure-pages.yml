@@ -176,6 +176,7 @@ jobs:
         run: |
           set -euo pipefail
           BASE="https://bevanshelton-netizen.github.io/Downloads/izakhono-one/"
+          SHORT="https://bevanshelton-netizen.github.io/Downloads/one/"
           PORT_BASE="https://bevanshelton-netizen.github.io/Downloads/ports/izakhono-one/"
           HEALTH="${PORT_BASE}health-check/"
           CLINIC="${PORT_BASE}clinic/"
@@ -188,6 +189,7 @@ jobs:
           fetch_all() {
             local failed=0
             curl -fsSL --connect-timeout 4 --max-time 8 -o /tmp/one-base.html "$BASE" & p1=$!
+            curl -fsSL --connect-timeout 4 --max-time 8 -o /tmp/one-short.html "$SHORT" & p9=$!
             curl -fsSL --connect-timeout 4 --max-time 8 -o /tmp/one-port.html "$PORT_BASE" & p2=$!
             curl -fsSL --connect-timeout 4 --max-time 8 -o /tmp/one-health.html "$HEALTH" & p3=$!
             curl -fsSL --connect-timeout 4 --max-time 8 -o /tmp/one-clinic.html "$CLINIC" & p4=$!
@@ -195,16 +197,19 @@ jobs:
             curl -fsSL --connect-timeout 4 --max-time 8 -o /tmp/one-guide.html "$GUIDE" & p6=$!
             curl -fsSL --connect-timeout 4 --max-time 8 -o /tmp/portfolio.html "$PORTFOLIO" & p7=$!
             curl -fsSL --connect-timeout 4 --max-time 8 -o /tmp/launch.html "$LAUNCH" & p8=$!
-            for pid in $p1 $p2 $p3 $p4 $p5 $p6 $p7 $p8; do
+            for pid in $p1 $p2 $p3 $p4 $p5 $p6 $p7 $p8 $p9; do
               wait "$pid" || failed=1
             done
             return "$failed"
           }
 
           for i in $(seq 1 24); do
-            rm -f /tmp/one-base.html /tmp/one-port.html /tmp/one-health.html /tmp/one-clinic.html /tmp/one-contractors.html /tmp/one-guide.html /tmp/portfolio.html /tmp/launch.html
+            rm -f /tmp/one-base.html /tmp/one-short.html /tmp/one-port.html /tmp/one-health.html /tmp/one-clinic.html /tmp/one-contractors.html /tmp/one-guide.html /tmp/portfolio.html /tmp/launch.html
             if fetch_all &&
                grep -q 'IZAKHONO ONE' /tmp/one-base.html &&
+               grep -q 'IZAKHONO ONE' /tmp/one-short.html &&
+               grep -q 'HYBRID PUBLIC ROUTE' /tmp/one-short.html &&
+               grep -q 'izakhono-one-hub' /tmp/one-short.html &&
                grep -q 'IZAKHONO ONE' /tmp/one-port.html &&
                grep -q 'FREE 3-MINUTE BUSINESS HEALTH CHECK' /tmp/one-health.html &&
                grep -q 'Business Clinic' /tmp/one-clinic.html &&
@@ -219,5 +224,5 @@ jobs:
           done
 
           test "$ok" -eq 1
-          cat /tmp/one-base.html /tmp/one-port.html /tmp/one-health.html /tmp/one-clinic.html /tmp/one-contractors.html /tmp/one-guide.html > /tmp/izakhono-one-privacy.html
+          cat /tmp/one-base.html /tmp/one-short.html /tmp/one-port.html /tmp/one-health.html /tmp/one-clinic.html /tmp/one-contractors.html /tmp/one-guide.html > /tmp/izakhono-one-privacy.html
           ! grep -Eqi 'utm_|googletagmanager|google-analytics|facebook[^<]*(pixel|track)|hotjar|clarity\.ms|mixpanel|amplitude|plausible|matomo|portfolio-growth/bridge\.js|izakhono-growth-event|iz_one_anon|iz_portfolio_anon' /tmp/izakhono-one-privacy.html
