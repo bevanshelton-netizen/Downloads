@@ -1,6 +1,6 @@
 # IZAKHONO ONE — External Bridge
 
-## Current status — 23 September 2026
+## Current status — 25 September 2026
 
 **EXTERNAL PUBLIC PILOT: ACTIVE / INDEPENDENTLY VERIFIED**
 
@@ -37,8 +37,19 @@ Privacy contract:
 
 ONE Control Center: https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-control
 
-Device AI beta: https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-device-ai
+ONE AI public device-local route: https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-device-ai
+
+Current public AI runtime:
+- WebLLM 0.2.85, pinned in the browser import;
+- Quick: SmolLM2 360M;
+- Balanced: SmolLM2 1.7B;
+- Strong: Llama 3.2 3B;
+- device-local prompt generation after model load;
+- local text-file context option;
+- General, Business, Writing, Study and Coding modes;
+- chat copy/export/reset controls;
+- no referral or campaign attribution.
 
 The Control Center is the external workspace front door. It uses the existing ONE capability-key model, masks the key by default, supports explicit reveal/copy/recovery-file export, and does not enable the unfinished Supabase Auth identity surface.
 
-The Device AI beta uses a compact browser-local model and is not equivalent to the full owned ONE AI runtime. The external bridge is a public ecosystem hub, not the final owned AI authority. NODE 01 remains the intended authority.
+The external ONE AI route now offers three browser-local model tiers. It remains a device-local public beta and is not equivalent to the full owned ONE AI server runtime. The external bridge is a public ecosystem hub, not the final owned AI authority. NODE 01 remains the intended authority.
