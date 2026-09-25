@@ -11,6 +11,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: yhvh-gospel-node01-deploy
+  cancel-in-progress: true
+
 jobs:
   external-resilience:
     name: Verify external resilience
@@ -40,6 +44,7 @@ jobs:
           echo "GITHUB_PAGES_RESILIENCE=VERIFIED"
 
   owned-deploy:
+    if: github.event_name == 'workflow_dispatch'
     name: Deploy on IZAKHONO NODE01
     runs-on: [self-hosted, linux, x64, izakhono]
     timeout-minutes: 20
@@ -95,6 +100,7 @@ jobs:
           echo "YHVH_CHANNEL_LOCAL=VERIFIED"
 
   independent-public-verify:
+    if: github.event_name == 'workflow_dispatch' && always() && needs.owned-deploy.result == 'success'
     name: Independently verify owned public HTTPS
     needs: owned-deploy
     runs-on: ubuntu-latest
