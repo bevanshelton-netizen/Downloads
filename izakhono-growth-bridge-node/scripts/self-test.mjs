@@ -1,0 +1,14 @@
+import assert from "node:assert/strict";
+import {assertClaims,mapRoute,oidcConfig} from "../policy.mjs";
+const c=oidcConfig();
+assert.equal(c.audience,"https://bridge.domains.izakhonoafrica.co.za");
+assert.equal(c.subject,"owner:bevan2:project:izakhono-growth-os-resilience:environment:production");
+assert.equal(assertClaims({owner_id:c.teamId,project_id:c.projectId,project:c.projectName,environment:c.environment}),true);
+assert.throws(()=>assertClaims({owner_id:"bad",project_id:c.projectId,project:c.projectName,environment:c.environment}));
+assert.equal(mapRoute("POST","/v1/auth/login").upstream,"auth");
+assert.equal(mapRoute("GET","/v1/data/stats").internalKey,true);
+assert.equal(mapRoute("POST","/v1/data/approvals/abc-123/decision").upstream,"data");
+assert.equal(mapRoute("POST","/v1/pay/orders").payKey,true);
+assert.equal(mapRoute("POST","/v1/unknown"),null);
+assert.equal(mapRoute("DELETE","/v1/data/approvals"),null);
+console.log("IZAKHONO Growth Bridge policy self-test: PASS");
