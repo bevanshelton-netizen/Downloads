@@ -10,6 +10,14 @@ export type HouseAd = {
 
 export const houseAds: HouseAd[] = [
   {
+    id: 'izakhono-ai',
+    name: 'IZAKHONO AI',
+    body: 'One intelligent front door for business, money, work, learning and growth. Native AI membership starts at R199 per month.',
+    cta: 'OPEN IZAKHONO AI — R199',
+    clickUrl: 'https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-payment-result/ai/?utm_source=kora&utm_medium=owned_house_ad&utm_campaign=ai_core_launch',
+    accent: '#c9ff4e',
+  },
+  {
     id: 'faisready-bundle-direct',
     name: 'FAISReady',
     body: 'Prepare for RE1 and RE5 together. The Complete Bundle is R549 with direct iKhokha checkout.',
@@ -69,20 +77,22 @@ export const houseAds: HouseAd[] = [
 
 const ROTATION_MINUTES = 5;
 const ROTATION = [
-  'learner-driver-sa',
   'faisready-bundle-direct',
+  'izakhono-ai',
   'faisready-re5-direct',
   'auto-ai',
   'learner-driver-sa',
   'growth-desk',
+  'izakhono-ai',
   'faisready-re5-direct',
   'faisready-bundle-direct',
   'mandatory-regulatory-exams',
-  'learner-driver-sa',
   'auto-ai',
+  'izakhono-ai',
   'faisready-re5-direct',
   'growth-desk',
   'faisready-bundle-direct',
+  'learner-driver-sa',
 ] as const;
 
 export function currentHouseAd(date = new Date()) {
