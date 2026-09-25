@@ -1,14 +1,21 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "source_repository": "bevanshelton-netizen/izakhono-builder",
-  "source_path": "infra/mail-stack/platform-identities.json",
-  "source_commit": "77d92e88c650526b46d718e2bdccf6fa8ede7fb2",
+  "source_paths": [
+    "infra/mail-stack/platform-identities.json",
+    "infra/mail-stack/domain-readiness.json"
+  ],
+  "source_commit": "6891e5232f25edf3e8697963f24240f3163692db",
+  "activation_rule": "only enabled=true and LIVE_VERIFIED domains may send",
   "senders": [
     {
       "id": "izakhono-africa",
       "name": "IZAKHONO AFRICA",
       "address": "info@izakhonoafrica.co.za",
       "noreply": "noreply@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -17,6 +24,9 @@
       "name": "KORA",
       "address": "kora@izakhonoafrica.co.za",
       "noreply": "noreply-kora@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -25,6 +35,9 @@
       "name": "KORA Cinema",
       "address": "kora-cinema@izakhonoafrica.co.za",
       "noreply": "noreply-kora-cinema@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -33,6 +46,9 @@
       "name": "KORA Gospel TV",
       "address": "kora-gospel@izakhonoafrica.co.za",
       "noreply": "noreply-kora-gospel@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -41,6 +57,9 @@
       "name": "KORA Kids",
       "address": "kora-kids@izakhonoafrica.co.za",
       "noreply": "noreply-kora-kids@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -49,6 +68,9 @@
       "name": "YHVH Gospel TV",
       "address": "yhvhtv@izakhonoafrica.co.za",
       "noreply": "noreply-yhvhtv@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -57,6 +79,9 @@
       "name": "Allegro-Vibez",
       "address": "allegro@izakhonoafrica.co.za",
       "noreply": "noreply-allegro@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -65,6 +90,9 @@
       "name": "Allegro Radio",
       "address": "allegro-radio@izakhonoafrica.co.za",
       "noreply": "noreply-allegro-radio@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -73,6 +101,9 @@
       "name": "EDU-BUILD INSTITUTE – Shelton Campuses",
       "address": "info@edubuildshelton.org.za",
       "noreply": "noreply@edubuildshelton.org.za",
+      "domain": "edubuildshelton.org.za",
+      "domain_status": "ROUTED_AUTH_PARTIAL",
+      "enabled": false,
       "exposure": "public",
       "operator": "Edu-Build Institute – Shelton Campuses (Pty) Ltd"
     },
@@ -81,6 +112,9 @@
       "name": "EDU-BUILD 360 / ECD360",
       "address": "ecd360@edubuildshelton.org.za",
       "noreply": "noreply-ecd360@edubuildshelton.org.za",
+      "domain": "edubuildshelton.org.za",
+      "domain_status": "ROUTED_AUTH_PARTIAL",
+      "enabled": false,
       "exposure": "public",
       "operator": "Edu-Build Institute – Shelton Campuses (Pty) Ltd"
     },
@@ -89,6 +123,9 @@
       "name": "FAISReady",
       "address": "info@faisready.co.za",
       "noreply": "noreply@faisready.co.za",
+      "domain": "faisready.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -97,6 +134,9 @@
       "name": "DOXA-SURE",
       "address": "info@doxahosting.co.za",
       "noreply": "noreply@doxahosting.co.za",
+      "domain": "doxahosting.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -105,6 +145,9 @@
       "name": "AUTO AI",
       "address": "autoai@izakhonoafrica.co.za",
       "noreply": "noreply-autoai@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -113,6 +156,9 @@
       "name": "Learner Driver SA",
       "address": "learners@izakhonoafrica.co.za",
       "noreply": "noreply-learners@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -121,6 +167,9 @@
       "name": "WorkNow",
       "address": "worknow@izakhonoafrica.co.za",
       "noreply": "noreply-worknow@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -129,6 +178,9 @@
       "name": "Memory Mania",
       "address": "memorymania@izakhonoafrica.co.za",
       "noreply": "noreply-memorymania@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -137,6 +189,9 @@
       "name": "IZAKHONO Music School",
       "address": "musicschool@izakhonoafrica.co.za",
       "noreply": "noreply-musicschool@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -145,6 +200,9 @@
       "name": "IZAKHONO Recording Studio",
       "address": "studio@izakhonoafrica.co.za",
       "noreply": "noreply-studio@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -153,6 +211,9 @@
       "name": "CROWNÉ by Netty",
       "address": "crowne@izakhonoafrica.co.za",
       "noreply": "noreply-crowne@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -161,6 +222,9 @@
       "name": "IZAKHONO Growth Studio",
       "address": "growthstudio@izakhonoafrica.co.za",
       "noreply": "noreply-growthstudio@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -169,6 +233,9 @@
       "name": "IZAKHONO Business Websites / WebStart",
       "address": "webstart@izakhonoafrica.co.za",
       "noreply": "noreply-webstart@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -177,6 +244,9 @@
       "name": "The Chancellor",
       "address": "chancellor@izakhonoafrica.co.za",
       "noreply": "noreply-chancellor@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -185,6 +255,9 @@
       "name": "FORTRESS",
       "address": "fortress@izakhonoafrica.co.za",
       "noreply": "noreply-fortress@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -193,6 +266,9 @@
       "name": "IZAKHONO CODE",
       "address": "code@izakhonoafrica.co.za",
       "noreply": "noreply-code@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -201,6 +277,9 @@
       "name": "IZAKHONO WORK",
       "address": "work@izakhonoafrica.co.za",
       "noreply": "noreply-work@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -209,6 +288,9 @@
       "name": "IZAKHONO CLOUD",
       "address": "cloud@izakhonoafrica.co.za",
       "noreply": "noreply-cloud@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -217,6 +299,9 @@
       "name": "IZAKHONO SEND",
       "address": "send@izakhonoafrica.co.za",
       "noreply": "noreply-send@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -225,6 +310,9 @@
       "name": "IZAKHONO ONE",
       "address": "one@izakhonoafrica.co.za",
       "noreply": "noreply-one@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -233,6 +321,9 @@
       "name": "IZAKHONO AI",
       "address": "ai@izakhonoafrica.co.za",
       "noreply": "noreply-ai@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -241,6 +332,9 @@
       "name": "IZAKHONO OS",
       "address": "os@izakhonoafrica.co.za",
       "noreply": "noreply-os@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -249,6 +343,9 @@
       "name": "IZAKHONO PAY",
       "address": "pay@izakhonoafrica.co.za",
       "noreply": "noreply-pay@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -257,6 +354,9 @@
       "name": "IZAKHONO DOMAINS",
       "address": "domains@izakhonoafrica.co.za",
       "noreply": "noreply-domains@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -265,6 +365,9 @@
       "name": "IZAKHONO Creative Suite",
       "address": "creative@izakhonoafrica.co.za",
       "noreply": "noreply-creative@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -273,6 +376,9 @@
       "name": "IZAKHONO Digital Finance Academy",
       "address": "digitalfinance@izakhonoafrica.co.za",
       "noreply": "noreply-digitalfinance@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -281,6 +387,9 @@
       "name": "IZAKHONO Blockchain Academy",
       "address": "blockchain@izakhonoafrica.co.za",
       "noreply": "noreply-blockchain@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -289,6 +398,9 @@
       "name": "SUPER ACCOUNTANT",
       "address": "superaccountant@izakhonoafrica.co.za",
       "noreply": "noreply-superaccountant@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -297,6 +409,9 @@
       "name": "YenzaNow",
       "address": "yenzanow@izakhonoafrica.co.za",
       "noreply": "noreply-yenzanow@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -305,6 +420,9 @@
       "name": "Pimp My Old Car",
       "address": "pimpmycar@izakhonoafrica.co.za",
       "noreply": "noreply-pimpmycar@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -313,6 +431,9 @@
       "name": "Vehicle Diagnostics",
       "address": "diagnostics@izakhonoafrica.co.za",
       "noreply": "noreply-diagnostics@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -321,6 +442,9 @@
       "name": "Matric Rewrite Academy",
       "address": "matric@izakhonoafrica.co.za",
       "noreply": "noreply-matric@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -329,6 +453,9 @@
       "name": "LegacyMart",
       "address": "legacymart@izakhonoafrica.co.za",
       "noreply": "noreply-legacymart@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -337,6 +464,9 @@
       "name": "StudyPal",
       "address": "studypal@izakhonoafrica.co.za",
       "noreply": "noreply-studypal@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -345,6 +475,9 @@
       "name": "Ubuntu AI Tutor",
       "address": "ubuntuai@izakhonoafrica.co.za",
       "noreply": "noreply-ubuntuai@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -353,6 +486,9 @@
       "name": "Ubuntu Market",
       "address": "ubuntumarket@izakhonoafrica.co.za",
       "noreply": "noreply-ubuntumarket@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -361,6 +497,9 @@
       "name": "Bevan Shelton Clothing",
       "address": "clothing@izakhonoafrica.co.za",
       "noreply": "noreply-clothing@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -369,6 +508,9 @@
       "name": "Creator OS",
       "address": "creatoros@izakhonoafrica.co.za",
       "noreply": "noreply-creatoros@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "internal",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -377,6 +519,9 @@
       "name": "ExamReady",
       "address": "examready@izakhonoafrica.co.za",
       "noreply": "noreply-examready@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -385,6 +530,9 @@
       "name": "IZAKHONO ACCESS",
       "address": "access@izakhonoafrica.co.za",
       "noreply": "noreply-access@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "internal",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -393,6 +541,9 @@
       "name": "IZAKHONO ADS",
       "address": "ads@izakhonoafrica.co.za",
       "noreply": "noreply-ads@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "internal",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -401,6 +552,9 @@
       "name": "IZAKHONO ARTIST PROTECT",
       "address": "artistprotect@izakhonoafrica.co.za",
       "noreply": "noreply-artistprotect@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -409,6 +563,9 @@
       "name": "IZAKHONO CLEARSET",
       "address": "clearset@izakhonoafrica.co.za",
       "noreply": "noreply-clearset@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "internal",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -417,6 +574,9 @@
       "name": "IZAKHONO CONTROL",
       "address": "control@izakhonoafrica.co.za",
       "noreply": "noreply-control@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "internal",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -425,6 +585,9 @@
       "name": "IZAKHONO CORE",
       "address": "core@izakhonoafrica.co.za",
       "noreply": "noreply-core@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "internal",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -433,6 +596,9 @@
       "name": "IZAKHONO CRM",
       "address": "crm@izakhonoafrica.co.za",
       "noreply": "noreply-crm@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -441,6 +607,9 @@
       "name": "IZAKHONO FABRIC",
       "address": "fabric@izakhonoafrica.co.za",
       "noreply": "noreply-fabric@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "internal",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -449,6 +618,9 @@
       "name": "IZAKHONO ID",
       "address": "id@izakhonoafrica.co.za",
       "noreply": "noreply-id@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -457,6 +629,9 @@
       "name": "IZAKHONO INTELLIGENCE",
       "address": "intelligence@izakhonoafrica.co.za",
       "noreply": "noreply-intelligence@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "internal",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -465,6 +640,9 @@
       "name": "IZAKHONO LEDGER",
       "address": "ledger@izakhonoafrica.co.za",
       "noreply": "noreply-ledger@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "internal",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -473,6 +651,9 @@
       "name": "IZAKHONO MEDIA RUNTIME",
       "address": "media@izakhonoafrica.co.za",
       "noreply": "noreply-media@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "internal",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -481,6 +662,9 @@
       "name": "IZAKHONO NODE",
       "address": "node@izakhonoafrica.co.za",
       "noreply": "noreply-node@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "internal",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -489,6 +673,9 @@
       "name": "IZAKHONO REVENUE",
       "address": "revenue@izakhonoafrica.co.za",
       "noreply": "noreply-revenue@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "internal",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -497,6 +684,9 @@
       "name": "IZAKHONO RUNNER",
       "address": "runner@izakhonoafrica.co.za",
       "noreply": "noreply-runner@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "internal",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -505,6 +695,9 @@
       "name": "IZAKHONO SOCIAL",
       "address": "social@izakhonoafrica.co.za",
       "noreply": "noreply-social@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "public",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     },
@@ -513,6 +706,9 @@
       "name": "IZAKHONO TASKS",
       "address": "tasks@izakhonoafrica.co.za",
       "noreply": "noreply-tasks@izakhonoafrica.co.za",
+      "domain": "izakhonoafrica.co.za",
+      "domain_status": "DNS_UNRESOLVED",
+      "enabled": false,
       "exposure": "internal",
       "operator": "IZAKHONO AFRICA (PTY) LTD"
     }
