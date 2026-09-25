@@ -1,0 +1,38 @@
+{
+  "schema": "kora.gospel-tv.control-room/v1",
+  "runtime": "izakhono-owned",
+  "authentication": "Bearer token from GOSPEL_TV_CONTROL_TOKEN",
+  "token_minimum_length": 24,
+  "surfaces": [
+    {
+      "path": "/control.html",
+      "visibility": "publicly routable but owner-authenticated",
+      "mode": "read-only"
+    },
+    {
+      "path": "/api/control/status",
+      "visibility": "owner-authenticated",
+      "mode": "read-only"
+    },
+    {
+      "path": "/api/control/submissions",
+      "visibility": "owner-authenticated",
+      "mode": "read-only"
+    }
+  ],
+  "current_capabilities": [
+    "channel feed readiness",
+    "submission queue totals",
+    "latest content partner and prayer intake",
+    "regional readiness",
+    "priority language overview"
+  ],
+  "prohibited_without_future_audit": [
+    "start or stop public broadcast",
+    "change stream destinations",
+    "approve or publish content",
+    "delete submissions",
+    "edit rights state",
+    "change sponsor inventory"
+  ]
+}
