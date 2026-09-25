@@ -3,6 +3,7 @@ import { resolve, join, extname } from "node:path";
 import { createHash, randomUUID } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { homedir } from "node:os";
+import { fileURLToPath } from "node:url";
 
 function parseArgs(){
  const o={workspace:join(homedir(),".izakhono","kora-kids-studio"),mode:"prepare"};
@@ -46,7 +47,7 @@ async function prepare(o){
  need(cand.selected===true,"candidate is not selected");
  need(cand.rightsReadiness?.productionRightsContracted===true,"production rights are not contracted");
  need(Object.values(cand.review||{}).every(Boolean),"candidate review is incomplete");
- const repo=resolve(new URL("../",import.meta.url).pathname);
+ const repo=resolve(fileURLToPath(new URL("../",import.meta.url)));
  const pack=JSON.parse(await readFile(join(repo,"kora-kids-studio","production","lebo-jabu","jam-day-under-the-baobab.en-ZA.json"),"utf8"));
  const sc=schedule(pack);need(sc.lines.length===17,"expected 17 Lebo lines");
  const id=randomUUID(),root=join(workspace,"recording-sessions","lebo",id);await mkdir(join(root,"takes"),{recursive:true});
