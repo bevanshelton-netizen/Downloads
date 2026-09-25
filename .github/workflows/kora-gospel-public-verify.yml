@@ -124,8 +124,25 @@ jobs:
           if command -v dig >/dev/null 2>&1; then
             A_RECORD="$(dig +short A "$HOST" | head -n 1)"
             AAAA_RECORD="$(dig +short AAAA "$HOST" | head -n 1)"
+            PARENT_NS="$(dig +short NS izakhonoafrica.co.za | tr '\n' ',' | sed 's/,$//')"
+            OWNED_ZONE_NS="$(dig +short NS domains.izakhonoafrica.co.za | tr '\n' ',' | sed 's/,$//')"
+            NS1_A="$(dig +short A ns1.izakhonoafrica.co.za | head -n 1)"
             echo "DNS_A=${A_RECORD:-NONE}"
             echo "DNS_AAAA=${AAAA_RECORD:-NONE}"
+            echo "PARENT_ZONE_NS=${PARENT_NS:-NONE}"
+            echo "OWNED_ZONE_NS=${OWNED_ZONE_NS:-NONE}"
+            echo "NS1_A=${NS1_A:-NONE}"
+            if [ -z "$OWNED_ZONE_NS" ]; then
+              echo "DNS_BLOCKER=NO_PARENT_DELEGATION_FOR_DOMAINS_ZONE"
+            elif ! printf '%s' "$OWNED_ZONE_NS" | grep -qi 'ns1\.izakhonoafrica\.co\.za'; then
+              echo "DNS_BLOCKER=DOMAINS_ZONE_NOT_DELEGATED_TO_IZAKHONO_NS1"
+            elif [ -z "$NS1_A" ]; then
+              echo "DNS_BLOCKER=IZAKHONO_NS1_HAS_NO_PUBLIC_A_RECORD"
+            elif [ -z "$A_RECORD" ]; then
+              echo "DNS_BLOCKER=YHVH_RECORD_NOT_VISIBLE_FROM_AUTHORITATIVE_PATH"
+            else
+              echo "DNS_BLOCKER=NONE"
+            fi
           fi
           HTTPS_CODE="$(curl -sS -o /tmp/yhvh-owned-health-body.txt -w '%{http_code}' --connect-timeout 5 --max-time 12 "https://$HOST/health" 2>/tmp/yhvh-owned-curl.err)"
           CURL_EXIT=$?
