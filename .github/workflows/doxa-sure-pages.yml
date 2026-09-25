@@ -18,6 +18,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
   pages: write
   id-token: write
 
@@ -87,6 +88,32 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - name: Wait for native Pages publisher to clear the environment
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          api="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${GITHUB_SHA}&per_page=100"
+          echo "Waiting for native GitHub Pages deployment for ${GITHUB_SHA} to finish before IZAKHONO publishes last."
+          for i in $(seq 1 72); do
+            json="$(curl -fsSL --max-time 15 \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "$api")"
+            state="$(printf '%s' "$json" | jq -r '[.workflow_runs[] | select(.name=="pages build and deployment")][0].status // "missing"')"
+            conclusion="$(printf '%s' "$json" | jq -r '[.workflow_runs[] | select(.name=="pages build and deployment")][0].conclusion // ""')"
+            echo "NATIVE_PAGES_STATUS=$state NATIVE_PAGES_CONCLUSION=$conclusion"
+            if [ "$state" = "completed" ]; then
+              break
+            fi
+            if [ "$state" = "missing" ] && [ "$i" -ge 12 ]; then
+              echo "No native Pages run found after one minute; continuing with IZAKHONO publisher."
+              break
+            fi
+            sleep 5
+          done
+
       - name: Deploy prebuilt gateway
         id: deployment
         uses: actions/deploy-pages@v4
