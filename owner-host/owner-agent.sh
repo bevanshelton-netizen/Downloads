@@ -42,7 +42,7 @@ VALIDATED="$(node - "$CONTROL_TMP" <<'NODE'
 const fs=require("fs");
 const p=process.argv[2];
 const x=JSON.parse(fs.readFileSync(p,"utf8"));
-const allowed=new Set(["activate-one-local-model","configure-one-ai","deploy-one-ai","verify-one-ai"]);
+const allowed=new Set(["activate-one-local-model","configure-one-ai","deploy-one-ai","verify-one-ai","deploy-yhvh-gospel-tv"]);
 if(typeof x!=="object"||!x)throw new Error("control must be an object");
 if(typeof x.enabled!=="boolean")throw new Error("enabled must be boolean");
 if(typeof x.id!=="string"||!/^[A-Za-z0-9._:-]{8,120}$/.test(x.id))throw new Error("invalid request id");
@@ -138,6 +138,44 @@ EXIT_CODE=1
       export IZAKHONO_ONE_AI_HOSTNAME="$HOSTNAME"
       bash "$ROOT/izakhono-owned-cloud/deploy-izakhono-one-ai.sh" main
       EXIT_CODE=$?
+      ;;
+    deploy-yhvh-gospel-tv)
+      [ -n "$HOSTNAME" ] || HOSTNAME="gospel.domains.izakhonoafrica.co.za"
+      export KORA_GOSPEL_TV_HOSTNAME="$HOSTNAME"
+      echo "YHVH_STAGE=SOURCE_TO_IZAKHONO_CODE"
+      bash "$ROOT/izakhono-owned-cloud/migrate-source-to-code.sh"
+      EXIT_CODE=$?
+      if [ "$EXIT_CODE" -eq 0 ]; then
+        echo "YHVH_STAGE=DEPLOY_TO_IZAKHONO_RUNTIME"
+        bash "$ROOT/izakhono-owned-cloud/deploy-kora-gospel-tv.sh" main
+        EXIT_CODE=$?
+      fi
+      if [ "$EXIT_CODE" -eq 0 ]; then
+        LOCAL="$(curl -fsS --max-time 5 -H "Host: $HOSTNAME" http://127.0.0.1:8080/health)"
+        node -e 'const x=JSON.parse(process.argv[1]||"{}");if(x.ok!==true||x.service!=="kora-gospel-tv"||x.runtime!=="izakhono-owned")process.exit(2)' "$LOCAL"
+        EXIT_CODE=$?
+      fi
+      if [ "$EXIT_CODE" -eq 0 ]; then
+        echo "YHVH_STAGE=OWNED_EDGE"
+        export IZAKHONO_PUBLIC_ZONE="domains.izakhonoafrica.co.za"
+        export IZAKHONO_PUBLIC_HOSTNAME="$HOSTNAME"
+        bash "$ROOT/izakhono-owned-cloud/activate-owned-public-edge.sh"
+        EDGE_EXIT=$?
+        echo "OWNED_EDGE_EXIT=$EDGE_EXIT"
+        if [ "$EDGE_EXIT" -eq 20 ] || [ "$EDGE_EXIT" -eq 21 ]; then
+          echo "YHVH_STAGE=OUTBOUND_LAST_MILE_BRIDGE"
+          export YHVH_PUBLIC_HOSTNAME="$HOSTNAME"
+          bash "$ROOT/izakhono-owned-cloud/start-yhvh-outbound-bridge.sh"
+          EXIT_CODE=$?
+        else
+          EXIT_CODE=$EDGE_EXIT
+        fi
+      fi
+      if [ "$EXIT_CODE" -eq 0 ]; then
+        PUBLIC="$(curl -fsS --max-time 12 "https://$HOSTNAME/health")"
+        node -e 'const x=JSON.parse(process.argv[1]||"{}");if(x.ok!==true||x.service!=="kora-gospel-tv"||x.runtime!=="izakhono-owned")process.exit(2)' "$PUBLIC"
+        EXIT_CODE=$?
+      fi
       ;;
     verify-one-ai)
       [ -n "$HOSTNAME" ] || HOSTNAME="one.domains.izakhonoafrica.co.za"
