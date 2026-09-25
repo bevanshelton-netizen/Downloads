@@ -15,8 +15,8 @@ const classes=[
 ];
 
 export default function GospelJoin(){
-  const primaryUrl=process.env.KORA_GOSPEL_PRIMARY_URL||'https://gospel.domains.izakhonoafrica.co.za';
-  const externalUrl=process.env.NEXT_PUBLIC_GOSPEL_EXTERNAL_INTAKE_URL||'https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/kora-gospel-intake';
+  const primaryUrl=process.env.YHVH_GOSPEL_PRIMARY_URL||process.env.KORA_GOSPEL_PRIMARY_URL||'https://gospel.domains.izakhonoafrica.co.za';
+  const externalUrl=process.env.NEXT_PUBLIC_YHVH_GOSPEL_EXTERNAL_INTAKE_URL||process.env.NEXT_PUBLIC_GOSPEL_EXTERNAL_INTAKE_URL||'https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/kora-gospel-intake';
   return <main id="main-content" style={{minHeight:'100vh',background:'radial-gradient(circle at 12% 0%,rgba(43,111,151,.24),transparent 31%),radial-gradient(circle at 95% 8%,rgba(245,196,81,.15),transparent 25%),#06101c',color:'#fff',padding:'54px 0 80px'}}>
     <div style={{width:'min(1140px,92vw)',margin:'0 auto'}}>
       <Link href="/gospel" style={{color:'#ffe29a',fontWeight:900,textDecoration:'none'}}>← YHVH GOSPEL TV</Link>
