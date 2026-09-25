@@ -1,0 +1,37 @@
+{
+  "schema": "kora-kids.final-creative-lock-config/v1",
+  "seriesId": "lebo-jabu",
+  "episodeSlug": "jam-day-under-the-baobab",
+  "language": "en-ZA",
+  "required": {
+    "voice": {
+      "type": "voice",
+      "character": "Lebo",
+      "count": 1
+    },
+    "music": {
+      "type": "music",
+      "role": "theme",
+      "count": 1
+    },
+    "sfx": {
+      "type": "sfx",
+      "cueIds": [
+        "jabu-hello",
+        "jabu-question",
+        "jabu-proud",
+        "jabu-happy",
+        "jabu-sneeze",
+        "jabu-goodbye"
+      ]
+    }
+  },
+  "rules": {
+    "everyAssetApprovedForMastering": true,
+    "everyReviewGateTrue": true,
+    "voiceConsentAndRightsRequired": true,
+    "musicOriginalityAndRightsRequired": true,
+    "sfxRightsRequired": true,
+    "finalHumanReviewRequired": true
+  }
+}
