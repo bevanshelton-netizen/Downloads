@@ -3,10 +3,11 @@ import { Readable } from 'node:stream';
 import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import Database from 'better-sqlite3';
 import worker from '../src/index.ts';
 
-const ROOT=path.resolve(path.dirname(new URL(import.meta.url).pathname),'..');
+const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const PUBLIC_ROOT=path.join(ROOT,'public');
 const MIGRATIONS=path.join(ROOT,'migrations');
 const DATA_ROOT=path.resolve(process.env.VIDEONOMY_DATA_DIR||path.join(ROOT,'.owned-data'));
