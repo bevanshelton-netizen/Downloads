@@ -79,7 +79,7 @@ class PackageTests(unittest.TestCase):
         for needle in ["status='pending'","status='available'",'PAYOUT_MIN_MINOR','external_cost_minor','Payout profile']:
             self.assertIn(needle.lower(),src.lower())
         owned=(ROOT/'owned/server.mjs').read_text()
-        for needle in ['better-sqlite3','VIDEONOMY_DATA_DIR','LocalD1','LocalMedia','worker.fetch(request,env)']:
+        for needle in ['better-sqlite3','VIDEONOMY_DATA_DIR','LocalD1','LocalMedia','workerHandler.fetch(request,env)']:
             self.assertIn(needle,owned)
         compose=(ROOT/'owned/docker-compose.yml').read_text()
         self.assertIn('127.0.0.1:18081:18081',compose)
