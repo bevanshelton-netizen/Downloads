@@ -1,0 +1,72 @@
+name: IZAKHONO ONE Pilot Operations
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */6 * * *'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/izakhono-one-pilot-operations.yml'
+      - 'IZAKHONO-ONE-PILOT-OPERATIONS.md'
+
+permissions:
+  contents: read
+
+jobs:
+  operate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check public pilot health and conversion
+        shell: bash
+        run: |
+          set -euo pipefail
+          HUB='https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-hub'
+          DEVICE='https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-device-ai'
+          INTEREST='https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-interest'
+
+          hub_code="$(curl -sS --max-time 20 -o /tmp/hub.json -w '%{http_code}' "$HUB?health=1")"
+          device_code="$(curl -sS --max-time 20 -o /tmp/device.json -w '%{http_code}' "$DEVICE?health=1")"
+          interest_code="$(curl -sS --max-time 20 -o /tmp/interest.json -w '%{http_code}' "$INTEREST")"
+
+          test "$hub_code" = '200'
+          test "$device_code" = '200'
+          test "$interest_code" = '200'
+
+          node - <<'NODE'
+          const fs=require('fs');
+          const hub=JSON.parse(fs.readFileSync('/tmp/hub.json','utf8'));
+          const device=JSON.parse(fs.readFileSync('/tmp/device.json','utf8'));
+          const interest=JSON.parse(fs.readFileSync('/tmp/interest.json','utf8'));
+
+          if(hub.ok!==true||hub.tracking!==false||hub.behavioural_profiling!==false||hub.referral_attribution!==false) process.exit(2);
+          if(device.ok!==true||device.product!=='IZAKHONO ONE AI'||device.prompt_transport!=='device-local'||device.tracking!==false) process.exit(3);
+          if(interest.tracking!==false||interest.referralAttribution!==false||interest.campaignAttribution!==false||interest.automaticFingerprinting!==false) process.exit(4);
+
+          const registered=Number(interest.registered||0);
+          const remaining=Number(interest.remaining||0);
+          const feedback=Number(interest.feedbackReceived||0);
+          if(!Number.isFinite(registered)||!Number.isFinite(remaining)||!Number.isFinite(feedback)) process.exit(5);
+
+          console.log('PILOT_ROUTE='+hub.route);
+          console.log('SIGNUPS='+registered);
+          console.log('FOUNDING_PLACES_REMAINING='+remaining);
+          console.log('FEEDBACK_RECEIVED='+feedback);
+          console.log('DEVICE_AI_RUNTIME='+device.runtime);
+          console.log('TRACKING=false');
+
+          let summary='### IZAKHONO ONE pilot operating snapshot\n\n';
+          summary+='- Public route: **'+hub.route+'**\n';
+          summary+='- Founding 1,000 sign-ups: **'+registered+'**\n';
+          summary+='- Places remaining: **'+remaining+'**\n';
+          summary+='- Explicit pilot feedback submissions: **'+feedback+'**\n';
+          summary+='- Device AI runtime: **'+device.runtime+'**\n';
+          summary+='- Behavioural tracking: **OFF**\n';
+          summary+='- Referral/campaign attribution: **OFF**\n';
+          if(registered===0){
+            summary+='\n> ⚠️ Conversion warning: public infrastructure is healthy but the launch list still has zero sign-ups. Prioritise distribution, first-use clarity and direct outreach rather than more infrastructure work.\n';
+            console.log('::warning::ONE is healthy but Founding 1,000 sign-ups remain at zero.');
+          }
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,summary);
+          NODE
