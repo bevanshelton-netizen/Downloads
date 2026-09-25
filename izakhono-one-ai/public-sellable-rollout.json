@@ -1,6 +1,6 @@
 {
   "schema": "izakhono.public-sellable-rollout/v1",
-  "updated_at": "2026-09-23",
+  "updated_at": "2026-09-25",
   "policy": {
     "owned_first": true,
     "external_fallback_reversible": true,
@@ -31,16 +31,24 @@
       "id": "izakhono-one-ai",
       "name": "IZAKHONO ONE AI",
       "owned_target": "https://one.domains.izakhonoafrica.co.za",
-      "fallback": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-public",
+      "fallback": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-device-ai",
       "public_status": "temporary-public",
       "commercial_status": "pilot",
-      "payment": "not-required-for-public-ecosystem/device-AI pilot; ONE Business remains separately gated; commercial owned ONE AI checkout remains gated",
-      "next_blocker": "owned-runtime activation + verified SMTP + owned public HTTPS; commercial pricing/payment/legal gate follows",
+      "payment": "not-required-for-public device-local AI pilot; commercial owned ONE AI checkout remains gated",
+      "next_blocker": "device-local ONE AI is externally usable; owned server AI still requires runtime activation + verified SMTP + owned public HTTPS, followed by commercial pricing/payment/legal gates",
       "device_ai_beta": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-device-ai",
       "control_center": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-control",
       "account_mode": "workspace-capability-key bridge; public Supabase Auth deferred pending SMTP and authenticated-surface hardening",
       "public_entry": "https://bevanshelton-netizen.github.io/Downloads/one/",
-      "canonical_resilience_entry": "https://bevanshelton-netizen.github.io/Downloads/izakhono-one/"
+      "canonical_resilience_entry": "https://bevanshelton-netizen.github.io/Downloads/izakhono-one/",
+      "external_ai_runtime": "webllm@0.2.85",
+      "external_model_tiers": [
+        "SmolLM2-360M",
+        "SmolLM2-1.7B",
+        "Llama-3.2-3B"
+      ],
+      "referral_attribution": false,
+      "campaign_attribution": false
     },
     {
       "id": "izakhono-flagship",
