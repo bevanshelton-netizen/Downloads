@@ -10,6 +10,7 @@
   let aiEngine = null;
   let aiLoading = false;
   let aiMode = false;
+  const guidedAsk = typeof window.ask === 'function' ? window.ask : null;
 
   const css = document.createElement('style');
   css.textContent = [
@@ -217,7 +218,7 @@
     const text = String(raw || '').trim();
     if (!text) return;
     if (!aiMode || !aiEngine) {
-      if (typeof window.ask === 'function') return window.ask(text);
+      if (guidedAsk) return guidedAsk(text);
       return;
     }
 
@@ -249,6 +250,8 @@
       if (typeof window.addMsg === 'function') window.addMsg(fallback, 'bot', true);
     }
   }
+
+  window.ask = fullAiAsk;
 
   const chatForm = document.getElementById('chatForm');
   if (chatForm) {
