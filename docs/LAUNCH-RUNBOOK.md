@@ -1,31 +1,46 @@
-# VIDEONOMY zero-cost commercial launch runbook
+# VIDEONOMY v1 owned-first launch runbook
 
-## Goal
-Get the founding commercial beta online without adding a new monthly hosting bill. The first deployment is deliberately constrained; revenue funds the upgrade.
+## Launch rule
 
-## Cloudflare resources
-The Worker config uses automatic provisioning for one D1 database and one R2 bucket. Static assets, API, creator portal and admin dashboard are served by the same Worker.
+VIDEONOMY's primary production path is its independent IZAKHONO-owned engine. External infrastructure remains a reversible resilience route only.
 
-## One-time account action
-A Cloudflare account is required. R2 may require completing Cloudflare's R2 subscription/checkout setup even while usage remains inside the free included tier. No paid usage should be intentionally enabled for the bootstrap phase.
+## 1. Prepare NODE01 / Windows host
 
-## Deployment
-1. Extract package.
-2. Run `./scripts/bootstrap.sh`.
-3. Complete Cloudflare browser login if prompted.
-4. The script deploys once to provision resources, applies D1 migrations, creates secure secrets, and deploys again.
-5. Keep `.local-admin-secret` private. Open `/admin/` on the Worker URL and paste that secret when administering the beta.
+1. Obtain the release branch/package.
+2. Copy `owned/.env.example` to `owned/.env`.
+3. Create strong unique `ADMIN_SECRET` and `ABUSE_SALT` values locally.
+4. Add the active iKhokha Payment API values as `IKHOKHA_APP_ID` and `IKHOKHA_APP_SECRET`.
+5. Set `PUBLIC_BASE_URL` to the final HTTPS VIDEONOMY origin before testing payments.
+6. Do not commit or send the populated `.env` file.
 
-## First revenue motion
-- Founding creators apply free.
-- Admin reviews creator leads and issues selected applicants an invite.
-- Founding advertisers can request R1,500 / R5,000 / R12,500 launch proposals.
-- Do not guarantee audience delivery until traffic exists.
-- Confirm commercial scope and invoice/payment off-platform during the bootstrap phase until a payment gateway is connected.
+## 2. Start the independent engine
 
-## Upgrade trigger
-Move video delivery/transcoding to a professional media stack when any of these occurs:
-- R2 storage approaches 70% of free allowance,
-- creators consistently need files larger than the bootstrap limit,
-- playback quality/compatibility becomes a growth constraint,
-- revenue can sustainably cover professional video infrastructure.
+Run `owned\START-VIDEONOMY-OWNED.cmd`. The launcher builds the Docker image, keeps it under a restart policy and requires `http://127.0.0.1:18081/api/health` to return HTTP 200.
+
+Persistent state lives under `owned/data/` on the host. Protect that directory with the IZAKHONO backup standard.
+
+## 3. Connect EDGE/TLS/DNS
+
+Route the selected VIDEONOMY public hostname through IZAKHONO EDGE/TLS to `127.0.0.1:18081`. Do not expose the container's database or filesystem media directory directly to the internet.
+
+## 4. Public acceptance gate
+
+Verify on the final HTTPS hostname:
+- `/api/health` returns service `VIDEONOMY` and the expected release version.
+- `/` loads the public experience.
+- `/shorts.html` loads the vertical feed.
+- creator invite redemption creates a working Creator Studio session.
+- a controlled MP4 upload publishes and plays with range requests.
+- like, follow and comment actions persist.
+- a controlled real R10+ iKhokha tip reaches the signed callback and creates a pending creator ledger item.
+- settlement release moves only the correct net creator amount to available.
+- payout request cannot exceed available balance and requires a verified payout profile.
+- administrator can progress a payout through approval/processing/paid.
+
+## 5. External resilience path
+
+The Cloudflare Worker/D1/R2 deployment may be maintained as a separate fallback. Test it independently; do not let it become a runtime dependency of the owned engine.
+
+## Rollback
+
+If the new public route fails acceptance, keep DNS/EDGE on the last verified route. Application data and media should be backed up before any rollback or migration.
