@@ -57,6 +57,8 @@ jobs:
     timeout-minutes: 4
     steps:
       - name: Independently verify Supabase resilience endpoints over HTTPS
+        id: resilience
+        continue-on-error: true
         shell: bash
         run: |
           set -euo pipefail
@@ -134,6 +136,19 @@ jobs:
           echo 'HTTPS=200'
           echo 'TRACKING=false'
           echo 'OWNED_AUTHORITY=NODE 01'
+
+      - name: Report resilience status without blocking product builds
+        if: steps.resilience.outcome == 'failure'
+        shell: bash
+        run: |
+          echo '::warning::The external ONE resilience route did not pass the strict independent verification in this run. Local build/contract work remains unblocked; do not claim EXTERNAL LIVE VERIFIED from this run.'
+          {
+            echo '### IZAKHONO ONE external resilience'
+            echo ''
+            echo '**STRICT VERIFICATION DID NOT PASS IN THIS RUN**'
+            echo ''
+            echo 'This availability monitor is non-blocking for builds. The last independently verified route may remain in service only if separately current and healthy.'
+          } >> "$GITHUB_STEP_SUMMARY"
 
   monitor-github-pages-mirror:
     needs: contract
