@@ -1,0 +1,44 @@
+name: IZAKHONO STANDBY REBASELINE Gate
+
+on:
+  push:
+    branches: [build/standby-rebaseline]
+    paths:
+      - "izakhono-owned-cloud/rebaseline-standby.sh"
+      - "izakhono-owned-cloud/tests/standby-rebaseline-plan.sh"
+      - ".github/workflows/izakhono-standby-rebaseline-gate.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "izakhono-owned-cloud/rebaseline-standby.sh"
+      - "izakhono-owned-cloud/tests/standby-rebaseline-plan.sh"
+      - "izakhono-owned-cloud/STANDBY.md"
+      - ".github/workflows/izakhono-standby-rebaseline-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  safety-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+      - name: Validate syntax and plan
+        run: |
+          bash -n izakhono-owned-cloud/rebaseline-standby.sh
+          bash izakhono-owned-cloud/tests/standby-rebaseline-plan.sh
+      - name: Verify re-baseline safety boundaries
+        run: |
+          grep -q 'REBASELINE-STANDBY' izakhono-owned-cloud/rebaseline-standby.sh
+          grep -q 'Backup encryption-key lineage mismatch' izakhono-owned-cloud/rebaseline-standby.sh
+          grep -q 'snapshot' izakhono-owned-cloud/rebaseline-standby.sh
+          grep -q 'sha256' izakhono-owned-cloud/rebaseline-standby.sh
+          grep -q 'set-standby-role.sh passive' izakhono-owned-cloud/rebaseline-standby.sh
+          grep -q 'PHYSICAL_HA_REACCEPTANCE' izakhono-owned-cloud/rebaseline-standby.sh
+          grep -q 'multi_master_merge:false' izakhono-owned-cloud/rebaseline-standby.sh
+          grep -q 'public_route_changed:false' izakhono-owned-cloud/rebaseline-standby.sh
+          ! grep -q 'set-standby-role.sh active' izakhono-owned-cloud/rebaseline-standby.sh
