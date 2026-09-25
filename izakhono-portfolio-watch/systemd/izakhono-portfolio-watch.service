@@ -1,0 +1,26 @@
+[Unit]
+Description=IZAKHONO Portfolio Watch
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=izakhono-watch
+Group=izakhono-watch
+WorkingDirectory=/opt/izakhono-portfolio-watch
+EnvironmentFile=/etc/izakhono/portfolio-watch.env
+ExecStart=/usr/bin/python3 /opt/izakhono-portfolio-watch/app.py
+Restart=on-failure
+RestartSec=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/izakhono-portfolio-watch
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target
