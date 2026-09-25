@@ -38,3 +38,11 @@ if [ -f /var/lib/izakhono-deploy/owned-public-edge.json ]; then
 else
   echo "owned-public-edge receipt: missing"
 fi
+
+echo
+echo "=== IZAKHONO ONE R0 BRIDGE ==="
+if [ -f /var/lib/izakhono-deploy/tailscale-funnel-izakhono-one-ai.json ]; then
+  cat /var/lib/izakhono-deploy/tailscale-funnel-izakhono-one-ai.json
+else
+  echo "one-r0-bridge receipt: missing"
+fi
