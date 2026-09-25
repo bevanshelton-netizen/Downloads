@@ -120,12 +120,26 @@ jobs:
         run: |
           curl -fsS http://127.0.0.1:8188/ | grep -q "YHVH GOSPEL TV"
           curl -fsS http://127.0.0.1:8188/ | grep -q "GOSPEL ONLY"
-          curl -fsS http://127.0.0.1:8188/api/channel | grep -q '"mode":"launch-mode"'
+          curl -fsS http://127.0.0.1:8188/api/channel | grep -q '"mode":"scheduled"'
           curl -fsS http://127.0.0.1:8188/api/channel | grep -q '"policy":"owned-primary-external-distribution"'
           curl -fsS http://127.0.0.1:8188/api/channel | grep -q '"provider":"Vercel"'
           curl -fsS http://127.0.0.1:8188/api/channel | grep -q '"engine":{"available":true'
           curl -fsS http://127.0.0.1:8188/api/channel | grep -q '"title":"'
           curl -fsS http://127.0.0.1:8188/api/control/status -H 'authorization: Bearer ci-owner-control-token-1234567890' | grep -q '"engine":{"available":true'
+
+      - name: Verify web survives engine outage
+        run: |
+          kill "$(cat "$RUNNER_TEMP/yhvh-gospel-engine.pid")"
+          for i in {1..20}; do
+            RESPONSE="$(curl -fsS http://127.0.0.1:8188/api/channel)"
+            if echo "$RESPONSE" | grep -q '"engine":{"available":false'; then
+              echo "$RESPONSE" | grep -Eq '"mode":"(launch-mode|live-feed)"'
+              break
+            fi
+            sleep 0.1
+          done
+          grep -q '"engine":{"available":false' < <(curl -fsS http://127.0.0.1:8188/api/channel)
+          rm -f "$RUNNER_TEMP/yhvh-gospel-engine.pid"
 
       - name: Verify owner control room boundary
         run: |
