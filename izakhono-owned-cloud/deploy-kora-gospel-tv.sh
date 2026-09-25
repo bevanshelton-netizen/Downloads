@@ -104,6 +104,15 @@ if systemctl is-active --quiet izakhono-edge-node 2>/dev/null; then
   fi
 fi
 
+ENGINE="NOT_RUNNING"
+if curl -fsS --max-time 2 http://127.0.0.1:8892/health >/tmp/yhvh-gospel-engine-health.json 2>/dev/null; then
+  if node -e 'const x=require("/tmp/yhvh-gospel-engine-health.json");if(x.ok!==true||x.service!=="yhvh-gospel-engine"||x.authority!=="IZAKHONO")process.exit(2)' 2>/dev/null; then
+    ENGINE="VERIFIED"
+  else
+    ENGINE="IDENTITY_FAILED"
+  fi
+fi
+
 PUBLIC_HTTPS="NOT_VERIFIED"
 if curl -fsS --max-time 8 "https://$HOSTNAME/health" >/tmp/kora-gospel-tv-public-health.json 2>/dev/null; then
   if node -e 'const x=require("/tmp/kora-gospel-tv-public-health.json");if(x.ok!==true||x.service!=="kora-gospel-tv")process.exit(2)' 2>/dev/null; then
@@ -112,15 +121,15 @@ if curl -fsS --max-time 8 "https://$HOSTNAME/health" >/tmp/kora-gospel-tv-public
 fi
 
 TMP_REPORT="$(mktemp)"
-node - "$TMP_REPORT" "$HOSTNAME" "$RESOLVED" "$DEPLOYMENT_ID" "$EDGE" "$PUBLIC_HTTPS" <<'NODE'
+node - "$TMP_REPORT" "$HOSTNAME" "$RESOLVED" "$DEPLOYMENT_ID" "$EDGE" "$ENGINE" "$PUBLIC_HTTPS" <<'NODE'
 const fs=require("fs");
-const [path,hostname,revision,deploymentId,edge,publicHttps]=process.argv.slice(2);
+const [path,hostname,revision,deploymentId,edge,engine,publicHttps]=process.argv.slice(2);
 fs.writeFileSync(path,JSON.stringify({
   schema:"izakhono.kora-gospel-tv-deployment/v1",
   app:"kora-gospel-tv",
   product:"YHVH GOSPEL TV",
   hostname,revision,deployment_id:deploymentId,
-  source:"IZAKHONO_CODE",runtime:"IZAKHONO_RUNTIME",edge,public_https:publicHttps,
+  source:"IZAKHONO_CODE",runtime:"IZAKHONO_RUNTIME",edge,engine,public_https:publicHttps,
   data_store:"/var/lib/izakhono-runtime/data/kora-gospel-tv",
   external_fallback:"GitHub Pages",
   vercel_required:false,
@@ -139,6 +148,7 @@ DEPLOYMENT_ID=$DEPLOYMENT_ID
 SOURCE=IZAKHONO_CODE
 RUNTIME_HEALTH=VERIFIED
 EDGE=$EDGE
+ENGINE=$ENGINE
 PUBLIC_HTTPS=$PUBLIC_HTTPS
 RECEIPT=$REPORT
 VERCEL_REQUIRED=NO
