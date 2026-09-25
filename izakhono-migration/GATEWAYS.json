@@ -1,6 +1,6 @@
 {
   "schema": "izakhono.gateway/v1",
-  "effective_at": "2026-09-21T06:52:00+02:00",
+  "effective_at": "2026-09-25T21:00:00+02:00",
   "mode": "TEMPORARY_GATEWAY_FIRST",
   "primary_entrypoint": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway",
   "policy": {
@@ -114,5 +114,6 @@
   "notes": "Public revenue entry redirects to verified Vercel Revenue Desk. Offer-specific revenue URLs remain tracked through IZAKHONO Edge. Premium V2 source is retained for later dedicated static hosting; broken GitHub Pages/Supabase HTML rendering is not exposed.",
   "revenue_light_theme": true,
   "opera_mini_friendly": true,
-  "revenue_routing_status": "LIVE_VERIFIED_HTTP_200"
+  "revenue_routing_status": "LIVE_VERIFIED_HTTP_200",
+  "visual_profile": "LIGHTER_APPEALING_WITH_PICTURE_PANELS"
 }
