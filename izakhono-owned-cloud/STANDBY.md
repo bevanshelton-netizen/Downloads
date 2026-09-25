@@ -58,4 +58,21 @@ A controlled promotion still needs:
 - explicit FAILOVER approval;
 - explicit route/DNS cutover.
 
-That destructive live-state cutover is intentionally outside this staging tool until it is proven on physical standby hardware.
+The repository now includes a separate guarded live-state tool:
+
+    sudo bash /opt/izakhono-owned-cloud/promote-standby-state.sh plan
+
+After the original primary is fenced and the standby holds a newer verified WITNESS fencing token, execution requires:
+
+    export IZAKHONO_STANDBY_PROMOTION_CONFIRM=PROMOTE-STAGED-STATE
+    export IZAKHONO_PROMOTION_PREVIOUS_TOKEN=<old-primary-token>
+    export IZAKHONO_PROMOTION_CURRENT_TOKEN=<standby-token>
+    sudo bash /opt/izakhono-owned-cloud/promote-standby-state.sh execute
+
+The promotion transaction restores only authoritative mutable state for DATA, OBJECT, QUEUE, AUTH, ANALYTICS, NOTIFY, AI GATEWAY and CODE. It also restores the matching service environment files so encryption/signing keys remain compatible with the recovered databases.
+
+It deliberately preserves node-specific standby configuration: RUNTIME, EDGE, REPLICA, FAILOVER, WITNESS enrollment and local routing state are not replaced.
+
+The tool does not change DNS or the public route. It stops the affected stateful services, applies an atomic local directory swap, restarts and health-checks them, and automatically restores the standby's previous local state if the cutover fails.
+
+**Failback boundary:** a real production failback after users have written data on the promoted standby still requires state reconciliation back to the original primary. The existing controlled failback drill must not be treated as a general-purpose data-safe production failback until that reconciliation path is proven.
