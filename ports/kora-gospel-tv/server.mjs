@@ -11,6 +11,7 @@ const DATA_DIR = process.env.GOSPEL_TV_DATA_DIR || "/var/lib/izakhono-runtime/da
 const LIVE_EMBED_URL = process.env.GOSPEL_TV_LIVE_EMBED_URL || "";
 const CONTROL_TOKEN = String(process.env.GOSPEL_TV_CONTROL_TOKEN || "").trim();
 const RECONCILE_RECEIPT = process.env.GOSPEL_RECONCILE_RECEIPT || "/var/lib/izakhono-deploy/kora-gospel-reconcile.json";
+const ENGINE_URL = String(process.env.YHVH_GOSPEL_ENGINE_URL || "http://127.0.0.1:8892").replace(/\/$/,"");
 const PUBLIC_INTAKE_ORIGINS = new Set([
   "https://kora-network.vercel.app",
   "https://bevanshelton-netizen.github.io",
@@ -95,6 +96,19 @@ async function readSubmissionRecords(limit=100){
 async function readOperations(){
   try{return JSON.parse(await readFile(join(ROOT,"control-operations.json"),"utf8"))}catch{return null}
 }
+async function readEngineState(){
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),900);
+  try{
+    const response=await fetch(ENGINE_URL+"/v1/state",{cache:"no-store",signal:controller.signal});
+    if(!response.ok) throw new Error("engine_status");
+    const body=await response.json();
+    if(body?.authority!=="IZAKHONO"||body?.engine!=="YHVH GOSPEL ENGINE") throw new Error("engine_identity");
+    return {available:true,mode:body.mode,programme:body.programme,ingest:body.ingest,schedule:body.schedule,adapters:body.adapters};
+  }catch{
+    return {available:false,mode:"degraded",programme:null,ingest:{healthy:false,last_heartbeat:null,label:""},schedule:null,adapters:[]};
+  }finally{clearTimeout(timer)}
+}
 async function readReconciliation(){
   try{
     const x=JSON.parse(await readFile(RECONCILE_RECEIPT,"utf8"));
@@ -117,12 +131,14 @@ async function controlStatus(){
   const records=await readSubmissionRecords(200);
   const operations=await readOperations();
   const reconciliation=await readReconciliation();
+  const engine=await readEngineState();
   const counts=records.reduce((acc,row)=>{acc[row.category]=(acc[row.category]||0)+1;return acc},{});
   return {
     ok:true,
     service:"kora-gospel-tv-control",
     runtime:"izakhono-owned",
-    channel:{mode:validEmbed(LIVE_EMBED_URL)?"live-feed":"launch-mode",live_feed_configured:Boolean(validEmbed(LIVE_EMBED_URL))},
+    channel:{mode:engine.available?engine.mode:(validEmbed(LIVE_EMBED_URL)?"live-feed":"launch-mode"),live_feed_configured:Boolean(validEmbed(LIVE_EMBED_URL))},
+    engine,
     queues:{content:counts.content||0,partner:counts.partner||0,prayer:counts.prayer||0,total:records.length},
     regions:[
       {id:"africa",name:"Africa",status:"launch-region"},
@@ -162,11 +178,13 @@ createServer(async (req,res)=>{
   }
 
   if(url.pathname==="/api/channel" && req.method==="GET"){
+    const engine=await readEngineState();
     return json(res,200,{
       name:"YHVH GOSPEL TV",
       promise:"Faith. Worship. Word. Africa to the World.",
-      mode:validEmbed(LIVE_EMBED_URL)?"live-feed":"launch-mode",
+      mode:engine.available?engine.mode:(validEmbed(LIVE_EMBED_URL)?"live-feed":"launch-mode"),
       liveEmbedUrl:validEmbed(LIVE_EMBED_URL),
+      engine,
       distribution:{
         policy:"owned-primary-external-distribution",
         primary:{provider:"IZAKHONO",role:"origin-control-plane",url:"https://gospel.domains.izakhonoafrica.co.za",authoritative:true},
