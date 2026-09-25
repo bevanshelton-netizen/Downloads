@@ -12,13 +12,41 @@ permissions:
 
 concurrency:
   group: izakhono-crm-owner-live
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   deploy-on-node01:
-    runs-on: [self-hosted, linux, x64, izakhono]
+    runs-on: [self-hosted, linux, x64]
     timeout-minutes: 45
     steps:
+      - name: Prove IZAKHONO-owned execution authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          proof=''
+          if [ -s /var/lib/izakhono-deploy/github-actions-runner.json ]; then
+            if node - <<'NODE'
+          const fs=require('fs');
+          const x=JSON.parse(fs.readFileSync('/var/lib/izakhono-deploy/github-actions-runner.json','utf8'));
+          if(x.schema!=='izakhono.github-actions-runner/v1') process.exit(2);
+          if(x.state!=='ACTIVE'||x.authority!=='NODE01') process.exit(3);
+          if(x.token_persisted!==false||x.external_compute_authority!==false) process.exit(4);
+          NODE
+            then proof='NODE01_RUNNER_RECEIPT'; fi
+          fi
+          if [ -z "$proof" ] && [ -s /var/lib/izakhono-deploy/primary-deployment.txt ]; then
+            grep -q 'DEPLOYMENT_STATE=PRIMARY_NODE_PROVED' /var/lib/izakhono-deploy/primary-deployment.txt
+            grep -q 'GITHUB_RUNTIME_DEPENDENCY=NO' /var/lib/izakhono-deploy/primary-deployment.txt
+            grep -q 'VERCEL_RUNTIME_DEPENDENCY=NO' /var/lib/izakhono-deploy/primary-deployment.txt
+            proof='OWNED_CLOUD_PRIMARY_PROOF'
+          fi
+          [ -n "$proof" ] || {
+            echo "::error::Self-hosted runner is not proven as IZAKHONO-owned NODE01/owned-cloud authority."
+            exit 20
+          }
+          echo "IZAKHONO_OWNED_NODE_PROOF=$proof"
+          echo "IZAKHONO_OWNED_NODE_PROOF=$proof" >> "$GITHUB_ENV"
+
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
@@ -48,7 +76,7 @@ jobs:
           NODE
           echo "CANONICAL_COMMIT=$(git -C canonical-builder rev-parse HEAD)"
 
-      - name: Activate CRM plus APP FABRIC on owned NODE01
+      - name: Activate CRM plus APP FABRIC on IZAKHONO-owned node role
         shell: bash
         run: |
           set -euo pipefail
@@ -81,7 +109,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: IZAKHONO-CRM-V020-NODE01-EVIDENCE
+          name: IZAKHONO-CRM-V020-OWNED-EVIDENCE
           path: IZAKHONO-CRM-V020-NODE01-REPORT.json
           if-no-files-found: error
           retention-days: 30
