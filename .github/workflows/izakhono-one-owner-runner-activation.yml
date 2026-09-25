@@ -1,12 +1,7 @@
-name: IZAKHONO ONE Owner Runner Activation
+name: IZAKHONO ONE Optional Owner Runner Activation
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/izakhono-one-owner-runner-activation.yml'
-      - 'owner-host/control/one-desired-state.json'
 
 permissions:
   contents: read
