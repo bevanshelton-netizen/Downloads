@@ -58,6 +58,9 @@ const server = http.createServer(async (req, res) => {
         runtime: process.env.IZAKHONO_RUNTIME_MODE || 'portable',
         registration_enabled: REGISTRATION_ENABLED,
         checkout_enabled: CHECKOUT_ENABLED,
+        pricing_reference_usd: { creative: 5, gamer: 15 },
+        billing_mode: '30-day-renewable-until-recurring-verified',
+        recurring_billing_verified: false,
       }), 'application/json; charset=utf-8', { 'cache-control': 'no-store' });
     }
 
