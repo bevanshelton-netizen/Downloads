@@ -760,3 +760,57 @@
   font-size: 12px;
   font-weight: 700;
 }
+\n
+.gamer-project-bar {
+  display: grid;
+  grid-template-columns: minmax(220px,.8fr) minmax(0,1.2fr);
+  gap: 12px 18px;
+  margin-top: 24px;
+  padding: 16px;
+  border: 1px solid #303b50;
+  border-radius: 20px;
+  background: rgba(12,17,27,.9);
+}
+.gamer-project-title {
+  display: grid;
+  gap: 6px;
+}
+.gamer-project-title span {
+  color: var(--suite-cyan);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .13em;
+}
+.gamer-project-title input,
+.gamer-saved-projects select {
+  min-height: 42px;
+  width: 100%;
+}
+.gamer-project-actions,
+.gamer-saved-projects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: end;
+}
+.gamer-project-actions button,
+.gamer-saved-projects button {
+  min-height: 42px;
+}
+.gamer-saved-projects {
+  grid-column: 1 / -1;
+}
+.gamer-saved-projects select {
+  flex: 1 1 240px;
+}
+.gamer-project-bar small {
+  grid-column: 1 / -1;
+  color: #93a0b4;
+  line-height: 1.45;
+}
+.gamer-hidden-input { display: none !important; }
+@media (max-width: 760px) {
+  .gamer-project-bar { grid-template-columns: 1fr; }
+  .gamer-saved-projects,
+  .gamer-project-bar small { grid-column: auto; }
+}
