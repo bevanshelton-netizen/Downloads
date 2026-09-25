@@ -5,6 +5,12 @@ import { dirname, join } from "node:path";
 
 const __dirname=dirname(fileURLToPath(import.meta.url));
 const BUILDER=readFileSync(join(__dirname,"public","index.html"),"utf8");
+const STATIC_PAGES={
+  "/terms":readFileSync(join(__dirname,"public","terms.html"),"utf8"),
+  "/privacy":readFileSync(join(__dirname,"public","privacy.html"),"utf8"),
+  "/refund":readFileSync(join(__dirname,"public","refund.html"),"utf8"),
+  "/payment-result":readFileSync(join(__dirname,"public","payment-result.html"),"utf8")
+};
 const SUPA=(process.env.SUPABASE_URL||"").replace(/\/$/,"");
 const KEY=process.env.SUPABASE_PUBLISHABLE_KEY||"";
 const PORT=Number(process.env.PORT||8080);
@@ -29,6 +35,7 @@ http.createServer(async(req,res)=>{
   const u=new URL(req.url||"/","http://localhost");
   if(u.pathname==="/health")return send(res,200,"application/json; charset=utf-8",JSON.stringify({ok:true,service:"IZAKHONO WebStart Owned Runtime",version:"2.0.0"}),{"cache-control":"no-store"});
   if(u.pathname==="/"||u.pathname==="/builder")return send(res,200,"text/html; charset=utf-8",BUILDER,{"cache-control":"public, max-age=60"});
+  if(STATIC_PAGES[u.pathname])return send(res,200,"text/html; charset=utf-8",STATIC_PAGES[u.pathname],{"cache-control":"public, max-age=300"});
   const m=u.pathname.match(/^\/sites\/([a-z0-9-]+)$/);
   if(m){const slug=cleanSlug(m[1]);if(!slug)return send(res,400,"text/plain; charset=utf-8","Invalid slug");return site(slug,res);}
   return send(res,404,"text/plain; charset=utf-8","Not found");
