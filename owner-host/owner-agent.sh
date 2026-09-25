@@ -53,7 +53,7 @@ VALIDATED="$(node - "$CONTROL_TMP" <<'NODE'
 const fs=require("fs");
 const p=process.argv[2];
 const x=JSON.parse(fs.readFileSync(p,"utf8"));
-const allowed=new Set(["activate-one-local-model","configure-one-ai","deploy-one-ai","verify-one-ai","deploy-yhvh-gospel-tv"]);
+const allowed=new Set(["activate-one-local-model","configure-one-ai","deploy-one-ai","verify-one-ai","deploy-yhvh-gospel-tv","deploy-growth-os-bridge"]);
 if(typeof x!=="object"||!x)throw new Error("control must be an object");
 if(typeof x.enabled!=="boolean")throw new Error("enabled must be boolean");
 if(typeof x.id!=="string"||!/^[A-Za-z0-9._:-]{8,120}$/.test(x.id))throw new Error("invalid request id");
@@ -224,6 +224,18 @@ EXIT_CODE=1
         EXIT_CODE=$?
       fi
       ;;
+    deploy-growth-os-bridge)
+      [ -n "$HOSTNAME" ] || HOSTNAME="bridge.domains.izakhonoafrica.co.za"
+      echo "GROWTH_BRIDGE_STAGE=INSTALL_LOCAL"
+      bash "$ROOT/izakhono-growth-bridge-node/install-linux.sh"
+      EXIT_CODE=$?
+      if [ "$EXIT_CODE" -eq 0 ]; then
+        echo "GROWTH_BRIDGE_STAGE=PUBLIC_OUTBOUND"
+        export GROWTH_BRIDGE_PUBLIC_HOSTNAME="$HOSTNAME"
+        bash "$ROOT/izakhono-owned-cloud/start-growth-os-outbound-bridge.sh"
+        EXIT_CODE=$?
+      fi
+      ;;
     verify-one-ai)
       [ -n "$HOSTNAME" ] || HOSTNAME="one.domains.izakhonoafrica.co.za"
       LOCAL="$(curl -fsS --max-time 5 -H "Host: $HOSTNAME" http://127.0.0.1:8080/health)"
@@ -244,6 +256,9 @@ EXIT_CODE=1
 
 if [ "$EXIT_CODE" -eq 0 ]; then
   STATUS="success"
+elif [ "$ACTION" = "deploy-growth-os-bridge" ] && { [ "$EXIT_CODE" -eq 30 ] || [ "$EXIT_CODE" -eq 34 ]; }; then
+  STATUS="waiting-public-bridge-credential"
+  ATTEMPTS="$PREV_ATTEMPTS"
 elif [ "$ACTION" = "deploy-yhvh-gospel-tv" ] && { [ "$EXIT_CODE" -eq 30 ] || [ "$EXIT_CODE" -eq 34 ]; }; then
   STATUS="waiting-public-dns"
   ATTEMPTS="$PREV_ATTEMPTS"
