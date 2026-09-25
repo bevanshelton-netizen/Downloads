@@ -1,3 +1,4 @@
+# R0 strict resilience verifier v2
 name: IZAKHONO ONE Public Resilience Verify
 
 on:
@@ -58,7 +59,6 @@ jobs:
     steps:
       - name: Independently verify Supabase resilience endpoints over HTTPS
         id: resilience
-        continue-on-error: true
         shell: bash
         run: |
           set -euo pipefail
@@ -141,7 +141,7 @@ jobs:
           echo 'OWNED_AUTHORITY=NODE 01'
 
       - name: Report resilience status without blocking product builds
-        if: steps.resilience.outcome == 'failure'
+        if: failure()
         shell: bash
         run: |
           echo '::warning::The external ONE resilience route did not pass the strict independent verification in this run. Local build/contract work remains unblocked; do not claim EXTERNAL LIVE VERIFIED from this run.'
