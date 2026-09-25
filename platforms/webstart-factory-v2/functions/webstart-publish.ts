@@ -26,12 +26,16 @@ Deno.serve(async(req:Request)=>{
       return new Response(JSON.stringify({error:"Automated QA must pass before publishing",qa:site.qa_report||{}}),{status:409,headers:cors});
     }
 
-    const enforce=(Deno.env.get("PAYMENTS_ENFORCED")||"true").toLowerCase()!=="false";
-    if(enforce){
-      const or=await fetch(SUPABASE_URL+"/rest/v1/orders?site_id=eq."+encodeURIComponent(siteId)+"&status=eq.paid&select=id&limit=1",{headers:h});
+    const sr=await fetch(SUPABASE_URL+"/rest/v1/webstart_subscriptions?site_id=eq."+encodeURIComponent(siteId)+"&status=eq.active&select=id,next_due_at&limit=1",{headers:h});
+    const subs=await sr.json();
+    const activeSub=sr.ok&&Array.isArray(subs)&&subs.length>0;
+    let paidInitial=false;
+    if(!activeSub){
+      const or=await fetch(SUPABASE_URL+"/rest/v1/orders?site_id=eq."+encodeURIComponent(siteId)+"&billing_type=eq.initial&status=eq.paid&select=id&limit=1",{headers:h});
       const paid=await or.json();
-      if(!or.ok||!Array.isArray(paid)||paid.length===0)return new Response(JSON.stringify({error:"Payment required before publishing"}),{status:402,headers:cors});
+      paidInitial=or.ok&&Array.isArray(paid)&&paid.length>0;
     }
+    if(!activeSub&&!paidInitial)return new Response(JSON.stringify({error:"Payment required before public publishing. Preview and generation remain available."}),{status:402,headers:cors});
 
     const url=RENDERER+"/"+encodeURIComponent(site.slug);
     const now=new Date().toISOString();
@@ -72,10 +76,10 @@ Deno.serve(async(req:Request)=>{
     await fetch(SUPABASE_URL+"/rest/v1/publish_events",{
       method:"POST",
       headers:{...h,"content-type":"application/json",prefer:"return=minimal"},
-      body:JSON.stringify({owner_id:site.owner_id,site_id:site.id,status:"published",target:"webstart-renderer",url,details:{billing_enforced:enforce,verified:true,http_status:verifyStatus,content_type:verifyType,generation_mode:mode,qa_score:site.qa_report?.score||null}})
+      body:JSON.stringify({owner_id:site.owner_id,site_id:site.id,status:"published",target:"webstart-renderer",url,details:{billing_enforced:true,verified:true,http_status:verifyStatus,content_type:verifyType,generation_mode:mode,qa_score:site.qa_report?.score||null}})
     });
 
-    return new Response(JSON.stringify({ok:true,url,site:finalRows?.[0]||updated?.[0],billing_enforced:enforce,verified:true,http_status:verifyStatus}),{headers:cors});
+    return new Response(JSON.stringify({ok:true,url,site:finalRows?.[0]||updated?.[0],billing_enforced:true,verified:true,http_status:verifyStatus}),{headers:cors});
   }catch(e){
     return new Response(JSON.stringify({error:"Publish failed",details:String(e)}),{status:500,headers:cors});
   }
