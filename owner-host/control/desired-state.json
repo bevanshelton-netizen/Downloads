@@ -1,13 +1,13 @@
 {
   "schema": "izakhono.owner-agent-request/v1",
-  "id": "yhvh-gospel-tv-owned-launch-20260925-01",
+  "id": "yhvh-gospel-tv-engine-v2-launch-20260925-02",
   "enabled": true,
   "action": "deploy-yhvh-gospel-tv",
-  "requested_at": "2026-09-25T03:05:00Z",
+  "requested_at": "2026-09-25T03:20:00Z",
   "expires_at": "2026-10-31T23:59:59Z",
   "max_attempts": 3,
   "params": {
     "hostname": "gospel.domains.izakhonoafrica.co.za"
   },
-  "note": "Deploy YHVH GOSPEL TV from IZAKHONO CODE to IZAKHONO RUNTIME on NODE01, verify the owned runtime locally, prefer the IZAKHONO-owned DNS/TLS/EDGE route, and only use the outbound Cloudflare tunnel as a reversible last-mile transport if direct parent DNS or inbound TLS is blocked. Preserve Vercel and GitHub Pages as external resilience routes. Do not declare owned live unless independent public HTTPS health returns the kora-gospel-tv service with runtime izakhono-owned."
+  "note": "Install and activate YHVH GOSPEL ENGINE v2 as the channel's independent operational engine before deploying YHVH Gospel TV from IZAKHONO CODE to IZAKHONO RUNTIME on NODE01. Engine must own catalogue, scheduling, live control, content submissions, simulcast state, health verification and replaceable provider adapters, with behavioural tracking/profiling/silent analytics disabled. Prefer IZAKHONO-owned DNS/TLS/EDGE and use only reversible outbound last-mile transport if direct parent DNS or inbound TLS is blocked. Preserve Vercel and GitHub Pages as resilience routes. Do not declare owned live without independent public HTTPS verification."
 }
