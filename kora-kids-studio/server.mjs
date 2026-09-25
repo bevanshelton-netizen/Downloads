@@ -21,6 +21,8 @@ const RELEASES = join(WORKSPACE, "releases");
 const FINISHED = join(WORKSPACE, "finished");
 const CREATIVE_LOCKS = join(WORKSPACE, "creative-locks");
 const MASTERS = join(WORKSPACE, "masters");
+const CASTING = join(WORKSPACE, "casting", "lebo");
+const RECORDING_SESSIONS = join(WORKSPACE, "recording-sessions", "lebo");
 const RENDER_WORKER = join(REPO, "kora-kids-render-worker", "worker.mjs");
 
 const types={".html":"text/html; charset=utf-8",".js":"text/javascript; charset=utf-8",".json":"application/json; charset=utf-8",".svg":"image/svg+xml",".css":"text/css; charset=utf-8"};
@@ -70,9 +72,53 @@ async function listJobs(){
  await mkdir(FINISHED,{recursive:true});
  await mkdir(CREATIVE_LOCKS,{recursive:true});
  await mkdir(MASTERS,{recursive:true});
+ await mkdir(CASTING,{recursive:true});
+ await mkdir(RECORDING_SESSIONS,{recursive:true});
  const names=(await readdir(JOBS)).filter(x=>x.endsWith(".json"));
  const out=[];
  for(const n of names){try{out.push(await json(join(JOBS,n)))}catch{}}
+ return out.sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
+}
+async function listCasting(){
+ await mkdir(CASTING,{recursive:true});
+ const entries=await readdir(CASTING,{withFileTypes:true}),out=[];
+ for(const e of entries){
+   if(!e.isDirectory()||!safeId(e.name))continue;
+   try{
+     const x=await json(join(CASTING,e.name,"manifest.json"));
+     out.push({
+       id:x.id,createdAt:x.createdAt,performerDisplayName:x.performerDisplayName,language:x.language,
+       consent:x.consent,rightsReadiness:x.rightsReadiness,review:x.review,score:x.score,selected:x.selected===true,selectedAt:x.selectedAt||null,
+       files:Object.fromEntries(Object.entries(x.files||{}).map(([k,v])=>[k,{sha256:v.sha256,bytes:v.bytes,codec:v.codec,sampleRate:v.sampleRate,channels:v.channels,durationSeconds:v.durationSeconds}]))
+     });
+   }catch{}
+ }
+ return out.sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
+}
+async function updateCasting(id,fn){
+ if(!safeId(id))throw new Error("bad-id");
+ const path=join(CASTING,id,"manifest.json"),x=await json(path),next=fn(x);
+ next.updatedAt=new Date().toISOString();
+ await writeFile(path,JSON.stringify(next,null,2)+"\n");
+ return {
+   id:next.id,createdAt:next.createdAt,updatedAt:next.updatedAt,performerDisplayName:next.performerDisplayName,language:next.language,
+   consent:next.consent,rightsReadiness:next.rightsReadiness,review:next.review,score:next.score,selected:next.selected===true,selectedAt:next.selectedAt||null
+ };
+}
+async function listRecordingSessions(){
+ await mkdir(RECORDING_SESSIONS,{recursive:true});
+ const entries=await readdir(RECORDING_SESSIONS,{withFileTypes:true}),out=[];
+ for(const e of entries){
+  if(!e.isDirectory()||!safeId(e.name))continue;
+  try{
+    const x=await json(join(RECORDING_SESSIONS,e.name,"session.json"));
+    out.push({
+      id:x.id,createdAt:x.createdAt,updatedAt:x.updatedAt||null,performerDisplayName:x.selectedPerformer?.performerDisplayName||null,
+      lineCount:x.lineCount,approvedTakeCount:(x.lines||[]).filter(l=>l.take?.approved===true).length,
+      complete:x.complete===true,readyForAssembly:x.readyForAssembly===true
+    });
+  }catch{}
+ }
  return out.sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
 }
 async function listAudioAssets(){
@@ -258,11 +304,13 @@ async function updateJob(id,fn){
 createServer(async(req,res)=>{
  try{
   const url=new URL(req.url||"/","http://localhost");
-  if(url.pathname==="/health") return send(res,200,{ok:true,service:"kora-kids-studio",runtime:"izakhono-owner-local",version:"factory-10",public:false});
+  if(url.pathname==="/health") return send(res,200,{ok:true,service:"kora-kids-studio",runtime:"izakhono-owner-local",version:"factory-11",public:false});
   if(url.pathname==="/api/catalog"&&req.method==="GET") return send(res,200,await catalog());
   if(url.pathname==="/api/jobs"&&req.method==="GET") return send(res,200,{jobs:await listJobs()});
   if(url.pathname==="/api/renders"&&req.method==="GET") return send(res,200,{renders:await listRenders()});
   if(url.pathname==="/api/audio-assets"&&req.method==="GET") return send(res,200,{assets:await listAudioAssets()});
+  if(url.pathname==="/api/casting"&&req.method==="GET") return send(res,200,{candidates:await listCasting()});
+  if(url.pathname==="/api/recording-sessions"&&req.method==="GET") return send(res,200,{sessions:await listRecordingSessions()});
   if(url.pathname==="/api/localisations"&&req.method==="GET") return send(res,200,{localisations:await listLocalisations()});
   if(url.pathname==="/api/releases"&&req.method==="GET") return send(res,200,{releases:await listReleases()});
   if(url.pathname==="/api/finishing"&&req.method==="GET") return send(res,200,{finishing:await listFinishingPackages()});
@@ -280,6 +328,32 @@ createServer(async(req,res)=>{
    const job={id,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),status:"draft",publishable:false,series:{id:series.id,title:series.title},episode:{number:ep.number,slug:ep.slug,title:ep.title,theme:ep.theme,learning:pack?.learningObjectives||ep.learning},language:{code:lang.code,name:lang.name,voice:lang.voice,finalVoiceApproved:pack?.language?.finalVoiceApproved===true},renderTarget:{id:target.id,label:target.label,mode:target.mode},outputs:series.template.outputs,scenes:pack?.scenes||series.template.scenes,productionPack:pack?{schema:pack.schema,status:pack.status,targetDurationSeconds:pack.targetDurationSeconds,factNotes:pack.factNotes,musicDirection:pack.musicDirection,qualityBibles:pack.qualityBibles,performanceLocks:pack.performanceLocks,reviewState:pack.reviewState}:null,review:{...series.template.review}};
    await mkdir(JOBS,{recursive:true}); await writeFile(join(JOBS,id+".json"),JSON.stringify(job,null,2)+"\n");
    return send(res,201,{ok:true,job});
+  }
+  const castingReviewMatch=url.pathname.match(/^\/api\/casting\/([a-f0-9-]{36})\/review$/i);
+  if(castingReviewMatch&&req.method==="POST"){
+    const input=await readBody(req),allowed=["naturalPerformance","diction","emotionalRange","comicTiming","southAfricanRhythm","childFriendly","technical","rightsReady"];
+    if(!allowed.includes(input.gate)||typeof input.approved!=="boolean") return send(res,400,{ok:false,error:"invalid casting review gate"});
+    try{
+      const candidate=await updateCasting(castingReviewMatch[1],x=>{
+        x.review=x.review||{};x.review[input.gate]=input.approved;
+        const yes=Object.values(x.review).filter(Boolean).length,total=Object.keys(x.review).length;
+        x.score=total?Math.round(yes/total*100):0;
+        if(!Object.values(x.review).every(Boolean)){x.selected=false;x.selectedAt=null}
+        return x;
+      });
+      return send(res,200,{ok:true,candidate});
+    }catch(e){return send(res,400,{ok:false,error:e?.message||"casting review failed"})}
+  }
+  const castingSelectMatch=url.pathname.match(/^\/api\/casting\/([a-f0-9-]{36})\/select$/i);
+  if(castingSelectMatch&&req.method==="POST"){
+    try{
+      const candidate=await updateCasting(castingSelectMatch[1],x=>{
+        if(!Object.values(x.review||{}).every(Boolean)) throw new Error("casting review incomplete");
+        if(x.rightsReadiness?.productionRightsContracted!==true) throw new Error("production rights not contracted");
+        x.selected=true;x.selectedAt=new Date().toISOString();return x;
+      });
+      return send(res,200,{ok:true,candidate});
+    }catch(e){return send(res,409,{ok:false,error:e?.message||"selection failed"})}
   }
   const audioReviewMatch=url.pathname.match(/^\/api\/audio-assets\/([a-f0-9-]{36})\/review$/i);
   if(audioReviewMatch&&req.method==="POST"){
