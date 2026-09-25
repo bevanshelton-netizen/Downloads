@@ -83,7 +83,7 @@ Write-Host "Installing or refreshing the allow-listed IZAKHONO Owner Agent..." -
 $agent = Join-Path $state "INSTALL-IZAKHONO-OWNER-AGENT.ps1"
 Invoke-RemoteIzakhonoScript -RemotePath "owner-host/INSTALL-IZAKHONO-OWNER-AGENT.ps1" -LocalPath $agent
 
-$controlRaw = (& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cat /opt/izakhono-source/Downloads/owner-host/control/desired-state.json") -join [Environment]::NewLine
+$controlRaw = (& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cat /opt/izakhono-source/Downloads/owner-host/control/one-desired-state.json") -join [Environment]::NewLine
 if (-not $controlRaw.Trim()) { throw "Owner Agent control document is unavailable." }
 try { $control = $controlRaw | ConvertFrom-Json } catch { throw "Owner Agent control document is invalid JSON." }
 if ($control.enabled -ne $true -or $control.action -ne "activate-one-local-model") {
@@ -93,12 +93,12 @@ $expectedRequestId = [string]$control.id
 if ([string]::IsNullOrWhiteSpace($expectedRequestId)) { throw "Owner Agent request ID is missing." }
 
 Write-Host "Requesting approved ONE activation: $expectedRequestId" -ForegroundColor Cyan
-& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cd /opt/izakhono-source/Downloads && bash owner-host/owner-agent.sh"
+& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cd /opt/izakhono-source/Downloads && IZAKHONO_OWNER_CONTROL_PATH=owner-host/control/one-desired-state.json IZAKHONO_OWNER_AGENT_STATE_FILE=/var/lib/izakhono-owner-agent/one-state.json bash owner-host/owner-agent.sh"
 if ($LASTEXITCODE -ne 0) { throw "Owner Agent invocation failed with exit code $LASTEXITCODE" }
 
 $ownerAgentState = $null
 for ($i = 0; $i -lt 360; $i++) {
-  $raw = (& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cat /var/lib/izakhono-owner-agent/state.json 2>/dev/null || true") -join [Environment]::NewLine
+  $raw = (& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cat /var/lib/izakhono-owner-agent/one-state.json 2>/dev/null || true") -join [Environment]::NewLine
   if ($raw.Trim()) {
     try { $ownerAgentState = $raw | ConvertFrom-Json } catch { $ownerAgentState = $null }
   }
