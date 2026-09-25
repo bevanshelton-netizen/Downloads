@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from 'next';
 import Link from 'next/link';
-import Script from 'next/script';
 import './globals.css';
 import './brand-boost.css';
 import './forms.css';
 import './workspaces.css';
 import './premium-v1.css';
+import './international-makeover.css';
 import { brand } from '@/lib/brand';
 import ShareButton from './share-button';
 import AutoAiPromo from './auto-ai-promo';
@@ -41,28 +41,9 @@ function KoraMark() {
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const rawAnalyticsUrl = String(process.env.IZAKHONO_ANALYTICS_URL || '').trim();
-  let analyticsOrigin = '';
-  if (rawAnalyticsUrl) {
-    try {
-      const url = new URL(rawAnalyticsUrl);
-      const loopback = url.protocol === 'http:' && ['127.0.0.1', 'localhost'].includes(url.hostname);
-      if (url.protocol === 'https:' || loopback) analyticsOrigin = url.origin;
-    } catch {}
-  }
-
   return (
     <html lang="en">
-      <body data-quality-profile="izakhono-premium-v1">
-        {analyticsOrigin ? (
-          <Script
-            id="izakhono-analytics"
-            src={`${analyticsOrigin}/beacon.js?platform=kora-network`}
-            strategy="afterInteractive"
-          />
-        ) : null}
-        <Script id="izakhono-portfolio-growth" src="https://bevanshelton-netizen.github.io/Downloads/portfolio-growth/bridge.js" data-platform="kora" strategy="afterInteractive" />
-        <a className="skipLink" href="#page-content">Skip to content</a>
+      <body data-quality-profile="izakhono-premium-v1" data-izakhono-quality="visual-review"><a className="skipLink" href="#page-content">Skip to content</a>
         <header className="top">
           <Link className="logo" href="/" aria-label="KORA Network home"><KoraMark /><span className="logoWords"><b>{brand.name}</b><small>NETWORK</small></span></Link>
           <nav aria-label="Main navigation">
