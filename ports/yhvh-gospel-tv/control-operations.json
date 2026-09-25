@@ -1,0 +1,93 @@
+{
+  "schema": "kora.gospel-tv.operations/v1",
+  "programme_clocks": [
+    {
+      "region": "Africa",
+      "timezone": "Africa/Johannesburg",
+      "status": "active-template"
+    },
+    {
+      "region": "Europe",
+      "timezone": "Europe/London",
+      "status": "ready-for-localisation"
+    },
+    {
+      "region": "North America East",
+      "timezone": "America/New_York",
+      "status": "ready-for-localisation"
+    },
+    {
+      "region": "Latin America",
+      "timezone": "America/Sao_Paulo",
+      "status": "ready-for-localisation"
+    },
+    {
+      "region": "Asia-Pacific",
+      "timezone": "Asia/Singapore",
+      "status": "ready-for-localisation"
+    }
+  ],
+  "rights_workflow": {
+    "states": [
+      "submitted",
+      "rights-review",
+      "cleared",
+      "restricted",
+      "expired",
+      "rejected"
+    ],
+    "required_evidence": [
+      "content ownership or licence",
+      "music/publication rights where applicable",
+      "participant releases where applicable",
+      "territory/platform scope",
+      "expiry date where applicable"
+    ]
+  },
+  "sponsorship_inventory": [
+    {
+      "slot": "channel-presenting-partner",
+      "status": "available",
+      "editorial_control": false
+    },
+    {
+      "slot": "morning-glory-sponsor",
+      "status": "available",
+      "editorial_control": false
+    },
+    {
+      "slot": "gospel-africa-sponsor",
+      "status": "available",
+      "editorial_control": false
+    },
+    {
+      "slot": "prime-gospel-sponsor",
+      "status": "available",
+      "editorial_control": false
+    },
+    {
+      "slot": "revival-nights-sponsor",
+      "status": "available",
+      "editorial_control": false
+    }
+  ],
+  "live_event_workflow": {
+    "states": [
+      "submitted",
+      "technical-check",
+      "rights-check",
+      "scheduled",
+      "live-ready",
+      "completed",
+      "declined"
+    ],
+    "required": [
+      "event contact",
+      "feed test",
+      "broadcast window",
+      "rights confirmation",
+      "emergency contact"
+    ]
+  },
+  "approval_rule": "No content, sponsor or live event may move to broadcast solely because payment was received."
+}
