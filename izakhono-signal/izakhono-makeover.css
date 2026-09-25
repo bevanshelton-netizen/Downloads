@@ -1,0 +1,9 @@
+/* IZAKHONO SIGNAL — International Makeover v1 */
+html{scroll-behavior:smooth}body{font-size:16px;line-height:1.64;-webkit-font-smoothing:antialiased}
+.top{height:82px}.hero{padding-top:62px;padding-bottom:48px;gap:48px}.hero h1{font-size:clamp(3.5rem,7vw,6.5rem);line-height:.9;letter-spacing:-.06em;text-wrap:balance}.hero p{font-size:clamp(1.05rem,1.5vw,1.2rem);line-height:1.72}
+.controls button,.filters button,.campaign-actions button,.campaign-actions a,.share-row button,.share-row a{min-height:44px;border-radius:999px;transition:transform .18s ease,box-shadow .18s ease}.controls button:hover,.campaign-actions button:hover,.campaign-actions a:hover{transform:translateY(-2px)}
+.summary article,.campaign,.drawer,.connector-grid article,.video-card{border-radius:22px;box-shadow:0 12px 44px rgba(0,0,0,.15)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+@media(max-width:900px){.hero{grid-template-columns:1fr;padding-top:40px}.network{height:250px}.campaign-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.hero{padding-inline:14px}.campaign-grid{grid-template-columns:1fr}.controls{padding-inline:14px}.summary{padding-inline:14px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
