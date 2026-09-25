@@ -37,6 +37,7 @@ New-Item -ItemType Directory -Force -Path $state | Out-Null
 $desktop = [Environment]::GetFolderPath("Desktop")
 $summaryPath = Join-Path $desktop "IZAKHONO-ONE-OWNED-LAUNCH-STATUS.txt"
 $edgeReceiptPath = Join-Path $desktop "IZAKHONO-ONE-OWNED-EDGE.json"
+$dnsHandoffPath = Join-Path $desktop "IZAKHONO-PARENT-DNS-HANDOFF.txt"
 
 Write-Host ""
 Write-Host "IZAKHONO ONE — OWNED LAUNCH" -ForegroundColor Cyan
@@ -142,6 +143,10 @@ if ($edgeRaw.Trim()) {
   $edgeRaw | Set-Content -Path $edgeReceiptPath -Encoding UTF8
   try { $edgeState = $edgeRaw | ConvertFrom-Json } catch { $edgeState = $null }
 }
+$handoffRaw = (& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cat /var/lib/izakhono-deploy/IZAKHONO-PARENT-DNS-HANDOFF.txt 2>/dev/null || true") -join [Environment]::NewLine
+if ($handoffRaw.Trim()) {
+  $handoffRaw | Set-Content -Path $dnsHandoffPath -Encoding UTF8
+}
 $edgeAction = switch ($edgeExit) {
   0 { "OWNED EDGE LOCALLY PROVED" }
   20 { "PARENT DNS / ROUTER ACTION REQUIRED" }
@@ -228,5 +233,8 @@ if ($readiness.blockers.Count -gt 0) {
 Write-Host "Desktop status: $summaryPath" -ForegroundColor Green
 if (Test-Path $edgeReceiptPath) {
   Write-Host "Desktop EDGE/DNS receipt: $edgeReceiptPath" -ForegroundColor Green
+}
+if (Test-Path $dnsHandoffPath) {
+  Write-Host "Desktop parent DNS handoff: $dnsHandoffPath" -ForegroundColor Green
 }
 Write-Host "External resilience remains untouched." -ForegroundColor Green
