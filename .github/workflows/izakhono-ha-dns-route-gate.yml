@@ -1,0 +1,89 @@
+name: IZAKHONO HA DNS Route Gate
+
+on:
+  push:
+    branches: [build/ha-dns-route-switch]
+    paths:
+      - "izakhono-owned-cloud/ha-dns-switch-local.mjs"
+      - "izakhono-owned-cloud/dns-route-switch.sh"
+      - "izakhono-owned-cloud/install-ha-dns-route-helper.sh"
+      - ".github/workflows/izakhono-ha-dns-route-gate.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "izakhono-owned-cloud/ha-dns-switch-local.mjs"
+      - "izakhono-owned-cloud/dns-route-switch.sh"
+      - "izakhono-owned-cloud/install-ha-dns-route-helper.sh"
+      - ".github/workflows/izakhono-ha-dns-route-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  self-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+      - name: Prepare isolated DNS test
+        run: |
+          mkdir -p /tmp/iz-ha-dns/etc /tmp/iz-ha-dns/state
+          KEY="$(node -e 'console.log(require("crypto").randomBytes(16).toString("hex"))')"
+          cat >/tmp/iz-ha-dns/etc/dns-zone.json <<'JSON'
+          {
+            "zone":"domains.izakhonoafrica.co.za.",
+            "ttl":60,
+            "soa":{"mname":"ns1.izakhonoafrica.co.za.","rname":"hostmaster.izakhonoafrica.co.za.","serial":100,"refresh":3600,"retry":600,"expire":1209600,"minimum":60},
+            "records":[
+              {"name":"@","type":"NS","value":"ns1.izakhonoafrica.co.za.","ttl":60},
+              {"name":"app","type":"A","value":"10.0.0.10","ttl":60}
+            ]
+          }
+          JSON
+          cat >/tmp/iz-ha-dns/etc/dns-node.env <<EOF
+          IZAKHONO_DNS_HOST=127.0.0.1
+          IZAKHONO_DNS_PORT=15353
+          IZAKHONO_DNS_TCP=true
+          IZAKHONO_DNS_ZONE=/tmp/iz-ha-dns/etc/dns-zone.json
+          IZAKHONO_DNS_CONTROL_HOST=127.0.0.1
+          IZAKHONO_DNS_CONTROL_PORT=18900
+          IZAKHONO_DNS_KEY=$KEY
+          EOF
+          echo "DNS_KEY=$KEY" >> "$GITHUB_ENV"
+      - name: Start DNS node
+        run: |
+          set -a
+          . /tmp/iz-ha-dns/etc/dns-node.env
+          set +a
+          node izakhono-dns-node/server.mjs >/tmp/iz-ha-dns/server.log 2>&1 &
+          echo $! >/tmp/iz-ha-dns/pid
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:18900/health >/dev/null && exit 0; sleep .2; done
+          cat /tmp/iz-ha-dns/server.log
+          exit 1
+      - name: Prove fenced route update and stale-token rejection
+        run: |
+          export IZAKHONO_DNS_ENV=/tmp/iz-ha-dns/etc/dns-node.env
+          export IZAKHONO_HA_DNS_STATE=/tmp/iz-ha-dns/state/route.json
+          export IZAKHONO_HA_ROUTE_FQDN=app.domains.izakhonoafrica.co.za
+          export IZAKHONO_HA_ROUTE_IP=10.0.0.20
+          export IZAKHONO_FAILOVER_TARGET=standby
+          export IZAKHONO_FAILOVER_PREVIOUS_TOKEN=10
+          export IZAKHONO_FAILOVER_FENCING_TOKEN=11
+          RESULT="$(node izakhono-owned-cloud/ha-dns-switch-local.mjs)"
+          RESULT="$RESULT" node -e 'const x=JSON.parse(process.env.RESULT);if(x.ip!=="10.0.0.20"||x.fencingToken!==11||x.serial<=100||x.automaticFailover!==false)process.exit(2)'
+          node -e 'const x=require("/tmp/iz-ha-dns/etc/dns-zone.json");const r=x.records.find(v=>v.name==="app"&&v.type==="A");if(r?.value!=="10.0.0.20")process.exit(2)'
+          if node izakhono-owned-cloud/ha-dns-switch-local.mjs; then echo "stale token unexpectedly accepted"; exit 1; fi
+      - name: Verify adapter stays explicit/manual
+        run: |
+          bash -n izakhono-owned-cloud/dns-route-switch.sh
+          bash -n izakhono-owned-cloud/install-ha-dns-route-helper.sh
+          grep -q 'IZAKHONO_HA_DNS_SSH is required' izakhono-owned-cloud/dns-route-switch.sh
+          grep -q 'automaticFailover:false' izakhono-owned-cloud/ha-dns-switch-local.mjs
+          grep -q 'stale fencing token refused' izakhono-owned-cloud/ha-dns-switch-local.mjs
+          ! grep -q 'systemctl.*izakhono-edge-node' izakhono-owned-cloud/dns-route-switch.sh
+      - name: Stop DNS node
+        if: always()
+        run: kill "$(cat /tmp/iz-ha-dns/pid)" 2>/dev/null || true
