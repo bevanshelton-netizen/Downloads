@@ -1,0 +1,36 @@
+/* IZAKHONO Premium Experience Layer v1
+   Brand-neutral interaction, accessibility and mobile quality primitives. */
+:root{
+  --iz-premium-focus:#fff36e;
+  --iz-premium-touch:44px;
+  --iz-premium-radius:14px;
+  --iz-premium-ease:cubic-bezier(.2,.8,.2,1);
+}
+html{text-rendering:optimizeLegibility;-webkit-text-size-adjust:100%}
+body{min-width:320px}
+button,input,select,textarea{font:inherit}
+button,[role="button"],input[type="submit"],input[type="button"],select{min-height:var(--iz-premium-touch)}
+button,a,input,select,textarea{-webkit-tap-highlight-color:transparent}
+button:disabled,[aria-disabled="true"]{cursor:not-allowed;opacity:.62}
+[aria-busy="true"]{cursor:progress}
+img,svg,video,canvas{max-width:100%}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{
+  outline:3px solid var(--iz-premium-focus)!important;
+  outline-offset:3px!important;
+}
+::selection{background:#fff36e;color:#101010}
+@media(pointer:coarse){
+  button,[role="button"],input[type="submit"],input[type="button"],select,
+  .btn,.primary,.secondary,.pill,.top-cta,.buy-btn,.action,.suite-primary-link,.suite-secondary-link{min-height:48px}
+}
+@media(prefers-contrast:more){
+  button,a,input,select,textarea{outline-offset:4px}
+  input,select,textarea{border-width:2px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto!important}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+@supports(padding:max(0px)){
+  .sticky-live-cta,.globalShareButton{margin-bottom:env(safe-area-inset-bottom)}
+}

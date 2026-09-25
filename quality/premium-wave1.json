@@ -1,0 +1,64 @@
+{
+  "schema": "izakhono.premium-wave/v1",
+  "wave": 1,
+  "qualityProfile": "izakhono-premium-v1",
+  "objective": "Public-facing trust, usability, accessibility and brand-quality uplift without flattening individual product identities.",
+  "products": [
+    {
+      "id": "izakhono-flagship",
+      "source": "izakhono-group",
+      "surface": "static",
+      "requiredMarker": "data-quality-profile=\"izakhono-premium-v1\""
+    },
+    {
+      "id": "kora-network",
+      "source": "kora-network",
+      "surface": "next",
+      "requiredMarker": "data-quality-profile=\"izakhono-premium-v1\""
+    },
+    {
+      "id": "kora-kids",
+      "source": "ports/kora-kids",
+      "surface": "media",
+      "requiredMarker": "izakhono-premium-v1"
+    },
+    {
+      "id": "creative-suite",
+      "source": "IZAKHONO-STUDIO",
+      "surface": "react",
+      "requiredMarker": "data-quality-profile"
+    },
+    {
+      "id": "faisready",
+      "source": "FAISReady",
+      "surface": "static",
+      "requiredMarker": "data-quality-profile=\"izakhono-premium-v1\""
+    },
+    {
+      "id": "auto-ai",
+      "source": "auto-ai",
+      "surface": "static",
+      "requiredMarker": "data-quality-profile=\"izakhono-premium-v1\""
+    },
+    {
+      "id": "allegro-vibez",
+      "source": "external:bevanshelton-netizen/allegro-vibez",
+      "surface": "dedicated-repo",
+      "requiredMarker": "dedicated premium pass pending separate repository change"
+    },
+    {
+      "id": "the-chancellor",
+      "source": "external:bevanshelton-netizen/the-chancellor",
+      "surface": "dedicated-repo",
+      "requiredMarker": "dedicated premium pass pending separate repository change"
+    }
+  ],
+  "guarantees": [
+    "44px interaction baseline",
+    "visible keyboard focus",
+    "reduced-motion support",
+    "coarse-pointer touch uplift",
+    "high-contrast compatibility",
+    "brand-specific visual identity retained"
+  ]
+}
