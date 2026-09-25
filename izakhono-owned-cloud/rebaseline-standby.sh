@@ -80,6 +80,7 @@ fi
 [ -n "$PEER_NAME" ] || { echo "IZAKHONO_REBASELINE_REPLICA_PEER is required."; exit 10; }
 case "$PEER_NAME" in *[!A-Za-z0-9._-]*|'') echo "Unsafe replica peer name."; exit 11;; esac
 case "$RECOVERY_KEY_FILE" in /*) ;; *) echo "Recovery-key path on standby must be absolute."; exit 12;; esac
+case "$RECOVERY_KEY_FILE" in *[!A-Za-z0-9._/-]*) echo "Unsafe recovery-key path."; exit 121;; esac
 for cmd in ssh node sha256sum; do
   command -v "$cmd" >/dev/null 2>&1 || { echo "Missing required command: $cmd"; exit 13; }
 done
