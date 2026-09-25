@@ -40,7 +40,9 @@ jobs:
         run: node quality/verify-premium-products.mjs
       - name: Verify premium Wave 1 experience layer
         run: node quality/verify-premium-wave1.mjs
-      - name: Verify premium Wave 2 products and infrastructure\n        run: node quality/verify-premium-wave2.mjs\n      - name: Verify KORA KIDS premium runtime syntax
+      - name: Verify premium Wave 2 products and infrastructure
+        run: node quality/verify-premium-wave2.mjs
+      - name: Verify KORA KIDS premium runtime syntax
         run: |
           node --check kora-kids-studio/server.mjs
           node --check kora-kids-render-worker/worker.mjs
