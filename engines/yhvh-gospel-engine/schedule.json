@@ -1,0 +1,109 @@
+{
+  "schema": "yhvh.gospel.engine.schedule/v1",
+  "timezone": "Africa/Johannesburg",
+  "revision": "2026-09-global-1",
+  "slots": [
+    {
+      "start": "00:00",
+      "duration_min": 120,
+      "title": "Midnight Worship",
+      "genre": "worship"
+    },
+    {
+      "start": "02:00",
+      "duration_min": 120,
+      "title": "Scripture Through the Night",
+      "genre": "word"
+    },
+    {
+      "start": "04:00",
+      "duration_min": 60,
+      "title": "Quiet Hour",
+      "genre": "reflection"
+    },
+    {
+      "start": "05:00",
+      "duration_min": 120,
+      "title": "Morning Glory",
+      "genre": "worship"
+    },
+    {
+      "start": "07:00",
+      "duration_min": 120,
+      "title": "Gospel Africa AM",
+      "genre": "music"
+    },
+    {
+      "start": "09:00",
+      "duration_min": 60,
+      "title": "Women of Faith",
+      "genre": "talk"
+    },
+    {
+      "start": "10:00",
+      "duration_min": 120,
+      "title": "The Word",
+      "genre": "word"
+    },
+    {
+      "start": "12:00",
+      "duration_min": 60,
+      "title": "Word at Noon",
+      "genre": "word"
+    },
+    {
+      "start": "13:00",
+      "duration_min": 60,
+      "title": "Choirs of Africa",
+      "genre": "music"
+    },
+    {
+      "start": "14:00",
+      "duration_min": 60,
+      "title": "Faith Without Borders",
+      "genre": "global"
+    },
+    {
+      "start": "15:00",
+      "duration_min": 90,
+      "title": "Gospel Kids",
+      "genre": "kids"
+    },
+    {
+      "start": "16:30",
+      "duration_min": 60,
+      "title": "Young & Faithful",
+      "genre": "youth"
+    },
+    {
+      "start": "17:30",
+      "duration_min": 90,
+      "title": "Gospel Africa PM",
+      "genre": "music"
+    },
+    {
+      "start": "19:00",
+      "duration_min": 60,
+      "title": "Testimony Hour",
+      "genre": "testimony"
+    },
+    {
+      "start": "20:00",
+      "duration_min": 60,
+      "title": "Prime Gospel",
+      "genre": "prime"
+    },
+    {
+      "start": "21:00",
+      "duration_min": 120,
+      "title": "Revival Nights",
+      "genre": "revival"
+    },
+    {
+      "start": "23:00",
+      "duration_min": 60,
+      "title": "Late Night Praise",
+      "genre": "worship"
+    }
+  ]
+}
