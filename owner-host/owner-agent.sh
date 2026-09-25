@@ -13,7 +13,11 @@ case "$CONTROL_PATH" in
 esac
 STATE_DIR="/var/lib/izakhono-owner-agent"
 RUN_DIR="$STATE_DIR/runs"
-STATE_FILE="$STATE_DIR/state.json"
+STATE_FILE="${IZAKHONO_OWNER_AGENT_STATE_FILE:-$STATE_DIR/state.json}"
+case "$STATE_FILE" in
+  "$STATE_DIR"/*.json) ;;
+  *) echo "FAIL: unapproved owner-agent state path: $STATE_FILE" >&2; exit 2 ;;
+esac
 LOCK_FILE="/run/lock/izakhono-owner-agent.lock"
 
 mkdir -p "$RUN_DIR" "$(dirname "$LOCK_FILE")"
