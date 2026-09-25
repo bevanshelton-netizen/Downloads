@@ -11,7 +11,7 @@ on:
 
 concurrency:
   group: kora-ci-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -37,18 +37,18 @@ jobs:
       - run: npm run build:shared-bootstrap-sql
       - name: Verify shared Supabase isolation
         run: |
-          grep -q "create schema if not exists kora" artifacts/kora-shared-supabase-bootstrap-schema23.sql
-          if grep -Eiq "create[[:space:]]+table[[:space:]]+(if[[:space:]]+not[[:space:]]+exists[[:space:]]+)?public\." artifacts/kora-shared-supabase-bootstrap-schema23.sql; then
+          grep -q "create schema if not exists kora" artifacts/kora-shared-supabase-bootstrap-schema24.sql
+          if grep -Eiq "create[[:space:]]+table[[:space:]]+(if[[:space:]]+not[[:space:]]+exists[[:space:]]+)?public\." artifacts/kora-shared-supabase-bootstrap-schema24.sql; then
             echo "Shared bootstrap attempts to create a public table"
             exit 1
           fi
-          grep -q "kora_on_auth_user_created" artifacts/kora-shared-supabase-bootstrap-schema23.sql
-          grep -q "kora_zz_on_auth_legal_acceptance" artifacts/kora-shared-supabase-bootstrap-schema23.sql
+          grep -q "kora_on_auth_user_created" artifacts/kora-shared-supabase-bootstrap-schema24.sql
+          grep -q "kora_zz_on_auth_legal_acceptance" artifacts/kora-shared-supabase-bootstrap-schema24.sql
       - name: Upload one-shot Supabase bootstrap SQL
         uses: actions/upload-artifact@v4
         with:
-          name: kora-production-bootstrap-schema23
-          path: kora-network/artifacts/kora-production-bootstrap-schema23.sql
+          name: kora-production-bootstrap-schema24
+          path: kora-network/artifacts/kora-production-bootstrap-schema24.sql
           if-no-files-found: error
           retention-days: 14
       - name: Validate deployment automation syntax
