@@ -10,6 +10,7 @@ on:
       - 'ports/revenue-sprint/**'
       - 'doxa-sure/**'
       - 'ports/izakhono-one/**'
+      - 'one/**'
       - 'ports/kora-kids/**'
       - 'portfolio-growth/**'
       - 'IZAKHONO-STUDIO/**'
@@ -52,6 +53,7 @@ jobs:
           rm -rf _site
           mkdir -p _site/doxa-sure _site/yenzanow
           mkdir -p _site/izakhono-one
+          mkdir -p _site/one
           mkdir -p _site/ports/izakhono-one
           mkdir -p _site/portfolio-growth
           mkdir -p _site/kora-kids
@@ -69,6 +71,9 @@ jobs:
 
           # Publish the shared portfolio growth bridge.
           cp -R portfolio-growth/. _site/portfolio-growth/
+
+          # Preserve the independently verified IZAKHONO ONE PWA resilience route.
+          cp -R one/. _site/one/
 
           # Add the full IZAKHONO ONE public frontend and campaign routes.
           cp -R ports/izakhono-one/. _site/izakhono-one/
