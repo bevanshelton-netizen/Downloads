@@ -57,6 +57,21 @@ $payload | & wsl.exe -d Ubuntu-24.04 -u root -- bash -s
 if ($LASTEXITCODE -ne 0) { throw "IZAKHONO owner-host bootstrap failed inside Ubuntu." }
 
 Write-Host ""
+Write-Host "Ensuring NODE01 GitHub runner control path..." -ForegroundColor Cyan
+$runnerBootstrap = Join-Path $State "INSTALL-IZAKHONO-NODE01-GITHUB-RUNNER.ps1"
+$runnerUrl = "https://raw.githubusercontent.com/bevanshelton-netizen/Downloads/main/owner-host/INSTALL-IZAKHONO-NODE01-GITHUB-RUNNER.ps1"
+try {
+    Invoke-WebRequest -UseBasicParsing $runnerUrl -OutFile $runnerBootstrap
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $runnerBootstrap
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "NODE01 runner bootstrap needs owner attention; owner-host core remains installed." -ForegroundColor Yellow
+    }
+} catch {
+    Write-Host "NODE01 runner bootstrap could not complete: $($_.Exception.Message)" -ForegroundColor Yellow
+    Write-Host "Owner-host core remains intact; rerun the NODE01 runner launcher after GitHub sign-in is available." -ForegroundColor Yellow
+}
+
+Write-Host ""
 Write-Host "OWNER HOST CORE: INSTALLED" -ForegroundColor Green
 Write-Host "Checking host status..." -ForegroundColor Cyan
 & wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cd /opt/izakhono-source/Downloads && bash owner-host/status.sh"
