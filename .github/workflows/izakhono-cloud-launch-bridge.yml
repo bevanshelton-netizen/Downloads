@@ -200,3 +200,32 @@ jobs:
           python3 izakhono-cloud/launch-bridge.py plan /tmp/unsafe.json >/dev/null 2>&1
           test $? -ne 0 || exit 1
           exit 0
+
+      - name: Build Windows activation package
+        shell: bash
+        run: |
+          mkdir -p /tmp/IZAKHONO-FAISReady-Activation
+          cp START-FAISREADY-SANDBOX.cmd /tmp/IZAKHONO-FAISReady-Activation/
+          cp START-FAISREADY-LIVE.cmd /tmp/IZAKHONO-FAISReady-Activation/
+          cp -a FAISReady /tmp/IZAKHONO-FAISReady-Activation/
+          mkdir -p /tmp/IZAKHONO-FAISReady-Activation/izakhono-cloud
+          cp izakhono-cloud/launch-bridge.py /tmp/IZAKHONO-FAISReady-Activation/izakhono-cloud/
+          cp izakhono-cloud/launch-bridge-windows.ps1 /tmp/IZAKHONO-FAISReady-Activation/izakhono-cloud/
+          cp izakhono-cloud/LAUNCH-BRIDGE-V1.17.md /tmp/IZAKHONO-FAISReady-Activation/izakhono-cloud/
+          cat > /tmp/IZAKHONO-FAISReady-Activation/READ-FIRST.txt <<'EOF'
+          IZAKHONO FAISReady Activation
+          =============================
+          1. Extract this ZIP on the owner-controlled Windows PC.
+          2. Double-click START-FAISREADY-SANDBOX.cmd.
+          3. Keep live payments disabled until the sandbox transaction,
+             entitlement, backup/restore and public-host checks have passed.
+          4. START-FAISREADY-LIVE.cmd is intentionally gated and is not the first step.
+          EOF
+
+      - name: Upload Windows activation package
+        uses: actions/upload-artifact@v4
+        with:
+          name: IZAKHONO-FAISReady-Windows-Activation
+          path: /tmp/IZAKHONO-FAISReady-Activation
+          if-no-files-found: error
+          retention-days: 7
