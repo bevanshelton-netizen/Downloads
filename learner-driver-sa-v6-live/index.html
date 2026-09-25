@@ -769,6 +769,7 @@ $('schoolForm')?.addEventListener('submit',async(e)=>{
       body:JSON.stringify(payload)
     });
     if(!res.ok) throw new Error(`Signup failed (${res.status})`);
+    try{ window.ldsaTrack && window.ldsaTrack('driving_school_enquiry'); }catch{}
     await mirrorSchoolLead(payload).catch(()=>null);
     localStorage.setItem('ldsa-school-submit-at',String(Date.now()));
     schoolStatus.textContent='✅ Thank you. Your driving school registration has been received for verification.';
