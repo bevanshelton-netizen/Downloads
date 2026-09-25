@@ -6,6 +6,7 @@ on:
     paths:
       - 'owner-host/**'
       - 'START-IZAKHONO-OWNER-HOST.cmd'
+      - 'GET-CRM-OVER-THE-LINE.cmd'
       - 'START-IZAKHONO-DOMAINS-OWNER-HOST.cmd'
       - 'START-GROWTH-OS-V2-ON-IZAKHONO.cmd'
       - 'START-CREATIVE-SUITE-ON-IZAKHONO.cmd'
@@ -24,6 +25,7 @@ on:
     paths:
       - 'owner-host/**'
       - 'START-IZAKHONO-OWNER-HOST.cmd'
+      - 'GET-CRM-OVER-THE-LINE.cmd'
       - 'START-IZAKHONO-DOMAINS-OWNER-HOST.cmd'
       - 'izakhono-edge-node/**'
       - 'izakhono-owned-cloud/**'
@@ -163,6 +165,7 @@ jobs:
         run: |
           $paths = @(
             'owner-host/START-IZAKHONO-OWNER-HOST.ps1',
+            'owner-host/GET-CRM-OVER-THE-LINE.ps1',
             'owner-host/START-IZAKHONO-DOMAINS-OWNER-HOST.ps1',
             'owner-host/START-GROWTH-OS-V2-ON-IZAKHONO.ps1',
             'owner-host/START-CREATIVE-SUITE-ON-IZAKHONO.ps1',
@@ -195,6 +198,19 @@ jobs:
           if ($ps -notmatch 'IZAKHONO-OWNER-HOST-STATUS.txt') { throw 'Owner-host desktop status report missing' }
           if ($ps -notmatch 'growth.domains.izakhonoafrica.co.za') { throw 'Growth OS owned hostname missing from owner launcher' }
           if ($ps -notmatch 'owned_public_edge_state') { throw 'Owned public-edge result handling missing' }
+          $crmCmd = Get-Content 'GET-CRM-OVER-THE-LINE.cmd' -Raw
+          if ($crmCmd -notmatch 'owner-host/GET-CRM-OVER-THE-LINE.ps1') { throw 'CRM one-click PowerShell handoff missing' }
+          $crmPs = Get-Content 'owner-host/GET-CRM-OVER-THE-LINE.ps1' -Raw
+          if ($crmPs -notmatch 'deploy-crm-v020.sh') { throw 'CRM allow-listed deployment handoff missing' }
+          if ($crmPs -notmatch 'verify-node01.sh') { throw 'CRM owned verification handoff missing' }
+          if ($crmPs -notmatch '3d115c5ae5c092beb7011622fdda1534f885e68a') { throw 'CRM required source commit missing' }
+          if ($crmPs -notmatch 'PASS_INTERNAL_OWNED') { throw 'CRM internal-owned evidence gate missing' }
+          if ($crmPs -notmatch 'public_cutover_performed') { throw 'CRM public-cutover safety check missing' }
+          if ($crmPs -notmatch 'CRM direct public exposure: NO') { throw 'CRM direct-public prohibition missing' }
+          if ($crmPs -notmatch 'APP FABRIC public intake: FAIL-CLOSED') { throw 'APP FABRIC fail-closed status missing' }
+          if ($crmPs -notmatch 'IZAKHONO-CRM-V020-GO-LIVE-STATUS.txt') { throw 'CRM desktop go-live receipt missing' }
+          if ($crmPs -match 'IZAKHONO_FABRIC_PUBLIC_INTAKE=true') { throw 'CRM one-click launcher must not enable public intake' }
+          if ($crmPs -match 'prepare-edge\.sh.+--apply') { throw 'CRM one-click launcher must not perform public EDGE promotion' }
           if ($ps -notmatch 'PARENT_DNS_OR_ROUTER_REQUIRED') { throw 'DNS/router blocker handling missing' }
           if ($ps -notmatch 'TLS_OR_PORTS_REQUIRED') { throw 'TLS/ports blocker handling missing' }
           $domains = Get-Content 'START-IZAKHONO-DOMAINS-OWNER-HOST.cmd' -Raw
