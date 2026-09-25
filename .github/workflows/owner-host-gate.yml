@@ -57,6 +57,9 @@ jobs:
           bash -n owner-host/sync-owner-source.sh
           bash -n owner-host/deploy-crm-v020.sh
           bash -n owner-host/notify-crm-v020-completion.sh
+          bash -n owner-host/node01-autopilot.sh
+          node --check owner-host/learner-driver-funnel-watch.mjs
+          node owner-host/learner-driver-funnel-watch.mjs --self-test
           grep -q 'idempotencyKey' owner-host/notify-crm-v020-completion.sh
           grep -q 'third_party_notification_control_required:false' owner-host/notify-crm-v020-completion.sh
           grep -q 'CRM_NOTIFY=WAITING_SUCCESS' owner-host/notify-crm-v020-completion.sh
