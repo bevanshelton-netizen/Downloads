@@ -70,10 +70,6 @@ jobs:
             test "$owned_health" = "200"
             grep -q 'IZAKHONO ONE' /tmp/owned-root.html
             ! grep -Eqi 'utm_|googletagmanager|google-analytics|facebook[^<]*(pixel|track)|hotjar|clarity\.ms|mixpanel|amplitude|plausible|matomo|portfolio-growth/bridge\.js' /tmp/owned-root.html
-            node - <<'NODE'
-            const x=require('/tmp/owned-health.json');
-            const required={product:'IZAKHONO ONE AI',status:'healthy',tracking:false,promptPersistence:false,chatReady:true,accountReachable:true,publicSignup:true,emailVerificationRequired:true};
-            for(const [k,v] of Object.entries(required)) if(x[k]!==v) process.exit(2);
-            NODE
+            node -e "const x=require('/tmp/owned-health.json');const required={product:'IZAKHONO ONE AI',status:'healthy',tracking:false,promptPersistence:false,chatReady:true,accountReachable:true,publicSignup:true,emailVerificationRequired:true};for(const [k,v] of Object.entries(required))if(x[k]!==v)process.exit(2)"
             echo 'IZAKHONO ONE OWNED ROUTE: INDEPENDENTLY VERIFIED LIVE'
           fi
