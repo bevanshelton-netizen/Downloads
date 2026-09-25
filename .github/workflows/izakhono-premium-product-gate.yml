@@ -1,0 +1,57 @@
+name: IZAKHONO Premium Product Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "quality/**"
+      - "owner-host/platforms.json"
+      - "ports/**"
+      - "kora-kids-studio/**"
+      - "kora-kids-render-worker/**"
+      - "izakhono-owned-cloud/**"
+      - "izakhono-cloud/**"
+      - ".github/workflows/izakhono-premium-product-gate.yml"
+  push:
+    branches: [main]
+    paths:
+      - "quality/**"
+      - "owner-host/platforms.json"
+      - "ports/**"
+      - "kora-kids-studio/**"
+      - "kora-kids-render-worker/**"
+      - "izakhono-owned-cloud/**"
+      - "izakhono-cloud/**"
+      - ".github/workflows/izakhono-premium-product-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  premium-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify portfolio premium contract
+        run: node quality/verify-premium-products.mjs
+      - name: Verify KORA KIDS premium runtime syntax
+        run: |
+          node --check kora-kids-studio/server.mjs
+          node --check kora-kids-render-worker/worker.mjs
+      - name: Verify deployment scripts still parse
+        run: |
+          set -euo pipefail
+          for f in $(node -e 'const x=require("./owner-host/platforms.json"); console.log(x.platforms.map(p=>p.deploy).filter(p=>p.endsWith(".sh")).join(" "))'); do
+            bash -n "$f"
+          done
+      - name: Report premium release posture
+        run: |
+          echo "IZAKHONO AUTHORITY=OWNED"
+          echo "DELIVERY=HYBRID"
+          echo "EXTERNAL ROLE=SCALE/PREVIEW/FAILOVER"
+          echo "LIVE CLAIM=INDEPENDENT HTTPS VERIFICATION REQUIRED"
+          echo "QUALITY PROFILE=izakhono-premium-v1"
