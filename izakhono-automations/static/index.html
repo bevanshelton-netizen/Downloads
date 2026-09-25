@@ -11,8 +11,9 @@ h1,h2,h3{margin-top:0}h2{font-size:27px}.muted{color:var(--muted)}label{display:
 .task{border:1px solid #2f596c;background:#0a2231;border-radius:15px;padding:15px;margin:10px 0}.taskTop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.task h3{margin:0 0 5px}.status{font-size:10px;font-weight:900;border:1px solid #376b57;border-radius:999px;padding:5px 8px;color:#9ce8b4;background:#113526}.off{color:#c2c9ce;border-color:#53606a;background:#222c32}.error{color:#ffc3c3}.meta{font-size:12px;color:#9fb8c5}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px 0}.metric{padding:15px;border:1px solid #2d586c;background:#0b2636;border-radius:15px}.metric b{display:block;font-size:28px;color:var(--aqua)}.toolbar{display:flex;gap:8px;align-items:center}.toolbar input{width:260px}.run{padding:11px;border-bottom:1px solid #23495b}.run:last-child{border:0}.ok{color:#93e9af}.fail{color:#ffadad}
 pre{white-space:pre-wrap;word-break:break-word;background:#071a26;border:1px solid #294d5f;padding:10px;border-radius:10px;color:#cde0e8}.hidden{display:none}
 @media(max-width:900px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.toolbar{width:100%;flex-wrap:wrap}.toolbar input{width:100%}}@media(max-width:520px){.row,.stats{grid-template-columns:1fr}}
-</style></head>
-<body><div class="wrap">
+</style><link rel="stylesheet" href="./izakhono-makeover.css">
+</head>
+<body data-izakhono-quality="visual-review"><div class="wrap">
 <div class="top"><div><div class="brand">IZAKHONO <span>AUTOMATIONS</span></div><div class="muted">Owner-controlled task engine • no artificial task-slot limit</div></div><span class="badge" id="health">CHECKING ENGINE</span></div>
 <div class="stats"><div class="metric"><b id="mTotal">0</b><span>Tasks</span></div><div class="metric"><b id="mOn">0</b><span>Enabled</span></div><div class="metric"><b id="mRuns">0</b><span>Recent runs</span></div><div class="metric"><b id="mErrors">0</b><span>Errors</span></div></div>
 <div class="grid">
