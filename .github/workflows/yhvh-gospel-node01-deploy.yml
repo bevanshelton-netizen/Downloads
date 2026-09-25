@@ -6,12 +6,28 @@ on:
     paths:
       - "owner-host/control/desired-state.json"
       - ".github/workflows/yhvh-gospel-node01-deploy.yml"
+      - "ports/yhvh-gospel-tv/**"
+      - "engines/yhvh-gospel-engine/**"
+      - "izakhono-owned-cloud/deploy-yhvh-gospel-tv.sh"
+      - "izakhono-owned-cloud/start-yhvh-outbound-bridge.sh"
+      - "owner-host/owner-agent.sh"
+      - "owner-host/GET-YHVH-GOSPEL-TV-OVER-THE-LINE.ps1"
+      - "owner-host/START-YHVH-GOSPEL-TV-ON-IZAKHONO.ps1"
+      - "owner-host/VERIFY-YHVH-GOSPEL-TV-PUBLIC.ps1"
   workflow_dispatch:
   pull_request:
     branches: [main]
     paths:
       - "owner-host/control/desired-state.json"
       - ".github/workflows/yhvh-gospel-node01-deploy.yml"
+      - "ports/yhvh-gospel-tv/**"
+      - "engines/yhvh-gospel-engine/**"
+      - "izakhono-owned-cloud/deploy-yhvh-gospel-tv.sh"
+      - "izakhono-owned-cloud/start-yhvh-outbound-bridge.sh"
+      - "owner-host/owner-agent.sh"
+      - "owner-host/GET-YHVH-GOSPEL-TV-OVER-THE-LINE.ps1"
+      - "owner-host/START-YHVH-GOSPEL-TV-ON-IZAKHONO.ps1"
+      - "owner-host/VERIFY-YHVH-GOSPEL-TV-PUBLIC.ps1"
 
 permissions:
   contents: read
@@ -104,7 +120,7 @@ jobs:
           set -euo pipefail
           HOST=gospel.domains.izakhonoafrica.co.za
           HEALTH="$(curl -fsS --max-time 5 -H "Host: $HOST" http://127.0.0.1:8080/health)"
-          node -e 'const x=JSON.parse(process.argv[1]);if(x.ok!==true||x.service!=="kora-gospel-tv"||x.runtime!=="izakhono-owned")process.exit(2)' "$HEALTH"
+          node -e 'const x=JSON.parse(process.argv[1]);if(x.ok!==true||x.service!=="yhvh-gospel-tv"||x.runtime!=="izakhono-owned")process.exit(2)' "$HEALTH"
           echo "YHVH_CHANNEL_LOCAL=VERIFIED"
 
   independent-public-verify:
@@ -120,5 +136,5 @@ jobs:
           set -euo pipefail
           HOST=gospel.domains.izakhonoafrica.co.za
           HEALTH="$(curl -fsS --max-time 20 "https://$HOST/health")"
-          node -e 'const x=JSON.parse(process.argv[1]);if(x.ok!==true||x.service!=="kora-gospel-tv"||x.runtime!=="izakhono-owned")process.exit(2)' "$HEALTH"
+          node -e 'const x=JSON.parse(process.argv[1]);if(x.ok!==true||x.service!=="yhvh-gospel-tv"||x.runtime!=="izakhono-owned")process.exit(2)' "$HEALTH"
           echo "YHVH_OWNED_PUBLIC_HTTPS=VERIFIED"
