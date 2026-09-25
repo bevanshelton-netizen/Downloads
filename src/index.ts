@@ -379,6 +379,48 @@ async function handleApi(req: Request, env: Env, url: URL): Promise<Response> {
     const qualified = await env.DB.prepare(`SELECT COUNT(*) AS total FROM watch_sessions WHERE platform_id=? AND qualified=1`).bind(p.id).first<any>();
     return json(req, env, { ok: true, leads: leads.results || [], active_creators: Number(creators?.total || 0), published_videos: Number(videos?.total || 0), qualified_views: Number(qualified?.total || 0) });
   }
+  if (url.pathname === '/api/admin/payouts' && req.method === 'GET') {
+    if(!isAdmin(req,env)) return fail(req,env,'Forbidden',403);
+    const rows=await env.DB.prepare(`SELECT pr.id,pr.creator_id,c.display_name,c.handle,pr.currency,pr.amount_minor,pr.status,pr.admin_notes,pr.requested_at,pr.processed_at,
+      pp.provider AS payout_provider,pp.display_label AS payout_label,pp.status AS payout_profile_status
+      FROM payout_requests pr JOIN creators c ON c.id=pr.creator_id
+      LEFT JOIN payout_profiles pp ON pp.creator_id=pr.creator_id
+      ORDER BY CASE pr.status WHEN 'requested' THEN 0 WHEN 'approved' THEN 1 WHEN 'processing' THEN 2 ELSE 3 END,pr.requested_at ASC LIMIT 250`).all<any>();
+    return json(req,env,{ok:true,payouts:rows.results||[]});
+  }
+  const payoutProfileMatch=url.pathname.match(/^\/api\/admin\/creators\/([^/]+)\/payout-profile$/);
+  if(payoutProfileMatch && req.method==='POST'){
+    if(!isAdmin(req,env)) return fail(req,env,'Forbidden',403);
+    const b=await body(req),provider=cleanText(b.provider,60),ref=cleanText(b.provider_account_ref,300),label=cleanText(b.display_label,120),status=cleanText(b.status||'verified',20);
+    if(!provider||!ref||!label||!['pending','verified','disabled'].includes(status)) return fail(req,env,'Provider, account reference, label and valid status are required');
+    const creator=await env.DB.prepare('SELECT id,platform_id FROM creators WHERE id=?').bind(payoutProfileMatch[1]).first<any>(); if(!creator) return fail(req,env,'Creator not found',404);
+    await env.DB.prepare(`INSERT INTO payout_profiles(creator_id,provider,provider_account_ref,display_label,status) VALUES(?,?,?,?,?)
+      ON CONFLICT(creator_id) DO UPDATE SET provider=excluded.provider,provider_account_ref=excluded.provider_account_ref,display_label=excluded.display_label,status=excluded.status,updated_at=CURRENT_TIMESTAMP`).bind(creator.id,provider,ref,label,status).run();
+    await audit(env,creator.platform_id,'admin','payout_profile.updated','creator',creator.id,{provider,status});
+    return json(req,env,{ok:true,creator_id:creator.id,status});
+  }
+  const ledgerReleaseMatch=url.pathname.match(/^\/api\/admin\/ledger\/([^/]+)\/release$/);
+  if(ledgerReleaseMatch && req.method==='POST'){
+    if(!isAdmin(req,env)) return fail(req,env,'Forbidden',403);
+    const b=await body(req),cost=Math.max(0,Math.round(Number(b.external_cost_minor)||0));
+    const row=await env.DB.prepare("SELECT * FROM ledger_entries WHERE id=? AND status='pending'").bind(ledgerReleaseMatch[1]).first<any>(); if(!row) return fail(req,env,'Pending ledger entry not found',404);
+    const gross=Number(row.gross_minor); if(cost>gross) return fail(req,env,'External cost cannot exceed gross revenue');
+    const net=gross-cost,bps=revenueShareBps(String(row.source)),creatorMinor=Math.floor(net*bps/10000),platformMinor=net-creatorMinor;
+    await env.DB.prepare("UPDATE ledger_entries SET external_cost_minor=?,creator_minor=?,platform_minor=?,status='available' WHERE id=? AND status='pending'").bind(cost,creatorMinor,platformMinor,row.id).run();
+    await audit(env,row.platform_id,'admin','ledger.released','ledger_entry',row.id,{external_cost_minor:cost,creator_minor:creatorMinor,platform_minor:platformMinor});
+    return json(req,env,{ok:true,id:row.id,status:'available',creator_minor:creatorMinor,platform_minor:platformMinor});
+  }
+  const payoutStatusMatch=url.pathname.match(/^\/api\/admin\/payouts\/([^/]+)\/status$/);
+  if(payoutStatusMatch && req.method==='POST'){
+    if(!isAdmin(req,env)) return fail(req,env,'Forbidden',403);
+    const b=await body(req),status=cleanText(b.status,20),notes=cleanText(b.notes,1000);
+    if(!['requested','approved','processing','paid','rejected','cancelled'].includes(status)) return fail(req,env,'Invalid payout status');
+    const row=await env.DB.prepare('SELECT id,platform_id,creator_id FROM payout_requests WHERE id=?').bind(payoutStatusMatch[1]).first<any>(); if(!row) return fail(req,env,'Payout request not found',404);
+    const terminal=['paid','rejected','cancelled'].includes(status);
+    await env.DB.prepare(`UPDATE payout_requests SET status=?,admin_notes=?,processed_at=${terminal?'CURRENT_TIMESTAMP':'NULL'} WHERE id=?`).bind(status,notes||null,row.id).run();
+    await audit(env,row.platform_id,'admin','payout.status_changed','payout_request',row.id,{status});
+    return json(req,env,{ok:true,id:row.id,status});
+  }
   if (url.pathname === '/api/admin/leads' && req.method === 'GET') {
     if (!isAdmin(req, env)) return fail(req, env, 'Forbidden', 403);
     const { p, rows } = await adminLeadRows(env, url); if (!p) return fail(req, env, 'Unknown platform', 404);
