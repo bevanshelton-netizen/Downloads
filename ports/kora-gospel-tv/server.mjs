@@ -197,7 +197,6 @@ async function saveSubmission(data,req){
     on_air:payload.onAir,
     rights_attested:payload.rightsAttested,
     source_channel:payload.sourceChannel,
-    source_ip_hash:crypto.createHash("sha256").update(clientKey(req)+"|yhvh-gospel-tv-buffer").digest("hex").slice(0,20),
     authoritative:false
   };
   delete record.onAir;
