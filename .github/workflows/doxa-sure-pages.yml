@@ -14,6 +14,7 @@ on:
       - 'one/**'
       - 'ports/kora-kids/**'
       - 'yhvh-gospel-tv/**'
+      - 'izakhono-digital-finance/**'
       - 'ports/kora-gospel-tv/**'
       - 'portfolio-growth/**'
       - 'IZAKHONO-STUDIO/**'
@@ -94,6 +95,7 @@ jobs:
           mkdir -p _site/portfolio-growth
           mkdir -p _site/kora-kids
           mkdir -p _site/yhvh-gospel-tv
+          mkdir -p _site/izakhono-digital-finance
           mkdir -p _site/ports/kora-gospel-tv
           mkdir -p _site/creative-suite
 
@@ -112,6 +114,7 @@ jobs:
           cp -R ports/izakhono-one/. _site/ports/izakhono-one/
           cp -R ports/kora-kids/. _site/kora-kids/
           cp -R yhvh-gospel-tv/. _site/yhvh-gospel-tv/
+          cp -R izakhono-digital-finance/. _site/izakhono-digital-finance/
           cp -R ports/kora-gospel-tv/. _site/ports/kora-gospel-tv/
           cp -R IZAKHONO-STUDIO/dist/. _site/creative-suite/
           touch _site/.nojekyll
@@ -170,6 +173,45 @@ jobs:
       - name: Deploy prebuilt gateway
         id: deployment
         uses: actions/deploy-pages@v4
+
+
+  verify-digital-finance:
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify IZAKHONO Digital Finance public resilience route
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://bevanshelton-netizen.github.io/Downloads/izakhono-digital-finance/"
+          ok=0
+          for i in $(seq 1 24); do
+            rm -f /tmp/df-home.html /tmp/df-platform.json /tmp/df-hero.svg
+            if curl -fsSL --connect-timeout 4 --max-time 8 -o /tmp/df-home.html "$BASE" &&
+               curl -fsSL --connect-timeout 4 --max-time 8 -o /tmp/df-platform.json "${BASE}platform.json" &&
+               curl -fsSL --connect-timeout 4 --max-time 8 -o /tmp/df-hero.svg "${BASE}assets/digital-finance-hero.svg" &&
+               grep -Fq 'IZAKHONO DIGITAL FINANCE' /tmp/df-home.html &&
+               grep -Fq 'Financial-services workforce package' /tmp/df-home.html &&
+               grep -Fq 'R1,000' /tmp/df-home.html &&
+               grep -Fq 'WORKFORCE AUTOPILOT' /tmp/df-hero.svg; then
+              ok=1
+              break
+            fi
+            sleep 5
+          done
+          test "$ok" -eq 1
+          python - <<'PY'
+          import json
+          x=json.load(open('/tmp/df-platform.json'))
+          assert x['platform_id']=='izakhono-digital-finance'
+          assert x['status']=='EXTERNAL LIVE VERIFIED'
+          assert x['payments']['state']=='GATED_PENDING_VERIFIED_PRODUCT_CHECKOUT'
+          assert x['data']['tracking']=='None'
+          PY
+          forbidden='utm_|googletagmanager|google-analytics|facebook[^<]*(pixel|track)|hotjar|clarity\.ms|mixpanel|amplitude|plausible|matomo'
+          ! grep -Eqi "$forbidden" /tmp/df-home.html
+          echo "DIGITAL_FINANCE_GITHUB_PAGES_RESILIENCE=VERIFIED"
 
   verify-yhvh-gospel:
     needs: deploy
