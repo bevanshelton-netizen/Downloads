@@ -1,0 +1,30 @@
+{
+  "schema": "kora-kids.performance-rights/v1",
+  "project": "Lebo & Jabu",
+  "episode": "Jam Day Under the Baobab",
+  "assetType": "voice",
+  "performerDisplayName": "ENTER NAME",
+  "performerLegalName": "ENTER LEGAL NAME IN PRIVATE RECORD ONLY",
+  "performerConsentConfirmed": false,
+  "guardianConsentRequired": false,
+  "guardianName": null,
+  "guardianConsentConfirmed": false,
+  "recordingDate": null,
+  "rights": {
+    "recording": false,
+    "editing": false,
+    "synchronisation": false,
+    "distribution": false,
+    "broadcast": false,
+    "streaming": false,
+    "apps": false,
+    "promotionalClips": false,
+    "localisation": false,
+    "territories": [],
+    "term": "ENTER AGREED TERM"
+  },
+  "compensationReference": "ENTER PRIVATE CONTRACT/PO REFERENCE",
+  "restrictions": [],
+  "approvedForProduction": false,
+  "note": "Store signed contracts and sensitive identity information in the private rights system, not in the public repository."
+}

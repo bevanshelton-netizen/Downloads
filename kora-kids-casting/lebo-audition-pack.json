@@ -1,0 +1,161 @@
+{
+  "schema": "kora-kids.casting-pack/v1",
+  "series": "Lebo & Jabu",
+  "role": "Lebo",
+  "project": "Episode 1 — Jam Day Under the Baobab",
+  "vocalIdentity": {
+    "presentationAge": "approximately 6",
+    "originalEdition": "South African English",
+    "qualities": [
+      "curious",
+      "warm",
+      "funny",
+      "quick-thinking",
+      "emotionally readable",
+      "never babyish"
+    ],
+    "imitationPolicy": "Do not imitate an existing cartoon character, celebrity or recognisable performer.",
+    "performerAgePolicy": "Performer age is not prescribed. If a minor performs, guardian consent and applicable child-performer requirements must be completed before use."
+  },
+  "recordingSpec": {
+    "preferred": "48 kHz / 24-bit / mono WAV",
+    "acceptable": "48 kHz / 16-bit / mono WAV",
+    "processing": "dry recording; no reverb, pitch correction or character effects",
+    "room": "quiet, non-reflective recording environment",
+    "fileNaming": "LEBO_EP01_<SIDE>_<TAKE>.wav"
+  },
+  "sides": [
+    {
+      "id": "A",
+      "purpose": "curiosity + comic warmth",
+      "line": "Whoa! Jabu, look at that tree! Its tummy is bigger than yours!",
+      "takes": [
+        {
+          "take": 1,
+          "direction": "Natural discovery. Smile in the voice; do not perform it like an announcer."
+        },
+        {
+          "take": 2,
+          "direction": "More playful teasing toward Jabu, then a tiny laugh."
+        },
+        {
+          "take": 3,
+          "direction": "Quieter wonder at first, then let the joke land naturally."
+        }
+      ]
+    },
+    {
+      "id": "B",
+      "purpose": "counting + audience connection",
+      "line": "Let’s count together. One, two, three, four, five!",
+      "takes": [
+        {
+          "take": 1,
+          "direction": "Invite a child watching to join in. Clear but not teacher-like."
+        },
+        {
+          "take": 2,
+          "direction": "A little faster and more excited."
+        },
+        {
+          "take": 3,
+          "direction": "Gentle and rhythmic, leaving tiny spaces between numbers."
+        }
+      ]
+    },
+    {
+      "id": "C",
+      "purpose": "physical comedy",
+      "line": "The berries are escaping! Catch the purple one! No, the other purple one!",
+      "takes": [
+        {
+          "take": 1,
+          "direction": "Surprised, amused, moving while speaking."
+        },
+        {
+          "take": 2,
+          "direction": "Bigger comedy without shouting."
+        },
+        {
+          "take": 3,
+          "direction": "Start urgent, end laughing."
+        }
+      ]
+    },
+    {
+      "id": "D",
+      "purpose": "emotional lesson",
+      "line": "But we can fix it. We’ll pick up, clean up, and try again.",
+      "takes": [
+        {
+          "take": 1,
+          "direction": "Warm confidence after a small disappointment."
+        },
+        {
+          "take": 2,
+          "direction": "Reassure Jabu as a friend, not the audience as a teacher."
+        },
+        {
+          "take": 3,
+          "direction": "Calm, thoughtful and quietly determined."
+        }
+      ]
+    },
+    {
+      "id": "E",
+      "purpose": "Africa Fact segment",
+      "line": "Baobabs grow in several parts of Africa. Their thick trunks can store lots of water, which helps them through dry times.",
+      "takes": [
+        {
+          "take": 1,
+          "direction": "Warm and fascinated. Slow enough for ages 3–7."
+        },
+        {
+          "take": 2,
+          "direction": "Share it like a wonderful secret you just learned."
+        },
+        {
+          "take": 3,
+          "direction": "Clear and calm, preserving natural South African rhythm."
+        }
+      ],
+      "factLine": true
+    },
+    {
+      "id": "F",
+      "purpose": "series sign-off",
+      "line": "Bye, explorers!",
+      "takes": [
+        {
+          "take": 1,
+          "direction": "Bright and natural."
+        },
+        {
+          "take": 2,
+          "direction": "Big happy smile, not shouted."
+        },
+        {
+          "take": 3,
+          "direction": "Warm goodbye to a friend."
+        }
+      ]
+    }
+  ],
+  "selectionRubric": {
+    "priorities": [
+      "natural performance",
+      "clear diction",
+      "emotional range",
+      "comic timing",
+      "authentic South African rhythm",
+      "comfortable child-friendly energy"
+    ],
+    "disqualifiers": [
+      "recognisable imitation",
+      "forced baby voice",
+      "overly commercial announcer delivery",
+      "shouting as default",
+      "unclear recording rights"
+    ]
+  }
+}
