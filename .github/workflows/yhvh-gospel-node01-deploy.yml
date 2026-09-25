@@ -7,6 +7,11 @@ on:
       - "owner-host/control/desired-state.json"
       - ".github/workflows/yhvh-gospel-node01-deploy.yml"
   workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - "owner-host/control/desired-state.json"
+      - ".github/workflows/yhvh-gospel-node01-deploy.yml"
 
 permissions:
   contents: read
