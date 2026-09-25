@@ -4,7 +4,7 @@ import "./globals.css";
 import ShareButton from "./share-button";
 import LearnerDriverPromo from "./learner-driver-promo";
 
-const publicBase = process.env.GROWTH_OS_PUBLIC_BASE_URL || "https://izakhono-growth-os.vercel.app";
+const publicBase = (process.env.GROWTH_OS_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://growth.domains.izakhonoafrica.co.za"));
 
 export const metadata: Metadata = {
   metadataBase: new URL(publicBase),
