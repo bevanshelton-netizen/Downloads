@@ -686,10 +686,10 @@ export default {
   async fetch(req: Request, env: Env): Promise<Response> {
     const url=new URL(req.url);
     try {
-      if (url.pathname === '/payment/success' || url.pathname === '/payment/cancel') {
-        const success = url.pathname.endsWith('/success');
+      if (url.pathname === '/payment/success' || url.pathname === '/payment/failure' || url.pathname === '/payment/cancel') {
+        const success = url.pathname.endsWith('/success'); const failed = url.pathname.endsWith('/failure');
         const id = (url.searchParams.get('id') || '').replace(/[^a-zA-Z0-9_-]/g,'').slice(0,100);
-        return new Response(`<!doctype html><meta name="viewport" content="width=device-width"><title>VIDEONOMY payment</title><body style="font-family:system-ui;background:#071019;color:#fff;padding:8vw"><h1>${success?'Payment submitted':'Payment cancelled'}</h1><p>${success?'We are confirming the payment securely with PayFast.':'No payment was recorded. You can return and try again.'}</p><p><a style="color:#7cf7c9" href="/">Return to VIDEONOMY</a></p><small>Reference: ${id}</small></body>`,{headers:{'content-type':'text/html; charset=utf-8'}});
+        return new Response(`<!doctype html><meta name="viewport" content="width=device-width"><title>VIDEONOMY payment</title><body style="font-family:system-ui;background:#071019;color:#fff;padding:8vw"><h1>${success?'Payment submitted':failed?'Payment failed':'Payment cancelled'}</h1><p>${success?'We are confirming the payment securely with the payment provider.':failed?'The provider reported that this payment did not complete. You can return and try again.':'No payment was recorded. You can return and try again.'}</p><p><a style="color:#7cf7c9" href="/">Return to VIDEONOMY</a></p><small>Reference: ${id}</small></body>`,{headers:{'content-type':'text/html; charset=utf-8'}});
       }
       if(url.pathname.startsWith('/api/') || url.pathname.startsWith('/media/')) return await handleApi(req,env,url);
       return env.ASSETS.fetch(req);
