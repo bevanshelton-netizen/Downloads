@@ -2,16 +2,43 @@ name: IZAKHONO ONE Optional Owner Runner Activation
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/izakhono-one-owner-runner-activation.yml'
+      - 'owner-host/control/one-desired-state.json'
 
 permissions:
   contents: read
 
 concurrency:
   group: izakhono-one-owner-runner-activation
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
+  verify-owner-request:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify approved ONE request contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs=require('fs');
+          const x=JSON.parse(fs.readFileSync('owner-host/control/one-desired-state.json','utf8'));
+          if(x.enabled!==true) throw new Error('owner request is not enabled');
+          if(x.action!=='activate-one-local-model') throw new Error('unexpected owner action');
+          if(x.params?.hostname!=='one.domains.izakhonoafrica.co.za') throw new Error('unexpected hostname');
+          if(!x.id) throw new Error('request id missing');
+          console.log('ONE_OWNER_REQUEST=VERIFIED');
+          console.log('APPROVED_REQUEST='+x.id);
+          NODE
+
   activate-on-owned-runner:
+    if: github.event_name == 'workflow_dispatch'
+    needs: verify-owner-request
     runs-on: [self-hosted, linux, x64, izakhono]
     timeout-minutes: 60
     steps:
@@ -63,7 +90,7 @@ jobs:
 
   verify-owned-public-independently:
     needs: activate-on-owned-runner
-    if: always()
+    if: github.event_name == 'workflow_dispatch' && always() && needs.activate-on-owned-runner.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
