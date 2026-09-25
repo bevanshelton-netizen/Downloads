@@ -5,6 +5,7 @@ on:
     paths:
       - "kora-kids-finishing/**"
       - "kora-kids-render-worker/**"
+      - "kora-kids-studio/**"
       - "owner-host/BUILD-KORA-KIDS-EPISODE1.ps1"
       - "BUILD-KORA-KIDS-EPISODE1.cmd"
       - ".github/workflows/kora-kids-finishing.yml"
@@ -12,6 +13,7 @@ on:
     paths:
       - "kora-kids-finishing/**"
       - "kora-kids-render-worker/**"
+      - "kora-kids-studio/**"
       - "owner-host/BUILD-KORA-KIDS-EPISODE1.ps1"
       - "BUILD-KORA-KIDS-EPISODE1.cmd"
       - ".github/workflows/kora-kids-finishing.yml"
@@ -39,6 +41,7 @@ jobs:
         run: |
           node --check kora-kids-render-worker/worker.mjs
           node --check kora-kids-finishing/worker.mjs
+          node --check kora-kids-studio/server.mjs
           node -e 'const x=require("./kora-kids-finishing/episode1-finishing.json"); if(x.seriesId!=="lebo-jabu"||x.episodeSlug!=="jam-day-under-the-baobab"||x.short?.resolution!=="1080x1920"||x.jabuGuidePalette?.length!==6) process.exit(2)'
 
       - name: Render approved Episode 1 proof picture
@@ -90,6 +93,31 @@ jobs:
             echo "Finishing worker incorrectly accepted an unapproved Episode 1 job" >&2
             exit 2
           fi
+
+      - name: Verify private Finishing Desk sees the package
+        env:
+          KORA_KIDS_STUDIO_WORKSPACE: ${{ runner.temp }}/kora-kids-studio
+        run: |
+          mkdir -p "$KORA_KIDS_STUDIO_WORKSPACE/finished/episode1-ci"
+          cp /tmp/kora-ep1-finish/finishing-result.json "$KORA_KIDS_STUDIO_WORKSPACE/finished/episode1-ci/finishing-result.json"
+          node kora-kids-studio/server.mjs >/tmp/kora-finish-studio.log 2>&1 &
+          echo $! >/tmp/kora-finish-studio.pid
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:8890/api/finishing >/tmp/finishing.json && break
+            sleep 1
+          done
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const x=JSON.parse(fs.readFileSync("/tmp/finishing.json","utf8")).finishing;
+          if(x.length!==1) process.exit(2);
+          if(x[0].qc?.pass!==true||x[0].releaseReady!==false||x[0].published!==false) process.exit(3);
+          if(x[0].creativeGuide?.jabuGuidePalette?.length!==6) process.exit(4);
+          NODE
+
+      - name: Stop private studio
+        if: always()
+        run: |
+          test ! -f /tmp/kora-finish-studio.pid || kill "$(cat /tmp/kora-finish-studio.pid)" || true
 
       - name: Upload Episode 1 finishing proof
         uses: actions/upload-artifact@v4
