@@ -1,14 +1,13 @@
 {
   "schema": "izakhono.owner-agent-request/v1",
-  "id": "one-owned-activation-20260923-02",
+  "id": "one-owned-deploy-edge-20260925-01",
   "enabled": true,
-  "action": "activate-one-local-model",
-  "requested_at": "2026-09-23T07:31:00Z",
-  "expires_at": "2026-09-30T23:59:59Z",
+  "action": "deploy-one-ai",
+  "requested_at": "2026-09-25T01:30:00Z",
+  "expires_at": "2026-10-02T23:59:59Z",
   "max_attempts": 3,
   "params": {
-    "model": "qwen2.5:3b",
     "hostname": "one.domains.izakhonoafrica.co.za"
   },
-  "note": "Fresh approved IZAKHONO ONE owned-route activation request. Allow-listed Owner Agent action only; external resilience must remain preserved."
+  "note": "Fresh approved IZAKHONO ONE owned deployment request. Deploy from IZAKHONO CODE, then stage the owned DNS/TLS/EDGE path without modifying the verified external resilience route."
 }
