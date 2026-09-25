@@ -1,0 +1,167 @@
+{
+  "schema": "kora-kids.localisation-pack/v1",
+  "seriesId": "lebo-jabu",
+  "episodeSlug": "jam-day-under-the-baobab",
+  "sourceLanguage": "en-ZA",
+  "targetLanguage": "af-ZA",
+  "targetName": "Afrikaans",
+  "voice": "af-ZA",
+  "textDirection": "ltr",
+  "region": "South Africa",
+  "status": "machine-draft",
+  "humanReviewRequired": true,
+  "brandNames": {
+    "Lebo": "Lebo",
+    "Jabu": "Jabu",
+    "translateNames": false
+  },
+  "translationOrigin": "AI-assisted draft; not approved for publication",
+  "lines": [
+    {
+      "id": "s01-l01",
+      "sceneId": "s01",
+      "speaker": "Lebo",
+      "source": "Whoa! Jabu, look at that tree! Its tummy is bigger than yours!",
+      "text": "Sjoe! Jabu, kyk na daardie boom! Sy maag is groter as joune!",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s01-l02",
+      "sceneId": "s01",
+      "speaker": "Lebo",
+      "source": "Okay, okay. Maybe not bigger. But why is the trunk so wide?",
+      "text": "Goed, goed. Miskien nie groter nie. Maar hoekom is die stam so wyd?",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s02-l01",
+      "sceneId": "s02",
+      "speaker": "Lebo",
+      "source": "We need berries for our jam. One basket for us, and one little bowl to share.",
+      "text": "Ons het bessies nodig vir ons konfyt. Een mandjie vir ons, en een klein bakkie om te deel.",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s02-l02",
+      "sceneId": "s02",
+      "speaker": "Lebo",
+      "source": "Let’s count together. One, two, three, four, five!",
+      "text": "Kom ons tel saam. Een, twee, drie, vier, vyf!",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s02-l03",
+      "sceneId": "s02",
+      "speaker": "Lebo",
+      "source": "Jabu, your trunk is the fastest berry-picker I’ve ever seen.",
+      "text": "Jabu, jou slurp is die vinnigste bessieplukker wat ek nog ooit gesien het.",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s03-l01",
+      "sceneId": "s03",
+      "speaker": "Lebo",
+      "source": "First, bowl. Then berries. Then mash. Then stir. In that order!",
+      "text": "Eers die bak. Dan die bessies. Dan druk ons dit fyn. Dan roer ons. In daardie volgorde!",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s03-l02",
+      "sceneId": "s03",
+      "speaker": "Lebo",
+      "source": "Ready, Jabu? Gently does it.",
+      "text": "Reg, Jabu? Saggies nou.",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s03-l03",
+      "sceneId": "s03",
+      "speaker": "Lebo",
+      "source": "The berries are escaping!",
+      "text": "Die bessies ontsnap!",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s03-l04",
+      "sceneId": "s03",
+      "speaker": "Lebo",
+      "source": "Catch the purple one! No, the other purple one!",
+      "text": "Vang die pers een! Nee, die ander pers een!",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s04-l01",
+      "sceneId": "s04",
+      "speaker": "Lebo",
+      "source": "Well... that did not go to plan.",
+      "text": "Wel... dit het nie volgens plan gegaan nie.",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s04-l02",
+      "sceneId": "s04",
+      "speaker": "Lebo",
+      "source": "But we can fix it. We’ll pick up, clean up, and try again.",
+      "text": "Maar ons kan dit regmaak. Ons sal optel, skoonmaak en weer probeer.",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s04-l03",
+      "sceneId": "s04",
+      "speaker": "Lebo",
+      "source": "You gather. I sort. Then we both stir.",
+      "text": "Jy maak bymekaar. Ek sorteer. Dan roer ons albei.",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s04-l04",
+      "sceneId": "s04",
+      "speaker": "Lebo",
+      "source": "Look! A small pot of jam and a very big adventure.",
+      "text": "Kyk! ’n Klein potjie konfyt en ’n baie groot avontuur.",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s05-l01",
+      "sceneId": "s05",
+      "speaker": "Lebo",
+      "source": "Jabu’s Africa Fact!",
+      "text": "Jabu se Afrika-feit!",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s05-l02",
+      "sceneId": "s05",
+      "speaker": "Lebo",
+      "source": "Baobabs grow in several parts of Africa. Their thick trunks can store lots of water, which helps them through dry times.",
+      "text": "Kremetartbome groei in verskeie dele van Afrika. Hul dik stamme kan baie water berg, wat hulle deur droë tye help.",
+      "factReviewRequired": true
+    },
+    {
+      "id": "s05-l03",
+      "sceneId": "s05",
+      "speaker": "Lebo",
+      "source": "Africa is full of different places, people, plants and stories. We’ll discover another one next time.",
+      "text": "Afrika is vol verskillende plekke, mense, plante en stories. Volgende keer ontdek ons nog een.",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s05-l04",
+      "sceneId": "s05",
+      "speaker": "Lebo",
+      "source": "Bye, explorers!",
+      "text": "Totsiens, ontdekkers!",
+      "factReviewRequired": false
+    }
+  ],
+  "review": {
+    "nativeLanguage": false,
+    "culturalContext": false,
+    "comicTiming": false,
+    "childSafety": false,
+    "factAccuracy": false,
+    "finalEditorial": false
+  },
+  "approvedForDubbing": false,
+  "approvedForPublication": false
+}
