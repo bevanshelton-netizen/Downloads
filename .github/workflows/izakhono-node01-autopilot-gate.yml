@@ -7,8 +7,6 @@ on:
       - 'owner-host/node01-autopilot.sh'
       - 'owner-host/drop01-milestone-watch.mjs'
       - 'izakhono-data-node/server.mjs'
-      - 'owner-host/drop01-milestone-watch.mjs'
-      - 'izakhono-data-node/server.mjs'
       - 'owner-host/INSTALL-IZAKHONO-NODE01-AUTOPILOT.ps1'
       - 'owner-host/START-IZAKHONO-OWNER-HOST.ps1'
       - 'START-IZAKHONO-NODE01-AUTOPILOT.cmd'
@@ -17,6 +15,8 @@ on:
     branches: [main]
     paths:
       - 'owner-host/node01-autopilot.sh'
+      - 'owner-host/drop01-milestone-watch.mjs'
+      - 'izakhono-data-node/server.mjs'
       - 'owner-host/INSTALL-IZAKHONO-NODE01-AUTOPILOT.ps1'
       - 'owner-host/START-IZAKHONO-OWNER-HOST.ps1'
       - 'START-IZAKHONO-NODE01-AUTOPILOT.cmd'
