@@ -26,18 +26,27 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          DOMAIN='izakhonoafrica.co.za'
+          domains=("izakhonoafrica.co.za" "faisready.co.za" "doxahosting.co.za")
 
-          echo '=== REGISTRY SUMMARY ==='
-          set +e
-          whois -h whois.registry.net.za "$DOMAIN" >/tmp/whois.txt 2>/tmp/whois.err
-          rc=$?
-          set -e
-          echo "WHOIS_EXIT=$rc"
-          echo "WHOIS_LINES=$(wc -l < /tmp/whois.txt | tr -d ' ')"
-          grep -Ei 'no match|not found|no information|available|not registered|does not exist|no entries|no object|domain unavailable' /tmp/whois.txt             | sed -E 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/[redacted-email]/g'             | head -n 40 || true
-
-          grep -Ei 'domain name|registrar|sponsor|reseller|provider|status|expir|name[ -]?server|nameserver|nsset|dnssec|updated|registered|creation' /tmp/whois.txt             | sed -E 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/[redacted-email]/g'             | sed -E 's/(\+?[0-9][0-9 ()-]{7,}[0-9])/[redacted-phone]/g'             | sed -E 's/[[:space:]]+$//'             | head -n 160 || true
+          for DOMAIN in "${domains[@]}"; do
+            echo "=== REGISTRY SUMMARY: $DOMAIN ==="
+            tmp="/tmp/whois-${DOMAIN//./-}.txt"
+            set +e
+            whois -h whois.registry.net.za "$DOMAIN" >"$tmp" 2>/dev/null
+            rc=$?
+            set -e
+            echo "WHOIS_EXIT=$rc"
+            echo "WHOIS_LINES=$(wc -l < "$tmp" | tr -d ' ')"
+            grep -Ei 'no match|not found|no information|available|not registered|does not exist|no entries|no object|domain unavailable' "$tmp" \
+              | sed -E 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/[redacted-email]/g' \
+              | head -n 40 || true
+            grep -Ei 'domain name|registrar|sponsor|reseller|provider|status|expir|name[ -]?server|nameserver|nsset|dnssec|updated|registered|creation' "$tmp" \
+              | sed -E 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/[redacted-email]/g' \
+              | sed -E 's/(\+?[0-9][0-9 ()-]{7,}[0-9])/[redacted-phone]/g' \
+              | sed -E 's/[[:space:]]+$//' \
+              | head -n 160 || true
+            echo
+          done
 
       - name: Query portfolio mail DNS
         shell: bash
