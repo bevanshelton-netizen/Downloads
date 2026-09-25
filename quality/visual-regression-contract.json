@@ -130,22 +130,26 @@
     {
       "id": "ecd360",
       "repository": "bevanshelton-netizen/edubuild-ecd360",
-      "releaseCommit": "1de39a9d015f3a3db5b213977791723f33e21fee"
+      "releaseCommit": "f41693bbd45951825f8a1265ddab2a93d455856e",
+      "qualityProfile": "izakhono-premium-v1"
     },
     {
       "id": "legacymart",
       "repository": "bevanshelton-netizen/bevanshelton-netizen-legacymart",
-      "releaseCommit": "fb87cb831dfd86a340b5ecccbb5759f5a9578d9f"
+      "releaseCommit": "2d0d783a4eebfdcada2304f6423503a4683a6adc",
+      "qualityProfile": "izakhono-premium-v1"
     },
     {
       "id": "allegro-vibez",
       "repository": "bevanshelton-netizen/allegro-vibez",
-      "qualityProfile": "izakhono-premium-v1"
+      "qualityProfile": "izakhono-premium-v1",
+      "releaseCommit": "4db57e1ff8d890ca61541ed31777bef392d69d9e"
     },
     {
       "id": "the-chancellor",
       "repository": "bevanshelton-netizen/the-chancellor",
-      "qualityProfile": "izakhono-premium-v1"
+      "qualityProfile": "izakhono-premium-v1",
+      "releaseCommit": "640f3fbfed1d92bd0588f0ac706a6bb5a7308d17"
     }
   ]
 }

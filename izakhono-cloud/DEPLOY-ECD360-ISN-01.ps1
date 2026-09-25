@@ -8,7 +8,7 @@ $ErrorActionPreference = "Stop"
 $State = Join-Path $env:ProgramData "IZAKHONO\ISN-01"
 $EngineProof = Join-Path $State "ENGINE-PROOF.json"
 $Receipt = Join-Path $State "ECD360-CUTOVER.json"
-$Pinned = "1de39a9d015f3a3db5b213977791723f33e21fee"
+$Pinned = "f41693bbd45951825f8a1265ddab2a93d455856e"
 
 function Fail([string]$Message) {
     Write-Host "FAIL: $Message" -ForegroundColor Red
