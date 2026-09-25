@@ -242,7 +242,12 @@ EXIT_CODE=1
   echo "EXIT_CODE=$EXIT_CODE"
 } >"$LOG" 2>&1
 
-if [ "$EXIT_CODE" -eq 0 ]; then STATUS="success"; fi
+if [ "$EXIT_CODE" -eq 0 ]; then
+  STATUS="success"
+elif [ "$ACTION" = "deploy-yhvh-gospel-tv" ] && { [ "$EXIT_CODE" -eq 30 ] || [ "$EXIT_CODE" -eq 34 ]; }; then
+  STATUS="waiting-public-dns"
+  ATTEMPTS="$PREV_ATTEMPTS"
+fi
 ENDED="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
 node - "$STATE_FILE" "$REQUEST_ID" "$ACTION" "$STATUS" "$ATTEMPTS" "$EXIT_CODE" "$SOURCE_COMMIT" "$SOURCE_AUTHORITY" "$STARTED" "$ENDED" "$LOG" <<'NODE'
