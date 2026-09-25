@@ -134,6 +134,9 @@ jobs:
           grep -q 'sync-owner-source.sh' owner-host/owner-agent.sh
           grep -q 'SOURCE_AUTHORITY=IZAKHONO_CODE' owner-host/sync-owner-source.sh
           grep -q 'SOURCE_AUTHORITY=GITHUB_BOOTSTRAP' owner-host/sync-owner-source.sh
+          grep -q 'EXTERNAL_REFRESH=IMPORTED_TO_IZAKHONO_CODE' owner-host/sync-owner-source.sh
+          grep -q 'BOOTSTRAP_SOURCE=GITHUB' owner-host/sync-owner-source.sh
+          grep -q 'sync_owned_code || fail "IZAKHONO CODE refresh succeeded but owned re-sync failed."' owner-host/sync-owner-source.sh
           grep -q 'Refusing non-owned CODE source' owner-host/sync-owner-source.sh
           grep -q 'Refusing unapproved bootstrap origin' owner-host/sync-owner-source.sh
           grep -q 'BOOTSTRAP_SOURCE_TO_IZAKHONO_CODE' owner-host/owner-agent.sh
