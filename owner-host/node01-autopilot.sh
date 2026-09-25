@@ -39,8 +39,10 @@ crm_notify_exit=0
 if [ -n "$(git -C "$ROOT" status --porcelain)" ]; then
   source_state="BLOCKED_DIRTY"
 else
+  set +e
   sync_out="$(bash "$ROOT/owner-host/sync-owner-source.sh" "$ROOT" 2>&1)"
   sync_exit=$?
+  set -e
   if [ "$sync_exit" -eq 0 ]; then
     source_state="$(printf '%s\n' "$sync_out" | awk -F= '$1=="SOURCE_AUTHORITY"{print $2;exit}')"
     [ -n "$source_state" ] || source_state="SYNCED_UNKNOWN_AUTHORITY"
