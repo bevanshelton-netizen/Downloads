@@ -5,7 +5,10 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import Database from 'better-sqlite3';
-import worker from '../src/index.ts';
+import workerModule from '../src/index.ts';
+
+const workerHandler = workerModule?.fetch ? workerModule : workerModule?.default?.fetch ? workerModule.default : null;
+if (!workerHandler) throw new Error('VIDEONOMY worker module did not expose fetch');
 
 const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const PUBLIC_ROOT=path.join(ROOT,'public');
@@ -122,7 +125,7 @@ const server=http.createServer(async(req,res)=>{
     const init={method:req.method,headers};
     if(req.method!=='GET'&&req.method!=='HEAD'){init.body=Readable.toWeb(req);init.duplex='half'}
     const request=new Request(`http://${host}${req.url||'/'}`,init);
-    const response=await worker.fetch(request,env);
+    const response=await workerHandler.fetch(request,env);
     res.statusCode=response.status;response.headers.forEach((v,k)=>res.setHeader(k,v));
     if(!response.body){res.end();return}
     Readable.fromWeb(response.body).pipe(res);
