@@ -59,6 +59,15 @@ jobs:
           grep -q 'STANDBY_MUTATORS' izakhono-owned-cloud/prove-physical-ha.sh
           grep -q 'standby_background_role_active_before_route:true' izakhono-owned-cloud/controlled-failover-drill.sh
           grep -q 'standby_service_role:"PASSIVE"' izakhono-owned-cloud/reconcile-failback-state.sh
+      - name: Prove standby re-baseline safety contract
+        run: |
+          bash -n izakhono-owned-cloud/rebaseline-standby.sh
+          bash izakhono-owned-cloud/tests/standby-rebaseline-plan.sh
+          grep -q 'REBASELINE-STANDBY' izakhono-owned-cloud/rebaseline-standby.sh
+          grep -q 'PHYSICAL_HA_REACCEPTANCE' izakhono-owned-cloud/rebaseline-standby.sh
+          grep -q 'set-standby-role.sh passive' izakhono-owned-cloud/rebaseline-standby.sh
+          grep -q 'IZAKHONO PACKAGE NODE' izakhono-package-node/README.md
+          ! grep -q 'set-standby-role.sh active' izakhono-owned-cloud/rebaseline-standby.sh
 
   node-self-tests:
     runs-on: ubuntu-latest

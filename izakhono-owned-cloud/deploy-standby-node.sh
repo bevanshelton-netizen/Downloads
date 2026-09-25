@@ -33,6 +33,7 @@ mkdir -p /opt/izakhono-owned-cloud
 install -o root -g izakhono -m 0750 "$HERE/promote-standby-state.sh" /opt/izakhono-owned-cloud/promote-standby-state.sh
 install -o root -g izakhono -m 0640 "$HERE/standby-state-swap.mjs" /opt/izakhono-owned-cloud/standby-state-swap.mjs
 install -o root -g izakhono -m 0750 "$HERE/set-standby-role.sh" /opt/izakhono-owned-cloud/set-standby-role.sh
+install -o root -g izakhono -m 0750 "$HERE/stage-standby-replica.sh" /opt/izakhono-owned-cloud/stage-standby-replica.sh
 
 for cmd in node curl systemctl; do
   command -v "$cmd" >/dev/null 2>&1 || { echo "Missing required command: $cmd"; exit 9; }
