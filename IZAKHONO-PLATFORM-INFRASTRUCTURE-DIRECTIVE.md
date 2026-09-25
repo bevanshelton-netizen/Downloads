@@ -34,7 +34,9 @@ The intended owned path is:
 
 `ISN-01 / NODE01 → CODE / Forge → Data, Auth, Storage, Queue and Analytics → Runtime → FORTRESS → EDGE / TLS → IZAKHONO DNS`
 
-- NODE01 is the primary authority.
+- NODE01 is the primary authority role.
+- The NODE01 role is capability-based, not a literal machine-name dependency: ISN-01 or another IZAKHONO-owned sovereign compute/runtime node may fulfil it when it passes the same CODE / Runtime / FORTRESS / EDGE / TLS, privacy, backup, rollback and independent public HTTPS gates.
+- Automation must target verified IZAKHONO-owned capabilities and runner labels rather than a single physical hostname.
 - NODE02–NODE04 are reserved for backup, recovery and future scaling.
 - Forge and IZAKHONO Code hold the authoritative source and package history.
 - FORTRESS controls security policy, secrets boundaries, health checks and audit evidence.
