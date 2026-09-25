@@ -38,8 +38,45 @@ footer{display:flex;align-items:center;justify-content:space-between;gap:20px;pa
 </div></section>
 <section class="section partner" id="partners"><p class="eyebrow">PARTNERSHIP</p><div class="split"><h2>Built for serious partnerships.</h2><div><p>We welcome engagement with investors, financiers, governments, energy and mining companies, developers, suppliers, international buyers and strategic partners.</p><a class="link" href="#contact">Start a conversation →</a></div></div></section>
 <section class="section" id="credentials"><p class="eyebrow">GOVERNANCE & CREDENTIALS</p><div class="credentials"><div><h2>Proof before claims.</h2><p>Corporate memberships, diamond-sector registrations, certifications and training credentials will be published together with their verification details once documentary proof has been reviewed.</p></div><div class="status"><span class="dot"></span>Credential verification in progress</div></div></section>
-<section class="section contact" id="contact"><div><p class="eyebrow">CONTACT</p><h2>Let’s build the next opportunity.</h2><p>For projects, partnerships, investment discussions and general enquiries.</p><p class="email">info@xqwaxqwamile.com</p><p class="pending">Corporate mailbox activates once the domain is registered.</p><p><strong>Company Registration:</strong> 2017/315075/07</p><p>South Africa</p></div><form action="mailto:info@xqwaxqwamile.com" method="post" enctype="text/plain"><label>Name<input required name="Name"></label><label>Organisation<input name="Organisation"></label><label>Email<input required type="email" name="Email"></label><label>Area of interest<select name="Interest"><option>General enquiry</option><option>Green Hydrogen</option><option>Diamonds</option><option>Petroleum</option><option>Logistics</option><option>Solar Energy</option><option>Agriculture</option><option>Fishing & Processing</option><option>Development & Construction</option><option>Investment / Partnership</option></select></label><label>Message<textarea required name="Message" rows="5"></textarea></label><button class="btn primary" type="submit">Prepare email enquiry</button><p class="note">Preview mode: this opens your email application. A secure server-side contact endpoint will replace it after domain activation.</p></form></section>
-<section class="section privacy" id="privacy"><p class="eyebrow">PRIVACY</p><h2>Privacy by design.</h2><details><summary>Preview privacy notice</summary><p>This preview does not use advertising trackers, behavioural profiling or analytics identifiers. Information intentionally submitted through a future live contact service should be used only to respond to enquiries and managed in line with applicable South African privacy requirements. Full POPIA wording, Information Officer details and company contact information will be inserted before public launch.</p></details></section>
+<section class="section contact" id="contact"><div><p class="eyebrow">CONTACT</p><h2>Let’s build the next opportunity.</h2><p>For projects, partnerships, investment discussions and general enquiries.</p><p class="email">info@xqwaxqwamile.com</p><p class="pending">Corporate mailbox activates once the domain is registered.</p><p><strong>Company Registration:</strong> 2017/315075/07</p><p>South Africa</p></div><form id="enquiryForm"><label>Name<input required minlength="2" maxlength="120" name="Name" autocomplete="name"></label><label>Organisation<input maxlength="160" name="Organisation" autocomplete="organization"></label><label>Email<input required maxlength="254" type="email" name="Email" autocomplete="email"></label><label>Area of interest<select name="Interest"><option>General enquiry</option><option>Green Hydrogen</option><option>Diamonds</option><option>Petroleum</option><option>Logistics</option><option>Solar Energy</option><option>Agriculture</option><option>Fishing & Processing</option><option>Development & Construction</option><option>Investment / Partnership</option></select></label><label>Message<textarea required minlength="10" maxlength="5000" name="Message" rows="5"></textarea></label><div aria-hidden="true" style="position:absolute;left:-9999px"><label>Leave this blank<input tabindex="-1" autocomplete="off" name="Website"></label></div><button id="enquirySubmit" class="btn primary" type="submit">Send enquiry</button><p id="formStatus" class="note" aria-live="polite">Your enquiry is sent securely to the company enquiry desk.</p></form></section>
+<section class="section privacy" id="privacy"><p class="eyebrow">PRIVACY</p><h2>Privacy by design.</h2><details><summary>Preview privacy notice</summary><p>This preview does not use advertising trackers, behavioural profiling or analytics identifiers. Information submitted through this enquiry form is used to respond to enquiries and is stored in a protected enquiry database with no public read access. Full POPIA wording, Information Officer details, retention periods and final company contact information will be inserted before branded-domain production launch.</p></details></section>
 </main>
 <footer><div class="brand"><span class="mark">XH</span><span><b>!XQWAXQWAMILÉ</b><small>HOLDINGS (PTY) LTD</small></span></div><span>© 2026 !XQWAXQWAMILÉ HOLDINGS (PTY) LTD · Reg. No. 2017/315075/07</span><a href="#privacy">Privacy</a></footer>
-</body></html>
+<script>
+const enquiryForm=document.getElementById('enquiryForm');
+const enquirySubmit=document.getElementById('enquirySubmit');
+const formStatus=document.getElementById('formStatus');
+const ENQUIRY_ENDPOINT='https://yfawrenhudjomhnglfhq.supabase.co/rest/v1/xqwaxqwamile_enquiries';
+const PUBLIC_KEY='sb_publishable_3KY--8Y_uuKEdfdumC2txg__OWTRo2p';
+enquiryForm.addEventListener('submit',async(e)=>{
+  e.preventDefault();
+  const fd=new FormData(enquiryForm);
+  if(String(fd.get('Website')||'').trim()) return;
+  const payload={
+    name:String(fd.get('Name')||'').trim(),
+    organisation:String(fd.get('Organisation')||'').trim()||null,
+    email:String(fd.get('Email')||'').trim(),
+    interest:String(fd.get('Interest')||'General enquiry').trim(),
+    message:String(fd.get('Message')||'').trim(),
+    source:'website'
+  };
+  enquirySubmit.disabled=true;
+  enquirySubmit.textContent='Sending…';
+  formStatus.textContent='Sending your enquiry securely…';
+  try{
+    const res=await fetch(ENQUIRY_ENDPOINT,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':PUBLIC_KEY,'Prefer':'return=minimal'},
+      body:JSON.stringify(payload)
+    });
+    if(!res.ok) throw new Error('Submission failed');
+    enquiryForm.reset();
+    formStatus.textContent='Thank you. Your enquiry has been received successfully.';
+  }catch(_err){
+    formStatus.innerHTML='We could not submit the form. Please email <a href="mailto:info@xqwaxqwamile.com">info@xqwaxqwamile.com</a>.';
+  }finally{
+    enquirySubmit.disabled=false;
+    enquirySubmit.textContent='Send enquiry';
+  }
+});
+</script></body></html>
