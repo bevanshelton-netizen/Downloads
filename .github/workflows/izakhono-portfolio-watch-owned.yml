@@ -1,0 +1,42 @@
+name: IZAKHONO Portfolio Watch Owned Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'izakhono-portfolio-watch/**'
+      - '.github/workflows/izakhono-portfolio-watch-owned.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: izakhono-portfolio-watch-owned
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, linux, x64, izakhono]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify package before install
+        working-directory: izakhono-portfolio-watch
+        run: |
+          python3 -m py_compile app.py test_watch.py
+          python3 -m unittest -v test_watch.py
+      - name: Install on IZAKHONO owned node
+        working-directory: izakhono-portfolio-watch
+        run: sudo bash install-linux.sh
+      - name: Verify owned-node service
+        run: |
+          curl -fsS http://127.0.0.1:8860/health >/tmp/portfolio-watch-health.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open("/tmp/portfolio-watch-health.json"))
+          assert x["ok"] is True
+          assert x["service"] == "izakhono-portfolio-watch"
+          assert x["workers"] >= 1
+          print(json.dumps(x, indent=2))
+          PY
