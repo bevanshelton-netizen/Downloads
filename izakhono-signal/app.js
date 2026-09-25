@@ -52,14 +52,7 @@ const qs=s=>document.querySelector(s), qsa=s=>[...document.querySelectorAll(s)];
 const live=campaigns.filter(c=>c.status==="live");
 qs("#liveCount").textContent=live.length; qs("#stagedCount").textContent=campaigns.length-live.length;
 
-function utm(c,slot){
- const u=new URL(c.url);
- u.searchParams.set("utm_source","izakhono_signal");
- u.searchParams.set("utm_medium","social");
- u.searchParams.set("utm_campaign",c.id+"_revenue");
- u.searchParams.set("utm_content",slot);
- return u.toString();
-}
+function campaignUrl(c){ return c.url; }
 function render(filter="all"){
  qs("#campaigns").innerHTML=campaigns.filter(c=>filter==="all"||c.status===filter).map(c=>`
  <article class="campaign ${c.status}">
@@ -77,7 +70,7 @@ function render(filter="all"){
 async function shareCampaign(id){
  const c=campaigns.find(x=>x.id===id); if(!c||!c.url)return;
  const text=c.posts?.[0]||c.tagline;
- const url=utm(c,"direct_share");
+ const url=campaignUrl(c);
  try{if(navigator.share){await navigator.share({title:c.name,text,url});return}}catch(e){if(e?.name==="AbortError")return}
  if(navigator.clipboard){await navigator.clipboard.writeText(text+"\n\n"+url);alert(c.name+" share copy copied.");return}
  prompt("Copy and share",text+"\n\n"+url);
@@ -85,18 +78,18 @@ async function shareCampaign(id){
 function queueOne(id){
  const c=campaigns.find(x=>x.id===id); if(!c||c.status!=="live")return;
  const q=JSON.parse(localStorage.getItem("izakhono.signal.queue")||"[]").filter(x=>x.campaign!==id);
- ["08:00","13:00","19:00"].forEach((t,i)=>q.push({campaign:id,time:t,slot:["morning","midday","evening"][i],text:c.posts[i],url:utm(c,["morning","midday","evening"][i])}));
+ ["08:00","13:00","19:00"].forEach((t,i)=>q.push({campaign:id,time:t,slot:["morning","midday","evening"][i],text:c.posts[i],url:campaignUrl(c)}));
  localStorage.setItem("izakhono.signal.queue",JSON.stringify(q)); updateStatus(); showBoard();
 }
 function cashSprint(){
  const c=campaigns.find(x=>x.id==="auto-ai"); if(!c)return;
  const q=[];
- ["08:00","13:00","19:00"].forEach((t,i)=>q.push({campaign:c.id,time:t,slot:["morning","midday","evening"][i],text:c.posts[i],url:utm(c,["morning_cash","midday_cash","evening_cash"][i])}));
+ ["08:00","13:00","19:00"].forEach((t,i)=>q.push({campaign:c.id,time:t,slot:["morning","midday","evening"][i],text:c.posts[i],url:campaignUrl(c)}));
  localStorage.setItem("izakhono.signal.queue",JSON.stringify(q)); updateStatus(); showBoard();
 }
 function queueAll(){
  const q=[];
- live.forEach(c=>["08:00","13:00","19:00"].forEach((t,i)=>q.push({campaign:c.id,time:t,slot:["morning","midday","evening"][i],text:c.posts[i],url:utm(c,["morning","midday","evening"][i])})));
+ live.forEach(c=>["08:00","13:00","19:00"].forEach((t,i)=>q.push({campaign:c.id,time:t,slot:["morning","midday","evening"][i],text:c.posts[i],url:campaignUrl(c)})));
  localStorage.setItem("izakhono.signal.queue",JSON.stringify(q)); updateStatus(); showBoard();
 }
 function updateStatus(){
@@ -131,18 +124,6 @@ qs("#cashSprint").onclick=cashSprint; qs("#queueAll").onclick=queueAll; qs("#tod
 qsa("[data-close]").forEach(b=>b.onclick=()=>qs("#"+b.dataset.close).hidden=true);
 qsa(".filter").forEach(b=>b.onclick=()=>{qsa(".filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");render(b.dataset.filter)});
 render();updateStatus();
-function loadSignalEvents(){
-  try{
-    const ev=JSON.parse(localStorage.getItem("izakhono.signal.events")||"[]").filter(x=>x.platform==="auto-ai");
-    const visits=ev.filter(x=>x.event==="landing").length;
-    const checkouts=ev.filter(x=>x.event==="checkout_start").length;
-    document.querySelector("#attribVisits").textContent=visits;
-    document.querySelector("#attribCheckouts").textContent=checkouts;
-    document.querySelector("#attribRate").textContent=visits?((checkouts/visits)*100).toFixed(1)+"%":"0%";
-  }catch(_){}
-}
-loadSignalEvents();
-window.addEventListener("focus",loadSignalEvents);
 
 const videoScripts={
  "auto-ai":["WARNING LIGHT? STRANGE NOISE?","ASK AUTO AI FIRST","R79 Health • R99 Quote • R149 Buyer Check","DON'T GUESS. KNOW. — AUTO AI"],
