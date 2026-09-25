@@ -44,6 +44,9 @@ jobs:
           bash -n izakhono-owned-cloud/set-witness-mode.sh
           bash -n izakhono-owned-cloud/deploy-standby-node.sh
           bash -n izakhono-owned-cloud/stage-standby-replica.sh
+          bash -n izakhono-owned-cloud/deploy-command-centre.sh
+          node --check izakhono-command-centre-edge/server.mjs
+          node -e "JSON.parse(require('fs').readFileSync('owner-host/platforms.json','utf8'))"
       - name: Verify no paid provisioning commands
         run: |
           ! grep -R -E 'supabase projects create|vercel deploy|aws s3 mb|gcloud .* create' izakhono-owned-cloud

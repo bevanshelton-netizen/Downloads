@@ -39,6 +39,7 @@ scripts=(
   izakhono-owned-cloud/deploy-recovery-node.sh
   izakhono-owned-cloud/deploy-fortress-protector.sh
   izakhono-owned-cloud/go-live-izakhono-pay.sh
+  izakhono-owned-cloud/deploy-command-centre.sh
 )
 
 fail(){ echo "FAIL $*" >&2; exit 20; }
@@ -60,6 +61,10 @@ for file in "${scripts[@]}"; do
   bash -n "$file" || fail "$file shell syntax"
 done
 pass "Owned Cloud deployment and HA scripts parse cleanly"
+
+node --check izakhono-command-centre-edge/server.mjs || fail "Command Centre edge adapter syntax"
+node -e 'JSON.parse(require("fs").readFileSync("owner-host/platforms.json","utf8"))' || fail "owner-host platforms.json invalid"
+pass "Command Centre edge adapter and platform registry parse cleanly"
 
 grep -q 'automaticPromotion:false' izakhono-failover-node/server.mjs || fail "FAILOVER automatic promotion boundary missing"
 grep -q 'fence-required' izakhono-failover-node/server.mjs || fail "FAILOVER fencing boundary missing"
