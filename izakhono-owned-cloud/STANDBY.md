@@ -150,3 +150,39 @@ During controlled failover, after primary fencing, newer standby WITNESS leaders
     sudo bash /opt/izakhono-owned-cloud/set-standby-role.sh active
 
 The public route moves only after that ACTIVE proof succeeds. Data-safe failback returns the standby to PASSIVE after the route moves back to the reconciled primary.
+
+
+## Re-baseline the standby after reconciled failback
+
+A successful data-safe failback deliberately leaves the former active standby marked `standby_requires_rebaseline=true`. HA readiness is **not restored** until that standby is rebuilt from a fresh recovery point created by the newly active primary.
+
+Plan mode:
+
+    export IZAKHONO_HA_DRILL_REPORT=./IZAKHONO-CONTROLLED-FAILOVER-DRILL.json
+    export IZAKHONO_HA_RECONCILIATION_REPORT=./IZAKHONO-FAILBACK-RECONCILIATION.json
+    bash izakhono-owned-cloud/rebaseline-standby.sh plan
+
+Physical execution requires the approved REPLICA peer name and a recovery-key file already present on the standby:
+
+    export IZAKHONO_HA_PRIMARY_SSH=<primary-ssh-target>
+    export IZAKHONO_HA_STANDBY_SSH=<standby-ssh-target>
+    export IZAKHONO_REBASELINE_REPLICA_PEER=<primary-replica-peer-name-for-standby>
+    export IZAKHONO_REBASELINE_RECOVERY_KEY_FILE=/secure/recovery.env
+    export IZAKHONO_REBASELINE_CONFIRM=REBASELINE-STANDBY
+    bash izakhono-owned-cloud/rebaseline-standby.sh execute
+
+The re-baseline sequence:
+1. proves the current primary still holds the reconciled WITNESS fencing token;
+2. proves the standby remains PASSIVE with autonomous mutators stopped and no leadership;
+3. proves BACKUP encryption-key lineage matches without printing either key;
+4. creates a **fresh encrypted** primary snapshot;
+5. syncs it through the approved REPLICA peer;
+6. proves that exact SHA-256 is present and verified on the standby;
+7. stages/decrypts that exact recovery point;
+8. transactionally replaces authoritative standby state;
+9. starts only passive-safe services, including PACKAGE NODE for future CI activation;
+10. keeps NOTIFY, BACKUP scheduler, CI WORKER, GPU/model workers and mail relay stopped;
+11. restarts RUNTIME/EDGE only in fail-closed WITNESS mode with no leadership;
+12. writes `standby-rebaseline.json` and requires a new `PHYSICAL_HA_REACCEPTANCE`.
+
+No DNS/public route change occurs and no multi-master merge is attempted.
