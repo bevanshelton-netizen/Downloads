@@ -14,6 +14,7 @@ export const GAMER_PRICE = {
   billing: 'monthly',
   includes: ['creative-core', 'gamer-studio'],
   aiPolicy: 'starter-allowance-plus-optional-topups',
+  renderingPolicy: 'local-first-with-metered-remote-rendering-later',
 };
 
 export const SUITE_TOOLS = [
@@ -46,7 +47,7 @@ export const SUITE_TOOLS = [
     name: 'Gamer Studio',
     kicker: 'Gaming + esports',
     status: 'working-v1',
-    description: 'USD $15/month Gamer plan: the full Creative Suite plus stream overlays, gaming thumbnails, esports cards, vertical covers and the foundation for clips, emotes, sprites and game-dev assets.',
+    description: 'USD $15/month Gamer plan: the full Creative Suite plus stream overlays, gaming thumbnails, esports cards, vertical covers and local Clip Lab highlights plus the foundation for emotes, sprites and game-dev assets.',
     replaces: 'Separate streamer branding, thumbnail and esports creative tools',
     plan: 'gamer',
   },
