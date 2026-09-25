@@ -1,0 +1,58 @@
+{
+  "schema": "izakhono.premium-product-standard/v1",
+  "profile": "izakhono-premium-v1",
+  "purpose": "Make premium product quality a release requirement across the IZAKHONO portfolio.",
+  "architecture": {
+    "authority": "izakhono-owned",
+    "delivery": "hybrid",
+    "externalInfrastructureRole": "scale-preview-failover-only",
+    "externalMayBecomeSystemOfRecord": false,
+    "liveStatusRequiresIndependentHttpsVerification": true,
+    "immutableReleasePreferred": true,
+    "healthEndpointRequired": true
+  },
+  "productExperience": {
+    "brandClarityRequired": true,
+    "responsiveRequired": true,
+    "accessibleControlsRequired": true,
+    "keyboardUsabilityRequired": true,
+    "readableContrastRequired": true,
+    "clearPrimaryActionRequired": true,
+    "loadingAndErrorStatesRequired": true,
+    "brokenLinksAllowed": false
+  },
+  "engineering": {
+    "healthCheckRequired": true,
+    "sourceSyntaxChecksRequired": true,
+    "releaseParityRequiredForMirrors": true,
+    "secretsInFrontendAllowed": false,
+    "buildMustFailClosed": true,
+    "rollbackPathRequired": true
+  },
+  "securityPrivacy": {
+    "secureHeadersRequired": true,
+    "leastPrivilegeRequired": true,
+    "publicAdminInterfacesAllowed": false,
+    "childProductsRequireNoDirectChildPurchases": true,
+    "childProductsRequireNoPersonalisedAdvertising": true
+  },
+  "performance": {
+    "mobileFirst": true,
+    "unnecessaryThirdPartyDependenciesAllowed": false,
+    "assetCompressionRequired": true,
+    "cacheStrategyRequired": true
+  },
+  "media": {
+    "finalVideoMinimum": "1920x1080",
+    "captionsRequiredForSpokenVideo": true,
+    "guideMediaMustBeClearlyMarkedNonFinal": true,
+    "finalAudioRequiresRightsAndTechnicalReview": true
+  },
+  "releaseStates": [
+    "SOURCE_VALIDATED",
+    "PRODUCT_QUALITY_VALIDATED",
+    "OWNED_RUNTIME_VERIFIED",
+    "EXTERNAL_RESILIENCE_VERIFIED",
+    "PUBLIC_HTTPS_VERIFIED"
+  ]
+}
