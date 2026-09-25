@@ -167,6 +167,17 @@ jobs:
           curl -fsS http://127.0.0.1:8188/control.html | grep -q "GOSPEL TV"
           ! grep -R "ci-owner-control-token-1234567890" ports/kora-gospel-tv/control.html ports/kora-gospel-tv/control-room.json
 
+      - name: Restore owned YHVH Gospel Engine after outage proof
+        run: |
+          HOST=127.0.0.1 PORT=8892 YHVH_GOSPEL_ENGINE_TOKEN="ci-owner-engine-token-1234567890" YHVH_GOSPEL_ENGINE_DATA_DIR="$RUNNER_TEMP/yhvh-gospel-engine" node engines/yhvh-gospel-engine/engine.mjs >"$RUNNER_TEMP/yhvh-gospel-engine.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/yhvh-gospel-engine.pid"
+          for i in {1..20}; do
+            curl -fsS http://127.0.0.1:8892/health && exit 0
+            sleep 0.25
+          done
+          cat "$RUNNER_TEMP/yhvh-gospel-engine.log"
+          exit 1
+
       - name: Verify owned cross-origin intake
         run: |
           test "$(curl -sS -o /tmp/preflight.txt -D /tmp/preflight.headers -w '%{http_code}' -X OPTIONS http://127.0.0.1:8188/api/submissions -H 'origin: https://kora-network.vercel.app' -H 'access-control-request-method: POST' -H 'access-control-request-headers: content-type')" = "204"
