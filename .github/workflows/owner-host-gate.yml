@@ -138,6 +138,8 @@ jobs:
           grep -q 'deploy-kora-gospel-tv.sh' owner-host/owner-agent.sh
           grep -q 'yhvh-owner-agent-proof.json' owner-host/owner-agent.sh
           grep -q 'izakhono.yhvh-owner-agent-proof/v1' owner-host/owner-agent.sh
+          grep -q 'STATUS="waiting-public-dns"' owner-host/owner-agent.sh
+          grep -q 'ATTEMPTS="$PREV_ATTEMPTS"' owner-host/owner-agent.sh
           grep -q 'secrets_exposed:false' owner-host/owner-agent.sh
           grep -q 'log_path_exposed:false' owner-host/owner-agent.sh
           ! grep -q 'log_path:log' owner-host/owner-agent.sh
