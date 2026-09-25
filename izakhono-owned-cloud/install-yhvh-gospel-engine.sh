@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+if [ "${EUID:-$(id -u)}" -ne 0 ]; then exec sudo -E bash "$0" "$@"; fi
 ROOT="${1:-$(cd "$(dirname "$0")/.." && pwd)}"
 SOURCE="$ROOT/engines/yhvh-gospel-engine"
 ENV_EXAMPLE="$SOURCE/yhvh-gospel-engine.env.example"
