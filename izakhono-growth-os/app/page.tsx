@@ -20,6 +20,8 @@ type Plan = {
   note:string;
 };
 
+const ONE_PUBLIC_URL = "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-hub";
+
 const fallbackBrands = [
   "KORA","AUTO AI","FAISReady","Mandatory Regulatory Exams Platform",
   "DOXA-SURE","Edu-Build Institute – Shelton Campuses","IZAKHONO ONE","Izakhono Africa"
@@ -188,7 +190,7 @@ export default function GrowthOS(){
       {tab==="build"&&<CampaignBuilder brand={brand} form={form} setForm={setForm} plan={plan} planning={planning} buildPlan={buildPlan} saveDraft={saveDraft}/>}
       {tab==="creative"&&<CreativeLab brand={brand}/>}
       {tab==="organic"&&<OrganicSocial brand={brand}/>}
-      {tab==="leads"&&<LeadsRevenue demo={demo}/>}
+      {tab==="leads"&&<LeadsRevenue demo={demo} brand={brand}/>}
       {tab==="compliance"&&<Compliance/>}
       {tab==="approvals"&&<Approvals drafts={drafts} approve={approve}/>}
       {tab==="connections"&&<Connections/>}
@@ -210,7 +212,18 @@ function CommandCentre({brand,brands,connected,drafts,readyScore,demo,setTab}:{b
       </div>
     </section>
 
-    {demo&&<div className="demoStrip">DEMO DATA — sample performance is illustrative until your ad accounts and analytics are connected.</div>}
+    {brand==="IZAKHONO ONE"&&<section className="card oneLaunchCard">
+      <div className="cardHead"><div><span className="kicker">FOUNDING 1,000 · R0 OPERATING MODE</span><h3>Distribute ONE without tracking people.</h3></div><span className="state ready">PUBLIC PILOT</span></div>
+      <p className="measurementCopy">Use the same plain public link everywhere. Prioritise the IZAKHONO portfolio, founder-led sharing, campuses, partners and community networks. No UTM tags, personal referral IDs, campaign attribution or behavioural profile.</p>
+      <div className="rules"><span>Owned portfolio</span><span>Founder-led social</span><span>Campuses</span><span>Partners</span><span>Community groups</span><span>R0 paid spend</span></div>
+      <div className="actionsRow">
+        <a className="primary miniCta" href={ONE_PUBLIC_URL} target="_blank" rel="noreferrer">Open public ONE →</a>
+        <button onClick={async()=>{try{await navigator.clipboard.writeText(ONE_PUBLIC_URL)}catch{}}}>Copy plain launch link</button>
+        <button onClick={async()=>{try{if(navigator.share)await navigator.share({title:"IZAKHONO ONE",text:"Try private device-local AI with no account required.",url:ONE_PUBLIC_URL});else await navigator.clipboard.writeText(ONE_PUBLIC_URL)}catch{}}}>Share ONE</button>
+      </div>
+    </section>}
+
+    {demo&&brand!=="IZAKHONO ONE"&&<div className="demoStrip">DEMO DATA — sample performance is illustrative until your ad accounts and analytics are connected.</div>}
 
     <section className="metrics">
       <Metric label="Ad platforms connected" value={String(connected)+"/6"} note="OAuth required"/>
@@ -320,7 +333,33 @@ function OrganicSocial({brand}:{brand:string}){
   </div>;
 }
 
-function LeadsRevenue({demo}:{demo:boolean}){
+function LeadsRevenue({demo,brand}:{demo:boolean;brand:string}){
+  const [oneStats,setOneStats]=useState({registered:0,remaining:1000,feedback:0,ready:false});
+  useEffect(()=>{
+    if(brand!=="IZAKHONO ONE") return;
+    fetch("https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-interest")
+      .then(r=>r.json())
+      .then(d=>setOneStats({registered:Number(d.registered||0),remaining:Number(d.remaining||0),feedback:Number(d.feedbackReceived||0),ready:true}))
+      .catch(()=>{});
+  },[brand]);
+
+  if(brand==="IZAKHONO ONE"){
+    return <div className="stack">
+      <div className="demoStrip">ONE PRIVACY MODE — aggregate operating outcomes only. No user-level source, referral, campaign or behavioural attribution.</div>
+      <section className="metrics">
+        <Metric label="Founding registrations" value={String(oneStats.registered)} note={oneStats.ready?"Live aggregate":"Loading aggregate"}/>
+        <Metric label="Places remaining" value={String(oneStats.remaining)} note="Founding 1,000"/>
+        <Metric label="Explicit feedback" value={String(oneStats.feedback)} note="User-submitted only"/>
+        <Metric label="Paid media spend" value="R0" note="Held until economics are proven"/>
+      </section>
+      <section className="twoCol">
+        <div className="card"><span className="kicker">DISTRIBUTION</span><h3>What we measure</h3><div className="rules"><span>Aggregate registrations</span><span>Aggregate feedback</span><span>Public uptime</span><span>Device AI health</span><span>Owned bridge readiness</span></div></div>
+        <div className="card"><span className="kicker">WHAT WE DO NOT MEASURE</span><h3>No behavioural trail.</h3><div className="rules"><span>No clickstream</span><span>No UTM source</span><span>No referral ID</span><span>No ad identifier</span><span>No cross-site profile</span></div></div>
+      </section>
+      <section className="card"><div className="cardHead"><div><span className="kicker">NEXT OPERATING ACTION</span><h3>{oneStats.registered===0?"Distribution before more infrastructure.":"Convert feedback into product improvements."}</h3></div></div><p className="measurementCopy">{oneStats.registered===0?"The public route is healthy. Push the same plain ONE link through existing portfolio surfaces, founder channels, campuses and partners, then watch aggregate registrations—not individual tracking.":"Keep the no-account trial easy, review explicit feedback and continue the owned-server bridge in parallel."}</p></section>
+    </div>;
+  }
+
   return <div className="stack">
     {demo&&<div className="demoStrip">DEMO PIPELINE — replace with CRM + payment + analytics events when connected.</div>}
     <section className="metrics">
