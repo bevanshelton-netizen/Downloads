@@ -12,6 +12,7 @@ const LIVE_EMBED_URL = process.env.GOSPEL_TV_LIVE_EMBED_URL || "";
 const CONTROL_TOKEN = String(process.env.GOSPEL_TV_CONTROL_TOKEN || "").trim();
 const RECONCILE_RECEIPT = process.env.GOSPEL_RECONCILE_RECEIPT || "/var/lib/izakhono-deploy/kora-gospel-reconcile.json";
 const DEPLOYMENT_RECEIPT = process.env.YHVH_DEPLOYMENT_RECEIPT || "/var/lib/izakhono-deploy/kora-gospel-tv.json";
+const OWNER_AGENT_PROOF = process.env.YHVH_OWNER_AGENT_PROOF || "/var/lib/izakhono-deploy/yhvh-owner-agent-proof.json";
 const ENGINE_URL = String(process.env.YHVH_GOSPEL_ENGINE_URL || "http://127.0.0.1:8892").replace(/\/$/,"");
 const ENGINE_TOKEN = String(process.env.YHVH_GOSPEL_ENGINE_TOKEN || "").trim();
 const PUBLIC_INTAKE_ORIGINS = new Set([
@@ -182,6 +183,34 @@ async function readDeploymentReceipt(){
     };
   }
 }
+async function readOwnerAgentProof(){
+  try{
+    const x=JSON.parse(await readFile(OWNER_AGENT_PROOF,"utf8"));
+    return {
+      available:true,
+      schema:clean(x.schema,100),
+      product_id:clean(x.product_id,80),
+      engine_id:clean(x.engine_id,80),
+      request_id:clean(x.request_id,140),
+      action:clean(x.action,80),
+      status:clean(x.status,60),
+      attempts:Number(x.attempts||0),
+      exit_code:Number(x.exit_code||0),
+      source_commit:clean(x.source_commit,100),
+      source_authority:clean(x.source_authority,80),
+      started_at:clean(x.started_at,80),
+      ended_at:clean(x.ended_at,80),
+      secrets_exposed:x.secrets_exposed===true,
+      log_path_exposed:x.log_path_exposed===true
+    };
+  }catch{
+    return {
+      available:false,
+      product_id:"yhvh-gospel-tv",
+      engine_id:"yhvh-gospel-engine"
+    };
+  }
+}
 async function controlStatus(){
   const records=await readSubmissionRecords(200);
   const operations=await readOperations();
@@ -281,7 +310,8 @@ createServer(async (req,res)=>{
       authority:"IZAKHONO",
       product:"YHVH GOSPEL TV",
       product_id:"yhvh-gospel-tv",
-      receipt:await readDeploymentReceipt()
+      receipt:await readDeploymentReceipt(),
+      owner_agent:await readOwnerAgentProof()
     },{"access-control-allow-origin":"*"});
   }
 
