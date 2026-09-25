@@ -265,5 +265,13 @@ jobs:
             done
             exit 1
           fi
-          cat /tmp/one-base.html /tmp/one-short.html /tmp/one-port.html /tmp/one-health.html /tmp/one-clinic.html /tmp/one-contractors.html /tmp/one-guide.html > /tmp/izakhono-one-privacy.html
-          ! grep -Eqi 'utm_|googletagmanager|google-analytics|facebook[^<]*(pixel|track)|hotjar|clarity\.ms|mixpanel|amplitude|plausible|matomo|portfolio-growth/bridge\.js|izakhono-growth-event|iz_one_anon|iz_portfolio_anon' /tmp/izakhono-one-privacy.html
+          forbidden='utm_|googletagmanager|google-analytics|facebook[^<]*(pixel|track)|hotjar|clarity\.ms|mixpanel|amplitude|plausible|matomo|portfolio-growth/bridge\.js|izakhono-growth-event|iz_one_anon|iz_portfolio_anon'
+          privacy_fail=0
+          for file in /tmp/one-base.html /tmp/one-short.html /tmp/one-port.html /tmp/one-health.html /tmp/one-clinic.html /tmp/one-contractors.html /tmp/one-guide.html; do
+            if grep -Eiq "$forbidden" "$file"; then
+              echo "::error::Forbidden privacy/tracking marker detected in $file"
+              grep -Ein "$forbidden" "$file" | head -20 || true
+              privacy_fail=1
+            fi
+          done
+          test "$privacy_fail" -eq 0
