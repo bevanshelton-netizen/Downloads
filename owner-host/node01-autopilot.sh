@@ -33,6 +33,8 @@ drop01_watch="NOT_RUN"
 drop01_watch_exit=0
 crm_v020="NOT_RUN"
 crm_v020_exit=0
+crm_notify="NOT_RUN"
+crm_notify_exit=0
 
 if [ -n "$(git -C "$ROOT" status --porcelain)" ]; then
   source_state="BLOCKED_DIRTY"
@@ -89,6 +91,29 @@ NODE
     fi
   else
     crm_v020="CONTROL_OR_DEPLOYER_MISSING"
+  fi
+
+  if [ -f "$ROOT/owner-host/notify-crm-v020-completion.sh" ]; then
+    set +e
+    notify_out="$(bash "$ROOT/owner-host/notify-crm-v020-completion.sh" 2>&1)"
+    crm_notify_exit=$?
+    set -e
+    if [ "$crm_notify_exit" -eq 0 ]; then
+      case "$notify_out" in
+        *"CRM_NOTIFY=SENT"*) crm_notify="SENT" ;;
+        *"CRM_NOTIFY=ALREADY_SENT"*) crm_notify="ALREADY_SENT" ;;
+        *"CRM_NOTIFY=WAITING_SUCCESS"*) crm_notify="WAITING_SUCCESS" ;;
+        *"CRM_NOTIFY=WAITING_RECEIPT"*) crm_notify="WAITING_RECEIPT" ;;
+        *"CRM_NOTIFY=WAITING_NOTIFY_NODE"*) crm_notify="WAITING_NOTIFY_NODE" ;;
+        *"CRM_NOTIFY=WAITING_NOTIFY_NODE_CONFIG"*) crm_notify="WAITING_NOTIFY_NODE_CONFIG" ;;
+        *"CRM_NOTIFY=WAITING_NOTIFY_KEY"*) crm_notify="WAITING_NOTIFY_KEY" ;;
+        *) crm_notify="CHECKED" ;;
+      esac
+    else
+      crm_notify="FAILED_$crm_notify_exit"
+    fi
+  else
+    crm_notify="WATCHER_MISSING"
   fi
 fi
 
@@ -158,9 +183,9 @@ fi
 
 ended="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 commit="$(git -C "$ROOT" rev-parse HEAD 2>/dev/null || true)"
-node - "$REPORT" "$started" "$ended" "$commit" "$source_state" "$agent_state" "$runner_state" "$crm_v020" "$crm_v020_exit" "$local_one" "$owned_edge" "$owned_edge_exit" "$public_https" "$drop01_watch" "$drop01_watch_exit" <<'NODE'
+node - "$REPORT" "$started" "$ended" "$commit" "$source_state" "$agent_state" "$runner_state" "$crm_v020" "$crm_v020_exit" "$crm_notify" "$crm_notify_exit" "$local_one" "$owned_edge" "$owned_edge_exit" "$public_https" "$drop01_watch" "$drop01_watch_exit" <<'NODE'
 const fs=require('fs');
-const [path,started,ended,commit,source,agent,runner,crmV020,crmV020Exit,localOne,edge,edgeExit,publicHttps,drop01Watch,drop01WatchExit]=process.argv.slice(2);
+const [path,started,ended,commit,source,agent,runner,crmV020,crmV020Exit,crmNotify,crmNotifyExit,localOne,edge,edgeExit,publicHttps,drop01Watch,drop01WatchExit]=process.argv.slice(2);
 fs.writeFileSync(path,JSON.stringify({
   schema:'izakhono.node01-autopilot/v1',
   node:'NODE01',
@@ -171,6 +196,8 @@ fs.writeFileSync(path,JSON.stringify({
   github_runner:runner,
   crm_v020_deployment:crmV020,
   crm_v020_exit:Number(crmV020Exit),
+  crm_v020_notification:crmNotify,
+  crm_v020_notification_exit:Number(crmNotifyExit),
   one_local_runtime:localOne,
   owned_edge_state:edge,
   owned_edge_exit:Number(edgeExit),
@@ -192,6 +219,7 @@ echo "SOURCE=$source_state"
 echo "OWNER_AGENT=$agent_state"
 echo "GITHUB_RUNNER=$runner_state"
 echo "CRM_V020=$crm_v020"
+echo "CRM_V020_NOTIFY=$crm_notify"
 echo "ONE_LOCAL=$local_one"
 echo "OWNED_EDGE=$owned_edge"
 echo "PUBLIC_HTTPS=$public_https"
