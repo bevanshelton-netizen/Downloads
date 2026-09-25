@@ -9,6 +9,7 @@ EXTRA_HOSTS_RAW="${IZAKHONO_PUBLIC_EXTRA_HOSTS:-}"
 NS1="${IZAKHONO_NS1:-ns1.izakhonoafrica.co.za}"
 NS2="${IZAKHONO_NS2:-}"
 REPORT=/var/lib/izakhono-deploy/owned-public-edge.json
+HANDOFF=/var/lib/izakhono-deploy/IZAKHONO-PARENT-DNS-HANDOFF.txt
 mkdir -p /var/lib/izakhono-deploy
 chmod 0700 /var/lib/izakhono-deploy
 
@@ -43,6 +44,39 @@ node -e 'const p=process.argv[1].split(".").map(Number);if(p.length!==4||p.some(
 echo "IZAKHONO OWNED PUBLIC EDGE"
 echo "Owner host LAN IPv4: $LOCAL_IP"
 echo "Detected public IPv4: $PUBLIC_IP"
+
+{
+  echo "IZAKHONO PARENT DNS HANDOFF"
+  echo "Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  echo "Authority role: NODE01"
+  echo "Execution class: IZAKHONO_SOVEREIGN_NODE"
+  echo "Owner LAN IPv4: $LOCAL_IP"
+  echo "Public IPv4: $PUBLIC_IP"
+  echo
+  echo "PARENT / REGISTRAR RECORDS"
+  echo "A  $NS1 -> $PUBLIC_IP"
+  echo "NS $ZONE -> $NS1"
+  if [ -n "$NS2" ]; then
+    echo "A  $NS2 -> ${IZAKHONO_SECONDARY_DNS_IPV4:-<secondary-public-ip>}"
+    echo "NS $ZONE -> $NS2"
+  fi
+  echo
+  echo "OWNED AUTHORITATIVE ZONE"
+  echo "A  $HOSTNAME -> $PUBLIC_IP"
+  for extra_host in $(printf '%s' "$EXTRA_HOSTS_RAW" | tr ',' ' '); do
+    [ -n "$extra_host" ] && echo "A  $extra_host -> $PUBLIC_IP"
+  done
+  echo
+  echo "ROUTER / FIREWALL"
+  echo "Forward 53/udp -> $LOCAL_IP"
+  echo "Forward 53/tcp -> $LOCAL_IP"
+  echo "Forward 80/tcp -> $LOCAL_IP"
+  echo "Forward 443/tcp -> $LOCAL_IP"
+  echo
+  echo "Promotion rule: do not declare OWNED LIVE VERIFIED until independent public HTTPS root and /health both pass."
+} > "$HANDOFF"
+chmod 0600 "$HANDOFF"
+echo "Parent DNS handoff: $HANDOFF"
 
 cd "$ROOT/izakhono-dns-node"
 bash install-linux.sh
