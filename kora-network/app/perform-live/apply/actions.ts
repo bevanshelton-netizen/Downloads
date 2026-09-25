@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { emitKoraLead } from '@/lib/app-fabric';
 
 const eventTypes = new Set(['concert','festival','gospel','dj_set','comedy','spoken_word','cultural','other']);
 const setups = new Set(['professional_crew','obs_ready','phone_only','need_support']);
@@ -79,6 +80,17 @@ export async function submitLiveEventApplication(formData: FormData) {
     ? await supabase.from('live_event_applications').update(payload).eq('id', existing.id)
     : await supabase.from('live_event_applications').insert({ ...payload, status: 'submitted' });
   if (result.error) redirect(`/perform-live/apply?error=${encodeURIComponent(result.error.message)}`);
+
+  await emitKoraLead({
+    subjectRef:`live:${user.id}`,
+    name:artistName,
+    email:contactEmail,
+    company:artistName,
+    role:'performer / live-event applicant',
+    source:'kora-live-event-application',
+    title:`${artistName} — KORA live-event opportunity`,
+    note:`${eventType} · ${venueCity || countryCode} · ${genre} · proposed ${proposedDate || 'date not supplied'}`,
+  }).catch(()=>null);
 
   revalidatePath('/perform-live/apply');
   revalidatePath('/admin/live-events');

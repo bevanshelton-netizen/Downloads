@@ -1,8 +1,40 @@
 const APP_SLUG="auto-ai";
 const PRODUCTS=new Set(["vehicle-health-report","repair-second-opinion","used-car-buyer-check"]);
+const FABRIC_OWNED=String(process.env.IZAKHONO_FABRIC_URL||"https://fabric.izakhonoafrica.co.za").trim().replace(/\/$/,"");
+const FABRIC_TOKEN=String(process.env.IZAKHONO_FABRIC_INTERNAL_TOKEN||"").trim();
+const FABRIC_EXTERNAL="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway-event";
+const FABRIC_ORIGIN="https://auto.izakhonoafrica.co.za";
 
 const txt=(v)=>String(v??"").trim();
 const validEmail=(v)=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(txt(v));
+
+
+async function fabricPost(url,body,headers={},timeoutMs=900){
+  try{
+    const response=await fetch(url,{
+      method:"POST",
+      headers:{"Content-Type":"application/json",...headers},
+      body:JSON.stringify(body),
+      signal:AbortSignal.timeout(timeoutMs)
+    });
+    let data={}; try{data=await response.json()}catch{}
+    return {ok:response.ok||response.status===202,status:response.status,...data};
+  }catch(error){return {ok:false,status:null,error:String(error?.name||"network")}}
+}
+async function mirrorCheckout({reference,name,email,product,amountMinor}){
+  const body={
+    platform_id:"auto-ai",event_type:"checkout.started",subject_ref:reference,
+    contact:{name,email,phone:"",company:"",role:"motorist / buyer",source:"auto-ai-checkout"},
+    opportunity:{title:"AUTO AI — "+product.replaceAll("-"," "),value:Number(amountMinor||0)/100,currency:"ZAR",source:"auto-ai-checkout"},
+    note:"Secure checkout created. Payment is not confirmed by APP FABRIC."
+  };
+  const primary=FABRIC_TOKEN
+    ? await fabricPost(FABRIC_OWNED+"/api/fabric/event",body,{Authorization:"Bearer "+FABRIC_TOKEN},900)
+    : await fabricPost(FABRIC_OWNED+"/api/fabric/intake",body,{Origin:FABRIC_ORIGIN},900);
+  if(primary.ok)return {...primary,route:"owned-primary"};
+  const external=await fabricPost(FABRIC_EXTERNAL,{...body,fabric_bridge:true},{Origin:FABRIC_ORIGIN},1800);
+  return external.ok?{...external,route:"external-resilience"}:{ok:false,route:"unavailable"};
+}
 
 export function paymentsConfigured(){
   return Boolean(txt(process.env.IZAKHONO_PAY_URL)&&txt(process.env.IZAKHONO_PAY_API_KEY));
@@ -61,6 +93,8 @@ export async function createPayment(input={}){
   });
   const order=data?.order;
   if(!order||!order.id||order.product_code!==product||order.currency!=="ZAR") throw Object.assign(new Error("Invalid payment response."),{statusCode:502});
+
+  await mirrorCheckout({reference,name,email,product,amountMinor:order.amount_minor}).catch(()=>null);
 
   const method=txt(order.payment_method).toLowerCase();
   if(method==="ikhokha"){

@@ -1,0 +1,70 @@
+name: APP FABRIC Portfolio Source Rollout
+
+on:
+  pull_request:
+    paths:
+      - 'kora-network/lib/app-fabric.ts'
+      - 'kora-network/app/creators/apply/actions.ts'
+      - 'kora-network/app/perform-live/apply/actions.ts'
+      - 'kora-network/app/advertiser/actions.ts'
+      - 'doxa-sure/lead-capture.js'
+      - 'learner-driver-sa-v6-live/index.html'
+      - 'auto-ai/lib/payments.mjs'
+      - '.github/workflows/app-fabric-source-rollout.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'kora-network/lib/app-fabric.ts'
+      - 'kora-network/app/creators/apply/actions.ts'
+      - 'kora-network/app/perform-live/apply/actions.ts'
+      - 'kora-network/app/advertiser/actions.ts'
+      - 'doxa-sure/lead-capture.js'
+      - 'learner-driver-sa-v6-live/index.html'
+      - 'auto-ai/lib/payments.mjs'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: JavaScript syntax
+        run: |
+          node --check doxa-sure/lead-capture.js
+          node --check auto-ai/lib/payments.mjs
+
+      - name: Verify owned-first and external resilience contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'fabric.izakhonoafrica.co.za' kora-network/lib/app-fabric.ts
+          grep -q 'yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway-event' kora-network/lib/app-fabric.ts
+          grep -q 'emitKoraLead' kora-network/app/creators/apply/actions.ts
+          grep -q 'emitKoraLead' kora-network/app/perform-live/apply/actions.ts
+          grep -q 'emitKoraLead' kora-network/app/advertiser/actions.ts
+
+          grep -q "platform_id: 'doxa-sure'" doxa-sure/lead-capture.js
+          grep -q 'fabric_bridge: true' doxa-sure/lead-capture.js
+          grep -q "platform_id:'learner-driver-sa'" learner-driver-sa-v6-live/index.html
+          grep -q 'mirrorSchoolLead(payload)' learner-driver-sa-v6-live/index.html
+
+          grep -q 'platform_id:"auto-ai"' auto-ai/lib/payments.mjs
+          grep -q 'event_type:"checkout.started"' auto-ai/lib/payments.mjs
+          grep -q 'Payment is not confirmed by APP FABRIC' auto-ai/lib/payments.mjs
+
+      - name: Preserve payment and protected-data boundaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -q 'payment.confirmed' auto-ai/lib/payments.mjs
+          sensitive='(^|[^[:alnum:]_])(pin|otp|cvv|bank_password|account_number|id_number)([^[:alnum:]_]|$)'
+          ! grep -Eqi "$sensitive" kora-network/lib/app-fabric.ts
+          ! grep -Eqi "$sensitive" doxa-sure/lead-capture.js
+          ! grep -Eqi "$sensitive" auto-ai/lib/payments.mjs

@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getPlatformReleaseState } from '@/lib/platform-state';
+import { emitKoraLead } from '@/lib/app-fabric';
 
 const creatorTypes = new Set(['filmmaker','producer','writer','actor_creator','comedian','musician','documentarian','studio','other']);
 
@@ -59,6 +60,18 @@ export async function submitCreatorApplication(formData: FormData) {
     : await supabase.from('creator_applications').insert(payload);
 
   if (result.error) redirect(`/creators/apply?error=${encodeURIComponent(result.error.message)}`);
+
+  await emitKoraLead({
+    subjectRef:`creator:${user.id}`,
+    name:displayName,
+    email:user.email,
+    company:displayName,
+    role:creatorType,
+    source:'kora-creator-application',
+    title:`${displayName} — KORA creator relationship`,
+    note:`Creator application · ${countryCode} · ${languages.join(', ') || 'languages not supplied'}`,
+  }).catch(()=>null);
+
   revalidatePath('/creators/apply');
   redirect('/creators/apply?submitted=1');
 }
