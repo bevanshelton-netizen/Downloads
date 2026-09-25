@@ -216,13 +216,27 @@ jobs:
                grep -q 'Contractors' /tmp/one-contractors.html &&
                grep -q 'Stop quoting from instinct' /tmp/one-guide.html &&
                grep -q 'IZAKHONO PORTFOLIO' /tmp/portfolio.html &&
-               grep -q 'IZAKHONO PORTFOLIO' /tmp/launch.html; then
+               grep -q 'IZAKHONO' /tmp/launch.html &&
+               grep -q '<span>PORTFOLIO</span>' /tmp/launch.html; then
               ok=1
               break
             fi
             sleep 5
           done
 
-          test "$ok" -eq 1
+          if [ "$ok" -ne 1 ]; then
+            echo "::error::IZAKHONO ONE static route verification did not satisfy every content marker."
+            for spec in               '/tmp/one-base.html|IZAKHONO ONE'               '/tmp/one-short.html|HYBRID PUBLIC ROUTE'               '/tmp/one-short.html|izakhono-one-hub'               '/tmp/one-port.html|IZAKHONO ONE'               '/tmp/one-health.html|FREE 3-MINUTE BUSINESS HEALTH CHECK'               '/tmp/one-clinic.html|Business Clinic'               '/tmp/one-contractors.html|Contractors'               '/tmp/one-guide.html|Stop quoting from instinct'               '/tmp/portfolio.html|IZAKHONO PORTFOLIO'               '/tmp/launch.html|<span>PORTFOLIO</span>'
+            do
+              file="${spec%%|*}"
+              marker="${spec#*|}"
+              if [ ! -f "$file" ]; then
+                echo "::error::Missing fetched file: $file"
+              elif ! grep -Fq "$marker" "$file"; then
+                echo "::error::Missing marker [$marker] in $file"
+              fi
+            done
+            exit 1
+          fi
           cat /tmp/one-base.html /tmp/one-short.html /tmp/one-port.html /tmp/one-health.html /tmp/one-clinic.html /tmp/one-contractors.html /tmp/one-guide.html > /tmp/izakhono-one-privacy.html
           ! grep -Eqi 'utm_|googletagmanager|google-analytics|facebook[^<]*(pixel|track)|hotjar|clarity\.ms|mixpanel|amplitude|plausible|matomo|portfolio-growth/bridge\.js|izakhono-growth-event|iz_one_anon|iz_portfolio_anon' /tmp/izakhono-one-privacy.html
