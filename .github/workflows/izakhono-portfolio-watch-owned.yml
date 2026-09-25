@@ -1,4 +1,4 @@
-name: IZAKHONO Portfolio Watch Owned Deploy
+name: IZAKHONO Portfolio Watch Owned Activation
 
 on:
   workflow_dispatch:
@@ -13,19 +13,29 @@ permissions:
 
 concurrency:
   group: izakhono-portfolio-watch-owned
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
-  deploy:
-    runs-on: [self-hosted, linux, x64, izakhono]
-    timeout-minutes: 20
+  package-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - name: Verify package before install
+      - name: Verify portable owned-node package
         working-directory: izakhono-portfolio-watch
         run: |
           python3 -m py_compile app.py test_watch.py
           python3 -m unittest -v test_watch.py
+          docker build -t izakhono-portfolio-watch:ci .
+          echo 'Portfolio Watch package is ready for NODE01 activation.'
+
+  deploy-owned:
+    if: github.event_name == 'workflow_dispatch'
+    needs: package-and-verify
+    runs-on: [self-hosted, linux, x64, izakhono]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
       - name: Install on IZAKHONO owned node
         working-directory: izakhono-portfolio-watch
         run: sudo bash install-linux.sh

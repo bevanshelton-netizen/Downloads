@@ -15,10 +15,31 @@ permissions:
 
 concurrency:
   group: izakhono-portfolio-owner-host
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
+  verify-packages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify owner-host cutover packages without requiring NODE01
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n scripts/izakhono/portfolio-cutover.sh
+          for spec in             'yenzanow:ports/yenzanow:/healthz.txt'             'matric-rewrite:ports/matric-rewrite:/healthz.txt'             'izakhono-command-center:ports/izakhono-command-center:/healthz.txt'             'izakhono-containers:ports/izakhono-containers:/healthz.txt'
+          do
+            IFS=: read -r name path health <<< "$spec"
+            test -d "$path"
+            test -f "$path$health"
+            echo "READY_PACKAGE $name $path$health"
+          done
+          echo 'Owner-host packages verified. Physical deployment remains NODE01-authoritative.'
+
   yenzanow:
+    if: github.event_name == 'workflow_dispatch'
+    needs: verify-packages
     runs-on: [self-hosted, linux, x64, izakhono]
     timeout-minutes: 30
     steps:
@@ -26,6 +47,8 @@ jobs:
       - run: sh scripts/izakhono/portfolio-cutover.sh yenzanow ports/yenzanow 18101 /healthz.txt
 
   matric-rewrite:
+    if: github.event_name == 'workflow_dispatch'
+    needs: verify-packages
     runs-on: [self-hosted, linux, x64, izakhono]
     timeout-minutes: 30
     steps:
@@ -33,6 +56,8 @@ jobs:
       - run: sh scripts/izakhono/portfolio-cutover.sh matric-rewrite ports/matric-rewrite 18102 /healthz.txt
 
   command-center:
+    if: github.event_name == 'workflow_dispatch'
+    needs: verify-packages
     runs-on: [self-hosted, linux, x64, izakhono]
     timeout-minutes: 30
     steps:
@@ -40,6 +65,8 @@ jobs:
       - run: sh scripts/izakhono/portfolio-cutover.sh izakhono-command-center ports/izakhono-command-center 18103 /healthz.txt
 
   containers:
+    if: github.event_name == 'workflow_dispatch'
+    needs: verify-packages
     runs-on: [self-hosted, linux, x64, izakhono]
     timeout-minutes: 30
     steps:

@@ -9,9 +9,6 @@ on:
       - '.github/workflows/kora-production-*.yml'
       - '.github/workflows/kora-bootstrap-first-admin.yml'
 
-concurrency:
-  group: kora-ci-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
 
 jobs:
   build:

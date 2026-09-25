@@ -61,7 +61,7 @@ function verifyReceipt(receipt){
 try{
   await waitHealth();
 
-  let x=await adminPost("/v1/clusters",{name:"owned-cloud",leaseTtlSeconds:1});
+  let x=await adminPost("/v1/clusters",{name:"owned-cloud",leaseTtlSeconds:2});
   if(x.r.status!==201) throw new Error("Cluster create failed");
   const clusterId=x.body.cluster.id;
 
@@ -84,7 +84,7 @@ try{
   x=await memberPost(`/v1/clusters/${clusterId}/lease/acquire`,standbyKey);
   if(x.r.status!==409) throw new Error("Concurrent leader was not blocked");
 
-  await sleep(1300);
+  await sleep(2300);
   x=await memberPost(`/v1/clusters/${clusterId}/lease/acquire`,standbyKey);
   if(!x.r.ok || x.body.lease.fencingToken!==2 || !verifyReceipt(x.body.receipt)) throw new Error("Standby did not receive higher fencing token");
 
@@ -94,7 +94,7 @@ try{
   x=await adminPost(`/v1/clusters/${clusterId}/freeze`,{frozen:true});
   if(!x.r.ok) throw new Error("Freeze failed");
 
-  await sleep(1300);
+  await sleep(2300);
   x=await memberPost(`/v1/clusters/${clusterId}/lease/acquire`,primaryKey);
   if(x.r.status!==423) throw new Error("Frozen cluster accepted lease acquisition");
 
