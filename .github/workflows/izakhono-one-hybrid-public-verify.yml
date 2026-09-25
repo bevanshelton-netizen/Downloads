@@ -22,8 +22,6 @@ jobs:
         run: |
           set -euo pipefail
           BASE='https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-hub'
-          OWNED='https://one.domains.izakhonoafrica.co.za'
-
           health_code="$(curl -sS --max-time 20 -o /tmp/hybrid-health.json -w '%{http_code}' "$BASE?health=1")"
           echo "HYBRID_HEALTH=$health_code"
           test "$health_code" = "200"
@@ -34,8 +32,10 @@ jobs:
           if(!['external-resilience','owned-primary'].includes(x.route)) process.exit(3);
           if(x.tracking!==false||x.behavioural_profiling!==false||x.advertising_ids!==false||x.referral_attribution!==false||x.prompt_persistence!==false) process.exit(4);
           if(x.owned_authority!=='NODE 01') process.exit(5);
-          if(x.independent_https_verification_required!==true) process.exit(6);
-          if(x.external_resilience!==true) process.exit(7);
+          if(x.owned_authority_role!=='NODE01'||x.owned_execution_class!=='IZAKHONO_SOVEREIGN_NODE') process.exit(6);
+          if(x.zero_budget_mode!==true||x.custom_domain_required!==false) process.exit(7);
+          if(x.independent_https_verification_required!==true) process.exit(8);
+          if(x.external_resilience!==true) process.exit(9);
           process.stdout.write(x.route);
           NODE
           )"
@@ -81,10 +81,12 @@ jobs:
             root_code="$(curl -sS --max-time 20 -D "$root_headers" -o /dev/null -w '%{http_code}' "$BASE")"
             echo "HYBRID_ROOT=$root_code"
             test "$root_code" = "307"
-            grep -Eqi "^location: $OWNED/?\r?$" "$root_headers"
+            owned="$(awk 'BEGIN{IGNORECASE=1} /^location:/{gsub("\r","");print $2;exit}' "$root_headers")"
+            echo "OWNED_ENDPOINT=$owned"
+            case "$owned" in https://*) ;; *) echo "Owned redirect is not HTTPS" >&2; exit 12;; esac
 
-            owned_root="$(curl -sSL --max-time 20 -o /tmp/owned-root.html -w '%{http_code}' "$OWNED/")"
-            owned_health="$(curl -sSL --max-time 20 -o /tmp/owned-health.json -w '%{http_code}' "$OWNED/health")"
+            owned_root="$(curl -sSL --max-time 20 -o /tmp/owned-root.html -w '%{http_code}' "${owned%/}/")"
+            owned_health="$(curl -sSL --max-time 20 -o /tmp/owned-health.json -w '%{http_code}' "${owned%/}/health")"
             echo "OWNED_ROOT=$owned_root"
             echo "OWNED_HEALTH=$owned_health"
             test "$owned_root" = "200"
