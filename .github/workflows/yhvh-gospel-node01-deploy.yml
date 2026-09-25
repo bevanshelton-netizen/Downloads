@@ -50,7 +50,15 @@ jobs:
           set -euo pipefail
           ROOT=/opt/izakhono-source/Downloads
           test -d "$ROOT/.git"
-          git -C "$ROOT" fetch --quiet origin main
+          if [ -x "$ROOT/owner-host/sync-owner-source.sh" ]; then
+            sudo -n bash "$ROOT/owner-host/sync-owner-source.sh" "$ROOT"
+          else
+            echo "IZAKHONO sync helper missing locally; using approved external bootstrap only to recover the helper."
+            git -C "$ROOT" fetch --quiet origin main
+            git -C "$ROOT" show origin/main:owner-host/sync-owner-source.sh >/tmp/izakhono-sync-owner-source.sh
+            chmod 0700 /tmp/izakhono-sync-owner-source.sh
+            sudo -n bash /tmp/izakhono-sync-owner-source.sh "$ROOT"
+          fi
           sudo -n bash "$ROOT/owner-host/owner-agent.sh"
 
       - name: Verify owner-agent deployment receipt
@@ -62,9 +70,11 @@ jobs:
           sudo -n cat "$STATE" > /tmp/yhvh-owner-state.json
           node - <<'NODE'
           const x=require('/tmp/yhvh-owner-state.json');
-          if(x.request_id!=='yhvh-gospel-tv-engine-v2-final-20260925-03') process.exit(2);
+          if(x.request_id!=='yhvh-gospel-tv-owned-code-20260925-04') process.exit(2);
           if(x.action!=='deploy-yhvh-gospel-tv'||x.status!=='success'||x.exit_code!==0) process.exit(3);
+          if(x.source_authority!=='IZAKHONO_CODE') process.exit(4);
           console.log('OWNER_AGENT_DEPLOYMENT=VERIFIED');
+          console.log('SOURCE_AUTHORITY=IZAKHONO_CODE');
           NODE
 
       - name: Verify independent engine locally
