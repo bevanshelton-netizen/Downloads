@@ -178,7 +178,7 @@ EXIT_CODE=1
       ;;
     deploy-yhvh-gospel-tv)
       [ -n "$HOSTNAME" ] || HOSTNAME="gospel.domains.izakhonoafrica.co.za"
-      export KORA_GOSPEL_TV_HOSTNAME="$HOSTNAME"
+      export YHVH_GOSPEL_TV_HOSTNAME="$HOSTNAME"
       if [ "$SOURCE_AUTHORITY" = "IZAKHONO_CODE" ]; then
         echo "YHVH_STAGE=OWNED_CODE_ALREADY_AUTHORITATIVE"
         EXIT_CODE=0
@@ -194,12 +194,12 @@ EXIT_CODE=1
       fi
       if [ "$EXIT_CODE" -eq 0 ]; then
         echo "YHVH_STAGE=DEPLOY_TO_IZAKHONO_RUNTIME"
-        bash "$ROOT/izakhono-owned-cloud/deploy-kora-gospel-tv.sh" main
+        bash "$ROOT/izakhono-owned-cloud/deploy-yhvh-gospel-tv.sh" main
         EXIT_CODE=$?
       fi
       if [ "$EXIT_CODE" -eq 0 ]; then
         LOCAL="$(curl -fsS --max-time 5 -H "Host: $HOSTNAME" http://127.0.0.1:8080/health)"
-        node -e 'const x=JSON.parse(process.argv[1]||"{}");if(x.ok!==true||x.service!=="kora-gospel-tv"||x.runtime!=="izakhono-owned")process.exit(2)' "$LOCAL"
+        node -e 'const x=JSON.parse(process.argv[1]||"{}");if(x.ok!==true||x.service!=="yhvh-gospel-tv"||x.runtime!=="izakhono-owned")process.exit(2)' "$LOCAL"
         EXIT_CODE=$?
       fi
       if [ "$EXIT_CODE" -eq 0 ]; then
@@ -220,7 +220,7 @@ EXIT_CODE=1
       fi
       if [ "$EXIT_CODE" -eq 0 ]; then
         PUBLIC="$(curl -fsS --max-time 12 "https://$HOSTNAME/health")"
-        node -e 'const x=JSON.parse(process.argv[1]||"{}");if(x.ok!==true||x.service!=="kora-gospel-tv"||x.runtime!=="izakhono-owned")process.exit(2)' "$PUBLIC"
+        node -e 'const x=JSON.parse(process.argv[1]||"{}");if(x.ok!==true||x.service!=="yhvh-gospel-tv"||x.runtime!=="izakhono-owned")process.exit(2)' "$PUBLIC"
         EXIT_CODE=$?
       fi
       ;;
