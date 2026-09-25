@@ -2,14 +2,31 @@
 
 **Status:** Portfolio-wide operating directive  
 **Issued:** 22 September 2026  
+**Updated:** 25 September 2026  
 **Operator:** IZAKHONO AFRICA (PTY) LTD  
-**Policy:** Owned-first, externally reversible
+**Policy:** Owned-first, externally reversible, runtime-independent
 
 ## Decision
 
 Every IZAKHONO platform will target IZAKHONO-owned infrastructure as its primary technical home. Verified external infrastructure may remain in service, or be restored immediately, whenever it is needed for public availability, revenue continuity, distribution, resilience or recovery.
 
 No platform will be taken offline merely to demonstrate infrastructure ownership. A platform moves to the owned public route only after that route is proven healthy.
+
+## ChatGPT task-limit independence
+
+ChatGPT product limits are not IZAKHONO infrastructure limits.
+
+No IZAKHONO product, service, workflow or deployment may inherit or enforce ChatGPT task-count, concurrency, session, quota, context-window or product-plan limits as part of its runtime architecture.
+
+Portfolio requirements:
+
+- long-running, scheduled, recurring, batch, parallel and background jobs run on IZAKHONO-owned infrastructure first;
+- each platform has its own independently deployable engine and must continue operating without an active ChatGPT session;
+- each platform should use its own workers, job queues and orchestration for concurrent execution;
+- ChatGPT can assist with planning, coding, review, debugging and operator interaction, but is not a production runtime dependency;
+- external compute, queues, hosting and APIs may be used only as reversible adapters or resilience capacity where approved;
+- a ChatGPT “5 tasks” or similar interface limit must never become a product limit, worker limit, customer limit, deployment limit or operational bottleneck;
+- existing privacy, security, no-silent-tracking, fallback, rollback and live-verification rules remain mandatory.
 
 ## Authoritative architecture
 
@@ -96,6 +113,7 @@ Each platform repository, package or deployment record must carry:
 - its owned target and currently verified public route;
 - its external fallback route;
 - its data, authentication and payment dependencies;
+- its platform-specific runtime engine, workers, queues and orchestration where required;
 - health, backup, restore and rollback evidence;
 - one of the approved status labels above.
 
@@ -111,6 +129,7 @@ Therefore the current portfolio position is:
 - External infrastructure is an approved and reversible production bridge.
 - No existing verified external service is removed before owned public verification.
 - NODE01 public status remains unclaimed until a fresh machine-side and public-side verification report passes.
+- ChatGPT limits are treated only as limits of the ChatGPT interface, never as limits of the IZAKHONO runtime.
 
 ## Immediate execution order
 
@@ -118,7 +137,8 @@ Therefore the current portfolio position is:
 2. Verify EDGE reachability, public DNS and TLS from outside the IZAKHONO network.
 3. Record the current production and fallback URL for every platform.
 4. Preserve verified external routes while migrating one platform at a time.
-5. Promote only successful routes to **OWNED LIVE VERIFIED**.
-6. Fail back externally whenever an owned-route gate fails.
+5. Ensure each platform can execute its own queued and parallel workloads without ChatGPT as runtime.
+6. Promote only successful routes to **OWNED LIVE VERIFIED**.
+7. Fail back externally whenever an owned-route gate fails.
 
-This directive is effective immediately.
+This directive is effective immediately across the full IZAKHONO portfolio.
