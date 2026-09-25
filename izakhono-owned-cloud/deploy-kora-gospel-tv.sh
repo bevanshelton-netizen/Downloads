@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP="kora-gospel-tv"
 SOURCE_DIR="ports/kora-gospel-tv"
 HOSTNAME="${KORA_GOSPEL_TV_HOSTNAME:-gospel.domains.izakhonoafrica.co.za}"
@@ -77,9 +78,13 @@ test -f "$RELEASE/server.mjs" || fail "YHVH GOSPEL TV server.mjs missing."
 test -f "$RELEASE/index.html" || fail "YHVH GOSPEL TV index.html missing."
 node --check "$RELEASE/server.mjs"
 
+if [ ! -f "$ENGINE_ENV" ] || ! curl -fsS --max-time 2 http://127.0.0.1:8892/health >/dev/null 2>&1; then
+  echo "YHVH Gospel Engine missing or unhealthy. Installing/refeshing independent engine..."
+  bash "$ROOT/izakhono-owned-cloud/install-yhvh-gospel-engine.sh" "$ROOT"
+fi
 [ -f "$ENGINE_ENV" ] || fail "YHVH Gospel Engine is not installed."
 ENGINE_HEALTH="$(curl -fsS --max-time 4 http://127.0.0.1:8892/health)" || fail "YHVH Gospel Engine is not healthy."
-node -e 'const x=JSON.parse(process.argv[1]);if(x.ok!==true||x.service!=="yhvh-gospel-engine"||x.authority!=="IZAKHONO"||x.independent_engine!==true)process.exit(2)' "$ENGINE_HEALTH" || fail "YHVH Gospel Engine identity failed."
+node -e 'const x=JSON.parse(process.argv[1]);if(x.ok!==true||x.service!=="yhvh-gospel-engine"||x.authority!=="IZAKHONO"||x.independent_engine!==true||x.version!=="2.0.0")process.exit(2)' "$ENGINE_HEALTH" || fail "YHVH Gospel Engine v2 identity failed."
 ENGINE_TOKEN="$(sudo awk -F= '$1=="YHVH_GOSPEL_ENGINE_TOKEN"{sub(/^[^=]*=/,"");print;exit}' "$ENGINE_ENV")"
 [ "${#ENGINE_TOKEN}" -ge 24 ] || fail "YHVH Gospel Engine token unavailable."
 
