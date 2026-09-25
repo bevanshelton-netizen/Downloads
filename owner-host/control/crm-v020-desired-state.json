@@ -1,0 +1,12 @@
+{
+  "schema": "izakhono.crm-v020.owner-request/v1",
+  "id": "crm-v020-node01-20260925-01",
+  "enabled": true,
+  "requested_at": "2026-09-25T03:20:00Z",
+  "required_commit": "3d115c5ae5c092beb7011622fdda1534f885e68a",
+  "crm_version": "0.2.0",
+  "target": "NODE01",
+  "public_cutover": false,
+  "external_resilience_preserve": true,
+  "note": "Deploy the merged IZAKHONO CRM v0.2.0 package from canonical izakhono-builder main to the private NODE01 APP FABRIC runtime. Verify CRM health, fail-closed authentication and the existing internal APP FABRIC integration. Do not change public DNS/TLS or external resilience routes."
+}
