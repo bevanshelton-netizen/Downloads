@@ -9,6 +9,7 @@ ROOT="${IZAKHONO_AUTOPILOT_ROOT:-/opt/izakhono-source/Downloads}"
 REPORT_DIR="/var/lib/izakhono-deploy"
 REPORT="$REPORT_DIR/node01-autopilot.json"
 HOSTNAME="${IZAKHONO_ONE_AI_HOSTNAME:-one.domains.izakhonoafrica.co.za}"
+R0_MODE="${IZAKHONO_ONE_R0_MODE:-1}"
 LOCK="/run/lock/izakhono-node01-autopilot.lock"
 
 mkdir -p "$REPORT_DIR" "$(dirname "$LOCK")"
@@ -162,22 +163,45 @@ NODE
 fi
 
 if [ "$local_one" = "VERIFIED" ]; then
-  set +e
-  IZAKHONO_PUBLIC_HOSTNAME="$HOSTNAME" \
-  IZAKHONO_PUBLIC_ZONE="domains.izakhonoafrica.co.za" \
-  IZAKHONO_PUBLIC_EXTRA_HOSTS="$HOSTNAME" \
-    bash "$ROOT/izakhono-owned-cloud/activate-owned-public-edge.sh"
-  owned_edge_exit=$?
-  set -e
-  case "$owned_edge_exit" in
-    0) owned_edge="LOCAL_EDGE_PROVED" ;;
-    20) owned_edge="PARENT_DNS_OR_ROUTER_REQUIRED" ;;
-    21) owned_edge="TLS_OR_PORTS_REQUIRED" ;;
-    *) owned_edge="FAILED_$owned_edge_exit" ;;
-  esac
+  if [ "$R0_MODE" = "1" ]; then
+    set +e
+    IZAKHONO_BRIDGE_APP="izakhono-one-ai" \
+    IZAKHONO_BRIDGE_HEALTH_PATH="/health" \
+    IZAKHONO_BRIDGE_EXPECTED_SERVICE="" \
+    IZAKHONO_BRIDGE_EXPECTED_PRODUCT="IZAKHONO ONE AI" \
+    IZAKHONO_BRIDGE_EXPECTED_STATUS="healthy" \
+      bash "$ROOT/izakhono-owned-cloud/activate-tailscale-funnel.sh"
+    owned_edge_exit=$?
+    set -e
+    case "$owned_edge_exit" in
+      0) owned_edge="R0_BRIDGE_VERIFIED" ;;
+      20) owned_edge="R0_BRIDGE_AUTH_REQUIRED" ;;
+      21) owned_edge="R0_BRIDGE_FUNNEL_APPROVAL_REQUIRED" ;;
+      22) owned_edge="R0_BRIDGE_PUBLIC_HEALTH_PENDING" ;;
+      *) owned_edge="R0_BRIDGE_FAILED_$owned_edge_exit" ;;
+    esac
+  else
+    set +e
+    IZAKHONO_PUBLIC_HOSTNAME="$HOSTNAME" \
+    IZAKHONO_PUBLIC_ZONE="domains.izakhonoafrica.co.za" \
+    IZAKHONO_PUBLIC_EXTRA_HOSTS="$HOSTNAME" \
+      bash "$ROOT/izakhono-owned-cloud/activate-owned-public-edge.sh"
+    owned_edge_exit=$?
+    set -e
+    case "$owned_edge_exit" in
+      0) owned_edge="LOCAL_EDGE_PROVED" ;;
+      20) owned_edge="PARENT_DNS_OR_ROUTER_REQUIRED" ;;
+      21) owned_edge="TLS_OR_PORTS_REQUIRED" ;;
+      *) owned_edge="FAILED_$owned_edge_exit" ;;
+    esac
+  fi
 fi
 
-if curl -fsS --max-time 10 "https://$HOSTNAME/health" >/tmp/izakhono-one-autopilot-public.json 2>/dev/null; then
+if [ "$R0_MODE" = "1" ] && [ -s "$REPORT_DIR/tailscale-funnel-izakhono-one-ai.json" ]; then
+  if node -e 'const x=require(process.argv[1]);process.exit(x.state==="LIVE_VERIFIED"&&x.public_ready===true?0:1)' "$REPORT_DIR/tailscale-funnel-izakhono-one-ai.json" >/dev/null 2>&1; then
+    public_https="R0_BRIDGE_VERIFIED_PENDING_INDEPENDENT_WITNESS"
+  fi
+elif curl -fsS --max-time 10 "https://$HOSTNAME/health" >/tmp/izakhono-one-autopilot-public.json 2>/dev/null; then
   if node - <<'NODE' >/dev/null 2>&1
 const x=require('/tmp/izakhono-one-autopilot-public.json');
 if(x.product!=='IZAKHONO ONE AI'||x.status!=='healthy'||x.tracking!==false||x.promptPersistence!==false||x.chatReady!==true||x.accountReachable!==true||x.publicSignup!==true||x.emailVerificationRequired!==true) process.exit(2);
@@ -211,9 +235,9 @@ fi
 
 ended="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 commit="$(git -C "$ROOT" rev-parse HEAD 2>/dev/null || true)"
-node - "$REPORT" "$started" "$ended" "$commit" "$source_state" "$agent_state" "$one_agent_state" "$runner_state" "$crm_v020" "$crm_v020_exit" "$crm_notify" "$crm_notify_exit" "$local_one" "$owned_edge" "$owned_edge_exit" "$public_https" "$drop01_watch" "$drop01_watch_exit" <<'NODE'
+node - "$REPORT" "$started" "$ended" "$commit" "$source_state" "$agent_state" "$one_agent_state" "$runner_state" "$crm_v020" "$crm_v020_exit" "$crm_notify" "$crm_notify_exit" "$local_one" "$owned_edge" "$owned_edge_exit" "$public_https" "$drop01_watch" "$drop01_watch_exit" "$R0_MODE" <<'NODE'
 const fs=require('fs');
-const [path,started,ended,commit,source,agent,oneAgent,runner,crmV020,crmV020Exit,crmNotify,crmNotifyExit,localOne,edge,edgeExit,publicHttps,drop01Watch,drop01WatchExit]=process.argv.slice(2);
+const [path,started,ended,commit,source,agent,oneAgent,runner,crmV020,crmV020Exit,crmNotify,crmNotifyExit,localOne,edge,edgeExit,publicHttps,drop01Watch,drop01WatchExit,r0Mode]=process.argv.slice(2);
 fs.writeFileSync(path,JSON.stringify({
   schema:'izakhono.node01-autopilot/v1',
   node:'NODE01',
@@ -233,6 +257,8 @@ fs.writeFileSync(path,JSON.stringify({
   owned_edge_state:edge,
   owned_edge_exit:Number(edgeExit),
   public_https:publicHttps,
+  zero_budget_mode:r0Mode==="1",
+  custom_domain_required:r0Mode==="1"?false:true,
   allegro_drop01_milestone_watch:drop01Watch,
   allegro_drop01_milestone_watch_exit:Number(drop01WatchExit),
   live_claim:false,
@@ -257,6 +283,8 @@ echo "CRM_V020_NOTIFY=$crm_notify"
 echo "ONE_LOCAL=$local_one"
 echo "OWNED_EDGE=$owned_edge"
 echo "PUBLIC_HTTPS=$public_https"
+echo "ZERO_BUDGET_MODE=$R0_MODE"
+echo "CUSTOM_DOMAIN_REQUIRED=$([ "$R0_MODE" = "1" ] && echo false || echo true)"
 echo "ALLEGRO_DROP01_MILESTONE_WATCH=$drop01_watch"
 echo "LIVE_CLAIM=false"
 echo "RECEIPT=$REPORT"
