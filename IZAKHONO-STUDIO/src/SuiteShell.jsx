@@ -3,6 +3,7 @@ import App from './App.jsx';
 import PhotoLab from './PhotoLab.jsx';
 import SwitchCenter from './SwitchCenter.jsx';
 import GamerStudio from './GamerStudio.jsx';
+import GamerClipLab from './GamerClipLab.jsx';
 import { GAMER_PRICE, SUITE_PRICE, SUITE_PROMISES, SUITE_TOOLS } from './suiteCatalog.js';
 
 function Status({ value }) {
@@ -33,7 +34,7 @@ export default function SuiteShell() {
         </div>
 
         <div className="suite-scorecard">
-          <span>V0.4 CREATIVE SUITE</span>
+          <span>V0.6 CREATIVE SUITE</span>
           <strong>{SUITE_TOOLS.length}</strong>
           <b>connected tool families</b>
           <div>
@@ -78,6 +79,8 @@ export default function SuiteShell() {
       <SwitchCenter />
 
       <GamerStudio />
+
+      <GamerClipLab />
 
       <PhotoLab />
 
