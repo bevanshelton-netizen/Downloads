@@ -1,0 +1,23 @@
+name: IZAKHONO Command Library Alpha
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'izakhono-command-library/**'
+      - '.github/workflows/command-library-alpha.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'izakhono-command-library/**'
+      - '.github/workflows/command-library-alpha.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  alpha:
+    uses: bevanshelton-netizen/izakhono-builder/.github/workflows/izakhono-build-to-alpha.yml@1baefd6752104bcc8af5df6ac06626d3bd6259b8
+    with:
+      manifest_path: izakhono-command-library/.izakhono.json

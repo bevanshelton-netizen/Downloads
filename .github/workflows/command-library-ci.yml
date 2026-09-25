@@ -1,0 +1,42 @@
+name: IZAKHONO Command Library CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'izakhono-command-library/**'
+      - '.github/workflows/command-library-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: izakhono-command-library
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify command engine
+        run: npm run verify
+      - name: API smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+          node src/server.mjs >/tmp/izakhono-command-library.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true; cat /tmp/izakhono-command-library.log || true' EXIT
+          for _ in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8788/healthz >/tmp/health.json; then break; fi
+            sleep 1
+          done
+          node -e "const x=require('/tmp/health.json'); if(x.status!=='ok'||x.commands<25) process.exit(1)"
+          curl --fail --silent http://127.0.0.1:8788/v1/commands >/tmp/commands.json
+          node -e "const x=require('/tmp/commands.json'); if(!x.commands.some(c=>c.id==='fraudcheck')) process.exit(1)"
+          curl --fail --silent             -H 'Content-Type: application/json'             -d '{"input":"/assumptions /risks /solution Launch ECD360","platform":"ECD360"}'             http://127.0.0.1:8788/v1/expand >/tmp/expand.json
+          node -e "const x=require('/tmp/expand.json'); if(x.commands.length!==3||x.metadata.executedAction!==false) process.exit(1)"
