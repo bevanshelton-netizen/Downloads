@@ -1,0 +1,40 @@
+name: IZAKHONO Owned Runtime Public Probe
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/izakhono-owned-runtime-public-probe.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Probe existing IZAKHONO owned-runtime public endpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL='https://ai.izakhono.co.za/api/health'
+          code="$(curl -sS --max-time 15 -D /tmp/h -o /tmp/body -w '%{http_code}' "$URL" || true)"
+          echo "HTTP_CODE=$code"
+          echo "BODY_BEGIN"
+          head -c 4000 /tmp/body 2>/dev/null || true
+          echo
+          echo "BODY_END"
+          if [ "$code" = "200" ]; then
+            node - <<'NODE'
+          const fs=require('fs');
+          const t=fs.readFileSync('/tmp/body','utf8');
+          let x={}; try{x=JSON.parse(t)}catch{}
+          if(x.ok!==true) process.exit(2);
+          console.log('OWNED_RUNTIME_REACHABLE=true');
+          console.log('SERVICE='+(x.service||x.product||'unknown'));
+          NODE
+          else
+            echo 'OWNED_RUNTIME_REACHABLE=false'
+          fi
