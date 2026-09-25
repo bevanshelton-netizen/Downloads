@@ -19,8 +19,9 @@ Deno.serve(async(req:Request)=>{
   if(!auth.startsWith("Bearer "))return new Response(JSON.stringify({error:"Unauthorized"}),{status:401,headers:cors});
   const input=await req.json();
   const siteId=String(input.site_id||"");
-  const pkg=String(input.package||"");
-  if(!/^[0-9a-f-]{36}$/i.test(siteId)||!["start","business","commerce"].includes(pkg))return new Response(JSON.stringify({error:"Invalid checkout request"}),{status:400,headers:cors});
+  let pkg=String(input.package||"");
+  const billingType=String(input.billing_type||"initial");
+  if(!/^[0-9a-f-]{36}$/i.test(siteId)||!["start","business","commerce"].includes(pkg)||!["initial","renewal"].includes(billingType))return new Response(JSON.stringify({error:"Invalid checkout request"}),{status:400,headers:cors});
   const h={apikey:PUBLIC_KEY,authorization:auth,accept:"application/json","content-type":"application/json"};
   const sr=await fetch(SUPABASE_URL+"/rest/v1/sites?id=eq."+encodeURIComponent(siteId)+"&select=id,owner_id,name,slug",{headers:h});
   const sites=await sr.json(); const site=sites?.[0];
@@ -30,8 +31,18 @@ Deno.serve(async(req:Request)=>{
     business:{once_off_cents:249900,monthly_cents:19900},
     commerce:{once_off_cents:499900,monthly_cents:34900}
   };
+  let subscription:any=null;
+  if(billingType==="renewal"){
+    const sr2=await fetch(SUPABASE_URL+"/rest/v1/webstart_subscriptions?site_id=eq."+encodeURIComponent(siteId)+"&status=neq.cancelled&select=id,package,monthly_cents,status,current_period_end,next_due_at&limit=1",{headers:h});
+    const subs=await sr2.json();
+    subscription=Array.isArray(subs)?subs[0]:null;
+    if(!sr2.ok||!subscription)return new Response(JSON.stringify({error:"No active subscription found for this website"}),{status:409,headers:cors});
+    pkg=String(subscription.package);
+  }
   const price=pricing[pkg];
-  const or=await fetch(SUPABASE_URL+"/rest/v1/orders",{method:"POST",headers:{...h,prefer:"return=representation"},body:JSON.stringify({owner_id:site.owner_id,site_id:site.id,package:pkg,once_off_cents:price.once_off_cents,monthly_cents:price.monthly_cents})});
+  const onceOff=billingType==="initial"?price.once_off_cents:0;
+  const monthly=billingType==="renewal"?Number(subscription.monthly_cents||price.monthly_cents):price.monthly_cents;
+  const or=await fetch(SUPABASE_URL+"/rest/v1/orders",{method:"POST",headers:{...h,prefer:"return=representation"},body:JSON.stringify({owner_id:site.owner_id,site_id:site.id,package:pkg,once_off_cents:onceOff,monthly_cents:monthly,billing_type:billingType,subscription_id:subscription?.id||null})});
   const orders=await or.json(); const order=orders?.[0];
   if(!or.ok||!order)return new Response(JSON.stringify({error:"Could not create order",details:orders}),{status:500,headers:cors});
   const external="WS-"+order.id;
@@ -44,7 +55,7 @@ Deno.serve(async(req:Request)=>{
     amount,
     currency:"ZAR",
     requesterUrl:APP_BASE,
-    description:"IZAKHONO WebStart "+pkg+" — setup plus first month",
+    description:billingType==="initial"?"IZAKHONO WebStart "+pkg+" — setup plus first month":"IZAKHONO WebStart "+pkg+" — monthly renewal",
     paymentReference:site.slug+"-"+order.id.slice(0,8),
     mode:IK_MODE,
     externalTransactionID:external,
