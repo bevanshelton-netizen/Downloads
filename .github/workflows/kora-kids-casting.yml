@@ -164,18 +164,15 @@ jobs:
           mkdir -p /tmp/lebo-takes
           node --input-type=module - "$SESSION" <<'NODE'
           import fs from "node:fs";
-          const x=JSON.parse(fs.readFileSync(process.argv[2],"utf8"));
-          fs.writeFileSync("/tmp/line-ids.txt",x.lines.map(l=>l.id).join("\n")+"\n");
-          NODE
-          i=0
-          while IFS= read -r id; do
-            i=$((i+1))
-            ffmpeg -y -f lavfi -i "sine=frequency=$((250 + i * 7)):sample_rate=48000:duration=1.1" -ac 1 "/tmp/lebo-takes/$id.wav"
-          done </tmp/line-ids.txt
-          node --input-type=module - "$SESSION" <<'NODE'
-          import fs from "node:fs";
+          import { spawnSync } from "node:child_process";
           const x=JSON.parse(fs.readFileSync(process.argv[2],"utf8")),takes={};
-          for(const l of x.lines)takes[l.id]={path:"/tmp/lebo-takes/"+l.id+".wav",approved:true,reviewer:"CI director"};
+          x.lines.forEach((l,i)=>{
+            const path="/tmp/lebo-takes/"+l.id+".wav";
+            const r=spawnSync("ffmpeg",["-y","-f","lavfi","-i","sine=frequency="+(250+(i+1)*7)+":sample_rate=48000:duration=1.1","-ac","1",path],{stdio:"inherit"});
+            if(r.status!==0)process.exit(10+i);
+            if(!fs.existsSync(path))process.exit(40+i);
+            takes[l.id]={path,approved:true,reviewer:"CI director"};
+          });
           fs.writeFileSync("/tmp/all-takes.json",JSON.stringify(takes,null,2));
           NODE
 
