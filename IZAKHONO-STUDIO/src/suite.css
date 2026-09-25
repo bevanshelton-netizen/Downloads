@@ -1051,3 +1051,92 @@
   .clip-value-grid { grid-template-columns: 1fr; }
   .clip-actions .clip-export { grid-column: auto; }
 }
+\n
+.suite-legal-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 28px clamp(22px,6vw,86px);
+  border-top: 1px solid var(--suite-line);
+  background: #07090d;
+}
+.suite-legal-footer > div {
+  display: grid;
+  gap: 5px;
+}
+.suite-legal-footer b { color: var(--suite-white); }
+.suite-legal-footer span { color: var(--suite-muted); font-size: 12px; line-height: 1.4; }
+.suite-legal-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-content: start;
+}
+.suite-legal-footer a,
+.legal-page a { color: var(--suite-cyan); }
+.legal-page {
+  min-height: 100vh;
+  padding: clamp(34px,6vw,78px) clamp(20px,7vw,110px);
+  background: #07090d;
+  color: var(--suite-white);
+}
+.legal-back {
+  display: inline-flex;
+  margin-bottom: 28px;
+  text-decoration: none;
+  font-weight: 800;
+}
+.legal-page > h1 {
+  max-width: 980px;
+  margin: 12px 0 28px;
+  font-family: 'Archivo Black', sans-serif;
+  font-size: clamp(44px,8vw,92px);
+  line-height: .92;
+  letter-spacing: -.055em;
+}
+.legal-content {
+  max-width: 920px;
+  color: #c2ccda;
+  line-height: 1.7;
+}
+.legal-content h2 {
+  color: #fff;
+  font-family: 'Archivo Black', sans-serif;
+  font-size: clamp(28px,4vw,48px);
+  line-height: 1;
+}
+.legal-content h3 {
+  margin-top: 28px;
+  color: var(--suite-cyan);
+}
+.legal-price-grid {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 12px;
+  margin: 24px 0;
+}
+.legal-price-grid article {
+  display: grid;
+  gap: 7px;
+  padding: 22px;
+  border: 1px solid #2d384c;
+  border-radius: 20px;
+  background: #10151f;
+}
+.legal-price-grid span { color: var(--suite-cyan); font-size: 11px; font-weight: 900; letter-spacing: .12em; }
+.legal-price-grid strong { color: var(--suite-lime); font-family: 'Archivo Black', sans-serif; font-size: 54px; line-height: 1; }
+.legal-price-grid b { color: #fff; }
+.legal-price-grid p { margin: 0; color: var(--suite-muted); }
+.legal-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 34px;
+  padding-top: 22px;
+  border-top: 1px solid var(--suite-line);
+}
+.legal-merchant { color: var(--suite-muted); font-size: 12px; }
+@media (max-width: 700px) {
+  .suite-legal-footer { flex-direction: column; }
+  .legal-price-grid { grid-template-columns: 1fr; }
+}

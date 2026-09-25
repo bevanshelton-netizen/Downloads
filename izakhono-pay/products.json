@@ -187,6 +187,19 @@
           }
         }
       }
+    },
+    "creative-suite": {
+      "display_name": "IZAKHONO Creative Suite",
+      "callback_url": "",
+      "pricing_reference": {
+        "currency": "USD",
+        "creative_30_day": 5,
+        "gamer_30_day": 15,
+        "settlement_currency_required": "ZAR",
+        "settlement_mapping_status": "required-before-live-registration",
+        "recurring_billing_verified": false
+      },
+      "products": {}
     }
   }
 }

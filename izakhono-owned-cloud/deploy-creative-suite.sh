@@ -98,13 +98,17 @@ if [ ! -f "$APP_ENV" ]; then
 IZAKHONO_RUNTIME_MODE=owned
 REGISTRATION_ENABLED=false
 CHECKOUT_ENABLED=false
+BILLING_MODE=30-day-renewable-until-recurring-verified
+RECURRING_BILLING_VERIFIED=false
 EOF
   sudo install -o root -g izakhono -m 0640 "$TMP_ENV" "$APP_ENV"
   rm -f "$TMP_ENV"
 fi
 
-grep -q '^REGISTRATION_ENABLED=false$' "$APP_ENV" || fail "Registration must remain disabled until end-to-end auth verification passes."
-grep -q '^CHECKOUT_ENABLED=false$' "$APP_ENV" || fail "Checkout must remain disabled until the $5 payment/cancellation flow passes."
+grep -Fxq 'REGISTRATION_ENABLED=false' "$APP_ENV" || fail "Registration must remain disabled until end-to-end auth verification passes."
+grep -Fxq 'CHECKOUT_ENABLED=false' "$APP_ENV" || fail "Checkout must remain disabled until Creative $5 and Gamer $15 settlement mapping plus payment/entitlement E2E passes."
+grep -Fxq 'BILLING_MODE=30-day-renewable-until-recurring-verified' "$APP_ENV" || fail "Creative Suite billing mode drifted before recurring billing verification."
+grep -Fxq 'RECURRING_BILLING_VERIFIED=false' "$APP_ENV" || fail "Recurring billing cannot be enabled before end-to-end verification."
 
 BODY="$(node - "$APP" "$HOSTNAME" "$RELEASE" "$APP_ENV" <<'NODE'
 const [app,hostname,releasePath,envFile]=process.argv.slice(2);
@@ -123,7 +127,7 @@ RESPONSE="$(curl -fsS -X POST "$CONTROL_URL/v1/deployments"   -H "content-type: 
 DEPLOYMENT_ID="$(node -e 'const x=JSON.parse(process.argv[1]);if(!x.id)process.exit(2);process.stdout.write(x.id)' "$RESPONSE")"
 
 HEALTH="$(curl -fsS -H "Host: $HOSTNAME" "$PROXY_URL/health")"
-node -e 'const x=JSON.parse(process.argv[1]);if(x.ok!==true||x.service!=="izakhono-creative-suite"||x.checkout_enabled!==false||x.registration_enabled!==false)process.exit(2)' "$HEALTH"
+node -e 'const x=JSON.parse(process.argv[1]);if(x.ok!==true||x.service!=="izakhono-creative-suite"||x.checkout_enabled!==false||x.registration_enabled!==false||x.recurring_billing_verified!==false||x.pricing_reference_usd?.creative!==5||x.pricing_reference_usd?.gamer!==15)process.exit(2)' "$HEALTH"
 curl -fsS -H "Host: $HOSTNAME" "$PROXY_URL/" | grep -Fq '<div id="root"></div>'
 
 EDGE="NOT_RUNNING"
@@ -159,6 +163,9 @@ fs.writeFileSync(path,JSON.stringify({
   public_https:publicHttps,
   registration_enabled:false,
   checkout_enabled:false,
+  pricing_reference_usd:{creative:5,gamer:15},
+  billing_mode:"30-day-renewable-until-recurring-verified",
+  recurring_billing_verified:false,
   external_fallback_preserved:true,
   generated_at:new Date().toISOString()
 },null,2)+"\n");
@@ -178,6 +185,9 @@ EDGE=$EDGE
 PUBLIC_HTTPS=$PUBLIC_HTTPS
 REGISTRATION_ENABLED=NO
 CHECKOUT_ENABLED=NO
+CREATIVE_PRICE_REFERENCE_USD=5
+GAMER_PRICE_REFERENCE_USD=15
+BILLING_MODE=30-DAY-RENEWABLE-NO-AUTORENEW-YET
 EXTERNAL_FALLBACK=PRESERVED
 RECEIPT=$REPORT
 EOF
