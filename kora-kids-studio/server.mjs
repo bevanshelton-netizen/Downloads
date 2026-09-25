@@ -107,7 +107,7 @@ async function startRender(jobId,mode){
  const jobPath=join(JOBS,jobId+".json");
  const job=await json(jobPath);
  if(job.status!=="approved"||job.publishable!==true)throw new Error("job-not-approved");
- if(job.series?.id!=="lebo-jabu")throw new Error("series-render-worker-not-ready");
+ if(!["lebo-jabu","tumi-tala"].includes(job.series?.id))throw new Error("series-render-worker-not-ready");
  if(job.renderTarget?.id!=="izakhono-local"||job.renderTarget?.mode!=="owned")throw new Error("job-not-owned-render");
  const id=randomUUID(),dir=join(RENDERS,id);
  await mkdir(dir,{recursive:true});
