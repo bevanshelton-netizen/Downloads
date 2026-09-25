@@ -1,0 +1,12 @@
+{
+  "schema": "izakhono.growth-bridge.owner-request/v1",
+  "id": "growth-bridge-node01-20260925-01",
+  "enabled": true,
+  "action": "deploy-growth-os-bridge",
+  "requested_at": "2026-09-25T18:55:00Z",
+  "expires_at": "2026-09-26T18:55:00Z",
+  "max_attempts": 2,
+  "params": {
+    "hostname": "bridge.domains.izakhonoafrica.co.za"
+  }
+}
