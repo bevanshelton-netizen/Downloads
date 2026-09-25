@@ -31,6 +31,8 @@ owned_edge_exit=0
 public_https="NOT_VERIFIED"
 drop01_watch="NOT_RUN"
 drop01_watch_exit=0
+crm_v020="NOT_RUN"
+crm_v020_exit=0
 
 if [ -n "$(git -C "$ROOT" status --porcelain)" ]; then
   source_state="BLOCKED_DIRTY"
@@ -52,6 +54,41 @@ else
     fi
   else
     agent_state="EXIT_$agent_exit"
+  fi
+
+  CRM_CONTROL="$ROOT/owner-host/control/crm-v020-desired-state.json"
+  if [ -f "$CRM_CONTROL" ] && [ -f "$ROOT/owner-host/deploy-crm-v020.sh" ]; then
+    CRM_REQUEST="$(node - "$CRM_CONTROL" <<'NODE'
+const fs=require('fs');
+const x=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
+if(x.schema!=='izakhono.crm-v020.owner-request/v1') process.exit(2);
+if(x.enabled!==true) process.exit(3);
+if(x.crm_version!=='0.2.0') process.exit(4);
+if(x.target!=='NODE01') process.exit(5);
+if(x.public_cutover!==false||x.external_resilience_preserve!==true) process.exit(6);
+if(!/^[A-Za-z0-9._:-]{8,120}$/.test(String(x.id||''))) process.exit(7);
+process.stdout.write(x.id);
+NODE
+)" || CRM_REQUEST=""
+    if [ -n "$CRM_REQUEST" ]; then
+      set +e
+      IZAKHONO_CRM_REQUEST_ID="$CRM_REQUEST" bash "$ROOT/owner-host/deploy-crm-v020.sh"
+      crm_v020_exit=$?
+      set -e
+      if [ "$crm_v020_exit" -eq 0 ]; then
+        if [ -s /var/lib/izakhono-deploy/crm-v020.json ]; then
+          crm_v020="$(node -e 'try{const x=require(process.argv[1]);process.stdout.write(x.status==="success"?"DEPLOYED_INTERNAL_OWNED":"RECEIPT_"+String(x.status||"UNKNOWN").toUpperCase())}catch{process.stdout.write("RECEIPT_INVALID")}' /var/lib/izakhono-deploy/crm-v020.json)"
+        else
+          crm_v020="NO_RECEIPT"
+        fi
+      else
+        crm_v020="FAILED_$crm_v020_exit"
+      fi
+    else
+      crm_v020="CONTROL_INVALID_OR_DISABLED"
+    fi
+  else
+    crm_v020="CONTROL_OR_DEPLOYER_MISSING"
   fi
 fi
 
@@ -121,9 +158,9 @@ fi
 
 ended="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 commit="$(git -C "$ROOT" rev-parse HEAD 2>/dev/null || true)"
-node - "$REPORT" "$started" "$ended" "$commit" "$source_state" "$agent_state" "$runner_state" "$local_one" "$owned_edge" "$owned_edge_exit" "$public_https" "$drop01_watch" "$drop01_watch_exit" <<'NODE'
+node - "$REPORT" "$started" "$ended" "$commit" "$source_state" "$agent_state" "$runner_state" "$crm_v020" "$crm_v020_exit" "$local_one" "$owned_edge" "$owned_edge_exit" "$public_https" "$drop01_watch" "$drop01_watch_exit" <<'NODE'
 const fs=require('fs');
-const [path,started,ended,commit,source,agent,runner,localOne,edge,edgeExit,publicHttps,drop01Watch,drop01WatchExit]=process.argv.slice(2);
+const [path,started,ended,commit,source,agent,runner,crmV020,crmV020Exit,localOne,edge,edgeExit,publicHttps,drop01Watch,drop01WatchExit]=process.argv.slice(2);
 fs.writeFileSync(path,JSON.stringify({
   schema:'izakhono.node01-autopilot/v1',
   node:'NODE01',
@@ -132,6 +169,8 @@ fs.writeFileSync(path,JSON.stringify({
   source_state:source,
   owner_agent:agent,
   github_runner:runner,
+  crm_v020_deployment:crmV020,
+  crm_v020_exit:Number(crmV020Exit),
   one_local_runtime:localOne,
   owned_edge_state:edge,
   owned_edge_exit:Number(edgeExit),
@@ -152,6 +191,7 @@ echo "IZAKHONO NODE01 AUTOPILOT"
 echo "SOURCE=$source_state"
 echo "OWNER_AGENT=$agent_state"
 echo "GITHUB_RUNNER=$runner_state"
+echo "CRM_V020=$crm_v020"
 echo "ONE_LOCAL=$local_one"
 echo "OWNED_EDGE=$owned_edge"
 echo "PUBLIC_HTTPS=$public_https"
