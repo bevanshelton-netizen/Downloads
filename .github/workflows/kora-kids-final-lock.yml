@@ -7,6 +7,7 @@ on:
       - "kora-kids-mastering/**"
       - "kora-kids-audio-intake/**"
       - "kora-kids-finishing/**"
+      - "kora-kids-studio/**"
       - "owner-host/FINALISE-KORA-KIDS-EPISODE1.ps1"
       - "FINALISE-KORA-KIDS-EPISODE1.cmd"
       - ".github/workflows/kora-kids-final-lock.yml"
@@ -16,6 +17,7 @@ on:
       - "kora-kids-mastering/**"
       - "kora-kids-audio-intake/**"
       - "kora-kids-finishing/**"
+      - "kora-kids-studio/**"
       - "owner-host/FINALISE-KORA-KIDS-EPISODE1.ps1"
       - "FINALISE-KORA-KIDS-EPISODE1.cmd"
       - ".github/workflows/kora-kids-final-lock.yml"
@@ -45,6 +47,7 @@ jobs:
           node --check kora-kids-mastering/worker.mjs
           node --check kora-kids-audio-intake/worker.mjs
           node --check kora-kids-finishing/worker.mjs
+          node --check kora-kids-studio/server.mjs
 
       - name: Build approved Episode 1 finishing proof
         run: |
@@ -153,6 +156,37 @@ jobs:
           ok("release-still-required",x.releaseApprovalRequired===true);
           if(fail.length){console.error("Failed:",fail.join(", "));process.exit(2)}
           NODE
+
+      - name: Verify privacy-safe Final Creative Lock Desk
+        env:
+          KORA_KIDS_STUDIO_WORKSPACE: /tmp/kora-workspace
+        run: |
+          mkdir -p /tmp/kora-workspace/creative-locks/ci-lock
+          mkdir -p /tmp/kora-workspace/masters/ci-master
+          cp /tmp/final-lock/creative-lock.json /tmp/kora-workspace/creative-locks/ci-lock/creative-lock.json
+          cp /tmp/master-final/mastering-result.json /tmp/kora-workspace/masters/ci-master/mastering-result.json
+          node kora-kids-studio/server.mjs >/tmp/final-state-studio.log 2>&1 &
+          echo $! >/tmp/final-state-studio.pid
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:8890/api/final-creative >/tmp/final-state.json && break
+            sleep 1
+          done
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const raw=fs.readFileSync("/tmp/final-state.json","utf8");
+          const x=JSON.parse(raw);
+          if(x.locks?.length!==1||x.masters?.length!==1) process.exit(2);
+          const lock=x.locks[0],master=x.masters[0];
+          if(lock.readyForMastering!==true||lock.jabuCueCount!==6) process.exit(3);
+          if(master.masterCandidate!==true||master.creativeLockUsed!==true||master.jabuSfxMixedCount!==5) process.exit(4);
+          if(master.broadcastMaster!==false||master.releaseApprovalRequired!==true) process.exit(5);
+          if(raw.includes("privateAssetPath")||raw.includes("/tmp/kora-workspace/audio-assets")||raw.includes('"path"')) process.exit(6);
+          NODE
+
+      - name: Stop Final Creative Lock Desk
+        if: always()
+        run: |
+          test ! -f /tmp/final-state-studio.pid || kill "$(cat /tmp/final-state-studio.pid)" || true
 
       - name: Prove incomplete creative set is refused
         run: |
