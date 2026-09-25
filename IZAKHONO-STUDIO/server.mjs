@@ -54,7 +54,7 @@ const server = http.createServer(async (req, res) => {
       return send(res, 200, JSON.stringify({
         ok: true,
         service: 'izakhono-creative-suite',
-        version: '0.4.0',
+        version: '0.6.0',
         runtime: process.env.IZAKHONO_RUNTIME_MODE || 'portable',
         registration_enabled: REGISTRATION_ENABLED,
         checkout_enabled: CHECKOUT_ENABLED,
