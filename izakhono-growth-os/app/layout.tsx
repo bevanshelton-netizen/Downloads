@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
+import "./premium-v1.css";
 import ShareButton from "./share-button";
 import LearnerDriverPromo from "./learner-driver-promo";
 
@@ -21,5 +22,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({children}:{children:React.ReactNode}) {
-  return <html lang="en"><body><Script id="izakhono-portfolio-growth" src="https://bevanshelton-netizen.github.io/Downloads/portfolio-growth/bridge.js" data-platform="growth-os" strategy="afterInteractive" />{children}<ShareButton /><LearnerDriverPromo /></body></html>;
+  return <html lang="en"><body data-quality-profile="izakhono-premium-v1"><Script id="izakhono-portfolio-growth" src="https://bevanshelton-netizen.github.io/Downloads/portfolio-growth/bridge.js" data-platform="growth-os" strategy="afterInteractive" />{children}<ShareButton /><LearnerDriverPromo /></body></html>;
 }
