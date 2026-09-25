@@ -31,9 +31,11 @@ jobs:
           echo "WHOIS_EXIT=$rc"
 
           # Emit only operational registry fields; deliberately exclude contact/person data.
-          grep -Ei '^(Domain Name|Domain:|Registrar|Sponsoring Registrar|Registry Expiry|Expiry|Expiration|Status|Domain Status|Name Server|Nameserver|NSSET|DNSSEC|Updated|Last Updated|Registered|Creation)' /tmp/whois.txt \
+          grep -Ei 'domain name|registrar|sponsor|reseller|provider|status|expir|name[ -]?server|nameserver|nsset|dnssec|updated|registered|creation' /tmp/whois.txt \
+            | sed -E 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/[redacted-email]/g' \
+            | sed -E 's/(\+?[0-9][0-9 ()-]{7,}[0-9])/[redacted-phone]/g' \
             | sed -E 's/[[:space:]]+$//' \
-            | head -n 120 || true
+            | head -n 160 || true
 
           echo '=== DNS PARENT ==='
           printf 'NS_ROOT='; dig +short NS "$DOMAIN" | paste -sd, - || true
