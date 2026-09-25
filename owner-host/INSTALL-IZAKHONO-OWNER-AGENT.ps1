@@ -69,10 +69,10 @@ $statusPath = Join-Path $desktop "IZAKHONO-OWNER-AGENT-STATUS.txt"
   "Task: $taskName"
   "Interval: every 5 minutes while the Windows owner session can run WSL"
   "Control: canonical Downloads/main owner-host/control/desired-state.json"
-  "Allowed actions: activate-one-local-model, configure-one-ai, deploy-one-ai, verify-one-ai"
+  "Allowed actions: activate-one-local-model, configure-one-ai, deploy-one-ai, verify-one-ai, deploy-yhvh-gospel-tv"
   "Arbitrary command execution from the control document: DISABLED"
   ""
-  "A pending ONE local-model activation request is queued in the canonical control file."
+  "A pending allow-listed deployment request is queued in the canonical control file."
   "Machine execution is only confirmed by /var/lib/izakhono-owner-agent/state.json and deployment receipts."
 ) | Set-Content -Path $statusPath -Encoding UTF8
 
