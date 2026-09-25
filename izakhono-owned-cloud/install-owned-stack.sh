@@ -47,6 +47,11 @@ install_component "IZAKHONO REPLICA NODE" "izakhono-replica-node"
 install_component "IZAKHONO FAILOVER NODE" "izakhono-failover-node"
 install_component "IZAKHONO DNS NODE" "izakhono-dns-node"
 
+echo "Installing owned HA state-promotion helpers..."
+sudo mkdir -p /opt/izakhono-owned-cloud
+sudo install -o root -g izakhono -m 0750 "$HERE/promote-standby-state.sh" /opt/izakhono-owned-cloud/promote-standby-state.sh
+sudo install -o root -g izakhono -m 0640 "$HERE/standby-state-swap.mjs" /opt/izakhono-owned-cloud/standby-state-swap.mjs
+
 if [ "${IZAKHONO_EDGE_MODE:-direct}" = "tunnel" ]; then
   (cd "$ROOT/izakhono-edge-node" && IZAKHONO_EDGE_MODE=tunnel bash install-linux.sh)
   EDGE_STATUS="INSTALLED_TUNNEL_ORIGIN"
