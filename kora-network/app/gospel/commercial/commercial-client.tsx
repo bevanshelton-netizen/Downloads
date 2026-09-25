@@ -32,7 +32,7 @@ export default function CommercialLead({primaryUrl,externalUrl}:Props){
       territory:String(fd.get('territory')||''),
       language:String(fd.get('language')||'English'),
       message:String(fd.get('message')||''),
-      sourceChannel:'kora-gospel-commercial-desk',
+      sourceChannel:'yhvh-gospel-commercial-desk',
       details:{
         package:packageId,
         organisation:String(fd.get('organisation')||''),
@@ -44,10 +44,28 @@ export default function CommercialLead({primaryUrl,externalUrl}:Props){
     };
 
     try{
-      const ext=await post(externalUrl,{...payload,sourceChannel:'yhvh-external-commercial-launch'});
-      if(!ext.r.ok)throw new Error(ext.body.error||'Commercial intake is temporarily unavailable.');
-      setStatus('Commercial enquiry received. Reference: '+ext.body.reference);
-      setRoute('ENQUIRY RECEIVED · IZAKHONO COMMERCIAL REVIEW');form.reset();
+      let fallBack=false;
+      try{
+        const owned=await post(primaryUrl.replace(/\/$/,'')+'/api/submissions',payload);
+        if(owned.r.ok){
+          setStatus('Commercial enquiry received by IZAKHONO. Reference: '+owned.body.reference);
+          setRoute('OWNED · IZAKHONO COMMERCIAL REVIEW');
+          form.reset();return;
+        }
+        if(owned.r.status>=500||[404,405].includes(owned.r.status))fallBack=true;
+        else throw new Error(owned.body.error||'Commercial intake is temporarily unavailable.');
+      }catch(err){
+        if(err instanceof TypeError||String(err instanceof Error?err.message:'').includes('Failed to fetch'))fallBack=true;
+        else throw err;
+      }
+
+      if(!fallBack)throw new Error('Commercial intake is temporarily unavailable.');
+
+      const ext=await post(externalUrl,{...payload,sourceChannel:'yhvh-external-commercial-buffer'});
+      if(!ext.r.ok)throw new Error(ext.body.error||'Both commercial intake routes are temporarily unavailable.');
+      setStatus('Commercial enquiry buffered safely for IZAKHONO review. Reference: '+ext.body.reference);
+      setRoute('EXTERNAL BUFFER · IZAKHONO COMMERCIAL REVIEW');
+      form.reset();
     }catch(err){
       setStatus(err instanceof Error?err.message:'Unable to submit right now.');setRoute('');
     }finally{setBusy(false)}
