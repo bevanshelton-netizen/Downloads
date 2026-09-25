@@ -135,7 +135,7 @@ jobs:
           node -e 'const x=JSON.parse(require("fs").readFileSync("owner-host/control/desired-state.json","utf8")); const ok=new Set(["activate-one-local-model","configure-one-ai","deploy-one-ai","verify-one-ai","deploy-yhvh-gospel-tv"]); if(!x.id||!ok.has(x.action)||typeof x.enabled!=="boolean")process.exit(2); if(x.params?.hostname&&!String(x.params.hostname).endsWith(".izakhonoafrica.co.za"))process.exit(3)'
           grep -q 'const allowed=new Set(\["activate-one-local-model","configure-one-ai","deploy-one-ai","verify-one-ai","deploy-yhvh-gospel-tv"\])' owner-host/owner-agent.sh
           grep -q 'deploy-yhvh-gospel-tv)' owner-host/owner-agent.sh
-          grep -q 'deploy-kora-gospel-tv.sh' owner-host/owner-agent.sh
+          grep -q 'deploy-yhvh-gospel-tv.sh' owner-host/owner-agent.sh
           grep -q 'yhvh-owner-agent-proof.json' owner-host/owner-agent.sh
           grep -q 'izakhono.yhvh-owner-agent-proof/v1' owner-host/owner-agent.sh
           grep -q 'STATUS="waiting-public-dns"' owner-host/owner-agent.sh

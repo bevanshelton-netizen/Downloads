@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KORA GOSPEL TV — Owner Control Room</title>
+<meta name="robots" content="noindex,nofollow,noarchive">
+<style>
+:root{--bg:#06101c;--panel:#0d1c2f;--line:#ffffff20;--gold:#f5c451;--mint:#83f0c4;--text:#f8fbff;--muted:#9db0c8;--wine:#7d1538}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 12% 0,#263b7440,transparent 30%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,sans-serif}
+.wrap{width:min(1180px,92vw);margin:auto;padding:40px 0 80px}.ey{font-size:12px;font-weight:900;letter-spacing:.14em;color:var(--gold)}h1{font-size:clamp(42px,7vw,82px);line-height:.9;letter-spacing:-.055em;margin:12px 0}p{color:var(--muted);line-height:1.6}.login,.panel{border:1px solid var(--line);background:#ffffff0b;border-radius:22px;padding:22px}.login{max-width:700px;margin:26px 0}.row{display:flex;gap:10px;flex-wrap:wrap}.row input{flex:1;min-width:260px;border:1px solid var(--line);background:#07111f;color:white;border-radius:14px;padding:13px 14px}.btn{border:0;border-radius:999px;padding:12px 18px;font-weight:900;cursor:pointer;background:var(--gold);color:#2a2108}.btn.secondary{background:#ffffff0d;color:#fff;border:1px solid var(--line)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:20px}.metric b{font-size:36px;color:var(--gold)}.tag{display:inline-flex;padding:6px 9px;border-radius:999px;background:#ffffff0d;border:1px solid var(--line);font-size:12px;font-weight:800;margin:4px}.ok{color:var(--mint)}.warn{color:#ffe29a}.hidden{display:none}.queue{margin-top:22px}.record{border-top:1px solid var(--line);padding:14px 0}.record:first-child{border-top:0}.record small{color:var(--gold)}.notice{font-size:13px}.top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.status{font-size:12px;font-weight:900;letter-spacing:.1em}
+</style>
+</head>
+<body><main class="wrap">
+<div class="top"><div><div class="ey">IZAKHONO OWNED CONTROL PLANE</div><h1>GOSPEL TV<br>CONTROL ROOM</h1></div><div class="status" id="status">LOCKED</div></div>
+<p>Owner operations for the worldwide KORA GOSPEL TV network. This surface is deliberately read-only until audited broadcast write controls are added.</p>
+<section class="login" id="login">
+  <h2>Owner access</h2><p class="notice">Enter the control token configured on the IZAKHONO Gospel runtime. The token is stored only in this browser session.</p>
+  <div class="row"><input id="token" type="password" autocomplete="current-password" placeholder="Owner control token"><button class="btn" onclick="unlock()">Open control room</button></div>
+  <p id="error" class="warn"></p>
+</section>
+<section id="dash" class="hidden">
+  <div class="row"><button class="btn secondary" onclick="refresh()">Refresh</button><button class="btn secondary" onclick="lock()">Lock</button></div>
+  <div class="grid" id="metrics"></div>
+  <section class="panel" style="margin-top:18px"><div class="ey">REGIONS</div><h2>Worldwide readiness</h2><div id="regions"></div></section>
+  <section class="panel" style="margin-top:18px"><div class="ey">LANGUAGE FEEDS</div><h2>Priority languages</h2><div id="languages"></div></section>
+  <section class="panel" style="margin-top:18px"><div class="ey">RIGHTS + LIVE EVENTS</div><h2>Broadcast readiness rules</h2><div id="rights"></div></section>
+  <section class="panel" style="margin-top:18px"><div class="ey">COMMERCIAL INVENTORY</div><h2>Sponsorship slots</h2><div id="sponsors"></div></section>
+  <section class="panel" style="margin-top:18px"><div class="ey">HYBRID RECONCILIATION</div><h2>External buffer → IZAKHONO</h2><div id="reconciliation"></div></section>
+  <section class="panel queue"><div class="ey">LATEST INTAKE</div><h2>Submissions queue</h2><div id="records"></div></section>
+</section>
+</main>
+<script>
+let ownerToken=sessionStorage.getItem('koraGospelControlToken')||'';
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+async function api(path){const r=await fetch(path,{headers:{authorization:'Bearer '+ownerToken},cache:'no-store'});if(!r.ok)throw new Error((await r.json().catch(()=>({}))).error||('Request failed '+r.status));return r.json()}
+async function unlock(){ownerToken=document.getElementById('token').value.trim();if(!ownerToken)return;sessionStorage.setItem('koraGospelControlToken',ownerToken);await refresh()}
+function lock(){sessionStorage.removeItem('koraGospelControlToken');ownerToken='';document.getElementById('dash').classList.add('hidden');document.getElementById('login').classList.remove('hidden');document.getElementById('status').textContent='LOCKED'}
+async function refresh(){try{
+  const [s,q]=await Promise.all([api('/api/control/status'),api('/api/control/submissions?limit=30')]);
+  document.getElementById('login').classList.add('hidden');document.getElementById('dash').classList.remove('hidden');document.getElementById('status').innerHTML='<span class="ok">● OWNER SESSION ACTIVE</span>';
+  document.getElementById('metrics').innerHTML=[
+    ['Channel',s.channel.live_feed_configured?'LIVE FEED READY':'LAUNCH MODE'],
+    ['Content',s.queues.content],['Partners',s.queues.partner],['Prayer',s.queues.prayer]
+  ].map(x=>'<article class="panel metric"><small>'+esc(x[0])+'</small><br><b>'+esc(x[1])+'</b></article>').join('');
+  document.getElementById('regions').innerHTML=s.regions.map(r=>'<span class="tag">'+esc(r.name)+' · '+esc(r.status)+'</span>').join('');
+  document.getElementById('languages').innerHTML=s.priority_languages.map(x=>'<span class="tag">'+esc(x)+'</span>').join('');
+  const ops=s.operations||{};
+  document.getElementById('rights').innerHTML='<p><b>Rights states:</b> '+esc((ops.rights_workflow?.states||[]).join(' → '))+'</p><p><b>Live-event states:</b> '+esc((ops.live_event_workflow?.states||[]).join(' → '))+'</p><p class="notice">'+esc(ops.approval_rule||'')+'</p>';
+  document.getElementById('sponsors').innerHTML=(ops.sponsorship_inventory||[]).map(x=>'<span class="tag">'+esc(x.slot)+' · '+esc(x.status)+'</span>').join('');
+  const rec=s.reconciliation||{};
+  document.getElementById('reconciliation').innerHTML=rec.available
+    ?'<div class="grid"><article class="panel metric"><small>Imported</small><br><b>'+esc(rec.imported)+'</b></article><article class="panel metric"><small>Duplicate repairs</small><br><b>'+esc(rec.duplicates)+'</b></article><article class="panel metric"><small>Failures</small><br><b>'+esc(rec.failed)+'</b></article></div><p class="notice">Last reconciliation: '+esc(rec.completed_at||'unknown')+' · Worker: '+esc(rec.worker||'unknown')+' · Authority: '+esc(rec.authority||'IZAKHONO')+'</p>'
+    :'<p class="warn">No reconciliation receipt yet. The external buffer remains non-authoritative until the owner-side reconciler has run.</p>';
+  document.getElementById('records').innerHTML=q.records.length?q.records.map(r=>'<div class="record"><small>'+esc(r.category)+' · '+esc(r.reference)+'</small><h3>'+esc(r.name||r.type||'Anonymous intake')+'</h3><p>'+esc(r.message)+'</p><span class="notice">'+esc(r.created_at)+'</span></div>').join(''):'<p>No submissions yet.</p>';
+}catch(e){document.getElementById('error').textContent=e.message;lock();}}
+if(ownerToken)refresh();
+</script>
+</body></html>

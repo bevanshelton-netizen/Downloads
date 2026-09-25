@@ -21,7 +21,7 @@ echo "Public hostname: $HOSTNAME"
 echo "Policy: IZAKHONO origin first; external tunnel is transport only."
 
 LOCAL_HEALTH="$(curl -fsS -H "Host: $HOSTNAME" "$LOCAL_ORIGIN/health" 2>/dev/null || true)"
-node -e 'const x=JSON.parse(process.argv[1]||"{}");if(x.ok!==true||x.service!=="kora-gospel-tv"||x.runtime!=="izakhono-owned")process.exit(1)' "$LOCAL_HEALTH" || {
+node -e 'const x=JSON.parse(process.argv[1]||"{}");if(x.ok!==true||x.service!=="yhvh-gospel-tv"||x.runtime!=="izakhono-owned")process.exit(1)' "$LOCAL_HEALTH" || {
   echo "Owned YHVH runtime is not healthy on $LOCAL_ORIGIN." >&2
   exit 11
 }
@@ -147,7 +147,7 @@ PUBLIC_OK=false
 PUBLIC_HEALTH=""
 for i in $(seq 1 24); do
   PUBLIC_HEALTH="$(curl -fsS --max-time 10 "https://$HOSTNAME/health" 2>/dev/null || true)"
-  if node -e 'const x=JSON.parse(process.argv[1]||"{}");if(x.ok!==true||x.service!=="kora-gospel-tv"||x.runtime!=="izakhono-owned")process.exit(1)' "$PUBLIC_HEALTH" 2>/dev/null; then PUBLIC_OK=true; break; fi
+  if node -e 'const x=JSON.parse(process.argv[1]||"{}");if(x.ok!==true||x.service!=="yhvh-gospel-tv"||x.runtime!=="izakhono-owned")process.exit(1)' "$PUBLIC_HEALTH" 2>/dev/null; then PUBLIC_OK=true; break; fi
   sleep 5
 done
 
