@@ -217,6 +217,17 @@ async function controlStatus(){
   const reconciliation=await readReconciliation();
   const engine=await readEngineState();
   const counts=records.reduce((acc,row)=>{acc[row.category]=(acc[row.category]||0)+1;return acc},{});
+  const applicants=records.filter(row=>String(row.source_channel||row.sourceChannel||"")==="kora-global-acquisition-desk");
+  const classes=applicants.reduce((acc,row)=>{
+    const key=String(row.details?.partnerClass||"unspecified");
+    acc[key]=(acc[key]||0)+1;
+    return acc;
+  },{});
+  const reviewFlags={
+    minors:applicants.filter(row=>String(row.details?.minorsInvolved||"")==="yes").length,
+    fundraising:applicants.filter(row=>String(row.details?.fundraisingInvolved||"")==="yes").length,
+    health_claims:applicants.filter(row=>String(row.details?.healthClaims||"")==="yes").length
+  };
   return {
     ok:true,
     service:"kora-gospel-tv-control",
@@ -224,6 +235,13 @@ async function controlStatus(){
     channel:{mode:engine.available?engine.mode:(validEmbed(LIVE_EMBED_URL)?"live-feed":"launch-mode"),live_feed_configured:Boolean(validEmbed(LIVE_EMBED_URL))},
     engine,
     queues:{content:counts.content||0,partner:counts.partner||0,prayer:counts.prayer||0,total:records.length},
+    onboarding:{
+      charter_version:"2026-09-25",
+      total:applicants.length,
+      verification_pending:applicants.filter(row=>String(row.details?.verificationStatus||"pending")==="pending").length,
+      partner_classes:classes,
+      review_flags:reviewFlags
+    },
     regions:[
       {id:"africa",name:"Africa",status:"launch-region"},
       {id:"europe",name:"Europe",status:"distribution-ready"},
@@ -345,6 +363,14 @@ createServer(async (req,res)=>{
       if(!["content","partner","prayer"].includes(category)) return json(res,400,{error:"Invalid submission category."},cors);
       if(category!=="prayer" && (!clean(data.name,120)||!clean(data.contact,160))) return json(res,400,{error:"Name and contact details are required."},cors);
       if(!clean(data.message,1600)) return json(res,400,{error:"Please add a message."},cors);
+      const sourceChannel=clean(data.sourceChannel||"yhvh-owned",60);
+      const details=cleanDetails(data.details);
+      if(sourceChannel==="kora-global-acquisition-desk"){
+        if(details.charterVersion!=="2026-09-25"||details.charterAccepted!=="true") return json(res,400,{error:"The current YHVH Partner & Contributor Charter must be accepted."},cors);
+        if(details.editorialIndependence!=="true") return json(res,400,{error:"Editorial independence must be acknowledged."},cors);
+        if(data.rightsAttested!==true) return json(res,400,{error:"Rights and permissions attestation is required."},cors);
+        if(details.minorsInvolved==="yes"&&details.safeguardingAttested!=="true") return json(res,400,{error:"Safeguarding attestation is required when minors are involved."},cors);
+      }
       const saved=await saveSubmission(data,req);
       return json(res,201,{
         ok:true,
