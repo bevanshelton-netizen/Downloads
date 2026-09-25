@@ -1,0 +1,167 @@
+{
+  "schema": "kora-kids.localisation-pack/v1",
+  "seriesId": "lebo-jabu",
+  "episodeSlug": "jam-day-under-the-baobab",
+  "sourceLanguage": "en-ZA",
+  "targetLanguage": "hi",
+  "targetName": "Hindi",
+  "voice": "hi-IN",
+  "textDirection": "ltr",
+  "region": "South Asia",
+  "status": "machine-draft",
+  "humanReviewRequired": true,
+  "brandNames": {
+    "Lebo": "Lebo",
+    "Jabu": "Jabu",
+    "translateNames": false
+  },
+  "translationOrigin": "AI-assisted draft; not approved for publication",
+  "lines": [
+    {
+      "id": "s01-l01",
+      "sceneId": "s01",
+      "speaker": "Lebo",
+      "source": "Whoa! Jabu, look at that tree! Its tummy is bigger than yours!",
+      "text": "वाह! Jabu, उस पेड़ को देखो! उसका पेट तुमसे भी बड़ा है!",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s01-l02",
+      "sceneId": "s01",
+      "speaker": "Lebo",
+      "source": "Okay, okay. Maybe not bigger. But why is the trunk so wide?",
+      "text": "ठीक है, ठीक है। शायद तुमसे बड़ा नहीं। लेकिन उसका तना इतना चौड़ा क्यों है?",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s02-l01",
+      "sceneId": "s02",
+      "speaker": "Lebo",
+      "source": "We need berries for our jam. One basket for us, and one little bowl to share.",
+      "text": "हमें अपने जैम के लिए बेरियाँ चाहिए। एक टोकरी हमारे लिए, और बाँटने के लिए एक छोटी कटोरी।",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s02-l02",
+      "sceneId": "s02",
+      "speaker": "Lebo",
+      "source": "Let’s count together. One, two, three, four, five!",
+      "text": "चलो साथ में गिनते हैं। एक, दो, तीन, चार, पाँच!",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s02-l03",
+      "sceneId": "s02",
+      "speaker": "Lebo",
+      "source": "Jabu, your trunk is the fastest berry-picker I’ve ever seen.",
+      "text": "Jabu, तुम्हारी सूँड़ सबसे तेज़ बेरी चुनने वाली है जो मैंने कभी देखी है।",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s03-l01",
+      "sceneId": "s03",
+      "speaker": "Lebo",
+      "source": "First, bowl. Then berries. Then mash. Then stir. In that order!",
+      "text": "पहले कटोरी। फिर बेरियाँ। फिर उन्हें मसलेंगे। फिर चलाएँगे। इसी क्रम में!",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s03-l02",
+      "sceneId": "s03",
+      "speaker": "Lebo",
+      "source": "Ready, Jabu? Gently does it.",
+      "text": "तैयार हो, Jabu? धीरे से।",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s03-l03",
+      "sceneId": "s03",
+      "speaker": "Lebo",
+      "source": "The berries are escaping!",
+      "text": "बेरियाँ भाग रही हैं!",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s03-l04",
+      "sceneId": "s03",
+      "speaker": "Lebo",
+      "source": "Catch the purple one! No, the other purple one!",
+      "text": "बैंगनी वाली पकड़ो! नहीं, दूसरी बैंगनी वाली!",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s04-l01",
+      "sceneId": "s04",
+      "speaker": "Lebo",
+      "source": "Well... that did not go to plan.",
+      "text": "अच्छा… यह योजना के मुताबिक नहीं हुआ।",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s04-l02",
+      "sceneId": "s04",
+      "speaker": "Lebo",
+      "source": "But we can fix it. We’ll pick up, clean up, and try again.",
+      "text": "लेकिन हम इसे ठीक कर सकते हैं। हम उठाएँगे, साफ करेंगे और फिर से कोशिश करेंगे।",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s04-l03",
+      "sceneId": "s04",
+      "speaker": "Lebo",
+      "source": "You gather. I sort. Then we both stir.",
+      "text": "तुम इकट्ठा करो। मैं छाँटती हूँ। फिर हम दोनों चलाएँगे।",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s04-l04",
+      "sceneId": "s04",
+      "speaker": "Lebo",
+      "source": "Look! A small pot of jam and a very big adventure.",
+      "text": "देखो! जैम का एक छोटा बर्तन और एक बहुत बड़ा रोमांच।",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s05-l01",
+      "sceneId": "s05",
+      "speaker": "Lebo",
+      "source": "Jabu’s Africa Fact!",
+      "text": "Jabu का अफ्रीका तथ्य!",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s05-l02",
+      "sceneId": "s05",
+      "speaker": "Lebo",
+      "source": "Baobabs grow in several parts of Africa. Their thick trunks can store lots of water, which helps them through dry times.",
+      "text": "बाओबाब के पेड़ अफ्रीका के कई हिस्सों में उगते हैं। उनके मोटे तने बहुत सारा पानी जमा कर सकते हैं, जिससे उन्हें सूखे समय में मदद मिलती है।",
+      "factReviewRequired": true
+    },
+    {
+      "id": "s05-l03",
+      "sceneId": "s05",
+      "speaker": "Lebo",
+      "source": "Africa is full of different places, people, plants and stories. We’ll discover another one next time.",
+      "text": "अफ्रीका अलग-अलग जगहों, लोगों, पौधों और कहानियों से भरा है। अगली बार हम एक और नई चीज़ खोजेंगे।",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s05-l04",
+      "sceneId": "s05",
+      "speaker": "Lebo",
+      "source": "Bye, explorers!",
+      "text": "अलविदा, खोजकर्ताओं!",
+      "factReviewRequired": false
+    }
+  ],
+  "review": {
+    "nativeLanguage": false,
+    "culturalContext": false,
+    "comicTiming": false,
+    "childSafety": false,
+    "factAccuracy": false,
+    "finalEditorial": false
+  },
+  "approvedForDubbing": false,
+  "approvedForPublication": false
+}
