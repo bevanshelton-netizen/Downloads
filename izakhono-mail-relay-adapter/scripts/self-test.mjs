@@ -34,15 +34,33 @@ const child=spawn(process.execPath,["server.mjs"],{
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 for(let i=0;i<30;i++){try{const r=await fetch(`http://127.0.0.1:${adapterPort}/health`);if(r.ok)break}catch{}await sleep(100)}
 try{
-  let r=await fetch(`http://127.0.0.1:${adapterPort}/health`);let h=await r.json();if(!r.ok||h.configured!==true||h.senderIdentities<1)throw new Error("health/config failed");
-  r=await fetch(`http://127.0.0.1:${adapterPort}/v1/probe`,{method:"POST",headers:{"content-type":"application/json","x-izakhono-adapter-key":key},body:"{}"});let probe=await r.json();if(!r.ok||probe.ready!==true)throw new Error("SMTP probe failed");
-  r=await fetch(`http://127.0.0.1:${adapterPort}/v1/send`,{method:"POST",headers:{"content-type":"application/json","x-izakhono-adapter-key":key},body:JSON.stringify({messageId:"m1",recipientRef:"u1",channel:"email",senderId:"kora",to:"person@example.com",subject:"Verify KORA",body:"Hello\n.Link"})});
-  const j=await r.json();if(r.status!==202||j.accepted!==true||j.senderId!=="kora")throw new Error("send failed "+JSON.stringify(j));
+  let r=await fetch(`http://127.0.0.1:${adapterPort}/health`);
+  let h=await r.json();
+  if(!r.ok||h.configured!==true||h.senderIdentities<1||h.activeSenderIdentities!==0)throw new Error("health/readiness failed");
+
+  r=await fetch(`http://127.0.0.1:${adapterPort}/v1/probe`,{method:"POST",headers:{"content-type":"application/json","x-izakhono-adapter-key":key},body:"{}"});
+  let probe=await r.json();
+  if(!r.ok||probe.ready!==true)throw new Error("SMTP probe failed");
+
+  r=await fetch(`http://127.0.0.1:${adapterPort}/v1/send`,{method:"POST",headers:{"content-type":"application/json","x-izakhono-adapter-key":key},body:JSON.stringify({messageId:"m1",channel:"email",senderId:"kora",to:"person@example.com",subject:"Blocked KORA",body:"Must not send"})});
+  const blocked=await r.json();
+  if(r.status!==409||blocked.error!=="SENDER_NOT_LIVE")throw new Error("unverified sender did not fail closed "+JSON.stringify(blocked));
+
+  r=await fetch(`http://127.0.0.1:${adapterPort}/v1/send`,{method:"POST",headers:{"content-type":"application/json","x-izakhono-adapter-key":key},body:JSON.stringify({messageId:"legacy",channel:"email",to:"person@example.com",subject:"Verify generic relay",body:"Hello\n.Link"})});
+  const sent=await r.json();
+  if(r.status!==202||sent.accepted!==true||sent.senderId!==null)throw new Error("generic relay failed "+JSON.stringify(sent));
   await sleep(100);
-  if(!mailFrom.includes("<kora@izakhonoafrica.co.za>"))throw new Error("MAIL FROM identity mismatch");
-  if(!message.includes("From: KORA <kora@izakhonoafrica.co.za>")||!message.includes("To: <person@example.com>")||!message.includes("Subject: Verify KORA")||!message.includes("..Link"))throw new Error("SMTP payload mismatch");
-  r=await fetch(`http://127.0.0.1:${adapterPort}/v1/send`,{method:"POST",headers:{"content-type":"application/json","x-izakhono-adapter-key":key},body:JSON.stringify({channel:"email",senderId:"missing-platform",to:"person@example.com"})});if(r.status!==400)throw new Error("unknown sender did not fail closed");
-  r=await fetch(`http://127.0.0.1:${adapterPort}/v1/send`,{method:"POST",headers:{"content-type":"application/json","x-izakhono-adapter-key":key},body:JSON.stringify({channel:"email",senderId:"kora",from:"spoof@example.com",to:"person@example.com"})});if(r.status!==400)throw new Error("arbitrary sender did not fail closed");
-  r=await fetch(`http://127.0.0.1:${adapterPort}/v1/send`,{method:"POST",headers:{"content-type":"application/json"},body:"{}"});if(r.status!==401)throw new Error("adapter auth failed closed");
-  console.log("IZAKHONO MAIL RELAY ADAPTER self-test passed.");
+  if(!mailFrom.includes("<no-reply@izakhono.test>"))throw new Error("generic MAIL FROM mismatch");
+  if(!message.includes("From: IZAKHONO <no-reply@izakhono.test>")||!message.includes("Subject: Verify generic relay")||!message.includes("..Link"))throw new Error("generic SMTP payload mismatch");
+
+  r=await fetch(`http://127.0.0.1:${adapterPort}/v1/send`,{method:"POST",headers:{"content-type":"application/json","x-izakhono-adapter-key":key},body:JSON.stringify({channel:"email",senderId:"missing-platform",to:"person@example.com"})});
+  if(r.status!==400)throw new Error("unknown sender did not fail closed");
+
+  r=await fetch(`http://127.0.0.1:${adapterPort}/v1/send`,{method:"POST",headers:{"content-type":"application/json","x-izakhono-adapter-key":key},body:JSON.stringify({channel:"email",senderId:"kora",from:"spoof@example.com",to:"person@example.com"})});
+  if(r.status!==400)throw new Error("arbitrary sender did not fail closed");
+
+  r=await fetch(`http://127.0.0.1:${adapterPort}/v1/send`,{method:"POST",headers:{"content-type":"application/json"},body:"{}"});
+  if(r.status!==401)throw new Error("adapter auth failed closed");
+
+  console.log("IZAKHONO MAIL RELAY ADAPTER readiness-gate self-test passed.");
 }finally{child.kill("SIGTERM");smtp.close();await sleep(100)}

@@ -19,12 +19,13 @@ const TIMEOUT_MS=Math.min(60000,Math.max(3000,Number(process.env.IZAKHONO_SMTP_T
 
 const senderConfig=JSON.parse(readFileSync(new URL("./sender-identities.json",import.meta.url),"utf8"));
 const SENDER_BY_ID=new Map((senderConfig.senders||[]).map(x=>[String(x.id),x]));
+const ACTIVE_SENDERS=[...SENDER_BY_ID.values()].filter(x=>x.enabled===true && x.domain_status==="LIVE_VERIFIED");
 
 function safeEqual(a,b){const x=Buffer.from(String(a||"")),y=Buffer.from(String(b||""));return x.length===y.length&&timingSafeEqual(x,y);}
 function json(res,status,body){const p=JSON.stringify(body);res.writeHead(status,{"content-type":"application/json; charset=utf-8","content-length":Buffer.byteLength(p),"cache-control":"no-store","x-content-type-options":"nosniff"});res.end(p);}
 async function readJson(req){let n=0,ch=[];for await(const c of req){n+=c.length;if(n>256*1024)throw new Error("BODY_TOO_LARGE");ch.push(c)}return ch.length?JSON.parse(Buffer.concat(ch).toString("utf8")):{};}
 function validEmail(v){return typeof v==="string"&&v.length<=254&&/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(v);}
-function configured(){return Boolean(SMTP_HOST&&(validEmail(SMTP_FROM)||SENDER_BY_ID.size>0));}
+function configured(){return Boolean(SMTP_HOST&&(validEmail(SMTP_FROM)||ACTIVE_SENDERS.length>0));}
 function b64(v){return Buffer.from(v,"utf8").toString("base64");}
 function headerValue(v){return String(v||"").replace(/[\r\n]+/g," ").slice(0,500);}
 function encodedHeader(v){const s=headerValue(v);return /^[\x20-\x7E]*$/.test(s)?s:"=?UTF-8?B?"+b64(s)+"?=";}
@@ -34,6 +35,7 @@ function resolveSender(senderId,transactional=false){
   if(senderId){
     const sender=SENDER_BY_ID.get(String(senderId));
     if(!sender)throw new Error("UNKNOWN_SENDER_ID");
+    if(sender.enabled!==true || sender.domain_status!=="LIVE_VERIFIED")throw new Error("SENDER_NOT_LIVE");
     const address=transactional?sender.noreply:sender.address;
     if(!validEmail(address))throw new Error("INVALID_SENDER_CONFIG");
     return {id:sender.id,address,name:sender.name};
@@ -156,7 +158,7 @@ async function sendMail({to,subject,body,senderId,transactional=false}){
 createServer(async(req,res)=>{
   try{
     const u=new URL(req.url||"/","http://localhost");
-    if(req.method==="GET"&&u.pathname==="/health")return json(res,200,{service:"IZAKHONO MAIL RELAY ADAPTER",status:"healthy",configured:configured(),smtpSecure:SMTP_SECURE,starttls:SMTP_STARTTLS,senderIdentities:SENDER_BY_ID.size,tracking:false,messagePersistence:false});
+    if(req.method==="GET"&&u.pathname==="/health")return json(res,200,{service:"IZAKHONO MAIL RELAY ADAPTER",status:"healthy",configured:configured(),smtpSecure:SMTP_SECURE,starttls:SMTP_STARTTLS,senderIdentities:SENDER_BY_ID.size,activeSenderIdentities:ACTIVE_SENDERS.length,tracking:false,messagePersistence:false});
     if(!ADAPTER_KEY||!safeEqual(req.headers["x-izakhono-adapter-key"],ADAPTER_KEY))return json(res,401,{error:"Unauthorized"});
     if(req.method==="POST"&&u.pathname==="/v1/probe"){
       const result=await probeSmtp();
@@ -178,12 +180,12 @@ createServer(async(req,res)=>{
     return json(res,404,{error:"Not found"});
   }catch(e){
     const m=String(e?.message||e);
-    const status=m==="BODY_TOO_LARGE"?413:["INVALID_RECIPIENT","UNKNOWN_SENDER_ID","SENDER_ID_REQUIRED","INVALID_SENDER_CONFIG","ARBITRARY_FROM_NOT_ALLOWED"].includes(m)?400:m==="SMTP_NOT_CONFIGURED"?503:502;
+    const status=m==="BODY_TOO_LARGE"?413:["INVALID_RECIPIENT","UNKNOWN_SENDER_ID","SENDER_ID_REQUIRED","INVALID_SENDER_CONFIG","ARBITRARY_FROM_NOT_ALLOWED"].includes(m)?400:m==="SENDER_NOT_LIVE"?409:m==="SMTP_NOT_CONFIGURED"?503:502;
     console.error("mail relay",m);
     return json(res,status,{error:m});
   }
 }).listen(PORT,HOST,()=>{
   console.log(`IZAKHONO MAIL RELAY ADAPTER listening on http://${HOST}:${PORT}`);
-  console.log(`Loaded ${SENDER_BY_ID.size} approved platform sender identities.`);
+  console.log(`Loaded ${SENDER_BY_ID.size} platform sender identities; ${ACTIVE_SENDERS.length} LIVE_VERIFIED.`);
   if(!ADAPTER_KEY)console.warn("WARNING: IZAKHONO_MAIL_ADAPTER_KEY missing.");
 });
