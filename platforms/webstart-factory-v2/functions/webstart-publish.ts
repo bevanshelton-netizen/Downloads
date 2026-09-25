@@ -25,7 +25,7 @@ Deno.serve(async(req:Request)=>{
       return new Response(JSON.stringify({error:"Automated QA must pass before publishing",qa:site.qa_report||{}}),{status:409,headers:cors});
     }
 
-    const enforce=(Deno.env.get("PAYMENTS_ENFORCED")||"false").toLowerCase()==="true";
+    const enforce=(Deno.env.get("PAYMENTS_ENFORCED")||"true").toLowerCase()!=="false";
     if(enforce){
       const or=await fetch(SUPABASE_URL+"/rest/v1/orders?site_id=eq."+encodeURIComponent(siteId)+"&status=eq.paid&select=id&limit=1",{headers:h});
       const paid=await or.json();
