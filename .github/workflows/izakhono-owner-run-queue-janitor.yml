@@ -1,0 +1,59 @@
+name: IZAKHONO Owner-Run Queue Janitor
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/izakhono-owner-run-queue-janitor.yml'
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  cancel-stale-owner-push-runs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Cancel stale push-triggered owner-runner queues only
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          CURRENT_RUN_ID: ${{ github.run_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cutoff="$(date -u -d '10 minutes ago' +%s)"
+          mapfile -t stale < <(
+            gh api --paginate "repos/$REPO/actions/runs?status=queued&per_page=100"               --jq '.workflow_runs[] | [.id,.event,.path,.created_at] | @tsv' |
+            while IFS=$'\t' read -r id event path created; do
+              [ "$id" != "$CURRENT_RUN_ID" ] || continue
+              [ "$event" = "push" ] || continue
+              case "$path" in
+                ".github/workflows/yhvh-gospel-node01-deploy.yml"|                ".github/workflows/izakhono-crm-owner-live.yml"|                ".github/workflows/izakhono-one-owner-runner-activation.yml"|                ".github/workflows/izakhono-portfolio-watch-owned.yml"|                ".github/workflows/izakhono-portfolio-cutover.yml")
+                  ;;
+                *)
+                  continue
+                  ;;
+              esac
+              created_epoch="$(date -u -d "$created" +%s)"
+              if [ "$created_epoch" -lt "$cutoff" ]; then
+                printf '%s\n' "$id"
+              fi
+            done
+          )
+
+          if [ "${#stale[@]}" -eq 0 ]; then
+            echo "STALE_OWNER_PUSH_RUNS=0"
+            exit 0
+          fi
+
+          for id in "${stale[@]}"; do
+            echo "Cancelling stale owner push run $id"
+            gh api --method POST "repos/$REPO/actions/runs/$id/cancel" >/dev/null
+          done
+
+          echo "STALE_OWNER_PUSH_RUNS_CANCELLED=${#stale[@]}"
+          printf '%s\n' "${stale[@]}"
