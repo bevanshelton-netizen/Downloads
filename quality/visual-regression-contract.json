@@ -87,7 +87,9 @@
     {
       "id": "kora-kids",
       "html": "ports/kora-kids/index.html",
-      "css": [],
+      "css": [
+        "ports/kora-kids/premium-v1.css"
+      ],
       "release": "ports/kora-kids/release.json",
       "landmarks": [
         "KORA KIDS"
