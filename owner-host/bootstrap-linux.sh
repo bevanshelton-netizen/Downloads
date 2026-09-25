@@ -46,6 +46,7 @@ export IZAKHONO_EDGE_MODE=tunnel
 bash izakhono-owned-cloud/install-owned-stack.sh
 bash izakhono-owned-cloud/deploy-fortress-protector.sh
 bash izakhono-owned-cloud/configure-growth-os.sh
+bash izakhono-growth-bridge-node/install-linux.sh
 bash izakhono-owned-cloud/configure-stack-backup.sh
 bash izakhono-owned-cloud/configure-izakhono-one-ai.sh
 
