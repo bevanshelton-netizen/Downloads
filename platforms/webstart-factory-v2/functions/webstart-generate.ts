@@ -14,21 +14,48 @@ function pickDirection(site:any,id:string){
   return dirs.find((d:any)=>d?.id===id)||dirs[0]||null;
 }
 function qa(html:string,site:any,c:any){
+  const svc=services(c);
+  const contact=site.contact||{};
+  const text=(String(c?.tagline||"")+" "+String(c?.about||"")+" "+svc.join(" ")+" "+String(c?.cta||"")).toLowerCase();
+  const placeholders=/lorem ipsum|coming soon|your business|example\.com|todo|placeholder|sample text/i.test(text);
+  const hasContact=Boolean(String(contact.email||"").trim()||String(contact.phone||"").trim()||String(contact.whatsapp||"").trim());
   const checks=[
-    {id:"html",label:"HTML document",pass:/<!doctype html>/i.test(html)&&/<html[^>]*lang=/i.test(html),critical:true},
+    {id:"html",label:"Valid HTML document shell",pass:/<!doctype html>/i.test(html)&&/<html[^>]*lang=/i.test(html),critical:true},
     {id:"viewport",label:"Mobile viewport",pass:/name=['"]viewport['"]/i.test(html),critical:true},
-    {id:"title",label:"Page title",pass:/<title>[^<]{3,}/i.test(html),critical:true},
+    {id:"title",label:"Professional page title",pass:/<title>[^<]{8,80}<\/title>/i.test(html),critical:true},
     {id:"description",label:"Meta description",pass:/name=['"]description['"]/i.test(html),critical:true},
-    {id:"h1",label:"Primary heading",pass:/<h1[^>]*>[^<]{3,}/i.test(html),critical:true},
+    {id:"open_graph",label:"Open Graph metadata",pass:/property=['"]og:title['"]/i.test(html)&&/property=['"]og:description['"]/i.test(html),critical:true},
+    {id:"schema",label:"Structured organisation data",pass:/application\/ld\+json/i.test(html)&&/"@type":"Organization"/i.test(html),critical:true},
+    {id:"h1",label:"Clear primary heading",pass:/<h1[^>]*>[^<]{8,}/i.test(html),critical:true},
+    {id:"navigation",label:"Structured navigation",pass:/class=['"]nav['"]/i.test(html)&&/href=['"]#services['"]/i.test(html)&&/href=['"]#contact['"]/i.test(html),critical:true},
+    {id:"sections",label:"Core business sections",pass:/id=['"]services['"]/i.test(html)&&/id=['"]about['"]/i.test(html)&&/id=['"]contact['"]/i.test(html),critical:true},
     {id:"responsive",label:"Responsive CSS",pass:/@media/i.test(html),critical:true},
-    {id:"contact",label:"Lead form",pass:/id=['"]leadForm['"]/i.test(html)&&/webstart_leads/i.test(html),critical:true},
-    {id:"labels",label:"Form labels",pass:(html.match(/<label/gi)||[]).length>=3,critical:true},
-    {id:"services",label:"Service content",pass:services(c).length>=1,critical:false},
+    {id:"service_depth",label:"At least three service propositions",pass:svc.length>=3,critical:true},
+    {id:"about_depth",label:"Credible business description",pass:String(c?.about||"").trim().length>=80,critical:true},
+    {id:"tagline",label:"Professional positioning line",pass:String(c?.tagline||"").trim().length>=12,critical:true},
+    {id:"cta",label:"Clear call to action",pass:String(c?.cta||"").trim().length>=3,critical:true},
+    {id:"contact_details",label:"Real contact route",pass:hasContact,critical:true},
+    {id:"lead_form",label:"Working enquiry form",pass:/id=['"]leadForm['"]/i.test(html)&&/webstart_leads/i.test(html),critical:true},
+    {id:"labels",label:"Accessible form labels",pass:(html.match(/<label/gi)||[]).length>=4,critical:true},
+    {id:"footer",label:"Professional footer",pass:/<footer/i.test(html)&&/All rights reserved/i.test(html),critical:true},
+    {id:"no_placeholders",label:"No placeholder or unfinished copy",pass:!placeholders,critical:true},
     {id:"security",label:"No secret credentials",pass:!html.includes("service_role")&&!html.includes("SUPABASE_SERVICE_ROLE_KEY"),critical:true}
   ];
   const criticalPass=checks.filter(x=>x.critical).every(x=>x.pass);
   const passed=checks.filter(x=>x.pass).length;
-  return {pass:criticalPass,score:Math.round((passed/checks.length)*100),checks,checked_at:new Date().toISOString(),site_id:site.id};
+  const score=Math.round((passed/checks.length)*100);
+  const failed=checks.filter(x=>!x.pass).map(x=>({id:x.id,label:x.label}));
+  const pass=criticalPass&&score>=95;
+  return {
+    pass,
+    score,
+    standard:"international-professional",
+    threshold:95,
+    checks,
+    failed,
+    checked_at:new Date().toISOString(),
+    site_id:site.id
+  };
 }
 function buildHtml(site:any,c:any,theme:string,primary:string,accent:string){
   const name=esc(site.name);
@@ -92,11 +119,18 @@ Deno.serve(async(req:Request)=>{
     const accent=color(dir?.accent_color||site.accent_color,"#D4AF37");
     const html=buildHtml(site,c,theme,primary,accent);
     const report=qa(html,site,c);
-    if(!report.pass)return new Response(JSON.stringify({error:"Automated QA failed",qa:report}),{status:422,headers:cors});
+    if(!report.pass){
+      await fetch(SUPABASE_URL+"/rest/v1/sites?id=eq."+encodeURIComponent(siteId),{
+        method:"PATCH",
+        headers:{...h,"content-type":"application/json",prefer:"return=minimal"},
+        body:JSON.stringify({qa_report:report,professional_gate:report,quality_level:"review",status:"draft"})
+      });
+      return new Response(JSON.stringify({error:"International professionalism gate failed",qa:report}),{status:422,headers:cors});
+    }
 
     const patchBody:any={
       content:c,theme,brand_color:primary,accent_color:accent,
-      generated_html:html,status:"ready",qa_report:report,
+      generated_html:html,status:"ready",qa_report:report,professional_gate:report,quality_level:"international-ready",
       selected_direction:dir?.id||null,
       generation_mode:dir?"factory-fast":(site.generation_mode||"manual"),
       generated_at:new Date().toISOString()
