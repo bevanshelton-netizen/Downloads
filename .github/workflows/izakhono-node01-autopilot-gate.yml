@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'owner-host/node01-autopilot.sh'
+      - 'owner-host/drop01-milestone-watch.mjs'
+      - 'izakhono-data-node/server.mjs'
       - 'owner-host/INSTALL-IZAKHONO-NODE01-AUTOPILOT.ps1'
       - 'owner-host/START-IZAKHONO-OWNER-HOST.ps1'
       - 'START-IZAKHONO-NODE01-AUTOPILOT.cmd'
@@ -13,6 +15,8 @@ on:
     branches: [main]
     paths:
       - 'owner-host/node01-autopilot.sh'
+      - 'owner-host/drop01-milestone-watch.mjs'
+      - 'izakhono-data-node/server.mjs'
       - 'owner-host/INSTALL-IZAKHONO-NODE01-AUTOPILOT.ps1'
       - 'owner-host/START-IZAKHONO-OWNER-HOST.ps1'
       - 'START-IZAKHONO-NODE01-AUTOPILOT.cmd'
@@ -31,6 +35,11 @@ jobs:
         run: |
           set -euo pipefail
           bash -n owner-host/node01-autopilot.sh
+          node --check owner-host/drop01-milestone-watch.mjs
+          node owner-host/drop01-milestone-watch.mjs --self-test
+          node --check izakhono-data-node/server.mjs
+          grep -q 'drop01-milestone-watch.mjs' owner-host/node01-autopilot.sh
+          grep -q 'campaignSales=url.pathname.match' izakhono-data-node/server.mjs
           grep -q 'owner-agent.sh' owner-host/node01-autopilot.sh
           grep -q 'activate-owned-public-edge.sh' owner-host/node01-autopilot.sh
           grep -q 'live_claim:false' owner-host/node01-autopilot.sh
