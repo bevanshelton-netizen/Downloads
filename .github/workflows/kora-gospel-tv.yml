@@ -39,6 +39,11 @@ on:
     branches: [main]
     paths:
       - "ports/kora-gospel-tv/**"
+      - "engines/yhvh-gospel-engine/**"
+      - "izakhono-owned-cloud/install-yhvh-gospel-engine.sh"
+      - "tests/yhvh-gospel-engine-test.mjs"
+      - "owner-host/INSTALL-YHVH-GOSPEL-ENGINE.ps1"
+      - "INSTALL-YHVH-GOSPEL-ENGINE.cmd"
       - "izakhono-owned-cloud/deploy-kora-gospel-tv.sh"
       - "izakhono-owned-cloud/start-yhvh-outbound-bridge.sh"
       - "owner-host/GET-YHVH-GOSPEL-TV-OVER-THE-LINE.ps1"
@@ -68,6 +73,13 @@ jobs:
           node --check tests/yhvh-gospel-engine-test.mjs
           bash -n izakhono-owned-cloud/install-yhvh-gospel-engine.sh
           grep -q 'YHVH_GOSPEL_ENGINE_TOKEN=REPLACE-WITH-32-PLUS-CHARACTER-OWNER-TOKEN' engines/yhvh-gospel-engine/yhvh-gospel-engine.env.example
+          grep -q 'openssl rand -hex 32' izakhono-owned-cloud/install-yhvh-gospel-engine.sh
+          grep -q 'VERSION="2.0.0"' engines/yhvh-gospel-engine/engine.mjs
+          grep -q 'content-submissions' engines/yhvh-gospel-engine/engine.mjs
+          grep -q 'simulcast-state' engines/yhvh-gospel-engine/engine.mjs
+          grep -q 'behavioural_tracking:false' engines/yhvh-gospel-engine/engine.mjs
+          grep -q 'YHVH_GOSPEL_ENGINE_TOKEN' izakhono-owned-cloud/deploy-kora-gospel-tv.sh
+          grep -q 'independent_engine' izakhono-owned-cloud/deploy-kora-gospel-tv.sh
           bash -n izakhono-owned-cloud/deploy-kora-gospel-tv.sh
           bash -n izakhono-owned-cloud/start-yhvh-outbound-bridge.sh
           grep -q "authoritative_origin:\"IZAKHONO\"" izakhono-owned-cloud/start-yhvh-outbound-bridge.sh
@@ -107,7 +119,7 @@ jobs:
           cat > "$RUNNER_TEMP/reconcile-receipt.json" <<'JSON'
           {"authority":"IZAKHONO","source_authoritative":false,"worker":"ci-reconciler","scanned":3,"imported":2,"duplicates":1,"failed":0,"completed_at":"2026-09-22T08:30:00Z"}
           JSON
-          GOSPEL_TV_DATA_DIR="$RUNNER_TEMP/kora-gospel-tv" GOSPEL_TV_CONTROL_TOKEN="ci-owner-control-token-1234567890" GOSPEL_RECONCILE_RECEIPT="$RUNNER_TEMP/reconcile-receipt.json" HOST=127.0.0.1 PORT=8188 node ports/kora-gospel-tv/server.mjs >"$RUNNER_TEMP/kora-gospel-tv.log" 2>&1 &
+          GOSPEL_TV_DATA_DIR="$RUNNER_TEMP/kora-gospel-tv" GOSPEL_TV_CONTROL_TOKEN="ci-owner-control-token-1234567890" YHVH_GOSPEL_ENGINE_TOKEN="ci-owner-engine-token-1234567890" YHVH_GOSPEL_ENGINE_URL="http://127.0.0.1:8892" GOSPEL_RECONCILE_RECEIPT="$RUNNER_TEMP/reconcile-receipt.json" HOST=127.0.0.1 PORT=8188 node ports/kora-gospel-tv/server.mjs >"$RUNNER_TEMP/kora-gospel-tv.log" 2>&1 &
           echo $! > "$RUNNER_TEMP/kora-gospel-tv.pid"
           for i in {1..20}; do
             curl -fsS http://127.0.0.1:8188/health && exit 0
@@ -160,20 +172,23 @@ jobs:
           grep -qi 'access-control-allow-origin: https://kora-network.vercel.app' /tmp/preflight.headers
           RESPONSE="$(curl -fsS -X POST http://127.0.0.1:8188/api/submissions -H 'origin: https://kora-network.vercel.app' -H 'content-type: application/json' --data '{"category":"partner","type":"distribution","name":"YHVH CI","contact":"ci@example.invalid","message":"Cross-origin owned intake test","territory":"Global","language":"English","sourceChannel":"yhvh-ci"}')"
           echo "$RESPONSE" | grep -q '"route":"izakhono-owned"'
-          grep -q '"territory":"Global"' "$RUNNER_TEMP/kora-gospel-tv/submissions.ndjson"
-          grep -q '"source_channel":"yhvh-ci"' "$RUNNER_TEMP/kora-gospel-tv/submissions.ndjson"
+          echo "$RESPONSE" | grep -q '"engine_route":"yhvh-owned-engine"'
+          ENGINE_QUEUE="$(curl -fsS 'http://127.0.0.1:8892/v1/submissions?limit=5' -H 'authorization: Bearer ci-owner-engine-token-1234567890')"
+          echo "$ENGINE_QUEUE" | grep -q '"territory":"Global"'
+          echo "$ENGINE_QUEUE" | grep -q '"source_channel":"yhvh-ci"'
           RESPONSE="$(curl -fsS -X POST http://127.0.0.1:8188/api/submissions -H 'origin: https://kora-network.vercel.app' -H 'content-type: application/json' --data '{"category":"partner","type":"sponsor","name":"Commercial CI","contact":"ci@example.invalid","message":"Commercial desk test","details":{"package":"programme-sponsor","budget":"quote-request"}}')"
           echo "$RESPONSE" | grep -q '"route":"izakhono-owned"'
-          grep -q '"package":"programme-sponsor"' "$RUNNER_TEMP/kora-gospel-tv/submissions.ndjson"
+          echo "$RESPONSE" | grep -q '"engine_route":"yhvh-owned-engine"'
+          curl -fsS 'http://127.0.0.1:8892/v1/submissions?limit=5' -H 'authorization: Bearer ci-owner-engine-token-1234567890' | grep -q '"package":"programme-sponsor"'
 
       - name: Verify safe submission path
         run: |
           RESPONSE="$(curl -fsS -X POST http://127.0.0.1:8188/api/submissions             -H 'content-type: application/json'             --data '{"category":"prayer","message":"Please pray for our community","onAir":false}')"
           echo "$RESPONSE" | grep -q '"ok":true'
-          test -s "$RUNNER_TEMP/kora-gospel-tv/submissions.ndjson"
-          grep -q '"category":"prayer"' "$RUNNER_TEMP/kora-gospel-tv/submissions.ndjson"
-          grep -q '"on_air":false' "$RUNNER_TEMP/kora-gospel-tv/submissions.ndjson"
-          curl -fsS 'http://127.0.0.1:8188/api/control/submissions?limit=5'             -H 'authorization: Bearer ci-owner-control-token-1234567890' | grep -q '"category":"prayer"'
+          echo "$RESPONSE" | grep -q '"engine_route":"yhvh-owned-engine"'
+          curl -fsS 'http://127.0.0.1:8892/v1/submissions?limit=5' -H 'authorization: Bearer ci-owner-engine-token-1234567890' | grep -q '"category":"prayer"'
+          curl -fsS 'http://127.0.0.1:8892/v1/submissions?limit=5' -H 'authorization: Bearer ci-owner-engine-token-1234567890' | grep -q '"on_air":false'
+          curl -fsS 'http://127.0.0.1:8188/api/control/submissions?limit=5' -H 'authorization: Bearer ci-owner-control-token-1234567890' | grep -q '"category":"prayer"'
 
       - name: Prove external intake reconciliation
         run: |
