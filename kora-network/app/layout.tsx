@@ -5,6 +5,7 @@ import './globals.css';
 import './brand-boost.css';
 import './forms.css';
 import './workspaces.css';
+import './premium-v1.css';
 import { brand } from '@/lib/brand';
 import ShareButton from './share-button';
 import AutoAiPromo from './auto-ai-promo';
@@ -52,7 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="en">
-      <body>
+      <body data-quality-profile="izakhono-premium-v1">
         {analyticsOrigin ? (
           <Script
             id="izakhono-analytics"
