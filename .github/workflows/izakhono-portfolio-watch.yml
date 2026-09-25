@@ -1,0 +1,60 @@
+name: IZAKHONO Portfolio Watch
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'izakhono-portfolio-watch/**'
+      - '.github/workflows/izakhono-portfolio-watch.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'izakhono-portfolio-watch/**'
+      - '.github/workflows/izakhono-portfolio-watch.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: izakhono-portfolio-watch
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python syntax
+        run: python3 -m py_compile app.py test_watch.py
+      - name: Unit tests
+        run: python3 -m unittest -v test_watch.py
+      - name: Registry contract
+        run: |
+          python3 - <<'PY'
+          import json
+          x=json.load(open("portfolio.json",encoding="utf-8"))
+          assert x["schema"]=="izakhono.portfolio-watch/v1"
+          assert x["inherit_future_platforms"] is True
+          assert len(x["platforms"]) >= 40
+          assert all(p.get("sources") for p in x["platforms"])
+          print("platforms", len(x["platforms"]))
+          PY
+      - name: Boot and health check
+        env:
+          IZA_WATCH_ADMIN_TOKEN: ci-only-token
+          IZA_WATCH_INTERVAL_MINUTES: 1440
+        run: |
+          python3 app.py >/tmp/portfolio-watch.log 2>&1 &
+          PID=$!
+          trap 'kill $PID 2>/dev/null || true' EXIT
+          for i in 1 2 3 4 5 6 7 8; do
+            curl -fsS http://127.0.0.1:8860/health >/tmp/health.json && break || sleep .5
+          done
+          python3 - <<'PY'
+          import json
+          x=json.load(open("/tmp/health.json"))
+          assert x["ok"] is True
+          assert x["service"]=="izakhono-portfolio-watch"
+          PY
+      - name: No third-party runtime dependencies
+        run: test ! -f requirements.txt
