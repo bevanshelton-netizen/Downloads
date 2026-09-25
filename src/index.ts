@@ -493,20 +493,85 @@ async function handleApi(req: Request, env: Env, url: URL): Promise<Response> {
     return json(req,env,{ok:true,id:payoutId,currency,amount_minor:amount,status:'requested'},201);
   }
 
+  const followMatch=url.pathname.match(/^\/api\/creators\/([^/]+)\/follow$/);
+  if(followMatch && req.method==='POST'){
+    const creator=await env.DB.prepare("SELECT id,platform_id FROM creators WHERE id=? AND status='active'").bind(followMatch[1]).first<any>(); if(!creator) return fail(req,env,'Creator not found',404);
+    const p=await env.DB.prepare('SELECT id,slug,name,status FROM platforms WHERE id=?').bind(creator.platform_id).first<any>(); if(!p) return fail(req,env,'Platform not found',404);
+    const ensured=await ensureViewer(req,env,p),viewer=ensured.viewer;
+    const existing=await env.DB.prepare('SELECT id FROM follows WHERE viewer_session_id=? AND creator_id=?').bind(viewer.id,creator.id).first<any>();
+    let following=false;
+    if(existing) await env.DB.prepare('DELETE FROM follows WHERE id=?').bind(existing.id).run();
+    else { await env.DB.prepare('INSERT INTO follows(id,platform_id,viewer_session_id,creator_id) VALUES(?,?,?,?)').bind(id('fol'),p.id,viewer.id,creator.id).run(); following=true; }
+    const total=await env.DB.prepare('SELECT COUNT(*) AS total FROM follows WHERE creator_id=?').bind(creator.id).first<any>();
+    return json(req,env,{ok:true,following,followers:Number(total?.total||0)},200,ensured.cookieHeader?{'set-cookie':ensured.cookieHeader}:{});
+  }
+  const likeMatch=url.pathname.match(/^\/api\/videos\/([^/]+)\/like$/);
+  if(likeMatch && req.method==='POST'){
+    const video=await env.DB.prepare("SELECT id,platform_id FROM videos WHERE id=? AND status='published' AND visibility='public'").bind(likeMatch[1]).first<any>(); if(!video) return fail(req,env,'Video not found',404);
+    const p=await env.DB.prepare('SELECT id,slug,name,status FROM platforms WHERE id=?').bind(video.platform_id).first<any>(); if(!p) return fail(req,env,'Platform not found',404);
+    const ensured=await ensureViewer(req,env,p),viewer=ensured.viewer;
+    const existing=await env.DB.prepare("SELECT id FROM video_reactions WHERE video_id=? AND viewer_session_id=? AND reaction='like'").bind(video.id,viewer.id).first<any>();
+    let liked=false;
+    if(existing) await env.DB.prepare('DELETE FROM video_reactions WHERE id=?').bind(existing.id).run();
+    else { await env.DB.prepare("INSERT INTO video_reactions(id,platform_id,video_id,viewer_session_id,reaction) VALUES(?,?,?,?,'like')").bind(id('rea'),p.id,video.id,viewer.id).run(); liked=true; }
+    const total=await env.DB.prepare("SELECT COUNT(*) AS total FROM video_reactions WHERE video_id=? AND reaction='like'").bind(video.id).first<any>();
+    return json(req,env,{ok:true,liked,likes:Number(total?.total||0)},200,ensured.cookieHeader?{'set-cookie':ensured.cookieHeader}:{});
+  }
+  const commentsMatch=url.pathname.match(/^\/api\/videos\/([^/]+)\/comments$/);
+  if(commentsMatch && req.method==='GET'){
+    const rows=await env.DB.prepare("SELECT id,display_name,body,created_at FROM comments WHERE video_id=? AND status='visible' ORDER BY created_at DESC LIMIT 100").bind(commentsMatch[1]).all<any>();
+    return json(req,env,{ok:true,comments:rows.results||[]});
+  }
+  if(commentsMatch && req.method==='POST'){
+    const video=await env.DB.prepare("SELECT id,platform_id,allow_comments FROM videos WHERE id=? AND status='published' AND visibility='public'").bind(commentsMatch[1]).first<any>(); if(!video) return fail(req,env,'Video not found',404);
+    if(!video.allow_comments) return fail(req,env,'Comments are disabled for this video',403);
+    const p=await env.DB.prepare('SELECT id,slug,name,status FROM platforms WHERE id=?').bind(video.platform_id).first<any>(); if(!p) return fail(req,env,'Platform not found',404);
+    const ensured=await ensureViewer(req,env,p),b=await body(req),name=cleanText(b.display_name||'Viewer',40),text=cleanText(b.body,500);
+    if(!text) return fail(req,env,'Comment is required');
+    const commentId=id('com'); await env.DB.prepare("INSERT INTO comments(id,platform_id,video_id,viewer_session_id,display_name,body,status) VALUES(?,?,?,?,?,?,'visible')").bind(commentId,p.id,video.id,ensured.viewer.id,name||'Viewer',text).run();
+    return json(req,env,{ok:true,comment:{id:commentId,display_name:name||'Viewer',body:text}},201,ensured.cookieHeader?{'set-cookie':ensured.cookieHeader}:{});
+  }
+  const creatorPublicMatch=url.pathname.match(/^\/api\/creators\/([^/]+)$/);
+  if(creatorPublicMatch && req.method==='GET'){
+    const handle=cleanText(creatorPublicMatch[1],60).toLowerCase();
+    const row=await env.DB.prepare(`SELECT c.id,c.display_name,c.handle,cp.bio,cp.website_url,cp.country_code,
+      COALESCE((SELECT COUNT(*) FROM follows f WHERE f.creator_id=c.id),0) AS followers,
+      COALESCE((SELECT COUNT(*) FROM videos v WHERE v.creator_id=c.id AND v.status='published' AND v.visibility='public'),0) AS videos
+      FROM creators c LEFT JOIN creator_profiles cp ON cp.creator_id=c.id
+      WHERE c.handle=? AND c.status='active'`).bind(handle).first<any>();
+    if(!row) return fail(req,env,'Creator not found',404);
+    return json(req,env,{ok:true,creator:row});
+  }
+
   if (url.pathname === '/api/videos' && req.method === 'GET') {
     const slug=url.searchParams.get('platform')||'videonomy'; const p=await platform(env,slug); if(!p) return fail(req, env, 'Unknown platform',404);
-    const rows=await env.DB.prepare(`SELECT v.id,v.title,v.description,v.mime_type,v.bytes,v.published_at,c.display_name,c.handle,
-      COALESCE((SELECT COUNT(*) FROM watch_sessions w WHERE w.video_id=v.id AND w.qualified=1),0) AS qualified_views
-      FROM videos v JOIN creators c ON c.id=v.creator_id WHERE v.platform_id=? AND v.status='published' AND v.visibility='public'
-      ORDER BY v.published_at DESC LIMIT 50`).bind(p.id).all<any>();
+    const format=cleanText(url.searchParams.get('format')||'',20),feed=cleanText(url.searchParams.get('feed')||'',20),q=cleanText(url.searchParams.get('q')||'',120);
+    let sql=`SELECT v.id,v.creator_id,v.title,v.description,v.format,v.mime_type,v.bytes,v.published_at,c.display_name,c.handle,
+      COALESCE((SELECT COUNT(*) FROM watch_sessions w WHERE w.video_id=v.id AND w.qualified=1),0) AS qualified_views,
+      COALESCE((SELECT COUNT(*) FROM video_reactions r WHERE r.video_id=v.id AND r.reaction='like'),0) AS likes,
+      COALESCE((SELECT COUNT(*) FROM comments cm WHERE cm.video_id=v.id AND cm.status='visible'),0) AS comments,
+      COALESCE((SELECT COUNT(*) FROM follows f WHERE f.creator_id=v.creator_id),0) AS followers
+      FROM videos v JOIN creators c ON c.id=v.creator_id WHERE v.platform_id=? AND v.status='published' AND v.visibility='public'`;
+    const args:unknown[]=[p.id];
+    if(format==='short'||format==='video'){sql+=' AND v.format=?';args.push(format)}
+    if(q){sql+=" AND (v.title LIKE ? OR COALESCE(v.description,'') LIKE ? OR c.handle LIKE ? OR c.display_name LIKE ?)";const s=`%${q}%`;args.push(s,s,s,s)}
+    if(feed==='following'){
+      const viewer=await viewerFromRequest(req,env); if(!viewer||viewer.platform_id!==p.id) return json(req,env,{ok:true,videos:[]});
+      sql+=' AND EXISTS(SELECT 1 FROM follows ff WHERE ff.creator_id=v.creator_id AND ff.viewer_session_id=?)';args.push(viewer.id);
+    }
+    if(url.searchParams.get('sort')==='trending') sql+=' ORDER BY (qualified_views + likes*3 + comments*2) DESC, v.published_at DESC';
+    else sql+=' ORDER BY v.published_at DESC';
+    sql+=' LIMIT 100';
+    const rows=await env.DB.prepare(sql).bind(...args).all<any>();
     const origin = new URL(req.url).origin;
     const videos = (rows.results || []).map(v => ({ ...v, media_url: `${origin}/media/${v.id}` }));
     return json(req, env, {ok:true,videos});
   }
   if (url.pathname === '/api/videos' && req.method === 'POST') {
-    const c=await creatorFromRequest(req,env); if(!c) return fail(req, env, 'Unauthorized',401); const b=await body(req); const title=cleanText(b.title,180),description=cleanText(b.description,4000); if(!title) return fail(req, env, 'Title required');
-    const videoId=id('vid'); await env.DB.prepare('INSERT INTO videos(id,platform_id,creator_id,title,description,status) VALUES(?,?,?,?,?,\'uploading\')').bind(videoId,c.platform_id,c.id,title,description||null).run();
-    return json(req, env, {ok:true,video_id:videoId,upload_url:`/api/videos/${videoId}/media`,max_upload_mb:90},201);
+    const c=await creatorFromRequest(req,env); if(!c) return fail(req, env, 'Unauthorized',401); const b=await body(req);
+    const title=cleanText(b.title,180),description=cleanText(b.description,4000),format=b.format==='short'?'short':'video'; if(!title) return fail(req, env, 'Title required');
+    const videoId=id('vid'); await env.DB.prepare("INSERT INTO videos(id,platform_id,creator_id,title,description,status,format) VALUES(?,?,?,?,?,'uploading',?)").bind(videoId,c.platform_id,c.id,title,description||null,format).run();
+    return json(req, env, {ok:true,video_id:videoId,upload_url:`/api/videos/${videoId}/media`,max_upload_mb:90,format},201);
   }
   const mediaMatch=url.pathname.match(/^\/api\/videos\/([^/]+)\/media$/);
   if(mediaMatch && req.method==='PUT'){
