@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP="izakhono-one-ai"
 SOURCE_DIR="izakhono-one-ai"
 HOSTNAME="${IZAKHONO_ONE_AI_HOSTNAME:-one.domains.izakhonoafrica.co.za}"
@@ -103,6 +104,28 @@ CHAT_READY="$(node -e 'const x=JSON.parse(process.argv[1]);process.stdout.write(
 PUBLIC_SIGNUP="$(node -e 'const x=JSON.parse(process.argv[1]);process.stdout.write(String(x.publicSignup===true))' "$HEALTH")"
 ACCOUNT_REACHABLE="$(node -e 'const x=JSON.parse(process.argv[1]);process.stdout.write(String(x.accountReachable===true))' "$HEALTH")"
 
+# Stage the owned public edge after the local runtime is proven healthy. This is
+# intentionally fail-soft for the two known owner-infrastructure states:
+# 20 = parent DNS/router action required, 21 = TLS/ports action required.
+# The external resilience route is never modified here.
+OWNED_EDGE_ACTIVATION="NOT_ATTEMPTED"
+OWNED_EDGE_EXIT=0
+if [ -x "$ROOT/izakhono-owned-cloud/activate-owned-public-edge.sh" ]; then
+  set +e
+  IZAKHONO_PUBLIC_HOSTNAME="$HOSTNAME" \
+  IZAKHONO_PUBLIC_ZONE="domains.izakhonoafrica.co.za" \
+  IZAKHONO_PUBLIC_EXTRA_HOSTS="$HOSTNAME" \
+    bash "$ROOT/izakhono-owned-cloud/activate-owned-public-edge.sh"
+  OWNED_EDGE_EXIT=$?
+  set -e
+  case "$OWNED_EDGE_EXIT" in
+    0) OWNED_EDGE_ACTIVATION="LOCAL_EDGE_PROVED" ;;
+    20) OWNED_EDGE_ACTIVATION="PARENT_DNS_OR_ROUTER_REQUIRED" ;;
+    21) OWNED_EDGE_ACTIVATION="TLS_OR_PORTS_REQUIRED" ;;
+    *) fail "Owned public-edge activation failed unexpectedly with exit code $OWNED_EDGE_EXIT" ;;
+  esac
+fi
+
 EDGE="NOT_RUNNING"
 if systemctl is-active --quiet izakhono-edge-node 2>/dev/null; then
   if curl -fsS -H "Host: $HOSTNAME" "$EDGE_URL/health" >/tmp/izakhono-one-ai-edge-health.json 2>/dev/null; then
@@ -120,9 +143,9 @@ if curl -fsS --max-time 8 "https://$HOSTNAME/health" >/tmp/izakhono-one-ai-publi
 fi
 
 TMP_REPORT="$(mktemp)"
-node - "$TMP_REPORT" "$HOSTNAME" "$RESOLVED" "$DEPLOYMENT_ID" "$EDGE" "$PUBLIC_HTTPS" "$CHAT_READY" "$PUBLIC_SIGNUP" "$ACCOUNT_REACHABLE" <<'NODE'
+node - "$TMP_REPORT" "$HOSTNAME" "$RESOLVED" "$DEPLOYMENT_ID" "$EDGE" "$PUBLIC_HTTPS" "$CHAT_READY" "$PUBLIC_SIGNUP" "$ACCOUNT_REACHABLE" "$OWNED_EDGE_ACTIVATION" "$OWNED_EDGE_EXIT" <<'NODE'
 const fs=require("fs");
-const [path,hostname,revision,deploymentId,edge,publicHttps,chatReady,publicSignup,accountReachable]=process.argv.slice(2);
+const [path,hostname,revision,deploymentId,edge,publicHttps,chatReady,publicSignup,accountReachable,ownedEdgeActivation,ownedEdgeExit]=process.argv.slice(2);
 fs.writeFileSync(path,JSON.stringify({
   schema:"izakhono.one-ai-deployment/v1",
   app:"izakhono-one-ai",
@@ -133,6 +156,8 @@ fs.writeFileSync(path,JSON.stringify({
   source:"IZAKHONO_CODE",
   runtime:"IZAKHONO_RUNTIME",
   edge,
+  owned_edge_activation:ownedEdgeActivation,
+  owned_edge_exit:Number(ownedEdgeExit),
   public_https:publicHttps,
   gpu_compute:"private-behind-gateway",
   external_overflow:"reversible",
@@ -157,6 +182,8 @@ DEPLOYMENT_ID=$DEPLOYMENT_ID
 SOURCE=IZAKHONO_CODE
 RUNTIME_HEALTH=VERIFIED
 EDGE=$EDGE
+OWNED_EDGE_ACTIVATION=$OWNED_EDGE_ACTIVATION
+OWNED_EDGE_EXIT=$OWNED_EDGE_EXIT
 PUBLIC_HTTPS=$PUBLIC_HTTPS
 ACCOUNT_REACHABLE=$ACCOUNT_REACHABLE
 PUBLIC_SIGNUP=$PUBLIC_SIGNUP
