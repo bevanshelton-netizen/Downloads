@@ -23,5 +23,7 @@ jobs:
         run: npm run typecheck
       - name: Package and security tests
         run: npm run test:package
-      - name: Validate Cloudflare deployment
+      - name: Validate external fallback bundle
         run: npx wrangler deploy --dry-run
+      - name: Smoke-test independent owned engine
+        run: bash scripts/owned-smoke.sh
