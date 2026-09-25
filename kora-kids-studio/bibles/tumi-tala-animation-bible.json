@@ -1,0 +1,44 @@
+{
+  "schema": "kora-kids.animation-bible/v1",
+  "series": {
+    "id": "tumi-tala",
+    "title": "Tumi & Tala"
+  },
+  "status": "guide-production",
+  "style": "Bright rounded 2D preschool animation with clean silhouettes, expressive faces, gentle squash-and-stretch and African place cues grounded in everyday life rather than stereotypes.",
+  "characterRules": {
+    "Tumi": [
+      "curious body language",
+      "inventive hand gestures",
+      "warm smile",
+      "purple top"
+    ],
+    "Tala": [
+      "rhythmic movement",
+      "confident open gestures",
+      "warm smile",
+      "pink top"
+    ],
+    "Piko": [
+      "fast arcs",
+      "small hover bobs",
+      "repeat-word reactions"
+    ],
+    "Busi Bus": [
+      "slow friendly easing",
+      "face remains readable",
+      "never moves dangerously around children"
+    ]
+  },
+  "camera": [
+    "Prefer readable two-shots and wides for learning beats.",
+    "Use close-ups for repetition and emotional cues.",
+    "Avoid frantic cuts; preschool comprehension comes first."
+  ],
+  "safety": [
+    "No dangerous imitation behavior.",
+    "Road/travel scenes require clear adult-safe framing.",
+    "Do not present generic African motifs as belonging to one culture without review."
+  ],
+  "finalAnimationApproved": false
+}
