@@ -77,8 +77,15 @@
       "fallback": null,
       "public_status": "target-defined",
       "commercial_status": "pilot",
-      "payment": "gateway-gated",
-      "next_blocker": "public HTTPS + signup/checkout acceptance"
+      "payment": "USD $5 Creative / $15 Gamer approved; ZAR settlement mapping + product registration + E2E required",
+      "next_blocker": "owned public HTTPS + signup/auth + approved ZAR settlement amounts + payment/entitlement E2E",
+      "billing": "30-day renewable access until recurring billing is verified",
+      "legal_pages": [
+        "/pricing",
+        "/terms",
+        "/privacy",
+        "/refunds"
+      ]
     },
     {
       "id": "allegro-vibez",
