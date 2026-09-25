@@ -146,6 +146,11 @@ EXIT_CODE=1
       bash "$ROOT/izakhono-owned-cloud/migrate-source-to-code.sh"
       EXIT_CODE=$?
       if [ "$EXIT_CODE" -eq 0 ]; then
+        echo "YHVH_STAGE=INSTALL_INDEPENDENT_ENGINE"
+        bash "$ROOT/izakhono-owned-cloud/install-yhvh-gospel-engine.sh" "$ROOT"
+        EXIT_CODE=$?
+      fi
+      if [ "$EXIT_CODE" -eq 0 ]; then
         echo "YHVH_STAGE=DEPLOY_TO_IZAKHONO_RUNTIME"
         bash "$ROOT/izakhono-owned-cloud/deploy-kora-gospel-tv.sh" main
         EXIT_CODE=$?
