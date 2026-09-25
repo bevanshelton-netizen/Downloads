@@ -437,8 +437,60 @@ async function handleApi(req: Request, env: Env, url: URL): Promise<Response> {
   }
   if (url.pathname === '/api/me/videos' && req.method === 'GET') {
     const c = await creatorFromRequest(req,env); if(!c) return fail(req, env, 'Unauthorized',401);
-    const rows = await env.DB.prepare(`SELECT id,title,description,status,visibility,bytes,published_at,created_at FROM videos WHERE creator_id=? ORDER BY created_at DESC LIMIT 100`).bind(c.id).all<any>();
+    const rows = await env.DB.prepare(`SELECT v.id,v.title,v.description,v.status,v.visibility,v.format,v.bytes,v.published_at,v.created_at,
+      COALESCE((SELECT COUNT(*) FROM watch_sessions w WHERE w.video_id=v.id AND w.qualified=1),0) AS qualified_views,
+      COALESCE((SELECT COUNT(*) FROM video_reactions r WHERE r.video_id=v.id AND r.reaction='like'),0) AS likes,
+      COALESCE((SELECT COUNT(*) FROM comments cm WHERE cm.video_id=v.id AND cm.status='visible'),0) AS comments
+      FROM videos v WHERE v.creator_id=? ORDER BY v.created_at DESC LIMIT 100`).bind(c.id).all<any>();
     return json(req, env, { ok:true, videos: rows.results || [] });
+  }
+  if (url.pathname === '/api/me/dashboard' && req.method === 'GET') {
+    const c=await creatorFromRequest(req,env); if(!c) return fail(req,env,'Unauthorized',401);
+    const [profile,payoutProfile,payouts,followers]=await Promise.all([
+      env.DB.prepare('SELECT bio,website_url,country_code FROM creator_profiles WHERE creator_id=?').bind(c.id).first<any>(),
+      env.DB.prepare("SELECT provider,provider_account_ref,display_label,status FROM payout_profiles WHERE creator_id=?").bind(c.id).first<any>(),
+      env.DB.prepare("SELECT id,currency,amount_minor,status,admin_notes,requested_at,processed_at FROM payout_requests WHERE creator_id=? ORDER BY requested_at DESC LIMIT 50").bind(c.id).all<any>(),
+      env.DB.prepare('SELECT COUNT(*) AS total FROM follows WHERE creator_id=?').bind(c.id).first<any>(),
+    ]);
+    return json(req,env,{ok:true,creator:c,profile:profile||{},wallet:await walletSnapshot(env,c.id),followers:Number(followers?.total||0),payout_profile:payoutProfile?{provider:payoutProfile.provider,display_label:payoutProfile.display_label,status:payoutProfile.status}:null,payout_requests:payouts.results||[]});
+  }
+  if (url.pathname === '/api/me/profile' && req.method === 'POST') {
+    const c=await creatorFromRequest(req,env); if(!c) return fail(req,env,'Unauthorized',401);
+    const b=await body(req),bio=cleanText(b.bio,500),website=cleanText(b.website_url,300),country=cleanText(b.country_code,2).toUpperCase();
+    if(website && !/^https:\/\//i.test(website)) return fail(req,env,'Website must use https://');
+    if(country && !/^[A-Z]{2}$/.test(country)) return fail(req,env,'Country code must be two letters');
+    await env.DB.prepare(`INSERT INTO creator_profiles(creator_id,bio,website_url,country_code) VALUES(?,?,?,?)
+      ON CONFLICT(creator_id) DO UPDATE SET bio=excluded.bio,website_url=excluded.website_url,country_code=excluded.country_code,updated_at=CURRENT_TIMESTAMP`).bind(c.id,bio||null,website||null,country||null).run();
+    await audit(env,c.platform_id,`creator:${c.id}`,'creator.profile_updated','creator',c.id);
+    return json(req,env,{ok:true});
+  }
+  if (url.pathname === '/api/me/payout-requests' && req.method === 'POST') {
+    const c=await creatorFromRequest(req,env); if(!c) return fail(req,env,'Unauthorized',401);
+    const b=await body(req),currency=cleanText(b.currency||'ZAR',3).toUpperCase(),amount=Math.round(Number(b.amount_minor));
+    if(!Number.isInteger(amount)||amount<PAYOUT_MIN_MINOR) return fail(req,env,'Minimum payout request is R100 or currency equivalent');
+    const profile=await env.DB.prepare("SELECT status FROM payout_profiles WHERE creator_id=?").bind(c.id).first<any>();
+    if(!profile||profile.status!=='verified') return fail(req,env,'Payout profile must be verified before requesting a payout',409);
+    const rows=await env.DB.prepare(`
+      SELECT le.id,le.creator_minor,
+        COALESCE((SELECT SUM(pre.amount_minor) FROM payout_request_entries pre
+          JOIN payout_requests pr ON pr.id=pre.payout_request_id
+          WHERE pre.ledger_entry_id=le.id AND pr.status NOT IN ('rejected','cancelled')),0) AS allocated_minor
+      FROM ledger_entries le
+      WHERE le.creator_id=? AND le.currency=? AND le.status='available'
+      ORDER BY le.created_at ASC`).bind(c.id,currency).all<any>();
+    let need=amount; const allocations:{id:string,amount:number}[]=[];
+    for(const row of rows.results||[]){
+      const free=Math.max(0,Number(row.creator_minor||0)-Number(row.allocated_minor||0)); if(!free) continue;
+      const take=Math.min(free,need); allocations.push({id:row.id,amount:take}); need-=take; if(need<=0) break;
+    }
+    if(need>0) return fail(req,env,'Requested amount exceeds available settled earnings',409);
+    const payoutId=id('pout');
+    await env.DB.batch([
+      env.DB.prepare('INSERT INTO payout_requests(id,platform_id,creator_id,currency,amount_minor,status) VALUES(?,?,?,?,?,\'requested\')').bind(payoutId,c.platform_id,c.id,currency,amount),
+      ...allocations.map(a=>env.DB.prepare('INSERT INTO payout_request_entries(payout_request_id,ledger_entry_id,amount_minor) VALUES(?,?,?)').bind(payoutId,a.id,a.amount)),
+    ]);
+    await audit(env,c.platform_id,`creator:${c.id}`,'payout.requested','payout_request',payoutId,{currency,amount_minor:amount});
+    return json(req,env,{ok:true,id:payoutId,currency,amount_minor:amount,status:'requested'},201);
   }
 
   if (url.pathname === '/api/videos' && req.method === 'GET') {
