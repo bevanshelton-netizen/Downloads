@@ -1,0 +1,6 @@
+IZAKHONO Growth OS external resilience refresh marker.
+
+Purpose: trigger a fresh external Vercel resilience build from the current Growth OS source.
+Authority: IZAKHONO-owned infrastructure remains primary.
+Live rule: this route is not live until public HTTPS /api/health independently verifies.
+Generated: 2026-09-25
