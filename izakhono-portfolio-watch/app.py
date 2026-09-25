@@ -363,15 +363,18 @@ def run_once(trigger="scheduler"):
         cur = c.execute("insert into runs(started_at,status,detail) values(?,?,?)", (started, "running", trigger))
         run_id = cur.lastrowid
     stats = {"checked": 0, "changed": 0, "alerted": 0, "errors": 0}
-    for source in sources:
-        try:
-            result = process_source(source)
-            stats["checked"] += 1
-            stats["changed"] += int(result["changed"])
-            stats["alerted"] += int(result["alerted"])
-        except Exception as exc:
-            stats["errors"] += 1
-            record_error(source, exc)
+    with ThreadPoolExecutor(max_workers=WORKERS, thread_name_prefix="portfolio-watch") as pool:
+        future_map = {pool.submit(process_source, source): source for source in sources}
+        for future in as_completed(future_map):
+            source = future_map[future]
+            try:
+                result = future.result()
+                stats["checked"] += 1
+                stats["changed"] += int(result["changed"])
+                stats["alerted"] += int(result["alerted"])
+            except Exception as exc:
+                stats["errors"] += 1
+                record_error(source, exc)
     with db() as c:
         c.execute(
             """update runs set finished_at=?,status=?,checked=?,changed=?,alerted=?,errors=?,detail=? where id=?""",
