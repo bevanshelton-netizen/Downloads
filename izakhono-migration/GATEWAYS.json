@@ -1,6 +1,6 @@
 {
   "schema": "izakhono.gateway/v1",
-  "effective_at": "2026-09-25T23:12:00+02:00",
+  "effective_at": "2026-09-25T23:36:00+02:00",
   "mode": "TEMPORARY_GATEWAY_FIRST",
   "primary_entrypoint": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway",
   "policy": {
@@ -76,7 +76,7 @@
     }
   ],
   "withheld": [],
-  "gateway_version": 7,
+  "gateway_version": 8,
   "capabilities": {
     "share_buttons": true,
     "privacy_safe_telemetry": true,
@@ -107,7 +107,7 @@
   "revenue_sprint": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-revenue",
   "revenue_sprint_status": "PUBLISHED_V2",
   "revenue_sprint_design": "premium-african-tech",
-  "revenue_public_frontend": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-revenue",
+  "revenue_public_frontend": "https://kora-network.vercel.app/izakhono-revenue/",
   "revenue_health": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-revenue?health=1",
   "premium_revenue_v2_source": "ports/revenue-sprint/index.html",
   "pages_frontend_status": "WITHHELD_404",
@@ -121,5 +121,13 @@
   "revenue_visual_mode": "real photography beside all seven commercial lane headings",
   "vercel_write_status": "RATE_LIMITED_FALLBACK_ONLY",
   "revenue_render_target": "https://bevanshelton-netizen.github.io/Downloads/kora-network/public/izakhono-revenue/",
-  "revenue_image_licensing": "Wikimedia Commons public-domain / CC0 sources"
+  "revenue_image_licensing": "Wikimedia Commons public-domain / CC0 sources",
+  "premium_revenue_status": "LIVE_VERIFIED",
+  "visual_upgrade": {
+    "lighter_screen": true,
+    "opera_mini_friendly": true,
+    "heading_images": true,
+    "solution_images": 7,
+    "live_route": "https://kora-network.vercel.app/izakhono-revenue/"
+  }
 }
