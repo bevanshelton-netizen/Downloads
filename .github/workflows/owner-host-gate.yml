@@ -247,7 +247,7 @@ jobs:
           if ($ownedLaunchPs -notmatch 'INSTALL-IZAKHONO-OWNER-AGENT.ps1') { throw 'ONE owned-launch Owner Agent step missing' }
           if ($ownedLaunchPs -notmatch 'owner-agent.sh') { throw 'ONE owned-launch Owner Agent execution missing' }
           if ($ownedLaunchPs -match 'START-IZAKHONO-ONE-AI-LOCAL-MODEL.ps1') { throw 'ONE owned-launch must not race the Owner Agent with direct activation' }
-          if ($ownedLaunchPs -notmatch 'owner-host/control/desired-state.json') { throw 'ONE owned-launch dynamic request lookup missing' }
+          if ($ownedLaunchPs -notmatch 'owner-host/control/one-desired-state.json') { throw 'ONE owned-launch isolated request lookup missing' }
           if ($ownedLaunchPs -notmatch 'expectedRequestId') { throw 'ONE owned-launch dynamic request receipt check missing' }
           if ($ownedLaunchPs -notmatch 'activate-owned-public-edge.sh') { throw 'ONE owned-launch DNS/TLS/EDGE activation missing' }
           if ($ownedLaunchPs -notmatch 'IZAKHONO-ONE-OWNED-EDGE.json') { throw 'ONE owned-launch EDGE/DNS Desktop receipt missing' }
