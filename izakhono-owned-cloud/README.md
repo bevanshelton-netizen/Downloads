@@ -221,3 +221,24 @@ The supplied `route-switch-template.sh` never changes production and exits non-z
 Failback is a separate action using `controlled-failback.sh` and `RUN-CONTROLLED-FAILBACK`. It fences the standby first, waits for the original primary to reacquire a newer witness token, switches the route back, then restarts the standby and proves it has no leadership.
 
 No automatic failover or automatic failback is enabled by these scripts.
+
+
+## Proof-gated DNS route switching
+
+For a controlled HA drill, the repository now includes `dns-route-switch.sh` plus a DNS-host helper.
+
+Install the helper on the independent/approved DNS authority host:
+
+    sudo bash install-ha-dns-route-helper.sh
+
+On the operator machine set:
+
+    export IZAKHONO_HA_DNS_SSH=<ssh-target-for-dns-authority>
+    export IZAKHONO_HA_ROUTE_FQDN=<delegated-record>
+    export IZAKHONO_HA_PRIMARY_ROUTE_IP=<primary-public-ip>
+    export IZAKHONO_HA_STANDBY_ROUTE_IP=<standby-public-ip>
+    export IZAKHONO_HA_ROUTE_SWITCH_SCRIPT=$PWD/dns-route-switch.sh
+
+The controlled failover/failback scripts supply the target and fencing tokens. The DNS helper refuses a stale/non-monotonic fencing token, writes an atomic zone update, bumps SOA serial, reloads DNS and verifies the authoritative A answer before reporting success.
+
+This remains a **manual controlled-drill route adapter**. It does not enable automatic failover or automatic DNS mutation.
