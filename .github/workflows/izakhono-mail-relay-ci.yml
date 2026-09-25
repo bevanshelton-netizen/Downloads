@@ -1,0 +1,32 @@
+name: IZAKHONO Mail Relay CI
+
+on:
+  pull_request:
+    paths:
+      - "izakhono-mail-relay-adapter/**"
+      - ".github/workflows/izakhono-mail-relay-ci.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "izakhono-mail-relay-adapter/**"
+      - ".github/workflows/izakhono-mail-relay-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  self-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify mail relay
+        working-directory: izakhono-mail-relay-adapter
+        run: npm run check
