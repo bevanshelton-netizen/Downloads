@@ -1,50 +1,75 @@
-# IZAKHONO CLOUD ZERO v0.3 — VIDEONOMY founding commercial beta
+# VIDEONOMY v1.0 Release Candidate
 
-A zero-new-monthly-cost bootstrap backend and website package designed to get VIDEONOMY off the ground before revenue funds premium infrastructure.
+VIDEONOMY is an IZAKHONO-owned creator video platform with standard video, vertical Shorts, social discovery, direct fan payments, creator earnings and controlled payouts.
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/bevanshelton-netizen/Downloads/tree/videonomy-production)
+## Product surfaces
 
-## Included
-- Cloudflare Worker API + static site in one deployment
-- D1 database with automatic resource provisioning
-- R2 MP4 storage with automatic resource provisioning
-- Founding creator and advertiser applications
-- Privacy-consent versioning and bot honeypot
-- Salted, daily anti-abuse rate limiting without storing raw IP addresses
-- Admin dashboard: leads, statuses, notes, CSV export, creator invites, live stats
-- Invite-only creator portal with HttpOnly session cookies
-- MP4 uploads up to 90 MB
-- Public video feed and R2 playback with byte-range support
-- HttpOnly viewer sessions
-- Qualified-view accounting at 30 seconds with heartbeat timing checks
-- PayFast-ready ZAR checkout and payment-intent ledger
-- ITN signature, source, amount and server-validation checks before paid status
-- POPIA data-request records and content-reporting workflow
-- Receipt/transactional email job queue
-- Provisional privacy, platform, creator and community policies
-- Founding advertiser packages
+- Public creator-video feed with search, trending and following modes
+- Full-screen vertical Shorts experience
+- Likes, follows and comments backed by server-side records
+- Invite-controlled Creator Studio
+- MP4 publishing with standard-video or Short classification
+- Qualified-view accounting with heartbeat timing controls
+- Creator profiles, audience metrics and video metrics
+- Direct fan tips through the signed iKhokha payment adapter
+- Revenue ledger separating pending settlement from withdrawable earnings
+- Creator payout requests against settled available balances only
+- Admin settlement console, payout-profile verification and payout queue
+- Advertiser/creator/partner lead CRM
+- POPIA request and content-report records
+- Existing PayFast adapter retained for the founding commercial-package flow
 
-## Security design
-- No administrator or PayFast secret is embedded in site assets or committed to GitHub.
-- Creator and viewer session tokens use Secure, HttpOnly, SameSite cookies.
-- D1 stores hashes of session tokens, not plaintext tokens.
-- Anti-abuse keys use hashed identifiers instead of storing raw IP addresses.
-- API CORS reflects only same-origin or explicitly configured allowed origins; no wildcard CORS.
-- Public upload is disabled: only invited creator sessions can upload videos.
-- Financial records are not publicly writable.
-- Checkout remains unavailable until valid PayFast server-side credentials are configured.
+## Creator economics
 
-## Deploy
-The preferred first deployment is the **Deploy to Cloudflare** button above. Cloudflare reads `wrangler.jsonc`, automatically provisions the D1 database and R2 bucket, and uses the `deploy` script in `package.json` to apply D1 migrations as part of deployment.
+Current product rules expose target creator shares of:
+- 70% of eligible watch-ad net revenue
+- 80% of eligible subscription-pool net revenue
+- 90% of eligible direct-fan and brand-marketplace net revenue
 
-For an already authenticated Wrangler environment, run:
+These percentages are not a fixed payment per view. Direct-fan payments enter the ledger as **pending**. An authorised operator records actual external processing cost before settlement release; only then does the creator share become **available**. Payout requests cannot reserve more than the creator's available balance.
 
-```bash
-npm install
-npm run deploy
+## Infrastructure
+
+### Primary: IZAKHONO-owned engine
+
+`owned/server.mjs` runs the same VIDEONOMY application independently on Node 22 with:
+- local SQLite control database
+- local filesystem media store with byte-range playback
+- automatic ordered SQL migrations
+- static-site serving
+- the same API routes and payment adapters
+- Docker restart and health-check contract
+
+On the Windows/NODE01 host, copy `owned/.env.example` to `owned/.env`, insert secrets locally, then run:
+
+```bat
+owned\START-VIDEONOMY-OWNED.cmd
 ```
 
-## Bootstrap limits
-This is intentionally not the final global video architecture. Free-tier limits and direct MP4 playback are suitable for controlled founding beta validation, not YouTube-scale distribution. Professional transcoding/CDN, payment rails, transactional email and stronger identity/recovery will be upgraded from validated demand and revenue.
+The local health route is `http://127.0.0.1:18081/api/health`. EDGE/TLS/DNS should route public HTTPS traffic to that loopback service after the local gate passes.
 
-See `docs/LAUNCH-RUNBOOK.md`.
+### External fallback
+
+The Cloudflare Worker/D1/R2 package remains supported as a reversible external resilience route. It is not required for the owned engine to operate.
+
+## Release gates
+
+The production workflow must pass:
+1. TypeScript typecheck
+2. database/package/security tests
+3. external-fallback dry-run build
+4. independent owned-engine smoke test
+
+Do not call the public production route live until HTTPS, health, video playback, creator login/upload, and a controlled real payment round trip have all been verified on the selected public route.
+
+## Secrets
+
+Never commit:
+- `ADMIN_SECRET`
+- `ABUSE_SALT`
+- `IKHOKHA_APP_ID`
+- `IKHOKHA_APP_SECRET`
+- PayFast merchant secrets
+- payout destination details
+
+The owned runtime ignores `owned/.env` and persistent `owned/data/` by repository rule.
