@@ -1,13 +1,14 @@
 {
   "schema": "izakhono.owner-agent-request/v1",
-  "id": "one-owned-deploy-fallback-20260925-02",
+  "id": "one-owned-full-activation-20260925-03",
   "enabled": true,
-  "action": "deploy-one-ai",
-  "requested_at": "2026-09-25T01:48:00Z",
-  "expires_at": "2026-10-02T23:59:59Z",
+  "action": "activate-one-local-model",
+  "requested_at": "2026-09-25T01:55:00Z",
+  "expires_at": "2026-10-31T23:59:59Z",
   "max_attempts": 3,
   "params": {
+    "model": "qwen2.5:3b",
     "hostname": "one.domains.izakhonoafrica.co.za"
   },
-  "note": "Deploy the independent IZAKHONO ONE engine on NODE 01. Prefer the owned DNS/TLS edge. If parent DNS or inbound TLS is blocked, attempt the reversible Tailscale Funnel transport and independently verify ONE /health. The external Supabase resilience route must remain untouched."
+  "note": "Fresh full IZAKHONO ONE owned activation. Activate or refresh the local qwen2.5:3b model, register the model worker with IZAKHONO GPU/CPU compute, configure ONE AI, deploy from IZAKHONO CODE through RUNTIME, stage owned DNS/TLS/EDGE, and use only the reversible Tailscale transport if direct parent DNS or inbound TLS is blocked. Preserve the independently verified external Supabase resilience route."
 }
