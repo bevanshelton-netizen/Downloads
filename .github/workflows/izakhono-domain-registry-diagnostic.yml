@@ -15,12 +15,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Query .co.za registry and DNS without exposing registrant contact data
+      - name: Install DNS tools
         shell: bash
         run: |
           set -euo pipefail
           sudo apt-get update -qq
           sudo apt-get install -y -qq whois dnsutils >/dev/null
+
+      - name: Query .co.za registry without exposing registrant contact data
+        shell: bash
+        run: |
+          set -euo pipefail
           DOMAIN='izakhonoafrica.co.za'
 
           echo '=== REGISTRY SUMMARY ==='
@@ -30,18 +35,48 @@ jobs:
           set -e
           echo "WHOIS_EXIT=$rc"
           echo "WHOIS_LINES=$(wc -l < /tmp/whois.txt | tr -d ' ')"
-          grep -Ei 'no match|not found|no information|available|not registered|does not exist|no entries|no object|domain unavailable' /tmp/whois.txt \
-            | sed -E 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/[redacted-email]/g' \
-            | head -n 40 || true
+          grep -Ei 'no match|not found|no information|available|not registered|does not exist|no entries|no object|domain unavailable' /tmp/whois.txt             | sed -E 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/[redacted-email]/g'             | head -n 40 || true
 
-          # Emit only operational registry fields; deliberately exclude contact/person data.
-          grep -Ei 'domain name|registrar|sponsor|reseller|provider|status|expir|name[ -]?server|nameserver|nsset|dnssec|updated|registered|creation' /tmp/whois.txt \
-            | sed -E 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/[redacted-email]/g' \
-            | sed -E 's/(\+?[0-9][0-9 ()-]{7,}[0-9])/[redacted-phone]/g' \
-            | sed -E 's/[[:space:]]+$//' \
-            | head -n 160 || true
+          grep -Ei 'domain name|registrar|sponsor|reseller|provider|status|expir|name[ -]?server|nameserver|nsset|dnssec|updated|registered|creation' /tmp/whois.txt             | sed -E 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/[redacted-email]/g'             | sed -E 's/(\+?[0-9][0-9 ()-]{7,}[0-9])/[redacted-phone]/g'             | sed -E 's/[[:space:]]+$//'             | head -n 160 || true
 
-          echo '=== DNS PARENT ==='
+      - name: Query portfolio mail DNS
+        shell: bash
+        run: |
+          set -euo pipefail
+          domains=(
+            "izakhonoafrica.co.za"
+            "faisready.co.za"
+            "edubuildshelton.org.za"
+            "doxahosting.co.za"
+          )
+
+          for DOMAIN in "${domains[@]}"; do
+            echo "=== MAIL DNS: $DOMAIN ==="
+            printf 'NS='; dig +short NS "$DOMAIN" | paste -sd, - || true
+            printf 'A='; dig +short A "$DOMAIN" | paste -sd, - || true
+            printf 'MX='; dig +short MX "$DOMAIN" | paste -sd, - || true
+            printf 'SPF='; dig +short TXT "$DOMAIN" | tr -d '"' | grep -i '^v=spf1' | paste -sd'|' - || true
+            printf 'DMARC='; dig +short TXT "_dmarc.$DOMAIN" | tr -d '"' | paste -sd'|' - || true
+
+            for selector in default google selector1 selector2 s1 s2 k1; do
+              value="$(dig +short TXT "${selector}._domainkey.$DOMAIN" | tr -d '"' | paste -sd'|' - || true)"
+              if [ -n "$value" ]; then
+                echo "DKIM_${selector}=$value"
+              fi
+              cname="$(dig +short CNAME "${selector}._domainkey.$DOMAIN" | paste -sd, - || true)"
+              if [ -n "$cname" ]; then
+                echo "DKIM_CNAME_${selector}=$cname"
+              fi
+            done
+            echo
+          done
+
+      - name: Query owned DNS delegation
+        shell: bash
+        run: |
+          set -euo pipefail
+          DOMAIN='izakhonoafrica.co.za'
+          echo '=== OWNED DNS PARENT ==='
           printf 'NS_ROOT='; dig +short NS "$DOMAIN" | paste -sd, - || true
           printf 'A_ROOT='; dig +short A "$DOMAIN" | paste -sd, - || true
           printf 'NS_DELEGATED='; dig +short NS "domains.$DOMAIN" | paste -sd, - || true
@@ -50,6 +85,4 @@ jobs:
           printf 'A_ONE='; dig +short A "one.domains.$DOMAIN" | paste -sd, - || true
 
           echo '=== TRACE TAIL ==='
-          dig +trace NS "$DOMAIN" 2>/dev/null \
-            | grep -E '(^|[[:space:]])(NS|SOA)[[:space:]]' \
-            | tail -n 25 || true
+          dig +trace NS "$DOMAIN" 2>/dev/null             | grep -E '(^|[[:space:]])(NS|SOA)[[:space:]]'             | tail -n 25 || true
