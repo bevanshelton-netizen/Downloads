@@ -49,7 +49,7 @@ jobs:
           echo "GITHUB_PAGES_RESILIENCE=VERIFIED"
 
   owned-deploy:
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
     name: Deploy on IZAKHONO NODE01
     runs-on: [self-hosted, linux, x64, izakhono]
     timeout-minutes: 20
@@ -78,12 +78,15 @@ jobs:
           STATE=/var/lib/izakhono-owner-agent/state.json
           test -s "$STATE"
           sudo -n cat "$STATE" > /tmp/yhvh-owner-state.json
-          node - <<'NODE'
+          EXPECTED_REQUEST_ID="$(node -e 'const x=require("/opt/izakhono-source/Downloads/owner-host/control/desired-state.json");process.stdout.write(x.id)')"
+          node - "$EXPECTED_REQUEST_ID" <<'NODE'
+          const expected=process.argv[2];
           const x=require('/tmp/yhvh-owner-state.json');
-          if(x.request_id!=='yhvh-gospel-tv-owned-code-20260925-04') process.exit(2);
+          if(x.request_id!==expected) process.exit(2);
           if(x.action!=='deploy-yhvh-gospel-tv'||x.status!=='success'||x.exit_code!==0) process.exit(3);
           if(x.source_authority!=='IZAKHONO_CODE') process.exit(4);
           console.log('OWNER_AGENT_DEPLOYMENT=VERIFIED');
+          console.log('OWNER_REQUEST_ID='+expected);
           console.log('SOURCE_AUTHORITY=IZAKHONO_CODE');
           NODE
 
@@ -105,7 +108,7 @@ jobs:
           echo "YHVH_CHANNEL_LOCAL=VERIFIED"
 
   independent-public-verify:
-    if: github.event_name == 'workflow_dispatch' && always() && needs.owned-deploy.result == 'success'
+    if: always() && needs.owned-deploy.result == 'success'
     name: Independently verify owned public HTTPS
     needs: owned-deploy
     runs-on: ubuntu-latest
