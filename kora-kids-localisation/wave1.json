@@ -1,0 +1,106 @@
+{
+  "schema": "kora-kids.localisation-wave/v1",
+  "seriesId": "lebo-jabu",
+  "episodeSlug": "jam-day-under-the-baobab",
+  "sourceLanguage": "en-ZA",
+  "title": "Global Localisation Wave 1",
+  "editorialRule": "Every pack is a machine draft. Native language review, cultural review, timing review, child-safety review and final editorial approval are required before dubbing or public release.",
+  "targets": [
+    {
+      "code": "af-ZA",
+      "name": "Afrikaans",
+      "voice": "af-ZA",
+      "direction": "ltr",
+      "region": "South Africa",
+      "status": "machine-draft"
+    },
+    {
+      "code": "zu-ZA",
+      "name": "isiZulu",
+      "voice": "zu-ZA",
+      "direction": "ltr",
+      "region": "South Africa",
+      "status": "machine-draft"
+    },
+    {
+      "code": "xh-ZA",
+      "name": "isiXhosa",
+      "voice": "xh-ZA",
+      "direction": "ltr",
+      "region": "South Africa",
+      "status": "machine-draft"
+    },
+    {
+      "code": "st-ZA",
+      "name": "Sesotho",
+      "voice": "st-ZA",
+      "direction": "ltr",
+      "region": "South Africa",
+      "status": "machine-draft"
+    },
+    {
+      "code": "sw",
+      "name": "Kiswahili",
+      "voice": "sw-KE",
+      "direction": "ltr",
+      "region": "East Africa",
+      "status": "machine-draft"
+    },
+    {
+      "code": "fr",
+      "name": "French",
+      "voice": "fr-FR",
+      "direction": "ltr",
+      "region": "Africa / Global",
+      "status": "machine-draft"
+    },
+    {
+      "code": "pt",
+      "name": "Portuguese",
+      "voice": "pt-PT",
+      "direction": "ltr",
+      "region": "Africa / Global",
+      "status": "machine-draft"
+    },
+    {
+      "code": "es",
+      "name": "Spanish",
+      "voice": "es-ES",
+      "direction": "ltr",
+      "region": "Global",
+      "status": "machine-draft"
+    },
+    {
+      "code": "ar",
+      "name": "Arabic",
+      "voice": "ar-SA",
+      "direction": "rtl",
+      "region": "Africa / Middle East / Global",
+      "status": "machine-draft"
+    },
+    {
+      "code": "hi",
+      "name": "Hindi",
+      "voice": "hi-IN",
+      "direction": "ltr",
+      "region": "South Asia",
+      "status": "machine-draft"
+    },
+    {
+      "code": "zh",
+      "name": "Mandarin Chinese",
+      "voice": "zh-CN",
+      "direction": "ltr",
+      "region": "East Asia",
+      "status": "machine-draft"
+    },
+    {
+      "code": "bn",
+      "name": "Bengali",
+      "voice": "bn-BD",
+      "direction": "ltr",
+      "region": "South Asia",
+      "status": "machine-draft"
+    }
+  ]
+}

@@ -15,6 +15,8 @@ const WORKSPACE = resolve(process.env.KORA_KIDS_STUDIO_WORKSPACE || join(homedir
 const JOBS = join(WORKSPACE, "jobs");
 const RENDERS = join(WORKSPACE, "renders");
 const AUDIO_ASSETS = join(WORKSPACE, "audio-assets");
+const LOCALISATION_PACKS = join(REPO, "kora-kids-localisation", "packs");
+const LOCALISATION_REVIEWS = join(WORKSPACE, "localisations");
 const RENDER_WORKER = join(REPO, "kora-kids-render-worker", "worker.mjs");
 
 const types={".html":"text/html; charset=utf-8",".js":"text/javascript; charset=utf-8",".json":"application/json; charset=utf-8",".svg":"image/svg+xml",".css":"text/css; charset=utf-8"};
@@ -59,6 +61,7 @@ async function listJobs(){
  await mkdir(JOBS,{recursive:true});
  await mkdir(RENDERS,{recursive:true});
  await mkdir(AUDIO_ASSETS,{recursive:true});
+ await mkdir(LOCALISATION_REVIEWS,{recursive:true});
  const names=(await readdir(JOBS)).filter(x=>x.endsWith(".json"));
  const out=[];
  for(const n of names){try{out.push(await json(join(JOBS,n)))}catch{}}
@@ -85,6 +88,50 @@ async function updateAudioAsset(id,fn){
  next.updatedAt=new Date().toISOString();
  await writeFile(path,JSON.stringify(next,null,2)+"\n");
  const safe={...next};delete safe.privateAssetPath;return safe;
+}
+function safeLang(x){return /^[A-Za-z0-9-]{2,12}$/.test(x)}
+async function localisationBasePacks(){
+ if(!existsSync(LOCALISATION_PACKS)) return [];
+ const names=(await readdir(LOCALISATION_PACKS)).filter(x=>x.endsWith(".json"));
+ const out=[];
+ for(const n of names){try{out.push(await json(join(LOCALISATION_PACKS,n)))}catch{}}
+ return out;
+}
+async function listLocalisations(){
+ await mkdir(LOCALISATION_REVIEWS,{recursive:true});
+ const packs=await localisationBasePacks(),out=[];
+ for(const pack of packs){
+   const reviewPath=join(LOCALISATION_REVIEWS,pack.targetLanguage+".json");
+   let state=null;
+   if(existsSync(reviewPath)){try{state=await json(reviewPath)}catch{}}
+   const review=state?.review||pack.review||{};
+   out.push({
+     targetLanguage:pack.targetLanguage,targetName:pack.targetName,region:pack.region,voice:pack.voice,
+     textDirection:pack.textDirection,status:pack.status,lineCount:pack.lines?.length||0,
+     review,approvedForDubbing:state?.approvedForDubbing===true,approvedForPublication:false,
+     humanReviewRequired:true,translationOrigin:pack.translationOrigin
+   });
+ }
+ return out.sort((a,b)=>a.targetName.localeCompare(b.targetName));
+}
+async function updateLocalisationReview(code,gate,approved){
+ if(!safeLang(code))throw new Error("bad-language");
+ const packs=await localisationBasePacks();
+ const pack=packs.find(x=>x.targetLanguage===code);
+ if(!pack)throw new Error("unknown-language");
+ const allowed=["nativeLanguage","culturalContext","comicTiming","childSafety","factAccuracy","finalEditorial"];
+ if(!allowed.includes(gate)||typeof approved!=="boolean")throw new Error("invalid-localisation-review");
+ await mkdir(LOCALISATION_REVIEWS,{recursive:true});
+ const path=join(LOCALISATION_REVIEWS,code+".json");
+ let state={targetLanguage:code,review:{...pack.review},approvedForDubbing:false,approvedForPublication:false};
+ if(existsSync(path)){try{state=await json(path)}catch{}}
+ state.review=state.review||{...pack.review};
+ state.review[gate]=approved;
+ state.approvedForDubbing=allowed.every(k=>state.review[k]===true);
+ state.approvedForPublication=false;
+ state.updatedAt=new Date().toISOString();
+ await writeFile(path,JSON.stringify(state,null,2)+"\n");
+ return {...state,targetName:pack.targetName,region:pack.region,voice:pack.voice,textDirection:pack.textDirection,status:pack.status};
 }
 async function listRenders(){
  await mkdir(RENDERS,{recursive:true});
@@ -142,11 +189,12 @@ async function updateJob(id,fn){
 createServer(async(req,res)=>{
  try{
   const url=new URL(req.url||"/","http://localhost");
-  if(url.pathname==="/health") return send(res,200,{ok:true,service:"kora-kids-studio",runtime:"izakhono-owner-local",version:"factory-6",public:false});
+  if(url.pathname==="/health") return send(res,200,{ok:true,service:"kora-kids-studio",runtime:"izakhono-owner-local",version:"factory-7",public:false});
   if(url.pathname==="/api/catalog"&&req.method==="GET") return send(res,200,await catalog());
   if(url.pathname==="/api/jobs"&&req.method==="GET") return send(res,200,{jobs:await listJobs()});
   if(url.pathname==="/api/renders"&&req.method==="GET") return send(res,200,{renders:await listRenders()});
   if(url.pathname==="/api/audio-assets"&&req.method==="GET") return send(res,200,{assets:await listAudioAssets()});
+  if(url.pathname==="/api/localisations"&&req.method==="GET") return send(res,200,{localisations:await listLocalisations()});
   if(url.pathname==="/api/jobs"&&req.method==="POST"){
    const input=await readBody(req); const c=await catalog();
    const series=c.series.find(x=>x.id===(input.seriesId||c.defaultSeries));
@@ -175,6 +223,12 @@ createServer(async(req,res)=>{
     });
     return send(res,200,{ok:true,asset});
    }catch(e){return send(res,400,{ok:false,error:e?.message||"audio review failed"})}
+  }
+  const localisationReviewMatch=url.pathname.match(/^\/api\/localisations\/([A-Za-z0-9-]{2,12})\/review$/);
+  if(localisationReviewMatch&&req.method==="POST"){
+   const input=await readBody(req);
+   try{return send(res,200,{ok:true,localisation:await updateLocalisationReview(localisationReviewMatch[1],input.gate,input.approved)})}
+   catch(e){return send(res,400,{ok:false,error:e?.message||"localisation review failed"})}
   }
   const renderMatch=url.pathname.match(/^\/api\/jobs\/([a-f0-9-]{36})\/render$/i);
   if(renderMatch&&req.method==="POST"){
