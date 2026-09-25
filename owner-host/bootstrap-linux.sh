@@ -57,6 +57,7 @@ bash izakhono-owned-cloud/first-host-proof.sh
 
 echo "Deploying IZAKHONO ONE AI to the owned runtime..."
 export IZAKHONO_ONE_AI_HOSTNAME="${IZAKHONO_ONE_AI_HOSTNAME:-one.domains.izakhonoafrica.co.za}"
+export IZAKHONO_ONE_R0_MODE="${IZAKHONO_ONE_R0_MODE:-1}"
 bash izakhono-owned-cloud/deploy-izakhono-one-ai.sh main
 ONE_AI_STATE="RUNTIME_VERIFIED"
 if [ -f /var/lib/izakhono-deploy/izakhono-one-ai.json ]; then
