@@ -102,6 +102,9 @@ CREATE INDEX IF NOT EXISTS idx_payout_requests_status
 
 CREATE TABLE IF NOT EXISTS payout_request_entries (
   payout_request_id TEXT NOT NULL REFERENCES payout_requests(id) ON DELETE CASCADE,
-  ledger_entry_id TEXT NOT NULL UNIQUE REFERENCES ledger_entries(id) ON DELETE RESTRICT,
+  ledger_entry_id TEXT NOT NULL REFERENCES ledger_entries(id) ON DELETE RESTRICT,
+  amount_minor INTEGER NOT NULL CHECK (amount_minor > 0),
   PRIMARY KEY(payout_request_id, ledger_entry_id)
 );
+CREATE INDEX IF NOT EXISTS idx_payout_entry_ledger
+  ON payout_request_entries(ledger_entry_id);
