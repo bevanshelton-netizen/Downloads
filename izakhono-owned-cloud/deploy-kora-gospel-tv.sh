@@ -144,9 +144,13 @@ node - "$TMP_REPORT" "$HOSTNAME" "$RESOLVED" "$DEPLOYMENT_ID" "$EDGE" "$ENGINE" 
 const fs=require("fs");
 const [path,hostname,revision,deploymentId,edge,engine,publicHttps]=process.argv.slice(2);
 fs.writeFileSync(path,JSON.stringify({
-  schema:"izakhono.kora-gospel-tv-deployment/v1",
+  schema:"izakhono.yhvh-gospel-tv-deployment/v2",
   app:"kora-gospel-tv",
+  product_id:"yhvh-gospel-tv",
+  legacy_runtime_id:"kora-gospel-tv",
   product:"YHVH GOSPEL TV",
+  engine_id:"yhvh-gospel-engine",
+  engine_authoritative:true,
   hostname,revision,deployment_id:deploymentId,
   source:"IZAKHONO_CODE",runtime:"IZAKHONO_RUNTIME",edge,engine,public_https:publicHttps,
   data_store:"/var/lib/izakhono-runtime/data/kora-gospel-tv",
