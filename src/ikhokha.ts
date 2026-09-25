@@ -71,7 +71,7 @@ export async function createIKhokhaPaymentLink(cfg: IKhokhaConfig, input: IKhokh
     },
     body: rawBody,
   });
-  const data = await res.json<any>().catch(() => ({}));
+  const data: any = await res.json().catch(() => ({}));
   if (!res.ok || data?.responseCode !== '00' || !data?.paylinkUrl || !data?.paylinkID) {
     throw new Error(`iKhokha payment link failed: ${data?.message || res.status}`);
   }
