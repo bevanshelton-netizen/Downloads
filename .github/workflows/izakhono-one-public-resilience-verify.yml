@@ -101,6 +101,7 @@ jobs:
 
           const hub=fs.readFileSync('/tmp/one-hub.html','utf8');
           if(!/^<!doctype html>/i.test(hub)||!hub.includes('IZAKHONO ONE')||!hub.includes('R0 public access gets us online')) process.exit(10);
+          if(!hub.includes('Try first. Join when you see the value.')||!hub.includes('id="joinForm"')||!hub.includes('Join Founding 1,000')) process.exit(19);
           if(forbidden.test(hub)) process.exit(11);
           const h=JSON.parse(fs.readFileSync('/tmp/one-hub-health.json','utf8'));
           if(h.ok!==true||h.product!=='IZAKHONO ONE'||h.route!=='external-resilience'||h.public_hub!==true) process.exit(12);
