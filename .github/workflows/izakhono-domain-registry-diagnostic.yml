@@ -29,6 +29,10 @@ jobs:
           rc=$?
           set -e
           echo "WHOIS_EXIT=$rc"
+          echo "WHOIS_LINES=$(wc -l < /tmp/whois.txt | tr -d ' ')"
+          grep -Ei 'no match|not found|no information|available|not registered|does not exist|no entries|no object|domain unavailable' /tmp/whois.txt \
+            | sed -E 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/[redacted-email]/g' \
+            | head -n 40 || true
 
           # Emit only operational registry fields; deliberately exclude contact/person data.
           grep -Ei 'domain name|registrar|sponsor|reseller|provider|status|expir|name[ -]?server|nameserver|nsset|dnssec|updated|registered|creation' /tmp/whois.txt \
