@@ -80,6 +80,7 @@ jobs:
           grep -q 'behavioural_tracking:false' engines/yhvh-gospel-engine/engine.mjs
           grep -q 'YHVH_GOSPEL_ENGINE_TOKEN' izakhono-owned-cloud/deploy-kora-gospel-tv.sh
           grep -q 'independent_engine' izakhono-owned-cloud/deploy-kora-gospel-tv.sh
+          grep -q 'install-yhvh-gospel-engine.sh' izakhono-owned-cloud/deploy-kora-gospel-tv.sh
           bash -n izakhono-owned-cloud/deploy-kora-gospel-tv.sh
           bash -n izakhono-owned-cloud/start-yhvh-outbound-bridge.sh
           grep -q "authoritative_origin:\"IZAKHONO\"" izakhono-owned-cloud/start-yhvh-outbound-bridge.sh
