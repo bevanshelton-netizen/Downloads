@@ -1,0 +1,102 @@
+{
+  "schema": "izakhono.public-health-matrix/v1",
+  "generatedFrom": "izakhono-one-ai/public-sellable-rollout.json",
+  "policy": {
+    "ownedPublicVerified": "required",
+    "targetDefined": "observe",
+    "temporaryPublicFallback": "required-resilience",
+    "notRouted": "skip"
+  },
+  "probes": [
+    {
+      "id": "izakhono-one-ai-fallback",
+      "product": "izakhono-one-ai",
+      "url": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-device-ai",
+      "mode": "required-resilience"
+    },
+    {
+      "id": "allegro-vibez-fallback",
+      "product": "allegro-vibez",
+      "url": "https://allegro-vibez.vercel.app",
+      "mode": "required-resilience"
+    },
+    {
+      "id": "revenue-desk-fallback",
+      "product": "izakhono-revenue-desk",
+      "url": "https://kora-network.vercel.app/izakhono-revenue/",
+      "mode": "required-resilience"
+    },
+    {
+      "id": "izakhono-flagship-owned",
+      "product": "izakhono-flagship",
+      "url": "https://izakhono.co.za",
+      "mode": "observe"
+    },
+    {
+      "id": "growth-os-owned",
+      "product": "growth-os-v2",
+      "url": "https://growth.domains.izakhonoafrica.co.za",
+      "mode": "observe"
+    },
+    {
+      "id": "creative-suite-owned",
+      "product": "creative-suite",
+      "url": "https://creative.domains.izakhonoafrica.co.za",
+      "mode": "observe"
+    },
+    {
+      "id": "auto-ai-owned",
+      "product": "auto-ai",
+      "url": "https://autoai.izakhonoafrica.co.za",
+      "mode": "observe"
+    },
+    {
+      "id": "legacymart-owned",
+      "product": "legacymart",
+      "url": "https://market.domains.izakhonoafrica.co.za",
+      "mode": "observe"
+    },
+    {
+      "id": "memory-mania-owned",
+      "product": "memory-mania",
+      "url": "https://memorymania.domains.izakhonoafrica.co.za",
+      "mode": "observe"
+    },
+    {
+      "id": "kora-kids-owned",
+      "product": "kora-kids",
+      "url": "https://korakids.domains.izakhonoafrica.co.za",
+      "mode": "observe"
+    },
+    {
+      "id": "gospel-owned",
+      "product": "kora-gospel-tv",
+      "url": "https://gospel.domains.izakhonoafrica.co.za",
+      "mode": "observe"
+    },
+    {
+      "id": "revenue-owned",
+      "product": "izakhono-revenue-desk",
+      "url": "https://revenue.domains.izakhonoafrica.co.za",
+      "mode": "observe"
+    },
+    {
+      "id": "crowne-owned",
+      "product": "crowne-hair",
+      "url": "https://hair.domains.izakhonoafrica.co.za",
+      "mode": "observe"
+    },
+    {
+      "id": "domains-owned",
+      "product": "izakhono-domains",
+      "url": "https://domains.izakhonoafrica.co.za",
+      "mode": "observe"
+    },
+    {
+      "id": "one-ai-owned",
+      "product": "izakhono-one-ai",
+      "url": "https://one.domains.izakhonoafrica.co.za",
+      "mode": "observe"
+    }
+  ]
+}
