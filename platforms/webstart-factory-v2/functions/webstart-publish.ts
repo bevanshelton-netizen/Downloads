@@ -21,6 +21,17 @@ Deno.serve(async(req:Request)=>{
     if(!gr.ok||!site)return new Response(JSON.stringify({error:"Site not found"}),{status:404,headers:cors});
     if(!site.generated_html)return new Response(JSON.stringify({error:"Generate the website before publishing"}),{status:409,headers:cors});
 
+    const quality=site.professional_gate||site.qa_report||{};
+    if(site.quality_level!=="international-ready"||quality.pass!==true||Number(quality.score||0)<95){
+      return new Response(JSON.stringify({
+        error:"International professionalism gate not passed",
+        required_standard:"international-professional",
+        minimum_score:95,
+        current_score:Number(quality.score||0),
+        failed:quality.failed||[]
+      }),{status:409,headers:cors});
+    }
+
     const mode=String(site.generation_mode||"manual");
     if(mode.startsWith("factory") && site.qa_report?.pass!==true){
       return new Response(JSON.stringify({error:"Automated QA must pass before publishing",qa:site.qa_report||{}}),{status:409,headers:cors});
