@@ -35,6 +35,8 @@ owned_edge_exit=0
 public_https="NOT_VERIFIED"
 drop01_watch="NOT_RUN"
 drop01_watch_exit=0
+learner_driver_funnel_watch="NOT_RUN"
+learner_driver_funnel_watch_exit=0
 crm_v020="NOT_RUN"
 crm_v020_exit=0
 crm_notify="NOT_RUN"
@@ -267,11 +269,35 @@ else
   drop01_watch="WATCHER_MISSING"
 fi
 
+if [ -f "$ROOT/owner-host/learner-driver-funnel-watch.mjs" ]; then
+  set +e
+  node "$ROOT/owner-host/learner-driver-funnel-watch.mjs" >/tmp/learner-driver-funnel-watch.json 2>/tmp/learner-driver-funnel-watch.err
+  learner_driver_funnel_watch_exit=$?
+  set -e
+  if [ "$learner_driver_funnel_watch_exit" -eq 0 ]; then
+    if node -e 'const fs=require("fs");const x=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));process.exit(x.ok===true?0:1)' /tmp/learner-driver-funnel-watch.json >/dev/null 2>&1; then
+      if grep -q '"skipped":true' /tmp/learner-driver-funnel-watch.json 2>/dev/null; then
+        learner_driver_funnel_watch="SCHEDULED_NOT_DUE"
+      elif grep -q '"meaningful_movement":true' /tmp/learner-driver-funnel-watch.json 2>/dev/null; then
+        learner_driver_funnel_watch="ALERTED"
+      else
+        learner_driver_funnel_watch="CHECKED_NO_ALERT"
+      fi
+    else
+      learner_driver_funnel_watch="INVALID_RESULT"
+    fi
+  else
+    learner_driver_funnel_watch="FAILED_$learner_driver_funnel_watch_exit"
+  fi
+else
+  learner_driver_funnel_watch="WATCHER_MISSING"
+fi
+
 ended="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 commit="$(git -C "$ROOT" rev-parse HEAD 2>/dev/null || true)"
-node - "$REPORT" "$started" "$ended" "$commit" "$source_state" "$agent_state" "$one_agent_state" "$growth_bridge_agent_state" "$growth_bridge_public" "$runner_state" "$crm_v020" "$crm_v020_exit" "$crm_notify" "$crm_notify_exit" "$local_one" "$owned_edge" "$owned_edge_exit" "$public_https" "$drop01_watch" "$drop01_watch_exit" "$R0_MODE" <<'NODE'
+node - "$REPORT" "$started" "$ended" "$commit" "$source_state" "$agent_state" "$one_agent_state" "$growth_bridge_agent_state" "$growth_bridge_public" "$runner_state" "$crm_v020" "$crm_v020_exit" "$crm_notify" "$crm_notify_exit" "$local_one" "$owned_edge" "$owned_edge_exit" "$public_https" "$drop01_watch" "$drop01_watch_exit" "$learner_driver_funnel_watch" "$learner_driver_funnel_watch_exit" "$R0_MODE" <<'NODE'
 const fs=require('fs');
-const [path,started,ended,commit,source,agent,oneAgent,growthBridgeAgent,growthBridgePublic,runner,crmV020,crmV020Exit,crmNotify,crmNotifyExit,localOne,edge,edgeExit,publicHttps,drop01Watch,drop01WatchExit,r0Mode]=process.argv.slice(2);
+const [path,started,ended,commit,source,agent,oneAgent,growthBridgeAgent,growthBridgePublic,runner,crmV020,crmV020Exit,crmNotify,crmNotifyExit,localOne,edge,edgeExit,publicHttps,drop01Watch,drop01WatchExit,learnerDriverFunnelWatch,learnerDriverFunnelWatchExit,r0Mode]=process.argv.slice(2);
 fs.writeFileSync(path,JSON.stringify({
   schema:'izakhono.node01-autopilot/v1',
   node:'NODE01',
@@ -297,6 +323,8 @@ fs.writeFileSync(path,JSON.stringify({
   custom_domain_required:r0Mode==="1"?false:true,
   allegro_drop01_milestone_watch:drop01Watch,
   allegro_drop01_milestone_watch_exit:Number(drop01WatchExit),
+  learner_driver_funnel_watch:learnerDriverFunnelWatch,
+  learner_driver_funnel_watch_exit:Number(learnerDriverFunnelWatchExit),
   live_claim:false,
   independent_https_verification_required:true,
   external_resilience_preserved:true,
@@ -324,5 +352,6 @@ echo "PUBLIC_HTTPS=$public_https"
 echo "ZERO_BUDGET_MODE=$R0_MODE"
 echo "CUSTOM_DOMAIN_REQUIRED=$([ "$R0_MODE" = "1" ] && echo false || echo true)"
 echo "ALLEGRO_DROP01_MILESTONE_WATCH=$drop01_watch"
+echo "LEARNER_DRIVER_FUNNEL_WATCH=$learner_driver_funnel_watch"
 echo "LIVE_CLAIM=false"
 echo "RECEIPT=$REPORT"
