@@ -1,0 +1,167 @@
+{
+  "schema": "kora-kids.localisation-pack/v1",
+  "seriesId": "lebo-jabu",
+  "episodeSlug": "jam-day-under-the-baobab",
+  "sourceLanguage": "en-ZA",
+  "targetLanguage": "xh-ZA",
+  "targetName": "isiXhosa",
+  "voice": "xh-ZA",
+  "textDirection": "ltr",
+  "region": "South Africa",
+  "status": "machine-draft",
+  "humanReviewRequired": true,
+  "brandNames": {
+    "Lebo": "Lebo",
+    "Jabu": "Jabu",
+    "translateNames": false
+  },
+  "translationOrigin": "AI-assisted draft; not approved for publication",
+  "lines": [
+    {
+      "id": "s01-l01",
+      "sceneId": "s01",
+      "speaker": "Lebo",
+      "source": "Whoa! Jabu, look at that tree! Its tummy is bigger than yours!",
+      "text": "Hawu! Jabu, jonga laa mthi! Isisu sawo sikhulu kunesakho!",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s01-l02",
+      "sceneId": "s01",
+      "speaker": "Lebo",
+      "source": "Okay, okay. Maybe not bigger. But why is the trunk so wide?",
+      "text": "Kulungile, kulungile. Mhlawumbi asisikhulu. Kodwa kutheni isiqu sawo sibanzi kangaka?",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s02-l01",
+      "sceneId": "s02",
+      "speaker": "Lebo",
+      "source": "We need berries for our jam. One basket for us, and one little bowl to share.",
+      "text": "Sifuna amaqunube ukuze senze ijam yethu. Ingobozi enye yeyethu, nesitya esincinci sokwabelana.",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s02-l02",
+      "sceneId": "s02",
+      "speaker": "Lebo",
+      "source": "Let’s count together. One, two, three, four, five!",
+      "text": "Masibale kunye. Nye, mbini, ntathu, nne, ntlanu!",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s02-l03",
+      "sceneId": "s02",
+      "speaker": "Lebo",
+      "source": "Jabu, your trunk is the fastest berry-picker I’ve ever seen.",
+      "text": "Jabu, umboko wakho ngowona ukhawulezayo ukukha amaqunube endakha ndawubona.",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s03-l01",
+      "sceneId": "s03",
+      "speaker": "Lebo",
+      "source": "First, bowl. Then berries. Then mash. Then stir. In that order!",
+      "text": "Kuqala, isitya. Emva koko amaqunube. Emva koko siyawatyumza. Emva koko siyaxuba. Ngolo landelelwano!",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s03-l02",
+      "sceneId": "s03",
+      "speaker": "Lebo",
+      "source": "Ready, Jabu? Gently does it.",
+      "text": "Ukulungele, Jabu? Kancinci nje.",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s03-l03",
+      "sceneId": "s03",
+      "speaker": "Lebo",
+      "source": "The berries are escaping!",
+      "text": "Amaqunube ayabaleka!",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s03-l04",
+      "sceneId": "s03",
+      "speaker": "Lebo",
+      "source": "Catch the purple one! No, the other purple one!",
+      "text": "Bamba elimsobo! Hayi, elinye elimsobo!",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s04-l01",
+      "sceneId": "s04",
+      "speaker": "Lebo",
+      "source": "Well... that did not go to plan.",
+      "text": "Ewe ke... oko akuhambanga ngokwesicwangciso.",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s04-l02",
+      "sceneId": "s04",
+      "speaker": "Lebo",
+      "source": "But we can fix it. We’ll pick up, clean up, and try again.",
+      "text": "Kodwa singakulungisa. Siza kuchola, sicoce, size sizame kwakhona.",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s04-l03",
+      "sceneId": "s04",
+      "speaker": "Lebo",
+      "source": "You gather. I sort. Then we both stir.",
+      "text": "Wena qokelela. Mna ndohlule. Emva koko sixube sobabini.",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s04-l04",
+      "sceneId": "s04",
+      "speaker": "Lebo",
+      "source": "Look! A small pot of jam and a very big adventure.",
+      "text": "Jonga! Imbiza encinci yejam kunye nohambo olukhulu kakhulu.",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s05-l01",
+      "sceneId": "s05",
+      "speaker": "Lebo",
+      "source": "Jabu’s Africa Fact!",
+      "text": "Inyaniso yaseAfrika kaJabu!",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s05-l02",
+      "sceneId": "s05",
+      "speaker": "Lebo",
+      "source": "Baobabs grow in several parts of Africa. Their thick trunks can store lots of water, which helps them through dry times.",
+      "text": "Imithi ye-baobab ikhula kwiindawo ezininzi zaseAfrika. Iziqu zayo ezinkulu zinokugcina amanzi amaninzi, nto leyo eyinceda ngamaxesha omileyo.",
+      "factReviewRequired": true
+    },
+    {
+      "id": "s05-l03",
+      "sceneId": "s05",
+      "speaker": "Lebo",
+      "source": "Africa is full of different places, people, plants and stories. We’ll discover another one next time.",
+      "text": "IAfrika izele ziindawo, ngabantu, zizityalo namabali ahlukeneyo. Siza kufumanisa elinye kwixesha elizayo.",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s05-l04",
+      "sceneId": "s05",
+      "speaker": "Lebo",
+      "source": "Bye, explorers!",
+      "text": "Sala kakuhle, baphandi!",
+      "factReviewRequired": false
+    }
+  ],
+  "review": {
+    "nativeLanguage": false,
+    "culturalContext": false,
+    "comicTiming": false,
+    "childSafety": false,
+    "factAccuracy": false,
+    "finalEditorial": false
+  },
+  "approvedForDubbing": false,
+  "approvedForPublication": false
+}
