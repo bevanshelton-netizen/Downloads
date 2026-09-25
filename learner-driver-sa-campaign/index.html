@@ -1,1 +1,97 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Learner Driver SA — Start Preparing</title><meta name="description" content="Prepare for your South African learner's licence with Learner Driver SA."><meta property="og:title" content="Learner Driver SA — Learn Today. Drive Tomorrow."><meta property="og:description" content="Motorcycles, Code 08, 10 & 14 • Mock tests • Road signs • Simulators • 12 official languages"><meta property="og:image" content="https://bevanshelton-netizen.github.io/Downloads/learner-driver-sa-campaign/ad.svg"><style>*{box-sizing:border-box}body{margin:0;background:#061525;color:#fff;font-family:system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh;padding:18px}.wrap{max-width:920px;margin:auto;text-align:center}.poster{display:block;border-radius:24px;overflow:hidden;box-shadow:0 24px 70px #0008}.poster img{display:block;width:100%;height:auto}.actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:18px 0}.btn{border:0;border-radius:999px;padding:15px 22px;font-weight:900;font-size:16px;cursor:pointer;text-decoration:none}.go{background:#21d881;color:#04130c}.share{background:#ffd43b;color:#111}.small{color:#b9cfdb;font-size:13px}</style></head><body><main class="wrap"><a class="poster" href="https://learner-driver-sa-bevan2.vercel.app/?utm_source=campaign_page&utm_medium=owned_media&utm_campaign=learner_driver_sa_launch&utm_content=clickable_poster" target="_blank" rel="noopener"><img src="./ad.svg" alt="Learner Driver SA advert"></a><div class="actions"><a class="btn go" href="https://learner-driver-sa-bevan2.vercel.app/?utm_source=campaign_page&utm_medium=owned_media&utm_campaign=learner_driver_sa_launch&utm_content=clickable_poster" target="_blank" rel="noopener">START LEARNING TODAY →</a><button class="btn share" id="share">↗ SHARE</button></div><p class="small">Tap the picture or button to open Learner Driver SA.</p></main><script>document.querySelector('#share').onclick=async()=>{const d={title:'Learner Driver SA',text:"Prepare for your learner's licence — motorcycles, Code 08, 10 and 14.",url:location.href};try{if(navigator.share){await navigator.share(d);return}await navigator.clipboard.writeText(location.href);const b=document.querySelector('#share'),o=b.textContent;b.textContent='✓ LINK COPIED';setTimeout(()=>b.textContent=o,1800)}catch(e){if(e?.name!=='AbortError')prompt('Copy this link',location.href)}}</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Learner Driver SA — Start Preparing</title>
+<meta name="description" content="Prepare for your South African learner's licence with Learner Driver SA.">
+<meta property="og:title" content="Learner Driver SA — Learn Today. Drive Tomorrow.">
+<meta property="og:description" content="Motorcycles, Code 08, 10 & 14 • Mock tests • Road signs • Simulators • 12 official languages">
+<meta property="og:image" content="https://bevanshelton-netizen.github.io/Downloads/learner-driver-sa-campaign/ad.svg">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#061525;color:#fff;font-family:system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh;padding:18px}
+.wrap{max-width:920px;margin:auto;text-align:center}.poster{display:block;border-radius:24px;overflow:hidden;box-shadow:0 24px 70px #0008}
+.poster img{display:block;width:100%;height:auto}.actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:18px 0}
+.btn{border:0;border-radius:999px;padding:15px 22px;font-weight:900;font-size:16px;cursor:pointer;text-decoration:none}
+.go{background:#21d881;color:#04130c}.share{background:#ffd43b;color:#111}.small{color:#b9cfdb;font-size:13px}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <a class="poster" data-handoff data-content="campaign_poster" href="#" target="_blank" rel="noopener"><img src="./ad.svg" alt="Learner Driver SA advert"></a>
+  <div class="actions">
+    <a class="btn go" data-handoff data-content="start_learning_today" href="#" target="_blank" rel="noopener">START LEARNING TODAY →</a>
+    <button class="btn share" id="share" type="button">↗ SHARE</button>
+  </div>
+  <p class="small">Tap the picture or button to open Learner Driver SA.</p>
+</main>
+<script>
+(()=>{
+  const U='https://yfawrenhudjomhnglfhq.supabase.co';
+  const K='sb_publishable_3KY--8Y_uuKEdfdumC2txg__OWTRo2p';
+  const APP='https://learner-driver-sa-bevan2.vercel.app/';
+  const q=new URLSearchParams(location.search);
+  const refHost=(()=>{try{return document.referrer?new URL(document.referrer).hostname:''}catch{return''}})();
+  const source=q.get('utm_source')||refHost||'campaign_page';
+  const medium=q.get('utm_medium')||'owned_media';
+  const campaign=q.get('utm_campaign')||'learner_driver_sa_launch';
+  const term=q.get('utm_term')||'';
+  let sessionId;
+  try{
+    sessionId=sessionStorage.getItem('ldsa.campaign.page.session');
+    if(!sessionId){sessionId=crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)+Date.now();sessionStorage.setItem('ldsa.campaign.page.session',sessionId)}
+  }catch{sessionId=Math.random().toString(36).slice(2)+Date.now()}
+
+  function track(eventName,content){
+    const row={
+      event_name:eventName,
+      utm_source:source.slice(0,120),
+      utm_medium:medium.slice(0,120),
+      utm_campaign:campaign.slice(0,160),
+      utm_content:(content||q.get('utm_content')||'').slice(0,160)||null,
+      utm_term:term.slice(0,160)||null,
+      referrer_host:refHost.slice(0,180)||null,
+      path:location.pathname.slice(0,500),
+      page_title:document.title.slice(0,200),
+      session_id:String(sessionId).slice(0,80)
+    };
+    try{return fetch(U+'/rest/v1/learner_driver_campaign_events',{method:'POST',headers:{apikey:K,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(row),keepalive:true}).catch(()=>{})}catch{}
+  }
+
+  function appUrl(content){
+    const u=new URL(APP);
+    u.searchParams.set('utm_source',source);
+    u.searchParams.set('utm_medium',medium);
+    u.searchParams.set('utm_campaign',campaign);
+    u.searchParams.set('utm_content',content);
+    if(term)u.searchParams.set('utm_term',term);
+    return u.toString();
+  }
+
+  document.querySelectorAll('[data-handoff]').forEach(a=>{
+    const content=a.dataset.content||'campaign_cta';
+    a.href=appUrl(content);
+    a.addEventListener('click',()=>track('campaign_cta_click',content));
+  });
+
+  track('campaign_visit','campaign_page');
+
+  document.querySelector('#share').onclick=async()=>{
+    track('share','campaign_share');
+    const shared=new URL(location.href);
+    shared.searchParams.set('utm_source','organic_share');
+    shared.searchParams.set('utm_medium','user_share');
+    shared.searchParams.set('utm_campaign',campaign);
+    shared.searchParams.set('utm_content','campaign_share');
+    shared.searchParams.delete('utm_term');
+    const d={title:'Learner Driver SA',text:"Prepare for your learner's licence — motorcycles, Code 08, 10 and 14.",url:shared.toString()};
+    try{
+      if(navigator.share){await navigator.share(d);return}
+      await navigator.clipboard.writeText(d.url);
+      const b=document.querySelector('#share'),o=b.textContent;b.textContent='✓ LINK COPIED';setTimeout(()=>b.textContent=o,1800)
+    }catch(e){if(e?.name!=='AbortError')prompt('Copy this link',d.url)}
+  };
+})();
+</script>
+</body>
+</html>
