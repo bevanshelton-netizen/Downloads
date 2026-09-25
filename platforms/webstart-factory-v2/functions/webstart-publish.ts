@@ -1,7 +1,8 @@
 
 const SUPABASE_URL=Deno.env.get("SUPABASE_URL")!;
 const PUBLIC_KEY=Deno.env.get("SUPABASE_ANON_KEY")||"sb_publishable_3KY--8Y_uuKEdfdumC2txg__OWTRo2p";
-const RENDERER="https://izakhono-webstart-sites.vercel.app";
+const RENDERER_RAW=Deno.env.get("WEBSTART_RENDERER_BASE")||"https://izakhono-webstart-sites.vercel.app";
+const RENDERER=RENDERER_RAW.endsWith("/")?RENDERER_RAW.slice(0,-1):RENDERER_RAW;
 const cors={"access-control-allow-origin":"*","access-control-allow-headers":"authorization, apikey, content-type","access-control-allow-methods":"POST, OPTIONS","content-type":"application/json"};
 
 Deno.serve(async(req:Request)=>{
