@@ -1,6 +1,6 @@
 {
   "schema": "izakhono.portfolio-migration/v1",
-  "updated_at": "2026-09-25T23:08:00+02:00",
+  "updated_at": "2026-09-25T23:12:00+02:00",
   "policy": {
     "primary_runtime": "IZAKHONO",
     "external_hosts": "fallback-only until IZAKHONO external acceptance passes",
@@ -135,10 +135,11 @@
     "YenZaNow service bookings"
   ],
   "revenue_sprint_status": "PUBLISHED_V2",
-  "revenue_public_frontend": "https://bevanshelton-netizen.github.io/Downloads/",
+  "revenue_public_frontend": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-revenue",
   "launch_status": "LIVE_VERIFIED",
   "revenue_theme": "LIGHT",
   "opera_mini_friendly": true,
   "revenue_fallback_frontend": "https://izakhono-revenue-desk.vercel.app",
-  "revenue_visual_status": "PHOTO_LED_PUBLISHED"
+  "revenue_visual_status": "PHOTO_LED_LIVE_VERIFIED",
+  "revenue_render_target": "https://bevanshelton-netizen.github.io/Downloads/kora-network/public/izakhono-revenue/"
 }
