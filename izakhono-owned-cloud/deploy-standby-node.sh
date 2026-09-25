@@ -29,6 +29,10 @@ if [ -f /var/lib/izakhono-deploy/primary-deployment.txt ] && grep -q 'DEPLOYMENT
   exit 8
 fi
 
+mkdir -p /opt/izakhono-owned-cloud
+install -o root -g izakhono -m 0750 "$HERE/promote-standby-state.sh" /opt/izakhono-owned-cloud/promote-standby-state.sh
+install -o root -g izakhono -m 0640 "$HERE/standby-state-swap.mjs" /opt/izakhono-owned-cloud/standby-state-swap.mjs
+
 for cmd in node curl systemctl; do
   command -v "$cmd" >/dev/null 2>&1 || { echo "Missing required command: $cmd"; exit 9; }
 done
@@ -132,4 +136,4 @@ echo "DNS change: NO"
 echo "Write fencing: ENFORCED"
 echo "Replica receiver: $BIND:8890"
 echo "Report: $REPORT"
-echo "Next: sync encrypted BACKUP archives from primary, then run stage-standby-replica.sh with the offline recovery-key file."
+echo "Next: sync encrypted BACKUP archives from primary, run stage-standby-replica.sh with the offline recovery-key file, then use promote-standby-state.sh only after primary fencing and standby witness leadership are proved."
