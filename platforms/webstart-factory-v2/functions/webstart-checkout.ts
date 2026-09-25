@@ -41,7 +41,7 @@ Deno.serve(async(req:Request)=>{
     externalEntityID:site.id,
     amount,
     currency:"ZAR",
-    requesterUrl:SUPABASE_URL+"/functions/v1/webstart-app",
+    requesterUrl:"https://izakhono-webstart.vercel.app",
     description:"IZAKHONO WebStart "+pkg+" — setup plus first month",
     paymentReference:site.slug+"-"+order.id.slice(0,8),
     mode:IK_MODE,
