@@ -182,7 +182,7 @@ footer{margin-top:34px;color:#80978a;font-size:.9rem}
 const out=document.getElementById('output');
 async function load(){
  const r=await fetch('/v1/commands'); const j=await r.json();
- document.getElementById('commands').innerHTML=j.commands.map(c=>`<div class="command"><b>/${c.id}</b><small>${c.summary}</small></div>`).join('');
+ document.getElementById('commands').innerHTML=j.commands.map(c=>'<div class="command"><b>/'+c.id+'</b><small>'+c.summary+'</small></div>').join('');
 }
 document.getElementById('run').onclick=async()=>{
  out.textContent='Expanding…';
