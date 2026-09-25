@@ -46,7 +46,7 @@ jobs:
           URL="https://kora-network.vercel.app/gospel"
           PAGE="$(curl --fail --silent --show-error --max-time 20 "$URL")"
           printf '%s' "$PAGE" | grep -qi "YHVH GOSPEL TV"
-          printf '%s' "$PAGE" | grep -qi "Sponsor / advertise"
+          printf '%s' "$PAGE" | grep -Eqi "Request commercial proposal|Sponsor[. /]+[[:space:]]*Advertise|Sponsor.*Advertise"
           echo "VERCEL EXTERNAL PRODUCTION: PASS"
 
       - name: Verify GitHub Pages external front door
