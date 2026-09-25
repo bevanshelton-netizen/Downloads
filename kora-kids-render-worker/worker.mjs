@@ -18,7 +18,7 @@ function args(){
 }
 function safeText(x){return String(x||"").replace(/[\r\n]+/g," ").trim()}
 function validate(job){
-  if(job?.series?.id!=="lebo-jabu") throw new Error("render worker currently accepts only lebo-jabu jobs");
+  if(!["lebo-jabu","tumi-tala"].includes(job?.series?.id)) throw new Error("render worker accepts only approved KORA KIDS series jobs");
   if(job?.renderTarget?.id!=="izakhono-local"||job?.renderTarget?.mode!=="owned") throw new Error("job is not bound to IZAKHONO Local Render");
   if(job?.status!=="approved"||job?.publishable!==true) throw new Error("job is not approved/publishable");
   const review=job.review||{};
@@ -109,7 +109,7 @@ function shotSchedule(schedule){
   return out;
 }
 function activeAt(items,t){return items.find(x=>t>=x.start&&t<x.end)||items[items.length-1]}
-function frame(width,height,t,sceneIndex,sceneT,leboMouthOpen=false,shot=null,dialogueCue=null){
+function frameLeboJabu(width,height,t,sceneIndex,sceneT,leboMouthOpen=false,shot=null,dialogueCue=null){
   const buf=Buffer.alloc(width*height*3);
   rect(buf,width,height,0,0,width,height,[116,220,255]);
   const horizon=Math.floor(height*.63);
@@ -144,6 +144,97 @@ function frame(width,height,t,sceneIndex,sceneT,leboMouthOpen=false,shot=null,di
   }
   return buf;
 }
+
+function drawTumi(buf,w,h,x,y,s,bob,mouthOpen=false,emotion="neutral"){
+  const skin=[140,89,62],hair=[43,33,49],purple=[134,103,232],blue=[63,101,174],ink=[23,52,83],white=[255,255,255];
+  y+=bob;
+  ellipse(buf,w,h,x,y+66*s,34*s,38*s,skin);
+  ellipse(buf,w,h,x,y+38*s,35*s,22*s,hair);
+  circle(buf,w,h,x-12*s,y+64*s,4*s,ink);circle(buf,w,h,x+12*s,y+64*s,4*s,ink);
+  if(["curious","warm-informative"].includes(emotion)) rect(buf,w,h,x-20*s,y+52*s,14*s,2*s,ink);
+  rect(buf,w,h,x-30*s,y+105*s,60*s,78*s,purple);
+  rect(buf,w,h,x-23*s,y+181*s,18*s,56*s,blue);rect(buf,w,h,x+5*s,y+181*s,18*s,56*s,blue);
+  rect(buf,w,h,x-28*s,y+230*s,27*s,13*s,ink);rect(buf,w,h,x+2*s,y+230*s,27*s,13*s,ink);
+  circle(buf,w,h,x-12*s,y+86*s,3*s,white);circle(buf,w,h,x+12*s,y+86*s,3*s,white);
+  if(mouthOpen||["delighted","joyful","playful"].includes(emotion)) ellipse(buf,w,h,x,y+94*s,8*s,5*s,[111,46,52]); else rect(buf,w,h,x-7*s,y+94*s,14*s,2*s,[111,46,52]);
+}
+function drawTala(buf,w,h,x,y,s,bob,mouthOpen=false,emotion="neutral"){
+  const skin=[199,131,91],hair=[43,33,49],pink=[255,121,176],violet=[73,63,134],ink=[23,52,83],white=[255,255,255];
+  y+=bob;
+  ellipse(buf,w,h,x,y+66*s,34*s,38*s,skin);
+  circle(buf,w,h,x-25*s,y+33*s,14*s,hair);circle(buf,w,h,x+25*s,y+33*s,14*s,hair);ellipse(buf,w,h,x,y+36*s,30*s,20*s,hair);
+  circle(buf,w,h,x-12*s,y+64*s,4*s,ink);circle(buf,w,h,x+12*s,y+64*s,4*s,ink);
+  rect(buf,w,h,x-30*s,y+105*s,60*s,78*s,pink);
+  rect(buf,w,h,x-23*s,y+181*s,18*s,56*s,violet);rect(buf,w,h,x+5*s,y+181*s,18*s,56*s,violet);
+  rect(buf,w,h,x-28*s,y+230*s,27*s,13*s,ink);rect(buf,w,h,x+2*s,y+230*s,27*s,13*s,ink);
+  circle(buf,w,h,x-12*s,y+86*s,3*s,white);circle(buf,w,h,x+12*s,y+86*s,3*s,white);
+  if(mouthOpen||["musical","joyful","bright"].includes(emotion)) ellipse(buf,w,h,x,y+94*s,8*s,5*s,[111,46,52]); else rect(buf,w,h,x-7*s,y+94*s,14*s,2*s,[111,46,52]);
+}
+function drawPiko(buf,w,h,x,y,s,bob){
+  const green=[84,199,123],sky=[95,215,232],purple=[134,103,232],pink=[255,121,176],yellow=[255,207,63],ink=[23,52,83];
+  y+=bob;
+  ellipse(buf,w,h,x,y+48*s,30*s,40*s,green);
+  circle(buf,w,h,x+7*s,y+8*s,23*s,sky);
+  circle(buf,w,h,x+14*s,y+4*s,3*s,ink);
+  rect(buf,w,h,x+28*s,y+8*s,25*s,5*s,yellow);
+  ellipse(buf,w,h,x-28*s,y+45*s,18*s,28*s,purple);
+  ellipse(buf,w,h,x+28*s,y+45*s,18*s,28*s,purple);
+  rect(buf,w,h,x-12*s,y+82*s,9*s,28*s,pink);rect(buf,w,h,x+3*s,y+82*s,9*s,28*s,pink);
+}
+function drawBusiBus(buf,w,h,x,y,s,bob){
+  const yellow=[255,207,63],sky=[110,212,255],ink=[23,52,83],white=[255,255,255];
+  y+=bob;
+  rect(buf,w,h,x-96*s,y,192*s,88*s,yellow);
+  ellipse(buf,w,h,x-72*s,y+88*s,19*s,19*s,ink);ellipse(buf,w,h,x+60*s,y+88*s,19*s,19*s,ink);
+  rect(buf,w,h,x-68*s,y+16*s,92*s,34*s,sky);rect(buf,w,h,x+34*s,y+16*s,30*s,44*s,sky);
+  circle(buf,w,h,x-17*s,y+64*s,4*s,ink);circle(buf,w,h,x+7*s,y+64*s,4*s,ink);
+  rect(buf,w,h,x-14*s,y+76*s,18*s,2*s,ink);
+  circle(buf,w,h,x-72*s,y+88*s,7*s,white);circle(buf,w,h,x+60*s,y+88*s,7*s,white);
+}
+function frameTumiTala(width,height,t,sceneIndex,sceneT,mouthOpen=false,shot=null,dialogueCue=null){
+  const buf=Buffer.alloc(width*height*3);
+  rect(buf,width,height,0,0,width,height,[120,220,255]);
+  const horizon=Math.floor(height*.66);
+  rect(buf,width,height,0,horizon,width,height-horizon,[104,201,119]);
+  circle(buf,width,height,width*.83,height*.17,30,[255,207,63]);
+  // Rainbow Town homes
+  rect(buf,width,height,width*.06,horizon-95,96,95,[255,239,198]);
+  rect(buf,width,height,width*.07,horizon-124,78,30,[255,121,176]);
+  rect(buf,width,height,width*.78,horizon-82,100,82,[238,232,255]);
+  rect(buf,width,height,width*.79,horizon-110,82,28,[134,103,232]);
+  // friendly walking path
+  ellipse(buf,width,height,width*.53,horizon+58,width*.55,48,[237,201,135]);
+  const framing=shot?.framing||"medium";
+  let cameraScale=CAMERA_SCALE[framing]||1;
+  if(framing==="wide-push"&&shot?.duration) cameraScale=.82+.18*Math.max(0,Math.min(1,(t-shot.start)/shot.duration));
+  if(framing==="close-to-wide"&&shot?.duration) cameraScale=1.18-.36*Math.max(0,Math.min(1,(t-shot.start)/shot.duration));
+  const wave=Math.sin(t*3.4);
+  let tumiX=width*.34,talaX=width*.53,pikoX=width*.68,busX=width*.77;
+  if(sceneIndex===1){tumiX+=Math.sin(t*2)*12;talaX-=Math.sin(t*2)*8;}
+  if(sceneIndex===2){pikoX=width*.58;}
+  if(sceneIndex===3){tumiX+=sceneT*18;talaX+=sceneT*15;busX=width*.80;}
+  if(sceneIndex===4){tumiX=width*.37;talaX=width*.55;busX=width*.77;}
+  const speaker=dialogueCue?.speaker||"";
+  const tumiEmotion=speaker==="Tumi"?dialogueCue.emotion:(shot?.expressionFocus?.find?.(x=>x.speaker==="Tumi")?.emotion||"neutral");
+  const talaEmotion=speaker==="Tala"?dialogueCue.emotion:(shot?.expressionFocus?.find?.(x=>x.speaker==="Tala")?.emotion||"neutral");
+  drawTumi(buf,width,height,tumiX,horizon-178,.72*cameraScale,wave*3,mouthOpen&&speaker==="Tumi",tumiEmotion);
+  drawTala(buf,width,height,talaX,horizon-178,.72*cameraScale,-wave*3,mouthOpen&&speaker==="Tala",talaEmotion);
+  if(sceneIndex!==1) drawPiko(buf,width,height,pikoX,horizon-160,.65*cameraScale,Math.sin(t*5)*7);
+  if(sceneIndex>=3) drawBusiBus(buf,width,height,busX,horizon-96,.78*cameraScale,Math.sin(t*1.7)*2);
+  // five-step learning markers
+  if(sceneIndex===1||sceneIndex===3){
+    for(let i=0;i<5;i++){
+      circle(buf,width,height,width*.18+i*30,horizon+20,10,[255,255,255]);
+      rect(buf,width,height,width*.18+i*30-3,horizon+15,6,10,[23,52,83]);
+    }
+  }
+  return buf;
+}
+function frame(seriesId,width,height,t,sceneIndex,sceneT,mouthOpen=false,shot=null,dialogueCue=null){
+  if(seriesId==="tumi-tala") return frameTumiTala(width,height,t,sceneIndex,sceneT,mouthOpen,shot,dialogueCue);
+  return frameLeboJabu(width,height,t,sceneIndex,sceneT,mouthOpen,shot,dialogueCue);
+}
+
 function sceneSchedule(job,total){
   const src=job.scenes.map(s=>Math.max(1,Number(s.durationSeconds)||1));
   const sum=src.reduce((a,b)=>a+b,0);
@@ -180,17 +271,18 @@ function dialogueSchedule(schedule,language){
 function makeVtt(cues){
   return "WEBVTT\n\n"+cues.map((c,i)=>`${i+1}\n${vttTime(c.startSeconds)} --> ${vttTime(c.endSeconds)}\n${c.speaker}: ${c.text}\n`).join("\n");
 }
-function lipSyncFromDialogue(cues){
+function lipSyncFromDialogue(cues,seriesId){
   const mouth=[];
+  const speakers=seriesId==="tumi-tala"?new Set(["Tumi","Tala"]):new Set(["Lebo"]);
   for(const cue of cues){
-    if(cue.speaker!=="Lebo") continue;
+    if(!speakers.has(cue.speaker)) continue;
     const words=cue.text.split(/\s+/).filter(Boolean);
     const dur=Math.max(.1,cue.endSeconds-cue.startSeconds);
     words.forEach((word,i)=>{
       const a=cue.startSeconds+dur*(i/Math.max(1,words.length));
       const b=cue.startSeconds+dur*((i+.72)/Math.max(1,words.length));
       const end=Math.max(a+.002,Math.min(cue.endSeconds,b));
-      mouth.push({speaker:"Lebo",sceneId:cue.sceneId,word,shape:"open",startSeconds:+a.toFixed(4),endSeconds:+end.toFixed(4)});
+      mouth.push({speaker:cue.speaker,sceneId:cue.sceneId,word,shape:"open",startSeconds:+a.toFixed(4),endSeconds:+end.toFixed(4)});
     });
   }
   return mouth;
@@ -250,7 +342,7 @@ async function main(){
   const schedule=sceneSchedule(job,total);
   const dialogue=dialogueSchedule(schedule,job.language.code);
   const shots=shotSchedule(schedule);
-  const lipSync=lipSyncFromDialogue(dialogue);
+  const lipSync=lipSyncFromDialogue(dialogue,job.series.id);
   const qc=qcReport(job,schedule,dialogue,shots,total,a.mode);
   if(!qc.passForGuide) throw new Error("guide QC failed: "+Object.entries(qc.checks).filter(([k,v])=>k!=="finalVoiceApproved"&&v!==true).map(([k])=>k).join(", "));
   const silent=join(out,"episode-silent.mp4"),guide=join(out,"guide.wav"),final=join(out,"episode-guide.mp4"),captions=join(out,"captions.vtt"),cues=join(out,"voice-cues.json");
@@ -276,14 +368,14 @@ async function main(){
         const mouthOpen=lipSync.some(x=>t>=x.startSeconds&&t<x.endSeconds);
         const shot=activeAt(shots,t);
         const dialogueCue=dialogue.find(x=>t>=x.startSeconds&&t<x.endSeconds)||null;
-        const buf=frame(width,height,t,sc.index,local,mouthOpen,shot,dialogueCue);
+        const buf=frame(job.series.id,width,height,t,sc.index,local,mouthOpen,shot,dialogueCue);
         if(!p.stdin.write(buf)) await new Promise(r=>p.stdin.once("drain",r));
       }
       p.stdin.end();
     })().catch(e=>p.stdin.destroy(e));
   }});
 
-  const speech=safeText(job.episode.title+". "+dialogue.map(c=>(c.speaker==="Lebo"?c.text:(c.performance||c.text))).join(" "));
+  const speech=safeText(job.episode.title+". "+dialogue.map(c=>(c.performance||c.text)).join(" "));
   let guideKind="tone-fallback";
   if(commandExists("espeak-ng")){
     const r=spawnSync("espeak-ng",["-v","en","-s","160","-w",guide,speech],{stdio:"ignore"});
