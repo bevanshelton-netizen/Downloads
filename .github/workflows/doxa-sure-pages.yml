@@ -8,6 +8,7 @@ on:
       - 'deploy/PUBLISH_STATIC_GATEWAY'
       - 'ports/yenzanow/**'
       - 'ports/revenue-sprint/**'
+      - 'kora-network/public/izakhono-revenue/**'
       - 'doxa-sure/**'
       - 'ports/izakhono-one/**'
       - 'one/**'
@@ -86,7 +87,7 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf _site
-          mkdir -p _site/doxa-sure _site/yenzanow
+          mkdir -p _site/doxa-sure _site/yenzanow _site/revenue-sprint
           mkdir -p _site/izakhono-one
           mkdir -p _site/one
           mkdir -p _site/ports/izakhono-one
@@ -96,7 +97,12 @@ jobs:
           mkdir -p _site/ports/kora-gospel-tv
           mkdir -p _site/creative-suite
 
-          cp ports/revenue-sprint/index.html _site/index.html
+          # Publish the photo-led Business Growth Desk as the public front door.
+          cp kora-network/public/izakhono-revenue/index.html _site/index.html
+          cp kora-network/public/izakhono-revenue/premium-v1.css _site/premium-v1.css
+
+          # Preserve the previous Revenue Sprint as a reversible fallback.
+          cp ports/revenue-sprint/index.html _site/revenue-sprint/index.html
           cp -R doxa-sure/. _site/doxa-sure/
           cp ports/yenzanow/index.html _site/yenzanow/index.html
           cp ports/yenzanow/healthz.txt _site/yenzanow/healthz.txt
@@ -256,8 +262,9 @@ jobs:
           for i in $(seq 1 24); do
             rm -f /tmp/revenue.html /tmp/revenue.h
             if curl -fsSL --connect-timeout 4 --max-time 8 -D /tmp/revenue.h -o /tmp/revenue.html "$REVENUE" &&
-               grep -q 'IZAKHONO REVENUE SPRINT' /tmp/revenue.html &&
-               grep -q 'Built enough.' /tmp/revenue.html &&
+               grep -q 'IZAKHONO Business Growth Desk' /tmp/revenue.html &&
+               grep -q 'AI Automation' /tmp/revenue.html &&
+               grep -q 'Special:FilePath' /tmp/revenue.html &&
                grep -qi '^content-type: text/html' /tmp/revenue.h; then
               ok=1
               break
