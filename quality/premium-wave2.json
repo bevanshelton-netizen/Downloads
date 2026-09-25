@@ -37,12 +37,14 @@
     {
       "id": "ecd360",
       "source": "external:bevanshelton-netizen/edubuild-ecd360",
-      "marker": "dedicated-repository premium pass"
+      "marker": "dedicated-repository premium pass",
+      "releaseCommit": "1de39a9d015f3a3db5b213977791723f33e21fee"
     },
     {
       "id": "legacymart",
       "source": "external:bevanshelton-netizen/bevanshelton-netizen-legacymart",
-      "marker": "dedicated-repository premium pass"
+      "marker": "dedicated-repository premium pass",
+      "releaseCommit": "fb87cb831dfd86a340b5ecccbb5759f5a9578d9f"
     }
   ],
   "infrastructureProducts": [
