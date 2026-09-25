@@ -1,0 +1,59 @@
+{
+  "schema": "kora-kids.jabu-sound-brief/v1",
+  "series": "Lebo & Jabu",
+  "character": "Jabu",
+  "concept": "A gentle young elephant whose non-verbal sound vocabulary is emotionally readable across languages.",
+  "coreRule": "Jabu never needs human-language dialogue in the core format. His recurring sounds should be recognisable from episode to episode.",
+  "productionApproach": [
+    "Start from ethically sourced or newly recorded elephant-like tonal material, original synthesis, or a rights-cleared combination.",
+    "Layer soft breath, low resonant tone and small playful upper harmonics for warmth.",
+    "Keep sounds friendly and compact so they fit dialogue timing.",
+    "Do not use distress calls, aggressive trumpeting or sounds likely to frighten preschool viewers for comedy."
+  ],
+  "cues": [
+    {
+      "id": "hello",
+      "target": "1.0–1.4 s",
+      "emotion": "friendly",
+      "shape": "soft low prrr rising into a rounded oo"
+    },
+    {
+      "id": "question",
+      "target": "1.0–1.4 s",
+      "emotion": "curious",
+      "shape": "rising pitch ending in a gentle question contour"
+    },
+    {
+      "id": "proud",
+      "target": "0.5–0.9 s",
+      "emotion": "proud",
+      "shape": "short bright puff/trumpet with soft tail"
+    },
+    {
+      "id": "happy",
+      "target": "0.9–1.4 s",
+      "emotion": "happy",
+      "shape": "rounded two-part prrr-ooo"
+    },
+    {
+      "id": "sneeze",
+      "target": "1.2–1.8 s",
+      "emotion": "surprised-comic",
+      "shape": "breathy tickle build, compact sneeze, tiny recovery puff"
+    },
+    {
+      "id": "goodbye",
+      "target": "1.4–2.0 s",
+      "emotion": "joyful",
+      "shape": "warm long call that falls gently at the end"
+    }
+  ],
+  "technical": {
+    "delivery": "48 kHz / 24-bit mono WAV per cue",
+    "variants": "minimum 3 variants per cue",
+    "processing": "deliver both dry and lightly designed versions",
+    "naming": "JABU_<CUE>_V<NUMBER>.wav",
+    "loudness": "leave healthy headroom; final programme loudness is handled in mastering"
+  },
+  "rights": "Every source layer must have documented rights compatible with worldwide streaming, broadcast, apps, promotional clips and localisation."
+}
