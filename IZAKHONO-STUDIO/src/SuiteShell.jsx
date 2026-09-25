@@ -101,6 +101,19 @@ export default function SuiteShell() {
       <div id="design-studio" className="suite-existing-app">
         <App />
       </div>
+
+      <footer className="suite-legal-footer">
+        <div>
+          <b>IZAKHONO AFRICA (PTY) LTD</b>
+          <span>Creative $5 • Gamer $15 • checkout remains gated until settlement and entitlement verification pass.</span>
+        </div>
+        <nav aria-label="Legal and commercial information">
+          <a href="/pricing">Pricing</a>
+          <a href="/terms">Terms</a>
+          <a href="/privacy">Privacy</a>
+          <a href="/refunds">Refunds & Cancellation</a>
+        </nav>
+      </footer>
     </div>
   );
 }
