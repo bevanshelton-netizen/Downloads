@@ -35,10 +35,16 @@ WebStart has its own engine. The current Vercel builder and renderer are replace
 - Sector inference
 - Responsive coded HTML
 - SEO + JSON-LD
-- Default lead capture
+- Default lead capture + owner lead inbox
 - Automated QA score
 - Verified publish with rollback
 - Manual advanced editor retained
 - Replaceable shared renderer
+- Owned Docker runtime package
+- iKhokha paid-publish enforcement by default
 
 Source snapshot: 25 September 2026.
+
+
+## Commercial rule
+Generation and preview can happen before payment. Public publishing is payment-gated by default. Current package pricing is enforced in the checkout function and must match the builder UI.
