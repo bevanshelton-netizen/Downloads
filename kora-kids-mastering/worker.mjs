@@ -12,6 +12,7 @@ function parseArgs(){
     else if(k==="--voice")out.voice=process.argv[++i];
     else if(k==="--music")out.music=process.argv[++i];
     else if(k==="--approval")out.approval=process.argv[++i];
+    else if(k==="--creative-lock")out.creativeLock=process.argv[++i];
     else if(k==="--captions")out.captions=process.argv[++i];
     else if(k==="--output")out.output=process.argv[++i];
   }
@@ -30,6 +31,44 @@ function ffprobeJson(path){
 function duration(probe){return Number(probe?.format?.duration||0)}
 function commandExists(cmd){const a=(cmd==="ffmpeg"||cmd==="ffprobe")?["-version"]:["--version"];const r=spawnSync(cmd,a,{stdio:"ignore"});return r.status===0}
 async function sha(path){return createHash("sha256").update(await readFile(path)).digest("hex")}
+function buildSceneSchedule(job,total){
+  const src=(job.scenes||[]).map(s=>Math.max(1,Number(s.durationSeconds)||1));
+  const sum=src.reduce((a,b)=>a+b,0)||1;let cursor=0;
+  return (job.scenes||[]).map((s,i)=>{const dur=total*(src[i]/sum);const x={...s,start:cursor,end:cursor+dur,duration:dur};cursor+=dur;return x});
+}
+function jabuEvents(job,total){
+  const map={"mock-offended":"jabu-question",curious:"jabu-question",proud:"jabu-proud",happy:"jabu-happy",sneeze:"jabu-sneeze",joyful:"jabu-goodbye",friendly:"jabu-hello"};
+  const out=[];
+  for(const scene of buildSceneSchedule(job,total)){
+    const lines=Array.isArray(scene.dialogue)&&scene.dialogue.length?scene.dialogue:[];
+    if(!lines.length)continue;
+    const weights=lines.map(l=>Math.max(3,String(l.text||"").split(/\s+/).filter(Boolean).length));
+    const sum=weights.reduce((a,b)=>a+b,0)||1,usable=scene.duration*.78,pad=scene.duration*.11;
+    let cursor=scene.start+pad;
+    lines.forEach((line,i)=>{
+      const dur=usable*(weights[i]/sum),start=cursor;cursor+=dur;
+      if(line.speaker==="Jabu"){
+        const cue=map[line.emotion]||"jabu-happy";
+        out.push({cue,startSeconds:+start.toFixed(3),emotion:line.emotion||null});
+      }
+    });
+  }
+  return out;
+}
+async function validateCreativeLock(lock,job,voice,music){
+  if(lock?.schema!=="kora-kids.final-creative-lock/v1")throw new Error("invalid creative lock schema");
+  if(lock.seriesId!==job.series?.id||lock.episodeSlug!==job.episode?.slug||lock.language!==job.language?.code)throw new Error("creative lock scope mismatch");
+  if(lock.creativeLock!==true||lock.readyForMastering!==true)throw new Error("creative lock is not mastering-ready");
+  if(lock.releaseApproved!==false||lock.published!==false)throw new Error("unexpected creative lock release state");
+  const voiceSha=await sha(voice),musicSha=await sha(music);
+  if(voiceSha!==lock.assets?.voice?.sha256)throw new Error("voice input does not match creative lock");
+  if(musicSha!==lock.assets?.music?.sha256)throw new Error("music input does not match creative lock");
+  const required=["jabu-hello","jabu-question","jabu-proud","jabu-happy","jabu-sneeze","jabu-goodbye"];
+  for(const cue of required){
+    const a=lock.assets?.sfx?.[cue];if(!a?.path||!a?.sha256)throw new Error("creative lock missing "+cue);
+    if(await sha(resolve(a.path))!==a.sha256)throw new Error("creative lock SFX hash mismatch: "+cue);
+  }
+}
 function assertApproval(a,job){
   if(a?.schema!=="kora-kids.mastering-approval/v1")throw new Error("invalid mastering approval schema");
   if(a.seriesId!==job.series?.id||a.episodeSlug!==job.episode?.slug||a.language!==job.language?.code)throw new Error("mastering approval does not match job");
@@ -64,6 +103,8 @@ async function main(){
   assertApproval(approval,job);
 
   const anim=resolve(a.animatic),voice=resolve(a.voice),music=resolve(a.music),out=resolve(a.output);
+  const creativeLock=a.creativeLock?JSON.parse(await readFile(resolve(a.creativeLock),"utf8")):null;
+  if(creativeLock)await validateCreativeLock(creativeLock,job,voice,music);
   await mkdir(out,{recursive:true});
   const animProbe=ffprobeJson(anim),voiceProbe=ffprobeJson(voice),musicProbe=ffprobeJson(music);
   const animDur=duration(animProbe),voiceDur=duration(voiceProbe),musicDur=duration(musicProbe);
@@ -71,10 +112,26 @@ async function main(){
   if(voiceDur>animDur+1)throw new Error("voice master exceeds picture duration");
 
   const candidate=join(out,"master-candidate.mp4");
+  const ffInputs=["-y","-i",anim,"-i",voice,"-stream_loop","-1","-i",music];
+  const filters=["[1:a]loudnorm=I=-18:TP=-2:LRA=7,apad[voice]","[2:a]volume=0.16[music]"];
+  const mixLabels=["[voice]","[music]"];
+  const usedJabu=[];
+  if(creativeLock){
+    const events=jabuEvents(job,animDur);
+    let inputIndex=3;
+    for(let i=0;i<events.length;i++){
+      const event=events[i],asset=creativeLock.assets.sfx[event.cue];
+      ffInputs.push("-i",resolve(asset.path));
+      const delay=Math.max(0,Math.round(event.startSeconds*1000));
+      filters.push(`[${inputIndex}:a]volume=0.65,adelay=${delay}:all=1[jabu${i}]`);
+      mixLabels.push(`[jabu${i}]`);usedJabu.push({...event,assetId:asset.assetId,sha256:asset.sha256});
+      inputIndex++;
+    }
+  }
+  filters.push(`${mixLabels.join("")}amix=inputs=${mixLabels.length}:duration=longest:dropout_transition=2,loudnorm=I=-16:TP=-1.5:LRA=11[a]`);
   const args=[
-    "-y","-i",anim,"-i",voice,"-stream_loop","-1","-i",music,
-    "-filter_complex",
-    "[1:a]loudnorm=I=-18:TP=-2:LRA=7,apad[voice];[2:a]volume=0.16[music];[voice][music]amix=inputs=2:duration=longest:dropout_transition=2,loudnorm=I=-16:TP=-1.5:LRA=11[a]",
+    ...ffInputs,
+    "-filter_complex",filters.join(";"),
     "-map","0:v:0","-map","[a]","-c:v","copy","-c:a","aac","-b:a","192k","-t",String(animDur),
     "-metadata","title="+String(job.series.title)+" — "+String(job.episode.title),
     "-metadata","comment=KORA KIDS MASTER CANDIDATE. Explicit release approval still required.",
@@ -115,10 +172,13 @@ async function main(){
       release:approval.release?.approved===true
     },
     technical,
+    creativeLockUsed:Boolean(creativeLock),
+    creativeLockSha256:creativeLock&&a.creativeLock?await sha(resolve(a.creativeLock)):null,
+    jabuSfxMixed:creativeLock?usedJabu:[],
     masterCandidate:technical.pass===true,
     broadcastMaster:false,
     releaseApprovalRequired:approval.release?.approved!==true,
-    note:"This lane creates a technically QC'd master candidate. It never self-authorizes public release.",
+    note:"This lane creates a technically QC'd master candidate. When a final creative lock is supplied, the exact locked Lebo voice, music master and scripted Jabu SFX are used. It never self-authorizes public release.",
     files
   };
   await writeFile(join(out,"mastering-result.json"),JSON.stringify(result,null,2)+"\n");
