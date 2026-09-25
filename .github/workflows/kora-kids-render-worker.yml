@@ -97,6 +97,47 @@ jobs:
           const failed=checks.filter(x=>!x.ok);
           if(failed.length){console.error("Failed validations:",failed.map(x=>x.name).join(", "));process.exit(2)}
           NODE
+      - name: Render approved Tumi & Tala proof
+        run: |
+          rm -rf /tmp/kora-tumi-render-proof
+          node kora-kids-render-worker/worker.mjs \
+            --input kora-kids-render-worker/fixtures/tumi-tala-approved-job.json \
+            --output /tmp/kora-tumi-render-proof \
+            --mode proof
+      - name: Validate Tumi & Tala media and claims boundary
+        run: |
+          set -euo pipefail
+          test -s /tmp/kora-tumi-render-proof/episode-guide.mp4
+          test -s /tmp/kora-tumi-render-proof/captions.vtt
+          test -s /tmp/kora-tumi-render-proof/lip-sync.json
+          test -s /tmp/kora-tumi-render-proof/qc-report.json
+          test -s /tmp/kora-tumi-render-proof/render-result.json
+          ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,width,height -of json /tmp/kora-tumi-render-proof/episode-guide.mp4 >/tmp/tumi-video.json
+          node <<'NODE'
+          const fs=require("fs");
+          const read=p=>JSON.parse(fs.readFileSync(p,"utf8"));
+          const video=read("/tmp/tumi-video.json").streams[0];
+          const result=read("/tmp/kora-tumi-render-proof/render-result.json");
+          const qc=read("/tmp/kora-tumi-render-proof/qc-report.json");
+          const lip=read("/tmp/kora-tumi-render-proof/lip-sync.json");
+          const caps=fs.readFileSync("/tmp/kora-tumi-render-proof/captions.vtt","utf8");
+          const checks={
+            video:video.codec_name==="h264"&&video.width===640&&video.height===360,
+            series:result.series?.id==="tumi-tala",
+            owned:result.authoritativeTarget==="izakhono-local",
+            guide:result.qc?.passForGuide===true&&result.broadcastMaster===false,
+            shots:qc.shotCount>=20&&qc.checks?.framingVariety===true,
+            bibles:qc.checks?.qualityBiblesBound===true,
+            factReview:qc.checks?.factLinesIdentified===true,
+            lips:lip.cues?.length>=10&&lip.cues.every(c=>["Tumi","Tala"].includes(c.speaker)),
+            tumiLip:lip.cues?.some(c=>c.speaker==="Tumi"),
+            talaLip:lip.cues?.some(c=>c.speaker==="Tala"),
+            captions:caps.includes("WEBVTT")&&caps.includes("Tumi:")&&caps.includes("Tala:")
+          };
+          console.table(Object.entries(checks).map(([name,ok])=>({name,ok})));
+          const failed=Object.entries(checks).filter(([,ok])=>!ok).map(([name])=>name);
+          if(failed.length){console.error("Failed Tumi & Tala validations:",failed.join(", "));process.exit(2)}
+          NODE
       - name: Prove unapproved jobs are refused
         run: |
           node -e 'const fs=require("fs");const x=require("./kora-kids-render-worker/fixtures/lebo-jabu-approved-job.json");x.status="review";x.publishable=false;x.review.culturalContext=false;fs.writeFileSync("/tmp/rejected.json",JSON.stringify(x))'
@@ -107,7 +148,7 @@ jobs:
       - name: Upload guide animatic proof
         uses: actions/upload-artifact@v4
         with:
-          name: kora-kids-lebo-jabu-render-proof
+          name: kora-kids-multi-series-render-proof
           path: |
             /tmp/kora-render-proof/episode-guide.mp4
             /tmp/kora-render-proof/captions.vtt
@@ -117,4 +158,12 @@ jobs:
             /tmp/kora-render-proof/shot-plan.json
             /tmp/kora-render-proof/qc-report.json
             /tmp/kora-render-proof/render-result.json
+            /tmp/kora-tumi-render-proof/episode-guide.mp4
+            /tmp/kora-tumi-render-proof/captions.vtt
+            /tmp/kora-tumi-render-proof/voice-cues.json
+            /tmp/kora-tumi-render-proof/lip-sync.json
+            /tmp/kora-tumi-render-proof/mix-plan.json
+            /tmp/kora-tumi-render-proof/shot-plan.json
+            /tmp/kora-tumi-render-proof/qc-report.json
+            /tmp/kora-tumi-render-proof/render-result.json
           retention-days: 7

@@ -1,6 +1,6 @@
 # KORA KIDS Render Worker
 
-Owned render worker for approved **Lebo & Jabu** production manifests.
+Owned render worker for approved **KORA KIDS** production manifests, currently **Lebo & Jabu** and **Tumi & Tala**.
 
 ## What it does
 
@@ -26,6 +26,7 @@ The guide voice uses local `espeak-ng` when available and is explicitly marked n
 
 ```bash
 node worker.mjs --input fixtures/lebo-jabu-approved-job.json --output .render-proof --mode proof
+node worker.mjs --input fixtures/tumi-tala-approved-job.json --output .render-tumi-proof --mode proof
 ```
 
 ## Production-duration render

@@ -108,6 +108,7 @@
   "review": {
     "script": false,
     "language": false,
+    "culturalContext": false,
     "childSafety": false,
     "brand": false,
     "final": false

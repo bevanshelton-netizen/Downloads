@@ -1,0 +1,23 @@
+{
+  "schema": "kora-kids.voice-bible/v1",
+  "series": {
+    "id": "tumi-tala",
+    "title": "Tumi & Tala"
+  },
+  "language": "en-ZA",
+  "status": "guide-production",
+  "principles": [
+    "Warm, clear South African English without caricature.",
+    "Tumi is curious, thoughtful and playful; never smug or hyperactive.",
+    "Tala is musical, confident and caring; never bossy or babyish.",
+    "Piko uses short repeatable phrases and bird-like chirps without becoming unintelligible.",
+    "Busi Bus uses friendly horn/chime cues; no human voice is required unless explicitly cast later.",
+    "Final child-facing voices require human casting, language review and final performance approval."
+  ],
+  "pace": {
+    "dialogueWpm": "125-155",
+    "songs": "simple phrases with repetition",
+    "preschoolClarity": true
+  },
+  "finalVoiceApproved": false
+}
