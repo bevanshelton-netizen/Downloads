@@ -102,3 +102,11 @@ body{
 .loginSubmit{width:100%;margin-top:10px}
 .loginError{border:1px solid #6f3838;background:#2b1717;color:#ffb4b4;border-radius:10px;padding:10px 12px;font-size:11px}
 .loginCard small{display:block;color:#74858e;line-height:1.5;margin-top:18px}
+
+
+/* IZAKHONO ONE privacy-safe R0 growth mode */
+.oneLaunchCard{border-color:#2d6b58;background:linear-gradient(135deg,#0d2b24,#0a171d 72%)}
+.oneLaunchCard .measurementCopy{max-width:980px}
+.actionsRow{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
+.actionsRow button{border:1px solid var(--line);background:#11222d;color:white;border-radius:9px;padding:9px 11px;font-weight:800}
+.actionsRow button:hover{border-color:#58e6c1}
