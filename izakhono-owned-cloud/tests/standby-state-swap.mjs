@@ -14,7 +14,7 @@ const data=[
 ];
 const envs=[
   "data-node.env","object-node.env","queue-node.env","auth-node.env",
-  "analytics-node.env","notify-node.env","ai-gateway-node.env","code-node.env"
+  "analytics-node.env","notify-node.env","ai-gateway-node.env","code-node.env","backup-node.env"
 ];
 
 function put(path,value){

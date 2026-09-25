@@ -31,6 +31,19 @@ remote(){
 remote "$PRIMARY" "sudo -n true" >/dev/null 2>&1 || { echo "Primary sudo unavailable."; exit 7; }
 remote "$STANDBY" "sudo -n true" >/dev/null 2>&1 || { echo "Standby sudo unavailable."; exit 8; }
 
+PROMOTED_PROOF="$(remote "$STANDBY" "if sudo -n test -f /var/lib/izakhono-deploy/proofs/standby-state-promoted.json; then sudo -n cat /var/lib/izakhono-deploy/proofs/standby-state-promoted.json; fi")"
+if [ -n "$PROMOTED_PROOF" ]; then
+  LIVE_PROMOTED="$(PROMOTED_PROOF="$PROMOTED_PROOF" node -e '
+    const x=JSON.parse(process.env.PROMOTED_PROOF);
+    process.stdout.write(String(x.status==="PASS"&&x.state==="LIVE_STATE_PROMOTED"));
+  ' 2>/dev/null || true)"
+  if [ "$LIVE_PROMOTED" = "true" ]; then
+    echo "Failback refused: standby contains promoted live state and may include writes not present on the original primary."
+    echo "Use izakhono-owned-cloud/reconcile-failback-state.sh execute instead."
+    exit 20
+  fi
+fi
+
 echo "Fencing standby before primary reacquisition..."
 remote "$STANDBY" "sudo -n systemctl stop izakhono-edge-node izakhono-runtime-node"
 

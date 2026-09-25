@@ -1,0 +1,52 @@
+name: IZAKHONO DATA-SAFE FAILBACK Gate
+
+on:
+  push:
+    branches: [build/data-safe-failback-reconciliation]
+    paths:
+      - "izakhono-owned-cloud/reconcile-failback-state.sh"
+      - "izakhono-owned-cloud/controlled-failback.sh"
+      - "izakhono-owned-cloud/standby-state-swap.mjs"
+      - "izakhono-owned-cloud/promote-standby-state.sh"
+      - "izakhono-owned-cloud/tests/failback-reconciliation-plan.sh"
+      - ".github/workflows/izakhono-data-safe-failback-gate.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "izakhono-owned-cloud/reconcile-failback-state.sh"
+      - "izakhono-owned-cloud/controlled-failback.sh"
+      - "izakhono-owned-cloud/standby-state-swap.mjs"
+      - "izakhono-owned-cloud/promote-standby-state.sh"
+      - "izakhono-owned-cloud/tests/failback-reconciliation-plan.sh"
+      - ".github/workflows/izakhono-data-safe-failback-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  safety-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+      - name: Validate syntax and plan
+        run: |
+          bash -n izakhono-owned-cloud/reconcile-failback-state.sh
+          bash -n izakhono-owned-cloud/controlled-failback.sh
+          node --check izakhono-owned-cloud/standby-state-swap.mjs
+          bash izakhono-owned-cloud/tests/failback-reconciliation-plan.sh
+      - name: Verify reconciliation safety boundaries
+        run: |
+          grep -q 'RUN-DATA-SAFE-FAILBACK' izakhono-owned-cloud/reconcile-failback-state.sh
+          grep -q 'Backup encryption-key lineage mismatch' izakhono-owned-cloud/reconcile-failback-state.sh
+          grep -q 'sha256sum' izakhono-owned-cloud/reconcile-failback-state.sh
+          grep -q 'STANDBY_FROZEN' izakhono-owned-cloud/reconcile-failback-state.sh
+          grep -q 'receiptVerified' izakhono-owned-cloud/reconcile-failback-state.sh
+          grep -q 'NEW_TOKEN' izakhono-owned-cloud/reconcile-failback-state.sh
+          grep -q 'data_reconciled:true' izakhono-owned-cloud/reconcile-failback-state.sh
+          grep -q 'standby_requires_rebaseline:true' izakhono-owned-cloud/reconcile-failback-state.sh
+          grep -q 'reconcile-failback-state.sh execute instead' izakhono-owned-cloud/controlled-failback.sh
+          ! grep -q 'multi_master_merge:true' izakhono-owned-cloud/reconcile-failback-state.sh

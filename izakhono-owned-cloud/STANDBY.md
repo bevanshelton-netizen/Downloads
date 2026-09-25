@@ -76,3 +76,25 @@ It deliberately preserves node-specific standby configuration: RUNTIME, EDGE, RE
 The tool does not change DNS or the public route. It stops the affected stateful services, applies an atomic local directory swap, restarts and health-checks them, and automatically restores the standby's previous local state if the cutover fails.
 
 **Failback boundary:** a real production failback after users have written data on the promoted standby still requires state reconciliation back to the original primary. The existing controlled failback drill must not be treated as a general-purpose data-safe production failback until that reconciliation path is proven.
+
+## Data-safe failback after promoted standby writes
+
+Once the standby has been live-state promoted and served production writes, do **not** use the original drill-only `controlled-failback.sh`. That script now refuses a promoted standby.
+
+Use the reconciled path:
+
+    bash izakhono-owned-cloud/reconcile-failback-state.sh plan
+
+For an approved physical execution:
+
+    export IZAKHONO_HA_PRIMARY_SSH=<primary-ssh-target>
+    export IZAKHONO_HA_STANDBY_SSH=<standby-ssh-target>
+    export IZAKHONO_HA_ROUTE_ROLLBACK_SCRIPT=<trusted-route-script>
+    export IZAKHONO_HA_RECONCILE_CONFIRM=RUN-DATA-SAFE-FAILBACK
+    bash izakhono-owned-cloud/reconcile-failback-state.sh execute
+
+The reconciliation is single-writer. It freezes public writes on the active standby, stops mutable/background services, creates a fresh encrypted BACKUP snapshot, compares backup-key fingerprints without printing the key, streams the encrypted archive to the old primary over SSH, verifies SHA-256, restores into isolation, transactionally applies the reconciled state, health-checks services, then requires the original primary to acquire a **newer verified WITNESS fencing token** before the route can move back.
+
+After success, standby stateful services remain stopped and the standby is marked **re-baseline required**. Re-establish the warm standby from the newly active primary before considering HA readiness restored.
+
+No multi-master database merge is attempted.
