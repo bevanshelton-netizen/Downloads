@@ -1,0 +1,37 @@
+{
+  "schema": "kora-kids.finishing-config/v1",
+  "seriesId": "lebo-jabu",
+  "episodeSlug": "jam-day-under-the-baobab",
+  "theme": {
+    "title": "KORA KIDS Adventure Theme — Guide",
+    "bpm": 112,
+    "durationSeconds": 22,
+    "originality": "procedurally composed inside IZAKHONO; guide only",
+    "finalPerformanceApproved": false
+  },
+  "jabuGuidePalette": [
+    "hello",
+    "question",
+    "proud",
+    "happy",
+    "sneeze",
+    "goodbye"
+  ],
+  "short": {
+    "durationSeconds": 20,
+    "aspect": "9:16",
+    "resolution": "1080x1920",
+    "treatment": "blurred-background-safe-center"
+  },
+  "thumbnail": {
+    "resolution": "1280x720",
+    "sourceSecond": 1.5
+  },
+  "releaseBoundary": {
+    "broadcastMaster": false,
+    "finalVoiceRequired": true,
+    "finalMusicRequired": true,
+    "humanVisualQcRequired": true,
+    "explicitReleaseApprovalRequired": true
+  }
+}
