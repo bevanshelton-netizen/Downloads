@@ -11,6 +11,7 @@ const DATA_DIR = process.env.GOSPEL_TV_DATA_DIR || "/var/lib/izakhono-runtime/da
 const LIVE_EMBED_URL = process.env.GOSPEL_TV_LIVE_EMBED_URL || "";
 const CONTROL_TOKEN = String(process.env.GOSPEL_TV_CONTROL_TOKEN || "").trim();
 const RECONCILE_RECEIPT = process.env.GOSPEL_RECONCILE_RECEIPT || "/var/lib/izakhono-deploy/kora-gospel-reconcile.json";
+const DEPLOYMENT_RECEIPT = process.env.YHVH_DEPLOYMENT_RECEIPT || "/var/lib/izakhono-deploy/kora-gospel-tv.json";
 const ENGINE_URL = String(process.env.YHVH_GOSPEL_ENGINE_URL || "http://127.0.0.1:8892").replace(/\/$/,"");
 const ENGINE_TOKEN = String(process.env.YHVH_GOSPEL_ENGINE_TOKEN || "").trim();
 const PUBLIC_INTAKE_ORIGINS = new Set([
@@ -150,6 +151,37 @@ async function readReconciliation(){
     return {available:false,authority:"IZAKHONO",source_authoritative:false,scanned:0,imported:0,duplicates:0,failed:0,completed_at:"",worker:""};
   }
 }
+async function readDeploymentReceipt(){
+  try{
+    const x=JSON.parse(await readFile(DEPLOYMENT_RECEIPT,"utf8"));
+    return {
+      available:true,
+      schema:clean(x.schema,100),
+      product:clean(x.product,120),
+      product_id:clean(x.product_id||"yhvh-gospel-tv",80),
+      legacy_runtime_id:clean(x.legacy_runtime_id||x.app||"kora-gospel-tv",80),
+      engine_id:clean(x.engine_id||"yhvh-gospel-engine",80),
+      engine_authoritative:x.engine_authoritative===true,
+      hostname:clean(x.hostname,180),
+      revision:clean(x.revision,100),
+      source:clean(x.source,80),
+      runtime:clean(x.runtime,80),
+      edge:clean(x.edge,80),
+      engine:clean(x.engine,80),
+      public_https:clean(x.public_https,80),
+      generated_at:clean(x.generated_at,80)
+    };
+  }catch{
+    return {
+      available:false,
+      product:"YHVH GOSPEL TV",
+      product_id:"yhvh-gospel-tv",
+      legacy_runtime_id:"kora-gospel-tv",
+      engine_id:"yhvh-gospel-engine",
+      engine_authoritative:true
+    };
+  }
+}
 async function controlStatus(){
   const records=await readSubmissionRecords(200);
   const operations=await readOperations();
@@ -210,7 +242,19 @@ createServer(async (req,res)=>{
   const url=new URL(req.url||"/","http://localhost");
 
   if(url.pathname==="/health"||url.pathname==="/api/health"){
-    return json(res,200,{ok:true,service:"kora-gospel-tv",product:"YHVH GOSPEL TV",runtime:"izakhono-owned",version:"hybrid-1"},{"access-control-allow-origin":"*"});
+    const engine=await readEngineState();
+    return json(res,200,{
+      ok:true,
+      service:"kora-gospel-tv",
+      product:"YHVH GOSPEL TV",
+      product_id:"yhvh-gospel-tv",
+      legacy_runtime_id:"kora-gospel-tv",
+      engine_id:"yhvh-gospel-engine",
+      engine_authoritative:engine.available===true,
+      runtime:"izakhono-owned",
+      version:"hybrid-2",
+      engine
+    },{"access-control-allow-origin":"*"});
   }
 
   if(url.pathname==="/api/channel" && req.method==="GET"){
@@ -229,6 +273,15 @@ createServer(async (req,res)=>{
           {provider:"GitHub Pages",role:"public-fallback",url:"https://bevanshelton-netizen.github.io/Downloads/kora-gospel-tv/",authoritative:false}
         ]
       }
+    },{"access-control-allow-origin":"*"});
+  }
+
+  if(url.pathname==="/api/deployment/status" && req.method==="GET"){
+    return json(res,200,{
+      authority:"IZAKHONO",
+      product:"YHVH GOSPEL TV",
+      product_id:"yhvh-gospel-tv",
+      receipt:await readDeploymentReceipt()
     },{"access-control-allow-origin":"*"});
   }
 
