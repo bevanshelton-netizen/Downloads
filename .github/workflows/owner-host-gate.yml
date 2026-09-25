@@ -20,7 +20,7 @@ on:
       - 'izakhono-cloud/DEPLOY-KORA-ISN-01.ps1'
       - '.github/workflows/owner-host-gate.yml'
   push:
-    branches: [build/accessible-owner-host]
+    branches: [main, build/accessible-owner-host]
     paths:
       - 'owner-host/**'
       - 'START-IZAKHONO-OWNER-HOST.cmd'
