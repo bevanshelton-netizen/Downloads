@@ -119,7 +119,7 @@ jobs:
           grep -q 'configure-izakhono-one-ai.sh' izakhono-owned-cloud/activate-local-model-engine.sh
           grep -q 'deploy-izakhono-one-ai.sh main' izakhono-owned-cloud/activate-local-model-engine.sh
           ! grep -q -- '--privileged' izakhono-owned-cloud/activate-local-model-engine.sh
-          node -e 'const x=JSON.parse(require("fs").readFileSync("owner-host/control/desired-state.json","utf8")); const ok=new Set(["activate-one-local-model","configure-one-ai","deploy-one-ai","verify-one-ai"]); if(!x.id||!ok.has(x.action)||typeof x.enabled!=="boolean")process.exit(2); if(x.params?.hostname&&!String(x.params.hostname).endsWith(".izakhonoafrica.co.za"))process.exit(3)'
+          node -e 'const x=JSON.parse(require("fs").readFileSync("owner-host/control/desired-state.json","utf8")); const ok=new Set(["activate-one-local-model","configure-one-ai","deploy-one-ai","verify-one-ai","deploy-yhvh-gospel-tv"]); if(!x.id||!ok.has(x.action)||typeof x.enabled!=="boolean")process.exit(2); if(x.params?.hostname&&!String(x.params.hostname).endsWith(".izakhonoafrica.co.za"))process.exit(3)'
           grep -q 'const allowed=new Set(\["activate-one-local-model","configure-one-ai","deploy-one-ai","verify-one-ai","deploy-yhvh-gospel-tv"\])' owner-host/owner-agent.sh
           grep -q 'deploy-yhvh-gospel-tv)' owner-host/owner-agent.sh
           grep -q 'deploy-kora-gospel-tv.sh' owner-host/owner-agent.sh
