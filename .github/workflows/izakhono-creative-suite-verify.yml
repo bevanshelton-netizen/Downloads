@@ -1,0 +1,57 @@
+name: IZAKHONO Creative Suite Verify
+
+on:
+  pull_request:
+    paths:
+      - "izakhono-creative-suite/**"
+      - ".github/workflows/izakhono-creative-suite-verify.yml"
+  push:
+    branches:
+      - "build/izakhono-creative-suite-v1"
+    paths:
+      - "izakhono-creative-suite/**"
+      - ".github/workflows/izakhono-creative-suite-verify.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify required files
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f izakhono-creative-suite/index.html
+          test -f izakhono-creative-suite/styles.css
+          test -f izakhono-creative-suite/app.js
+          test -f izakhono-creative-suite/manifest.webmanifest
+          test -f izakhono-creative-suite/sw.js
+          test -f izakhono-creative-suite/README.md
+
+      - name: Check JavaScript syntax
+        run: node --check izakhono-creative-suite/app.js
+
+      - name: Check service worker syntax
+        run: node --check izakhono-creative-suite/sw.js
+
+      - name: Validate manifest JSON
+        shell: bash
+        run: node -e "JSON.parse(require('fs').readFileSync('izakhono-creative-suite/manifest.webmanifest','utf8')); console.log('manifest ok')"
+
+      - name: Enforce no tracking SDKs
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -RniE "google-analytics|googletagmanager|segment\.com|mixpanel|amplitude|facebook\.com/tr|hotjar|clarity\.ms" izakhono-creative-suite --exclude=README.md; then
+            echo "Tracking SDK reference detected."
+            exit 1
+          fi
+
+      - name: Confirm non-live status
+        shell: bash
+        run: grep -q "NOT YET PUBLIC" izakhono-creative-suite/README.md
