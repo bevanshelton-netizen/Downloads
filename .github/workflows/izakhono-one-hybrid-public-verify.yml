@@ -1,0 +1,79 @@
+name: IZAKHONO ONE Hybrid Public Verify
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/izakhono-one-hybrid-public-verify.yml'
+  schedule:
+    - cron: '*/20 * * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify hybrid public front door
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE='https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-hub'
+          OWNED='https://one.domains.izakhonoafrica.co.za'
+
+          health_code="$(curl -sS --max-time 20 -o /tmp/hybrid-health.json -w '%{http_code}' "$BASE?health=1")"
+          echo "HYBRID_HEALTH=$health_code"
+          test "$health_code" = "200"
+
+          route="$(node - <<'NODE'
+          const x=require('/tmp/hybrid-health.json');
+          if(x.ok!==true) process.exit(2);
+          if(!['external-resilience','owned-primary'].includes(x.route)) process.exit(3);
+          if(x.tracking!==false||x.behavioural_profiling!==false||x.advertising_ids!==false||x.referral_attribution!==false||x.prompt_persistence!==false) process.exit(4);
+          if(x.owned_authority!=='NODE 01') process.exit(5);
+          if(x.independent_https_verification_required!==true) process.exit(6);
+          if(x.external_resilience!==true) process.exit(7);
+          process.stdout.write(x.route);
+          NODE
+          )"
+          echo "ROUTING_MODE=$route"
+
+          fallback_code="$(curl -sS --max-time 20 -o /tmp/external.html -w '%{http_code}' "$BASE?external=1")"
+          echo "FORCED_EXTERNAL=$fallback_code"
+          test "$fallback_code" = "200"
+          grep -q 'IZAKHONO ONE' /tmp/external.html
+          ! grep -Eqi 'utm_|googletagmanager|google-analytics|facebook[^<]*(pixel|track)|hotjar|clarity\.ms|mixpanel|amplitude|plausible|matomo|portfolio-growth/bridge\.js' /tmp/external.html
+
+          if [ "$route" = "external-resilience" ]; then
+            root_code="$(curl -sS --max-time 20 -o /tmp/root.html -w '%{http_code}' "$BASE")"
+            echo "HYBRID_ROOT=$root_code"
+            test "$root_code" = "200"
+            grep -q 'IZAKHONO ONE' /tmp/root.html
+            ! grep -Eqi 'utm_|googletagmanager|google-analytics|facebook[^<]*(pixel|track)|hotjar|clarity\.ms|mixpanel|amplitude|plausible|matomo|portfolio-growth/bridge\.js' /tmp/root.html
+            echo 'IZAKHONO ONE HYBRID: EXTERNAL RESILIENCE VERIFIED LIVE'
+            echo 'OWNED_ROUTE=NOT_YET_INDEPENDENTLY_VERIFIED'
+          else
+            root_headers="$(mktemp)"
+            root_code="$(curl -sS --max-time 20 -D "$root_headers" -o /dev/null -w '%{http_code}' "$BASE")"
+            echo "HYBRID_ROOT=$root_code"
+            test "$root_code" = "307"
+            grep -Eqi "^location: $OWNED/?\r?$" "$root_headers"
+
+            owned_root="$(curl -sSL --max-time 20 -o /tmp/owned-root.html -w '%{http_code}' "$OWNED/")"
+            owned_health="$(curl -sSL --max-time 20 -o /tmp/owned-health.json -w '%{http_code}' "$OWNED/health")"
+            echo "OWNED_ROOT=$owned_root"
+            echo "OWNED_HEALTH=$owned_health"
+            test "$owned_root" = "200"
+            test "$owned_health" = "200"
+            grep -q 'IZAKHONO ONE' /tmp/owned-root.html
+            ! grep -Eqi 'utm_|googletagmanager|google-analytics|facebook[^<]*(pixel|track)|hotjar|clarity\.ms|mixpanel|amplitude|plausible|matomo|portfolio-growth/bridge\.js' /tmp/owned-root.html
+            node - <<'NODE'
+            const x=require('/tmp/owned-health.json');
+            const required={product:'IZAKHONO ONE AI',status:'healthy',tracking:false,promptPersistence:false,chatReady:true,accountReachable:true,publicSignup:true,emailVerificationRequired:true};
+            for(const [k,v] of Object.entries(required)) if(x[k]!==v) process.exit(2);
+            NODE
+            echo 'IZAKHONO ONE OWNED ROUTE: INDEPENDENTLY VERIFIED LIVE'
+          fi
