@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-HOSTNAME="\${IZAKHONO_ONE_AI_HOSTNAME:-one.domains.izakhonoafrica.co.za}"
+HOSTNAME="${IZAKHONO_ONE_AI_HOSTNAME:-one.domains.izakhonoafrica.co.za}"
 REPORT_DIR="/var/lib/izakhono-deploy"
 REPORT="$REPORT_DIR/izakhono-one-deployment-readiness.json"
 SUMMARY="$REPORT_DIR/izakhono-one-deployment-readiness.txt"
