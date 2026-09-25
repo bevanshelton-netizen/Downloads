@@ -18,6 +18,7 @@ PROXY_URL="http://127.0.0.1:8080"
 EDGE_URL="http://127.0.0.1:8780"
 REPORT_DIR="/var/lib/izakhono-deploy"
 REPORT="$REPORT_DIR/izakhono-one-ai.json"
+R0_MODE="${IZAKHONO_ONE_R0_MODE:-0}"
 
 fail(){ echo "FAIL: $*" >&2; exit 2; }
 need(){ command -v "$1" >/dev/null 2>&1 || fail "$1 is required"; }
@@ -110,7 +111,11 @@ ACCOUNT_REACHABLE="$(node -e 'const x=JSON.parse(process.argv[1]);process.stdout
 # The external resilience route is never modified here.
 OWNED_EDGE_ACTIVATION="NOT_ATTEMPTED"
 OWNED_EDGE_EXIT=0
-if [ -x "$ROOT/izakhono-owned-cloud/activate-owned-public-edge.sh" ]; then
+BRIDGE_REQUIRED=false
+if [ "$R0_MODE" = "1" ]; then
+  OWNED_EDGE_ACTIVATION="SKIPPED_R0_OUTBOUND_BRIDGE"
+  BRIDGE_REQUIRED=true
+elif [ -x "$ROOT/izakhono-owned-cloud/activate-owned-public-edge.sh" ]; then
   set +e
   IZAKHONO_PUBLIC_HOSTNAME="$HOSTNAME" \
   IZAKHONO_PUBLIC_ZONE="domains.izakhonoafrica.co.za" \
@@ -120,8 +125,8 @@ if [ -x "$ROOT/izakhono-owned-cloud/activate-owned-public-edge.sh" ]; then
   set -e
   case "$OWNED_EDGE_EXIT" in
     0) OWNED_EDGE_ACTIVATION="LOCAL_EDGE_PROVED" ;;
-    20) OWNED_EDGE_ACTIVATION="PARENT_DNS_OR_ROUTER_REQUIRED" ;;
-    21) OWNED_EDGE_ACTIVATION="TLS_OR_PORTS_REQUIRED" ;;
+    20) OWNED_EDGE_ACTIVATION="PARENT_DNS_OR_ROUTER_REQUIRED"; BRIDGE_REQUIRED=true ;;
+    21) OWNED_EDGE_ACTIVATION="TLS_OR_PORTS_REQUIRED"; BRIDGE_REQUIRED=true ;;
     *) fail "Owned public-edge activation failed unexpectedly with exit code $OWNED_EDGE_EXIT" ;;
   esac
 fi
@@ -129,7 +134,7 @@ fi
 BRIDGE_STATE="NOT_NEEDED"
 BRIDGE_URL=""
 BRIDGE_EXIT=0
-if [ "${OWNED_EDGE_EXIT:-0}" != "0" ] && [ -x "$ROOT/izakhono-owned-cloud/activate-tailscale-funnel.sh" ]; then
+if [ "$BRIDGE_REQUIRED" = true ] && [ -x "$ROOT/izakhono-owned-cloud/activate-tailscale-funnel.sh" ]; then
   set +e
   IZAKHONO_BRIDGE_APP="$APP" \
   IZAKHONO_BRIDGE_HEALTH_PATH="/health" \
@@ -165,9 +170,9 @@ if curl -fsS --max-time 8 "https://$HOSTNAME/health" >/tmp/izakhono-one-ai-publi
 fi
 
 TMP_REPORT="$(mktemp)"
-node - "$TMP_REPORT" "$HOSTNAME" "$RESOLVED" "$DEPLOYMENT_ID" "$EDGE" "$PUBLIC_HTTPS" "$CHAT_READY" "$PUBLIC_SIGNUP" "$ACCOUNT_REACHABLE" "$OWNED_EDGE_ACTIVATION" "$OWNED_EDGE_EXIT" "$BRIDGE_STATE" "$BRIDGE_URL" "$BRIDGE_EXIT" <<'NODE'
+node - "$TMP_REPORT" "$HOSTNAME" "$RESOLVED" "$DEPLOYMENT_ID" "$EDGE" "$PUBLIC_HTTPS" "$CHAT_READY" "$PUBLIC_SIGNUP" "$ACCOUNT_REACHABLE" "$OWNED_EDGE_ACTIVATION" "$OWNED_EDGE_EXIT" "$BRIDGE_STATE" "$BRIDGE_URL" "$BRIDGE_EXIT" "$R0_MODE" <<'NODE'
 const fs=require("fs");
-const [path,hostname,revision,deploymentId,edge,publicHttps,chatReady,publicSignup,accountReachable,ownedEdgeActivation,ownedEdgeExit,bridgeState,bridgeUrl,bridgeExit]=process.argv.slice(2);
+const [path,hostname,revision,deploymentId,edge,publicHttps,chatReady,publicSignup,accountReachable,ownedEdgeActivation,ownedEdgeExit,bridgeState,bridgeUrl,bridgeExit,r0Mode]=process.argv.slice(2);
 fs.writeFileSync(path,JSON.stringify({
   schema:"izakhono.one-ai-deployment/v1",
   app:"izakhono-one-ai",
@@ -180,6 +185,8 @@ fs.writeFileSync(path,JSON.stringify({
   edge,
   owned_edge_activation:ownedEdgeActivation,
   owned_edge_exit:Number(ownedEdgeExit),
+  zero_budget_mode:r0Mode==="1",
+  custom_domain_required:r0Mode==="1"?false:true,
   fallback_bridge:{
     provider:"tailscale-funnel",
     state:bridgeState,
