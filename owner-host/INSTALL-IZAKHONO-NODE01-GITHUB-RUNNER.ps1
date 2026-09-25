@@ -92,6 +92,24 @@ if ($receipt.state -ne "ACTIVE" -or $receipt.authority -ne "NODE01" -or $receipt
   throw "NODE01 runner receipt did not pass the security contract."
 }
 
+$keepaliveDir = Join-Path $env:ProgramData "IZAKHONO\NODE01-RUNNER"
+New-Item -ItemType Directory -Path $keepaliveDir -Force | Out-Null
+$keepaliveCmd = Join-Path $keepaliveDir "NODE01-RUNNER-KEEPALIVE.cmd"
+@'
+@echo off
+wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "if [ -s /opt/izakhono-actions-runner/.service ]; then systemctl start $(cat /opt/izakhono-actions-runner/.service); fi"
+exit /b 0
+'@ | Set-Content -Path $keepaliveCmd -Encoding ASCII
+
+$taskName = "IZAKHONO NODE01 Runner Keepalive"
+$taskAction = New-ScheduledTaskAction -Execute $keepaliveCmd
+$atLogon = New-ScheduledTaskTrigger -AtLogOn
+$repeat = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(1) -RepetitionInterval (New-TimeSpan -Minutes 5) -RepetitionDuration (New-TimeSpan -Days 3650)
+$principal = New-ScheduledTaskPrincipal -UserId ([System.Security.Principal.WindowsIdentity]::GetCurrent().Name) -LogonType Interactive -RunLevel Highest
+$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -MultipleInstances IgnoreNew -StartWhenAvailable
+Register-ScheduledTask -TaskName $taskName -Action $taskAction -Trigger @($atLogon,$repeat) -Principal $principal -Settings $settings -Force | Out-Null
+Start-ScheduledTask -TaskName $taskName
+
 @(
   "IZAKHONO NODE01 GITHUB RUNNER"
   "Generated: $(Get-Date -Format o)"
@@ -106,6 +124,7 @@ if ($receipt.state -ne "ACTIVE" -or $receipt.authority -ne "NODE01" -or $receipt
   "Queued ONE activation:"
   "https://github.com/bevanshelton-netizen/Downloads/actions/runs/36086639646"
   ""
+  "Keepalive task: IZAKHONO NODE01 Runner Keepalive"
   "The runner service now remains available for allow-listed IZAKHONO deployment workflows."
 ) | Set-Content -Path $statusPath -Encoding UTF8
 
