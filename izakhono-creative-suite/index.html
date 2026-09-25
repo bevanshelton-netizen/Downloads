@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111111">
+  <title>IZAKHONO Creative Suite</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand-lockup">
+        <span class="brand-mark">I</span>
+        <div>
+          <strong>IZAKHONO Creative Suite</strong>
+          <small>Independent design workspace · BUILT / VERIFIED LOCALLY</small>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="ghost" id="undoBtn" type="button">Undo</button>
+        <button class="ghost" id="redoBtn" type="button">Redo</button>
+        <button class="ghost" id="saveBtn" type="button">Save local</button>
+        <button class="primary" id="exportBtn" type="button">Export PNG</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="rail">
+        <button class="rail-tab active" data-panel="templates">Templates</button>
+        <button class="rail-tab" data-panel="text">Text</button>
+        <button class="rail-tab" data-panel="uploads">Uploads</button>
+        <button class="rail-tab" data-panel="brand">Brand</button>
+        <button class="rail-tab" data-panel="command">Creator</button>
+      </aside>
+
+      <aside class="panel">
+        <section class="panel-page active" data-page="templates">
+          <h2>Start fast</h2>
+          <p>Original layouts you can edit immediately.</p>
+          <div class="template-grid">
+            <button class="template-card" data-template="social"><span>Social</span><small>1080 × 1080</small></button>
+            <button class="template-card" data-template="flyer"><span>Flyer</span><small>1080 × 1350</small></button>
+            <button class="template-card" data-template="merch"><span>Merch</span><small>1600 × 1600</small></button>
+            <button class="template-card" data-template="presentation"><span>Slide</span><small>1600 × 900</small></button>
+          </div>
+          <div class="divider"></div>
+          <label>Canvas background
+            <input type="color" id="backgroundColor" value="#f6f2e8">
+          </label>
+        </section>
+
+        <section class="panel-page" data-page="text">
+          <h2>Text</h2>
+          <button class="primary full" id="addHeadingBtn" type="button">Add heading</button>
+          <button class="ghost full" id="addBodyBtn" type="button">Add body text</button>
+          <label>Text content
+            <textarea id="textContent" rows="4" placeholder="Select a text layer first"></textarea>
+          </label>
+          <label>Font size
+            <input id="fontSize" type="range" min="12" max="180" value="56">
+          </label>
+          <label>Text colour
+            <input id="textColor" type="color" value="#111111">
+          </label>
+          <div class="row">
+            <button class="ghost" id="boldBtn" type="button">Bold</button>
+            <button class="ghost" id="centerBtn" type="button">Center</button>
+          </div>
+        </section>
+
+        <section class="panel-page" data-page="uploads">
+          <h2>Uploads</h2>
+          <p>Add your own artwork or product photography. Files remain in your browser unless you choose to export.</p>
+          <label class="upload-box">
+            <input id="imageUpload" type="file" accept="image/*">
+            <span>Choose image</span>
+          </label>
+        </section>
+
+        <section class="panel-page" data-page="brand">
+          <h2>Brand kit</h2>
+          <label>Brand name
+            <input id="brandName" value="IZAKHONO">
+          </label>
+          <label>Primary
+            <input id="brandPrimary" type="color" value="#111111">
+          </label>
+          <label>Accent
+            <input id="brandAccent" type="color" value="#d6ff45">
+          </label>
+          <label>Headline style
+            <select id="brandFont">
+              <option value="Arial Black, Arial, sans-serif">Bold Sans</option>
+              <option value="Georgia, serif">Editorial Serif</option>
+              <option value="Trebuchet MS, Arial, sans-serif">Modern Sans</option>
+              <option value="Courier New, monospace">Mono</option>
+            </select>
+          </label>
+          <button class="primary full" id="applyBrandBtn" type="button">Apply brand</button>
+        </section>
+
+        <section class="panel-page" data-page="command">
+          <h2>Creator command</h2>
+          <p>This first build runs safe local design commands. The surface is ready to connect to an IZAKHONO-owned AI engine later.</p>
+          <textarea id="commandInput" rows="6" placeholder='Try: "black background", "add heading Summer Drop", "make text white", "square social post"'></textarea>
+          <button class="primary full" id="runCommandBtn" type="button">Run local command</button>
+          <div class="command-help">
+            <strong>Supported now</strong>
+            <span>background colours · headings · text colours · canvas sizes · starter poster</span>
+          </div>
+        </section>
+      </aside>
+
+      <section class="stage-wrap">
+        <div class="stage-toolbar">
+          <span id="canvasSizeLabel">1080 × 1080</span>
+          <span id="statusText">Ready · no telemetry</span>
+        </div>
+        <div class="stage-scroll">
+          <div id="artboard" class="artboard" tabindex="0" aria-label="Design canvas"></div>
+        </div>
+      </section>
+
+      <aside class="inspector">
+        <h2>Layer</h2>
+        <div id="emptyInspector" class="empty-state">Select an element on the canvas.</div>
+        <div id="layerInspector" hidden>
+          <label>X
+            <input id="posX" type="number" min="0">
+          </label>
+          <label>Y
+            <input id="posY" type="number" min="0">
+          </label>
+          <label>Width
+            <input id="layerWidth" type="number" min="20">
+          </label>
+          <label>Opacity
+            <input id="layerOpacity" type="range" min="0.1" max="1" step="0.05" value="1">
+          </label>
+          <div class="divider"></div>
+          <button class="ghost full" id="duplicateBtn" type="button">Duplicate</button>
+          <button class="danger full" id="deleteBtn" type="button">Delete layer</button>
+        </div>
+        <div class="privacy-card">
+          <strong>Privacy first</strong>
+          <span>No analytics, ad IDs, behavioural tracking or silent uploads in this build.</span>
+        </div>
+      </aside>
+    </main>
+  </div>
+  <script src="./app.js"></script>
+</body>
+</html>
