@@ -6,7 +6,11 @@ if [ "\${EUID:-$(id -u)}" -ne 0 ]; then
 fi
 
 ROOT="\${IZAKHONO_OWNER_AGENT_ROOT:-/opt/izakhono-source/Downloads}"
-CONTROL_PATH="owner-host/control/desired-state.json"
+CONTROL_PATH="${IZAKHONO_OWNER_CONTROL_PATH:-owner-host/control/desired-state.json}"
+case "$CONTROL_PATH" in
+  owner-host/control/*.json) ;;
+  *) echo "FAIL: unapproved control path: $CONTROL_PATH" >&2; exit 2 ;;
+esac
 STATE_DIR="/var/lib/izakhono-owner-agent"
 RUN_DIR="$STATE_DIR/runs"
 STATE_FILE="$STATE_DIR/state.json"
