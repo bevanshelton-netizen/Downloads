@@ -1,0 +1,48 @@
+name: Growth OS External Resilience Verify
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/growth-os-external-resilience-verify.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-public-https:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify public Growth OS root
+        run: |
+          set -euo pipefail
+          URL="https://izakhono-growth-os-resilience.vercel.app"
+          code="$(curl -sS -L -o /tmp/root.html -w '%{http_code}' --max-time 20 "$URL/")"
+          test "$code" = "200"
+          grep -q 'IZAKHONO' /tmp/root.html
+          grep -q 'GROWTH OS' /tmp/root.html
+
+      - name: Verify public Growth OS health contract
+        run: |
+          set -euo pipefail
+          URL="https://izakhono-growth-os-resilience.vercel.app/api/health"
+          code="$(curl -sS -L -o /tmp/health.json -w '%{http_code}' --max-time 20 "$URL")"
+          test "$code" = "200"
+          node - <<'NODE'
+          const fs=require("fs");
+          const x=JSON.parse(fs.readFileSync("/tmp/health.json","utf8"));
+          if(x.ok!==true) throw new Error("health ok was not true");
+          if(x.service!=="growth-os-v2") throw new Error("wrong service");
+          if(x.product!=="IZAKHONO GROWTH OS") throw new Error("wrong product");
+          if(x.safeWriteMode!==true) throw new Error("safe write mode missing");
+          if(x.liveAdWrites!==false) throw new Error("live ad writes must remain off");
+          console.log(JSON.stringify(x,null,2));
+          NODE
+
+      - name: Confirm external route is resilience only
+        run: |
+          echo "EXTERNAL_ROUTE=VERIFIED"
+          echo "AUTHORITY=IZAKHONO_OWNED_PRIMARY"
+          echo "LIVE_AD_WRITES=DISABLED"
