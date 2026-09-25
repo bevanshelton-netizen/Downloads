@@ -61,3 +61,17 @@ npm run check
 This self-test confirms sender allowlisting, SMTP envelope/header identity selection, adapter authentication, dot-stuffing and fail-closed behaviour.
 
 A successful local self-test does not prove public email deliverability. MX, SPF, DKIM, DMARC, relay authorisation, external send and external reply must still be verified before an identity is called LIVE VERIFIED.
+
+
+## Readiness gate
+
+Platform sender IDs are registered before they are activated.
+
+A sender is accepted only when the canonical domain registry exports both:
+
+- `enabled: true`; and
+- `domain_status: LIVE_VERIFIED`.
+
+Unresolved, partially authenticated or otherwise unverified domains return HTTP 409 with `SENDER_NOT_LIVE`.
+
+This means a platform address can be reserved in the portfolio without permitting mail spoofing or premature outbound use. The generic configured `IZAKHONO_SMTP_FROM` path remains available for existing non-platform notifications.
