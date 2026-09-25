@@ -48,6 +48,7 @@ jobs:
           bash -n owner-host/install-cloudflare-tunnel.sh
           bash -n owner-host/status.sh
           bash -n owner-host/owner-agent.sh
+          bash -n owner-host/sync-owner-source.sh
           bash -n owner-host/deploy-crm-v020.sh
           bash -n owner-host/notify-crm-v020-completion.sh
           grep -q 'idempotencyKey' owner-host/notify-crm-v020-completion.sh
@@ -130,7 +131,13 @@ jobs:
           grep -q 'deploy-yhvh-gospel-tv)' owner-host/owner-agent.sh
           grep -q 'deploy-kora-gospel-tv.sh' owner-host/owner-agent.sh
           grep -q 'hostname outside approved IZAKHONO namespace' owner-host/owner-agent.sh
-          grep -q 'Refusing unapproved Git origin' owner-host/owner-agent.sh
+          grep -q 'sync-owner-source.sh' owner-host/owner-agent.sh
+          grep -q 'SOURCE_AUTHORITY=IZAKHONO_CODE' owner-host/sync-owner-source.sh
+          grep -q 'SOURCE_AUTHORITY=GITHUB_BOOTSTRAP' owner-host/sync-owner-source.sh
+          grep -q 'Refusing non-owned CODE source' owner-host/sync-owner-source.sh
+          grep -q 'Refusing unapproved bootstrap origin' owner-host/sync-owner-source.sh
+          grep -q 'BOOTSTRAP_SOURCE_TO_IZAKHONO_CODE' owner-host/owner-agent.sh
+          grep -q 'OWNED_CODE_ALREADY_AUTHORITATIVE' owner-host/owner-agent.sh
           ! grep -Eq '(^|[^A-Za-z])eval([^A-Za-z]|$)' owner-host/owner-agent.sh
           ! grep -q '"command"' owner-host/control/desired-state.json
           grep -q 'tailscale funnel --bg' izakhono-owned-cloud/activate-tailscale-funnel.sh
