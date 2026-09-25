@@ -228,9 +228,9 @@ export default function GamerStudio() {
   return (
     <section className="gamer-studio" id="gamer-studio">
       <div className="suite-section-copy">
-        <span className="suite-eyebrow">GAMER STUDIO • $15/MONTH • PROJECTS V1</span>
+        <span className="suite-eyebrow">GAMER STUDIO • $15/MONTH • CREATOR WORKFLOW</span>
         <h2>Built for players, streamers and esports.</h2>
-        <p>The Gamer plan is USD $15/month and includes the full $5 Creative Suite plus Gamer Studio. Build gaming creatives, save gamer/team presets on-device, move projects between machines with an open JSON project file, and export finished graphics without locking the work to one cloud.</p>
+        <p>The Gamer plan is USD $15/month and includes the full $5 Creative Suite plus Gamer Studio. Build gaming creatives, save gamer/team presets on-device, move projects between machines with an open JSON project file, export finished graphics and move straight into Clip Lab for post-session highlights.</p>
         <div className="gamer-price-band"><strong>$15</strong><span>USD / month • Creative Suite + Gamer Studio</span></div>
       </div>
 
@@ -284,7 +284,7 @@ export default function GamerStudio() {
       <div className="gamer-roadmap">
         <article><b>PROJECTS</b><span>Portable project JSON plus up to 12 saved on-device gamer/team presets.</span></article>
         <article><b>STREAM</b><span>Scenes, overlays, alerts, facecam frames, chat panels and sponsor slots.</span></article>
-        <article><b>CLIPS</b><span>Gameplay highlights, Shorts/Reels, captions, win moments and auto-resize.</span></article>
+        <article><b>CLIPS</b><span>Clip Lab now imports gameplay locally, marks moments, reframes short-form highlights and exports locally where supported.</span></article>
         <article><b>ESPORTS</b><span>Team identity, fixtures, score cards, player profiles, brackets and sponsor media.</span></article>
         <article><b>GAME DEV</b><span>Sprites, textures, UI assets, icons, trailers, audio assets and storefront graphics.</span></article>
       </div>
