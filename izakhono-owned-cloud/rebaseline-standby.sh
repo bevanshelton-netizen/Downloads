@@ -272,6 +272,7 @@ PASSIVE_SAFE_SERVICES=(
   izakhono-analytics-node
   izakhono-ai-gateway-node
   izakhono-code-node
+  izakhono-package-node
 )
 
 ROLLBACK_MANIFEST=""
@@ -311,6 +312,7 @@ declare -A HEALTH=(
   [izakhono-analytics-node]=http://127.0.0.1:8830/health
   [izakhono-ai-gateway-node]=http://127.0.0.1:8850/health
   [izakhono-code-node]=http://127.0.0.1:8860/health
+  [izakhono-package-node]=http://127.0.0.1:8910/health
   [izakhono-replica-node]=http://127.0.0.1:8890/health
   [izakhono-failover-node]=http://127.0.0.1:8920/health
 )
