@@ -1,0 +1,87 @@
+name: IZAKHONO CRM Owner-Host Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'deploy/IZAKHONO_CRM_OWNER_LIVE'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: izakhono-crm-owner-live
+  cancel-in-progress: false
+
+jobs:
+  deploy-on-node01:
+    runs-on: [self-hosted, linux, x64, izakhono]
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Checkout canonical IZAKHONO Builder source
+        uses: actions/checkout@v4
+        with:
+          repository: bevanshelton-netizen/izakhono-builder
+          ref: main
+          path: canonical-builder
+          persist-credentials: false
+
+      - name: Prove CRM v0.2.0 source is present
+        shell: bash
+        run: |
+          set -euo pipefail
+          REQUIRED='3d115c5ae5c092beb7011622fdda1534f885e68a'
+          git -C canonical-builder merge-base --is-ancestor "$REQUIRED" HEAD
+          node - <<'NODE'
+          const p=require('./canonical-builder/products/izakhono-crm/package.json');
+          if(p.version!=='0.2.0') throw new Error('expected CRM v0.2.0');
+          const m=require('./canonical-builder/products/izakhono-crm/.izakhono.json');
+          if(m.application_version!=='0.2.0') throw new Error('CRM capability manifest mismatch');
+          if(m.infrastructure?.owned_target!=='NODE01') throw new Error('owned target is not NODE01');
+          console.log('CRM_SOURCE_VERSION=0.2.0');
+          console.log('OWNED_TARGET=NODE01');
+          NODE
+          echo "CANONICAL_COMMIT=$(git -C canonical-builder rev-parse HEAD)"
+
+      - name: Activate CRM plus APP FABRIC on owned NODE01
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo -E bash canonical-builder/infra/app-fabric-runtime/activate-node01.sh /opt/izakhono/evidence/IZAKHONO-CRM-V020-NODE01-REPORT.json
+
+      - name: Verify fail-closed CRM v0.2.0 and internal integration
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker exec izakhono-crm node - <<'NODE'
+          const base='http://127.0.0.1:8080';
+          const h=await fetch(base+'/health').then(r=>r.json());
+          if(h.ok!==true||h.service!=='izakhono-crm'||h.version!=='0.2.0') throw new Error('CRM health/version mismatch');
+          if(h.auth==='local-dev') throw new Error('insecure local auth is enabled');
+          const r=await fetch(base+'/api/summary',{headers:{'x-entity-id':'izakhono-africa','x-platform-id':'faisready'}});
+          if(r.status!==401) throw new Error('unauthenticated CRM access did not fail closed: '+r.status);
+          console.log('CRM_V020_HEALTH=PASS');
+          console.log('CRM_FAIL_CLOSED=PASS');
+          NODE
+          sudo bash -lc 'set -a; source /opt/izakhono/secrets/app-fabric-runtime.env; set +a; docker exec izakhono-app-fabric-gateway node -e "fetch(\"http://127.0.0.1:8090/api/fabric/selftest\",{method:\"POST\",headers:{authorization:\"Bearer \"+process.env.IZAKHONO_FABRIC_INTERNAL_TOKEN}}).then(async r=>{const v=await r.json();if(!r.ok||v.ok!==true||v.mode!==\"non-writing\"||v.crm?.dry_run!==true)process.exit(1);console.log(\"APP_FABRIC_TO_CRM=PASS\")}).catch(()=>process.exit(1))"'
+
+      - name: Capture owned deployment evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo cp /opt/izakhono/evidence/IZAKHONO-CRM-V020-NODE01-REPORT.json "$GITHUB_WORKSPACE/IZAKHONO-CRM-V020-NODE01-REPORT.json"
+          sudo chown "$(id -u):$(id -g)" "$GITHUB_WORKSPACE/IZAKHONO-CRM-V020-NODE01-REPORT.json"
+          jq -e '.overall=="PASS_INTERNAL_OWNED" and .crm.health=="healthy" and .fabric.health=="healthy" and .public_cutover_performed==false' "$GITHUB_WORKSPACE/IZAKHONO-CRM-V020-NODE01-REPORT.json" >/dev/null
+          cat "$GITHUB_WORKSPACE/IZAKHONO-CRM-V020-NODE01-REPORT.json"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: IZAKHONO-CRM-V020-NODE01-EVIDENCE
+          path: IZAKHONO-CRM-V020-NODE01-REPORT.json
+          if-no-files-found: error
+          retention-days: 30
