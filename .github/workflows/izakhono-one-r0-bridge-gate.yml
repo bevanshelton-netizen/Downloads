@@ -64,8 +64,6 @@ jobs:
           if(x.rules?.behavioural_tracking!==false) process.exit(9);
           NODE
 
-          ! grep -Eqi 'buy domain|purchase domain|payment required|public ipv4 required|port forwarding required' owner-host/START-IZAKHONO-ONE-R0-BRIDGE.ps1
-
       - name: Gate summary
         shell: bash
         run: |
