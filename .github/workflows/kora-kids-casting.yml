@@ -168,7 +168,7 @@ jobs:
           fs.writeFileSync("/tmp/line-ids.txt",x.lines.map(l=>l.id).join("\n")+"\n");
           NODE
           i=0
-          while read -r id; do
+          while IFS= read -r id; do
             i=$((i+1))
             ffmpeg -y -f lavfi -i "sine=frequency=$((250 + i * 7)):sample_rate=48000:duration=1.1" -ac 1 "/tmp/lebo-takes/$id.wav"
           done </tmp/line-ids.txt
