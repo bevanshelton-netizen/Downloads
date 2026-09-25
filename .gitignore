@@ -3,3 +3,6 @@ node_modules/
 .dev.vars
 .local-admin-secret
 .DS_Store
+owned/.env
+owned/data/
+owned/node_modules/
