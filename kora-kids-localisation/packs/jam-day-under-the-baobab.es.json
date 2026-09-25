@@ -1,0 +1,167 @@
+{
+  "schema": "kora-kids.localisation-pack/v1",
+  "seriesId": "lebo-jabu",
+  "episodeSlug": "jam-day-under-the-baobab",
+  "sourceLanguage": "en-ZA",
+  "targetLanguage": "es",
+  "targetName": "Spanish",
+  "voice": "es-ES",
+  "textDirection": "ltr",
+  "region": "Global",
+  "status": "machine-draft",
+  "humanReviewRequired": true,
+  "brandNames": {
+    "Lebo": "Lebo",
+    "Jabu": "Jabu",
+    "translateNames": false
+  },
+  "translationOrigin": "AI-assisted draft; not approved for publication",
+  "lines": [
+    {
+      "id": "s01-l01",
+      "sceneId": "s01",
+      "speaker": "Lebo",
+      "source": "Whoa! Jabu, look at that tree! Its tummy is bigger than yours!",
+      "text": "¡Guau! Jabu, ¡mira ese árbol! ¡Su barriga es más grande que la tuya!",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s01-l02",
+      "sceneId": "s01",
+      "speaker": "Lebo",
+      "source": "Okay, okay. Maybe not bigger. But why is the trunk so wide?",
+      "text": "Vale, vale. Quizá no sea más grande. Pero ¿por qué tiene el tronco tan ancho?",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s02-l01",
+      "sceneId": "s02",
+      "speaker": "Lebo",
+      "source": "We need berries for our jam. One basket for us, and one little bowl to share.",
+      "text": "Necesitamos bayas para nuestra mermelada. Una cesta para nosotros y un cuenco pequeño para compartir.",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s02-l02",
+      "sceneId": "s02",
+      "speaker": "Lebo",
+      "source": "Let’s count together. One, two, three, four, five!",
+      "text": "Contemos juntos. ¡Uno, dos, tres, cuatro, cinco!",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s02-l03",
+      "sceneId": "s02",
+      "speaker": "Lebo",
+      "source": "Jabu, your trunk is the fastest berry-picker I’ve ever seen.",
+      "text": "Jabu, tu trompa es la recolectora de bayas más rápida que he visto.",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s03-l01",
+      "sceneId": "s03",
+      "speaker": "Lebo",
+      "source": "First, bowl. Then berries. Then mash. Then stir. In that order!",
+      "text": "Primero, el cuenco. Luego las bayas. Después las machacamos. Luego removemos. ¡En ese orden!",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s03-l02",
+      "sceneId": "s03",
+      "speaker": "Lebo",
+      "source": "Ready, Jabu? Gently does it.",
+      "text": "¿Listo, Jabu? Con suavidad.",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s03-l03",
+      "sceneId": "s03",
+      "speaker": "Lebo",
+      "source": "The berries are escaping!",
+      "text": "¡Las bayas se escapan!",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s03-l04",
+      "sceneId": "s03",
+      "speaker": "Lebo",
+      "source": "Catch the purple one! No, the other purple one!",
+      "text": "¡Atrapa la morada! ¡No, la otra morada!",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s04-l01",
+      "sceneId": "s04",
+      "speaker": "Lebo",
+      "source": "Well... that did not go to plan.",
+      "text": "Bueno… eso no salió según el plan.",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s04-l02",
+      "sceneId": "s04",
+      "speaker": "Lebo",
+      "source": "But we can fix it. We’ll pick up, clean up, and try again.",
+      "text": "Pero podemos arreglarlo. Recogeremos, limpiaremos y volveremos a intentarlo.",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s04-l03",
+      "sceneId": "s04",
+      "speaker": "Lebo",
+      "source": "You gather. I sort. Then we both stir.",
+      "text": "Tú recoges. Yo separo. Luego removemos los dos.",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s04-l04",
+      "sceneId": "s04",
+      "speaker": "Lebo",
+      "source": "Look! A small pot of jam and a very big adventure.",
+      "text": "¡Mira! Un tarrito de mermelada y una aventura muy grande.",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s05-l01",
+      "sceneId": "s05",
+      "speaker": "Lebo",
+      "source": "Jabu’s Africa Fact!",
+      "text": "¡El dato de África de Jabu!",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s05-l02",
+      "sceneId": "s05",
+      "speaker": "Lebo",
+      "source": "Baobabs grow in several parts of Africa. Their thick trunks can store lots of water, which helps them through dry times.",
+      "text": "Los baobabs crecen en varias partes de África. Sus gruesos troncos pueden almacenar mucha agua, lo que les ayuda durante las épocas secas.",
+      "factReviewRequired": true
+    },
+    {
+      "id": "s05-l03",
+      "sceneId": "s05",
+      "speaker": "Lebo",
+      "source": "Africa is full of different places, people, plants and stories. We’ll discover another one next time.",
+      "text": "África está llena de lugares, personas, plantas e historias diferentes. Descubriremos otra la próxima vez.",
+      "factReviewRequired": false
+    },
+    {
+      "id": "s05-l04",
+      "sceneId": "s05",
+      "speaker": "Lebo",
+      "source": "Bye, explorers!",
+      "text": "¡Adiós, exploradores!",
+      "factReviewRequired": false
+    }
+  ],
+  "review": {
+    "nativeLanguage": false,
+    "culturalContext": false,
+    "comicTiming": false,
+    "childSafety": false,
+    "factAccuracy": false,
+    "finalEditorial": false
+  },
+  "approvedForDubbing": false,
+  "approvedForPublication": false
+}
