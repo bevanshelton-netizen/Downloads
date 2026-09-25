@@ -78,7 +78,7 @@ jobs:
             node -e '
               const x=JSON.parse(process.argv[1]);
               if(x.ok!==true) process.exit(2);
-              if(x.service!=="kora-gospel-tv" || x.runtime!=="izakhono-owned") process.exit(3);
+              if(!["yhvh-gospel-tv","kora-gospel-tv"].includes(x.service) || x.runtime!=="izakhono-owned") process.exit(3);
               if(x.product!=="YHVH GOSPEL TV" || x.product_id!=="yhvh-gospel-tv") process.exit(4);
               if(x.engine_id!=="yhvh-gospel-engine" || x.engine_authoritative!==true) process.exit(5);
               if(x.engine?.available!==true) process.exit(6);
