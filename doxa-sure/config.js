@@ -1,11 +1,11 @@
 window.DOXA_CONFIG = {
-  supabaseUrl: 'https://zoolsumifdtanycjryje.supabase.co',
-  supabaseAnonKey: '',
+  supabaseUrl: 'https://yfawrenhudjomhnglfhq.supabase.co',
+  supabaseAnonKey: 'sb_publishable_3KY--8Y_uuKEdfdumC2txg__OWTRo2p',
   mode: 'auto'
 };
 
-// Keep the public acquisition funnel separate from the authenticated/demo Shield.
-// This capture-phase handler runs before app.js's generic hero CTA handler.
+// Browser-safe publishable key only. Row Level Security remains the security boundary.
+// Keep the public acquisition funnel separate from the authenticated Shield dashboard.
 const riskCheckButton = document.getElementById('heroCheckBtn');
 if (riskCheckButton) {
   riskCheckButton.addEventListener('click', (event) => {
