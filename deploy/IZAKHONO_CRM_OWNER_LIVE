@@ -1,0 +1,9 @@
+IZAKHONO CRM OWNER-HOST DEPLOYMENT REQUEST
+requested_at=2026-09-25T03:17:00Z
+source_repo=bevanshelton-netizen/izakhono-builder
+required_commit=3d115c5ae5c092beb7011622fdda1534f885e68a
+crm_version=0.2.0
+target=NODE01
+public_cutover=false
+external_resilience=preserve
+live_claim_requires_independent_verification=true
