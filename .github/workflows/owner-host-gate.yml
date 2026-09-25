@@ -49,6 +49,12 @@ jobs:
           bash -n owner-host/status.sh
           bash -n owner-host/owner-agent.sh
           bash -n owner-host/deploy-crm-v020.sh
+          bash -n owner-host/notify-crm-v020-completion.sh
+          grep -q 'idempotencyKey' owner-host/notify-crm-v020-completion.sh
+          grep -q 'third_party_notification_control_required:false' owner-host/notify-crm-v020-completion.sh
+          grep -q 'CRM_NOTIFY=WAITING_SUCCESS' owner-host/notify-crm-v020-completion.sh
+          grep -q 'channel.*in_app' owner-host/notify-crm-v020-completion.sh
+          ! grep -Eqi '(ghp_|github_pat_|AIza|sk-[A-Za-z0-9])' owner-host/notify-crm-v020-completion.sh
           node -e 'const x=JSON.parse(require("fs").readFileSync("owner-host/control/crm-v020-desired-state.json","utf8"));if(x.schema!=="izakhono.crm-v020.owner-request/v1"||x.enabled!==true||x.crm_version!=="0.2.0"||x.target!=="NODE01"||x.public_cutover!==false||x.external_resilience_preserve!==true)process.exit(2)'
           grep -q '3d115c5ae5c092beb7011622fdda1534f885e68a' owner-host/deploy-crm-v020.sh
           grep -q 'CRM_FAIL_CLOSED=PASS' owner-host/deploy-crm-v020.sh
