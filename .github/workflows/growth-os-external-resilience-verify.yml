@@ -38,6 +38,27 @@ jobs:
           if(x.product!=="IZAKHONO GROWTH OS") throw new Error("wrong product");
           if(x.safeWriteMode!==true) throw new Error("safe write mode missing");
           if(x.liveAdWrites!==false) throw new Error("live ad writes must remain off");
+          if(x.runtime!=="external-resilience") throw new Error("external runtime was not reported truthfully");
+          if(x.authority!=="izakhono-owned-primary") throw new Error("owned authority missing");
+          console.log(JSON.stringify(x,null,2));
+          NODE
+
+      - name: Verify Backend Control page and status API
+        run: |
+          set -euo pipefail
+          URL="https://izakhono-growth-os-resilience.vercel.app"
+          code="$(curl -sS -L -o /tmp/backend.html -w '%{http_code}' --max-time 20 "$URL/backend")"
+          test "$code" = "200"
+          grep -q 'IZAKHONO BACKEND CONTROL' /tmp/backend.html
+          code="$(curl -sS -L -o /tmp/backend-status.json -w '%{http_code}' --max-time 20 "$URL/api/backend/status")"
+          test "$code" = "200"
+          node - <<'NODE'
+          const fs=require("fs");
+          const x=JSON.parse(fs.readFileSync("/tmp/backend-status.json","utf8"));
+          if(x.authority!=="IZAKHONO-owned infrastructure") throw new Error("wrong backend authority");
+          if(x.guardrails?.liveAdWrites!==false) throw new Error("live ad writes must remain off");
+          if(x.guardrails?.approvalRequiredBeforeWrite!==true) throw new Error("approval guardrail missing");
+          if(x.modules?.payments?.provider!=="iKhokha") throw new Error("iKhokha readiness missing");
           console.log(JSON.stringify(x,null,2));
           NODE
 
