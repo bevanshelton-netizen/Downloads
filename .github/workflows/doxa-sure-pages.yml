@@ -77,16 +77,10 @@ jobs:
         with:
           path: _site
 
-  deploy:
+  wait-native-pages:
     needs: build-gateway
-    concurrency:
-      group: izakhono-static-pages
-      cancel-in-progress: true
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 8
     steps:
       - name: Wait for native Pages publisher to clear the environment
         shell: bash
@@ -105,15 +99,28 @@ jobs:
             conclusion="$(printf '%s' "$json" | jq -r '[.workflow_runs[] | select(.name=="pages build and deployment")][0].conclusion // ""')"
             echo "NATIVE_PAGES_STATUS=$state NATIVE_PAGES_CONCLUSION=$conclusion"
             if [ "$state" = "completed" ]; then
-              break
+              exit 0
             fi
             if [ "$state" = "missing" ] && [ "$i" -ge 12 ]; then
               echo "No native Pages run found after one minute; continuing with IZAKHONO publisher."
-              break
+              exit 0
             fi
             sleep 5
           done
+          echo "::error::Native Pages publisher did not clear within the synchronization window."
+          exit 1
 
+  deploy:
+    needs: [build-gateway, wait-native-pages]
+    concurrency:
+      group: izakhono-static-pages
+      cancel-in-progress: true
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
       - name: Deploy prebuilt gateway
         id: deployment
         uses: actions/deploy-pages@v4
