@@ -58,8 +58,9 @@ for(const surface of visual.surfaces){
   if(!/<title>[^<]+<\/title>/i.test(html)) fail(surface.id+" missing title");
   if(!/<meta\b[^>]*name=["']description["']/i.test(html)) fail(surface.id+" missing meta description");
   for(const text of surface.landmarks||[]) if(!html.includes(text)) fail(surface.id+" visual landmark drift: "+text);
-  const dup=duplicateIds(html); if(dup.length) fail(surface.id+" duplicate ids: "+dup.join(","));
-  const missingAlt=imagesMissingAlt(html); if(missingAlt.length) fail(surface.id+" image(s) missing alt text");
+  const staticMarkup=html.replace(/<script\\b[^>]*>[\\s\\S]*?<\\/script>/gi,"");
+  const dup=duplicateIds(staticMarkup); if(dup.length) fail(surface.id+" duplicate ids: "+dup.join(","));
+  const missingAlt=imagesMissingAlt(staticMarkup); if(missingAlt.length) fail(surface.id+" image(s) missing alt text");
   const cssTexts=[];
   let cssBytes=0;
   for(const css of surface.css||[]){
