@@ -1,0 +1,173 @@
+{
+  "schema": "yhvh.gospel-tv.partner-charter/v1",
+  "version": "2026-09-25",
+  "authority": "IZAKHONO",
+  "brand": "YHVH GOSPEL TV",
+  "principle": "Gospel identity, audience trust, safeguarding and editorial independence come before commercial participation.",
+  "partner_classes": [
+    {
+      "id": "content-partner",
+      "name": "Content Partner",
+      "examples": [
+        "church",
+        "ministry",
+        "producer",
+        "programme"
+      ]
+    },
+    {
+      "id": "artist-partner",
+      "name": "Artist / Choir Partner",
+      "examples": [
+        "artist",
+        "choir",
+        "worship-team"
+      ]
+    },
+    {
+      "id": "event-partner",
+      "name": "Event Partner",
+      "examples": [
+        "concert",
+        "conference",
+        "revival",
+        "festival"
+      ]
+    },
+    {
+      "id": "distribution-partner",
+      "name": "Distribution / Broadcast Partner",
+      "examples": [
+        "broadcaster",
+        "OTT",
+        "FAST/CTV",
+        "smart-TV",
+        "platform"
+      ]
+    },
+    {
+      "id": "commercial-partner",
+      "name": "Commercial Partner",
+      "examples": [
+        "sponsor",
+        "advertiser",
+        "production-client"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "gospel-first",
+      "title": "Gospel-first identity",
+      "summary": "Content and partnerships must fit the Gospel and Christian-faith positioning of YHVH GOSPEL TV."
+    },
+    {
+      "id": "editorial-independence",
+      "title": "Editorial independence",
+      "summary": "No payment, donation, sponsorship or relationship buys airtime, favourable treatment, ministry endorsement or editorial approval."
+    },
+    {
+      "id": "rights",
+      "title": "Rights and permissions",
+      "summary": "Contributors must control or properly license the music, footage, performances, images, trademarks and other third-party material they submit."
+    },
+    {
+      "id": "creator-ownership",
+      "title": "Creator ownership by default",
+      "summary": "Contributors retain ownership unless a separate written acquisition agreement says otherwise. Broadcast, promotional, translation and distribution rights must be expressly licensed."
+    },
+    {
+      "id": "truthful-claims",
+      "title": "Truthful claims and fundraising",
+      "summary": "Fraudulent testimony, fake fundraising stories, deceptive investment schemes, undisclosed beneficiary arrangements and manipulative financial pressure are prohibited."
+    },
+    {
+      "id": "safety",
+      "title": "Safety and dignity",
+      "summary": "No pornography, sexual exploitation, hate speech, incitement, harassment, dehumanising content or exploitation of vulnerable people."
+    },
+    {
+      "id": "children",
+      "title": "Child safeguarding",
+      "summary": "Content involving minors requires appropriate consent, safeguarding and careful handling of personal information and location details."
+    },
+    {
+      "id": "health",
+      "title": "Health and deliverance claims",
+      "summary": "Faith testimony is welcome, but medical or mental-health claims may not be presented as guaranteed cures or instructions to abandon appropriate professional care."
+    },
+    {
+      "id": "politics",
+      "title": "Political separation",
+      "summary": "Social and civic discussion may occur, but the Gospel network is not a party campaign platform. Political advertising or campaigning requires separate policy and legal review."
+    },
+    {
+      "id": "commercial",
+      "title": "Commercial suitability",
+      "summary": "Sponsors and advertisers are verified and must fit a Gospel/family environment. Commercial messages are clearly distinguished from editorial programming."
+    },
+    {
+      "id": "broadcast-standards",
+      "title": "Broadcast standards",
+      "summary": "YHVH may request technical, duration, accessibility, graphics or compliance changes while preserving the contributor's meaning."
+    },
+    {
+      "id": "review-not-guarantee",
+      "title": "Submission is review, not approval",
+      "summary": "YHVH may approve, request changes, schedule later, decline or remove material subject to rights, quality, safety, accuracy, brand and contractual requirements."
+    },
+    {
+      "id": "territories",
+      "title": "Territories and languages",
+      "summary": "Contributors must identify the territories and language rights they control. YHVH does not assume worldwide rights that a contributor does not possess."
+    },
+    {
+      "id": "translation",
+      "title": "Translation integrity",
+      "summary": "Dubbing, subtitles and localisation must preserve Scripture, testimony, attribution and the speaker's core meaning."
+    },
+    {
+      "id": "revenue",
+      "title": "Written revenue arrangements",
+      "summary": "Revenue shares, fees, taxes, reporting, refunds and payment cycles are agreed in writing before monetisation."
+    },
+    {
+      "id": "verification",
+      "title": "Verification before payments",
+      "summary": "Paid partners and suppliers may be required to complete identity/entity and bank-detail verification, including secondary verification for banking changes."
+    },
+    {
+      "id": "conflicts",
+      "title": "Conflicts of interest",
+      "summary": "Material commercial, family or decision-making conflicts relevant to a programme, supplier or sponsor must be disclosed."
+    },
+    {
+      "id": "respect",
+      "title": "Respect across denominations and cultures",
+      "summary": "Robust discussion is permitted; personal attacks, harassment or degradation based on denomination, ethnicity, nationality or culture are not."
+    },
+    {
+      "id": "complaints",
+      "title": "Complaints and takedowns",
+      "summary": "Rights, privacy, safeguarding, factual or contractual complaints may trigger temporary suspension while reviewed."
+    },
+    {
+      "id": "final-decision",
+      "title": "Final broadcast decision",
+      "summary": "YHVH retains final authority over scheduling, branding, editorial standards, distribution and removal, subject to definitive contracts and applicable law."
+    }
+  ],
+  "onboarding": [
+    "apply",
+    "identity-and-entity-verification",
+    "rights-declaration",
+    "editorial-and-safety-review",
+    "commercial-review-if-applicable",
+    "agreement",
+    "technical-qc",
+    "schedule-and-distribute",
+    "reporting-and-payment-if-applicable"
+  ],
+  "status": "operational-policy",
+  "legal_note": "This Charter is an operational participation policy and does not replace a definitive partner, licence, sponsorship, distribution or production agreement where one is required."
+}

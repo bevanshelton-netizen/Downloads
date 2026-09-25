@@ -25,6 +25,7 @@
   <section class="panel" style="margin-top:18px"><div class="ey">LANGUAGE FEEDS</div><h2>Priority languages</h2><div id="languages"></div></section>
   <section class="panel" style="margin-top:18px"><div class="ey">RIGHTS + LIVE EVENTS</div><h2>Broadcast readiness rules</h2><div id="rights"></div></section>
   <section class="panel" style="margin-top:18px"><div class="ey">COMMERCIAL INVENTORY</div><h2>Sponsorship slots</h2><div id="sponsors"></div></section>
+  <section class="panel" style="margin-top:18px"><div class="ey">PARTNER ONBOARDING</div><h2>Verification pipeline</h2><div id="onboarding"></div></section>
   <section class="panel" style="margin-top:18px"><div class="ey">HYBRID RECONCILIATION</div><h2>External buffer → IZAKHONO</h2><div id="reconciliation"></div></section>
   <section class="panel queue"><div class="ey">LATEST INTAKE</div><h2>Submissions queue</h2><div id="records"></div></section>
 </section>
@@ -47,11 +48,14 @@ async function refresh(){try{
   const ops=s.operations||{};
   document.getElementById('rights').innerHTML='<p><b>Rights states:</b> '+esc((ops.rights_workflow?.states||[]).join(' → '))+'</p><p><b>Live-event states:</b> '+esc((ops.live_event_workflow?.states||[]).join(' → '))+'</p><p class="notice">'+esc(ops.approval_rule||'')+'</p>';
   document.getElementById('sponsors').innerHTML=(ops.sponsorship_inventory||[]).map(x=>'<span class="tag">'+esc(x.slot)+' · '+esc(x.status)+'</span>').join('');
+  const onboard=s.onboarding||{};
+  const classTags=Object.entries(onboard.partner_classes||{}).map(([k,v])=>'<span class="tag">'+esc(k.replaceAll('-',' '))+' · '+esc(v)+'</span>').join('');
+  document.getElementById('onboarding').innerHTML='<div class="grid"><article class="panel metric"><small>Applications</small><br><b>'+esc(onboard.total||0)+'</b></article><article class="panel metric"><small>Verification pending</small><br><b>'+esc(onboard.verification_pending||0)+'</b></article><article class="panel metric"><small>Minor-content flags</small><br><b>'+esc(onboard.review_flags?.minors||0)+'</b></article><article class="panel metric"><small>Fundraising / health flags</small><br><b>'+esc((onboard.review_flags?.fundraising||0)+(onboard.review_flags?.health_claims||0))+'</b></article></div><p>'+classTags+'</p><p class="notice">Charter version: '+esc(onboard.charter_version||'unknown')+' · All applications remain pending until identity, rights, editorial and safeguarding review is completed.</p>';
   const rec=s.reconciliation||{};
   document.getElementById('reconciliation').innerHTML=rec.available
     ?'<div class="grid"><article class="panel metric"><small>Imported</small><br><b>'+esc(rec.imported)+'</b></article><article class="panel metric"><small>Duplicate repairs</small><br><b>'+esc(rec.duplicates)+'</b></article><article class="panel metric"><small>Failures</small><br><b>'+esc(rec.failed)+'</b></article></div><p class="notice">Last reconciliation: '+esc(rec.completed_at||'unknown')+' · Worker: '+esc(rec.worker||'unknown')+' · Authority: '+esc(rec.authority||'IZAKHONO')+'</p>'
     :'<p class="warn">No reconciliation receipt yet. The external buffer remains non-authoritative until the owner-side reconciler has run.</p>';
-  document.getElementById('records').innerHTML=q.records.length?q.records.map(r=>'<div class="record"><small>'+esc(r.category)+' · '+esc(r.reference)+'</small><h3>'+esc(r.name||r.type||'Anonymous intake')+'</h3><p>'+esc(r.message)+'</p><span class="notice">'+esc(r.created_at)+'</span></div>').join(''):'<p>No submissions yet.</p>';
+  document.getElementById('records').innerHTML=q.records.length?q.records.map(r=>'<div class="record"><small>'+esc(r.category)+' · '+esc(r.reference)+'</small><h3>'+esc(r.name||r.type||'Anonymous intake')+'</h3><p>'+esc(r.message)+'</p><div>'+((r.details?.partnerClass)?'<span class="tag">'+esc(String(r.details.partnerClass).replaceAll('-',' '))+'</span>':'')+((r.details?.verificationStatus)?'<span class="tag">verification · '+esc(r.details.verificationStatus)+'</span>':'')+((r.details?.minorsInvolved==='yes')?'<span class="tag warn">minor-content review</span>':'')+((r.details?.fundraisingInvolved==='yes')?'<span class="tag warn">fundraising review</span>':'')+((r.details?.healthClaims==='yes')?'<span class="tag warn">health-claim review</span>':'')+'</div><span class="notice">'+esc(r.created_at)+'</span></div>').join(''):'<p>No submissions yet.</p>';
 }catch(e){document.getElementById('error').textContent=e.message;lock();}}
 if(ownerToken)refresh();
 </script>

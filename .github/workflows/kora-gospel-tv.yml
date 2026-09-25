@@ -33,6 +33,7 @@ on:
       - "kora-network/public/gospel-global.json"
       - "kora-network/public/gospel-commercial.json"
       - "kora-network/public/gospel-hybrid-gateway.json"
+      - "kora-network/public/gospel-partner-charter.json"
       - "ports/kora-gospel-tv/WORLDWIDE.md"
       - ".github/workflows/kora-gospel-tv.yml"
   push:
@@ -54,6 +55,8 @@ on:
       - "owner-host/START-KORA-GOSPEL-TV-ON-IZAKHONO.ps1"
       - "START-KORA-GOSPEL-TV-ON-IZAKHONO.cmd"
       - "kora-gospel-tv/**"
+      - "kora-network/app/gospel/**"
+      - "kora-network/public/gospel-partner-charter.json"
       - ".github/workflows/kora-gospel-tv.yml"
 
 permissions:
@@ -103,6 +106,10 @@ jobs:
           grep -q '"policy": "owned-first-external-fallback"' kora-network/public/gospel-hybrid-gateway.json
           grep -q '"global_front_door": "/gospel/live"' kora-network/public/gospel-hybrid-gateway.json
           grep -q "kora-gospel-hybrid-gateway" kora-network/app/api/gospel/hybrid-status/route.ts
+          grep -q '"version": "2026-09-25"' kora-network/public/gospel-partner-charter.json
+          grep -q '"id": "editorial-independence"' kora-network/public/gospel-partner-charter.json
+          grep -q '"id": "children"' kora-network/public/gospel-partner-charter.json
+          grep -q 'verificationStatus' kora-network/app/gospel/join/intake-client.tsx
 
       - name: Prove independent YHVH Gospel Engine
         run: |
@@ -175,6 +182,8 @@ jobs:
           grep -q '"reconciliation"' /tmp/control-status.json
           grep -q '"imported":2' /tmp/control-status.json
           grep -q '"duplicates":1' /tmp/control-status.json
+          grep -q '"onboarding"' /tmp/control-status.json
+          grep -q '"charter_version":"2026-09-25"' /tmp/control-status.json
           curl -fsS http://127.0.0.1:8188/control.html | grep -q "GOSPEL TV"
           ! grep -R "ci-owner-control-token-1234567890" ports/kora-gospel-tv/control.html ports/kora-gospel-tv/control-room.json
 
@@ -193,12 +202,16 @@ jobs:
         run: |
           test "$(curl -sS -o /tmp/preflight.txt -D /tmp/preflight.headers -w '%{http_code}' -X OPTIONS http://127.0.0.1:8188/api/submissions -H 'origin: https://kora-network.vercel.app' -H 'access-control-request-method: POST' -H 'access-control-request-headers: content-type')" = "204"
           grep -qi 'access-control-allow-origin: https://kora-network.vercel.app' /tmp/preflight.headers
-          RESPONSE="$(curl -fsS -X POST http://127.0.0.1:8188/api/submissions -H 'origin: https://kora-network.vercel.app' -H 'content-type: application/json' --data '{"category":"partner","type":"distribution","name":"YHVH CI","contact":"ci@example.invalid","message":"Cross-origin owned intake test","territory":"Global","language":"English","sourceChannel":"yhvh-ci"}')"
+          test "$(curl -sS -o /tmp/charter-required.json -w '%{http_code}' -X POST http://127.0.0.1:8188/api/submissions -H 'origin: https://kora-network.vercel.app' -H 'content-type: application/json' --data '{"category":"content","type":"church","name":"Missing Charter CI","contact":"ci@example.invalid","message":"Should fail","territory":"Global","language":"English","sourceChannel":"kora-global-acquisition-desk","rightsAttested":true,"details":{"partnerClass":"content-partner"}}')" = "400"
+          grep -q 'Charter must be accepted' /tmp/charter-required.json
+          RESPONSE="$(curl -fsS -X POST http://127.0.0.1:8188/api/submissions -H 'origin: https://kora-network.vercel.app' -H 'content-type: application/json' --data '{"category":"partner","type":"distribution","name":"YHVH CI","contact":"ci@example.invalid","message":"Cross-origin owned intake test","territory":"Global","language":"English","sourceChannel":"kora-global-acquisition-desk","rightsAttested":true,"details":{"partnerClass":"distribution-partner","charterVersion":"2026-09-25","charterAccepted":true,"editorialIndependence":true,"safeguardingAttested":false,"minorsInvolved":"no","verificationStatus":"pending"}}')"
           echo "$RESPONSE" | grep -q '"route":"izakhono-owned"'
           echo "$RESPONSE" | grep -q '"engine_route":"yhvh-owned-engine"'
           ENGINE_QUEUE="$(curl -fsS 'http://127.0.0.1:8892/v1/submissions?limit=5' -H 'authorization: Bearer ci-owner-engine-token-1234567890')"
           echo "$ENGINE_QUEUE" | grep -q '"territory":"Global"'
-          echo "$ENGINE_QUEUE" | grep -q '"source_channel":"yhvh-ci"'
+          echo "$ENGINE_QUEUE" | grep -q '"source_channel":"kora-global-acquisition-desk"'
+          echo "$ENGINE_QUEUE" | grep -q '"partnerClass":"distribution-partner"'
+          echo "$ENGINE_QUEUE" | grep -q '"verificationStatus":"pending"'
           RESPONSE="$(curl -fsS -X POST http://127.0.0.1:8188/api/submissions -H 'origin: https://kora-network.vercel.app' -H 'content-type: application/json' --data '{"category":"partner","type":"sponsor","name":"Commercial CI","contact":"ci@example.invalid","message":"Commercial desk test","details":{"package":"programme-sponsor","budget":"quote-request"}}')"
           echo "$RESPONSE" | grep -q '"route":"izakhono-owned"'
           echo "$RESPONSE" | grep -q '"engine_route":"yhvh-owned-engine"'
