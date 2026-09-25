@@ -1,0 +1,10 @@
+/* IZAKHONO Group — International Holding Company Makeover v1 */
+html{scroll-behavior:smooth}body{font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.topbar{height:84px}.hero{min-height:790px;gap:70px}.hero h1{font-size:clamp(4.2rem,8vw,7.5rem);line-height:.8;letter-spacing:-.07em;text-wrap:balance}.hero-copy>p{font-size:clamp(1.05rem,1.5vw,1.22rem);line-height:1.72}
+.top-cta,.btn,.share-btn{min-height:48px;display:inline-flex;align-items:center;justify-content:center;transition:transform .18s ease,box-shadow .18s ease}.top-cta:hover,.btn:hover,.share-btn:hover{transform:translateY(-2px)}
+.hero-visual{border-radius:24px;box-shadow:0 38px 100px rgba(0,0,0,.2)}.hero-card{border-radius:16px}
+.section{padding-top:132px;padding-bottom:132px}.split h2,.section-head h2,.infra h2,.contact h2{font-size:clamp(3rem,6vw,5.6rem);line-height:.93}.platform{min-height:300px;padding:30px}.cap-grid article{padding:32px}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--gold2);outline-offset:3px}
+@media(max-width:1000px){.hero{min-height:auto;gap:44px}.section{padding-top:96px;padding-bottom:96px}}
+@media(max-width:650px){.hero{padding-top:48px}.hero h1{font-size:clamp(4rem,18vw,6rem)}.section{padding-top:72px;padding-bottom:72px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}

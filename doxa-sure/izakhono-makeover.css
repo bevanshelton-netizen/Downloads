@@ -1,0 +1,40 @@
+/* DOXA-SURE — International Makeover v1 */
+:root{--doxa-shell:1180px;--doxa-shadow:0 28px 90px rgba(0,0,0,.28)}
+html{scroll-behavior:smooth}
+body{font-size:16px;line-height:1.65}
+.shell{max-width:var(--doxa-shell);padding-inline:24px}
+.topbar{backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.nav-shell{min-height:78px}
+.brand span{font-size:clamp(1.35rem,2.4vw,1.8rem);letter-spacing:-.045em}
+.hero{padding:86px 0 72px}
+.hero-grid{gap:64px;align-items:center}
+.hero-copy h1{font-size:clamp(3.5rem,7vw,6.8rem);line-height:.9;letter-spacing:-.065em;text-wrap:balance}
+.hero-copy .lead{font-size:clamp(1.05rem,1.7vw,1.26rem);line-height:1.72;max-width:760px}
+.cta-row{gap:12px;margin-top:28px}
+.btn{min-height:48px;border-radius:999px;padding-inline:20px;transition:transform .18s ease,box-shadow .18s ease}
+.btn:hover{transform:translateY(-2px)}
+.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #d7b454;outline-offset:3px}
+.auth-card,.card{border-radius:28px;box-shadow:var(--doxa-shadow)}
+.auth-card{padding:30px}
+.trust-strip{gap:10px 14px;margin-top:22px}
+.trust-strip span{border-radius:999px;padding:8px 11px}
+.promise-band{padding:34px 0}
+.promise-grid{gap:14px}
+.promise-grid article{border-radius:22px;padding:26px}
+.dashboard-section{padding-block:70px}
+.legal-mini{max-width:760px;line-height:1.6}
+@media(max-width:840px){
+  .hero{padding:54px 0 46px}
+  .hero-grid{grid-template-columns:1fr;gap:30px}
+  .hero-copy h1{font-size:clamp(3rem,13vw,5rem)}
+  .auth-card{max-width:620px}
+}
+@media(max-width:560px){
+  .shell{padding-inline:16px}
+  .nav-shell{min-height:68px}
+  .hero{padding-top:38px}
+  .promise-grid{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+}

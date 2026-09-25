@@ -1,0 +1,10 @@
+/* CROWNÉ Hair by Netty — International Luxury Makeover v1 */
+html{scroll-behavior:smooth}body{font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.site-header{height:90px;padding-inline:max(22px,calc((100vw - 1240px)/2))}.main-nav{gap:20px}.main-nav a{position:relative}.main-nav a:after{content:"";position:absolute;left:0;right:100%;bottom:-8px;height:1px;background:var(--gold);transition:right .18s ease}.main-nav a:hover:after{right:0}
+.landing-hero{min-height:clamp(520px,72vh,820px)}.section{padding:120px max(24px,calc((100vw - 1240px)/2))}.section-heading h2{font-size:clamp(3rem,6vw,5.6rem);line-height:.92;letter-spacing:-.05em}.section-heading>p{font-size:1.03rem;line-height:1.72}
+.button,.bag-button,.menu-toggle,.spin-control,.add-btn,.filter{min-height:48px;transition:transform .18s ease,box-shadow .18s ease}.button:hover,.bag-button:hover,.add-btn:hover{transform:translateY(-2px)}
+.showroom-shell{border-radius:42px;box-shadow:0 28px 90px rgba(0,0,0,.3)}.product-card{border-radius:28px;box-shadow:0 14px 44px rgba(91,23,111,.12)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+@media(max-width:900px){.main-nav{display:none}.menu-toggle{display:inline-flex}.section{padding:82px 20px}.section-heading{align-items:flex-start;flex-direction:column;gap:18px}}
+@media(max-width:560px){.site-header{height:72px;padding-inline:14px}.announcement{gap:10px;flex-wrap:wrap}.section{padding:64px 14px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}.ticker-track{animation:none!important}}

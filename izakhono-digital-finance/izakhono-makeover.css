@@ -1,0 +1,14 @@
+/* IZAKHONO Digital Finance — International finishing layer */
+html{scroll-behavior:smooth}
+body{font-size:16px;line-height:1.64}
+.container{width:min(calc(100% - 40px),1240px)}
+.nav{min-height:82px}
+.btn{min-height:48px;padding-inline:19px}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.hero{padding:108px 0 74px}
+.hero-grid{gap:64px}
+h1{font-size:clamp(3.5rem,7vw,6.4rem);line-height:.92;letter-spacing:-.06em;text-wrap:balance}
+.card,.panel{border-radius:26px}
+@media(max-width:900px){.hero{padding-top:70px}.hero-grid{grid-template-columns:1fr}.nav-links{display:none}}
+@media(max-width:560px){.container{width:min(100% - 28px,1240px)}.nav{min-height:70px}.hero{padding-top:54px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}

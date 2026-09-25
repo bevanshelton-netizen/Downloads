@@ -1,0 +1,12 @@
+/* IZAKHONO STUDIO — International Creative Suite Makeover v1 */
+html{scroll-behavior:smooth}body{font-size:16px;line-height:1.62;-webkit-font-smoothing:antialiased}
+.topbar{min-height:82px;padding:14px max(18px,calc((100vw - 1320px)/2));gap:24px}
+.brand-name{font-size:clamp(2rem,4vw,3.2rem)}
+.hero-strip{padding:52px max(22px,calc((100vw - 1320px)/2)) 34px;gap:44px}.hero-strip h1{font-size:clamp(3.6rem,7vw,6.8rem);line-height:.88;letter-spacing:-.04em;text-wrap:balance}
+.super-engine{max-width:1260px;margin:0 auto 32px;border-radius:30px;padding:32px}
+.automation-ribbon{max-width:1260px;margin:0 auto 38px}
+.workspace{max-width:1460px;margin:auto;gap:16px;padding-inline:18px}.panel,.canvas-wrap,.magic-box{border-radius:24px}
+button,.upload-btn{min-height:46px;border-radius:999px;transition:transform .18s ease,box-shadow .18s ease}button:hover,.upload-btn:hover{transform:translateY(-2px)}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #b8ff3d;outline-offset:3px}
+@media(max-width:760px){.hero-strip{padding:32px 15px 22px}.super-engine,.automation-ribbon{margin-left:12px;margin-right:12px}.workspace{padding-inline:10px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}

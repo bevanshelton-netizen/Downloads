@@ -1,0 +1,10 @@
+/* IZAKHONO Revenue Desk — International Makeover v1 */
+html{scroll-behavior:smooth}body{font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.topbar{min-height:82px;padding-inline:max(22px,calc((100vw - 1240px)/2));backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.hero{min-height:720px;padding:88px max(24px,calc((100vw - 1240px)/2));gap:64px}.hero h1{font-size:clamp(3.8rem,7vw,7rem);line-height:.9;letter-spacing:-.06em;text-wrap:balance}.hero-lead{font-size:clamp(1.05rem,1.5vw,1.22rem);line-height:1.72}
+.primary,.secondary,.nav-cta,.lane-cta,button{min-height:48px;border-radius:999px;transition:transform .18s ease,box-shadow .18s ease}.primary:hover,.secondary:hover,.nav-cta:hover,button:hover{transform:translateY(-2px)}
+.section{padding:104px max(24px,calc((100vw - 1240px)/2))}.section-head h2{font-size:clamp(2.7rem,5vw,5rem);line-height:.95}.lane,.lead-form,.hero-panel{border-radius:28px}.lane{box-shadow:0 14px 46px rgba(20,83,65,.08)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+@media(max-width:860px){.hero{grid-template-columns:1fr;min-height:auto;padding-top:58px}.topbar nav{display:none}.grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.hero,.section{padding-left:16px;padding-right:16px}.grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}

@@ -1,0 +1,35 @@
+/* KORA Network — International Makeover v1 */
+:root{
+  --kora-shell:1240px;
+  --kora-radius:26px;
+  --kora-shadow:0 28px 90px rgba(18,10,70,.28);
+}
+html{scroll-behavior:smooth}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.62;-webkit-font-smoothing:antialiased}
+.top{min-height:82px;padding:14px max(22px,calc((100vw - var(--kora-shell))/2));gap:24px;box-shadow:0 14px 50px rgba(18,10,70,.16)}
+.logo{font-size:clamp(1.05rem,2vw,1.35rem)}
+.top nav{gap:20px}
+.top nav a{position:relative}
+.top nav a:after{content:"";position:absolute;left:0;right:100%;bottom:-7px;height:2px;background:#f6c90e;transition:right .18s ease}
+.top nav a:hover:after{right:0}
+.pill,.primary,.secondary{min-height:48px;display:inline-flex;align-items:center;justify-content:center;padding-inline:19px;transition:transform .18s ease,box-shadow .18s ease}
+.pill:hover,.primary:hover,.secondary:hover{transform:translateY(-2px)}
+.hero{padding:12vh max(24px,calc((100vw - var(--kora-shell))/2)) 9vh;min-height:76vh}
+.hero h1,.subHero h1{font-size:clamp(3.7rem,8vw,7.4rem);line-height:.86;letter-spacing:-.065em;text-wrap:balance}
+.hero>p,.subHero p{font-size:clamp(1.05rem,1.6vw,1.24rem);line-height:1.7}
+section:not(.hero):not(.subHero){padding:74px max(24px,calc((100vw - var(--kora-shell))/2))}
+.card,.panel,.channel,.kpis div{border-radius:var(--kora-radius);box-shadow:0 12px 46px rgba(20,14,80,.11)}
+.economy{margin:50px max(24px,calc((100vw - var(--kora-shell))/2)) 82px;border-radius:32px;box-shadow:var(--kora-shadow)}
+footer{padding:38px max(24px,calc((100vw - var(--kora-shell))/2))}
+.globalShareButton{box-shadow:0 18px 46px rgba(0,0,0,.3)}
+@media(max-width:850px){
+  .top{min-height:72px;padding-inline:16px}
+  .hero{padding:8vh 18px 7vh}
+  section:not(.hero):not(.subHero){padding-left:18px;padding-right:18px}
+  .economy{margin-left:18px;margin-right:18px}
+  footer{padding-left:18px;padding-right:18px}
+}
+@media(max-width:560px){
+  .hero h1,.subHero h1{font-size:clamp(3.2rem,15vw,5.4rem)}
+  .top nav{gap:16px}
+}

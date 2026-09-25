@@ -1,0 +1,9 @@
+/* IZAKHONO GROWTH OS — International Makeover v1 */
+html{scroll-behavior:smooth}body{font-size:15px;line-height:1.64;-webkit-font-smoothing:antialiased}
+.app-shell{grid-template-columns:286px 1fr}.sidebar{padding:26px 19px}.main{padding:34px 40px 70px;max-width:1540px}.topbar{min-height:64px}.hero{padding:38px;border-radius:26px}.hero h2{font-size:clamp(2.7rem,5vw,4.8rem);line-height:.95;letter-spacing:-.045em;text-wrap:balance}.hero p{font-size:1.08rem;line-height:1.72}
+.primary,.secondary,.ghost,.text-btn,.connections button,.creative button,.tasks button{min-height:44px;border-radius:999px;padding-inline:16px;transition:transform .18s ease,box-shadow .18s ease}.primary:hover,.secondary:hover,.ghost:hover{transform:translateY(-2px)}
+.card,.metric,.creative,.calendar article,.connections article{border-radius:22px}.score-card{border-radius:22px}.phone{border-radius:38px}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+@media(max-width:1050px){.app-shell{grid-template-columns:1fr}.main{padding:26px 22px 60px}.sidebar{position:relative;height:auto}}
+@media(max-width:650px){.main{padding:18px 14px 50px}.hero{padding:24px}.hero h2{font-size:clamp(2.3rem,10vw,3.4rem)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
