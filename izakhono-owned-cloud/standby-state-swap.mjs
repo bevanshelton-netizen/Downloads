@@ -54,7 +54,8 @@ const envFiles=[
   "analytics-node.env",
   "notify-node.env",
   "ai-gateway-node.env",
-  "code-node.env"
+  "code-node.env",
+  "backup-node.env"
 ];
 
 function liveData(name){return join(rootPrefix,"var/lib",name);}
