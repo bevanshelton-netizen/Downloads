@@ -153,6 +153,17 @@ jobs:
           grep -q '"engine":{"available":false' < <(curl -fsS http://127.0.0.1:8188/api/channel)
           rm -f "$RUNNER_TEMP/yhvh-gospel-engine.pid"
 
+          HOST=127.0.0.1 PORT=8892 YHVH_GOSPEL_ENGINE_TOKEN="ci-owner-engine-token-1234567890" YHVH_GOSPEL_ENGINE_DATA_DIR="$RUNNER_TEMP/yhvh-gospel-engine" node engines/yhvh-gospel-engine/engine.mjs >"$RUNNER_TEMP/yhvh-gospel-engine.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/yhvh-gospel-engine.pid"
+          for i in {1..20}; do
+            if curl -fsS http://127.0.0.1:8892/health >/tmp/yhvh-engine-restarted.json 2>/dev/null; then
+              node -e 'const x=require("/tmp/yhvh-engine-restarted.json");if(x.ok!==true||x.service!=="yhvh-gospel-engine"||x.authority!=="IZAKHONO")process.exit(2)'
+              break
+            fi
+            sleep 0.1
+          done
+          curl -fsS http://127.0.0.1:8892/health | grep -q '"service":"yhvh-gospel-engine"'
+
       - name: Verify owner control room boundary
         run: |
           test "$(curl -sS -o /tmp/control-noauth.json -w '%{http_code}' http://127.0.0.1:8188/api/control/status)" = "401"
