@@ -1,4 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
+import {
+  deleteLocalProject,
+  downloadProjectFile,
+  readLocalProjects,
+  readProjectFile,
+  sanitizeGamerProject,
+  saveLocalProject,
+} from './gamerProject.js';
 
 const PRESETS = {
   'Stream Overlay': [1920, 1080],
@@ -27,17 +35,81 @@ function loadImage(file, callback) {
 
 export default function GamerStudio() {
   const canvasRef = useRef(null);
+  const importRef = useRef(null);
+  const [projectName, setProjectName] = useState('My Gamer Project');
   const [preset, setPreset] = useState('Stream Overlay');
   const [themeName, setThemeName] = useState('Neon');
   const [gamerTag, setGamerTag] = useState('PLAYER ONE');
   const [team, setTeam] = useState('IZAKHONO GAMING');
   const [message, setMessage] = useState('LIVE • RANKED • NO QUIT');
+  const [sponsor, setSponsor] = useState('');
   const [background, setBackground] = useState(null);
   const [facecam, setFacecam] = useState(true);
   const [chatBox, setChatBox] = useState(true);
+  const [savedProjects, setSavedProjects] = useState(() => readLocalProjects());
+  const [selectedSaved, setSelectedSaved] = useState('');
+  const [projectNotice, setProjectNotice] = useState('Local project controls are ready. No cloud account is required.');
 
   const [width, height] = PRESETS[preset];
   const theme = THEMES[themeName];
+
+  const currentProject = () => sanitizeGamerProject({
+    name: projectName,
+    preset,
+    themeName,
+    gamerTag,
+    team,
+    message,
+    sponsor,
+    facecam,
+    chatBox,
+  });
+
+  const applyProject = (project) => {
+    const safe = sanitizeGamerProject(project);
+    setProjectName(safe.name);
+    setPreset(safe.preset);
+    setThemeName(safe.themeName);
+    setGamerTag(safe.gamerTag);
+    setTeam(safe.team);
+    setMessage(safe.message);
+    setSponsor(safe.sponsor);
+    setFacecam(safe.facecam);
+    setChatBox(safe.chatBox);
+    setBackground(null);
+    setProjectNotice(`Loaded "${safe.name}". Reattach any gameplay/hero image if needed.`);
+  };
+
+  const saveProject = () => {
+    const saved = saveLocalProject(currentProject());
+    setSavedProjects(readLocalProjects());
+    setSelectedSaved(saved.name);
+    setProjectNotice(`Saved "${saved.name}" on this device.`);
+  };
+
+  const loadSelected = () => {
+    const found = savedProjects.find((item) => item.name === selectedSaved);
+    if (found) applyProject(found);
+  };
+
+  const removeSelected = () => {
+    if (!selectedSaved) return;
+    const next = deleteLocalProject(selectedSaved);
+    setSavedProjects(next);
+    setSelectedSaved('');
+    setProjectNotice('Saved project removed from this device.');
+  };
+
+  const importProject = async (file) => {
+    if (!file) return;
+    try {
+      const imported = await readProjectFile(file);
+      applyProject(imported);
+      setProjectNotice(`Imported "${imported.name}". Save it locally if you want it kept on this device.`);
+    } catch {
+      setProjectNotice('That project file could not be read. Use an IZAKHONO .izgamer.json project file.');
+    }
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -84,6 +156,12 @@ export default function GamerStudio() {
     ctx.fillStyle = 'rgba(255,255,255,.82)';
     ctx.font = `700 ${Math.max(22, Math.round(width * 0.018))}px Arial, sans-serif`;
     ctx.fillText(message.toUpperCase().slice(0, 48), Math.round(width * 0.058), Math.round(height * 0.265));
+
+    if (sponsor) {
+      ctx.fillStyle = 'rgba(255,255,255,.72)';
+      ctx.font = `700 ${Math.max(16, Math.round(width * 0.012))}px Arial, sans-serif`;
+      ctx.fillText(`POWERED BY ${sponsor.toUpperCase().slice(0, 28)}`, Math.round(width * 0.058), Math.round(height * 0.315));
+    }
 
     ctx.strokeStyle = theme.accent2;
     ctx.lineWidth = Math.max(4, Math.round(width * 0.004));
@@ -136,7 +214,7 @@ export default function GamerStudio() {
     ctx.font = `700 ${Math.max(15, Math.round(width * 0.011))}px Arial, sans-serif`;
     ctx.fillText('CREATED IN IZAKHONO GAMER STUDIO', width - Math.round(width * 0.035), height - Math.round(height * 0.025));
     ctx.textAlign = 'left';
-  }, [width, height, theme, gamerTag, team, message, background, facecam, chatBox, preset]);
+  }, [width, height, theme, gamerTag, team, message, sponsor, background, facecam, chatBox, preset]);
 
   const exportPng = () => {
     const canvas = canvasRef.current;
@@ -150,10 +228,32 @@ export default function GamerStudio() {
   return (
     <section className="gamer-studio" id="gamer-studio">
       <div className="suite-section-copy">
-        <span className="suite-eyebrow">GAMER STUDIO • $15/MONTH • WORKING V1</span>
+        <span className="suite-eyebrow">GAMER STUDIO • $15/MONTH • PROJECTS V1</span>
         <h2>Built for players, streamers and esports.</h2>
-        <p>The Gamer plan is USD $15/month and includes the full $5 Creative Suite plus Gamer Studio. Create stream overlays, gaming thumbnails, esports cards and vertical covers in-browser. The next gaming layer connects clips, highlights, emotes, team kits, sprites, textures, trailers and developer assets.</p>
+        <p>The Gamer plan is USD $15/month and includes the full $5 Creative Suite plus Gamer Studio. Build gaming creatives, save gamer/team presets on-device, move projects between machines with an open JSON project file, and export finished graphics without locking the work to one cloud.</p>
         <div className="gamer-price-band"><strong>$15</strong><span>USD / month • Creative Suite + Gamer Studio</span></div>
+      </div>
+
+      <div className="gamer-project-bar">
+        <div className="gamer-project-title">
+          <span>PROJECT</span>
+          <input value={projectName} maxLength={48} onChange={(e) => setProjectName(e.target.value)} aria-label="Project name" />
+        </div>
+        <div className="gamer-project-actions">
+          <button type="button" onClick={saveProject}>Save on device</button>
+          <button type="button" onClick={() => downloadProjectFile(currentProject())}>Export project</button>
+          <button type="button" onClick={() => importRef.current?.click()}>Import project</button>
+          <input ref={importRef} className="gamer-hidden-input" type="file" accept=".json,.izgamer.json,application/json" onChange={(e) => importProject(e.target.files?.[0])} />
+        </div>
+        <div className="gamer-saved-projects">
+          <select value={selectedSaved} onChange={(e) => setSelectedSaved(e.target.value)} aria-label="Saved gamer projects">
+            <option value="">Saved projects ({savedProjects.length})</option>
+            {savedProjects.map((item) => <option key={item.name} value={item.name}>{item.name}</option>)}
+          </select>
+          <button type="button" disabled={!selectedSaved} onClick={loadSelected}>Load</button>
+          <button type="button" disabled={!selectedSaved} onClick={removeSelected}>Delete</button>
+        </div>
+        <small>{projectNotice}</small>
       </div>
 
       <div className="gamer-grid">
@@ -163,9 +263,10 @@ export default function GamerStudio() {
           <label>Gamer tag<input value={gamerTag} maxLength={24} onChange={(e) => setGamerTag(e.target.value)} /></label>
           <label>Team / channel<input value={team} maxLength={34} onChange={(e) => setTeam(e.target.value)} /></label>
           <label>Message<input value={message} maxLength={48} onChange={(e) => setMessage(e.target.value)} /></label>
+          <label>Sponsor / partner<input value={sponsor} maxLength={28} placeholder="Optional sponsor" onChange={(e) => setSponsor(e.target.value)} /></label>
           <label className="suite-upload">
             <strong>Add gameplay / hero image</strong>
-            <span>Optional. The image stays local in this v1 editor.</span>
+            <span>Optional. The image stays local in this v1 editor and is not embedded in project files.</span>
             <input type="file" accept="image/*" onChange={(e) => loadImage(e.target.files?.[0], setBackground)} />
           </label>
           {preset === 'Stream Overlay' && <div className="gamer-toggles">
@@ -181,6 +282,7 @@ export default function GamerStudio() {
       </div>
 
       <div className="gamer-roadmap">
+        <article><b>PROJECTS</b><span>Portable project JSON plus up to 12 saved on-device gamer/team presets.</span></article>
         <article><b>STREAM</b><span>Scenes, overlays, alerts, facecam frames, chat panels and sponsor slots.</span></article>
         <article><b>CLIPS</b><span>Gameplay highlights, Shorts/Reels, captions, win moments and auto-resize.</span></article>
         <article><b>ESPORTS</b><span>Team identity, fixtures, score cards, player profiles, brackets and sponsor media.</span></article>
