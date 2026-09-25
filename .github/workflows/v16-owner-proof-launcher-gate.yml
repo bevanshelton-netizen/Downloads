@@ -1,0 +1,52 @@
+name: IZAKHONO v1.6 Owner Proof Launcher Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'owner-host/v16-proof/**'
+      - '.github/workflows/v16-owner-proof-launcher-gate.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'owner-host/v16-proof/**'
+      - '.github/workflows/v16-owner-proof-launcher-gate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Parse PowerShell launchers
+        shell: pwsh
+        run: |
+          $paths=@(
+            'owner-host/v16-proof/START-NODE01-V16-PRIMARY.ps1',
+            'owner-host/v16-proof/EXPORT-V16-SECONDARY-SEED.ps1',
+            'owner-host/v16-proof/PROVE-V16-DNS-REDUNDANCY.ps1'
+          )
+          foreach($path in $paths){
+            $tokens=$null; $errors=$null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $path),[ref]$tokens,[ref]$errors
+            ) | Out-Null
+            if($errors.Count -gt 0){
+              $errors | ForEach-Object { Write-Error "$path : $($_.Message)" }
+              exit 1
+            }
+          }
+      - name: Guard safe proof contract
+        shell: pwsh
+        run: |
+          $p=Get-Content 'owner-host/v16-proof/START-NODE01-V16-PRIMARY.ps1' -Raw
+          if($p -notmatch 'edge-test\.izakhonoafrica\.co\.za'){ throw 'safe test zone missing' }
+          if($p -notmatch 'Production DNS delegation remains LOCKED'){ throw 'production lock missing' }
+          $e=Get-Content 'owner-host/v16-proof/EXPORT-V16-SECONDARY-SEED.ps1' -Raw
+          if($e -notmatch 'V16-SECONDARY-SEED\.env\.enc'){ throw 'encrypted seed output missing' }
+          $d=Get-Content 'owner-host/v16-proof/PROVE-V16-DNS-REDUNDANCY.ps1' -Raw
+          if($d -notmatch '-TcpOnly'){ throw 'TCP DNS proof missing' }
