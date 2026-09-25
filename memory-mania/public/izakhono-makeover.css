@@ -1,0 +1,9 @@
+/* Memory Mania — International finishing layer */
+html{scroll-behavior:smooth}
+body{font-size:16px;line-height:1.6}
+.shell{max-width:1180px;padding:20px}
+.share,button,a{transition:transform .18s ease,box-shadow .18s ease}
+.share:hover,button:hover{transform:translateY(-2px)}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.share-panel{border-radius:30px}
+@media(max-width:600px){.shell{padding:14px}.topbar{padding-top:8px}.share-panel{border-radius:24px}}
