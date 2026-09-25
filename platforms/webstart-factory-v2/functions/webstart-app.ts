@@ -43,6 +43,8 @@ const html = `<!doctype html>
       <aside class="side">
         <div class="card"><div class="sectionTitle">Your websites</div><div id="siteList" class="siteList"></div><button class="btn primary" style="width:100%;margin-top:12px" onclick="newSite()">+ New website</button></div>
         <div class="card"><div class="sectionTitle">Leads</div><div id="leads"><span class="muted">No enquiries yet.</span></div></div>
+        <div class="card"><div class="sectionTitle">Hosting & renewals</div><div id="subscriptions"><span class="muted">No active service yet.</span></div></div>
+        <div class="card"><div class="sectionTitle">Subscription</div><div id="subscription"><span class="muted">No active hosting subscription yet.</span></div></div>
         <div class="card"><div class="sectionTitle">Orders</div><div id="orders"><span class="muted">No orders yet.</span></div></div>
         <div class="card"><div class="sectionTitle">Domains</div><div class="notice">Free WebStart hosted address is included. A custom domain is optional later.</div><div id="domains"><span class="muted">No custom domain requests.</span></div></div>
       </aside>
@@ -126,7 +128,7 @@ async function enterApp(){
   if(!session)return showAuth();
   const r=await afetch(SUPA+"/auth/v1/user",{method:"GET",headers:{"content-type":"application/json"}});
   if(!r||!r.ok){localStorage.removeItem("webstart_session");session=null;return showAuth()}
-  user=await r.json();show($("landing"),false);show($("authPanel"),false);show($("app"),true);show($("logoutBtn"),true);$("dashboardBtn").textContent="Dashboard";await Promise.all([loadSites(),loadLeads(),loadOrders(),loadDomains()])
+  user=await r.json();show($("landing"),false);show($("authPanel"),false);show($("app"),true);show($("logoutBtn"),true);$("dashboardBtn").textContent="Dashboard";await Promise.all([loadSites(),loadLeads(),loadSubscriptions(),loadOrders(),loadDomains()])
 }
 function logout(){localStorage.removeItem("webstart_session");session=null;user=null;selected=null;location.reload()}
 async function loadSites(){
@@ -190,8 +192,12 @@ async function publishSite(){
   if(!selected||!selected.id){message("Save and generate the website first.","error");return}
   message("Publishing and verifying the public site...");
   const r=await afetch(SUPA+"/functions/v1/webstart-publish",{method:"POST",body:JSON.stringify({site_id:selected.id})});
-  const d=await r.json();if(!r.ok){message(d.error||"Publish failed.","error");return}
-  window.IZGrowth?.track("cta_click",{cta:"site_published",plan:$("package").value,page:"webstart"});message("Verified live — HTTP "+(d.http_status||200)+". Opening the website...");await loadSites();window.open(d.url,"_blank","noopener")
+  const d=await r.json();
+  if(!r.ok){
+    if(r.status===402){message("Payment is required before public launch. Opening secure iKhokha checkout...","warn");await createOrder("initial");return}
+    message(d.error||"Publish failed.","error");return
+  }
+  message("Verified live — HTTP "+(d.http_status||200)+". Opening the website...");await Promise.all([loadSites(),loadSubscription()]);window.open(d.url,"_blank","noopener")
 }
 async function uploadAsset(kind){
   if(!selected||!selected.id){if(!(await saveSite()))return}
@@ -205,19 +211,35 @@ async function uploadAsset(kind){
   const u=await afetch(SUPA+"/rest/v1/sites?id=eq."+encodeURIComponent(selected.id),{method:"PATCH",headers:{prefer:"return=representation"},body:JSON.stringify(patch)});
   const d=await u.json();if(u.ok){selected=d[0];message(kind==="logo"?"Logo uploaded.":"Hero image uploaded.");await loadSites()}else message("Could not attach image.","error")
 }
-async function createOrder(){
+async function createOrder(billingType){
   if(!selected||!selected.id){message("Save the website first.","error");return}
-  window.IZGrowth?.track("checkout_started",{plan:$("package").value,page:"webstart"});message("Creating secure iKhokha checkout...");
-  const r=await afetch(SUPA+"/functions/v1/webstart-checkout",{method:"POST",body:JSON.stringify({site_id:selected.id,package:$("package").value})});
+  const type=billingType==="renewal"?"renewal":"initial";
+  message(type==="renewal"?"Creating monthly renewal checkout...":"Creating secure iKhokha checkout...");
+  const r=await afetch(SUPA+"/functions/v1/webstart-checkout",{method:"POST",body:JSON.stringify({site_id:selected.id,package:$("package").value,billing_type:type})});
   const d=await r.json();
   if(!r.ok){
-    if(d.setup_required){message("iKhokha API credentials still need to be installed in WebStart before live checkout can open.","warn")}
-    else{message(d.error||"Could not create secure checkout.","error")}
+    if(d.setup_required)message("iKhokha API credentials still need to be installed before live checkout can open.","warn");
+    else message(d.error||"Could not create secure checkout.","error");
     await loadOrders();return
   }
-  message("Secure checkout created. Opening iKhokha...");
+  message(type==="renewal"?"Monthly renewal link created. Opening iKhokha...":"Secure checkout created. Opening iKhokha...");
   if(d.checkout_url)window.open(d.checkout_url,"_blank","noopener");
   await loadOrders()
+}
+async function loadSubscription(){
+  if(!user)return;
+  const r=await afetch(SUPA+"/rest/v1/webstart_subscriptions?select=*&order=updated_at.desc&limit=20",{method:"GET"});
+  if(!r||!r.ok)return;
+  const rows=await r.json(),box=$("subscription");box.innerHTML="";
+  const sub=selected?rows.find(x=>x.site_id===selected.id):rows[0];
+  if(!sub){box.innerHTML="<span class='muted'>No active hosting subscription yet.</span>";return}
+  const wrap=document.createElement("div");
+  const name=sites.find(s=>s.id===sub.site_id)?.name||"Website";
+  const title=document.createElement("strong");title.textContent=name+" · "+sub.package;
+  const meta=document.createElement("div");meta.className="muted";meta.textContent="Status: "+sub.status+" · Next renewal: "+(sub.next_due_at?new Date(sub.next_due_at).toLocaleDateString():"not set");
+  const price=document.createElement("div");price.className="muted";price.textContent="R"+(sub.monthly_cents/100).toLocaleString()+"/month";
+  const btn=document.createElement("button");btn.className="btn soft";btn.style.marginTop="10px";btn.textContent="Renew hosting";btn.onclick=()=>createOrder("renewal");
+  wrap.append(title,meta,price,btn);box.appendChild(wrap)
 }
 async function loadLeads(){
   if(!user)return;
@@ -240,6 +262,34 @@ async function loadLeads(){
 async function updateLead(id,status){
   const r=await afetch(SUPA+"/rest/v1/webstart_leads?id=eq."+encodeURIComponent(id),{method:"PATCH",headers:{prefer:"return=minimal"},body:JSON.stringify({status})});
   if(r&&r.ok){message("Lead marked "+status+".");await loadLeads()}else message("Could not update lead.","error")
+}
+async function loadSubscriptions(){
+  if(!user)return;
+  const r=await afetch(SUPA+"/rest/v1/webstart_subscriptions?select=id,site_id,package,monthly_cents,status,current_period_end,next_due_at&order=created_at.desc",{method:"GET"});
+  if(!r||!r.ok)return;
+  const rows=await r.json(),box=$("subscriptions");box.innerHTML="";
+  if(!rows.length){box.innerHTML="<span class='muted'>No active service yet.</span>";return}
+  rows.forEach(s=>{
+    const site=sites.find(x=>x.id===s.site_id);
+    const d=document.createElement("div");d.className="orderRow";
+    const st=document.createElement("strong");st.textContent=(site?.name||"Website")+" · "+s.package;
+    const meta=document.createElement("div");meta.className="muted";
+    const due=s.next_due_at?new Date(s.next_due_at).toLocaleDateString():"—";
+    meta.textContent="R"+(Number(s.monthly_cents||0)/100).toLocaleString()+"/month · "+s.status+" · next due "+due;
+    const b=document.createElement("button");b.className="btn soft";b.style.marginTop="8px";b.textContent="Pay next month";b.onclick=()=>createRenewal(s);
+    d.append(st,meta,b);box.appendChild(d)
+  })
+}
+async function createRenewal(subscription){
+  const site=sites.find(x=>x.id===subscription.site_id);
+  if(!site){message("Website not found for this renewal.","error");return}
+  message("Creating monthly renewal checkout...");
+  const r=await afetch(SUPA+"/functions/v1/webstart-checkout",{method:"POST",body:JSON.stringify({site_id:site.id,package:subscription.package,billing_type:"renewal"})});
+  const d=await r.json();
+  if(!r.ok){message(d.error||"Could not create renewal checkout.","error");return}
+  if(d.checkout_url)window.open(d.checkout_url,"_blank","noopener");
+  message("Renewal checkout created securely.");
+  await Promise.all([loadSubscriptions(),loadOrders()])
 }
 async function loadOrders(){
   if(!user)return;const r=await afetch(SUPA+"/rest/v1/orders?select=*&order=created_at.desc&limit=10",{method:"GET"});if(!r||!r.ok)return;const rows=await r.json(),box=$("orders");box.innerHTML="";
