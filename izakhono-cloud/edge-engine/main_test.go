@@ -75,3 +75,16 @@ func TestACMEChallengeUsesOwnedWebroot(t *testing.T) {
 	rec := httptest.NewRecorder(); e.serveHTTP(rec, req)
 	if rec.Code != 200 || strings.TrimSpace(rec.Body.String()) != "proof" { t.Fatalf("status=%d body=%q", rec.Code, rec.Body.String()) }
 }
+
+func TestACMEChallengeRejectsUnknownHost(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(dir+"/token123", []byte("proof"), 0600); err != nil { t.Fatal(err) }
+	c := validConfig("http://127.0.0.1:18080")
+	c.ACMEWebroot = dir
+	e, _ := newEngine(c)
+	req := httptest.NewRequest(http.MethodGet, "http://other.example.test/.well-known/acme-challenge/token123", nil)
+	req.Host = "other.example.test"
+	rec := httptest.NewRecorder()
+	e.serveHTTP(rec, req)
+	if rec.Code != http.StatusNotFound { t.Fatalf("got %d", rec.Code) }
+}
