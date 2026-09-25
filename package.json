@@ -1,15 +1,15 @@
 {
   "name": "videonomy",
-  "version": "0.3.0",
+  "version": "1.0.0-rc.1",
   "private": true,
   "scripts": {
-    "typecheck": "tsc --noEmit --target ES2022 --lib ES2022,DOM,DOM.Iterable --module ESNext src/index.ts src/payfast.ts",
+    "typecheck": "tsc --noEmit --target ES2022 --lib ES2022,DOM,DOM.Iterable --module ESNext src/index.ts src/payfast.ts src/ikhokha.ts",
     "dev": "wrangler dev",
     "deploy:first": "wrangler deploy",
     "db:migrate": "wrangler d1 migrations apply DB --remote",
     "deploy": "wrangler deploy && wrangler d1 migrations apply DB --remote && wrangler deploy",
     "test:package": "python -m unittest discover -s tests -v",
-    "typecheck:payments": "tsc --noEmit --target ES2022 --lib ES2022,DOM,DOM.Iterable --module ESNext src/payfast.ts"
+    "typecheck:payments": "tsc --noEmit --target ES2022 --lib ES2022,DOM,DOM.Iterable --module ESNext src/payfast.ts src/ikhokha.ts"
   },
   "devDependencies": {
     "typescript": "5.9.2",
