@@ -11,6 +11,8 @@ on:
       - 'izakhono-cloud/ISN-01-ACTIVATION.md'
       - 'izakhono-cloud/ACTIVATE-ISN-01-WINDOWS.ps1'
       - 'izakhono-cloud/sovereign-runtime.py'
+      - 'izakhono-cloud/edge-engine/**'
+      - 'izakhono-cloud/OWNED-EDGE-ENGINE.md'
       - 'START-ISN-01.cmd'
       - 'FAISReady/.izakhono.json'
       - 'FAISReady/Dockerfile'
@@ -52,6 +54,15 @@ jobs:
           python3 -m py_compile control/izakhono-cloud/build-kora-owner-handoff.py
           python3 -m py_compile control/izakhono-cloud/activate-isn-01.py
           python3 -m py_compile control/izakhono-cloud/sovereign-runtime.py
+
+      - name: Build and test IZAKHONO owned edge engine
+        run: |
+          cd control/izakhono-cloud/edge-engine
+          go test ./...
+          go vet ./...
+          go build -trimpath -ldflags="-s -w" -o /tmp/izakhono-edge-engine .
+          test -x /tmp/izakhono-edge-engine
+          echo "IZAKHONO OWNED EDGE ENGINE: PASS"
 
       - name: Prove Racing through consolidated path
         run: |
