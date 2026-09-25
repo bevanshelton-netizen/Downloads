@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS comments (
   platform_id TEXT NOT NULL REFERENCES platforms(id) ON DELETE CASCADE,
   video_id TEXT NOT NULL REFERENCES videos(id) ON DELETE CASCADE,
   viewer_session_id TEXT NOT NULL REFERENCES viewer_sessions(id) ON DELETE CASCADE,
+  display_name TEXT NOT NULL DEFAULT 'Viewer',
   body TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'visible' CHECK (status IN ('visible','held','blocked','deleted')),
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
