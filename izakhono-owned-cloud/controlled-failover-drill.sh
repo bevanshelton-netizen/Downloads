@@ -48,6 +48,8 @@ const plan={
     "Revalidate three distinct hosts and live witness enforcement",
     "Fence primary by stopping EDGE and RUNTIME",
     "Wait for standby RUNTIME and EDGE to acquire the same newer witness fencing token",
+    "Promote the verified staged recovery image into live standby state using the reversible transaction",
+    "Verify promoted state health and exact witness fencing token",
     "Invoke trusted route-switch script toward standby",
     "Verify standby read health and protected-write authority",
     "Write failover-drill evidence report",
@@ -128,12 +130,16 @@ process.stdout.write(String(ok));
 
 ROUTE_SWITCHED=0
 FENCED=0
+STATE_PROMOTED=0
 recover_pre_route(){
   code=$?
   if [ "$code" -eq 0 ]; then return; fi
   if [ "$ROUTE_SWITCHED" -eq 0 ] && [ "$FENCED" -eq 1 ]; then
     echo "Drill failed before route switch. Attempting conservative recovery to original primary..."
     remote "$STANDBY" "sudo -n systemctl stop izakhono-edge-node izakhono-runtime-node" >/dev/null 2>&1 || true
+    if [ "$STATE_PROMOTED" -eq 1 ]; then
+      remote "$STANDBY" "sudo -n systemctl stop izakhono-data-node izakhono-object-node izakhono-queue-node izakhono-auth-node izakhono-analytics-node izakhono-notify-node izakhono-ai-gateway-node izakhono-code-node izakhono-backup-node" >/dev/null 2>&1 || true
+    fi
     remote "$PRIMARY" "sudo -n systemctl start izakhono-runtime-node izakhono-edge-node" >/dev/null 2>&1 || true
   else
     echo "Drill stopped after route switch or before fencing state was known. No automatic failback attempted."
@@ -164,6 +170,53 @@ done
 [ -n "$NEW_TOKEN" ] || { echo "Standby did not acquire matching newer witness authority. Route remains unchanged."; exit 18; }
 echo "Standby leadership verified with fencing token $NEW_TOKEN."
 
+echo "Promoting verified staged recovery state before any route change..."
+PROMOTION_OUTPUT="$(remote "$STANDBY" "sudo -n env IZAKHONO_STANDBY_PROMOTION_CONFIRM=PROMOTE-STAGED-STATE IZAKHONO_PROMOTION_PREVIOUS_TOKEN='$PRIMARY_TOKEN' IZAKHONO_PROMOTION_CURRENT_TOKEN='$NEW_TOKEN' bash /opt/izakhono-owned-cloud/promote-standby-state.sh execute")" || {
+  echo "Standby live-state promotion failed. Route remains unchanged."
+  exit 19
+}
+STATE_PROMOTED=1
+
+PROMOTION_PROOF="$(remote "$STANDBY" "sudo -n cat /var/lib/izakhono-deploy/proofs/standby-state-promoted.json")" || {
+  echo "Standby promotion proof missing after promotion."
+  exit 20
+}
+PROMOTION_OK="$(PROMOTION_PROOF="$PROMOTION_PROOF" OLD="$PRIMARY_TOKEN" NEW="$NEW_TOKEN" node -e '
+const x=JSON.parse(process.env.PROMOTION_PROOF),old=Number(process.env.OLD),now=Number(process.env.NEW);
+const ok=x.status==="PASS"
+  && x.state==="LIVE_STATE_PROMOTED"
+  && x.fencing?.previous_primary_token===old
+  && x.fencing?.standby_token===now
+  && x.fencing?.monotonic===true
+  && x.backup_encryption_lineage_preserved===true
+  && x.node_specific_runtime_state_preserved===true
+  && x.dns_changed===false
+  && x.public_route_changed===false;
+process.stdout.write(String(ok));
+')"
+[ "$PROMOTION_OK" = "true" ] || {
+  echo "Standby promotion proof does not match this failover authority."
+  exit 21
+}
+
+SR="$(health "$STANDBY" http://127.0.0.1:8790/health)"
+SE="$(health "$STANDBY" http://127.0.0.1:8795/health)"
+PROMOTED_AUTHORITY_OK="$(R="$SR" E="$SE" T="$NEW_TOKEN" node -e '
+const r=JSON.parse(process.env.R),e=JSON.parse(process.env.E),t=Number(process.env.T);
+const ok=r.witness?.leaseValid===true
+  && e.witness?.leaseValid===true
+  && r.witness?.receiptVerified===true
+  && e.witness?.receiptVerified===true
+  && Number(r.witness?.fencingToken)===t
+  && Number(e.witness?.fencingToken)===t;
+process.stdout.write(String(ok));
+')"
+[ "$PROMOTED_AUTHORITY_OK" = "true" ] || {
+  echo "Standby lost verified WITNESS authority during state promotion."
+  exit 22
+}
+echo "Standby live state promoted and verified for fencing token $NEW_TOKEN."
+
 IZAKHONO_FAILOVER_TARGET=standby IZAKHONO_FAILOVER_FENCING_TOKEN="$NEW_TOKEN" IZAKHONO_FAILOVER_PREVIOUS_TOKEN="$PRIMARY_TOKEN" "$ROUTE_SCRIPT"
 ROUTE_SWITCHED=1
 
@@ -174,7 +227,7 @@ const r=JSON.parse(process.env.R),e=JSON.parse(process.env.E),t=Number(process.e
 const ok=r.witness?.leaseValid===true&&e.witness?.leaseValid===true&&Number(r.witness?.fencingToken)===t&&Number(e.witness?.fencingToken)===t;
 process.stdout.write(String(ok));
 ')"
-[ "$FINAL_OK" = "true" ] || { echo "Standby lost authority after route switch."; exit 19; }
+[ "$FINAL_OK" = "true" ] || { echo "Standby lost authority after route switch."; exit 23; }
 
 PRIMARY_HASH="$(printf '%s' "$PM" | sha256sum | awk '{print $1}')"
 STANDBY_HASH="$(printf '%s' "$SM" | sha256sum | awk '{print $1}')"
@@ -189,10 +242,12 @@ const report={
   route_switched:true,
   primary_fenced:true,
   automatic_failback:false,
+  state_promoted_before_route:true,
+  promotion_proof:"/var/lib/izakhono-deploy/proofs/standby-state-promoted.json",
   cluster_id:p.clusterId,
   fencing:{previous:Number(process.env.OLD_TOKEN),active:Number(process.env.NEW_TOKEN),monotonic:Number(process.env.NEW_TOKEN)>Number(process.env.OLD_TOKEN)},
   failure_domains:{primary_machine_sha256:process.env.PRIMARY_HASH,standby_machine_sha256:process.env.STANDBY_HASH,witness_machine_sha256:process.env.WITNESS_HASH,distinct:true},
-  next_gate:"EXPLICIT_CONTROLLED_FAILBACK",
+  next_gate:"DATA_SAFE_RECONCILED_FAILBACK",
   completed_at:new Date().toISOString()
 };
 process.stdout.write(JSON.stringify(report,null,2)+"\n");
@@ -201,6 +256,7 @@ chmod 0600 "$REPORT"
 trap - EXIT
 
 echo "IZAKHONO CONTROLLED FAILOVER DRILL: PASS"
-echo "Standby is active."
+echo "Standby is active with promoted verified state."
 echo "Automatic failback: OFF"
+echo "Data-safe reconciled failback: REQUIRED after production writes"
 echo "Report: $REPORT"
