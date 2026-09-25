@@ -31,7 +31,9 @@ jobs:
           test "$HTTP" = "200"
           grep -q "izakhono-one-founding-promo" /tmp/page.html
           grep -q "Founding 1,000" /tmp/page.html
-          grep -q "izakhono-one-public?campaign=owned-$SURFACE" /tmp/page.html
+          grep -q "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-public" /tmp/page.html
+          ! grep -q "izakhono-one-public?campaign=" /tmp/page.html
+          ! grep -q "izakhono-one-public?ref=" /tmp/page.html
 
   verify-growth-registry:
     runs-on: ubuntu-latest
@@ -43,4 +45,6 @@ jobs:
           echo "$PAGE" | grep -q "Founding 1,000"
           STATUS="$(curl -fsSL --max-time 20 https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-interest)"
           echo "$STATUS"
-          node -e 'const x=JSON.parse(process.argv[1]); if(x.campaign!=="Founding 1,000"||x.behaviouralTracking!==false) process.exit(2)' "$STATUS"
+          node -e 'const x=JSON.parse(process.argv[1]); if(x.program!=="Founding 1,000"||x.tracking!==false||x.referralAttribution!==false||x.campaignAttribution!==false) process.exit(2)' "$STATUS"
+          echo "$PAGE" | grep -q "No personal referral ID or campaign-attribution code is created"
+          echo "$PAGE" | grep -q "No attribution machinery hiding behind the invitation"
