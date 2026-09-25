@@ -379,6 +379,24 @@ async function handleApi(req: Request, env: Env, url: URL): Promise<Response> {
     const qualified = await env.DB.prepare(`SELECT COUNT(*) AS total FROM watch_sessions WHERE platform_id=? AND qualified=1`).bind(p.id).first<any>();
     return json(req, env, { ok: true, leads: leads.results || [], active_creators: Number(creators?.total || 0), published_videos: Number(videos?.total || 0), qualified_views: Number(qualified?.total || 0) });
   }
+  if (url.pathname === '/api/admin/creators' && req.method === 'GET') {
+    if(!isAdmin(req,env)) return fail(req,env,'Forbidden',403);
+    const rows=await env.DB.prepare(`SELECT c.id,c.display_name,c.handle,c.email,c.status,
+      pp.provider AS payout_provider,pp.display_label AS payout_label,pp.status AS payout_profile_status,
+      COALESCE((SELECT COUNT(*) FROM follows f WHERE f.creator_id=c.id),0) AS followers
+      FROM creators c LEFT JOIN payout_profiles pp ON pp.creator_id=c.id
+      WHERE c.status!='closed' ORDER BY c.created_at DESC LIMIT 250`).all<any>();
+    return json(req,env,{ok:true,creators:rows.results||[]});
+  }
+  if (url.pathname === '/api/admin/ledger' && req.method === 'GET') {
+    if(!isAdmin(req,env)) return fail(req,env,'Forbidden',403);
+    const status=cleanText(url.searchParams.get('status')||'pending',20);
+    if(!['pending','available','paid','reversed'].includes(status)) return fail(req,env,'Invalid ledger status');
+    const rows=await env.DB.prepare(`SELECT le.id,le.creator_id,c.display_name,c.handle,le.video_id,le.currency,le.gross_minor,le.external_cost_minor,le.creator_minor,le.platform_minor,le.source,le.status,le.creator_payment_id,le.created_at
+      FROM ledger_entries le JOIN creators c ON c.id=le.creator_id
+      WHERE le.status=? ORDER BY le.created_at ASC LIMIT 250`).bind(status).all<any>();
+    return json(req,env,{ok:true,entries:rows.results||[]});
+  }
   if (url.pathname === '/api/admin/payouts' && req.method === 'GET') {
     if(!isAdmin(req,env)) return fail(req,env,'Forbidden',403);
     const rows=await env.DB.prepare(`SELECT pr.id,pr.creator_id,c.display_name,c.handle,pr.currency,pr.amount_minor,pr.status,pr.admin_notes,pr.requested_at,pr.processed_at,
