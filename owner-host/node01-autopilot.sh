@@ -24,6 +24,7 @@ for c in git node curl flock systemctl; do need "$c"; done
 started="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 source_state="UNKNOWN"
 agent_state="NOT_RUN"
+one_agent_state="NOT_RUN"
 runner_state="NOT_CONFIGURED"
 local_one="NOT_VERIFIED"
 owned_edge="NOT_ATTEMPTED"
@@ -62,6 +63,27 @@ else
     fi
   else
     agent_state="EXIT_$agent_exit"
+  fi
+
+  ONE_CONTROL="$ROOT/owner-host/control/one-desired-state.json"
+  if [ -f "$ONE_CONTROL" ]; then
+    set +e
+    IZAKHONO_OWNER_CONTROL_PATH="owner-host/control/one-desired-state.json" \
+    IZAKHONO_OWNER_AGENT_STATE_FILE="/var/lib/izakhono-owner-agent/one-state.json" \
+      bash "$ROOT/owner-host/owner-agent.sh"
+    one_agent_exit=$?
+    set -e
+    if [ "$one_agent_exit" -eq 0 ]; then
+      if [ -s /var/lib/izakhono-owner-agent/one-state.json ]; then
+        one_agent_state="$(node -e 'try{const x=require(process.argv[1]);process.stdout.write(String(x.status||"UNKNOWN"))}catch{process.stdout.write("UNKNOWN")}' /var/lib/izakhono-owner-agent/one-state.json)"
+      else
+        one_agent_state="IDLE_OR_NO_RECEIPT"
+      fi
+    else
+      one_agent_state="EXIT_$one_agent_exit"
+    fi
+  else
+    one_agent_state="CONTROL_MISSING"
   fi
 
   CRM_CONTROL="$ROOT/owner-host/control/crm-v020-desired-state.json"
@@ -189,9 +211,9 @@ fi
 
 ended="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 commit="$(git -C "$ROOT" rev-parse HEAD 2>/dev/null || true)"
-node - "$REPORT" "$started" "$ended" "$commit" "$source_state" "$agent_state" "$runner_state" "$crm_v020" "$crm_v020_exit" "$crm_notify" "$crm_notify_exit" "$local_one" "$owned_edge" "$owned_edge_exit" "$public_https" "$drop01_watch" "$drop01_watch_exit" <<'NODE'
+node - "$REPORT" "$started" "$ended" "$commit" "$source_state" "$agent_state" "$one_agent_state" "$runner_state" "$crm_v020" "$crm_v020_exit" "$crm_notify" "$crm_notify_exit" "$local_one" "$owned_edge" "$owned_edge_exit" "$public_https" "$drop01_watch" "$drop01_watch_exit" <<'NODE'
 const fs=require('fs');
-const [path,started,ended,commit,source,agent,runner,crmV020,crmV020Exit,crmNotify,crmNotifyExit,localOne,edge,edgeExit,publicHttps,drop01Watch,drop01WatchExit]=process.argv.slice(2);
+const [path,started,ended,commit,source,agent,oneAgent,runner,crmV020,crmV020Exit,crmNotify,crmNotifyExit,localOne,edge,edgeExit,publicHttps,drop01Watch,drop01WatchExit]=process.argv.slice(2);
 fs.writeFileSync(path,JSON.stringify({
   schema:'izakhono.node01-autopilot/v1',
   node:'NODE01',
@@ -199,6 +221,9 @@ fs.writeFileSync(path,JSON.stringify({
   source_commit:commit||null,
   source_state:source,
   owner_agent:agent,
+  one_owner_agent:oneAgent,
+  authority_role:'NODE01',
+  execution_class:'IZAKHONO_SOVEREIGN_NODE',
   github_runner:runner,
   crm_v020_deployment:crmV020,
   crm_v020_exit:Number(crmV020Exit),
@@ -223,6 +248,9 @@ chmod 0600 "$REPORT"
 echo "IZAKHONO NODE01 AUTOPILOT"
 echo "SOURCE=$source_state"
 echo "OWNER_AGENT=$agent_state"
+echo "ONE_OWNER_AGENT=$one_agent_state"
+echo "AUTHORITY_ROLE=NODE01"
+echo "EXECUTION_CLASS=IZAKHONO_SOVEREIGN_NODE"
 echo "GITHUB_RUNNER=$runner_state"
 echo "CRM_V020=$crm_v020"
 echo "CRM_V020_NOTIFY=$crm_notify"
