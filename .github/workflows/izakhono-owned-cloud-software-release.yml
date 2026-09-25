@@ -35,42 +35,68 @@ jobs:
   node-self-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        service:
-          - izakhono-data-node
-          - izakhono-runtime-node
-          - izakhono-edge-node
-          - izakhono-object-node
-          - izakhono-queue-node
-          - izakhono-auth-node
-          - izakhono-analytics-node
-          - izakhono-notify-node
-          - izakhono-ai-gateway-node
-          - izakhono-gpu-compute-node
-          - izakhono-model-worker-node
-          - izakhono-mail-relay-adapter
-          - izakhono-code-node
-          - izakhono-backup-node
-          - izakhono-ci-worker-node
-          - izakhono-replica-node
-          - izakhono-dns-node
-          - izakhono-package-node
-          - izakhono-failover-node
-          - izakhono-witness-node
-    defaults:
-      run:
-        working-directory: ${{ matrix.service }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22.22.3
-      - name: Verify zero runtime dependencies
-        run: test "$(node -e 'console.log(Object.keys(require("./package.json").dependencies||{}).length)')" = "0"
-      - name: Run service self-test
-        run: npm run check
+      - name: Run all owned-cloud service self-tests concurrently
+        shell: bash
+        run: |
+          set -u
+          services=(
+            izakhono-data-node
+            izakhono-runtime-node
+            izakhono-edge-node
+            izakhono-object-node
+            izakhono-queue-node
+            izakhono-auth-node
+            izakhono-analytics-node
+            izakhono-notify-node
+            izakhono-ai-gateway-node
+            izakhono-gpu-compute-node
+            izakhono-model-worker-node
+            izakhono-mail-relay-adapter
+            izakhono-code-node
+            izakhono-backup-node
+            izakhono-ci-worker-node
+            izakhono-replica-node
+            izakhono-dns-node
+            izakhono-package-node
+            izakhono-failover-node
+            izakhono-witness-node
+          )
+
+          declare -A pids
+          mkdir -p /tmp/izakhono-self-tests
+
+          for service in "${services[@]}"; do
+            (
+              set -euo pipefail
+              cd "$service"
+              test "$(node -e 'console.log(Object.keys(require("./package.json").dependencies||{}).length)')" = "0"
+              npm run check
+            ) >"/tmp/izakhono-self-tests/$service.log" 2>&1 &
+            pids["$service"]=$!
+            echo "STARTED $service pid=${pids[$service]}"
+          done
+
+          failed=0
+          for service in "${services[@]}"; do
+            if wait "${pids[$service]}"; then
+              echo "PASS $service"
+            else
+              echo "::error title=$service self-test failed::See grouped log below"
+              echo "::group::$service failure log"
+              cat "/tmp/izakhono-self-tests/$service.log"
+              echo "::endgroup::"
+              failed=1
+            fi
+          done
+
+          echo "TOTAL_SERVICES=${#services[@]}"
+          echo "FAILED=$failed"
+          exit "$failed"
 
   growth-os-build:
     runs-on: ubuntu-latest
