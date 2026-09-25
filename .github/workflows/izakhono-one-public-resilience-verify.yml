@@ -67,6 +67,8 @@ jobs:
           CONTROL='https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-control'
           CONTROL_HEALTH="${CONTROL}?health=1"
           PUBLIC='https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-public'
+          PUBLIC_HEALTH="${PUBLIC}?health=1"
+          INTEREST='https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-interest'
 
           hub_code="$(curl -sSL --max-time 20 -D /tmp/one-hub.h -o /tmp/one-hub.html -w '%{http_code}' "$HUB" || true)"
           hub_health_code="$(curl -sSL --max-time 20 -o /tmp/one-hub-health.json -w '%{http_code}' "$HUB_HEALTH" || true)"
@@ -75,8 +77,10 @@ jobs:
           control_code="$(curl -sSL --max-time 20 -D /tmp/one-control.h -o /tmp/one-control.html -w '%{http_code}' "$CONTROL" || true)"
           control_health_code="$(curl -sSL --max-time 20 -o /tmp/one-control-health.json -w '%{http_code}' "$CONTROL_HEALTH" || true)"
           public_code="$(curl -sSL --max-time 20 -D /tmp/one-public.h -o /tmp/one-public.html -w '%{http_code}' "$PUBLIC" || true)"
+          public_health_code="$(curl -sSL --max-time 20 -o /tmp/one-public-health.json -w '%{http_code}' "$PUBLIC_HEALTH" || true)"
+          interest_code="$(curl -sSL --max-time 20 -o /tmp/one-interest.json -w '%{http_code}' "$INTEREST" || true)"
 
-          echo "hub=$hub_code hub_health=$hub_health_code device=$device_code device_health=$device_health_code control=$control_code control_health=$control_health_code public=$public_code"
+          echo "hub=$hub_code hub_health=$hub_health_code device=$device_code device_health=$device_health_code control=$control_code control_health=$control_health_code public=$public_code public_health=$public_health_code interest=$interest_code"
 
           test "$hub_code" = '200'
           test "$hub_health_code" = '200'
@@ -85,6 +89,8 @@ jobs:
           test "$control_code" = '200'
           test "$control_health_code" = '200'
           test "$public_code" = '200'
+          test "$public_health_code" = '200'
+          test "$interest_code" = '200'
 
           node - <<'NODE'
           const fs=require('fs');
@@ -96,14 +102,17 @@ jobs:
           const h=JSON.parse(fs.readFileSync('/tmp/one-hub-health.json','utf8'));
           if(h.ok!==true||h.product!=='IZAKHONO ONE'||h.route!=='external-resilience'||h.public_hub!==true) process.exit(12);
           if(h.tracking!==false||h.behavioural_profiling!==false||h.advertising_ids!==false||h.referral_attribution!==false) process.exit(13);
-          if(h.owned_authority!=='NODE 01') process.exit(14);
+          if(h.one_ai_chat!==true||h.one_ai_route!=='external-device-ai'||h.owned_server_ai!==false) process.exit(14);
+          if(h.owned_authority!=='NODE 01') process.exit(15);
 
           const device=fs.readFileSync('/tmp/one-device.html','utf8');
-          if(!/^<!doctype html>/i.test(device)||!device.includes('IZAKHONO ONE')||!device.includes('Device AI')) process.exit(20);
-          if(forbidden.test(device)) process.exit(21);
+          if(!/^<!doctype html>/i.test(device)||!device.includes('IZAKHONO ONE')||!device.includes('ONE AI is usable now.')) process.exit(20);
+          if(!device.includes('@mlc-ai/web-llm@0.2.85')||!device.includes('SmolLM2-1.7B-Instruct-q4f16_1-MLC')||!device.includes('Llama-3.2-3B-Instruct-q4f16_1-MLC')) process.exit(21);
+          if(forbidden.test(device)) process.exit(22);
           const d=JSON.parse(fs.readFileSync('/tmp/one-device-health.json','utf8'));
-          if(d.ok!==true||d.product!=='IZAKHONO ONE Device AI'||d.route!=='external-device-ai') process.exit(22);
-          if(d.prompt_transport!=='device-local'||d.server_prompt_persistence!==false||d.tracking!==false||d.owned_authority!=='NODE 01') process.exit(23);
+          if(d.ok!==true||d.product!=='IZAKHONO ONE AI'||d.route!=='external-device-ai'||d.runtime!=='webllm@0.2.85') process.exit(23);
+          if(!Array.isArray(d.model_tiers)||d.model_tiers.length!==3) process.exit(24);
+          if(d.prompt_transport!=='device-local'||d.server_prompt_persistence!==false||d.tracking!==false||d.referral_attribution!==false||d.owned_server_ai!==false||d.owned_authority!=='NODE 01') process.exit(25);
 
           const control=fs.readFileSync('/tmp/one-control.html','utf8');
           if(!/^<!doctype html>/i.test(control)||!control.includes('IZAKHONO ONE')||!control.includes('CONTROL')) process.exit(30);
@@ -113,8 +122,12 @@ jobs:
           if(c.tracking!==false||c.behavioural_profiling!==false||c.advertising_ids!==false||c.referral_attribution!==false||c.owned_authority!=='NODE 01') process.exit(33);
 
           const pub=fs.readFileSync('/tmp/one-public.html','utf8');
-          if(!/^<!doctype html>/i.test(pub)||!pub.includes('IZAKHONO ONE')||!pub.includes('Founding 1,000')||!pub.includes('ONE AI owned runtime activating')) process.exit(40);
-          if(forbidden.test(pub)) process.exit(41);
+          if(!/^<!doctype html>/i.test(pub)||!pub.includes('IZAKHONO ONE')||!pub.includes('Founding 1,000')||!pub.includes('No personal referral ID or campaign-attribution code is created.')) process.exit(40);
+          if(forbidden.test(pub)||/\?ref=|campaign=|referralCode|personalInvite/i.test(pub)) process.exit(41);
+          const ph=JSON.parse(fs.readFileSync('/tmp/one-public-health.json','utf8'));
+          if(ph.ok!==true||ph.tracking!==false||ph.referralAttribution!==false||ph.campaignAttribution!==false||ph.ownedAuthority!=='NODE 01') process.exit(42);
+          const interest=JSON.parse(fs.readFileSync('/tmp/one-interest.json','utf8'));
+          if(interest.tracking!==false||interest.referralAttribution!==false||interest.campaignAttribution!==false) process.exit(43);
           NODE
 
           echo 'IZAKHONO ONE EXTERNAL RESILIENCE ROUTE: VERIFIED LIVE'
