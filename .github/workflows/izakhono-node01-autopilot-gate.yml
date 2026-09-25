@@ -1,0 +1,57 @@
+name: IZAKHONO NODE01 Autopilot Gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'owner-host/node01-autopilot.sh'
+      - 'owner-host/INSTALL-IZAKHONO-NODE01-AUTOPILOT.ps1'
+      - 'START-IZAKHONO-NODE01-AUTOPILOT.cmd'
+      - '.github/workflows/izakhono-node01-autopilot-gate.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'owner-host/node01-autopilot.sh'
+      - 'owner-host/INSTALL-IZAKHONO-NODE01-AUTOPILOT.ps1'
+      - 'START-IZAKHONO-NODE01-AUTOPILOT.cmd'
+      - '.github/workflows/izakhono-node01-autopilot-gate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate fail-closed NODE01 autopilot
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n owner-host/node01-autopilot.sh
+          grep -q 'owner-agent.sh' owner-host/node01-autopilot.sh
+          grep -q 'activate-owned-public-edge.sh' owner-host/node01-autopilot.sh
+          grep -q 'live_claim:false' owner-host/node01-autopilot.sh
+          grep -q 'independent_https_verification_required:true' owner-host/node01-autopilot.sh
+          grep -q 'external_resilience_preserved:true' owner-host/node01-autopilot.sh
+          grep -q 'tracking:false' owner-host/node01-autopilot.sh
+          ! grep -Eq 'curl .* -X (POST|PUT|PATCH|DELETE).*github' owner-host/node01-autopilot.sh
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Windows scheduled autopilot
+        shell: pwsh
+        run: |
+          $p='owner-host/INSTALL-IZAKHONO-NODE01-AUTOPILOT.ps1'
+          $tokens=$null; $errors=$null
+          [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $p),[ref]$tokens,[ref]$errors) | Out-Null
+          if($errors.Count -gt 0){ $errors | ForEach-Object { Write-Error $_.Message }; exit 1 }
+          $ps=Get-Content $p -Raw
+          if($ps -notmatch 'New-ScheduledTaskTrigger'){ throw 'Scheduled trigger missing' }
+          if($ps -notmatch 'Minutes 5'){ throw 'Five-minute retry missing' }
+          if($ps -notmatch 'node01-autopilot.sh'){ throw 'Linux autopilot handoff missing' }
+          if($ps -notmatch 'Independent HTTPS verification required'){ throw 'Live verification boundary missing' }
+          $cmd=Get-Content 'START-IZAKHONO-NODE01-AUTOPILOT.cmd' -Raw
+          if($cmd -notmatch 'INSTALL-IZAKHONO-NODE01-AUTOPILOT.ps1'){ throw 'CMD handoff mismatch' }
