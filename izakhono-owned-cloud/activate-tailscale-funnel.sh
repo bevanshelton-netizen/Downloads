@@ -3,11 +3,16 @@ set -euo pipefail
 if [ "${EUID:-$(id -u)}" -ne 0 ]; then exec sudo -E bash "$0" "$@"; fi
 
 APP="${IZAKHONO_BRIDGE_APP:-growth-os-v2}"
+HEALTH_PATH="${IZAKHONO_BRIDGE_HEALTH_PATH:-/api/health}"
+EXPECTED_SERVICE="${IZAKHONO_BRIDGE_EXPECTED_SERVICE:-growth-os-v2}"
+EXPECTED_PRODUCT="${IZAKHONO_BRIDGE_EXPECTED_PRODUCT:-}"
+EXPECTED_STATUS="${IZAKHONO_BRIDGE_EXPECTED_STATUS:-}"
 CONTROL_URL="http://127.0.0.1:8790"
 EDGE_ORIGIN="http://127.0.0.1:8780"
 RUNTIME_ENV="/etc/izakhono/runtime-node.env"
 REPORT_DIR="/var/lib/izakhono-deploy"
-REPORT="$REPORT_DIR/tailscale-funnel-growth-os.json"
+SAFE_APP="$(printf '%s' "$APP" | tr -c 'A-Za-z0-9._-' '-')"
+REPORT="$REPORT_DIR/tailscale-funnel-${SAFE_APP}.json"
 
 fail(){ echo "FAIL: $*" >&2; exit 2; }
 need(){ command -v "$1" >/dev/null 2>&1 || fail "$1 is required"; }
@@ -35,19 +40,26 @@ BACKEND_STATE="$(node -e 'try{const x=JSON.parse(process.argv[1]||"{}");process.
 
 write_report(){
   local state="$1" host="${2:-}" public="${3:-false}"
-  node - "$REPORT" "$state" "$host" "$public" <<'NODE'
+  node - "$REPORT" "$state" "$host" "$public" "$APP" "$HEALTH_PATH" "$EXPECTED_SERVICE" "$EXPECTED_PRODUCT" "$EXPECTED_STATUS" <<'NODE'
 const fs=require("fs");
-const [path,state,hostname,publicReady]=process.argv.slice(2);
+const [path,state,hostname,publicReady,app,healthPath,expectedService,expectedProduct,expectedStatus]=process.argv.slice(2);
 fs.writeFileSync(path,JSON.stringify({
-  schema:"izakhono.external-bridge.tailscale/v1",
+  schema:"izakhono.external-bridge.tailscale/v2",
   provider:"tailscale-funnel",
-  app:"growth-os-v2",
+  app,
   state,
   hostname:hostname||null,
+  public_url:hostname?"https://"+hostname:null,
   public_ready:publicReady==="true",
+  health_path:healthPath,
+  expected_service:expectedService||null,
+  expected_product:expectedProduct||null,
+  expected_status:expectedStatus||null,
   origin:"IZAKHONO_EDGE_127.0.0.1_8780",
   runtime:"IZAKHONO_RUNTIME",
   fortress_path:true,
+  engine_authority:"IZAKHONO_OWNED_RUNTIME",
+  provider_is_replaceable_adapter:true,
   generated_at:new Date().toISOString()
 },null,2)+"\n",{mode:0o600});
 NODE
@@ -91,8 +103,17 @@ fi
 PUBLIC_URL="https://$DNS_NAME"
 PUBLIC_READY=false
 for _ in $(seq 1 12); do
-  if curl -fsS --max-time 8 "$PUBLIC_URL/api/health" >/tmp/izakhono-tailscale-health.json 2>/dev/null; then
-    if node -e 'const x=require("/tmp/izakhono-tailscale-health.json");if(x.ok!==true||x.service!=="growth-os-v2")process.exit(2)' 2>/dev/null; then
+  if curl -fsS --max-time 8 "$PUBLIC_URL$HEALTH_PATH" >/tmp/izakhono-tailscale-health.json 2>/dev/null; then
+    if node - "$EXPECTED_SERVICE" "$EXPECTED_PRODUCT" "$EXPECTED_STATUS" /tmp/izakhono-tailscale-health.json <<'NODE' 2>/dev/null
+const fs=require("fs");
+const [service,product,status,path]=process.argv.slice(2);
+const x=JSON.parse(fs.readFileSync(path,"utf8"));
+if(service && x.service!==service) process.exit(2);
+if(product && x.product!==product) process.exit(3);
+if(status && x.status!==status) process.exit(4);
+if(!service && !product && x.ok!==true) process.exit(5);
+NODE
+    then
       PUBLIC_READY=true
       break
     fi
@@ -102,7 +123,7 @@ done
 
 if [ "$PUBLIC_READY" != true ]; then
   write_report "FUNNEL_ACTIVE_PUBLIC_HEALTH_PENDING" "$DNS_NAME"
-  echo "Funnel is configured, but Growth OS public health is not yet verified."
+  echo "Funnel is configured, but $APP public health is not yet verified."
   echo "Public URL: $PUBLIC_URL"
   exit 22
 fi
