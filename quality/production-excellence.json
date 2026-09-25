@@ -1,0 +1,31 @@
+{
+  "schema": "izakhono.production-excellence/v1",
+  "profile": "izakhono-premium-v1",
+  "wave": 3,
+  "purpose": "Prevent visibly or operationally substandard public releases while preserving IZAKHONO-owned authority and reversible external resilience.",
+  "budgets": {
+    "staticHtmlBytes": 262144,
+    "aggregateCssBytes": 393216,
+    "externalOrigins": 12,
+    "touchTargetPx": 44
+  },
+  "required": {
+    "viewport": true,
+    "title": true,
+    "description": true,
+    "keyboardFocus": true,
+    "reducedMotion": true,
+    "responsiveRule": true,
+    "localAssetIntegrity": true,
+    "imageAltText": true,
+    "duplicateIdsForbidden": true,
+    "secureHeadersForOwnedServers": true
+  },
+  "visualRegressionMode": "contract",
+  "visualRegressionNote": "Wave 3 uses deterministic source/brand/interaction contracts as the required regression gate. Pixel screenshot comparison may supplement this gate but cannot replace it.",
+  "publicHealth": {
+    "ownedLiveRequiresIndependentHttps": true,
+    "targetDefinedIsObservationOnly": true,
+    "temporaryPublicFallbackMustRemainProbeable": true
+  }
+}
