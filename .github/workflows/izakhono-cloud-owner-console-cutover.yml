@@ -10,6 +10,7 @@ on:
       - 'izakhono-cloud/activate-isn-01.py'
       - 'izakhono-cloud/ISN-01-ACTIVATION.md'
       - 'izakhono-cloud/ACTIVATE-ISN-01-WINDOWS.ps1'
+      - 'izakhono-cloud/sovereign-runtime.py'
       - 'START-ISN-01.cmd'
       - 'FAISReady/.izakhono.json'
       - 'FAISReady/Dockerfile'
@@ -50,6 +51,7 @@ jobs:
           python3 -m py_compile control/izakhono-cloud/alpha-deploy.py
           python3 -m py_compile control/izakhono-cloud/build-kora-owner-handoff.py
           python3 -m py_compile control/izakhono-cloud/activate-isn-01.py
+          python3 -m py_compile control/izakhono-cloud/sovereign-runtime.py
 
       - name: Prove Racing through consolidated path
         run: |
@@ -109,6 +111,36 @@ jobs:
           assert 'ALL' in normalize(runtime['cap_drop'])
           assert normalize(runtime['cap_add']) == {'CHOWN','SETUID','SETGID'}
           PY
+
+      - name: Prove KORA persistent ISN-01 runtime
+        env:
+          IZAKHONO_RUNTIME_STATE_ROOT: /tmp/isn01-runtime-state
+        run: |
+          printf 'ci-local-ready\n' > /tmp/isn01-local-ready
+          python3 control/izakhono-cloud/sovereign-runtime.py deploy \
+            kora-network/.izakhono.json \
+            --repo-root apps \
+            --activation-file /tmp/isn01-local-ready \
+            --host-port 18080
+          python3 control/izakhono-cloud/sovereign-runtime.py status \
+            --project kora-network
+          python3 - <<'PY'
+          import json
+          p='/tmp/isn01-runtime-state/kora-network.json'
+          data=json.load(open(p))
+          assert data['schema']=='izakhono.sovereign-runtime/v1'
+          assert data['node_name']=='ISN-01'
+          assert data['project']=='kora-network'
+          assert data['runtime']['loopback_port']==18080
+          assert data['runtime']['health_passed'] is True
+          assert data['runtime']['restart_policy']=='unless-stopped'
+          assert data['public_scope']=='loopback-only'
+          assert data['public_ready'] is False
+          assert data['commercial_ready'] is False
+          assert len(data['receipt_sha256'])==64
+          print('ISN-01 KORA PERSISTENT RUNTIME: PASS')
+          PY
+          docker rm -f izakhono-isn-01-kora-network >/dev/null 2>&1 || true
 
       - name: Prove ALLEGRO VIBEZ through consolidated path
         run: |
@@ -226,7 +258,7 @@ jobs:
         run: |
           $source = Get-Content 'izakhono-cloud/ACTIVATE-ISN-01-WINDOWS.ps1' -Raw
           [void][ScriptBlock]::Create($source)
-          if ((Get-Content 'START-ISN-01.cmd' -Raw) -notmatch 'af14504b18dbd6407703253aa05bd6efc04074bd') {
+          if ((Get-Content 'START-ISN-01.cmd' -Raw) -notmatch 'd01aa8a5ddb7fae5f656a95dcfdf65cac3a7f37a') {
             throw 'START-ISN-01.cmd is not pinned to the reviewed Windows activator commit'
           }
           Write-Host 'ISN-01 WINDOWS LAUNCHER SYNTAX: PASS'
