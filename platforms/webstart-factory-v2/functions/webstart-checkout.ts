@@ -5,6 +5,8 @@ const IK_SECRET = Deno.env.get("IKHOKHA_APP_SECRET") || "";
 const IK_MODE = (Deno.env.get("IKHOKHA_MODE") || "test").toLowerCase();
 const cors={"access-control-allow-origin":"*","access-control-allow-headers":"authorization, apikey, content-type","access-control-allow-methods":"POST, OPTIONS","content-type":"application/json"};
 const api="https://api.ikhokha.com/public-api/v1/api/payment";
+const APP_BASE_RAW=Deno.env.get("WEBSTART_APP_BASE")||"https://izakhono-webstart.vercel.app";
+const APP_BASE=APP_BASE_RAW.endsWith("/")?APP_BASE_RAW.slice(0,-1):APP_BASE_RAW;
 function hex(buf:ArrayBuffer){return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("")}
 function jsEscape(s:string){return s.replace(/[\\"']/g,"\\$&").replace(/\u0000/g,"\\0")}
 async function sign(path:string, body:string){const key=await crypto.subtle.importKey("raw",new TextEncoder().encode(IK_SECRET.trim()),{name:"HMAC",hash:"SHA-256"},false,["sign"]);return hex(await crypto.subtle.sign("HMAC",key,new TextEncoder().encode(jsEscape(path+body))))}
@@ -34,14 +36,14 @@ Deno.serve(async(req:Request)=>{
   if(!or.ok||!order)return new Response(JSON.stringify({error:"Could not create order",details:orders}),{status:500,headers:cors});
   const external="WS-"+order.id;
   const callback=SUPABASE_URL+"/functions/v1/webstart-ikhokha-webhook";
-  const resultBase=SUPABASE_URL+"/functions/v1/webstart-payment-result";
+  const resultBase=APP_BASE+"/payment-result";
   const amount=Number(order.once_off_cents)+Number(order.monthly_cents);
   const payload={
     entityID:order.id,
     externalEntityID:site.id,
     amount,
     currency:"ZAR",
-    requesterUrl:"https://izakhono-webstart.vercel.app",
+    requesterUrl:APP_BASE,
     description:"IZAKHONO WebStart "+pkg+" — setup plus first month",
     paymentReference:site.slug+"-"+order.id.slice(0,8),
     mode:IK_MODE,
