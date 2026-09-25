@@ -1,4 +1,5 @@
 import { buildPayFastCheckout, validatePayFastItn, type PayFastConfig } from './payfast';
+import { createIKhokhaPaymentLink, verifyIKhokhaWebhook, type IKhokhaConfig } from './ikhokha';
 interface D1PreparedStatement { bind(...values: unknown[]): D1PreparedStatement; first<T = any>(): Promise<T | null>; all<T = any>(): Promise<{ results?: T[] }>; run(): Promise<unknown>; }
 interface D1Database { prepare(query: string): D1PreparedStatement; batch(statements: D1PreparedStatement[]): Promise<unknown>; }
 interface R2ObjectBodyLike { body?: ReadableStream; size: number; httpEtag?: string; range?: { offset?: number; length?: number; suffix?: number }; writeHttpMetadata(headers: Headers): void; }
@@ -19,6 +20,9 @@ interface Env {
   PAYFAST_PASSPHRASE?: string;
   PAYFAST_MODE?: string;
   PAYFAST_ALLOWED_CIDRS?: string;
+  IKHOKHA_APP_ID?: string;
+  IKHOKHA_APP_SECRET?: string;
+  IKHOKHA_MODE?: string;
 }
 
 type Json = Record<string, unknown>;
@@ -31,6 +35,9 @@ const QUALIFIED_SECONDS = 30;
 const MAX_HEARTBEAT_INCREMENT = 15;
 const LEADS_PER_IP_DAY = 10;
 const LEADS_PER_EMAIL_DAY = 5;
+const TIP_MIN_MINOR = 1000;
+const TIP_MAX_MINOR = 1_000_000;
+const PAYOUT_MIN_MINOR = 10_000;
 const TERMS_VERSION = '2026-08-29';
 const PRIVACY_VERSION = '2026-08-29';
 const LEAD_STATUSES = ['new','contacted','qualified','converted','closed'] as const;
@@ -154,6 +161,48 @@ function payFastConfig(req: Request, env: Env): PayFastConfig | null {
   };
 }
 
+function iKhokhaConfig(req: Request, env: Env): IKhokhaConfig | null {
+  if (!env.IKHOKHA_APP_ID || !env.IKHOKHA_APP_SECRET) return null;
+  return {
+    appId: env.IKHOKHA_APP_ID,
+    appSecret: env.IKHOKHA_APP_SECRET,
+    baseUrl: (env.PUBLIC_BASE_URL || new URL(req.url).origin).replace(/\/$/, ''),
+    mode: env.IKHOKHA_MODE === 'test' ? 'test' : 'live',
+  };
+}
+function revenueShareBps(source: string) {
+  if (source === 'tip' || source === 'membership' || source === 'brand') return 9000;
+  if (source === 'subscription_pool') return 8000;
+  return 7000;
+}
+async function walletSnapshot(env: Env, creatorId: string) {
+  const entries = await env.DB.prepare(`
+    SELECT le.id,le.currency,le.creator_minor,le.status,
+      COALESCE((SELECT SUM(pre.amount_minor)
+        FROM payout_request_entries pre
+        JOIN payout_requests pr ON pr.id=pre.payout_request_id
+        WHERE pre.ledger_entry_id=le.id AND pr.status NOT IN ('rejected','cancelled')),0) AS allocated_minor
+    FROM ledger_entries le
+    WHERE le.creator_id=? AND le.status IN ('pending','available','paid')
+    ORDER BY le.created_at ASC`).bind(creatorId).all<any>();
+  const paidRows = await env.DB.prepare(`
+    SELECT currency,COALESCE(SUM(amount_minor),0) AS total
+    FROM payout_requests WHERE creator_id=? AND status='paid' GROUP BY currency`).bind(creatorId).all<any>();
+  const byCurrency: Record<string,{pending:number,available:number,paid:number}> = {};
+  for (const row of entries.results || []) {
+    const cur=String(row.currency||'ZAR');
+    byCurrency[cur] ||= {pending:0,available:0,paid:0};
+    if (row.status === 'pending') byCurrency[cur].pending += Number(row.creator_minor||0);
+    if (row.status === 'available') byCurrency[cur].available += Math.max(0,Number(row.creator_minor||0)-Number(row.allocated_minor||0));
+  }
+  for (const row of paidRows.results || []) {
+    const cur=String(row.currency||'ZAR');
+    byCurrency[cur] ||= {pending:0,available:0,paid:0};
+    byCurrency[cur].paid = Number(row.total||0);
+  }
+  return byCurrency;
+}
+
 async function adminLeadRows(env: Env, url: URL) {
   const slug = cleanText(url.searchParams.get('platform') || 'videonomy', 60);
   const p = await platform(env, slug); if (!p) return { p: null, rows: [] as any[] };
@@ -174,7 +223,7 @@ async function handleApi(req: Request, env: Env, url: URL): Promise<Response> {
 
   if (url.pathname === '/api/health' && req.method === 'GET') {
     const row = await env.DB.prepare('SELECT 1 AS ok').first<any>();
-    return json(req, env, { ok: row?.ok === 1, service: 'IZAKHONO CLOUD ZERO', version: '0.2', env: env.APP_ENV || 'production' });
+    return json(req, env, { ok: row?.ok === 1, service: 'VIDEONOMY', version: '1.0.0-rc.1', env: env.APP_ENV || 'production' });
   }
   if (url.pathname === '/api/public/config' && req.method === 'GET') {
     const slug = url.searchParams.get('platform') || 'videonomy';
