@@ -71,7 +71,7 @@ if(pms.hostname){
 process.stdout.write(JSON.stringify({
   id:x.id,enabled:x.enabled,action:x.action,max_attempts:max,
   requested_at:x.requested_at||null,expires_at:x.expires_at||null,
-  params:{model:pms.model||null,hostname:pms.hostname||null}
+  params:{model:pms.model||null,hostname:pms.hostname||null,r0_mode:pms.r0_mode===true}
 }));
 NODE
 )" || fail "Control document validation failed"
@@ -84,6 +84,7 @@ ACTION="$(node -e 'const x=JSON.parse(process.argv[1]);process.stdout.write(x.ac
 MAX_ATTEMPTS="$(node -e 'const x=JSON.parse(process.argv[1]);process.stdout.write(String(x.max_attempts))' "$VALIDATED")"
 MODEL="$(node -e 'const x=JSON.parse(process.argv[1]);process.stdout.write(x.params.model||"")' "$VALIDATED")"
 HOSTNAME="$(node -e 'const x=JSON.parse(process.argv[1]);process.stdout.write(x.params.hostname||"")' "$VALIDATED")"
+R0_MODE="$(node -e 'const x=JSON.parse(process.argv[1]);process.stdout.write(String(x.params.r0_mode===true))' "$VALIDATED")"
 
 PREV_ATTEMPTS=0
 PREV_STATUS=""
@@ -133,6 +134,7 @@ EXIT_CODE=1
       [ -n "$MODEL" ] || MODEL="qwen2.5:3b"
       [ -n "$HOSTNAME" ] || HOSTNAME="one.domains.izakhonoafrica.co.za"
       export IZAKHONO_ONE_AI_HOSTNAME="$HOSTNAME"
+      [ "$R0_MODE" = "true" ] && export IZAKHONO_ONE_R0_MODE=1
       bash "$ROOT/izakhono-owned-cloud/activate-local-model-engine.sh" "$MODEL"
       EXIT_CODE=$?
       ;;
