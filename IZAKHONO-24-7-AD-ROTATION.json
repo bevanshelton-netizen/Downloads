@@ -1,74 +1,76 @@
 {
-  "version": 7,
-  "updated": "2026-09-23",
+  "version": 8,
+  "updated": "2026-09-25",
   "mode": "maximum-reach-owned-media",
   "slotMinutes": 5,
   "paidSpendZAR": 0,
-  "priority": "faisready-maximum-reach-with-verified-claims",
+  "priority": "cash-first-with-ai-core-cross-sell",
   "rotation": [
     {
       "slot": 1,
-      "brand": "FAISReady",
-      "offer": "RE1, RE3, RE4 & RE5 — one platform",
-      "destination": "https://faisready-revenue.vercel.app/"
-    },
-    {
-      "slot": 2,
-      "brand": "FAISReady",
-      "offer": "RE5 Complete Prep — R299 direct iKhokha checkout",
-      "destination": "https://faisready-revenue.vercel.app/"
-    },
-    {
-      "slot": 3,
-      "brand": "FAISReady",
-      "offer": "RE1 Complete Prep — R399 order capture",
-      "destination": "https://faisready-revenue.vercel.app/"
-    },
-    {
-      "slot": 4,
-      "brand": "FAISReady",
-      "offer": "RE3 Complete Prep — R399 order capture",
-      "destination": "https://faisready-revenue.vercel.app/"
-    },
-    {
-      "slot": 5,
-      "brand": "FAISReady",
-      "offer": "RE4 Complete Prep — R399 order capture",
-      "destination": "https://faisready-revenue.vercel.app/"
-    },
-    {
-      "slot": 6,
       "brand": "FAISReady",
       "offer": "RE1 + RE5 Bundle — R549 direct iKhokha checkout",
       "destination": "https://faisready-revenue.vercel.app/"
     },
     {
-      "slot": 7,
-      "brand": "Mandatory Regulatory Exams",
-      "offer": "Find your RE exam and prepare on FAISReady",
+      "slot": 2,
+      "brand": "IZAKHONO AI",
+      "offer": "Native AI membership from R199/month",
+      "destination": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-payment-result/ai/?utm_source=kora&utm_medium=owned_house_ad&utm_campaign=ai_core_launch"
+    },
+    {
+      "slot": 3,
+      "brand": "FAISReady",
+      "offer": "RE5 Complete Prep — R299 direct iKhokha checkout",
       "destination": "https://faisready-revenue.vercel.app/"
+    },
+    {
+      "slot": 4,
+      "brand": "AUTO AI",
+      "offer": "R99 Repair Quote Second Opinion",
+      "destination": "https://auto-ai-eosin.vercel.app/?utm_source=kora&utm_medium=owned_house_ad&utm_campaign=revenue_drive#pricing"
+    },
+    {
+      "slot": 5,
+      "brand": "Learner Driver SA",
+      "offer": "Codes 08, 10, 14 + motorcycles",
+      "destination": "https://bevanshelton-netizen.github.io/Downloads/learner-driver-sa-v6-live/?utm_source=kora&utm_medium=owned_house_ad&utm_campaign=learner_driver_sa_launch"
+    },
+    {
+      "slot": 6,
+      "brand": "IZAKHONO Business Growth Desk",
+      "offer": "60-second business solutions assessment",
+      "destination": "https://izakhono-revenue-desk.vercel.app/?utm_source=kora&utm_medium=owned_house_ad&utm_campaign=cash_first_growth_desk#assessment"
+    },
+    {
+      "slot": 7,
+      "brand": "IZAKHONO AI",
+      "offer": "One intelligent front door to the portfolio",
+      "destination": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-payment-result/ai/?utm_source=kora&utm_medium=owned_house_ad&utm_campaign=ai_core_launch"
     },
     {
       "slot": 8,
-      "brand": "FAISReady",
-      "offer": "Financial-services exam preparation from one platform",
-      "destination": "https://faisready-revenue.vercel.app/"
-    },
-    {
-      "slot": 9,
-      "brand": "AUTO AI",
-      "offer": "R99 Repair Quote Second Opinion"
-    },
-    {
-      "slot": 10,
       "brand": "FAISReady",
       "offer": "RE5 — R299 direct checkout",
       "destination": "https://faisready-revenue.vercel.app/"
     },
     {
+      "slot": 9,
+      "brand": "Mandatory Regulatory Exams",
+      "offer": "Find the exam path that applies to your field",
+      "destination": "https://mandatory-regulatory-exams.vercel.app/?utm_source=kora&utm_medium=owned_house_ad&utm_campaign=revenue_drive#exams"
+    },
+    {
+      "slot": 10,
+      "brand": "AUTO AI",
+      "offer": "R99 Repair Quote Second Opinion",
+      "destination": "https://auto-ai-eosin.vercel.app/?utm_source=kora&utm_medium=owned_house_ad&utm_campaign=revenue_drive#pricing"
+    },
+    {
       "slot": 11,
-      "brand": "IZAKHONO Business Growth Desk",
-      "offer": "Business solutions assessment"
+      "brand": "IZAKHONO AI",
+      "offer": "Launch R199 · Pro R499 · Team R999",
+      "destination": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-payment-result/ai/?utm_source=kora&utm_medium=owned_house_ad&utm_campaign=ai_core_launch"
     },
     {
       "slot": 12,
@@ -80,14 +82,11 @@
   "rules": [
     "Run continuously 24 hours a day, 365 days a year.",
     "Advance the owned-media rotation every 5 minutes.",
+    "Keep direct-cash FAISReady offers prominent while using IZAKHONO AI as the portfolio cross-sell front door.",
     "Advertise only destinations independently verified reachable before campaign activation.",
     "Keep external paid-media spend at R0 unless explicitly approved.",
     "Use tracked destination links for owned cross-promotion.",
     "Do not imply regulator endorsement, guaranteed exam passes, guaranteed earnings or guaranteed business outcomes.",
-    "Only offers with verified direct iKhokha links may be described as direct checkout.",
-    "Prioritise FAISReady across all suitable owned professional, career, education and business inventory.",
-    "Keep unrelated child-focused, religious, security-sensitive or inappropriate-context surfaces excluded from FAISReady house ads.",
-    "Use one destination for FAISReady: https://faisready-revenue.vercel.app/.",
-    "Do not imply direct checkout for RE1, RE3 or RE4 until exact merchant links are verified."
+    "Only offers with verified direct iKhokha links may be described as direct checkout."
   ]
 }
