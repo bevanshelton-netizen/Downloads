@@ -26,17 +26,18 @@ need(){ command -v "$1" >/dev/null 2>&1 || fail "$1 is required"; }
 for cmd in git node curl flock; do need "$cmd"; done
 [ -d "$ROOT/.git" ] || fail "Owner source checkout missing: $ROOT"
 
-REMOTE_URL="$(git -C "$ROOT" remote get-url origin 2>/dev/null || true)"
-case "$REMOTE_URL" in
-  https://github.com/bevanshelton-netizen/Downloads*|git@github.com:bevanshelton-netizen/Downloads*) ;;
-  *) fail "Refusing unapproved Git origin: $REMOTE_URL" ;;
-esac
-
-git -C "$ROOT" fetch --quiet origin main
-SOURCE_COMMIT="$(git -C "$ROOT" rev-parse origin/main)"
+SYNC_OUTPUT="$(bash "$ROOT/owner-host/sync-owner-source.sh" "$ROOT")" || {
+  code=$?
+  [ "$code" -eq 3 ] && exit 0
+  fail "Owner source synchronization failed with code $code"
+}
+SOURCE_AUTHORITY="$(printf '%s\n' "$SYNC_OUTPUT" | awk -F= '$1=="SOURCE_AUTHORITY"{print $2;exit}')"
+SOURCE_COMMIT="$(printf '%s\n' "$SYNC_OUTPUT" | awk -F= '$1=="SOURCE_COMMIT"{print $2;exit}')"
+[ -n "$SOURCE_AUTHORITY" ] || fail "Source authority was not reported."
+[ -n "$SOURCE_COMMIT" ] || fail "Source commit was not reported."
 CONTROL_TMP="$(mktemp)"
 trap 'rm -f "$CONTROL_TMP"' EXIT
-git -C "$ROOT" show "origin/main:$CONTROL_PATH" >"$CONTROL_TMP" 2>/dev/null || fail "Control document missing on origin/main"
+cp "$ROOT/$CONTROL_PATH" "$CONTROL_TMP"
 
 VALIDATED="$(node - "$CONTROL_TMP" <<'NODE'
 const fs=require("fs");
@@ -94,17 +95,14 @@ if [ -n "$(git -C "$ROOT" status --porcelain)" ]; then
   ATTEMPTS=$((PREV_ATTEMPTS+1))
   STARTED="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   ENDED="$STARTED"
-  node - "$STATE_FILE" "$REQUEST_ID" "$ACTION" "$STATUS" "$ATTEMPTS" "$EXIT_CODE" "$SOURCE_COMMIT" "$STARTED" "$ENDED" <<'NODE'
+  node - "$STATE_FILE" "$REQUEST_ID" "$ACTION" "$STATUS" "$ATTEMPTS" "$EXIT_CODE" "$SOURCE_COMMIT" "$SOURCE_AUTHORITY" "$STARTED" "$ENDED" <<'NODE'
 const fs=require("fs");
-const [path,id,action,status,attempts,exitCode,source,started,ended]=process.argv.slice(2);
-fs.writeFileSync(path,JSON.stringify({request_id:id,action,status,attempts:Number(attempts),exit_code:Number(exitCode),source_commit:source,started_at:started,ended_at:ended},null,2)+"\n");
+const [path,id,action,status,attempts,exitCode,source,sourceAuthority,started,ended]=process.argv.slice(2);
+fs.writeFileSync(path,JSON.stringify({request_id:id,action,status,attempts:Number(attempts),exit_code:Number(exitCode),source_commit:source,source_authority:sourceAuthority,started_at:started,ended_at:ended},null,2)+"\n");
 NODE
   chmod 0600 "$STATE_FILE"
   exit 0
 fi
-
-git -C "$ROOT" checkout -q main
-git -C "$ROOT" reset --hard -q origin/main
 
 ATTEMPTS=$((PREV_ATTEMPTS+1))
 STARTED="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -116,6 +114,7 @@ EXIT_CODE=1
   echo "IZAKHONO OWNER AGENT"
   echo "REQUEST_ID=$REQUEST_ID"
   echo "ACTION=$ACTION"
+  echo "SOURCE_AUTHORITY=$SOURCE_AUTHORITY"
   echo "SOURCE_COMMIT=$SOURCE_COMMIT"
   echo "STARTED_AT=$STARTED"
   echo
@@ -142,9 +141,14 @@ EXIT_CODE=1
     deploy-yhvh-gospel-tv)
       [ -n "$HOSTNAME" ] || HOSTNAME="gospel.domains.izakhonoafrica.co.za"
       export KORA_GOSPEL_TV_HOSTNAME="$HOSTNAME"
-      echo "YHVH_STAGE=SOURCE_TO_IZAKHONO_CODE"
-      bash "$ROOT/izakhono-owned-cloud/migrate-source-to-code.sh"
-      EXIT_CODE=$?
+      if [ "$SOURCE_AUTHORITY" = "IZAKHONO_CODE" ]; then
+        echo "YHVH_STAGE=OWNED_CODE_ALREADY_AUTHORITATIVE"
+        EXIT_CODE=0
+      else
+        echo "YHVH_STAGE=BOOTSTRAP_SOURCE_TO_IZAKHONO_CODE"
+        bash "$ROOT/izakhono-owned-cloud/migrate-source-to-code.sh"
+        EXIT_CODE=$?
+      fi
       if [ "$EXIT_CODE" -eq 0 ]; then
         echo "YHVH_STAGE=INSTALL_INDEPENDENT_ENGINE"
         bash "$ROOT/izakhono-owned-cloud/install-yhvh-gospel-engine.sh" "$ROOT"
@@ -203,13 +207,13 @@ EXIT_CODE=1
 if [ "$EXIT_CODE" -eq 0 ]; then STATUS="success"; fi
 ENDED="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-node - "$STATE_FILE" "$REQUEST_ID" "$ACTION" "$STATUS" "$ATTEMPTS" "$EXIT_CODE" "$SOURCE_COMMIT" "$STARTED" "$ENDED" "$LOG" <<'NODE'
+node - "$STATE_FILE" "$REQUEST_ID" "$ACTION" "$STATUS" "$ATTEMPTS" "$EXIT_CODE" "$SOURCE_COMMIT" "$SOURCE_AUTHORITY" "$STARTED" "$ENDED" "$LOG" <<'NODE'
 const fs=require("fs");
-const [path,id,action,status,attempts,exitCode,source,started,ended,log]=process.argv.slice(2);
+const [path,id,action,status,attempts,exitCode,source,sourceAuthority,started,ended,log]=process.argv.slice(2);
 fs.writeFileSync(path,JSON.stringify({
   schema:"izakhono.owner-agent-state/v1",
   request_id:id,action,status,attempts:Number(attempts),exit_code:Number(exitCode),
-  source_commit:source,started_at:started,ended_at:ended,log_path:log
+  source_commit:source,source_authority:sourceAuthority,started_at:started,ended_at:ended,log_path:log
 },null,2)+"\n");
 NODE
 chmod 0600 "$STATE_FILE"
