@@ -18,7 +18,7 @@ on:
 
 permissions:
   contents: read
-  actions: read
+  actions: write
   pages: write
   id-token: write
 
@@ -28,7 +28,40 @@ concurrency:
 
 
 jobs:
+  cancel-stale-publishers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Cancel older IZAKHONO static publisher runs
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          api="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs?per_page=100"
+          json="$(curl -fsSL --max-time 20 \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "$api")"
+          mapfile -t stale < <(printf '%s' "$json" | jq -r --argjson current "${GITHUB_RUN_ID}" '
+            .workflow_runs[]
+            | select(.name=="Deploy IZAKHONO Static Gateway to GitHub Pages")
+            | select(.id != $current)
+            | select(.status != "completed")
+            | .id
+          ')
+          for run_id in "${stale[@]:-}"; do
+            [ -n "$run_id" ] || continue
+            echo "Cancelling stale IZAKHONO Pages run $run_id"
+            curl -fsSL --max-time 15 -X POST \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/$run_id/cancel" \
+              -o /dev/null || true
+          done
+
   build-gateway:
+    needs: cancel-stale-publishers
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
