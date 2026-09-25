@@ -1,0 +1,112 @@
+name: IZAKHONO ONE commercial launch gate
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/izakhono-one-commercial-launch-gate.yml"
+      - "IZAKHONO-ONE-PUBLIC-COMMERCIAL-LAUNCH.md"
+      - "owner-host/platforms.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-public-commercial-boundary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify public IZAKHONO ONE customer surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          ONE="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one"
+          curl --fail --silent --show-error --retry 3 --retry-all-errors "$ONE" -o /tmp/one.html
+          grep -q "IZAKHONO ONE" /tmp/one.html
+          grep -q "FOUNDING LAUNCH PRICING" /tmp/one.html
+          grep -q "Legal merchant:" /tmp/one.html
+          grep -q "IZAKHONO AFRICA (PTY) LTD" /tmp/one.html
+          grep -q "Payment receipts" /tmp/one.html
+          grep -q "iKhokha" /tmp/one.html
+          ! grep -q "iz_one_anon_id" /tmp/one.html
+          ! grep -q "anonymous_id:ANON" /tmp/one.html
+          ! grep -q "utm_source=share" /tmp/one.html
+          ! grep -qi "izakhono-command-center" /tmp/one.html
+
+      - name: Probe owned IZAKHONO PAY health
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -u
+          URL="https://pay.izakhonoafrica.co.za/health"
+          code="$(curl --silent --show-error --connect-timeout 10 --max-time 20 -o /tmp/pay-health.json -w '%{http_code}' "$URL" || true)"
+          echo "HTTP=$code"
+          if [ -f /tmp/pay-health.json ]; then cat /tmp/pay-health.json; echo; fi
+          if [ "$code" = "200" ]; then
+            python3 - <<'PY'
+          import json
+          d=json.load(open("/tmp/pay-health.json"))
+          print("OWNED_PAY_OK="+str(d.get("ok")))
+          print("OWNED_PAY_PRIMARY_PROVIDER="+str(d.get("primary_provider")))
+          PY
+          fi
+
+      - name: Verify iKhokha live health and current server prices
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-checkout-api"
+          curl --fail --silent --show-error --retry 3 --retry-all-errors "$URL" -o /tmp/checkout.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open("/tmp/checkout.json"))
+          assert d["ok"] is True
+          assert d["provider"]=="ikhokha"
+          assert d["mode"]=="live"
+          assert d["configured"] is True
+          assert d["live_ready"] is True
+          assert d["entitlement"]=="provider-verified-only"
+          assert d["pricing_phase"] in {"founding","standard"}
+          prices={k:v["amount_cents"] for k,v in d["plans"].items()}
+          if d["pricing_phase"]=="founding":
+              assert prices=={"launch":19900,"pro":49900,"team":99900}, prices
+              assert d["founding_places_remaining"]>0
+          else:
+              assert prices=={"launch":29900,"pro":69900,"team":149900}, prices
+              assert d["founding_places_remaining"]==0
+          print(json.dumps({"provider":d["provider"],"mode":d["mode"],"pricing_phase":d["pricing_phase"],"remaining":d["founding_places_remaining"],"prices":prices}))
+          PY
+
+      - name: Verify ONE-specific payment return
+        shell: bash
+        run: |
+          set -euo pipefail
+          RESULT="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-payment-result?product=one-business&status=cancelled&return_to=https%3A%2F%2Fyfawrenhudjomhnglfhq.supabase.co%2Ffunctions%2Fv1%2Fizakhono-one"
+          curl --fail --silent --show-error --retry 3 --retry-all-errors "$RESULT" -o /tmp/result.html
+          grep -q "IZAKHONO ONE" /tmp/result.html
+          grep -q "Checkout cancelled" /tmp/result.html
+          grep -q "yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one" /tmp/result.html
+
+      - name: Verify webhook fails closed when unsigned
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-ikhokha-webhook"
+          code="$(curl --silent --show-error -o /tmp/webhook.json -w '%{http_code}' -X POST -H 'content-type: application/json' -d '{}' "$URL")"
+          test "$code" = "403"
+          grep -Eq 'invalid_signature_headers|payment_verification_not_configured' /tmp/webhook.json
+
+      - name: Verify Owner Command Centre remains outside public registry
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          p=json.load(open("owner-host/platforms.json"))
+          raw=json.dumps(p).lower()
+          assert "izakhono-command-center" not in raw
+          assert "owner command centre" not in raw
+          print("Owner Command Centre is not registered for public owner-host routing.")
+          PY
