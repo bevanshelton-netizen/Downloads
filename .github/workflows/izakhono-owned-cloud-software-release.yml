@@ -31,6 +31,16 @@ jobs:
           node-version: 22.22.3
       - name: Run static software acceptance
         run: bash izakhono-owned-cloud/software-acceptance.sh
+      - name: Prove reversible standby state promotion transaction
+        run: |
+          bash -n izakhono-owned-cloud/promote-standby-state.sh
+          node --check izakhono-owned-cloud/standby-state-swap.mjs
+          node izakhono-owned-cloud/tests/standby-state-swap.mjs
+          grep -q 'PROMOTE-STAGED-STATE' izakhono-owned-cloud/promote-standby-state.sh
+          grep -q 'public_route_changed:false' izakhono-owned-cloud/promote-standby-state.sh
+          grep -q 'dns_changed:false' izakhono-owned-cloud/promote-standby-state.sh
+          grep -q 'receiptVerified' izakhono-owned-cloud/promote-standby-state.sh
+          grep -q 'ROLLED_BACK' izakhono-owned-cloud/standby-state-swap.mjs
 
   node-self-tests:
     runs-on: ubuntu-latest
