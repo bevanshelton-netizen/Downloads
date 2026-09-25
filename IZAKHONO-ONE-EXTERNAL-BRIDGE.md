@@ -6,7 +6,7 @@
 
 The external public-pilot route is the active front door while the owned NODE 01 route remains separately gated. The latest independent `IZAKHONO ONE Public Resilience Verify` check passed the HTTPS, PWA, zero-tracking, Supabase hub, ONE Control and Device AI contracts.
 
-This does **not** mark the full owned ONE AI route `VERIFIED LIVE`. The owned route still requires physical NODE 01 activation, SMTP/recovery proof, parent DNS restoration for `izakhonoafrica.co.za`, trusted TLS and independent owned-route HTTPS verification. GitHub issue #405 tracks that owned-route blocker.
+This does **not** mark the full owned ONE AI route `VERIFIED LIVE`. The owned server route still requires sovereign-runtime execution, SMTP/recovery proof and independent public HTTPS verification. At R0 budget, parent DNS restoration for `izakhonoafrica.co.za` is not a launch requirement: direct owned-runtime exposure may use the existing outbound Tailscale Funnel adapter while the branded domain remains deferred.
 
 Stable public entry:
 
@@ -53,3 +53,7 @@ Current public AI runtime:
 The Control Center is the external workspace front door. It uses the existing ONE capability-key model, masks the key by default, supports explicit reveal/copy/recovery-file export, and does not enable the unfinished Supabase Auth identity surface.
 
 The external ONE AI route now offers three browser-local model tiers. It remains a device-local public beta and is not equivalent to the full owned ONE AI server runtime. The external bridge is a public ecosystem hub, not the final owned AI authority. NODE 01 remains the intended authority.
+
+## R0 rule
+
+No custom-domain purchase is required for the public pilot. The stable GitHub Pages front door and Supabase resilience/control endpoints remain public, while `START-IZAKHONO-ONE-R0-BRIDGE.cmd` can expose the IZAKHONO-owned runtime through the existing outbound bridge. A branded domain is an optional later upgrade only.
