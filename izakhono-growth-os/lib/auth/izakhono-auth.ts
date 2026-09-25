@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { ownedBridgeRequest, useOwnedBridge } from "@/lib/owned-bridge";
 
 export const GROWTH_SESSION_COOKIE="growth_os_session";
 
@@ -17,6 +18,13 @@ function authBase(){
 }
 
 export async function authNodeRequest(path:string,init:RequestInit={}){
+  if(useOwnedBridge()){
+    const headers=new Headers(init.headers);
+    const authorization=headers.get("authorization");
+    headers.delete("authorization");
+    if(authorization?.startsWith("Bearer ")) headers.set("x-growth-session",authorization.slice(7));
+    return ownedBridgeRequest("/v1/auth"+path,{...init,headers});
+  }
   return fetch(authBase()+path,{
     ...init,
     cache:"no-store",
