@@ -97,13 +97,30 @@
   "deployment_commands": {
     "owner_agent_install": "INSTALL-IZAKHONO-OWNER-AGENT.cmd",
     "local_model_activation": "START-IZAKHONO-ONE-AI-LOCAL-MODEL.cmd",
-    "readiness_check": "START-IZAKHONO-ONE-DEPLOYMENT-READINESS.cmd"
+    "readiness_check": "START-IZAKHONO-ONE-DEPLOYMENT-READINESS.cmd",
+    "r0_public_bridge": "START-IZAKHONO-ONE-R0-BRIDGE.cmd"
   },
   "rules": {
     "no_live_claim_before_independent_https_verification": true,
     "no_public_signup_without_verified_recovery_delivery": true,
     "no_commercial_claim_before_payment_and_legal_gate": true,
     "no_fake_checkout": true,
-    "behavioural_tracking": false
+    "behavioural_tracking": false,
+    "custom_domain_required_for_public_pilot": false,
+    "zero_budget_mode_preserves_external_resilience": true
+  },
+  "r0_public_mode": {
+    "enabled": true,
+    "budget_zar": 0,
+    "stable_front_door": "https://bevanshelton-netizen.github.io/Downloads/one/",
+    "resilience_hub": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-hub",
+    "owned_runtime_transport": "tailscale-funnel",
+    "owned_runtime_authority": "IZAKHONO_SOVEREIGN_NODE",
+    "custom_domain_required": false,
+    "public_ipv4_required": false,
+    "inbound_port_forwarding_required": false,
+    "branded_domain_status": "deferred_optional_upgrade",
+    "launcher": "START-IZAKHONO-ONE-R0-BRIDGE.cmd",
+    "promotion_rule": "Do not call the direct owned bridge verified live until its public HTTPS /health passes independently."
   }
 }
