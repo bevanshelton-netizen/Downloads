@@ -1,6 +1,6 @@
 {
   "schema": "izakhono.portfolio-migration/v1",
-  "updated_at": "2026-09-25T23:12:00+02:00",
+  "updated_at": "2026-09-25T23:51:00+02:00",
   "policy": {
     "primary_runtime": "IZAKHONO",
     "external_hosts": "fallback-only until IZAKHONO external acceptance passes",
@@ -135,7 +135,7 @@
     "YenZaNow service bookings"
   ],
   "revenue_sprint_status": "PUBLISHED_V2",
-  "revenue_public_frontend": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-revenue",
+  "revenue_public_frontend": "https://kora-network.vercel.app/izakhono-revenue/",
   "launch_status": "LIVE_VERIFIED",
   "revenue_theme": "LIGHT",
   "opera_mini_friendly": true,
