@@ -12,6 +12,7 @@ const LIVE_EMBED_URL = process.env.GOSPEL_TV_LIVE_EMBED_URL || "";
 const CONTROL_TOKEN = String(process.env.GOSPEL_TV_CONTROL_TOKEN || "").trim();
 const RECONCILE_RECEIPT = process.env.GOSPEL_RECONCILE_RECEIPT || "/var/lib/izakhono-deploy/kora-gospel-reconcile.json";
 const ENGINE_URL = String(process.env.YHVH_GOSPEL_ENGINE_URL || "http://127.0.0.1:8892").replace(/\/$/,"");
+const ENGINE_TOKEN = String(process.env.YHVH_GOSPEL_ENGINE_TOKEN || "").trim();
 const PUBLIC_INTAKE_ORIGINS = new Set([
   "https://kora-network.vercel.app",
   "https://bevanshelton-netizen.github.io",
@@ -85,7 +86,29 @@ function controlAuthorized(req){
   const b=Buffer.from(supplied);
   return a.length===b.length && crypto.timingSafeEqual(a,b);
 }
+async function engineRequest(path,{method="GET",body=null,auth=false,timeout=1200}={}){
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),timeout);
+  try{
+    const headers={};
+    if(body!==null) headers["content-type"]="application/json";
+    if(auth){
+      if(ENGINE_TOKEN.length<24) throw new Error("engine_token_unavailable");
+      headers.authorization="Bearer "+ENGINE_TOKEN;
+    }
+    const response=await fetch(ENGINE_URL+path,{
+      method,headers,body:body===null?undefined:JSON.stringify(body),cache:"no-store",signal:controller.signal
+    });
+    const payload=await response.json().catch(()=>({}));
+    if(!response.ok) throw new Error(payload?.error||("engine_http_"+response.status));
+    return payload;
+  }finally{clearTimeout(timer)}
+}
 async function readSubmissionRecords(limit=100){
+  try{
+    const engine=await engineRequest("/v1/submissions?limit="+Math.max(1,Math.min(limit,200)),{auth:true});
+    if(Array.isArray(engine.records)) return engine.records;
+  }catch{}
   try{
     const raw=await readFile(join(DATA_DIR,"submissions.ndjson"),"utf8");
     return raw.trim().split("\n").filter(Boolean).slice(-Math.max(1,Math.min(limit,200))).reverse().map(line=>{
@@ -155,19 +178,33 @@ async function controlStatus(){
   };
 }
 async function saveSubmission(data,req){
-  await mkdir(DATA_DIR,{recursive:true});
-  const reference="KGT-"+new Date().toISOString().slice(0,10).replaceAll("-","")+"-"+crypto.randomBytes(3).toString("hex").toUpperCase();
-  const record={
-    schema:"kora.gospel-tv.submission/v1",reference,created_at:new Date().toISOString(),
+  const payload={
     category:clean(data.category,30),type:clean(data.type,50),name:clean(data.name,120),
-    contact:clean(data.contact,160),message:clean(data.message,1600),on_air:Boolean(data.onAir),
+    contact:clean(data.contact,160),message:clean(data.message,1600),onAir:Boolean(data.onAir),
     territory:clean(data.territory,80),language:clean(data.language,50),
-    rights_attested:Boolean(data.rightsAttested),source_channel:clean(data.sourceChannel||"izakhono-owned",60),
-    details:cleanDetails(data.details),
-    source_ip_hash:crypto.createHash("sha256").update(clientKey(req)+"|kora-gospel-tv").digest("hex").slice(0,20)
+    rightsAttested:Boolean(data.rightsAttested),sourceChannel:clean(data.sourceChannel||"yhvh-owned",60),
+    details:cleanDetails(data.details)
   };
+  try{
+    const engine=await engineRequest("/v1/submissions",{method:"POST",body:payload,timeout:1800});
+    if(engine?.ok&&engine?.reference) return {reference:engine.reference,engine:true};
+  }catch{}
+  await mkdir(DATA_DIR,{recursive:true});
+  const reference="YHVH-BUFFER-"+new Date().toISOString().slice(0,10).replaceAll("-","")+"-"+crypto.randomBytes(3).toString("hex").toUpperCase();
+  const record={
+    schema:"yhvh.gospel-tv.submission-buffer/v1",reference,created_at:new Date().toISOString(),
+    ...payload,
+    on_air:payload.onAir,
+    rights_attested:payload.rightsAttested,
+    source_channel:payload.sourceChannel,
+    source_ip_hash:crypto.createHash("sha256").update(clientKey(req)+"|yhvh-gospel-tv-buffer").digest("hex").slice(0,20),
+    authoritative:false
+  };
+  delete record.onAir;
+  delete record.rightsAttested;
+  delete record.sourceChannel;
   await appendFile(join(DATA_DIR,"submissions.ndjson"),JSON.stringify(record)+"\n",{encoding:"utf8",mode:0o600});
-  return reference;
+  return {reference,engine:false};
 }
 
 createServer(async (req,res)=>{
@@ -226,8 +263,14 @@ createServer(async (req,res)=>{
       if(!["content","partner","prayer"].includes(category)) return json(res,400,{error:"Invalid submission category."},cors);
       if(category!=="prayer" && (!clean(data.name,120)||!clean(data.contact,160))) return json(res,400,{error:"Name and contact details are required."},cors);
       if(!clean(data.message,1600)) return json(res,400,{error:"Please add a message."},cors);
-      const reference=await saveSubmission(data,req);
-      return json(res,201,{ok:true,reference,route:"izakhono-owned",authoritative:true},cors);
+      const saved=await saveSubmission(data,req);
+      return json(res,201,{
+        ok:true,
+        reference:saved.reference,
+        route:"izakhono-owned",
+        engine_route:saved.engine?"yhvh-owned-engine":"local-resilience-buffer",
+        authoritative:saved.engine===true
+      },cors);
     }catch(err){
       if(String(err?.message)==="payload_too_large") return json(res,413,{error:"Submission is too large."},cors);
       return json(res,400,{error:"Unable to process this submission."},cors);
