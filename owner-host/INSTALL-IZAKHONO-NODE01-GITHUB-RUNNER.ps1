@@ -7,8 +7,8 @@ $ErrorActionPreference = "Stop"
 
 function Is-Admin {
   $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
-  $principal = New-Object Security.Principal.WindowsPrincipal($identity)
-  return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+  $principal = New-Object System.Security.Principal.WindowsPrincipal($identity)
+  return $principal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 
 if (-not (Is-Admin)) {
@@ -33,56 +33,92 @@ if ($distros -notmatch "Ubuntu-24.04") {
   throw "Ubuntu-24.04 is not installed. Run START-IZAKHONO-OWNER-HOST.cmd first."
 }
 
-$gh = Get-Command gh.exe -ErrorAction SilentlyContinue
-if (-not $gh) {
-  $candidate = Join-Path $env:ProgramFiles "GitHub CLI\gh.exe"
-  if (Test-Path $candidate) { $gh = Get-Item $candidate }
-}
-if (-not $gh -and (Get-Command winget.exe -ErrorAction SilentlyContinue)) {
-  Write-Host "Installing GitHub CLI..." -ForegroundColor Yellow
-  & winget.exe install --id GitHub.cli -e --silent --accept-package-agreements --accept-source-agreements
-  $candidate = Join-Path $env:ProgramFiles "GitHub CLI\gh.exe"
-  if (Test-Path $candidate) { $gh = Get-Item $candidate }
-}
-if (-not $gh) {
-  throw "GitHub CLI is unavailable. Install GitHub CLI, then run this launcher again."
-}
-$ghPath = $gh.Source
-if (-not $ghPath) { $ghPath = $gh.FullName }
-
-& $ghPath auth status --hostname github.com *> $null
-if ($LASTEXITCODE -ne 0) {
-  Write-Host "GitHub sign-in is required once to register NODE01." -ForegroundColor Yellow
-  & $ghPath auth login --hostname github.com --git-protocol https --web
-  if ($LASTEXITCODE -ne 0) { throw "GitHub authentication did not complete." }
-}
-
 Write-Host "Refreshing owner-host source from canonical main..." -ForegroundColor Cyan
-& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cd /opt/izakhono-source/Downloads && test -z \"$(git status --porcelain)\" && git fetch origin main && git checkout -q main && git reset --hard -q origin/main"
+$refresh = @'
+set -euo pipefail
+cd /opt/izakhono-source/Downloads
+if [ -n "$(git status --porcelain)" ]; then
+  echo "Owner-host source has local changes; refusing destructive refresh." >&2
+  exit 3
+fi
+git fetch origin main
+git checkout -q main
+git reset --hard -q origin/main
+'@
+$refresh | & wsl.exe -d Ubuntu-24.04 -u root -- bash -s
 if ($LASTEXITCODE -ne 0) {
   throw "Owner-host source could not be refreshed safely. Local changes may be present."
 }
 
-Write-Host "Requesting a short-lived runner registration token..." -ForegroundColor Cyan
-$runnerToken = (& $ghPath api --method POST repos/bevanshelton-netizen/Downloads/actions/runners/registration-token --jq .token) -join ""
-if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($runnerToken)) {
-  @(
-    "IZAKHONO NODE01 GITHUB RUNNER"
-    "Result: REGISTRATION TOKEN REQUEST FAILED"
-    "GitHub authentication succeeded, but the account/token lacks permission to register a repository runner."
-    "No runner token was stored."
-  ) | Set-Content -Path $statusPath -Encoding UTF8
-  throw "Could not obtain a GitHub runner registration token. Repository administration permission is required."
+$runnerReady = $false
+Write-Host "Checking for an existing registered IZAKHONO runner..." -ForegroundColor Cyan
+$restartExisting = @'
+set -euo pipefail
+ROOT=/opt/izakhono-actions-runner
+if [ ! -s "$ROOT/.runner" ] || [ ! -s "$ROOT/.service" ]; then
+  exit 20
+fi
+cd /opt/izakhono-source/Downloads
+bash owner-host/install-github-actions-runner.sh
+'@
+$restartExisting | & wsl.exe -d Ubuntu-24.04 -u root -- bash -s
+$existingExit = $LASTEXITCODE
+
+if ($existingExit -eq 0) {
+  $runnerReady = $true
+  Write-Host "Existing runner registration recovered without a new token." -ForegroundColor Green
+} elseif ($existingExit -ne 20) {
+  throw "Existing runner recovery failed with exit code $existingExit."
 }
 
-Write-Host "Installing or refreshing the NODE01 runner service..." -ForegroundColor Cyan
-$runnerToken | & wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cd /opt/izakhono-source/Downloads && bash owner-host/install-github-actions-runner.sh --token-stdin"
-$runnerExit = $LASTEXITCODE
-$runnerToken = $null
-[GC]::Collect()
+if (-not $runnerReady) {
+  Write-Host "No reusable runner registration was found; registration is required once." -ForegroundColor Yellow
 
-if ($runnerExit -ne 0) {
-  throw "NODE01 runner installation failed with exit code $runnerExit."
+  $gh = Get-Command gh.exe -ErrorAction SilentlyContinue
+  if (-not $gh) {
+    $candidate = Join-Path $env:ProgramFiles "GitHub CLI\gh.exe"
+    if (Test-Path $candidate) { $gh = Get-Item $candidate }
+  }
+  if (-not $gh -and (Get-Command winget.exe -ErrorAction SilentlyContinue)) {
+    Write-Host "Installing GitHub CLI..." -ForegroundColor Yellow
+    & winget.exe install --id GitHub.cli -e --silent --accept-package-agreements --accept-source-agreements
+    $candidate = Join-Path $env:ProgramFiles "GitHub CLI\gh.exe"
+    if (Test-Path $candidate) { $gh = Get-Item $candidate }
+  }
+  if (-not $gh) {
+    throw "GitHub CLI is unavailable. Install GitHub CLI, then run this launcher again."
+  }
+  $ghPath = $gh.Source
+  if (-not $ghPath) { $ghPath = $gh.FullName }
+
+  & $ghPath auth status --hostname github.com *> $null
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "GitHub sign-in is required once to register NODE01." -ForegroundColor Yellow
+    & $ghPath auth login --hostname github.com --git-protocol https --web
+    if ($LASTEXITCODE -ne 0) { throw "GitHub authentication did not complete." }
+  }
+
+  Write-Host "Requesting a short-lived runner registration token..." -ForegroundColor Cyan
+  $runnerToken = (& $ghPath api --method POST repos/bevanshelton-netizen/Downloads/actions/runners/registration-token --jq .token) -join ""
+  if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($runnerToken)) {
+    @(
+      "IZAKHONO NODE01 GITHUB RUNNER"
+      "Result: REGISTRATION TOKEN REQUEST FAILED"
+      "GitHub authentication succeeded, but the account/token lacks permission to register a repository runner."
+      "No runner token was stored."
+    ) | Set-Content -Path $statusPath -Encoding UTF8
+    throw "Could not obtain a GitHub runner registration token. Repository administration permission is required."
+  }
+
+  Write-Host "Registering and starting the NODE01 runner service..." -ForegroundColor Cyan
+  $runnerToken | & wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cd /opt/izakhono-source/Downloads && bash owner-host/install-github-actions-runner.sh --token-stdin"
+  $runnerExit = $LASTEXITCODE
+  $runnerToken = $null
+  [GC]::Collect()
+
+  if ($runnerExit -ne 0) {
+    throw "NODE01 runner installation failed with exit code $runnerExit."
+  }
 }
 
 $receiptRaw = (& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cat /var/lib/izakhono-deploy/github-actions-runner.json 2>/dev/null || true") -join [Environment]::NewLine
@@ -121,14 +157,15 @@ Start-ScheduledTask -TaskName $taskName
   "Runner token persisted: $($receipt.token_persisted)"
   "External compute authority: $($receipt.external_compute_authority)"
   ""
-  "Queued ONE activation:"
-  "https://github.com/bevanshelton-netizen/Downloads/actions/runs/36086639646"
+  "Queued ONE activation: AUTO-RESUME ENABLED"
+  "Control: owner-host/control/one-desired-state.json"
+  "Current request: izakhono-one-r0-owned-authority-20260925-03"
   ""
   "Keepalive task: IZAKHONO NODE01 Runner Keepalive"
-  "The runner service now remains available for allow-listed IZAKHONO deployment workflows."
+  "The runner service remains available for allow-listed IZAKHONO deployment workflows."
 ) | Set-Content -Path $statusPath -Encoding UTF8
 
 Write-Host ""
 Write-Host "NODE01 RUNNER: ACTIVE" -ForegroundColor Green
-Write-Host "The queued IZAKHONO ONE activation can now be accepted by NODE01." -ForegroundColor Green
+Write-Host "Queued IZAKHONO ONE activation will resume automatically." -ForegroundColor Green
 Write-Host "Status: $statusPath" -ForegroundColor Cyan
