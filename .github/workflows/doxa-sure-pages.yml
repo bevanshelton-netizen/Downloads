@@ -10,7 +10,6 @@ on:
       - 'ports/revenue-sprint/**'
       - 'doxa-sure/**'
       - 'ports/izakhono-one/**'
-      - 'one/**'
       - 'ports/kora-kids/**'
       - 'portfolio-growth/**'
       - 'IZAKHONO-STUDIO/**'
@@ -31,6 +30,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,38 +53,20 @@ jobs:
           rm -rf _site
           mkdir -p _site/doxa-sure _site/yenzanow
           mkdir -p _site/izakhono-one
-          mkdir -p _site/one
           mkdir -p _site/ports/izakhono-one
           mkdir -p _site/portfolio-growth
           mkdir -p _site/kora-kids
           mkdir -p _site/creative-suite
 
-          # Revenue Sprint is the production front door at the Pages root.
           cp ports/revenue-sprint/index.html _site/index.html
-
-          # Preserve DOXA-SURE at its own stable sub-route.
           cp -R doxa-sure/. _site/doxa-sure/
-
-          # Add the verified YenZaNow build as a stable sub-route.
           cp ports/yenzanow/index.html _site/yenzanow/index.html
           cp ports/yenzanow/healthz.txt _site/yenzanow/healthz.txt
-
-          # Publish the shared portfolio growth bridge.
           cp -R portfolio-growth/. _site/portfolio-growth/
-
-          # Preserve the independently verified IZAKHONO ONE PWA resilience route.
-          cp -R one/. _site/one/
-
-          # Add the full IZAKHONO ONE public frontend and campaign routes.
           cp -R ports/izakhono-one/. _site/izakhono-one/
           cp -R ports/izakhono-one/. _site/ports/izakhono-one/
-
-          # Publish the original KORA KIDS Tumi & Tala prototype.
           cp -R ports/kora-kids/. _site/kora-kids/
-
-          # Publish IZAKHONO Creative Suite as an external static fallback.
           cp -R IZAKHONO-STUDIO/dist/. _site/creative-suite/
-
           touch _site/.nojekyll
 
       - name: Configure and enable Pages
@@ -101,6 +83,11 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
+  verify-creative-suite:
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
       - name: Verify Creative Suite external fallback
         shell: bash
         run: |
@@ -108,10 +95,10 @@ jobs:
           CREATIVE="https://bevanshelton-netizen.github.io/Downloads/creative-suite/"
           HEALTH="https://bevanshelton-netizen.github.io/Downloads/creative-suite/health.json"
           ok=0
-          for i in $(seq 1 36); do
+          for i in $(seq 1 24); do
             rm -f /tmp/creative.html /tmp/creative-health.json
-            if curl -fsSL -o /tmp/creative.html "$CREATIVE" &&
-               curl -fsSL -o /tmp/creative-health.json "$HEALTH" &&
+            if curl -fsSL --connect-timeout 4 --max-time 8 -o /tmp/creative.html "$CREATIVE" &&
+               curl -fsSL --connect-timeout 4 --max-time 8 -o /tmp/creative-health.json "$HEALTH" &&
                grep -Fq '<div id="root"></div>' /tmp/creative.html &&
                node -e 'const x=require("/tmp/creative-health.json");if(x.ok!==true||x.service!=="izakhono-creative-suite"||x.registration_enabled!==false||x.checkout_enabled!==false)process.exit(2)'; then
               ok=1
@@ -121,15 +108,20 @@ jobs:
           done
           test "$ok" -eq 1
 
+  verify-kora-kids:
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
       - name: Verify KORA KIDS public route
         shell: bash
         run: |
           set -euo pipefail
           KIDS="https://bevanshelton-netizen.github.io/Downloads/kora-kids/"
           ok=0
-          for i in $(seq 1 36); do
+          for i in $(seq 1 24); do
             rm -f /tmp/kids.html /tmp/kids.h
-            if curl -fsSL -D /tmp/kids.h -o /tmp/kids.html "$KIDS" &&
+            if curl -fsSL --connect-timeout 4 --max-time 8 -D /tmp/kids.h -o /tmp/kids.html "$KIDS" &&
                grep -q 'LEBO' /tmp/kids.html &&
                grep -q 'JABU' /tmp/kids.html &&
                grep -q 'KORA KIDS' /tmp/kids.html &&
@@ -141,6 +133,11 @@ jobs:
           done
           test "$ok" -eq 1
 
+  verify-revenue-sprint:
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
       - name: Verify Revenue Sprint public route
         continue-on-error: true
         shell: bash
@@ -148,9 +145,9 @@ jobs:
           set -euo pipefail
           REVENUE="https://bevanshelton-netizen.github.io/Downloads/"
           ok=0
-          for i in $(seq 1 36); do
+          for i in $(seq 1 24); do
             rm -f /tmp/revenue.html /tmp/revenue.h
-            if curl -fsSL -D /tmp/revenue.h -o /tmp/revenue.html "$REVENUE" &&
+            if curl -fsSL --connect-timeout 4 --max-time 8 -D /tmp/revenue.h -o /tmp/revenue.html "$REVENUE" &&
                grep -q 'IZAKHONO REVENUE SPRINT' /tmp/revenue.html &&
                grep -q 'Built enough.' /tmp/revenue.html &&
                grep -qi '^content-type: text/html' /tmp/revenue.h; then
@@ -161,6 +158,11 @@ jobs:
           done
           test "$ok" -eq 1
 
+  verify-izakhono-one:
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
       - name: Verify IZAKHONO ONE static resilience route
         shell: bash
         run: |
@@ -174,16 +176,26 @@ jobs:
           PORTFOLIO="https://bevanshelton-netizen.github.io/Downloads/portfolio-growth/"
           LAUNCH="https://bevanshelton-netizen.github.io/Downloads/portfolio-growth/launch/?platform=fortress"
           ok=0
-          for i in $(seq 1 36); do
+
+          fetch_all() {
+            local failed=0
+            curl -fsSL --connect-timeout 4 --max-time 8 -o /tmp/one-base.html "$BASE" & p1=$!
+            curl -fsSL --connect-timeout 4 --max-time 8 -o /tmp/one-port.html "$PORT_BASE" & p2=$!
+            curl -fsSL --connect-timeout 4 --max-time 8 -o /tmp/one-health.html "$HEALTH" & p3=$!
+            curl -fsSL --connect-timeout 4 --max-time 8 -o /tmp/one-clinic.html "$CLINIC" & p4=$!
+            curl -fsSL --connect-timeout 4 --max-time 8 -o /tmp/one-contractors.html "$CONTRACTORS" & p5=$!
+            curl -fsSL --connect-timeout 4 --max-time 8 -o /tmp/one-guide.html "$GUIDE" & p6=$!
+            curl -fsSL --connect-timeout 4 --max-time 8 -o /tmp/portfolio.html "$PORTFOLIO" & p7=$!
+            curl -fsSL --connect-timeout 4 --max-time 8 -o /tmp/launch.html "$LAUNCH" & p8=$!
+            for pid in $p1 $p2 $p3 $p4 $p5 $p6 $p7 $p8; do
+              wait "$pid" || failed=1
+            done
+            return "$failed"
+          }
+
+          for i in $(seq 1 24); do
             rm -f /tmp/one-base.html /tmp/one-port.html /tmp/one-health.html /tmp/one-clinic.html /tmp/one-contractors.html /tmp/one-guide.html /tmp/portfolio.html /tmp/launch.html
-            if curl -fsSL -o /tmp/one-base.html "$BASE" &&
-               curl -fsSL -o /tmp/one-port.html "$PORT_BASE" &&
-               curl -fsSL -o /tmp/one-health.html "$HEALTH" &&
-               curl -fsSL -o /tmp/one-clinic.html "$CLINIC" &&
-               curl -fsSL -o /tmp/one-contractors.html "$CONTRACTORS" &&
-               curl -fsSL -o /tmp/one-guide.html "$GUIDE" &&
-               curl -fsSL -o /tmp/portfolio.html "$PORTFOLIO" &&
-               curl -fsSL -o /tmp/launch.html "$LAUNCH" &&
+            if fetch_all &&
                grep -q 'IZAKHONO ONE' /tmp/one-base.html &&
                grep -q 'IZAKHONO ONE' /tmp/one-port.html &&
                grep -q 'FREE 3-MINUTE BUSINESS HEALTH CHECK' /tmp/one-health.html &&
@@ -197,7 +209,7 @@ jobs:
             fi
             sleep 5
           done
+
           test "$ok" -eq 1
           cat /tmp/one-base.html /tmp/one-port.html /tmp/one-health.html /tmp/one-clinic.html /tmp/one-contractors.html /tmp/one-guide.html > /tmp/izakhono-one-privacy.html
-          # Standing ONE privacy rule: no passive telemetry/tracking/profiling/ad identifiers.
           ! grep -Eqi 'utm_|googletagmanager|google-analytics|facebook[^<]*(pixel|track)|hotjar|clarity\.ms|mixpanel|amplitude|plausible|matomo|portfolio-growth/bridge\.js|izakhono-growth-event|iz_one_anon|iz_portfolio_anon' /tmp/izakhono-one-privacy.html
