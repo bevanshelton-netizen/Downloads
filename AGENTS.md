@@ -17,4 +17,18 @@ Mandatory order:
 9. Prefer iKhokha for South African payment flows where that product's payment links, reconciliation and legal pages are actually ready.
 10. If the owned route is unhealthy, keep or restore the last verified external route so customer access and revenue can continue.
 
-This instruction is portfolio policy issued by IZAKHONO AFRICA (PTY) LTD on 22 September 2026. It applies to this repository and every platform/package within it unless a signed product-specific exception supersedes it.
+## CHATGPT LIMITS ARE NOT IZAKHONO LIMITS
+
+This repository must never treat ChatGPT task, concurrency, session, quota, rate, context, or product-plan limits as an operational limit on any IZAKHONO platform.
+
+Mandatory execution rule:
+
+1. Long-running, queued, scheduled, recurring, batch, parallel and background work must execute through IZAKHONO-owned platform engines, workers, queues and orchestration wherever technically feasible.
+2. Every platform must remain independently deployable and must not depend on ChatGPT to stay online, process jobs, serve customers, run automations, or continue workflows.
+3. ChatGPT may assist with planning, coding, review, debugging and operator interaction, but it is not the production runtime, queue, scheduler or source of operational authority.
+4. Where owned infrastructure is temporarily unavailable, approved external infrastructure may be used as a reversible fallback without becoming the authoritative engine.
+5. A ChatGPT “5 tasks”, concurrency or similar interface limit must never be propagated into product logic, worker counts, platform limits, customer-facing limits, or deployment architecture.
+6. Build platform-specific job queues and workers so independent workloads can continue concurrently without waiting on a chat session.
+7. Preserve all existing privacy, no-silent-tracking, rollback, verification and external-fallback rules.
+
+This instruction is portfolio policy issued by IZAKHONO AFRICA (PTY) LTD and applies to this repository and every platform/package within it unless a signed product-specific exception supersedes it.
