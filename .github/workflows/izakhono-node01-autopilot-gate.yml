@@ -41,6 +41,10 @@ jobs:
           grep -q 'drop01-milestone-watch.mjs' owner-host/node01-autopilot.sh
           grep -q 'campaignSales=url.pathname.match' izakhono-data-node/server.mjs
           grep -q 'owner-agent.sh' owner-host/node01-autopilot.sh
+          grep -q 'growth-os-bridge-desired-state.json' owner-host/node01-autopilot.sh
+          grep -q 'growth-bridge-state.json' owner-host/node01-autopilot.sh
+          grep -q 'bridge.domains.izakhonoafrica.co.za/health' owner-host/node01-autopilot.sh
+          grep -q 'growth_bridge_owner_agent' owner-host/node01-autopilot.sh
           grep -q 'activate-owned-public-edge.sh' owner-host/node01-autopilot.sh
           grep -q 'live_claim:false' owner-host/node01-autopilot.sh
           grep -q 'independent_https_verification_required:true' owner-host/node01-autopilot.sh
