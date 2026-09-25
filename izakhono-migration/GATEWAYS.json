@@ -1,6 +1,6 @@
 {
   "schema": "izakhono.gateway/v1",
-  "effective_at": "2026-09-25T21:00:00+02:00",
+  "effective_at": "2026-09-25T23:08:00+02:00",
   "mode": "TEMPORARY_GATEWAY_FIRST",
   "primary_entrypoint": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway",
   "policy": {
@@ -102,12 +102,12 @@
     ],
     "revenue_sprint_premium_ui": true
   },
-  "launch_mode": "LIVE_REVENUE_FIRST",
+  "launch_mode": "LIVE_REVENUE_FIRST_PHOTO",
   "feature_freeze": true,
   "revenue_sprint": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-revenue",
   "revenue_sprint_status": "PUBLISHED_V2",
   "revenue_sprint_design": "premium-african-tech",
-  "revenue_public_frontend": "https://kora-network.vercel.app/izakhono-revenue/",
+  "revenue_public_frontend": "https://bevanshelton-netizen.github.io/Downloads/",
   "revenue_health": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-revenue?health=1",
   "premium_revenue_v2_source": "ports/revenue-sprint/index.html",
   "pages_frontend_status": "WITHHELD_404",
@@ -115,5 +115,9 @@
   "revenue_light_theme": true,
   "opera_mini_friendly": true,
   "revenue_routing_status": "LIVE_VERIFIED_HTTP_200",
-  "visual_profile": "LIGHTER_APPEALING_WITH_PICTURE_PANELS"
+  "visual_profile": "LIGHTER_APPEALING_WITH_PICTURE_PANELS",
+  "revenue_fallback_frontend": "https://izakhono-revenue-desk.vercel.app",
+  "revenue_router": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-revenue",
+  "revenue_visual_mode": "photo-led commercial lanes",
+  "vercel_write_status": "RATE_LIMITED_FALLBACK_ONLY"
 }
