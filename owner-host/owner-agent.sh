@@ -19,6 +19,8 @@ case "$STATE_FILE" in
   *) echo "FAIL: unapproved owner-agent state path: $STATE_FILE" >&2; exit 2 ;;
 esac
 LOCK_FILE="/run/lock/izakhono-owner-agent.lock"
+DEPLOY_PROOF_DIR="/var/lib/izakhono-deploy"
+YHVH_PROOF_FILE="$DEPLOY_PROOF_DIR/yhvh-owner-agent-proof.json"
 
 mkdir -p "$RUN_DIR" "$(dirname "$LOCK_FILE")"
 chmod 0700 "$STATE_DIR" "$RUN_DIR"
@@ -110,6 +112,32 @@ const [path,id,action,status,attempts,exitCode,source,sourceAuthority,started,en
 fs.writeFileSync(path,JSON.stringify({request_id:id,action,status,attempts:Number(attempts),exit_code:Number(exitCode),source_commit:source,source_authority:sourceAuthority,started_at:started,ended_at:ended},null,2)+"\n");
 NODE
   chmod 0600 "$STATE_FILE"
+  if [ "$ACTION" = "deploy-yhvh-gospel-tv" ]; then
+    mkdir -p "$DEPLOY_PROOF_DIR"
+    TMP_PROOF="$(mktemp)"
+    node - "$TMP_PROOF" "$REQUEST_ID" "$ACTION" "$STATUS" "$ATTEMPTS" "$EXIT_CODE" "$SOURCE_COMMIT" "$SOURCE_AUTHORITY" "$STARTED" "$ENDED" <<'NODE'
+const fs=require("fs");
+const [path,requestId,action,status,attempts,exitCode,sourceCommit,sourceAuthority,startedAt,endedAt]=process.argv.slice(2);
+fs.writeFileSync(path,JSON.stringify({
+  schema:"izakhono.yhvh-owner-agent-proof/v1",
+  product_id:"yhvh-gospel-tv",
+  engine_id:"yhvh-gospel-engine",
+  request_id:requestId,
+  action,
+  status,
+  attempts:Number(attempts),
+  exit_code:Number(exitCode),
+  source_commit:sourceCommit,
+  source_authority:sourceAuthority,
+  started_at:startedAt,
+  ended_at:endedAt,
+  secrets_exposed:false,
+  log_path_exposed:false
+},null,2)+"\n");
+NODE
+    install -o root -g izakhono -m 0640 "$TMP_PROOF" "$YHVH_PROOF_FILE"
+    rm -f "$TMP_PROOF"
+  fi
   exit 0
 fi
 
@@ -227,5 +255,32 @@ fs.writeFileSync(path,JSON.stringify({
 },null,2)+"\n");
 NODE
 chmod 0600 "$STATE_FILE"
+
+if [ "$ACTION" = "deploy-yhvh-gospel-tv" ]; then
+  mkdir -p "$DEPLOY_PROOF_DIR"
+  TMP_PROOF="$(mktemp)"
+  node - "$TMP_PROOF" "$REQUEST_ID" "$ACTION" "$STATUS" "$ATTEMPTS" "$EXIT_CODE" "$SOURCE_COMMIT" "$SOURCE_AUTHORITY" "$STARTED" "$ENDED" <<'NODE'
+const fs=require("fs");
+const [path,requestId,action,status,attempts,exitCode,sourceCommit,sourceAuthority,startedAt,endedAt]=process.argv.slice(2);
+fs.writeFileSync(path,JSON.stringify({
+  schema:"izakhono.yhvh-owner-agent-proof/v1",
+  product_id:"yhvh-gospel-tv",
+  engine_id:"yhvh-gospel-engine",
+  request_id:requestId,
+  action,
+  status,
+  attempts:Number(attempts),
+  exit_code:Number(exitCode),
+  source_commit:sourceCommit,
+  source_authority:sourceAuthority,
+  started_at:startedAt,
+  ended_at:endedAt,
+  secrets_exposed:false,
+  log_path_exposed:false
+},null,2)+"\n");
+NODE
+  install -o root -g izakhono -m 0640 "$TMP_PROOF" "$YHVH_PROOF_FILE"
+  rm -f "$TMP_PROOF"
+fi
 
 exit 0
