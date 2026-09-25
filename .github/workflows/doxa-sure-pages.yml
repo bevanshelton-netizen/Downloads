@@ -10,6 +10,7 @@ on:
       - 'ports/revenue-sprint/**'
       - 'doxa-sure/**'
       - 'ports/izakhono-one/**'
+      - 'one/**'
       - 'ports/kora-kids/**'
       - 'portfolio-growth/**'
       - 'IZAKHONO-STUDIO/**'
@@ -47,6 +48,7 @@ jobs:
           rm -rf _site
           mkdir -p _site/doxa-sure _site/yenzanow
           mkdir -p _site/izakhono-one
+          mkdir -p _site/one
           mkdir -p _site/ports/izakhono-one
           mkdir -p _site/portfolio-growth
           mkdir -p _site/kora-kids
@@ -58,6 +60,7 @@ jobs:
           cp ports/yenzanow/healthz.txt _site/yenzanow/healthz.txt
           cp -R portfolio-growth/. _site/portfolio-growth/
           cp -R ports/izakhono-one/. _site/izakhono-one/
+          cp -R one/. _site/one/
           cp -R ports/izakhono-one/. _site/ports/izakhono-one/
           cp -R ports/kora-kids/. _site/kora-kids/
           cp -R IZAKHONO-STUDIO/dist/. _site/creative-suite/
