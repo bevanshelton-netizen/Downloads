@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -158,6 +159,53 @@ func normalizeHost(h string) string {
 	return h
 }
 
+func scrubForwardingHeaders(h http.Header) {
+	for _, name := range []string{
+		"Forwarded",
+		"X-Forwarded-For",
+		"X-Forwarded-Host",
+		"X-Forwarded-Proto",
+		"X-Forwarded-Port",
+		"X-Forwarded-Server",
+		"X-Real-IP",
+		"CF-Connecting-IP",
+		"True-Client-IP",
+		"Fly-Client-IP",
+		"X-Vercel-Forwarded-For",
+		"X-IZAKHONO-Edge",
+	} {
+		h.Del(name)
+	}
+}
+
+func validateTLSMaterial(c Config) error {
+	pair, err := tls.LoadX509KeyPair(c.TLS.CertFile, c.TLS.KeyFile)
+	if err != nil {
+		return fmt.Errorf("load TLS keypair: %w", err)
+	}
+	if len(pair.Certificate) == 0 {
+		return errors.New("TLS certificate chain is empty")
+	}
+	leaf, err := x509.ParseCertificate(pair.Certificate[0])
+	if err != nil {
+		return fmt.Errorf("parse TLS leaf certificate: %w", err)
+	}
+	now := time.Now()
+	if now.Before(leaf.NotBefore) {
+		return fmt.Errorf("TLS certificate is not valid before %s", leaf.NotBefore.UTC().Format(time.RFC3339))
+	}
+	if !now.Before(leaf.NotAfter) {
+		return fmt.Errorf("TLS certificate expired at %s", leaf.NotAfter.UTC().Format(time.RFC3339))
+	}
+	for _, r := range c.Routes {
+		host := normalizeHost(r.Host)
+		if err := leaf.VerifyHostname(host); err != nil {
+			return fmt.Errorf("TLS certificate does not cover route host %s: %w", host, err)
+		}
+	}
+	return nil
+}
+
 func newEngine(c Config) (*Engine, error) {
 	e := &Engine{cfg: c, routes: map[string]*routeState{}, limits: map[string]limiterEntry{}}
 	for _, r := range c.Routes {
@@ -174,15 +222,13 @@ func newEngine(c Config) (*Engine, error) {
 		}
 		original := p.Director
 		p.Director = func(req *http.Request) {
-			host := req.Host
+			publicHost := normalizeHost(req.Host)
 			original(req)
 			req.Host = t.Host
-			req.Header.Del("Forwarded")
-			req.Header.Del("X-Forwarded-For")
-			req.Header.Del("X-Forwarded-Host")
-			req.Header.Del("X-Forwarded-Proto")
-			req.Header.Set("X-Forwarded-Host", host)
+			scrubForwardingHeaders(req.Header)
+			req.Header.Set("X-Forwarded-Host", publicHost)
 			req.Header.Set("X-Forwarded-Proto", "https")
+			req.Header.Set("X-Real-IP", clientIP(req))
 			req.Header.Set("X-IZAKHONO-Edge", c.NodeName)
 		}
 		p.ErrorHandler = func(w http.ResponseWriter, req *http.Request, err error) {
@@ -288,10 +334,15 @@ func (e *Engine) serveHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (e *Engine) healthLoop(ctx context.Context) {
+	healthTransport := &http.Transport{
+		Proxy:       nil,
+		DialContext: (&net.Dialer{Timeout: 3 * time.Second, KeepAlive: 30 * time.Second}).DialContext,
+	}
+	defer healthTransport.CloseIdleConnections()
+	cli := &http.Client{Transport: healthTransport, Timeout: 5 * time.Second}
 	check := func(rs *routeState) {
 		u := strings.TrimRight(rs.route.Upstream, "/") + rs.route.HealthPath
 		req, _ := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
-		cli := &http.Client{Timeout: 5 * time.Second}
 		resp, err := cli.Do(req)
 		detail := "ok"
 		healthy := err == nil && resp.StatusCode >= 200 && resp.StatusCode < 400
@@ -362,20 +413,17 @@ func main() {
 	if err != nil {
 		log.Fatalf("config: %v", err)
 	}
+	if err := validateTLSMaterial(cfg); err != nil {
+		log.Fatalf("TLS: %v", err)
+	}
 	if *checkOnly {
-		fmt.Println("IZAKHONO EDGE CONFIG: PASS")
+		fmt.Println("IZAKHONO EDGE CONFIG + TLS: PASS")
 		return
 	}
 
 	engine, err := newEngine(cfg)
 	if err != nil {
 		log.Fatal(err)
-	}
-	if _, err := os.Stat(filepath.Clean(cfg.TLS.CertFile)); err != nil {
-		log.Fatalf("TLS cert: %v", err)
-	}
-	if _, err := os.Stat(filepath.Clean(cfg.TLS.KeyFile)); err != nil {
-		log.Fatalf("TLS key: %v", err)
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
