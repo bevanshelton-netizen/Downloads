@@ -15,17 +15,17 @@ on:
       - 'izakhono-owned-cloud/deploy-izakhono-one-ai.sh'
       - 'izakhono-owned-cloud/activate-owned-public-edge.sh'
       - 'izakhono-owned-cloud/activate-tailscale-funnel.sh'
-      - 'owner-host/control/desired-state.json'
-      - 'izakhono-owned-cloud/activate-local-model-engine.sh'
-      - 'izakhono-owned-cloud/deploy-izakhono-one-ai.sh'
-      - 'izakhono-owned-cloud/activate-owned-public-edge.sh'
-      - 'izakhono-owned-cloud/activate-tailscale-funnel.sh'
   push:
     branches: [main]
     paths:
       - '.github/workflows/izakhono-one-owned-public-verify.yml'
       - 'IZAKHONO-ONE-DEPLOYMENT-READINESS.md'
       - 'owner-host/START-IZAKHONO-ONE-OWNED-LAUNCH.ps1'
+      - 'owner-host/control/desired-state.json'
+      - 'izakhono-owned-cloud/activate-local-model-engine.sh'
+      - 'izakhono-owned-cloud/deploy-izakhono-one-ai.sh'
+      - 'izakhono-owned-cloud/activate-owned-public-edge.sh'
+      - 'izakhono-owned-cloud/activate-tailscale-funnel.sh'
 
 permissions:
   contents: read
