@@ -1,9 +1,9 @@
 {
   "schema": "izakhono.owner-agent-request/v1",
-  "id": "izakhono-one-r0-owned-authority-20260925-02",
+  "id": "izakhono-one-r0-owned-authority-20260925-03",
   "enabled": true,
   "action": "activate-one-local-model",
-  "requested_at": "2026-09-25T11:25:00Z",
+  "requested_at": "2026-09-25T12:37:30Z",
   "expires_at": "2026-10-31T23:59:59Z",
   "max_attempts": 3,
   "params": {
@@ -11,5 +11,5 @@
     "hostname": "one.domains.izakhonoafrica.co.za",
     "r0_mode": true
   },
-  "note": "Activate IZAKHONO ONE on any verified IZAKHONO-owned sovereign node fulfilling the NODE01 authority role, including ISN-01 equivalents. R0 mode: skip purchased-domain/public-IP ingress and prefer the outbound Tailscale Funnel bridge. Preserve external resilience. No tracking, profiling, advertising IDs or prompt persistence. Do not claim the direct owned route VERIFIED LIVE until independent public HTTPS verification passes."
+  "note": "Activate IZAKHONO ONE on any verified IZAKHONO-owned sovereign node fulfilling the NODE01 authority role, including ISN-01 equivalents. R0 mode: skip purchased-domain/public-IP ingress and prefer the outbound Tailscale Funnel bridge. Preserve external resilience. No tracking, profiling, advertising IDs or prompt persistence. Desired-state changes self-resume on the allow-listed IZAKHONO runner. Do not claim the direct owned route VERIFIED LIVE until independent public HTTPS verification passes."
 }
