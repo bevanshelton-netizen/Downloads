@@ -127,6 +127,12 @@
       "defaultHostname": "one.domains.izakhonoafrica.co.za",
       "deploy": "izakhono-owned-cloud/deploy-izakhono-one-ai.sh",
       "qualityProfile": "izakhono-premium-v1"
+    },
+    {
+      "id": "izakhono-commands",
+      "hostnameEnv": "IZAKHONO_COMMANDS_PUBLIC_HOST",
+      "defaultHostname": "commands.domains.izakhonoafrica.co.za",
+      "deploy": "izakhono-owned-cloud/deploy-command-centre.sh"
     }
   ]
 }
