@@ -1,0 +1,2 @@
+import { updatePassword } from "./actions";
+export default function UpdatePasswordPage(){return <main className="mx-auto max-w-md px-6 py-20"><h1 className="text-3xl font-bold">Choose a new password</h1><form action={updatePassword} className="mt-8 grid gap-4"><input required minLength={10} type="password" name="password" placeholder="New password" className="rounded-xl border px-4 py-3"/><button className="rounded-xl bg-slate-950 px-4 py-3 font-semibold text-white">Update password</button></form></main>}

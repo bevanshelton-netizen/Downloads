@@ -1,0 +1,3 @@
+"use server";
+import { revalidatePath } from "next/cache"; import { requireUser } from "@/lib/auth/require-user";
+export async function createTicket(fd:FormData){const subject=String(fd.get("subject")??"").trim().slice(0,160); const body=String(fd.get("body")??"").trim().slice(0,5000); if(!subject||!body)return; const {supabase,user}=await requireUser(); const {data:m}=await supabase.from("tenant_members").select("tenant_id").eq("user_id",user.id).limit(1).maybeSingle(); if(!m)return; await supabase.from("support_tickets").insert({tenant_id:m.tenant_id,created_by:user.id,subject,body}); revalidatePath("/dashboard/support");}

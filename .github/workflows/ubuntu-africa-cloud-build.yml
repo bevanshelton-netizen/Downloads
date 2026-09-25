@@ -1,0 +1,46 @@
+name: Ubuntu Africa Cloud Build Check
+
+on:
+  push:
+    branches:
+      - agent/ubuntu-africa-cloud-deploy
+    paths:
+      - 'ubuntu-africa-cloud/**'
+      - 'netlify.toml'
+      - '.github/workflows/ubuntu-africa-cloud-build.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'ubuntu-africa-cloud/**'
+      - 'netlify.toml'
+      - '.github/workflows/ubuntu-africa-cloud-build.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ubuntu-africa-cloud
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Production build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: placeholder
+          SUPABASE_SERVICE_ROLE_KEY: placeholder
+          APP_URL: https://example.invalid
