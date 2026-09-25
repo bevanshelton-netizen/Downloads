@@ -1,21 +1,43 @@
-# VIDEONOMY bootstrap payments
+# VIDEONOMY payments and creator earnings
 
-The launch payment adapter is prepared for PayFast custom web integration. Live merchant credentials are **never** committed to GitHub or exposed to browser JavaScript.
+## Default creator-fan payment path: iKhokha
 
-## Required Cloudflare secrets/vars
+Creator tips use the server-side iKhokha payment-link adapter. Browser code never receives the iKhokha app secret.
+
+Required runtime secrets/vars:
+- `IKHOKHA_APP_ID`
+- `IKHOKHA_APP_SECRET`
+- `IKHOKHA_MODE=live`
+- `PUBLIC_BASE_URL=https://<public-videonomy-domain>`
+
+A tip:
+1. creates a VIDEONOMY creator-payment record,
+2. requests a signed iKhokha payment link,
+3. sends the fan to the hosted payment page,
+4. accepts only a signature-verified callback linked to the stored payment,
+5. records successful revenue in the creator ledger as **pending**,
+6. becomes **available** only after settlement review records actual external cost.
+
+The payout queue can draw only from available earnings and requires an independently verified payout profile. The application database stores an opaque payout account reference and safe display label rather than raw bank-account or card numbers.
+
+## PayFast compatibility
+
+The existing PayFast custom-web adapter remains for the founding advertiser/commercial-package flow and as a reversible payment adapter.
+
+Required PayFast values:
 - `PAYFAST_MERCHANT_ID`
 - `PAYFAST_MERCHANT_KEY`
 - `PAYFAST_PASSPHRASE`
-- `PAYFAST_MODE` = `sandbox` or `live`
+- `PAYFAST_MODE=sandbox|live`
 - `PUBLIC_BASE_URL`
-- Optional `PAYFAST_ALLOWED_CIDRS` if PayFast changes its published ITN source ranges.
+- optional `PAYFAST_ALLOWED_CIDRS`
 
-## Security gates before marking a payment paid
-1. Verify the ITN signature.
-2. Verify the request source is in PayFast's published ITN ranges.
-3. Verify `amount_gross` matches the stored payment intent exactly.
-4. POST the ITN parameter string back to PayFast's validation endpoint and require `VALID`.
-5. Make payment state updates idempotent using the provider transaction reference.
+PayFast paid state still requires signature, source, exact stored amount and provider validation checks.
 
-## Currency
-PayFast checkout is ZAR. VIDEONOMY may display USD/GBP/EUR estimates, but South African PayFast checkout amounts are stored and sent in ZAR minor units.
+## Money-state rule
+
+`pending` means revenue has been confirmed but is not yet withdrawable.
+`available` means settlement/cost review is complete and the creator may request a payout.
+`paid` means VIDEONOMY has recorded completion of the creator payout.
+
+A view count never creates money by itself. Revenue-backed ledger entries create earnings.
