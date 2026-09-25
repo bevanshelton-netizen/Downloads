@@ -1,0 +1,147 @@
+name: KORA KIDS Global Localisation Wave 1
+
+on:
+  push:
+    paths:
+      - "kora-kids-localisation/**"
+      - "kora-kids-studio/**"
+      - ".github/workflows/kora-kids-localisation.yml"
+  pull_request:
+    paths:
+      - "kora-kids-localisation/**"
+      - "kora-kids-studio/**"
+      - ".github/workflows/kora-kids-localisation.yml"
+
+jobs:
+  localisation-wave1:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate localisation and studio syntax
+        run: |
+          node --check kora-kids-localisation/worker.mjs
+          node --check kora-kids-studio/server.mjs
+
+      - name: Validate Wave 1 catalogue and machine-draft boundary
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          import path from "node:path";
+          const wave=JSON.parse(fs.readFileSync("kora-kids-localisation/wave1.json","utf8"));
+          const source=JSON.parse(fs.readFileSync("kora-kids-localisation/source/jam-day-under-the-baobab.en-ZA.json","utf8"));
+          const languages=JSON.parse(fs.readFileSync("ports/kora-kids/languages.json","utf8"));
+          if(wave.targets?.length!==12) process.exit(2);
+          if(source.lines?.length!==17) process.exit(3);
+          const available=new Set(languages.languages.map(x=>x.code));
+          for(const target of wave.targets){
+            if(!available.has(target.code)||target.status!=="machine-draft") process.exit(4);
+            const file="kora-kids-localisation/packs/jam-day-under-the-baobab."+target.code+".json";
+            const p=JSON.parse(fs.readFileSync(file,"utf8"));
+            if(p.status!=="machine-draft"||p.humanReviewRequired!==true||p.lines?.length!==17) process.exit(5);
+            if(p.approvedForDubbing!==false||p.approvedForPublication!==false) process.exit(6);
+            if(Object.values(p.review||{}).some(Boolean)) process.exit(7);
+            if(!p.lines.every(x=>x.text&&x.source&&x.speaker==="Lebo")) process.exit(8);
+          }
+          NODE
+
+      - name: Compile all 12 draft subtitle and dubbing packs
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/kora-localisations
+          mkdir -p /tmp/kora-localisations
+          for pack in kora-kids-localisation/packs/*.json; do
+            code="$(basename "$pack" .json | sed 's/^jam-day-under-the-baobab\.//')"
+            node kora-kids-localisation/worker.mjs               --source kora-kids-localisation/source/jam-day-under-the-baobab.en-ZA.json               --pack "$pack"               --output "/tmp/kora-localisations/$code"               --mode draft
+            test -s "/tmp/kora-localisations/$code/dubbing-script.json"
+            test -s "/tmp/kora-localisations/$code/captions.vtt"
+            test -s "/tmp/kora-localisations/$code/localisation-result.json"
+          done
+          test "$(find /tmp/kora-localisations -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 12
+
+      - name: Validate RTL, brand names and draft publication block
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const ar=JSON.parse(fs.readFileSync("/tmp/kora-localisations/ar/dubbing-script.json","utf8"));
+          const zh=JSON.parse(fs.readFileSync("/tmp/kora-localisations/zh/dubbing-script.json","utf8"));
+          const sw=JSON.parse(fs.readFileSync("/tmp/kora-localisations/sw/dubbing-script.json","utf8"));
+          if(ar.textDirection!=="rtl"||ar.approvedForDubbing!==false) process.exit(2);
+          if(!ar.lines.some(x=>x.text.includes("Jabu"))) process.exit(3);
+          if(!zh.lines.some(x=>x.text.includes("Jabu"))) process.exit(4);
+          if(!sw.lines.some(x=>x.text.includes("Jabu"))) process.exit(5);
+          for(const code of ["ar","zh","sw"]){
+            const r=JSON.parse(fs.readFileSync("/tmp/kora-localisations/"+code+"/localisation-result.json","utf8"));
+            if(r.mode!=="draft"||r.publicationAllowed!==false) process.exit(6);
+          }
+          NODE
+
+      - name: Prove unreviewed packs cannot compile for production
+        run: |
+          if node kora-kids-localisation/worker.mjs             --source kora-kids-localisation/source/jam-day-under-the-baobab.en-ZA.json             --pack kora-kids-localisation/packs/jam-day-under-the-baobab.fr.json             --output /tmp/should-not-produce             --mode production; then
+            echo "Unreviewed French localisation incorrectly entered production" >&2
+            exit 2
+          fi
+
+      - name: Prove reviewed translation can enter dubbing prep but not publication
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const p=JSON.parse(fs.readFileSync("kora-kids-localisation/packs/jam-day-under-the-baobab.fr.json","utf8"));
+          for(const k of Object.keys(p.review)) p.review[k]=true;
+          p.approvedForDubbing=true;
+          p.approvedForPublication=false;
+          p.status="human-reviewed-test-fixture";
+          fs.writeFileSync("/tmp/fr-reviewed.json",JSON.stringify(p));
+          NODE
+          node kora-kids-localisation/worker.mjs             --source kora-kids-localisation/source/jam-day-under-the-baobab.en-ZA.json             --pack /tmp/fr-reviewed.json             --output /tmp/fr-production             --mode production
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const x=JSON.parse(fs.readFileSync("/tmp/fr-production/localisation-result.json","utf8"));
+          if(x.mode!=="production"||x.approvedForDubbing!==true||x.publicationAllowed!==false) process.exit(2);
+          NODE
+
+      - name: Start private Global Language Desk
+        env:
+          KORA_KIDS_STUDIO_WORKSPACE: ${{ runner.temp }}/kora-kids-studio
+        run: |
+          node kora-kids-studio/server.mjs >/tmp/kora-lang-studio.log 2>&1 &
+          echo $! >/tmp/kora-lang-studio.pid
+
+      - name: Verify language review gates stay private and release-safe
+        run: |
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:8890/api/localisations >/tmp/localisations.json && break
+            sleep 1
+          done
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const base="http://127.0.0.1:8890",headers={"content-type":"application/json"};
+          let items=JSON.parse(fs.readFileSync("/tmp/localisations.json","utf8")).localisations;
+          if(items.length!==12) process.exit(2);
+          const fr=items.find(x=>x.targetLanguage==="fr");
+          const ar=items.find(x=>x.targetLanguage==="ar");
+          if(!fr||!ar||ar.textDirection!=="rtl"||fr.approvedForDubbing!==false) process.exit(3);
+          for(const gate of ["nativeLanguage","culturalContext","comicTiming","childSafety","factAccuracy","finalEditorial"]){
+            const r=await fetch(base+"/api/localisations/fr/review",{method:"POST",headers,body:JSON.stringify({gate,approved:true})});
+            if(!r.ok) process.exit(4);
+          }
+          items=(await (await fetch(base+"/api/localisations")).json()).localisations;
+          const reviewed=items.find(x=>x.targetLanguage==="fr");
+          if(reviewed.approvedForDubbing!==true||reviewed.approvedForPublication!==false) process.exit(5);
+          NODE
+
+      - name: Stop studio
+        if: always()
+        run: |
+          test ! -f /tmp/kora-lang-studio.pid || kill "$(cat /tmp/kora-lang-studio.pid)" || true
+
+      - name: Upload draft localisation proofs
+        uses: actions/upload-artifact@v4
+        with:
+          name: lebo-jabu-wave1-localisation-drafts
+          path: /tmp/kora-localisations
+          retention-days: 7
