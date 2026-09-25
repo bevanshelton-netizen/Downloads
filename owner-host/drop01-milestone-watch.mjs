@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, renameSync } from "node:fs";
 import { dirname } from "node:path";
 import { spawnSync } from "node:child_process";
 
@@ -13,6 +13,7 @@ const STATE_PATH=process.env.ALLEGRO_DROP01_STATE || "/var/lib/izakhono-deploy/a
 const NOTIFY_URL=(process.env.IZAKHONO_NOTIFY_URL || "http://127.0.0.1:8840").replace(/\/$/,"");
 const NOTIFY_KEY=process.env.IZAKHONO_NOTIFY_KEY || "";
 const RECIPIENT=process.env.ALLEGRO_DROP01_RECIPIENT || "bevan-shelton";
+const CHECK_SECONDS=Math.max(300,Number(process.env.ALLEGRO_DROP01_CHECK_SECONDS||3600));
 
 const FALLBACK_URL=process.env.ALLEGRO_DROP01_FALLBACK_URL || "https://zoolsumifdtanycjryje.supabase.co/rest/v1/rpc/get_merch_campaign_progress";
 const FALLBACK_KEY=process.env.ALLEGRO_DROP01_FALLBACK_KEY || "sb_publishable_8LBaWtgMxlewODl4STQ9YA_jMMEt5Gt";
@@ -27,7 +28,7 @@ function saveState(state){
   mkdirSync(dirname(STATE_PATH),{recursive:true});
   const tmp=STATE_PATH+".tmp";
   writeFileSync(tmp,JSON.stringify(state,null,2)+"\n","utf8");
-  writeFileSync(STATE_PATH,readFileSync(tmp));
+  renameSync(tmp,STATE_PATH);
 }
 async function jsonFetch(url,options={}){
   const controller=new AbortController();
@@ -131,6 +132,15 @@ function windowsOwnerAlert(milestone,progress){
 }
 async function run(){
   const state=loadState();
+  const last=Date.parse(state.updated_at||"");
+  const force=process.argv.includes("--force");
+  if(!force && Number.isFinite(last) && Date.now()-last < CHECK_SECONDS*1000){
+    process.stdout.write(JSON.stringify({
+      ok:true,skipped:true,reason:"interval_not_due",campaign:CAMPAIGN,
+      next_check_after:new Date(last+CHECK_SECONDS*1000).toISOString(),state_path:STATE_PATH
+    })+"\n");
+    return;
+  }
   const progress=await resolveProgress();
   const paid=Math.max(0,Number(progress.paid_sales||0));
   const milestones=crossedMilestones(paid,state.notified);
