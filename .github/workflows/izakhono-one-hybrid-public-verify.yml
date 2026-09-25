@@ -47,6 +47,27 @@ jobs:
           grep -q 'IZAKHONO ONE' /tmp/external.html
           ! grep -Eqi 'utm_|googletagmanager|google-analytics|facebook[^<]*(pixel|track)|hotjar|clarity\.ms|mixpanel|amplitude|plausible|matomo|portfolio-growth/bridge\.js' /tmp/external.html
 
+          CONTROL='https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-control'
+          BUSINESS='https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one'
+          DEVICE='https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-device-ai'
+
+          control_code="$(curl -sS --max-time 20 -o /tmp/control.html -w '%{http_code}' "$CONTROL")"
+          control_health="$(curl -sS --max-time 20 -o /tmp/control-health.json -w '%{http_code}' "$CONTROL?health=1")"
+          business_code="$(curl -sS --max-time 20 -o /tmp/business.html -w '%{http_code}' "$BUSINESS")"
+          device_code="$(curl -sS --max-time 20 -o /tmp/device.html -w '%{http_code}' "$DEVICE")"
+          device_health="$(curl -sS --max-time 20 -o /tmp/device-health.json -w '%{http_code}' "$DEVICE?health=1")"
+          echo "CONTROL=$control_code CONTROL_HEALTH=$control_health BUSINESS=$business_code DEVICE=$device_code DEVICE_HEALTH=$device_health"
+          test "$control_code" = "200"
+          test "$control_health" = "200"
+          test "$business_code" = "200"
+          test "$device_code" = "200"
+          test "$device_health" = "200"
+          grep -q 'IZAKHONO ONE' /tmp/control.html
+          grep -q 'IZAKHONO ONE' /tmp/business.html
+          grep -q 'IZAKHONO ONE AI' /tmp/device.html
+          node -e "const x=require('/tmp/control-health.json');if(x.ok!==true||x.tracking!==false||x.behavioural_profiling!==false||x.advertising_ids!==false||x.referral_attribution!==false||x.owned_authority!=='NODE 01')process.exit(2)"
+          node -e "const x=require('/tmp/device-health.json');if(x.ok!==true||x.product!=='IZAKHONO ONE AI'||x.route!=='external-device-ai'||x.tracking!==false||x.server_prompt_persistence!==false||x.owned_authority!=='NODE 01')process.exit(2)"
+
           if [ "$route" = "external-resilience" ]; then
             root_code="$(curl -sS --max-time 20 -o /tmp/root.html -w '%{http_code}' "$BASE")"
             echo "HYBRID_ROOT=$root_code"
