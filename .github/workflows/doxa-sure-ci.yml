@@ -28,6 +28,7 @@ jobs:
           node --check doxa-sure/risk-check.js
           node --check doxa-sure/lead-capture.js
           node --check doxa-sure/leads-dashboard.js
+          node --check doxa-sure/site/doxa-live.js
           node --check doxa-sure/netlify/functions/izakhono-pay-callback.mjs
           node --test doxa-sure/netlify/functions/izakhono-pay-callback.test.mjs
           python3 -m unittest discover -s doxa-sure -p 'test_owner_service.py'
@@ -48,6 +49,8 @@ jobs:
           test -f doxa-sure/supabase/migrations/002_doxa_secure_leads.sql
           test -f doxa-sure/supabase/migrations/003_doxa_broker_network.sql
           test -f doxa-sure/supabase/migrations/004_doxa_payment_callback.sql
+          test -f doxa-sure/supabase/migrations/005_doxa_live_hardening.sql
+          test -f doxa-sure/site/doxa-live.js
           test -f doxa-sure/.env.callback.example
           test -f doxa-sure/.izakhono.json
           test -f doxa-sure/Dockerfile
@@ -74,6 +77,10 @@ jobs:
           grep -q 'DOXA_PAYMENT_CALLBACK_ENABLED=false' doxa-sure/.env.callback.example
           ! grep -Eq 'DOXA_(IZAKHONO_PAY_CALLBACK_SECRET|SUPABASE_SERVICE_ROLE_KEY)=.+' doxa-sure/.env.callback.example
           grep -q 'DOXA_DATA_DIR=/var/lib/doxa-sure' doxa-sure/.env.callback.example
+          grep -q 'yfawrenhudjomhnglfhq.supabase.co' doxa-sure/config.js
+          grep -q 'doxa_submit_pilot_lead' doxa-sure/site/doxa-live.js
+          grep -q 'SmolLM2-360M-Instruct' doxa-sure/site/doxa-live.js
+          ! grep -REq '066[[:space:]-]*298[[:space:]-]*2213|api\.whatsapp|wa\.me' doxa-sure/site
           ! grep -Eq "id_number|account_number|bank_password|pin_number" doxa-sure/index.html doxa-sure/app.js doxa-sure/risk-check.html doxa-sure/risk-check.js doxa-sure/pilot.html
       - name: Revenue-funnel compliance language
         shell: bash
