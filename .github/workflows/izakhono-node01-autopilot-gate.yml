@@ -39,7 +39,7 @@ jobs:
           node owner-host/drop01-milestone-watch.mjs --self-test
           node --check izakhono-data-node/server.mjs
           grep -q 'drop01-milestone-watch.mjs' owner-host/node01-autopilot.sh
-          grep -q '/v1/local/campaigns/' izakhono-data-node/server.mjs
+          grep -q 'campaignSales=url.pathname.match' izakhono-data-node/server.mjs
           grep -q 'owner-agent.sh' owner-host/node01-autopilot.sh
           grep -q 'activate-owned-public-edge.sh' owner-host/node01-autopilot.sh
           grep -q 'live_claim:false' owner-host/node01-autopilot.sh
