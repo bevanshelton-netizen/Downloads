@@ -35,7 +35,7 @@ jobs:
           grep -q '<svg' kora-kids-studio/rigs/piko.svg
           grep -q '<svg' kora-kids-studio/rigs/busi-bus.svg
           node -e 'const x=require("./kora-kids-studio/config/render-targets.json"); const p=x.targets.find(t=>t.id==="izakhono-local"); const e=x.targets.find(t=>t.id==="external-burst"); if(!p?.enabled||!p?.authoritative||e?.enabled) process.exit(2)'
-          node -e 'const v=require("./kora-kids-studio/bibles/lebo-jabu-voice-bible.json"); const s=require("./kora-kids-studio/bibles/kora-kids-sound-bible.json"); const a=require("./kora-kids-studio/bibles/lebo-jabu-animation-bible.json"); if(v.schema!=="kora-kids.voice-bible/v1"||s.schema!=="kora-kids.sound-bible/v1"||a.schema!=="kora-kids.animation-bible/v1") process.exit(2)'
+          node -e 'const lv=require("./kora-kids-studio/bibles/lebo-jabu-voice-bible.json"); const la=require("./kora-kids-studio/bibles/lebo-jabu-animation-bible.json"); const tv=require("./kora-kids-studio/bibles/tumi-tala-voice-bible.json"); const ta=require("./kora-kids-studio/bibles/tumi-tala-animation-bible.json"); const sb=require("./kora-kids-studio/bibles/kora-kids-sound-bible.json"); if(lv.schema!=="kora-kids.voice-bible/v1"||tv.schema!=="kora-kids.voice-bible/v1"||sb.schema!=="kora-kids.sound-bible/v1"||la.schema!=="kora-kids.animation-bible/v1"||ta.schema!=="kora-kids.animation-bible/v1") process.exit(2)'
       - name: Ensure owned render tools
         run: |
           set -euo pipefail
@@ -103,10 +103,31 @@ jobs:
           if(render.result?.schema!=="kora-kids.render-result/v3"||render.result?.qc?.shotCount<20||render.result?.qc?.framingTypes?.length<6) process.exit(21);
           const blocked=await fetch(base+"/api/jobs",{method:"POST",headers,body:JSON.stringify({seriesId:"lebo-jabu",episodeSlug:"jam-day-under-the-baobab",language:"zu-ZA",renderTarget:"izakhono-local"})});
           if(blocked.status!==409) process.exit(5);
-          const legacy=await fetch(base+"/api/jobs",{method:"POST",headers,body:JSON.stringify({seriesId:"tumi-tala",episodeSlug:"good-morning-rainbow-town",language:"en-ZA",renderTarget:"izakhono-local"})});
-          if(legacy.status!==201) process.exit(7);
-          const legacyJob=(await legacy.json()).job;
-          if(legacyJob.series?.id!=="tumi-tala") process.exit(8);
+          const tumiCreate=await fetch(base+"/api/jobs",{method:"POST",headers,body:JSON.stringify({seriesId:"tumi-tala",episodeSlug:"good-morning-rainbow-town",language:"en-ZA",renderTarget:"izakhono-local"})});
+          if(tumiCreate.status!==201) process.exit(7);
+          let tumiJob=(await tumiCreate.json()).job;
+          if(tumiJob.series?.id!=="tumi-tala"||tumiJob.productionPack?.status!=="production-candidate"||tumiJob.scenes?.length!==5) process.exit(8);
+          if(!tumiJob.productionPack?.qualityBibles?.voice||!tumiJob.productionPack?.qualityBibles?.animation) process.exit(22);
+          if(!tumiJob.scenes.some(sc=>sc.dialogue?.some(d=>d.factReviewRequired===true))) process.exit(23);
+          for(const gate of ["script","language","culturalContext","childSafety","brand","final"]){
+            const r=await fetch(base+"/api/jobs/"+tumiJob.id+"/review",{method:"POST",headers,body:JSON.stringify({gate,approved:true})});
+            if(!r.ok) process.exit(24);
+            tumiJob=(await r.json()).job;
+          }
+          if(tumiJob.publishable!==true||tumiJob.status!=="approved") process.exit(25);
+          const tumiRenderStart=await fetch(base+"/api/jobs/"+tumiJob.id+"/render",{method:"POST",headers,body:JSON.stringify({mode:"proof"})});
+          if(tumiRenderStart.status!==202) process.exit(26);
+          const tumiRenderId=(await tumiRenderStart.json()).render.id;
+          let tumiRender=null;
+          for(let i=0;i<120;i++){
+            await new Promise(r=>setTimeout(r,250));
+            const list=await fetch(base+"/api/renders");
+            if(!list.ok) process.exit(27);
+            tumiRender=(await list.json()).renders.find(x=>x.id===tumiRenderId);
+            if(tumiRender?.status==="completed"||tumiRender?.status==="failed")break;
+          }
+          if(tumiRender?.status!=="completed") { console.error(tumiRender); process.exit(28); }
+          if(tumiRender.result?.series?.id!=="tumi-tala"||tumiRender.result?.qc?.passForGuide!==true||tumiRender.result?.broadcastMaster!==false) process.exit(29);
           NODE
       - name: Stop studio
         if: always()
