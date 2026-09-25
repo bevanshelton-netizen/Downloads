@@ -33,17 +33,18 @@ h1{font:600 clamp(3.3rem,10vw,7.4rem)/.88 Georgia,serif;letter-spacing:-.06em;ma
 </head>
 <body>
 <main>
-<div class="ey">IZAKHONO AFRICA · EXTERNAL PUBLIC PILOT · VERIFIED</div>
+<div class="ey">IZAKHONO AFRICA · HYBRID PUBLIC ROUTE · VERIFIED</div>
 <h1>One workspace.<br>Business + AI.</h1>
-<p class="lead">The external public pilot is active. Open IZAKHONO ONE Control to create or reopen your workspace, run the current Business tools, and use Device AI on compatible browsers. The owned NODE 01 route remains the long-term authority and is still separately gated by physical activation, SMTP/recovery and public DNS/TLS verification.</p>
+<p class="lead">The hybrid public route is active. Enter through the IZAKHONO ONE gateway: it uses the verified external resilience path now and automatically prefers the owned NODE 01 route only after strict DNS, TLS, health and privacy verification. ONE Control, Business and Device AI remain directly reachable as fallback services.</p>
 <div class="actions">
-<a class="btn gold" href="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-control">Open ONE Control</a>
+<a class="btn gold" href="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-hub">Open IZAKHONO ONE</a>
 <button id="install" class="btn ghost hide" type="button">Install IZAKHONO ONE</button>
-<a class="btn ghost" href="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-device-ai">Open Device AI</a>
+<a class="btn ghost" href="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-control">Direct ONE Control</a>
+<a class="btn ghost" href="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-device-ai">Direct Device AI</a>
 </div>
 <div id="net" class="status">Checking connection…</div>
 <section class="grid">
-<div class="card"><span class="badge">LIVE</span><b>ONE Control</b><p>One front door for workspace access, recovery key handling and live ONE tools.</p></div>
+<div class="card"><span class="badge">VERIFIED LIVE</span><b>Hybrid ONE Gateway</b><p>The canonical front door. It keeps NODE 01 authoritative, serves the external resilience route now, and can promote traffic to the owned route only after strict verification.</p></div>
 <div class="card"><span class="badge">BETA LIVE</span><b>ONE Device AI</b><p>Compact browser-local AI on compatible WebGPU devices. Prompt processing stays on the device through IZAKHONO application code.</p></div>
 <div class="card"><span class="badge">OWNED PATH</span><b>NODE 01</b><p>The owned runtime remains the intended primary authority and can take traffic back after DNS/TLS/public verification.</p></div>
 </section>
@@ -52,7 +53,7 @@ h1{font:600 clamp(3.3rem,10vw,7.4rem)/.88 Georgia,serif;letter-spacing:-.06em;ma
 </main>
 <script>
 const net=document.getElementById('net'),install=document.getElementById('install');let deferred=null;
-function online(){net.innerHTML=navigator.onLine?'<strong>Online</strong> · ONE Control can be opened.':'Offline · this launch screen remains available, but live ONE services require a connection.'}
+function online(){net.innerHTML=navigator.onLine?'<strong>Online</strong> · The verified hybrid ONE gateway can be opened.':'Offline · this launch screen remains available, but live ONE services require a connection.'}
 addEventListener('online',online);addEventListener('offline',online);online();
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;install.classList.remove('hide')});
 install.addEventListener('click',async()=>{if(!deferred)return;deferred.prompt();await deferred.userChoice.catch(()=>null);deferred=null;install.classList.add('hide')});
