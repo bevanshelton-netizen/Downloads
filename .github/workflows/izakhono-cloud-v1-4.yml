@@ -30,7 +30,7 @@ jobs:
           set -euo pipefail
           images=(
             'postgres:16-alpine'
-            'minio/minio:latest'
+            'quay.io/minio/minio:latest'
             'caddy:2-alpine'
             'prom/prometheus:latest'
             'prom/alertmanager:latest'
