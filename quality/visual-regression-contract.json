@@ -1,0 +1,151 @@
+{
+  "schema": "izakhono.visual-contract/v1",
+  "surfaces": [
+    {
+      "id": "izakhono-flagship",
+      "html": "izakhono-group/index.html",
+      "css": [
+        "izakhono-group/styles.css",
+        "izakhono-group/premium-v1.css"
+      ],
+      "landmarks": [
+        "IZAKHONO"
+      ]
+    },
+    {
+      "id": "auto-ai",
+      "html": "auto-ai/public/index.html",
+      "css": [
+        "auto-ai/public/styles.css",
+        "auto-ai/public/premium-v1.css"
+      ],
+      "landmarks": [
+        "AUTO AI"
+      ]
+    },
+    {
+      "id": "faisready",
+      "html": "FAISReady/index.html",
+      "css": [
+        "FAISReady/premium-v1.css"
+      ],
+      "landmarks": [
+        "FAISReady"
+      ]
+    },
+    {
+      "id": "memory-mania",
+      "html": "memory-mania/public/index.html",
+      "css": [
+        "memory-mania/public/premium-v1.css"
+      ],
+      "landmarks": [
+        "Memory Mania"
+      ]
+    },
+    {
+      "id": "crowne-hair",
+      "html": "crowne-hair/public/index.html",
+      "css": [
+        "crowne-hair/public/styles.css",
+        "crowne-hair/public/premium-v1.css"
+      ],
+      "landmarks": [
+        "CROWNE HAIR BY NETTY"
+      ]
+    },
+    {
+      "id": "izakhono-revenue-desk",
+      "html": "kora-network/public/izakhono-revenue/index.html",
+      "css": [
+        "kora-network/public/izakhono-revenue/premium-v1.css"
+      ],
+      "landmarks": [
+        "IZAKHONO Business Growth Desk"
+      ]
+    },
+    {
+      "id": "kora-gospel-tv",
+      "html": "ports/kora-gospel-tv/index.html",
+      "css": [
+        "ports/kora-gospel-tv/premium-v1.css"
+      ],
+      "landmarks": [
+        "YHVH GOSPEL TV"
+      ]
+    },
+    {
+      "id": "izakhono-one-ai",
+      "html": "izakhono-one-ai/public/index.html",
+      "css": [
+        "izakhono-one-ai/public/premium-v1.css"
+      ],
+      "landmarks": [
+        "IZAKHONO ONE"
+      ]
+    },
+    {
+      "id": "kora-kids",
+      "html": "ports/kora-kids/index.html",
+      "css": [
+        "ports/kora-kids/premium-v1.css"
+      ],
+      "release": "ports/kora-kids/release.json",
+      "landmarks": [
+        "KORA KIDS"
+      ]
+    }
+  ],
+  "applicationSurfaces": [
+    {
+      "id": "kora-network",
+      "entry": "kora-network/app/layout.tsx",
+      "css": [
+        "kora-network/app/globals.css",
+        "kora-network/app/premium-v1.css"
+      ],
+      "marker": "izakhono-premium-v1"
+    },
+    {
+      "id": "creative-suite",
+      "entry": "IZAKHONO-STUDIO/src/main.jsx",
+      "css": [
+        "IZAKHONO-STUDIO/src/styles.css",
+        "IZAKHONO-STUDIO/src/suite.css",
+        "IZAKHONO-STUDIO/src/premium-v1.css"
+      ],
+      "marker": "izakhono-premium-v1"
+    },
+    {
+      "id": "growth-os-v2",
+      "entry": "izakhono-growth-os/app/layout.tsx",
+      "css": [
+        "izakhono-growth-os/app/globals.css",
+        "izakhono-growth-os/app/premium-v1.css"
+      ],
+      "marker": "izakhono-premium-v1"
+    }
+  ],
+  "dedicatedRepositories": [
+    {
+      "id": "ecd360",
+      "repository": "bevanshelton-netizen/edubuild-ecd360",
+      "releaseCommit": "1de39a9d015f3a3db5b213977791723f33e21fee"
+    },
+    {
+      "id": "legacymart",
+      "repository": "bevanshelton-netizen/bevanshelton-netizen-legacymart",
+      "releaseCommit": "fb87cb831dfd86a340b5ecccbb5759f5a9578d9f"
+    },
+    {
+      "id": "allegro-vibez",
+      "repository": "bevanshelton-netizen/allegro-vibez",
+      "qualityProfile": "izakhono-premium-v1"
+    },
+    {
+      "id": "the-chancellor",
+      "repository": "bevanshelton-netizen/the-chancellor",
+      "qualityProfile": "izakhono-premium-v1"
+    }
+  ]
+}
