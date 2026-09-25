@@ -72,6 +72,20 @@ try {
 }
 
 Write-Host ""
+Write-Host "Installing NODE01 Autopilot..." -ForegroundColor Cyan
+$autopilotBootstrap = Join-Path $State "INSTALL-IZAKHONO-NODE01-AUTOPILOT.ps1"
+$autopilotUrl = "https://raw.githubusercontent.com/bevanshelton-netizen/Downloads/main/owner-host/INSTALL-IZAKHONO-NODE01-AUTOPILOT.ps1"
+try {
+    Invoke-WebRequest -UseBasicParsing $autopilotUrl -OutFile $autopilotBootstrap
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $autopilotBootstrap
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "NODE01 Autopilot installer returned a non-zero result; core services remain intact." -ForegroundColor Yellow
+    }
+} catch {
+    Write-Host "NODE01 Autopilot could not complete: $($_.Exception.Message)" -ForegroundColor Yellow
+    Write-Host "Owner-host core remains intact; Autopilot can be rerun independently." -ForegroundColor Yellow
+}
+Write-Host ""
 Write-Host "OWNER HOST CORE: INSTALLED" -ForegroundColor Green
 Write-Host "Checking host status..." -ForegroundColor Cyan
 & wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cd /opt/izakhono-source/Downloads && bash owner-host/status.sh"
@@ -162,4 +176,5 @@ if ($PublicVerified) {
 }
 
 Write-Host ""
-Write-Host "The private IZAKHONO stack, Growth OS runtime, FORTRESS and owned services do not depend on Vercel." -ForegroundColor Green
+Write-Host "The private IZAKHONO stack, Growth OS runtime, FORTRESS, NODE01 runner and Autopilot do not depend on Vercel." -ForegroundColor Green
+Write-Host "Owned public promotion still requires independent HTTPS verification." -ForegroundColor Yellow
