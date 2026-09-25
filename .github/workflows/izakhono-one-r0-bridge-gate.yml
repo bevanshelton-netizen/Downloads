@@ -1,0 +1,79 @@
+name: IZAKHONO ONE R0 Bridge Gate
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'START-IZAKHONO-ONE-R0-BRIDGE.cmd'
+      - 'owner-host/START-IZAKHONO-ONE-R0-BRIDGE.ps1'
+      - 'izakhono-owned-cloud/activate-tailscale-funnel.sh'
+      - 'izakhono-one-ai/deployment-plan.json'
+      - '.github/workflows/izakhono-one-r0-bridge-gate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Parse PowerShell launcher
+        shell: pwsh
+        run: |
+          $tokens=$null
+          $errors=$null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path 'owner-host/START-IZAKHONO-ONE-R0-BRIDGE.ps1'),
+            [ref]$tokens,[ref]$errors
+          ) | Out-Null
+          if($errors.Count -gt 0){
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
+
+      - name: Validate zero-budget bridge contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n izakhono-owned-cloud/activate-tailscale-funnel.sh
+
+          grep -q 'START-IZAKHONO-ONE-R0-BRIDGE.ps1' START-IZAKHONO-ONE-R0-BRIDGE.cmd
+          grep -q 'IZAKHONO_BRIDGE_APP="izakhono-one-ai"' owner-host/START-IZAKHONO-ONE-R0-BRIDGE.ps1
+          grep -q 'IZAKHONO_BRIDGE_EXPECTED_PRODUCT="IZAKHONO ONE AI"' owner-host/START-IZAKHONO-ONE-R0-BRIDGE.ps1
+          grep -q 'IZAKHONO_BRIDGE_EXPECTED_STATUS="healthy"' owner-host/START-IZAKHONO-ONE-R0-BRIDGE.ps1
+          grep -q 'activate-tailscale-funnel.sh' owner-host/START-IZAKHONO-ONE-R0-BRIDGE.ps1
+          grep -q 'engine_authority:"IZAKHONO_OWNED_RUNTIME"' izakhono-owned-cloud/activate-tailscale-funnel.sh
+          grep -q 'provider_is_replaceable_adapter:true' izakhono-owned-cloud/activate-tailscale-funnel.sh
+          grep -q 'public_ready:publicReady==="true"' izakhono-owned-cloud/activate-tailscale-funnel.sh
+
+          node - <<'NODE'
+          const fs=require('fs');
+          const x=JSON.parse(fs.readFileSync('izakhono-one-ai/deployment-plan.json','utf8'));
+          const r=x.r0_public_mode;
+          if(!r||r.enabled!==true||r.budget_zar!==0) process.exit(2);
+          if(r.custom_domain_required!==false) process.exit(3);
+          if(r.public_ipv4_required!==false) process.exit(4);
+          if(r.inbound_port_forwarding_required!==false) process.exit(5);
+          if(r.owned_runtime_authority!=='IZAKHONO_SOVEREIGN_NODE') process.exit(6);
+          if(r.launcher!=='START-IZAKHONO-ONE-R0-BRIDGE.cmd') process.exit(7);
+          if(x.rules?.no_live_claim_before_independent_https_verification!==true) process.exit(8);
+          if(x.rules?.behavioural_tracking!==false) process.exit(9);
+          NODE
+
+          ! grep -Eqi 'buy domain|purchase domain|payment required|public ipv4 required|port forwarding required' owner-host/START-IZAKHONO-ONE-R0-BRIDGE.ps1
+
+      - name: Gate summary
+        shell: bash
+        run: |
+          echo 'IZAKHONO ONE R0 BRIDGE: CONTRACT PASS'
+          echo 'BUDGET_ZAR=0'
+          echo 'CUSTOM_DOMAIN_REQUIRED=false'
+          echo 'PUBLIC_IPV4_REQUIRED=false'
+          echo 'INBOUND_PORT_FORWARDING_REQUIRED=false'
+          echo 'ENGINE_AUTHORITY=IZAKHONO_OWNED_RUNTIME'
+          echo 'TRANSPORT=REPLACEABLE_OUTBOUND_ADAPTER'
+          echo 'INDEPENDENT_HTTPS_VERIFICATION_REQUIRED=true'
