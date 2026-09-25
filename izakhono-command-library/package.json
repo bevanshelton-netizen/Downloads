@@ -1,0 +1,15 @@
+{
+  "name": "@izakhono/command-library",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared model-agnostic slash-command engine for the IZAKHONO portfolio",
+  "scripts": {
+    "start": "node src/server.mjs",
+    "test": "node test/selftest.mjs",
+    "verify": "node --check src/registry.mjs && node --check src/engine.mjs && node --check src/server.mjs && npm test"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}
