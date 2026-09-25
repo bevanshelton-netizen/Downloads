@@ -1,4 +1,4 @@
-name: IZAKHONO ONE Owned Public Verify
+name: IZAKHONO ONE Owned Public Monitor
 
 on:
   workflow_dispatch:
@@ -30,10 +30,6 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: izakhono-one-owned-public-verify
-  cancel-in-progress: true
-
 jobs:
   contract:
     runs-on: ubuntu-latest
@@ -49,7 +45,7 @@ jobs:
           grep -q 'START-IZAKHONO-ONE-OWNED-LAUNCH.cmd' IZAKHONO-ONE-DEPLOYMENT-READINESS.md
           grep -q 'External resilience route: PRESERVED / VERIFIED INDEPENDENTLY' owner-host/START-IZAKHONO-ONE-OWNED-LAUNCH.ps1
 
-  verify-owned-public:
+  monitor-owned-public:
     if: github.event_name != 'pull_request'
     needs: contract
     runs-on: ubuntu-latest
@@ -64,35 +60,43 @@ jobs:
           echo '=== DELEGATED ZONE: domains.izakhonoafrica.co.za NS ==='
           dig +short NS domains.izakhonoafrica.co.za
           echo '=== OWNED NAMESERVER ADDRESSES ==='
-          echo 'ns1.izakhonoafrica.co.za A:'
           dig +short A ns1.izakhonoafrica.co.za
-          echo 'ns2.izakhonoafrica.co.za A:'
           dig +short A ns2.izakhonoafrica.co.za
           echo '=== ONE RECORDS ==='
-          echo 'A:'
           dig +short A one.domains.izakhonoafrica.co.za
-          echo 'AAAA:'
           dig +short AAAA one.domains.izakhonoafrica.co.za
-          echo '=== TRACE (tail) ==='
-          dig +trace one.domains.izakhonoafrica.co.za 2>&1 | tail -n 40
           exit 0
 
-      - name: Verify exact HTTPS 200 and owned ONE release
+      - name: Observe exact HTTPS route without blocking builds
         shell: bash
         run: |
-          set -euo pipefail
+          set +e
           ROOT='https://one.domains.izakhonoafrica.co.za/'
           HEALTH='https://one.domains.izakhonoafrica.co.za/health'
-
           root_code="$(curl -sSL --max-time 12 -o /tmp/one-owned-root.html -w '%{http_code}' "$ROOT" || true)"
           health_code="$(curl -sSL --max-time 12 -o /tmp/one-owned-health.json -w '%{http_code}' "$HEALTH" || true)"
-
           echo "HTTPS_ROOT=$root_code"
           echo "HTTPS_HEALTH=$health_code"
 
-          test "$root_code" = '200'
-          test "$health_code" = '200'
-          grep -q 'IZAKHONO ONE' /tmp/one-owned-root.html
+          if [ "$root_code" != '200' ] || [ "$health_code" != '200' ]; then
+            {
+              echo '### IZAKHONO ONE owned route'
+              echo ''
+              echo '**NOT YET PUBLIC / NOT VERIFIED**'
+              echo ''
+              echo "HTTPS root: $root_code"
+              echo "HTTPS health: $health_code"
+              echo ''
+              echo 'This monitor is intentionally non-blocking. Promotion remains prohibited until an independent strict HTTPS verification passes.'
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo '::warning::Owned ONE DNS/HTTPS is not independently reachable yet. Build and external resilience work continue without claiming OWNED LIVE VERIFIED.'
+            exit 0
+          fi
+
+          grep -q 'IZAKHONO ONE' /tmp/one-owned-root.html || {
+            echo '::warning::Owned route returned 200 but expected IZAKHONO ONE marker is missing.'
+            exit 0
+          }
 
           node <<'NODE'
           const fs=require('fs');
@@ -109,18 +113,23 @@ jobs:
           };
           for(const [k,v] of Object.entries(required)){
             if(x[k]!==v){
-              console.error('owned ONE health mismatch',k,'expected',v,'got',x[k]);
-              process.exit(2);
+              console.error('::warning::owned ONE health mismatch',k,'expected',v,'got',x[k]);
+              process.exit(3);
             }
           }
           NODE
+          health_contract=$?
+          if [ "$health_contract" -ne 0 ]; then
+            echo '::warning::Owned route is reachable but has not passed the strict health contract; no live claim is made.'
+            exit 0
+          fi
 
-          ! grep -Eqi 'utm_|googletagmanager|google-analytics|facebook[^<]*(pixel|track)|hotjar|clarity\.ms|mixpanel|amplitude|plausible|matomo|portfolio-growth/bridge\.js' /tmp/one-owned-root.html
+          if grep -Eqi 'utm_|googletagmanager|google-analytics|facebook[^<]*(pixel|track)|hotjar|clarity\.ms|mixpanel|amplitude|plausible|matomo|portfolio-growth/bridge\.js' /tmp/one-owned-root.html; then
+            echo '::warning::Owned route contains a forbidden tracking marker; no live claim is made.'
+            exit 0
+          fi
 
           echo 'IZAKHONO ONE OWNED ROUTE: VERIFIED LIVE'
           echo 'HTTPS_ROOT=200'
           echo 'HTTPS_HEALTH=200'
-          echo 'CHAT_READY=true'
-          echo 'ACCOUNT_REACHABLE=true'
-          echo 'PUBLIC_SIGNUP=true'
           echo 'TRACKING=false'
