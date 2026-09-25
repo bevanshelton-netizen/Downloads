@@ -1,0 +1,25 @@
+[Unit]
+Description=IZAKHONO Growth OS OIDC Bridge
+After=network-online.target izakhono-auth-node.service izakhono-data-node.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=izakhono
+Group=izakhono
+WorkingDirectory=/opt/izakhono-growth-bridge
+EnvironmentFile=/etc/izakhono/apps/growth-os.env
+EnvironmentFile=-/etc/izakhono/apps/growth-bridge.env
+ExecStart=/usr/bin/node /opt/izakhono-growth-bridge/server.mjs
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/izakhono
+RestrictAddressFamilies=AF_INET AF_INET6
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target
