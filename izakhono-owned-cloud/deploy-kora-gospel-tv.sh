@@ -12,6 +12,8 @@ CACHE_ROOT="${IZAKHONO_SOURCE_CACHE:-/var/lib/izakhono-runtime/source}"
 RELEASE_BASE="/var/lib/izakhono-runtime/releases/$APP"
 DATA_DIR="/var/lib/izakhono-runtime/data/$APP"
 RUNTIME_ENV="/etc/izakhono/runtime-node.env"
+ENGINE_ENV="/etc/izakhono/yhvh-gospel-engine.env"
+APP_ENV="/etc/izakhono/yhvh-gospel-tv.env"
 CONTROL_URL="http://127.0.0.1:8790"
 PROXY_URL="http://127.0.0.1:8080"
 EDGE_URL="http://127.0.0.1:8780"
@@ -75,12 +77,29 @@ test -f "$RELEASE/server.mjs" || fail "YHVH GOSPEL TV server.mjs missing."
 test -f "$RELEASE/index.html" || fail "YHVH GOSPEL TV index.html missing."
 node --check "$RELEASE/server.mjs"
 
-BODY="$(node - "$APP" "$HOSTNAME" "$RELEASE" <<'NODE'
-const [app,hostname,releasePath]=process.argv.slice(2);
+[ -f "$ENGINE_ENV" ] || fail "YHVH Gospel Engine is not installed."
+ENGINE_HEALTH="$(curl -fsS --max-time 4 http://127.0.0.1:8892/health)" || fail "YHVH Gospel Engine is not healthy."
+node -e 'const x=JSON.parse(process.argv[1]);if(x.ok!==true||x.service!=="yhvh-gospel-engine"||x.authority!=="IZAKHONO"||x.independent_engine!==true)process.exit(2)' "$ENGINE_HEALTH" || fail "YHVH Gospel Engine identity failed."
+ENGINE_TOKEN="$(sudo awk -F= '$1=="YHVH_GOSPEL_ENGINE_TOKEN"{sub(/^[^=]*=/,"");print;exit}' "$ENGINE_ENV")"
+[ "${#ENGINE_TOKEN}" -ge 24 ] || fail "YHVH Gospel Engine token unavailable."
+
+APP_ENV_TMP="$(mktemp)"
+umask 077
+cat >"$APP_ENV_TMP" <<EOF
+YHVH_GOSPEL_ENGINE_URL=http://127.0.0.1:8892
+YHVH_GOSPEL_ENGINE_TOKEN=$ENGINE_TOKEN
+GOSPEL_TV_DATA_DIR=$DATA_DIR
+EOF
+sudo install -o root -g izakhono -m 0640 "$APP_ENV_TMP" "$APP_ENV"
+rm -f "$APP_ENV_TMP"
+unset ENGINE_TOKEN
+
+BODY="$(node - "$APP" "$HOSTNAME" "$RELEASE" "$APP_ENV" <<'NODE'
+const [app,hostname,releasePath,envFile]=process.argv.slice(2);
 process.stdout.write(JSON.stringify({
   app,hostname,releasePath,
   command:["node","server.mjs"],
-  envFile:null,
+  envFile,
   healthPath:"/health"
 }));
 NODE
@@ -106,8 +125,8 @@ fi
 
 ENGINE="NOT_RUNNING"
 if curl -fsS --max-time 2 http://127.0.0.1:8892/health >/tmp/yhvh-gospel-engine-health.json 2>/dev/null; then
-  if node -e 'const x=require("/tmp/yhvh-gospel-engine-health.json");if(x.ok!==true||x.service!=="yhvh-gospel-engine"||x.authority!=="IZAKHONO")process.exit(2)' 2>/dev/null; then
-    ENGINE="VERIFIED"
+  if node -e 'const x=require("/tmp/yhvh-gospel-engine-health.json");if(x.ok!==true||x.service!=="yhvh-gospel-engine"||x.authority!=="IZAKHONO"||x.independent_engine!==true||x.version!=="2.0.0")process.exit(2)' 2>/dev/null; then
+    ENGINE="VERIFIED_V2_INDEPENDENT"
   else
     ENGINE="IDENTITY_FAILED"
   fi
