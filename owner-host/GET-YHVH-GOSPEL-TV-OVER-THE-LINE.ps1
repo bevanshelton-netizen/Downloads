@@ -18,8 +18,8 @@ $State=Join-Path $env:ProgramData "IZAKHONO\ISN-01"
 New-Item -ItemType Directory -Force -Path $State | Out-Null
 $Report=Join-Path ([Environment]::GetFolderPath("Desktop")) "YHVH-GOSPEL-TV-FINAL-LAUNCH-REPORT.txt"
 $Base="https://raw.githubusercontent.com/bevanshelton-netizen/Downloads/main"
-$Start=Join-Path $State "START-KORA-GOSPEL-TV-ON-IZAKHONO.ps1"
-$Verify=Join-Path $State "VERIFY-KORA-GOSPEL-TV-PUBLIC.ps1"
+$Start=Join-Path $State "START-YHVH-GOSPEL-TV-ON-IZAKHONO.ps1"
+$Verify=Join-Path $State "VERIFY-YHVH-GOSPEL-TV-PUBLIC.ps1"
 $Lines=New-Object System.Collections.Generic.List[string]
 function Log([string]$Text){$Lines.Add($Text);Write-Host $Text}
 function Save{$Lines|Set-Content -LiteralPath $Report -Encoding UTF8}
@@ -29,8 +29,8 @@ Log "YHVH GOSPEL TV — FINAL HYBRID LAUNCH"
 Log ("Started: {0}" -f (Get-Date).ToString("s"))
 Log "Preferred path: IZAKHONO DNS/EDGE direct. Fallback path: outbound tunnel to IZAKHONO-owned origin."
 
-Invoke-WebRequest -UseBasicParsing "$Base/owner-host/START-KORA-GOSPEL-TV-ON-IZAKHONO.ps1" -OutFile $Start
-Invoke-WebRequest -UseBasicParsing "$Base/owner-host/VERIFY-KORA-GOSPEL-TV-PUBLIC.ps1" -OutFile $Verify
+Invoke-WebRequest -UseBasicParsing "$Base/owner-host/START-YHVH-GOSPEL-TV-ON-IZAKHONO.ps1" -OutFile $Start
+Invoke-WebRequest -UseBasicParsing "$Base/owner-host/VERIFY-YHVH-GOSPEL-TV-PUBLIC.ps1" -OutFile $Verify
 
 Log ""
 Log "1/3 DEPLOY OWNED YHVH RUNTIME + TRY DIRECT EDGE"
