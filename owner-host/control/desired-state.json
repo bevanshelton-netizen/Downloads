@@ -1,14 +1,13 @@
 {
   "schema": "izakhono.owner-agent-request/v1",
-  "id": "one-owned-full-activation-20260925-03",
+  "id": "yhvh-gospel-tv-owned-launch-20260925-01",
   "enabled": true,
-  "action": "activate-one-local-model",
-  "requested_at": "2026-09-25T01:55:00Z",
+  "action": "deploy-yhvh-gospel-tv",
+  "requested_at": "2026-09-25T03:05:00Z",
   "expires_at": "2026-10-31T23:59:59Z",
   "max_attempts": 3,
   "params": {
-    "model": "qwen2.5:3b",
-    "hostname": "one.domains.izakhonoafrica.co.za"
+    "hostname": "gospel.domains.izakhonoafrica.co.za"
   },
-  "note": "Fresh full IZAKHONO ONE owned activation. Activate or refresh the local qwen2.5:3b model, register the model worker with IZAKHONO GPU/CPU compute, configure ONE AI, deploy from IZAKHONO CODE through RUNTIME, stage owned DNS/TLS/EDGE, and use only the reversible Tailscale transport if direct parent DNS or inbound TLS is blocked. Preserve the independently verified external Supabase resilience route."
+  "note": "Deploy YHVH GOSPEL TV from IZAKHONO CODE to IZAKHONO RUNTIME on NODE01, verify the owned runtime locally, prefer the IZAKHONO-owned DNS/TLS/EDGE route, and only use the outbound Cloudflare tunnel as a reversible last-mile transport if direct parent DNS or inbound TLS is blocked. Preserve Vercel and GitHub Pages as external resilience routes. Do not declare owned live unless independent public HTTPS health returns the kora-gospel-tv service with runtime izakhono-owned."
 }
