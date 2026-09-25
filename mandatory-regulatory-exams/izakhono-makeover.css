@@ -1,0 +1,11 @@
+/* Mandatory Regulatory Exams — International Makeover v1 */
+html{scroll-behavior:smooth}body{font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+header{min-height:82px;padding-inline:max(22px,calc((100vw - 1240px)/2));backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.wrap{max-width:1240px}.hero{padding:92px 0 62px;gap:52px}.hero h1,h1{font-size:clamp(3.8rem,7vw,6.7rem);line-height:.9;letter-spacing:-.055em;text-wrap:balance}.lead{font-size:clamp(1.05rem,1.5vw,1.2rem);line-height:1.72}
+.btn,.nav a,.filters button,.answer{min-height:46px;border-radius:999px;transition:transform .18s ease,box-shadow .18s ease}.btn:hover,.nav a:hover,.filters button:hover,.answer:hover{transform:translateY(-2px)}
+.heroPanel,.card,.step,.questionBox,.disclaimer{border-radius:24px}.card{box-shadow:0 16px 50px rgba(0,0,0,.12)}
+.section{padding:62px 0}.section h2{font-size:clamp(2.5rem,4.5vw,4.4rem);line-height:.98}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+@media(max-width:850px){.hero{grid-template-columns:1fr;padding-top:58px}.grid{grid-template-columns:1fr 1fr}.flow{grid-template-columns:1fr 1fr}.nav{display:none}}
+@media(max-width:560px){.wrap{padding-inline:14px}.grid,.flow{grid-template-columns:1fr}.hero h1,h1{font-size:clamp(3.4rem,16vw,5.3rem)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
