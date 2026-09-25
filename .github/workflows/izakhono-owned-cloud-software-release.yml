@@ -41,6 +41,15 @@ jobs:
           grep -q 'dns_changed:false' izakhono-owned-cloud/promote-standby-state.sh
           grep -q 'receiptVerified' izakhono-owned-cloud/promote-standby-state.sh
           grep -q 'ROLLED_BACK' izakhono-owned-cloud/standby-state-swap.mjs
+      - name: Prove data-safe failback reconciliation contract
+        run: |
+          bash -n izakhono-owned-cloud/reconcile-failback-state.sh
+          bash -n izakhono-owned-cloud/controlled-failback.sh
+          bash izakhono-owned-cloud/tests/failback-reconciliation-plan.sh
+          grep -q 'RUN-DATA-SAFE-FAILBACK' izakhono-owned-cloud/reconcile-failback-state.sh
+          grep -q 'Backup encryption-key lineage mismatch' izakhono-owned-cloud/reconcile-failback-state.sh
+          grep -q 'data_reconciled:true' izakhono-owned-cloud/reconcile-failback-state.sh
+          grep -q 'reconcile-failback-state.sh execute instead' izakhono-owned-cloud/controlled-failback.sh
 
   node-self-tests:
     runs-on: ubuntu-latest
