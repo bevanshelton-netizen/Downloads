@@ -12,7 +12,7 @@ const html = `<!doctype html>
 .packages{max-width:1180px;margin:-46px auto 36px;padding:0 20px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.pkg{background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:0 18px 50px #11233b18}.pkg h3{margin:0;font-size:1.35rem}.price{font-size:2rem;font-weight:950;margin:10px 0 0}.sub{color:var(--muted);font-size:.9rem}.pkg ul{padding-left:18px;color:#4a596d;min-height:110px}
 .shell{max-width:1320px;margin:auto;padding:24px}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 8px 30px #11233b0b}.auth{max-width:560px;margin:32px auto}.authTabs{display:flex;gap:8px;margin-bottom:16px}.authTabs button{flex:1}
 .grid2{display:grid;grid-template-columns:330px 1fr;gap:18px}.side{display:flex;flex-direction:column;gap:14px}.siteList{display:flex;flex-direction:column;gap:8px}.siteItem{padding:12px;border:1px solid var(--line);border-radius:12px;cursor:pointer;background:#fff}.siteItem.active{border-color:var(--brand);box-shadow:0 0 0 2px #0bb3bf22}.siteItem small{color:var(--muted)}.status{display:inline-flex;border-radius:999px;padding:4px 8px;background:#eef4f8;font-size:.75rem;font-weight:800}.status.published{background:#e7f7ed;color:#146c35}
-.editorTop{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.toolbar{display:flex;gap:8px;flex-wrap:wrap}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:.82rem;font-weight:850;color:#536174}.field input,.field select,.field textarea{width:100%;border:1px solid #ccd6df;border-radius:11px;padding:11px 12px;background:#fff}.field textarea{min-height:100px;resize:vertical}.uploadRow{display:grid;grid-template-columns:1fr 1fr;gap:12px}.preview{width:100%;height:620px;border:1px solid var(--line);border-radius:14px;background:#fff;margin-top:18px}.notice{border-radius:12px;padding:12px 14px;background:#eef8f9;color:#0c5a61;font-size:.92rem;margin:12px 0}.notice.warn{background:#fff7e6;color:#76510c}.notice.error{background:#fff0ed;color:#8e1d15}.muted{color:var(--muted)}.hidden{display:none!important}.sectionTitle{font-size:1.1rem;font-weight:950;margin:6px 0 12px}.split{display:grid;grid-template-columns:1fr 1fr;gap:14px}.orderRow,.domainRow{padding:12px 0;border-top:1px solid var(--line)}.link{color:#077f89;font-weight:800}.factory{margin:18px 0;padding:20px;border:2px solid #0bb3bf33;border-radius:18px;background:linear-gradient(135deg,#eefafa,#fff)}.factoryHead{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}.factory h3{margin:0;font-size:1.35rem}.directions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}.direction{border:1px solid var(--line);border-radius:14px;padding:15px;background:#fff}.direction.active{border-color:var(--brand);box-shadow:0 0 0 3px #0bb3bf22}.direction h4{margin:0 0 6px}.direction p{font-size:.88rem;color:var(--muted);min-height:62px}.qaBadge{display:inline-flex;padding:5px 9px;border-radius:999px;background:#e7f7ed;color:#146c35;font-size:.75rem;font-weight:900}.foot{padding:30px;text-align:center;color:#69778a;font-size:.9rem}
+.editorTop{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.toolbar{display:flex;gap:8px;flex-wrap:wrap}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:.82rem;font-weight:850;color:#536174}.field input,.field select,.field textarea{width:100%;border:1px solid #ccd6df;border-radius:11px;padding:11px 12px;background:#fff}.field textarea{min-height:100px;resize:vertical}.uploadRow{display:grid;grid-template-columns:1fr 1fr;gap:12px}.preview{width:100%;height:620px;border:1px solid var(--line);border-radius:14px;background:#fff;margin-top:18px}.notice{border-radius:12px;padding:12px 14px;background:#eef8f9;color:#0c5a61;font-size:.92rem;margin:12px 0}.notice.warn{background:#fff7e6;color:#76510c}.notice.error{background:#fff0ed;color:#8e1d15}.muted{color:var(--muted)}.hidden{display:none!important}.sectionTitle{font-size:1.1rem;font-weight:950;margin:6px 0 12px}.split{display:grid;grid-template-columns:1fr 1fr;gap:14px}.orderRow,.domainRow,.leadRow{padding:12px 0;border-top:1px solid var(--line)}.leadRow:first-child{border-top:0}.leadRow strong{display:block}.leadMeta{font-size:.78rem;color:var(--muted);margin:3px 0}.leadMsg{font-size:.88rem;color:#3e4b5d;margin:5px 0}.leadActions{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.leadActions button{padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:#fff;cursor:pointer;font-size:.75rem;font-weight:800}.link{color:#077f89;font-weight:800}.factory{margin:18px 0;padding:20px;border:2px solid #0bb3bf33;border-radius:18px;background:linear-gradient(135deg,#eefafa,#fff)}.factoryHead{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}.factory h3{margin:0;font-size:1.35rem}.directions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}.direction{border:1px solid var(--line);border-radius:14px;padding:15px;background:#fff}.direction.active{border-color:var(--brand);box-shadow:0 0 0 3px #0bb3bf22}.direction h4{margin:0 0 6px}.direction p{font-size:.88rem;color:var(--muted);min-height:62px}.qaBadge{display:inline-flex;padding:5px 9px;border-radius:999px;background:#e7f7ed;color:#146c35;font-size:.75rem;font-weight:900}.foot{padding:30px;text-align:center;color:#69778a;font-size:.9rem}
 @media(max-width:900px){.packages,.grid2,.split,.directions{grid-template-columns:1fr}.packages{margin-top:-30px}.fields,.uploadRow{grid-template-columns:1fr}.field.full{grid-column:auto}.preview{height:460px}.topnav .hideMobile{display:none}}
 </style>
 </head>
@@ -42,6 +42,7 @@ const html = `<!doctype html>
     <div class="grid2">
       <aside class="side">
         <div class="card"><div class="sectionTitle">Your websites</div><div id="siteList" class="siteList"></div><button class="btn primary" style="width:100%;margin-top:12px" onclick="newSite()">+ New website</button></div>
+        <div class="card"><div class="sectionTitle">Leads</div><div id="leads"><span class="muted">No enquiries yet.</span></div></div>
         <div class="card"><div class="sectionTitle">Orders</div><div id="orders"><span class="muted">No orders yet.</span></div></div>
         <div class="card"><div class="sectionTitle">Domains</div><div class="notice">Free WebStart hosted address is included. A custom domain is optional later.</div><div id="domains"><span class="muted">No custom domain requests.</span></div></div>
       </aside>
@@ -125,7 +126,7 @@ async function enterApp(){
   if(!session)return showAuth();
   const r=await afetch(SUPA+"/auth/v1/user",{method:"GET",headers:{"content-type":"application/json"}});
   if(!r||!r.ok){localStorage.removeItem("webstart_session");session=null;return showAuth()}
-  user=await r.json();show($("landing"),false);show($("authPanel"),false);show($("app"),true);show($("logoutBtn"),true);$("dashboardBtn").textContent="Dashboard";await Promise.all([loadSites(),loadOrders(),loadDomains()])
+  user=await r.json();show($("landing"),false);show($("authPanel"),false);show($("app"),true);show($("logoutBtn"),true);$("dashboardBtn").textContent="Dashboard";await Promise.all([loadSites(),loadLeads(),loadOrders(),loadDomains()])
 }
 function logout(){localStorage.removeItem("webstart_session");session=null;user=null;selected=null;location.reload()}
 async function loadSites(){
@@ -218,6 +219,28 @@ async function createOrder(){
   if(d.checkout_url)window.open(d.checkout_url,"_blank","noopener");
   await loadOrders()
 }
+async function loadLeads(){
+  if(!user)return;
+  const r=await afetch(SUPA+"/rest/v1/webstart_leads?select=id,site_id,name,email,phone,message,status,created_at&order=created_at.desc&limit=30",{method:"GET"});
+  if(!r||!r.ok)return;
+  const rows=await r.json(),box=$("leads");box.innerHTML="";
+  if(!rows.length){box.innerHTML="<span class='muted'>No enquiries yet.</span>";return}
+  rows.forEach(x=>{
+    const site=sites.find(s=>s.id===x.site_id);
+    const d=document.createElement("div");d.className="leadRow";
+    const n=document.createElement("strong");n.textContent=x.name;
+    const meta=document.createElement("div");meta.className="leadMeta";meta.textContent=(site?.name||"Website")+" · "+new Date(x.created_at).toLocaleString()+" · "+x.status;
+    const em=document.createElement("a");em.className="link";em.href="mailto:"+encodeURIComponent(x.email);em.textContent=x.email;
+    const msg=document.createElement("div");msg.className="leadMsg";msg.textContent=x.message;
+    const actions=document.createElement("div");actions.className="leadActions";
+    ["reviewed","contacted","closed"].forEach(st=>{const b=document.createElement("button");b.textContent=st;b.disabled=x.status===st;b.onclick=()=>updateLead(x.id,st);actions.appendChild(b)});
+    d.append(n,meta,em,msg,actions);box.appendChild(d)
+  })
+}
+async function updateLead(id,status){
+  const r=await afetch(SUPA+"/rest/v1/webstart_leads?id=eq."+encodeURIComponent(id),{method:"PATCH",headers:{prefer:"return=minimal"},body:JSON.stringify({status})});
+  if(r&&r.ok){message("Lead marked "+status+".");await loadLeads()}else message("Could not update lead.","error")
+}
 async function loadOrders(){
   if(!user)return;const r=await afetch(SUPA+"/rest/v1/orders?select=*&order=created_at.desc&limit=10",{method:"GET"});if(!r||!r.ok)return;const rows=await r.json(),box=$("orders");box.innerHTML="";
   if(!rows.length){box.innerHTML="<span class='muted'>No orders yet.</span>";return}
@@ -241,7 +264,7 @@ $("slug").addEventListener("input",()=>{$("slug").dataset.touched="1"});
 try{session=JSON.parse(localStorage.getItem("webstart_session")||"null")}catch(e){}
 if(session)enterApp();
 </script>
-<a id="izakhono-one-founding-promo" href="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-public" target="_blank" rel="noopener" style="position:fixed;left:14px;bottom:14px;z-index:9999;padding:10px 14px;border-radius:999px;background:#d4ad4c;color:#17342e;text-decoration:none;font:900 12px/1.2 system-ui,-apple-system,Segoe UI,sans-serif;box-shadow:0 10px 26px rgba(0,0,0,.24)">IZAKHONO ONE · Founding 1,000 →</a></body>
+</body>
 </html>`;
 
 Deno.serve((_req: Request) => new Response(html, {
