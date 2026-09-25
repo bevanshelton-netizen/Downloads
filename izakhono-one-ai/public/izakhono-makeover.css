@@ -1,0 +1,10 @@
+/* IZAKHONO ONE AI — International Makeover v1 */
+html{scroll-behavior:smooth}body{font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.top{min-height:82px;padding-inline:max(22px,calc((100vw - 1240px)/2));backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.hero{min-height:730px;padding:92px max(24px,calc((100vw - 1240px)/2));gap:64px}.hero h1{font-size:clamp(4rem,8vw,7.6rem);line-height:.84;letter-spacing:-.06em;text-wrap:balance}.hero p{font-size:clamp(1.05rem,1.5vw,1.22rem)}
+.btn,.open,.filters button,.auth-form button,.chat-send,.account-action{min-height:48px;border-radius:999px;transition:transform .18s ease,box-shadow .18s ease}.btn:hover,.open:hover,.filters button:hover,.auth-form button:hover,.chat-send:hover{transform:translateY(-2px)}
+.section,.ai-shell{padding:96px max(24px,calc((100vw - 1240px)/2))}.head h2{font-size:clamp(2.8rem,5vw,5.1rem);line-height:.95}.card,.hero-panel,.account-card,.chat-card{border-radius:28px;box-shadow:0 16px 52px rgba(12,70,62,.08)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+@media(max-width:900px){.hero,.ai-wrap{grid-template-columns:1fr;min-height:auto}.hero{padding-top:60px}.grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.hero,.section,.ai-shell{padding-left:16px;padding-right:16px}.grid{grid-template-columns:1fr}.hero h1{font-size:clamp(3.7rem,17vw,5.7rem)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
