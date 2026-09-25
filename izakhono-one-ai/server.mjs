@@ -52,6 +52,8 @@ function json(res,status,body,headers={}){
     "content-length":Buffer.byteLength(payload),
     "cache-control":"no-store",
     "x-content-type-options":"nosniff",
+    "referrer-policy":"strict-origin-when-cross-origin",
+    "permissions-policy":"camera=(), microphone=(), geolocation=()",
     ...headers
   });
   res.end(payload);
@@ -62,6 +64,9 @@ function html(res,status,body){
     "content-length":Buffer.byteLength(body),
     "cache-control":"public, max-age=120",
     "x-content-type-options":"nosniff",
+    "x-frame-options":"DENY",
+    "referrer-policy":"strict-origin-when-cross-origin",
+    "permissions-policy":"camera=(), microphone=(), geolocation=()",
     "content-security-policy":"default-src 'self'; img-src 'self' data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
   });
   res.end(body);
