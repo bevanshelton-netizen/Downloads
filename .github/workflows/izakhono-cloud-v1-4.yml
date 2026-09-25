@@ -39,8 +39,8 @@ jobs:
           )
           for image in "${images[@]}"; do
             echo "Checking ${image} for linux/arm64..."
-            docker buildx imagetools inspect --raw "$image" > /tmp/izakhono-image-index.json
-            python3 - "$image" <<'PY'
+            if docker buildx imagetools inspect --raw "$image" > /tmp/izakhono-image-index.json 2>/tmp/izakhono-image-index.err; then
+              python3 - "$image" <<'PY'
           import json, sys
           image = sys.argv[1]
           with open('/tmp/izakhono-image-index.json', encoding='utf-8') as fh:
@@ -53,4 +53,12 @@ jobs:
               raise SystemExit(f'{image}: linux/arm64 manifest missing; platforms={sorted(platforms)}')
           print(f'{image}: linux/arm64 OK')
           PY
+            else
+              echo "Registry manifest metadata lookup unavailable for ${image}; verifying by real arm64 pull."
+              cat /tmp/izakhono-image-index.err || true
+              docker pull --platform linux/arm64 "$image"
+              actual="$(docker image inspect "$image" --format '{{.Os}}/{{.Architecture}}')"
+              test "$actual" = "linux/arm64" || { echo "${image}: expected linux/arm64, got $actual" >&2; exit 1; }
+              echo "${image}: linux/arm64 OK (pull fallback)"
+            fi
           done
