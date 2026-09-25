@@ -1,5 +1,5 @@
 {
-  "version": 6,
+  "version": 7,
   "gateway": "izakhono-pay",
   "primaryProvider": "ikhokha",
   "primaryProviderStatus": "merchant-live",
@@ -26,6 +26,11 @@
       "slug": "faisready",
       "workspacePath": "FAISReady",
       "status": "deploy-now-adapter-upgrade-required-for-ikhokha-redirect"
+    },
+    {
+      "slug": "creative-suite",
+      "workspacePath": "IZAKHONO-STUDIO",
+      "status": "usd-pricing-approved-zar-settlement-mapping-required-before-product-registration-and-e2e"
     },
     {
       "slug": "mandatory-regulatory-exams",
@@ -85,6 +90,7 @@
   ],
   "liveActivation": "publish-child-app-after-e2e-payment-acceptance",
   "rolloutPriority": [
+    "creative-suite",
     "kora",
     "auto-ai",
     "faisready",
