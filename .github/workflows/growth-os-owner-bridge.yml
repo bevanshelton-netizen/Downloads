@@ -1,0 +1,89 @@
+name: Growth OS Owner OIDC Bridge Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'owner-host/control/growth-os-bridge-desired-state.json'
+      - 'izakhono-growth-bridge-node/**'
+      - 'izakhono-owned-cloud/start-growth-os-outbound-bridge.sh'
+      - '.github/workflows/growth-os-owner-bridge.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'owner-host/control/growth-os-bridge-desired-state.json'
+      - 'izakhono-growth-bridge-node/**'
+      - 'izakhono-owned-cloud/start-growth-os-outbound-bridge.sh'
+      - 'owner-host/owner-agent.sh'
+      - '.github/workflows/growth-os-owner-bridge.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: growth-os-owner-bridge
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - name: Verify bridge package and policy
+        working-directory: izakhono-growth-bridge-node
+        run: |
+          npm install --no-audit --no-fund
+          npm test
+          node --check server.mjs
+          bash -n install-linux.sh
+          grep -q 'arbitraryProxy:false' server.mjs
+          grep -q 'shellAccess:false' server.mjs
+          grep -q 'prj_OpMGIOe5TXhyhn6lHabQOOafRTV6' policy.mjs
+          grep -q 'bridge.domains.izakhonoafrica.co.za' policy.mjs
+      - name: Verify public transport script
+        run: |
+          bash -n izakhono-owned-cloud/start-growth-os-outbound-bridge.sh
+          grep -q 'Cloudflare Tunnel' izakhono-owned-cloud/start-growth-os-outbound-bridge.sh
+          grep -q '127.0.0.1:8920' izakhono-owned-cloud/start-growth-os-outbound-bridge.sh
+
+  deploy-node01:
+    if: github.event_name != 'pull_request'
+    needs: verify
+    runs-on: [self-hosted, linux, x64, izakhono]
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - name: Execute allow-listed owner request
+        run: |
+          sudo -E env IZAKHONO_OWNER_CONTROL_PATH=owner-host/control/growth-os-bridge-desired-state.json IZAKHONO_OWNER_AGENT_STATE_FILE=/var/lib/izakhono-owner-agent/growth-bridge-state.json bash owner-host/owner-agent.sh
+      - name: Verify owner bridge receipt
+        run: |
+          sudo test -s /var/lib/izakhono-deploy/growth-bridge.json
+          curl -fsS --max-time 5 http://127.0.0.1:8920/health >/tmp/bridge-health.json
+          node - <<'NODE'
+          const x=require("/tmp/bridge-health.json");
+          if(x.ok!==true||x.service!=="izakhono-growth-bridge"||x.arbitraryProxy!==false||x.shellAccess!==false)process.exit(2);
+          NODE
+          sudo cat /var/lib/izakhono-owner-agent/growth-bridge-state.json
+
+  verify-public:
+    if: always() && needs.deploy-node01.result == 'success'
+    needs: deploy-node01
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify public bridge HTTPS
+        run: |
+          set -euo pipefail
+          curl -fsS --max-time 20 https://bridge.domains.izakhonoafrica.co.za/health >/tmp/bridge.json
+          node - <<'NODE'
+          const x=require("/tmp/bridge.json");
+          if(x.ok!==true||x.service!=="izakhono-growth-bridge")process.exit(2);
+          if(x.arbitraryProxy!==false||x.shellAccess!==false||x.secretsReturned!==false)process.exit(3);
+          if(x.oidc?.audience!=="https://bridge.domains.izakhonoafrica.co.za")process.exit(4);
+          NODE
