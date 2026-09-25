@@ -1,0 +1,92 @@
+name: IZAKHONO Production Excellence
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "quality/**"
+      - "izakhono-group/**"
+      - "auto-ai/**"
+      - "FAISReady/**"
+      - "kora-network/**"
+      - "IZAKHONO-STUDIO/**"
+      - "izakhono-growth-os/**"
+      - "memory-mania/**"
+      - "crowne-hair/**"
+      - "ports/kora-kids/**"
+      - "ports/kora-gospel-tv/**"
+      - "izakhono-one-ai/**"
+      - "izakhono-pay/**"
+      - "izakhono-owned-cloud/deploy-izakhono-domains.sh"
+      - "owner-host/platforms.json"
+      - ".github/workflows/izakhono-production-excellence.yml"
+  push:
+    branches: [main]
+    paths:
+      - "quality/**"
+      - "izakhono-group/**"
+      - "auto-ai/**"
+      - "FAISReady/**"
+      - "kora-network/**"
+      - "IZAKHONO-STUDIO/**"
+      - "izakhono-growth-os/**"
+      - "memory-mania/**"
+      - "crowne-hair/**"
+      - "ports/kora-kids/**"
+      - "ports/kora-gospel-tv/**"
+      - "izakhono-one-ai/**"
+      - "izakhono-pay/**"
+      - "izakhono-owned-cloud/deploy-izakhono-domains.sh"
+      - "owner-host/platforms.json"
+      - ".github/workflows/izakhono-production-excellence.yml"
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */6 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  source-contract:
+    name: production-source-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify production excellence contract
+        run: node quality/verify-production-excellence.mjs
+      - name: Verify public health matrix contract
+        run: node quality/verify-public-health-matrix.mjs
+      - name: Verify owned server syntax
+        run: |
+          node --check ports/kora-kids/server.mjs
+          node --check memory-mania/server.mjs
+          node --check kora-network/public/izakhono-revenue/server.mjs
+          node --check ports/kora-gospel-tv/server.mjs
+          node --check izakhono-one-ai/server.mjs
+          node --check crowne-hair/server.mjs
+
+  public-health:
+    name: public-https-matrix
+    if: github.event_name != 'pull_request'
+    needs: source-contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Probe required resilience and observe owned targets
+        run: node quality/verify-public-health-matrix.mjs --network
+      - name: Retain health evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: izakhono-public-health-matrix
+          path: quality/public-health-report.json
+          if-no-files-found: error
+          retention-days: 30
