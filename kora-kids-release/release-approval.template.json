@@ -1,0 +1,36 @@
+{
+  "schema": "kora-kids.release-approval/v1",
+  "seriesId": "lebo-jabu",
+  "episodeSlug": "jam-day-under-the-baobab",
+  "language": "en-ZA",
+  "masterSha256": "REPLACE_WITH_MASTER_SHA256",
+  "masterCandidateApproved": true,
+  "rights": {
+    "voice": true,
+    "music": true,
+    "visuals": true,
+    "captions": true,
+    "territories": [
+      "worldwide"
+    ]
+  },
+  "childSafety": {
+    "madeForKids": true,
+    "personalisedAds": false,
+    "childCommerce": false,
+    "behaviouralTracking": false,
+    "externalLinksInChildCreative": false
+  },
+  "editorial": {
+    "factLock": true,
+    "culturalContext": true,
+    "language": true,
+    "brand": true
+  },
+  "release": {
+    "approved": false,
+    "reviewer": null,
+    "approvedAt": null,
+    "notes": "Explicit human release approval required before packaging for distribution."
+  }
+}

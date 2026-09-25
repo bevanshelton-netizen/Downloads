@@ -1,0 +1,11 @@
+{
+  "schema": "kora-kids.release-language/v1",
+  "language": "fr",
+  "title": "ENTER REVIEWED LOCALIZED TITLE",
+  "description": "ENTER REVIEWED LOCALIZED DESCRIPTION",
+  "audioPath": "C:\\path\\to\\approved\\fr.wav",
+  "audioExtension": ".wav",
+  "captionsPath": "C:\\path\\to\\approved\\fr.vtt",
+  "reviewedBy": "ENTER REVIEWER",
+  "approvedForRelease": false
+}

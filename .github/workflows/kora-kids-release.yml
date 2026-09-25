@@ -1,0 +1,182 @@
+name: KORA KIDS Release Factory
+
+on:
+  push:
+    paths:
+      - "kora-kids-release/**"
+      - "kora-kids-studio/**"
+      - "owner-host/PACKAGE-KORA-KIDS-RELEASE.ps1"
+      - "PACKAGE-KORA-KIDS-RELEASE.cmd"
+      - ".github/workflows/kora-kids-release.yml"
+  pull_request:
+    paths:
+      - "kora-kids-release/**"
+      - "kora-kids-studio/**"
+      - "owner-host/PACKAGE-KORA-KIDS-RELEASE.ps1"
+      - "PACKAGE-KORA-KIDS-RELEASE.cmd"
+      - ".github/workflows/kora-kids-release.yml"
+
+jobs:
+  release-package-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Ensure local media tools
+        run: |
+          set -euo pipefail
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y ffmpeg
+          fi
+          ffmpeg -version >/dev/null
+          ffprobe -version >/dev/null
+
+      - name: Validate release and studio syntax
+        run: |
+          node --check kora-kids-release/worker.mjs
+          node --check kora-kids-studio/server.mjs
+
+      - name: Build synthetic release master and captions
+        run: |
+          rm -rf /tmp/kora-release /tmp/release-langs /tmp/kora-release-no-langs
+          mkdir -p /tmp/kora-release /tmp/release-langs /tmp/kora-release-no-langs
+          ffmpeg -y             -f lavfi -i "color=c=0x7fdcff:s=640x360:d=6"             -f lavfi -i "sine=frequency=220:sample_rate=48000:duration=6"             -shortest -c:v libx264 -pix_fmt yuv420p -c:a aac             /tmp/master.mp4
+          cat > /tmp/en-ZA.vtt <<'VTT'
+          WEBVTT
+
+          00:00:00.000 --> 00:00:03.000
+          Lebo: Hello, explorers!
+
+          00:00:03.000 --> 00:00:06.000
+          Lebo: Welcome to KORA KIDS.
+          VTT
+          cp /tmp/en-ZA.vtt /tmp/fr.vtt
+          ffmpeg -y -f lavfi -i "sine=frequency=330:sample_rate=48000:duration=6" -ac 1 /tmp/fr.wav
+
+      - name: Create synthetic mastering result and exact release approval
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          import crypto from "node:crypto";
+          const master=fs.readFileSync("/tmp/master.mp4");
+          const sha=crypto.createHash("sha256").update(master).digest("hex");
+          const mastering={
+            schema:"kora-kids.mastering-result/v1",
+            createdAt:new Date().toISOString(),
+            series:{id:"lebo-jabu",title:"Lebo & Jabu"},
+            episode:{number:1,slug:"jam-day-under-the-baobab",title:"Jam Day Under the Baobab"},
+            language:{code:"en-ZA",name:"English",finalVoiceApproved:true},
+            approvalLocks:{voice:true,music:true,factLock:true,culturalContext:true,captionLock:true,visualQc:true,release:false},
+            technical:{pass:true,durationMatch:true,h264Video:true,aacAudio:true},
+            masterCandidate:true,broadcastMaster:false,releaseApprovalRequired:true,
+            files:{"master-candidate.mp4":{sha256:sha}}
+          };
+          fs.writeFileSync("/tmp/mastering-result.json",JSON.stringify(mastering,null,2));
+          const approval={
+            schema:"kora-kids.release-approval/v1",seriesId:"lebo-jabu",episodeSlug:"jam-day-under-the-baobab",language:"en-ZA",
+            masterSha256:sha,masterCandidateApproved:true,
+            rights:{voice:true,music:true,visuals:true,captions:true,territories:["worldwide"]},
+            childSafety:{madeForKids:true,personalisedAds:false,childCommerce:false,behaviouralTracking:false,externalLinksInChildCreative:false},
+            editorial:{factLock:true,culturalContext:true,language:true,brand:true},
+            release:{approved:true,reviewer:"CI release reviewer",approvedAt:"2026-09-25T00:00:00Z",notes:"Synthetic release proof only."}
+          };
+          fs.writeFileSync("/tmp/release-approval.json",JSON.stringify(approval,null,2));
+          const fr={
+            schema:"kora-kids.release-language/v1",language:"fr",
+            title:"Lebo & Jabu — Journée confiture sous le baobab",
+            description:"Version française approuvée pour le test CI.",
+            audioPath:"/tmp/fr.wav",audioExtension:".wav",captionsPath:"/tmp/fr.vtt",
+            reviewedBy:"CI French reviewer",approvedForRelease:true
+          };
+          fs.writeFileSync("/tmp/release-langs/fr.json",JSON.stringify(fr,null,2));
+          NODE
+
+      - name: Package approved KORA and YouTube release bundle
+        run: |
+          node kora-kids-release/worker.mjs             --master /tmp/master.mp4             --mastering-result /tmp/mastering-result.json             --approval /tmp/release-approval.json             --captions /tmp/en-ZA.vtt             --localisations /tmp/release-langs             --output /tmp/kora-release
+          test -s /tmp/kora-release/media/episode-master.mp4
+          test -s /tmp/kora-release/metadata/kora.json
+          test -s /tmp/kora-release/metadata/youtube.json
+          test -s /tmp/kora-release/metadata/shorts.json
+          test -s /tmp/kora-release/languages/fr/audio.wav
+          test -s /tmp/kora-release/languages/fr/captions.vtt
+          test -s /tmp/kora-release/release-package.json
+
+      - name: Validate child-safe distribution boundary
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const x=JSON.parse(fs.readFileSync("/tmp/kora-release/release-package.json","utf8"));
+          const y=JSON.parse(fs.readFileSync("/tmp/kora-release/metadata/youtube.json","utf8"));
+          const k=JSON.parse(fs.readFileSync("/tmp/kora-release/metadata/kora.json","utf8"));
+          const s=JSON.parse(fs.readFileSync("/tmp/kora-release/metadata/shorts.json","utf8"));
+          const fail=[];
+          const ok=(n,v)=>{if(!v)fail.push(n)};
+          ok("release-approved",x.releaseApproved===true);
+          ok("packaged",x.packagedForDistribution===true);
+          ok("not-published",x.published===false);
+          ok("youtube-ready",x.targets?.find(t=>t.id==="youtube")?.ready===true);
+          ok("kora-ready",x.targets?.find(t=>t.id==="kora")?.ready===true);
+          ok("short-blocked-without-master",x.targets?.find(t=>t.id==="shorts")?.ready===false);
+          ok("french-release-track",x.approvedLanguageTracks?.includes("fr"));
+          ok("made-for-kids",y.madeForKids===true);
+          ok("no-personalised-ads",y.monetisation?.personalisedAds===false);
+          ok("no-tracking",k.tracking===false&&k.safety?.behaviouralTracking===false);
+          ok("no-child-purchase",k.directPurchase===false&&k.safety?.childCommerce===false);
+          ok("youtube-not-uploaded",y.uploadAction==="not-executed");
+          ok("short-not-uploaded",s.uploadAction==="not-executed");
+          if(fail.length){console.error("Failed:",fail.join(", "));process.exit(2)}
+          NODE
+
+      - name: Prove machine-draft localisation packs are not release tracks
+        run: |
+          node kora-kids-release/worker.mjs             --master /tmp/master.mp4             --mastering-result /tmp/mastering-result.json             --approval /tmp/release-approval.json             --captions /tmp/en-ZA.vtt             --localisations kora-kids-localisation/packs             --output /tmp/kora-release-no-langs
+          node -e 'const x=require("/tmp/kora-release-no-langs/release-package.json"); if(x.approvedLanguageTracks.length!==0) process.exit(2)'
+
+      - name: Prove missing release approval is refused
+        run: |
+          node -e 'const fs=require("fs");const x=require("/tmp/release-approval.json");x.release.approved=false;x.release.reviewer=null;fs.writeFileSync("/tmp/no-release.json",JSON.stringify(x))'
+          if node kora-kids-release/worker.mjs             --master /tmp/master.mp4             --mastering-result /tmp/mastering-result.json             --approval /tmp/no-release.json             --captions /tmp/en-ZA.vtt             --output /tmp/should-not-release; then
+            echo "Release worker incorrectly accepted missing human release approval" >&2
+            exit 2
+          fi
+
+      - name: Prove unsafe child settings are refused
+        run: |
+          node -e 'const fs=require("fs");const x=require("/tmp/release-approval.json");x.childSafety.personalisedAds=true;fs.writeFileSync("/tmp/unsafe-release.json",JSON.stringify(x))'
+          if node kora-kids-release/worker.mjs             --master /tmp/master.mp4             --mastering-result /tmp/mastering-result.json             --approval /tmp/unsafe-release.json             --captions /tmp/en-ZA.vtt             --output /tmp/unsafe-output; then
+            echo "Release worker incorrectly accepted personalised ads for child-directed content" >&2
+            exit 2
+          fi
+
+      - name: Verify private Release Desk reports package but not publication
+        env:
+          KORA_KIDS_STUDIO_WORKSPACE: ${{ runner.temp }}/kora-kids-studio
+        run: |
+          mkdir -p "$KORA_KIDS_STUDIO_WORKSPACE/releases/ci-release"
+          cp /tmp/kora-release/release-package.json "$KORA_KIDS_STUDIO_WORKSPACE/releases/ci-release/release-package.json"
+          node kora-kids-studio/server.mjs >/tmp/kora-release-studio.log 2>&1 &
+          echo $! >/tmp/kora-release-studio.pid
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:8890/api/releases >/tmp/releases.json && break
+            sleep 1
+          done
+          node -e 'const x=require("/tmp/releases.json").releases; if(x.length!==1||x[0].published!==false||x[0].releaseApproved!==true) process.exit(2)'
+
+      - name: Stop studio
+        if: always()
+        run: |
+          test ! -f /tmp/kora-release-studio.pid || kill "$(cat /tmp/kora-release-studio.pid)" || true
+
+      - name: Upload release package proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: lebo-jabu-release-package-proof
+          path: |
+            /tmp/kora-release/release-package.json
+            /tmp/kora-release/metadata
+          retention-days: 7
