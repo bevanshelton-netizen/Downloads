@@ -1,13 +1,13 @@
 {
   "schema": "izakhono.owner-agent-request/v1",
-  "id": "yhvh-gospel-tv-engine-v2-launch-20260925-02",
+  "id": "yhvh-gospel-tv-engine-v2-final-20260925-03",
   "enabled": true,
   "action": "deploy-yhvh-gospel-tv",
-  "requested_at": "2026-09-25T03:20:00Z",
+  "requested_at": "2026-09-25T03:35:00Z",
   "expires_at": "2026-10-31T23:59:59Z",
   "max_attempts": 3,
   "params": {
     "hostname": "gospel.domains.izakhonoafrica.co.za"
   },
-  "note": "Install and activate YHVH GOSPEL ENGINE v2 as the channel's independent operational engine before deploying YHVH Gospel TV from IZAKHONO CODE to IZAKHONO RUNTIME on NODE01. Engine must own catalogue, scheduling, live control, content submissions, simulcast state, health verification and replaceable provider adapters, with behavioural tracking/profiling/silent analytics disabled. Prefer IZAKHONO-owned DNS/TLS/EDGE and use only reversible outbound last-mile transport if direct parent DNS or inbound TLS is blocked. Preserve Vercel and GitHub Pages as resilience routes. Do not declare owned live without independent public HTTPS verification."
+  "note": "Final YHVH Gospel Engine v2 rollout. Pull current main, migrate to IZAKHONO CODE, auto-install/refresh the independent yhvh-gospel-engine, deploy YHVH Gospel TV to IZAKHONO RUNTIME on NODE01 with the engine token bound through a protected local env file, verify engine v2 identity and owned runtime health, then prefer IZAKHONO-owned DNS/TLS/EDGE. Use only reversible outbound last-mile transport if direct parent DNS or inbound TLS is blocked. Keep Vercel and GitHub Pages as resilience routes. No behavioural tracking, profiling or silent analytics. Do not declare owned live without independent public HTTPS verification."
 }
