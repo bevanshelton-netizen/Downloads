@@ -2,7 +2,7 @@ name: VIDEONOMY Production Gate
 
 on:
   push:
-    branches: [videonomy-production]
+    branches: [videonomy-production, 'videonomy-completion-*']
   pull_request:
     branches: [videonomy-production]
 
