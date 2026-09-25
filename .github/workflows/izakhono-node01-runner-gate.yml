@@ -6,6 +6,7 @@ on:
     paths:
       - 'owner-host/install-github-actions-runner.sh'
       - 'owner-host/INSTALL-IZAKHONO-NODE01-GITHUB-RUNNER.ps1'
+      - 'owner-host/START-IZAKHONO-OWNER-HOST.ps1'
       - 'START-IZAKHONO-NODE01-GITHUB-RUNNER.cmd'
       - '.github/workflows/izakhono-node01-runner-gate.yml'
   pull_request:
@@ -13,6 +14,7 @@ on:
     paths:
       - 'owner-host/install-github-actions-runner.sh'
       - 'owner-host/INSTALL-IZAKHONO-NODE01-GITHUB-RUNNER.ps1'
+      - 'owner-host/START-IZAKHONO-OWNER-HOST.ps1'
       - 'START-IZAKHONO-NODE01-GITHUB-RUNNER.cmd'
       - '.github/workflows/izakhono-node01-runner-gate.yml'
 
@@ -54,3 +56,6 @@ jobs:
           if($ps -notmatch 'authority'){ throw 'NODE01 authority verification missing' }
           $cmd=Get-Content 'START-IZAKHONO-NODE01-GITHUB-RUNNER.cmd' -Raw
           if($cmd -notmatch 'INSTALL-IZAKHONO-NODE01-GITHUB-RUNNER.ps1'){ throw 'CMD handoff mismatch' }
+          $owner=Get-Content 'owner-host/START-IZAKHONO-OWNER-HOST.ps1' -Raw
+          if($owner -notmatch 'INSTALL-IZAKHONO-NODE01-GITHUB-RUNNER.ps1'){ throw 'Owner-host integration missing' }
+          if($owner -notmatch 'NODE01 GitHub runner control path'){ throw 'Owner-host runner status handoff missing' }
