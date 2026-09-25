@@ -1,6 +1,6 @@
 {
   "schema": "izakhono.gateway/v1",
-  "effective_at": "2026-09-25T23:36:00+02:00",
+  "effective_at": "2026-09-25T23:51:00+02:00",
   "mode": "TEMPORARY_GATEWAY_FIRST",
   "primary_entrypoint": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway",
   "policy": {
@@ -102,7 +102,7 @@
     ],
     "revenue_sprint_premium_ui": true
   },
-  "launch_mode": "LIVE_REVENUE_FIRST_PHOTO",
+  "launch_mode": "LIVE_REVENUE_FIRST",
   "feature_freeze": true,
   "revenue_sprint": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-revenue",
   "revenue_sprint_status": "PUBLISHED_V2",
@@ -111,7 +111,7 @@
   "revenue_health": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-revenue?health=1",
   "premium_revenue_v2_source": "ports/revenue-sprint/index.html",
   "pages_frontend_status": "WITHHELD_404",
-  "notes": "Public revenue entry redirects to verified Vercel Revenue Desk. Offer-specific revenue URLs remain tracked through IZAKHONO Edge. Premium V2 source is retained for later dedicated static hosting; broken GitHub Pages/Supabase HTML rendering is not exposed.",
+  "notes": "Revenue front door now redirects to the verified KORA-hosted light premium Business Growth Desk with images beside commercial lane headings. Supabase remains the tracked revenue router.",
   "revenue_light_theme": true,
   "opera_mini_friendly": true,
   "revenue_routing_status": "LIVE_VERIFIED_HTTP_200",
@@ -129,5 +129,8 @@
     "heading_images": true,
     "solution_images": 7,
     "live_route": "https://kora-network.vercel.app/izakhono-revenue/"
-  }
+  },
+  "revenue_frontend_status": "LIVE_VERIFIED",
+  "revenue_frontend_design": "LIGHT_PREMIUM_WITH_SERVICE_IMAGES",
+  "opera_mini_compatibility": "LIGHTWEIGHT_SYSTEM_FONT_HIGH_CONTRAST"
 }
