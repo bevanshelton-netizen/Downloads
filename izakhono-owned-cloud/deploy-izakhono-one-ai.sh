@@ -126,6 +126,28 @@ if [ -x "$ROOT/izakhono-owned-cloud/activate-owned-public-edge.sh" ]; then
   esac
 fi
 
+BRIDGE_STATE="NOT_NEEDED"
+BRIDGE_URL=""
+BRIDGE_EXIT=0
+if [ "${OWNED_EDGE_EXIT:-0}" != "0" ] && [ -x "$ROOT/izakhono-owned-cloud/activate-tailscale-funnel.sh" ]; then
+  set +e
+  IZAKHONO_BRIDGE_APP="$APP" \
+  IZAKHONO_BRIDGE_HEALTH_PATH="/health" \
+  IZAKHONO_BRIDGE_EXPECTED_SERVICE="" \
+  IZAKHONO_BRIDGE_EXPECTED_PRODUCT="IZAKHONO ONE AI" \
+  IZAKHONO_BRIDGE_EXPECTED_STATUS="healthy" \
+    bash "$ROOT/izakhono-owned-cloud/activate-tailscale-funnel.sh"
+  BRIDGE_EXIT=$?
+  set -e
+  BRIDGE_REPORT="$REPORT_DIR/tailscale-funnel-${APP}.json"
+  if [ -f "$BRIDGE_REPORT" ]; then
+    BRIDGE_STATE="$(node -e 'const x=require(process.argv[1]);process.stdout.write(String(x.state||"UNKNOWN"))' "$BRIDGE_REPORT" 2>/dev/null || echo UNKNOWN)"
+    BRIDGE_URL="$(node -e 'const x=require(process.argv[1]);process.stdout.write(String(x.public_url||""))' "$BRIDGE_REPORT" 2>/dev/null || true)"
+  else
+    BRIDGE_STATE="NO_RECEIPT_EXIT_${BRIDGE_EXIT}"
+  fi
+fi
+
 EDGE="NOT_RUNNING"
 if systemctl is-active --quiet izakhono-edge-node 2>/dev/null; then
   if curl -fsS -H "Host: $HOSTNAME" "$EDGE_URL/health" >/tmp/izakhono-one-ai-edge-health.json 2>/dev/null; then
@@ -143,9 +165,9 @@ if curl -fsS --max-time 8 "https://$HOSTNAME/health" >/tmp/izakhono-one-ai-publi
 fi
 
 TMP_REPORT="$(mktemp)"
-node - "$TMP_REPORT" "$HOSTNAME" "$RESOLVED" "$DEPLOYMENT_ID" "$EDGE" "$PUBLIC_HTTPS" "$CHAT_READY" "$PUBLIC_SIGNUP" "$ACCOUNT_REACHABLE" "$OWNED_EDGE_ACTIVATION" "$OWNED_EDGE_EXIT" <<'NODE'
+node - "$TMP_REPORT" "$HOSTNAME" "$RESOLVED" "$DEPLOYMENT_ID" "$EDGE" "$PUBLIC_HTTPS" "$CHAT_READY" "$PUBLIC_SIGNUP" "$ACCOUNT_REACHABLE" "$OWNED_EDGE_ACTIVATION" "$OWNED_EDGE_EXIT" "$BRIDGE_STATE" "$BRIDGE_URL" "$BRIDGE_EXIT" <<'NODE'
 const fs=require("fs");
-const [path,hostname,revision,deploymentId,edge,publicHttps,chatReady,publicSignup,accountReachable,ownedEdgeActivation,ownedEdgeExit]=process.argv.slice(2);
+const [path,hostname,revision,deploymentId,edge,publicHttps,chatReady,publicSignup,accountReachable,ownedEdgeActivation,ownedEdgeExit,bridgeState,bridgeUrl,bridgeExit]=process.argv.slice(2);
 fs.writeFileSync(path,JSON.stringify({
   schema:"izakhono.one-ai-deployment/v1",
   app:"izakhono-one-ai",
@@ -158,6 +180,14 @@ fs.writeFileSync(path,JSON.stringify({
   edge,
   owned_edge_activation:ownedEdgeActivation,
   owned_edge_exit:Number(ownedEdgeExit),
+  fallback_bridge:{
+    provider:"tailscale-funnel",
+    state:bridgeState,
+    public_url:bridgeUrl||null,
+    exit:Number(bridgeExit),
+    engine_authority:"NODE 01",
+    replaceable_adapter:true
+  },
   public_https:publicHttps,
   gpu_compute:"private-behind-gateway",
   external_overflow:"reversible",
@@ -184,6 +214,9 @@ RUNTIME_HEALTH=VERIFIED
 EDGE=$EDGE
 OWNED_EDGE_ACTIVATION=$OWNED_EDGE_ACTIVATION
 OWNED_EDGE_EXIT=$OWNED_EDGE_EXIT
+FALLBACK_BRIDGE_STATE=$BRIDGE_STATE
+FALLBACK_BRIDGE_URL=$BRIDGE_URL
+FALLBACK_BRIDGE_EXIT=$BRIDGE_EXIT
 PUBLIC_HTTPS=$PUBLIC_HTTPS
 ACCOUNT_REACHABLE=$ACCOUNT_REACHABLE
 PUBLIC_SIGNUP=$PUBLIC_SIGNUP

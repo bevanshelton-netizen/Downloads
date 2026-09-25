@@ -1,13 +1,13 @@
 {
   "schema": "izakhono.owner-agent-request/v1",
-  "id": "one-owned-deploy-edge-20260925-01",
+  "id": "one-owned-deploy-fallback-20260925-02",
   "enabled": true,
   "action": "deploy-one-ai",
-  "requested_at": "2026-09-25T01:30:00Z",
+  "requested_at": "2026-09-25T01:48:00Z",
   "expires_at": "2026-10-02T23:59:59Z",
   "max_attempts": 3,
   "params": {
     "hostname": "one.domains.izakhonoafrica.co.za"
   },
-  "note": "Fresh approved IZAKHONO ONE owned deployment request. Deploy from IZAKHONO CODE, then stage the owned DNS/TLS/EDGE path without modifying the verified external resilience route."
+  "note": "Deploy the independent IZAKHONO ONE engine on NODE 01. Prefer the owned DNS/TLS edge. If parent DNS or inbound TLS is blocked, attempt the reversible Tailscale Funnel transport and independently verify ONE /health. The external Supabase resilience route must remain untouched."
 }
