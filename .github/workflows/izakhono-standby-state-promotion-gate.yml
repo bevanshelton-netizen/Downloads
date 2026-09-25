@@ -1,0 +1,48 @@
+name: IZAKHONO STANDBY STATE PROMOTION Gate
+
+on:
+  push:
+    branches: [build/standby-state-promotion]
+    paths:
+      - "izakhono-owned-cloud/promote-standby-state.sh"
+      - "izakhono-owned-cloud/standby-state-swap.mjs"
+      - "izakhono-owned-cloud/tests/standby-state-swap.mjs"
+      - ".github/workflows/izakhono-standby-state-promotion-gate.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "izakhono-owned-cloud/promote-standby-state.sh"
+      - "izakhono-owned-cloud/standby-state-swap.mjs"
+      - "izakhono-owned-cloud/tests/standby-state-swap.mjs"
+      - "izakhono-owned-cloud/controlled-failover-drill.sh"
+      - "izakhono-owned-cloud/deploy-standby-node.sh"
+      - "izakhono-owned-cloud/STANDBY.md"
+      - ".github/workflows/izakhono-standby-state-promotion-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  self-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+      - name: Validate scripts
+        run: |
+          bash -n izakhono-owned-cloud/promote-standby-state.sh
+          node --check izakhono-owned-cloud/standby-state-swap.mjs
+      - name: Prove transactional state apply and rollback
+        run: node izakhono-owned-cloud/tests/standby-state-swap.mjs
+      - name: Verify safety boundaries
+        run: |
+          grep -q 'PROMOTE-STAGED-STATE' izakhono-owned-cloud/promote-standby-state.sh
+          grep -q 'public_route_changed:false' izakhono-owned-cloud/promote-standby-state.sh
+          grep -q 'dns_changed:false' izakhono-owned-cloud/promote-standby-state.sh
+          grep -q 'receiptVerified' izakhono-owned-cloud/promote-standby-state.sh
+          grep -q 'ROLLED_BACK' izakhono-owned-cloud/standby-state-swap.mjs
+          ! grep -q 'runtime-node.env' izakhono-owned-cloud/standby-state-swap.mjs
+          ! grep -q 'edge-node.env' izakhono-owned-cloud/standby-state-swap.mjs
