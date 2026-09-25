@@ -6,7 +6,9 @@ on:
     branches: [main]
     paths:
       - 'START-IZAKHONO-ONE-R0-BRIDGE.cmd'
+      - 'START-IZAKHONO-ONE-R0-OWNED-LAUNCH.cmd'
       - 'owner-host/START-IZAKHONO-ONE-R0-BRIDGE.ps1'
+      - 'owner-host/START-IZAKHONO-ONE-R0-OWNED-LAUNCH.ps1'
       - 'izakhono-owned-cloud/activate-tailscale-funnel.sh'
       - 'izakhono-one-ai/deployment-plan.json'
       - '.github/workflows/izakhono-one-r0-bridge-gate.yml'
@@ -21,18 +23,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Parse PowerShell launcher
+      - name: Parse PowerShell launchers
         shell: pwsh
         run: |
-          $tokens=$null
-          $errors=$null
-          [System.Management.Automation.Language.Parser]::ParseFile(
-            (Resolve-Path 'owner-host/START-IZAKHONO-ONE-R0-BRIDGE.ps1'),
-            [ref]$tokens,[ref]$errors
-          ) | Out-Null
-          if($errors.Count -gt 0){
-            $errors | ForEach-Object { Write-Error $_.Message }
-            exit 1
+          foreach($path in @(
+            'owner-host/START-IZAKHONO-ONE-R0-BRIDGE.ps1',
+            'owner-host/START-IZAKHONO-ONE-R0-OWNED-LAUNCH.ps1'
+          )){
+            $tokens=$null
+            $errors=$null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $path),
+              [ref]$tokens,[ref]$errors
+            ) | Out-Null
+            if($errors.Count -gt 0){
+              $errors | ForEach-Object { Write-Error "$path :: $($_.Message)" }
+              exit 1
+            }
           }
 
       - name: Validate zero-budget bridge contract
@@ -42,10 +49,16 @@ jobs:
           bash -n izakhono-owned-cloud/activate-tailscale-funnel.sh
 
           grep -q 'START-IZAKHONO-ONE-R0-BRIDGE.ps1' START-IZAKHONO-ONE-R0-BRIDGE.cmd
+          grep -q 'START-IZAKHONO-ONE-R0-OWNED-LAUNCH.ps1' START-IZAKHONO-ONE-R0-OWNED-LAUNCH.cmd
           grep -q 'IZAKHONO_BRIDGE_APP="izakhono-one-ai"' owner-host/START-IZAKHONO-ONE-R0-BRIDGE.ps1
           grep -q 'IZAKHONO_BRIDGE_EXPECTED_PRODUCT="IZAKHONO ONE AI"' owner-host/START-IZAKHONO-ONE-R0-BRIDGE.ps1
           grep -q 'IZAKHONO_BRIDGE_EXPECTED_STATUS="healthy"' owner-host/START-IZAKHONO-ONE-R0-BRIDGE.ps1
           grep -q 'activate-tailscale-funnel.sh' owner-host/START-IZAKHONO-ONE-R0-BRIDGE.ps1
+          grep -q 'one-desired-state.json' owner-host/START-IZAKHONO-ONE-R0-OWNED-LAUNCH.ps1
+          grep -q 'one-r0-state.json' owner-host/START-IZAKHONO-ONE-R0-OWNED-LAUNCH.ps1
+          grep -q 'r0_mode' owner-host/START-IZAKHONO-ONE-R0-OWNED-LAUNCH.ps1
+          grep -q 'START-IZAKHONO-ONE-R0-BRIDGE.ps1' owner-host/START-IZAKHONO-ONE-R0-OWNED-LAUNCH.ps1
+          grep -q 'External resilience: PRESERVED' owner-host/START-IZAKHONO-ONE-R0-OWNED-LAUNCH.ps1
           grep -q 'engine_authority:"IZAKHONO_OWNED_RUNTIME"' izakhono-owned-cloud/activate-tailscale-funnel.sh
           grep -q 'provider_is_replaceable_adapter:true' izakhono-owned-cloud/activate-tailscale-funnel.sh
           grep -q 'public_ready:publicReady==="true"' izakhono-owned-cloud/activate-tailscale-funnel.sh
@@ -68,10 +81,12 @@ jobs:
         shell: bash
         run: |
           echo 'IZAKHONO ONE R0 BRIDGE: CONTRACT PASS'
+          echo 'R0_ONE_CLICK_OWNER_LAUNCHER=READY'
           echo 'BUDGET_ZAR=0'
           echo 'CUSTOM_DOMAIN_REQUIRED=false'
           echo 'PUBLIC_IPV4_REQUIRED=false'
           echo 'INBOUND_PORT_FORWARDING_REQUIRED=false'
           echo 'ENGINE_AUTHORITY=IZAKHONO_OWNED_RUNTIME'
           echo 'TRANSPORT=REPLACEABLE_OUTBOUND_ADAPTER'
+          echo 'EXTERNAL_RESILIENCE=PRESERVED'
           echo 'INDEPENDENT_HTTPS_VERIFICATION_REQUIRED=true'
