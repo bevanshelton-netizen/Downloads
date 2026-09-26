@@ -1,0 +1,85 @@
+name: IZAKHONO Infrastructure Executor Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'IZAKHONO-INFRASTRUCTURE-AUTHORITY.json'
+      - 'IZAKHONO-PLATFORM-INFRASTRUCTURE-DIRECTIVE.md'
+      - 'infrastructure/**'
+      - 'izakhono-infrastructure-executor/**'
+      - 'izakhono-owned-cloud/install-owned-stack.sh'
+      - '.github/workflows/yhvh-gospel-node01-deploy.yml'
+      - '.github/workflows/izakhono-infrastructure-executor-gate.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'IZAKHONO-INFRASTRUCTURE-AUTHORITY.json'
+      - 'IZAKHONO-PLATFORM-INFRASTRUCTURE-DIRECTIVE.md'
+      - 'infrastructure/**'
+      - 'izakhono-infrastructure-executor/**'
+      - 'izakhono-owned-cloud/install-owned-stack.sh'
+      - '.github/workflows/yhvh-gospel-node01-deploy.yml'
+      - '.github/workflows/izakhono-infrastructure-executor-gate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate native executor
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n izakhono-infrastructure-executor/host-eligibility.sh
+          bash -n izakhono-infrastructure-executor/sync-source.sh
+          bash -n izakhono-infrastructure-executor/run-once.sh
+          bash -n izakhono-infrastructure-executor/install-linux.sh
+
+          node - <<'NODE'
+          const fs=require('fs');
+          const authority=JSON.parse(fs.readFileSync('IZAKHONO-INFRASTRUCTURE-AUTHORITY.json','utf8'));
+          if(authority.execution_policy?.production_scheduler!=='IZAKHONO_INFRASTRUCTURE_EXECUTOR') throw new Error('scheduler mismatch');
+          if(authority.execution_policy?.github_self_hosted_runner_required_for_production!==false) throw new Error('GitHub runner still required');
+          if(authority.execution_policy?.arbitrary_command_from_control_allowed!==false) throw new Error('arbitrary commands not forbidden');
+
+          const control=JSON.parse(fs.readFileSync('infrastructure/control/portfolio-desired-state.json','utf8'));
+          if(control.schema!=='izakhono.infrastructure-desired-state/v1'||control.authority!=='IZAKHONO_INFRASTRUCTURE') throw new Error('control contract mismatch');
+          const yhvh=(control.requests||[]).find(x=>x.id==='yhvh-gospel-tv-infrastructure-20260926-01');
+          if(!yhvh||yhvh.platform_id!=='yhvh-gospel-tv'||yhvh.laptop_target!==false||yhvh.public_live_claim!==false) throw new Error('YHVH request mismatch');
+
+          const targets=JSON.parse(fs.readFileSync('izakhono-infrastructure-executor/targets.json','utf8'));
+          if(targets.authority!=='IZAKHONO_INFRASTRUCTURE'||targets.laptop_eligible!==false) throw new Error('target authority mismatch');
+          for(const [id,t] of Object.entries(targets.targets||{})){
+            if(!Array.isArray(t.command)||t.command[0]!=='bash') throw new Error(id+': command must be bash array');
+            const script=String(t.command[1]||'');
+            if(!/^izakhono-owned-cloud\/[A-Za-z0-9._-]+\.sh$/.test(script)) throw new Error(id+': deployer outside allowlist');
+            if(!fs.existsSync(script)) throw new Error(id+': deployer missing '+script);
+          }
+
+          const catalog=JSON.parse(fs.readFileSync('owner-host/platforms.json','utf8'));
+          const legacy=(catalog.platforms||[]).filter(p=>String(p.deploy||'').endsWith('.ps1')).map(p=>p.id).sort();
+          const blocked=[...(targets.legacy_laptop_deployers_blocked||[])].sort();
+          if(JSON.stringify(legacy)!==JSON.stringify(blocked)) throw new Error('legacy Windows deployer quarantine is incomplete');
+          NODE
+
+          bash izakhono-infrastructure-executor/host-eligibility.sh | grep -q 'INFRASTRUCTURE_HOST_ELIGIBLE=true'
+          grep -Fq 'IZAKHONO INFRASTRUCTURE EXECUTOR' izakhono-owned-cloud/install-owned-stack.sh
+          grep -Fq 'PLATFORM_TO_LAPTOP=DENY' izakhono-infrastructure-executor/install-linux.sh
+          grep -Fq 'WSL_FORBIDDEN' izakhono-infrastructure-executor/host-eligibility.sh
+          grep -Fq 'PORTABLE_BATTERY_DETECTED' izakhono-infrastructure-executor/host-eligibility.sh
+          ! grep -Eq 'ghp_|github_pat_|sk-[A-Za-z0-9]' izakhono-infrastructure-executor/* 2>/dev/null
+
+      - name: Verify YHVH no longer waits for a GitHub self-hosted deploy runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          f=.github/workflows/yhvh-gospel-node01-deploy.yml
+          ! grep -q 'runs-on: \[self-hosted' "$f"
+          grep -q 'DEPLOYMENT_AUTHORITY=IZAKHONO_INFRASTRUCTURE_EXECUTOR' "$f"
+          grep -q 'infrastructure/control/portfolio-desired-state.json' "$f"
+          grep -q 'PUBLIC_LIVE_CLAIM=false' "$f"
