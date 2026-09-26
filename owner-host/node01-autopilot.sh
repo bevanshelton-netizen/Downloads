@@ -10,6 +10,7 @@ REPORT_DIR="/var/lib/izakhono-deploy"
 REPORT="$REPORT_DIR/node01-autopilot.json"
 HOSTNAME="${IZAKHONO_ONE_AI_HOSTNAME:-one.domains.izakhonoafrica.co.za}"
 YHVH_HOSTNAME="${YHVH_GOSPEL_TV_HOSTNAME:-gospel.domains.izakhonoafrica.co.za}"
+LEARNER_DRIVER_HOSTNAME="${LEARNER_DRIVER_SA_HOSTNAME:-learnerdriver.domains.izakhonoafrica.co.za}"
 R0_MODE="${IZAKHONO_ONE_R0_MODE:-1}"
 LOCK="/run/lock/izakhono-node01-autopilot.lock"
 
@@ -46,6 +47,9 @@ drop01_watch="NOT_RUN"
 drop01_watch_exit=0
 learner_driver_funnel_watch="NOT_RUN"
 learner_driver_funnel_watch_exit=0
+learner_driver_owned="NOT_RUN"
+learner_driver_owned_exit=0
+learner_driver_owned_public="NOT_VERIFIED"
 crm_v020="NOT_RUN"
 crm_v020_exit=0
 crm_notify="NOT_RUN"
@@ -231,6 +235,55 @@ NODE
   fi
 fi
 
+# Keep Learner Driver SA deployed on NODE01, but only redeploy when its source tree changes.
+if [ "$node01_local" = "VERIFIED" ] && [ -f "$ROOT/izakhono-owned-cloud/deploy-learner-driver-sa.sh" ]; then
+  desired_learner_tree="$(git -C "$ROOT" rev-parse HEAD:learner-driver-sa-v6-live 2>/dev/null || true)"
+  deployed_learner_tree=""
+  if [ -s "$REPORT_DIR/learner-driver-sa.json" ]; then
+    deployed_learner_tree="$(node -e 'try{const x=require(process.argv[1]);process.stdout.write(String(x.source_tree||""))}catch{}' "$REPORT_DIR/learner-driver-sa.json")"
+  fi
+
+  learner_runtime_current=false
+  if [ -n "$desired_learner_tree" ] && [ "$desired_learner_tree" = "$deployed_learner_tree" ]; then
+    if curl -fsS --max-time 5 -H "Host: $LEARNER_DRIVER_HOSTNAME" http://127.0.0.1:8080/health >/tmp/learner-driver-owned-autopilot-health.json 2>/dev/null; then
+      if node - <<'NODE' >/dev/null 2>&1
+const x=require('/tmp/learner-driver-owned-autopilot-health.json');
+if(x.ok!==true||x.service!=='learner-driver-sa'||x.runtime!=='izakhono-owned'||x.engine_independent!==true||x.behavioural_tracking!==false) process.exit(2);
+NODE
+      then learner_runtime_current=true; fi
+    fi
+  fi
+
+  if [ "$learner_runtime_current" = true ]; then
+    learner_driver_owned="CURRENT_VERIFIED"
+  else
+    set +e
+    LEARNER_DRIVER_SA_HOSTNAME="$LEARNER_DRIVER_HOSTNAME" bash "$ROOT/izakhono-owned-cloud/deploy-learner-driver-sa.sh" main >/tmp/learner-driver-owned-deploy.log 2>&1
+    learner_driver_owned_exit=$?
+    set -e
+    if [ "$learner_driver_owned_exit" -eq 0 ]; then
+      if [ -s "$REPORT_DIR/learner-driver-sa.json" ]; then
+        receipt_tree="$(node -e 'try{const x=require(process.argv[1]);process.stdout.write(String(x.source_tree||""))}catch{}' "$REPORT_DIR/learner-driver-sa.json")"
+        if [ -n "$desired_learner_tree" ] && [ "$receipt_tree" = "$desired_learner_tree" ]; then
+          learner_driver_owned="DEPLOYED_VERIFIED"
+        else
+          learner_driver_owned="DEPLOYED_SOURCE_MISMATCH"
+        fi
+      else
+        learner_driver_owned="DEPLOYED_NO_RECEIPT"
+      fi
+    else
+      learner_driver_owned="FAILED_$learner_driver_owned_exit"
+    fi
+  fi
+
+  if [ -s "$REPORT_DIR/learner-driver-sa.json" ]; then
+    learner_driver_owned_public="$(node -e 'try{const x=require(process.argv[1]);process.stdout.write(String(x.public_https||"NOT_VERIFIED"))}catch{process.stdout.write("NOT_VERIFIED")}' "$REPORT_DIR/learner-driver-sa.json")"
+  fi
+else
+  learner_driver_owned="NODE01_OR_DEPLOYER_NOT_READY"
+fi
+
 if [ -s /var/lib/izakhono-owner-agent/state.json ]; then
   yhvh_owner_request_id="$(node -e 'try{const x=require(process.argv[1]);if(x.action==="deploy-yhvh-gospel-tv")process.stdout.write(String(x.request_id||""))}catch{}' /var/lib/izakhono-owner-agent/state.json)"
   yhvh_owner_agent="$(node -e 'try{const x=require(process.argv[1]);process.stdout.write(x.action==="deploy-yhvh-gospel-tv"?String(x.status||"UNKNOWN"):"NOT_CURRENT_REQUEST")}catch{process.stdout.write("STATE_INVALID")}' /var/lib/izakhono-owner-agent/state.json)"
@@ -375,9 +428,9 @@ fi
 
 ended="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 commit="$(git -C "$ROOT" rev-parse HEAD 2>/dev/null || true)"
-node - "$REPORT" "$started" "$ended" "$commit" "$source_state" "$agent_state" "$node01_owner_request_id" "$node01_owner_agent" "$node01_local" "$one_agent_state" "$growth_bridge_agent_state" "$growth_bridge_public" "$runner_state" "$crm_v020" "$crm_v020_exit" "$crm_notify" "$crm_notify_exit" "$local_one" "$yhvh_owner_request_id" "$yhvh_owner_agent" "$yhvh_engine_local" "$yhvh_channel_local" "$yhvh_public_https" "$owned_edge" "$owned_edge_exit" "$public_https" "$drop01_watch" "$drop01_watch_exit" "$learner_driver_funnel_watch" "$learner_driver_funnel_watch_exit" "$R0_MODE" <<'NODE'
+node - "$REPORT" "$started" "$ended" "$commit" "$source_state" "$agent_state" "$node01_owner_request_id" "$node01_owner_agent" "$node01_local" "$one_agent_state" "$growth_bridge_agent_state" "$growth_bridge_public" "$runner_state" "$crm_v020" "$crm_v020_exit" "$crm_notify" "$crm_notify_exit" "$local_one" "$yhvh_owner_request_id" "$yhvh_owner_agent" "$yhvh_engine_local" "$yhvh_channel_local" "$yhvh_public_https" "$owned_edge" "$owned_edge_exit" "$public_https" "$drop01_watch" "$drop01_watch_exit" "$learner_driver_funnel_watch" "$learner_driver_funnel_watch_exit" "$learner_driver_owned" "$learner_driver_owned_exit" "$learner_driver_owned_public" "$R0_MODE" <<'NODE'
 const fs=require('fs');
-const [path,started,ended,commit,source,agent,node01Request,node01Agent,node01Local,oneAgent,growthBridgeAgent,growthBridgePublic,runner,crmV020,crmV020Exit,crmNotify,crmNotifyExit,localOne,yhvhRequest,yhvhAgent,yhvhEngine,yhvhChannel,yhvhPublic,edge,edgeExit,publicHttps,drop01Watch,drop01WatchExit,learnerDriverFunnelWatch,learnerDriverFunnelWatchExit,r0Mode]=process.argv.slice(2);
+const [path,started,ended,commit,source,agent,node01Request,node01Agent,node01Local,oneAgent,growthBridgeAgent,growthBridgePublic,runner,crmV020,crmV020Exit,crmNotify,crmNotifyExit,localOne,yhvhRequest,yhvhAgent,yhvhEngine,yhvhChannel,yhvhPublic,edge,edgeExit,publicHttps,drop01Watch,drop01WatchExit,learnerDriverFunnelWatch,learnerDriverFunnelWatchExit,learnerDriverOwned,learnerDriverOwnedExit,learnerDriverOwnedPublic,r0Mode]=process.argv.slice(2);
 fs.writeFileSync(path,JSON.stringify({
   schema:'izakhono.node01-autopilot/v1',
   node:'NODE01',
@@ -414,6 +467,10 @@ fs.writeFileSync(path,JSON.stringify({
   allegro_drop01_milestone_watch_exit:Number(drop01WatchExit),
   learner_driver_funnel_watch:learnerDriverFunnelWatch,
   learner_driver_funnel_watch_exit:Number(learnerDriverFunnelWatchExit),
+  learner_driver_owned_deployment:learnerDriverOwned,
+  learner_driver_owned_deployment_exit:Number(learnerDriverOwnedExit),
+  learner_driver_owned_public_https:learnerDriverOwnedPublic,
+  learner_driver_owned_live_claim:false,
   live_claim:false,
   independent_https_verification_required:true,
   external_resilience_preserved:true,
@@ -451,5 +508,8 @@ echo "ZERO_BUDGET_MODE=$R0_MODE"
 echo "CUSTOM_DOMAIN_REQUIRED=$([ "$R0_MODE" = "1" ] && echo false || echo true)"
 echo "ALLEGRO_DROP01_MILESTONE_WATCH=$drop01_watch"
 echo "LEARNER_DRIVER_FUNNEL_WATCH=$learner_driver_funnel_watch"
+echo "LEARNER_DRIVER_OWNED_DEPLOYMENT=$learner_driver_owned"
+echo "LEARNER_DRIVER_OWNED_PUBLIC_HTTPS=$learner_driver_owned_public"
+echo "LEARNER_DRIVER_OWNED_LIVE_CLAIM=false"
 echo "LIVE_CLAIM=false"
 echo "RECEIPT=$REPORT"
