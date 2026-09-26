@@ -1,0 +1,145 @@
+name: Learner Driver Independent Cutover Witness
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'learner-driver-sa-campaign/**'
+      - 'portfolio-growth/bridge.js'
+      - 'IZAKHONO-AD-ROUTING.json'
+      - 'IZAKHONO-24-7-AD-ROTATION.json'
+      - '.github/workflows/learner-driver-owned-cutover.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'learner-driver-sa-campaign/**'
+      - 'portfolio-growth/bridge.js'
+      - 'IZAKHONO-AD-ROUTING.json'
+      - 'IZAKHONO-24-7-AD-ROTATION.json'
+      - '.github/workflows/learner-driver-owned-cutover.yml'
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: learner-driver-owned-cutover
+  cancel-in-progress: false
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.22.3'
+      - name: Verify fail-closed routing contract
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const r=JSON.parse(fs.readFileSync('learner-driver-sa-campaign/route.json','utf8'));
+          if(r.schema!=='izakhono.learner-driver-route/v1') process.exit(2);
+          if(r.active!=='resilience'||r.public_verified!==false) process.exit(3);
+          if(r.url!==r.resilience_url) process.exit(4);
+          if(r.owned_url!=='https://learnerdriver.domains.izakhonoafrica.co.za/') process.exit(5);
+          if(r.resilience_url!=='https://bevanshelton-netizen.github.io/Downloads/learner-driver-sa-v6-live/') process.exit(6);
+          NODE
+          grep -Fq "fetch('./route.json',{cache:'no-store'})" learner-driver-sa-campaign/index.html
+          grep -Fq "state.active==='owned' && state.public_verified===true" learner-driver-sa-campaign/index.html
+          grep -Fq 'https://bevanshelton-netizen.github.io/Downloads/learner-driver-sa-campaign/' portfolio-growth/bridge.js
+          grep -Fq 'https://bevanshelton-netizen.github.io/Downloads/learner-driver-sa-campaign/' IZAKHONO-AD-ROUTING.json
+          grep -Fq 'https://bevanshelton-netizen.github.io/Downloads/learner-driver-sa-campaign/' IZAKHONO-24-7-AD-ROTATION.json
+          if grep -Fq 'https://kora-network.vercel.app/learner-driver' portfolio-growth/bridge.js IZAKHONO-AD-ROUTING.json IZAKHONO-24-7-AD-ROTATION.json; then
+            echo "Broken KORA Learner Driver route returned."
+            exit 7
+          fi
+
+  witness:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.22.3'
+
+      - name: Independently probe owned Learner Driver route
+        id: probe
+        shell: bash
+        run: |
+          set -u
+          OWNED='https://learnerdriver.domains.izakhonoafrica.co.za/'
+          HEALTH_FILE=/tmp/learner-driver-owned-health.json
+          ROOT_FILE=/tmp/learner-driver-owned-root.html
+          verified=false
+
+          if curl -fsS --connect-timeout 5 --max-time 12 --retry 2 --retry-delay 1 "${OWNED}health" -o "$HEALTH_FILE"              && curl -fsS --connect-timeout 5 --max-time 12 --retry 2 --retry-delay 1 "$OWNED" -o "$ROOT_FILE"; then
+            if node - "$HEALTH_FILE" <<'NODE'
+          const fs=require('fs');
+          const x=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
+          if(x.ok!==true) process.exit(2);
+          if(x.service!=='learner-driver-sa') process.exit(3);
+          if(x.runtime!=='izakhono-owned') process.exit(4);
+          if(x.engine_independent!==true) process.exit(5);
+          if(x.behavioural_tracking!==false) process.exit(6);
+          NODE
+            then
+              if grep -Fq 'Learner Driver SA' "$ROOT_FILE"; then
+                verified=true
+              fi
+            fi
+          fi
+
+          VERIFIED="$verified" node - <<'NODE'
+          const fs=require('fs');
+          const crypto=require('crypto');
+          const path='learner-driver-sa-campaign/route.json';
+          const state=JSON.parse(fs.readFileSync(path,'utf8'));
+          const verified=process.env.VERIFIED==='true';
+          const owned='https://learnerdriver.domains.izakhonoafrica.co.za/';
+          const resilience='https://bevanshelton-netizen.github.io/Downloads/learner-driver-sa-v6-live/';
+          const next={
+            ...state,
+            active:verified?'owned':'resilience',
+            public_verified:verified,
+            url:verified?owned:resilience,
+            owned_url:owned,
+            resilience_url:resilience,
+            witness:verified?'github-hosted-actions':null,
+            verified_at:verified?new Date().toISOString():null
+          };
+          if(verified){
+            const health=fs.readFileSync('/tmp/learner-driver-owned-health.json');
+            next.health_sha256=crypto.createHash('sha256').update(health).digest('hex');
+          }else{
+            delete next.health_sha256;
+          }
+          const before=JSON.stringify(state,null,2)+'\n';
+          const after=JSON.stringify(next,null,2)+'\n';
+          fs.writeFileSync(path,after);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,'changed='+(before!==after?'true':'false')+'\n');
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,'verified='+(verified?'true':'false')+'\n');
+          NODE
+
+      - name: Commit route state transition
+        if: steps.probe.outputs.changed == 'true'
+        run: |
+          git config user.name 'izakhono-cutover-witness'
+          git config user.email 'actions@users.noreply.github.com'
+          git add learner-driver-sa-campaign/route.json
+          if [ "${{ steps.probe.outputs.verified }}" = "true" ]; then
+            git commit -m "Promote Learner Driver to independently verified owned route [skip ci]"
+          else
+            git commit -m "Fail back Learner Driver to resilience route [skip ci]"
+          fi
+          git push origin HEAD:main
