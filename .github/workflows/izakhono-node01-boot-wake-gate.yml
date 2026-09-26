@@ -1,0 +1,58 @@
+name: IZAKHONO NODE01 Boot Wake Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'owner-host/INSTALL-IZAKHONO-NODE01-BOOT-WAKE.ps1'
+      - 'owner-host/START-IZAKHONO-OWNER-HOST.ps1'
+      - 'START-IZAKHONO-NODE01-BOOT-WAKE.cmd'
+      - '.github/workflows/izakhono-node01-boot-wake-gate.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'owner-host/INSTALL-IZAKHONO-NODE01-BOOT-WAKE.ps1'
+      - 'owner-host/START-IZAKHONO-OWNER-HOST.ps1'
+      - 'START-IZAKHONO-NODE01-BOOT-WAKE.cmd'
+      - '.github/workflows/izakhono-node01-boot-wake-gate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate boot wake contract
+        shell: pwsh
+        run: |
+          $paths=@(
+            'owner-host/INSTALL-IZAKHONO-NODE01-BOOT-WAKE.ps1',
+            'owner-host/START-IZAKHONO-OWNER-HOST.ps1'
+          )
+          foreach($p in $paths){
+            $tokens=$null; $errors=$null
+            [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $p),[ref]$tokens,[ref]$errors) | Out-Null
+            if($errors.Count -gt 0){ $errors | ForEach-Object { Write-Error "$p : $($_.Message)" }; exit 1 }
+          }
+
+          $ps=Get-Content 'owner-host/INSTALL-IZAKHONO-NODE01-BOOT-WAKE.ps1' -Raw
+          if($ps -notmatch 'New-ScheduledTaskTrigger -AtStartup'){ throw 'AtStartup trigger missing' }
+          if($ps -notmatch 'LogonType S4U'){ throw 'S4U user-context boot execution missing' }
+          if($ps -notmatch 'INTERACTIVE_LOGON_FALLBACK'){ throw 'Safe logon fallback missing' }
+          if($ps -notmatch 'Ubuntu-24.04'){ throw 'WSL distribution target missing' }
+          if($ps -notmatch 'izakhono-node01.service'){ throw 'NODE01 controller wake missing' }
+          if($ps -notmatch 'izakhono-actions-runner'){ throw 'runner wake missing' }
+          if($ps -notmatch 'node01-autopilot.sh'){ throw 'Autopilot wake missing' }
+          if($ps -notmatch '127.0.0.1:8940/health'){ throw 'NODE01 health proof missing' }
+          if($ps -notmatch 'public_live_claim'){ throw 'live-claim safety check missing' }
+          if($ps -match 'registration-token'){ throw 'Boot Wake must not request runner registration tokens' }
+          if($ps -match 'ghp_|github_pat_'){ throw 'Boot Wake contains forbidden token material' }
+
+          $owner=Get-Content 'owner-host/START-IZAKHONO-OWNER-HOST.ps1' -Raw
+          if($owner -notmatch 'INSTALL-IZAKHONO-NODE01-BOOT-WAKE.ps1'){ throw 'Owner-host Boot Wake integration missing' }
+          if($owner -notmatch 'Installing NODE01 Boot Wake'){ throw 'Owner-host Boot Wake status missing' }
+
+          $cmd=Get-Content 'START-IZAKHONO-NODE01-BOOT-WAKE.cmd' -Raw
+          if($cmd -notmatch 'INSTALL-IZAKHONO-NODE01-BOOT-WAKE.ps1'){ throw 'One-click Boot Wake handoff missing' }

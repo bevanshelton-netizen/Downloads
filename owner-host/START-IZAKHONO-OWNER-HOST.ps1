@@ -105,6 +105,22 @@ try {
     Write-Host "NODE01 Autopilot could not complete: $($_.Exception.Message)" -ForegroundColor Yellow
     Write-Host "Owner-host core remains intact; Autopilot can be rerun independently." -ForegroundColor Yellow
 }
+
+Write-Host ""
+Write-Host "Installing NODE01 Boot Wake..." -ForegroundColor Cyan
+$bootWakeBootstrap = Join-Path $State "INSTALL-IZAKHONO-NODE01-BOOT-WAKE.ps1"
+$bootWakeUrl = "https://raw.githubusercontent.com/bevanshelton-netizen/Downloads/main/owner-host/INSTALL-IZAKHONO-NODE01-BOOT-WAKE.ps1"
+try {
+    Invoke-WebRequest -UseBasicParsing $bootWakeUrl -OutFile $bootWakeBootstrap
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $bootWakeBootstrap
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "NODE01 Boot Wake installer returned a non-zero result; logon fallback may still be available." -ForegroundColor Yellow
+    }
+} catch {
+    Write-Host "NODE01 Boot Wake could not complete: $($_.Exception.Message)" -ForegroundColor Yellow
+    Write-Host "Owner-host core remains intact; Boot Wake can be rerun independently." -ForegroundColor Yellow
+}
+
 Write-Host ""
 Write-Host "OWNER HOST CORE: INSTALLED" -ForegroundColor Green
 Write-Host "Checking host status..." -ForegroundColor Cyan
