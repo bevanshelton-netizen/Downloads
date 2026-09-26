@@ -97,6 +97,7 @@ jobs:
           if ($livePs -notmatch '--mode named') { throw 'live launcher must use named edge mode' }
           if ($livePs -notmatch 'FAISREADY_LIVE_PAYMENTS_APPROVED') { throw 'live launcher must retain PayFast approval gate' }
           if ($livePs -notmatch 'IKHOKHA_LIVE_APPROVED') { throw 'live launcher must retain iKhokha approval gate' }
+          if ($livePs -notmatch 'LOCKED \(stable-host preflight only\)') { throw 'live launcher must support payment-locked stable-host proof' }
           if ($livePs -notmatch 'faisready\.co\.za') { throw 'live launcher must pin the approved FAISReady hostname family' }
           if ($livePs -match 'TUNNEL_TOKEN\s+--') { throw 'tunnel token must never be placed on command line' }
       - name: Generate deterministic bridge plans
@@ -257,9 +258,13 @@ jobs:
           =============================
           1. Extract this ZIP on the owner-controlled Windows PC.
           2. Double-click START-FAISREADY-SANDBOX.cmd.
-          3. Keep live payments disabled until the sandbox transaction,
-             entitlement, backup/restore and public-host checks have passed.
-          4. START-FAISREADY-LIVE.cmd is intentionally gated and is not the first step.
+          3. After sandbox proof, use START-FAISREADY-LIVE.cmd with
+             IKHOKHA_LIVE_APPROVED=false to prove the stable faisready.co.za
+             named-tunnel route while checkout remains locked.
+          4. Only after the stable-host checks pass, add authorised iKhokha API
+             credentials and set IKHOKHA_LIVE_APPROVED=true for ONE controlled
+             transaction. Keep broad promotion off until entitlement and backup
+             receipts pass.
           EOF
 
       - name: Upload Windows activation package
