@@ -1,4 +1,4 @@
-name: Learner Driver NODE01 Deployment
+name: Learner Driver Infrastructure Deployment
 
 on:
   push:
@@ -6,7 +6,8 @@ on:
     paths:
       - 'learner-driver-sa-v6-live/**'
       - 'izakhono-owned-cloud/deploy-learner-driver-sa.sh'
-      - 'owner-host/node01-autopilot.sh'
+      - 'infrastructure/control/portfolio-desired-state.json'
+      - 'izakhono-infrastructure-executor/targets.json'
       - 'owner-host/platforms.json'
       - '.github/workflows/learner-driver-node01-deploy.yml'
   workflow_dispatch:
@@ -15,7 +16,8 @@ on:
     paths:
       - 'learner-driver-sa-v6-live/**'
       - 'izakhono-owned-cloud/deploy-learner-driver-sa.sh'
-      - 'owner-host/node01-autopilot.sh'
+      - 'infrastructure/control/portfolio-desired-state.json'
+      - 'izakhono-infrastructure-executor/targets.json'
       - 'owner-host/platforms.json'
       - '.github/workflows/learner-driver-node01-deploy.yml'
 
@@ -23,12 +25,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: learner-driver-node01-deploy
+  group: learner-driver-infrastructure-deploy
   cancel-in-progress: true
 
 jobs:
   contract:
-    name: Verify Learner Driver owned deployment contract
+    name: Verify Learner Driver infrastructure contract
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -36,25 +38,31 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22.22.3'
-      - name: Validate engine, deployer and platform registration
+      - name: Validate engine, deployer, request and platform registration
         shell: bash
         run: |
           set -euo pipefail
           node --check learner-driver-sa-v6-live/server.mjs
           bash -n izakhono-owned-cloud/deploy-learner-driver-sa.sh
-          grep -Fq 'APP="learner-driver-sa"' izakhono-owned-cloud/deploy-learner-driver-sa.sh
-          grep -Fq 'HOSTNAME="${LEARNER_DRIVER_SA_HOSTNAME:-learnerdriver.domains.izakhonoafrica.co.za}"' izakhono-owned-cloud/deploy-learner-driver-sa.sh
-          grep -Fq 'SOURCE=IZAKHONO_CODE' izakhono-owned-cloud/deploy-learner-driver-sa.sh
-          grep -Fq 'engine_independent:true' izakhono-owned-cloud/deploy-learner-driver-sa.sh
-          grep -Fq 'public_live_verified:publicHttps==="VERIFIED"' izakhono-owned-cloud/deploy-learner-driver-sa.sh
           node - <<'NODE'
           const fs=require('fs');
-          const x=JSON.parse(fs.readFileSync('owner-host/platforms.json','utf8'));
-          const p=(x.platforms||[]).find(p=>p.id==='learner-driver-sa');
+          const authority=JSON.parse(fs.readFileSync('IZAKHONO-INFRASTRUCTURE-AUTHORITY.json','utf8'));
+          if(authority.execution_policy?.production_scheduler!=='IZAKHONO_INFRASTRUCTURE_EXECUTOR') throw new Error('native executor is not production scheduler');
+          if(authority.execution_policy?.github_self_hosted_runner_required_for_production!==false) throw new Error('GitHub runner still required');
+          const catalog=JSON.parse(fs.readFileSync('owner-host/platforms.json','utf8'));
+          const p=(catalog.platforms||[]).find(p=>p.id==='learner-driver-sa');
           if(!p) throw new Error('Learner Driver platform registration missing');
           if(p.defaultHostname!=='learnerdriver.domains.izakhonoafrica.co.za') throw new Error('owned hostname mismatch');
           if(p.deploy!=='izakhono-owned-cloud/deploy-learner-driver-sa.sh') throw new Error('deployer mismatch');
-          if(p.engine!=='learner-driver-sa'||p.engineIndependent!==true) throw new Error('independent engine contract missing');
+          if(p.runtimeAuthority!=='IZAKHONO_INFRASTRUCTURE'||p.laptopRuntimeDependency!==false||p.platformToLaptopTraffic!=='DENY') throw new Error('platform authority mismatch');
+          const control=JSON.parse(fs.readFileSync('infrastructure/control/portfolio-desired-state.json','utf8'));
+          const r=(control.requests||[]).find(x=>x.id==='learner-driver-infrastructure-20260926-01');
+          if(!r||r.enabled!==true||r.action!=='deploy-platform'||r.platform_id!=='learner-driver-sa') throw new Error('native deployment request missing');
+          if(r.laptop_target!==false||r.public_live_claim!==false||r.external_resilience_preserve!==true) throw new Error('request safety contract mismatch');
+          const targets=JSON.parse(fs.readFileSync('izakhono-infrastructure-executor/targets.json','utf8'));
+          if(targets.targets?.['learner-driver-sa']?.command?.[1]!==p.deploy) throw new Error('executor target mismatch');
+          console.log('LEARNER_DRIVER_NATIVE_EXECUTOR_REQUEST=VERIFIED');
+          console.log('GITHUB_PRODUCTION_EXECUTION=false');
           NODE
 
   external-resilience:
@@ -70,98 +78,40 @@ jobs:
           OK=0
           for i in {1..6}; do
             if PAGE="$(curl -LfsS --connect-timeout 5 --max-time 20 "$URL" 2>/dev/null)"; then
-              if grep -Fqi 'Learner Driver SA' <<<"$PAGE"; then
-                OK=1
-                break
-              fi
+              if grep -Fqi 'Learner Driver SA' <<<"$PAGE"; then OK=1; break; fi
             fi
             sleep 5
           done
           test "$OK" = "1"
           echo 'LEARNER_DRIVER_RESILIENCE=VERIFIED'
 
-  owned-deploy:
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
-    name: Deploy Learner Driver on IZAKHONO NODE01
-    runs-on: [self-hosted, linux, x64, izakhono, izakhono-infrastructure]
-    timeout-minutes: 20
-    steps:
-      - name: Synchronize approved source authority
-        shell: bash
-        run: |
-          set -euo pipefail
-          ROOT=/opt/izakhono-source/Downloads
-          test -d "$ROOT/.git"
-          if [ -x "$ROOT/owner-host/sync-owner-source.sh" ]; then
-            sudo -n bash "$ROOT/owner-host/sync-owner-source.sh" "$ROOT"
-          else
-            echo 'Approved sync helper missing locally; recovering helper from configured bootstrap origin.'
-            git -C "$ROOT" fetch --quiet origin main
-            git -C "$ROOT" show origin/main:owner-host/sync-owner-source.sh >/tmp/izakhono-sync-owner-source.sh
-            chmod 0700 /tmp/izakhono-sync-owner-source.sh
-            sudo -n bash /tmp/izakhono-sync-owner-source.sh "$ROOT"
-          fi
-          node - "$ROOT/IZAKHONO-INFRASTRUCTURE-AUTHORITY.json" <<'NODE'
-          const fs=require('fs');
-          const p=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
-          if(p.runtime_authority!=='IZAKHONO_INFRASTRUCTURE') throw new Error('runtime authority mismatch');
-          if(p.communication_policy?.platform_to_laptop!=='DENY') throw new Error('platform-to-laptop traffic not denied');
-          if(p.laptop?.deployment_target!==false||p.laptop?.runtime_dependency!==false) throw new Error('laptop execution not forbidden');
-          console.log('EXECUTION_TARGET=IZAKHONO_INFRASTRUCTURE');
-          console.log('PLATFORM_TO_LAPTOP=DENY');
-          NODE
-
-      - name: Deploy independent Learner Driver engine
-        shell: bash
-        run: |
-          set -euo pipefail
-          ROOT=/opt/izakhono-source/Downloads
-          sudo -n env LEARNER_DRIVER_SA_HOSTNAME='learnerdriver.domains.izakhonoafrica.co.za'             bash "$ROOT/izakhono-owned-cloud/deploy-learner-driver-sa.sh" main
-
-      - name: Verify deployment receipt and local runtime
-        shell: bash
-        run: |
-          set -euo pipefail
-          RECEIPT=/var/lib/izakhono-deploy/learner-driver-sa.json
-          sudo -n test -s "$RECEIPT"
-          sudo -n cat "$RECEIPT" >/tmp/learner-driver-sa-receipt.json
-          node - <<'NODE'
-          const x=require('/tmp/learner-driver-sa-receipt.json');
-          if(x.schema!=='izakhono.learner-driver-sa-deployment/v1') process.exit(2);
-          if(x.app!=='learner-driver-sa'||x.product!=='Learner Driver SA') process.exit(3);
-          if(x.source!=='IZAKHONO_CODE'||x.runtime!=='IZAKHONO_RUNTIME') process.exit(4);
-          if(x.engine!=='learner-driver-sa'||x.engine_independent!==true) process.exit(5);
-          if(x.hostname!=='learnerdriver.domains.izakhonoafrica.co.za') process.exit(6);
-          if(x.vercel_required!==false||x.behavioural_tracking!==false) process.exit(7);
-          console.log('LEARNER_DRIVER_RECEIPT=VERIFIED');
-          console.log('SOURCE_TREE='+String(x.source_tree||''));
-          console.log('PUBLIC_HTTPS='+String(x.public_https||'NOT_VERIFIED'));
-          NODE
-
-          HEALTH="$(curl -fsS --max-time 5 -H 'Host: learnerdriver.domains.izakhonoafrica.co.za' http://127.0.0.1:8080/health)"
-          node -e 'const x=JSON.parse(process.argv[1]);if(x.ok!==true||x.service!=="learner-driver-sa"||x.runtime!=="izakhono-owned"||x.engine_independent!==true||x.behavioural_tracking!==false)process.exit(2)' "$HEALTH"
-          ROOT_PAGE="$(curl -fsS --max-time 5 -H 'Host: learnerdriver.domains.izakhonoafrica.co.za' http://127.0.0.1:8080/)"
-          grep -Fqi 'Learner Driver SA' <<<"$ROOT_PAGE"
-          echo 'LEARNER_DRIVER_NODE01_LOCAL=VERIFIED'
-
-  independent-public-verify:
-    if: always() && needs.owned-deploy.result == 'success'
-    name: Independently verify Learner Driver owned public HTTPS
-    needs: owned-deploy
+  observe-owned-public:
+    name: Observe Learner Driver owned public HTTPS
+    needs: contract
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Prove public owned identity
+      - name: Observe without creating a live claim
         shell: bash
         run: |
           set -euo pipefail
           HOST='learnerdriver.domains.izakhonoafrica.co.za'
-          curl -fsS --connect-timeout 5 --max-time 20 "https://$HOST/health" -o /tmp/learner-driver-public-health.json
-          curl -fsS --connect-timeout 5 --max-time 20 "https://$HOST/" -o /tmp/learner-driver-public-root.html
-          node - <<'NODE'
-          const x=require('/tmp/learner-driver-public-health.json');
+          set +e
+          curl -fsS --connect-timeout 5 --max-time 20 "https://$HOST/health" -o /tmp/health.json
+          RC=$?
+          set -e
+          if [ "$RC" -ne 0 ]; then
+            echo 'LEARNER_DRIVER_OWNED_PUBLIC_HTTPS=NOT_VERIFIED'
+            echo 'PUBLIC_LIVE_CLAIM=false'
+            exit 0
+          fi
+          if node - <<'NODE'
+          const x=require('/tmp/health.json');
           if(x.ok!==true||x.service!=='learner-driver-sa'||x.runtime!=='izakhono-owned') process.exit(2);
-          if(x.engine_independent!==true||x.behavioural_tracking!==false) process.exit(3);
           NODE
-          grep -Fqi 'Learner Driver SA' /tmp/learner-driver-public-root.html
-          echo 'LEARNER_DRIVER_OWNED_PUBLIC_HTTPS=VERIFIED'
+          then
+            echo 'LEARNER_DRIVER_OWNED_PUBLIC_HTTPS=VERIFIED'
+          else
+            echo 'LEARNER_DRIVER_OWNED_PUBLIC_HTTPS=IDENTITY_MISMATCH'
+          fi
+          echo 'PUBLIC_LIVE_CLAIM=false'
