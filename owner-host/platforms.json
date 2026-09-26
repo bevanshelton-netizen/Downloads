@@ -236,7 +236,7 @@
       "id": "kora-gospel-tv",
       "hostnameEnv": "KORA_GOSPEL_TV_PUBLIC_HOST",
       "defaultHostname": "gospel.domains.izakhonoafrica.co.za",
-      "deploy": "izakhono-owned-cloud/deploy-kora-gospel-tv.sh",
+      "deploy": "izakhono-owned-cloud/deploy-yhvh-gospel-tv.sh",
       "qualityProfile": "izakhono-premium-v1",
       "product": "YHVH GOSPEL TV",
       "productId": "yhvh-gospel-tv",
