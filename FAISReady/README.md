@@ -82,3 +82,33 @@ The backup uses SQLite's online backup API, runs an integrity check, restores in
 CI proves the software path. It does not prove a real owner machine, real custom hostname, real merchant account, real payment or real recovery operation. `commercial_ready=false` remains correct until those external proofs pass.
 
 See `DEPLOYMENT_HANDOFF.md`, `LAUNCH_CHECKLIST.md` and `REGULATORY_CONTENT_MANIFEST.md`.
+
+
+## Production payment rail
+
+FAISReady now has a provider-neutral application layer with selectable payment rails:
+
+- `ikhokha` — intended production rail through the iK Pay API.
+- `payfast` — proven sandbox/fallback rail.
+- `izakhono` — optional IZAKHONO PAY orchestration route.
+
+The native launch manifests start `revenue_server_gateway.py`, which selects the rail from `FAISREADY_PAYMENT_PROVIDER` without changing the course-entitlement ledger.
+
+For iKhokha, FAISReady creates a payment link with a signed iK Pay API request. The public callback is treated only as a trigger. Before any course entitlement is granted, FAISReady performs a signed server-to-server iKhokha payment-status lookup and requires:
+
+- the known FAISReady order to match the stored paylink;
+- iKhokha status `PAID`;
+- the returned paylink ID to match;
+- the returned amount in cents to equal the server-side order amount.
+
+### Revenue activation sequence
+
+1. Run `START-FAISREADY-SANDBOX.cmd` and prove the native owner-host + public sandbox path.
+2. Configure the named tunnel and `PUBLIC_BASE_URL=https://faisready.co.za`.
+3. Run `START-FAISREADY-LIVE.cmd` with `IKHOKHA_LIVE_APPROVED=false`. This proves the stable public hostname while checkout stays locked.
+4. Add the authorised iKhokha App ID and App Key to `FAISReady/.env.local`.
+5. Set `IKHOKHA_LIVE_APPROVED=true` only for one controlled transaction.
+6. Verify the paid entitlement and run the backup/restore receipt.
+7. Only after those proofs pass should broader promotion begin.
+
+No API key, tunnel token, payment credential or live SQLite database belongs in Git.
