@@ -39,6 +39,12 @@ jobs:
           bash -n izakhono-infrastructure-executor/sync-source.sh
           bash -n izakhono-infrastructure-executor/run-once.sh
           bash -n izakhono-infrastructure-executor/install-linux.sh
+          bash -n izakhono-owned-cloud/activate-izakhono-one-local-model.sh
+          bash -n izakhono-owned-cloud/deploy-izakhono-crm-v020.sh
+          bash -n izakhono-owned-cloud/deploy-yenzanow.sh
+          bash -n izakhono-owned-cloud/deploy-matric-rewrite.sh
+          bash -n izakhono-owned-cloud/deploy-command-center.sh
+          bash -n izakhono-owned-cloud/deploy-containers.sh
           bash -n izakhono-owned-cloud/deploy-kora-network.sh
           bash -n izakhono-owned-cloud/deploy-faisready.sh
           bash -n izakhono-owned-cloud/deploy-allegro-vibez.sh
@@ -65,6 +71,13 @@ jobs:
             if(!/^izakhono-owned-cloud\/[A-Za-z0-9._-]+\.sh$/.test(script)) throw new Error(id+': deployer outside allowlist');
             if(!fs.existsSync(script)) throw new Error(id+': deployer missing '+script);
           }
+          for(const [id,t] of Object.entries(targets.workloads||{})){
+            if(!Array.isArray(t.command)||t.command[0]!=='bash') throw new Error(id+': workload command must be bash array');
+            const script=String(t.command[1]||'');
+            if(!/^izakhono-owned-cloud\/[A-Za-z0-9._-]+\.sh$/.test(script)) throw new Error(id+': workload outside allowlist');
+            if(!fs.existsSync(script)) throw new Error(id+': workload wrapper missing '+script);
+          }
+          if(!fs.readFileSync('izakhono-infrastructure-executor/run-once.sh','utf8').includes("'run-workload'")) throw new Error('executor run-workload support missing');
 
           const catalog=JSON.parse(fs.readFileSync('owner-host/platforms.json','utf8'));
           const legacy=(catalog.platforms||[]).filter(p=>String(p.deploy||'').endsWith('.ps1')).map(p=>p.id).sort();
@@ -95,3 +108,16 @@ jobs:
           grep -q 'DEPLOYMENT_AUTHORITY=IZAKHONO_INFRASTRUCTURE_EXECUTOR' "$f"
           grep -q 'infrastructure/control/portfolio-desired-state.json' "$f"
           grep -q 'PUBLIC_LIVE_CLAIM=false' "$f"
+
+      - name: Reject GitHub self-hosted production execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in             .github/workflows/learner-driver-node01-deploy.yml             .github/workflows/izakhono-one-owner-runner-activation.yml             .github/workflows/izakhono-pay-owner-live.yml             .github/workflows/izakhono-crm-owner-live.yml             .github/workflows/izakhono-portfolio-cutover.yml             .github/workflows/yhvh-gospel-node01-deploy.yml
+          do
+            if grep -Eq 'runs-on:[[:space:]]*\[[^]]*self-hosted|^[[:space:]]*-[[:space:]]*self-hosted[[:space:]]* "$f"; then
+              echo "Production workflow still contains self-hosted execution: $f" >&2
+              exit 2
+            fi
+          done
+          echo 'PRODUCTION_GITHUB_SELF_HOSTED_EXECUTION=NONE'
