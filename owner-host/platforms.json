@@ -293,6 +293,34 @@
     "workerQueueTrafficToLaptop": "DENY",
     "dataSyncToLaptop": "DENY",
     "laptopToPlatformAdmin": "AUTHENTICATED_MANAGEMENT_ONLY",
-    "laptopAdminSessionRequiredForAvailability": false
+    "laptopAdminSessionRequiredForAvailability": false,
+    "externalResilienceRequiredForPublicPlatforms": true,
+    "internalAndExternalDeliveryRequired": true,
+    "ownedPrimaryRequired": true
+  },
+  "presentationPolicy": {
+    "effective": "2026-09-26",
+    "profile": "izakhono-premium-v1",
+    "appliesTo": "ALL_CUSTOMER_FACING_PLATFORMS",
+    "exemptPublicSurfaceTypes": [
+      "collector-only",
+      "api-only",
+      "machine-only"
+    ],
+    "internationalProfessionalStandardRequired": true,
+    "immediateOfferClarityRequired": true,
+    "targetAudienceClarityRequired": true,
+    "primaryCTARequired": true,
+    "relevantPhotographyOrOriginalGraphicsRequired": true,
+    "strongHeroVisualRequired": true,
+    "modernTypographyRequired": true,
+    "mobileFirstRequired": true,
+    "visualStorytellingRequired": true,
+    "trustSignalsRequired": true,
+    "pricingOrCommercialPathRequiredWhereApplicable": true,
+    "placeholderPagesAllowed": false,
+    "genericTemplateLookAllowed": false,
+    "deadLinksAllowed": false,
+    "unverifiedLiveClaimsAllowed": false
   }
 }
