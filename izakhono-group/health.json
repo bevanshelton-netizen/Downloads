@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "service": "IZAKHONO FLAGSHIP",
+  "hostname": "izakhono.co.za",
+  "runtime": "external-resilience",
+  "version": "1.0.0"
+}
