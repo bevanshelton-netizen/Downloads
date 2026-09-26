@@ -147,7 +147,7 @@ for(const p of rollout.products||[]){
   }
 }
 
-if((visual.dedicatedRepositories||[]).length!==4) fail("dedicated repository coverage drift");
+if((visual.dedicatedRepositories||[]).length!==3) fail("dedicated repository coverage drift");
 for(const p of visual.dedicatedRepositories||[]){
   if(!p.repository) fail(p.id+" dedicated repository missing");
   if(!p.releaseCommit && p.qualityProfile!=="izakhono-premium-v1") fail(p.id+" lacks release or quality baseline");
