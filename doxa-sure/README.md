@@ -1,86 +1,135 @@
-# DOXA-SURE Bootstrap MVP
+# DOXA-SURE
 
-**Operating promise:** Protecting what has been entrusted to you.  
-**Build rule:** Membership instant. Insurance delayed. Rescue audited.
+**Public promise:** Protect What Matters Most.  
+**Operating rule:** Membership instant. Insurance delayed. Rescue audited.
 
-This is the cash-first DOXA-SURE MVP. It is deliberately small, cheap and safe to test before building a licensed insurance stack.
+DOXA-SURE is a South African early-warning, rescue-readiness and case-organisation platform. The public experience is live while regulated insurance, legal and debt-counselling activities remain outside the pilot unless handled by appropriately authorised professionals.
 
-## What works now
+## Live public experience
 
-- Mobile-first landing page
-- Free Asset Risk Check entry point
-- My DOXA-SURE Shield dashboard
-- Transparent Shield Score v1
-- Asset Vault for home, vehicle, income, family and business exposures
-- SAVE MY ASSET rescue-case creation
-- Dated snapshot of the customer position at trigger time
-- Rules-based Rescue Plan actions
-- Action status audit trail in Supabase
-- Private document bucket when Supabase is enabled
-- Email magic-link auth when Supabase is enabled
-- Zero-cost browser demo mode when Supabase is not enabled
+- Premium black / purple / silver public site
+- Free Asset Risk Check with Green / Amber / Red / Critical urgency bands
+- Human-style voice Help Desk avatar
+- Microphone input and spoken replies in supported browsers
+- Guarded DOXA-SURE guidance for high-risk and regulated topics
+- Optional device-local Enhanced AI using WebLLM on compatible WebGPU browsers
+- Secure email-first service-request intake
+- No personal phone number or WhatsApp dependency
+- R199 once-off Rescue Readiness Pack founding offer
+- R99/month Shield founding offer
+- Pilot Terms, Privacy & POPIA Notice, and Refund & Cancellation Policy
 
-## What is deliberately NOT in v1
+Public route:
 
-- Insurance underwriting or insurer promises
-- Claims payments
-- Debt counselling performed by DOXA-SURE
-- Legal representation performed by DOXA-SURE
-- OCR/AI API costs
-- SMS login costs
-- ID numbers, bank-account numbers, passwords or PINs
-- A paid cell-captive or insurer integration
+`https://bevanshelton-netizen.github.io/Downloads/doxa-sure/site/`
 
-## Shared Supabase safety
+## Live backend
 
-The migration in `supabase/migrations/001_doxa_bootstrap_mvp.sql` is designed for the existing Allegro-Vibez Supabase project without touching Allegro tables.
+DOXA-SURE uses isolated `doxa_*` objects inside the shared **IZAKHONO WebStart** Supabase project.
 
-Everything is prefixed:
+Current live backend includes:
 
-- tables: `doxa_*`
-- functions: `doxa_*`
-- triggers: `doxa_*`
-- policies: `doxa_*`
-- storage bucket: `doxa-vault-docs`
+- `doxa_profiles`
+- `doxa_memberships`
+- `doxa_assets`
+- `doxa_documents`
+- `doxa_rescue_cases`
+- `doxa_rescue_actions`
+- `doxa_action_logs`
+- `doxa_consents`
+- `doxa_admins`
+- `doxa_pilot_leads`
+- private `doxa-vault-docs` storage bucket
 
-The auth trigger is named `doxa_on_auth_user_created`; it does **not** drop or replace Allegro-Vibez auth triggers.
+The browser uses a publishable Supabase key only. Row Level Security is the security boundary. Internal SECURITY DEFINER helpers are not executable by public/anon users; only the intended customer RPCs are exposed.
 
-## Demo mode
+## Secure public intake
 
-`config.js` intentionally ships with the Supabase anon key blank. In this state the site opens in a zero-cost browser demo mode and stores only structured demo data in localStorage. Files themselves are not stored.
+The public form submits through `doxa_submit_pilot_lead`.
 
-This is useful for sales demos and product validation without collecting real sensitive documents.
+Controls include:
 
-## Live mode
+- explicit consent
+- email validation
+- honeypot spam control
+- per-email rate limiting
+- bounded free-text input
+- no public read access to lead records
+- risk-band context from the Free Asset Risk Check
+- IZAKHONO APP FABRIC owned-first intake routing with configured resilience fallback
 
-After the SQL migration is applied, set the public browser-safe Supabase anon/publishable key in `config.js`:
+The public form does not request banking passwords, PINs, full ID numbers or online-banking credentials.
 
-```js
-window.DOXA_CONFIG = {
-  supabaseUrl: 'https://zoolsumifdtanycjryje.supabase.co',
-  supabaseAnonKey: 'PUBLIC_BROWSER_KEY',
-  mode: 'auto'
-};
-```
+## Shield dashboard
 
-The anon/publishable key is intended for browser use; Row Level Security is the real data barrier. Never place the Supabase service-role key in this frontend.
+The authenticated dashboard provides:
 
-## Secure pilot leads
+- Shield Score
+- asset tracking
+- employment / income resilience profile
+- private document metadata and vault uploads
+- SAVE MY ASSET Rescue Cases
+- dated action plans
+- customer action completion
+- consent records
+- audit history
 
-Apply `supabase/migrations/002_doxa_secure_leads.sql` after migration 001. It adds the minimal-consent form on `pilot.html` and an owner-only lead desk at `leads-dashboard.html`.
+Magic-link authentication is handled by Supabase Auth.
 
-The public browser never receives table read access. It may call only the validated `doxa_submit_pilot_lead` function. Lead reads and status updates require an authenticated user explicitly enrolled in `doxa_admins`.
+## AI architecture
 
-After the owner has used the dashboard magic-link sign-in once, run this once in the Supabase SQL editor with the owner's real email:
+Core risk and regulatory questions use deterministic DOXA-SURE guarded guidance so urgent or regulated matters are not delegated blindly to a small model.
 
-```sql
-insert into public.doxa_admins(user_id)
-select id from auth.users where email = 'OWNER_EMAIL'
-on conflict do nothing;
-```
+Visitors may optionally enable Enhanced AI. The optional Quick model downloads to the user's device through WebLLM/Hugging Face distribution infrastructure and then performs inference on-device. This is deliberately optional because the first model load can use substantial data.
 
-The site does not connect to WhatsApp or the owner's personal phone.
+The owned IZAKHONO sovereign AI route remains the long-term primary server-side architecture; external/model-distribution components remain replaceable.
+
+## Payment boundary
+
+Online checkout is **not represented as live for DOXA-SURE** until a merchant route is specifically approved for this website and verified end to end.
+
+The codebase already contains:
+
+- IZAKHONO PAY intent adapter
+- signature-verified payment callback
+- replay protection
+- entitlement storage
+- payment health gating
+
+The existing PayFast account 12848922 is currently nominated to **FAISReady** as its single website under PayFast's one-website-per-account instruction. DOXA-SURE therefore needs a separately approved merchant route or an explicit provider-approved change before PayFast checkout can be activated here.
 
 ## Regulatory boundary
 
-This MVP is a rescue-coordination and case-organisation tool. It must not be marketed as an insurance policy, legal representation, debt counselling, or a guarantee that an asset will be saved. Regulated actions must be handed to appropriately authorised professionals.
+DOXA-SURE's founding pilot is not:
+
+- an insurance policy or insurer
+- legal representation
+- formal debt counselling / debt review
+- financial-product advice
+- a debt-cancellation service
+- a guarantee that a lender will stop enforcement
+- a guarantee that an asset can be saved
+
+Summons, court papers, repossession notices and sale-in-execution matters may carry running deadlines and should be escalated to suitably qualified professionals urgently.
+
+## Infrastructure
+
+Primary architecture remains IZAKHONO-owned and independently deployable:
+
+`CODE → RUNTIME → EDGE/TLS → DNS`
+
+GitHub Pages is the current external resilience/public route. DOXA-SURE also has its own Dockerfile, owner service, IZAKHONO deployment descriptor and Central Alpha workflow so it does not depend on another product's engine.
+
+## Launch definition
+
+The build is considered technically launch-ready when:
+
+1. public risk check is reachable;
+2. Help Desk works without a personal phone number;
+3. secure lead intake writes behind RLS;
+4. private vault remains non-public;
+5. CI safety gates pass;
+6. an external resilience deployment is verified;
+7. regulated/payment functions remain truthfully gated until their external approvals exist.
+
+Commercial validation target: 25 completed risk checks and at least 10 genuine Rescue Readiness Pack purchases after verified checkout activation.
