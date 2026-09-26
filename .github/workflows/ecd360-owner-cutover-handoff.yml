@@ -42,10 +42,11 @@ jobs:
         shell: pwsh
         run: |
           $p = Get-Content 'izakhono-cloud/DEPLOY-ECD360-ISN-01.ps1' -Raw
-          if ($p -notmatch 'f41693bbd45951825f8a1265ddab2a93d455856e') { throw 'ECD360 revision is not pinned' }
+          if ($p -notmatch '8a7b3f4dc5feb7f38be4c35e58cf472fbae9293b') { throw 'ECD360 revision is not pinned' }
           if ($p -notmatch 'ENGINE-PROOF.json') { throw 'ISN-01 Engine proof is not required' }
           if ($p -notmatch 'readyForPaidTraffic":false') { throw 'paid traffic is not fail-closed' }
           if ($p -notmatch '127\.0\.0\.1:18105') { throw 'loopback production pilot port missing' }
+          if ($p -notmatch 'VITE_IZAKHONO_ANALYTICS_URL=http://127.0.0.1:18112') { throw 'local analytics wiring missing' }
           if ($p -notmatch 'public_dns_changed.+False') { throw 'DNS safety receipt missing' }
           if ($p -notmatch 'live_payments_changed.+False') { throw 'payment safety receipt missing' }
           if ($p -match 'cloudflared|route53|nameserver|dns update|payment.*enable') { throw 'handoff must not modify edge or payments' }
