@@ -9,6 +9,8 @@ on:
       - 'izakhono-cloud/LAUNCH-BRIDGE-V1.17.md'
       - 'FAISReady/revenue_server.py'
       - 'FAISReady/revenue_server_izakhono.py'
+      - 'FAISReady/revenue_server_ikhokha.py'
+      - 'FAISReady/revenue_server_gateway.py'
       - 'FAISReady/test_revenue_server.py'
       - 'FAISReady/edge_runner.py'
       - 'FAISReady/backup_revenue_data.py'
@@ -29,6 +31,8 @@ on:
       - 'izakhono-cloud/LAUNCH-BRIDGE-V1.17.md'
       - 'FAISReady/revenue_server.py'
       - 'FAISReady/revenue_server_izakhono.py'
+      - 'FAISReady/revenue_server_ikhokha.py'
+      - 'FAISReady/revenue_server_gateway.py'
       - 'FAISReady/test_revenue_server.py'
       - 'FAISReady/edge_runner.py'
       - 'FAISReady/backup_revenue_data.py'
@@ -51,6 +55,8 @@ jobs:
           python3 -m py_compile izakhono-cloud/fixtures/launch-bridge-app.py
           python3 -m py_compile FAISReady/revenue_server.py
           python3 -m py_compile FAISReady/revenue_server_izakhono.py
+          python3 -m py_compile FAISReady/revenue_server_ikhokha.py
+          python3 -m py_compile FAISReady/revenue_server_gateway.py
           python3 -m py_compile FAISReady/test_revenue_server.py
           python3 -m py_compile FAISReady/edge_runner.py
           python3 -m py_compile FAISReady/backup_revenue_data.py
@@ -89,7 +95,9 @@ jobs:
           if ($liveCmd -notmatch 'FAISReady\\start-faisready-live.ps1') { throw 'live CMD wrapper target is incorrect' }
           $livePs = Get-Content 'FAISReady/start-faisready-live.ps1' -Raw
           if ($livePs -notmatch '--mode named') { throw 'live launcher must use named edge mode' }
-          if ($livePs -notmatch 'FAISREADY_LIVE_PAYMENTS_APPROVED') { throw 'live launcher must retain explicit payment approval gate' }
+          if ($livePs -notmatch 'FAISREADY_LIVE_PAYMENTS_APPROVED') { throw 'live launcher must retain PayFast approval gate' }
+          if ($livePs -notmatch 'IKHOKHA_LIVE_APPROVED') { throw 'live launcher must retain iKhokha approval gate' }
+          if ($livePs -notmatch 'faisready\.co\.za') { throw 'live launcher must pin the approved FAISReady hostname family' }
           if ($livePs -match 'TUNNEL_TOKEN\s+--') { throw 'tunnel token must never be placed on command line' }
       - name: Generate deterministic bridge plans
         run: |
@@ -128,6 +136,9 @@ jobs:
         run: |
           python3 FAISReady/revenue_server.py --self-test
           python3 FAISReady/revenue_server_izakhono.py --self-test
+          python3 FAISReady/revenue_server_ikhokha.py --self-test
+          FAISREADY_PAYMENT_PROVIDER=payfast python3 FAISReady/revenue_server_gateway.py --self-test
+          FAISREADY_PAYMENT_PROVIDER=ikhokha python3 FAISReady/revenue_server_gateway.py --self-test
       - name: Verify PayFast and entitlement contract
         working-directory: FAISReady
         run: |
@@ -165,7 +176,7 @@ jobs:
           PORT: 18092
           FAISREADY_DATA_DIR: /tmp/faisready-smoke-data
         run: |
-          python3 FAISReady/revenue_server_izakhono.py >/tmp/faisready-server.log 2>&1 &
+          python3 FAISReady/revenue_server_gateway.py >/tmp/faisready-server.log 2>&1 &
           PID=$!
           trap 'kill $PID >/dev/null 2>&1 || true' EXIT
           for _ in $(seq 1 20); do
@@ -179,10 +190,39 @@ jobs:
           import json
           c=json.load(open('/tmp/config.json'))
           assert c['payments_configured'] is False
+          assert c['payment_provider']=='payfast'
           assert c['plans']['re5']['amount']=='299.00'
           assert c['plans']['re1']['amount']=='399.00'
           assert c['plans']['combo']['amount']=='549.00'
           PY
+      - name: Smoke-test iKhokha fail-closed config
+        env:
+          HOST: 127.0.0.1
+          PORT: 18093
+          FAISREADY_DATA_DIR: /tmp/faisready-ikhokha-smoke
+          FAISREADY_PAYMENT_PROVIDER: ikhokha
+          PUBLIC_BASE_URL: https://faisready.co.za
+          IKHOKHA_APP_ID: APPID1234
+          IKHOKHA_APP_SECRET: ci-only-secret
+          IKHOKHA_LIVE_APPROVED: "false"
+        run: |
+          python3 FAISReady/revenue_server_gateway.py >/tmp/faisready-ikhokha.log 2>&1 &
+          PID=$!
+          trap 'kill $PID >/dev/null 2>&1 || true' EXIT
+          for _ in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:18093/health >/tmp/ikh-health.json && break
+            sleep 0.25
+          done
+          curl -fsS http://127.0.0.1:18093/api/config >/tmp/ikh-config.json
+          python3 - <<'PY'
+          import json
+          c=json.load(open('/tmp/ikh-config.json'))
+          assert c['payment_provider']=='ikhokha'
+          assert c['payment_mode']=='live'
+          assert c['payments_configured'] is False
+          assert c['live_approved'] is False
+          PY
+
       - name: Reject tampered plan and unsafe manifest
         run: |
           python3 - <<'PY'
