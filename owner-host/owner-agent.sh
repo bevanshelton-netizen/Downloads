@@ -53,7 +53,7 @@ VALIDATED="$(node - "$CONTROL_TMP" <<'NODE'
 const fs=require("fs");
 const p=process.argv[2];
 const x=JSON.parse(fs.readFileSync(p,"utf8"));
-const allowed=new Set(["activate-one-local-model","configure-one-ai","deploy-one-ai","verify-one-ai","deploy-yhvh-gospel-tv","deploy-growth-os-bridge"]);
+const allowed=new Set(["activate-one-local-model","configure-one-ai","deploy-one-ai","verify-one-ai","deploy-yhvh-gospel-tv","deploy-growth-os-bridge","build-node01"]);
 if(typeof x!=="object"||!x)throw new Error("control must be an object");
 if(typeof x.enabled!=="boolean")throw new Error("enabled must be boolean");
 if(typeof x.id!=="string"||!/^[A-Za-z0-9._:-]{8,120}$/.test(x.id))throw new Error("invalid request id");
@@ -233,6 +233,17 @@ EXIT_CODE=1
         echo "GROWTH_BRIDGE_STAGE=PUBLIC_OUTBOUND"
         export GROWTH_BRIDGE_PUBLIC_HOSTNAME="$HOSTNAME"
         bash "$ROOT/izakhono-owned-cloud/start-growth-os-outbound-bridge.sh"
+        EXIT_CODE=$?
+      fi
+      ;;
+    build-node01)
+      echo "NODE01_STAGE=INSTALL_OWNED_SERVICE_PLANE"
+      IZAKHONO_NODE01_INSTALL_STACK=1 bash "$ROOT/izakhono-node01/install-linux.sh"
+      EXIT_CODE=$?
+      if [ "$EXIT_CODE" -eq 0 ]; then
+        echo "NODE01_STAGE=LOCAL_ACCEPTANCE"
+        NODE01_HEALTH="$(curl -fsS --max-time 12 http://127.0.0.1:8940/health)"
+        node -e 'const x=JSON.parse(process.argv[1]||"{}");if(x.ok!==true||x.service!=="izakhono-node01"||x.product!=="IZAKHONO NODE01"||x.authority!=="IZAKHONO"||x.execution_class!=="IZAKHONO_SOVEREIGN_NODE"||x.external_runtime_dependency!==false||x.public_live_claim!==false)process.exit(2)' "$NODE01_HEALTH"
         EXIT_CODE=$?
       fi
       ;;
