@@ -9,7 +9,7 @@ if [ ! -f /etc/izakhono/mail-relay.env ]; then
   KEY="$(node -e 'console.log(require("crypto").randomBytes(32).toString("hex"))')"
   sudo tee /etc/izakhono/mail-relay.env >/dev/null <<EOF
 HOST=127.0.0.1
-PORT=8870
+PORT=8845
 IZAKHONO_MAIL_ADAPTER_KEY=$KEY
 IZAKHONO_SMTP_HOST=
 IZAKHONO_SMTP_PORT=587
