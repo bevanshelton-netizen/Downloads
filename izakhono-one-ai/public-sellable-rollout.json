@@ -131,16 +131,6 @@
       "next_blocker": "public HTTPS + payment E2E"
     },
     {
-      "id": "ecd360",
-      "name": "EDU-BUILD Institute Super Portal",
-      "owned_target": null,
-      "fallback": null,
-      "public_status": "not-routed",
-      "commercial_status": "pilot",
-      "payment": "gateway-registration-ready-e2e-required",
-      "next_blocker": "stable public address + account onboarding + payment acceptance"
-    },
-    {
       "id": "doxa-sure",
       "name": "DOXA-SURE",
       "owned_target": null,
