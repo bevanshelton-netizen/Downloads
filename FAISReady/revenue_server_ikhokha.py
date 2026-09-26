@@ -535,6 +535,8 @@ def self_test() -> int:
         sig1 = sign_payload(CREATE_PATH, body, "test-secret")
         sig2 = sign_payload(CREATE_PATH, body, "test-secret")
         assert sig1 == sig2 and re.fullmatch(r"[0-9a-f]{64}", sig1)
+        vector_body = '{"entityID":"APPID1234","description":"FAISReady: RE5 Complete Prep"}'
+        assert sign_payload(CREATE_PATH, vector_body, "test-secret") == "8087f1ac988c5e26e0e7d5e20c0c411defc117091fca88dfaebe9eac29538fec"
         result = {
             "responseCode": "00",
             "paylinkUrl": "https://securepay.ikhokha.red/test-link",
