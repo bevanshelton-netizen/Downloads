@@ -1,0 +1,106 @@
+name: WebStart Production Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'webstart/**'
+      - '.github/workflows/webstart-vercel-deploy.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: webstart-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: kora-production
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: team_XSHdQaQxmXGD1HlK2E4nehif
+      VERCEL_PROJECT_ID: prj_18MW8dQWgJpikSasDxWzkA3l5Hxa
+      PRODUCTION_ALIAS: https://izakhono-webstart.vercel.app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Require existing Vercel credentials
+        run: |
+          test -n "$VERCEL_TOKEN" || { echo "Missing VERCEL_TOKEN"; exit 1; }
+          test -n "$VERCEL_ORG_ID" || { echo "Missing VERCEL_ORG_ID"; exit 1; }
+          test -n "$VERCEL_PROJECT_ID" || { echo "Missing VERCEL_PROJECT_ID"; exit 1; }
+
+      - name: Link WebStart to existing production project
+        working-directory: webstart
+        run: |
+          mkdir -p .vercel
+          node -e "require('fs').writeFileSync('.vercel/project.json', JSON.stringify({orgId:process.env.VERCEL_ORG_ID,projectId:process.env.VERCEL_PROJECT_ID,projectName:'izakhono-webstart'}))"
+
+      - name: Deploy WebStart production
+        id: deploy
+        working-directory: webstart
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="$(npx --yes vercel@latest deploy --prod --yes --token="$VERCEL_TOKEN" | tail -n 1)"
+          test -n "$URL"
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "WebStart deployment: $URL"
+
+      - name: Verify immutable deployment
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 20); do
+            CODE="$(curl -sS -L -o /tmp/webstart.html -w "%{http_code}" "$URL/" || true)"
+            if [ "$CODE" = "200" ]; then break; fi
+            sleep 3
+          done
+          test "$CODE" = "200"
+          grep -q "International-grade websites. Built in minutes." /tmp/webstart.html
+          grep -q "95% quality gate" /tmp/webstart.html
+          grep -q "No behavioural tracking" /tmp/webstart.html
+          curl -fsSL "$URL/terms" | grep -q "Terms & Conditions"
+          curl -fsSL "$URL/privacy" | grep -q "Privacy Policy"
+          curl -fsSL "$URL/refund" | grep -q "Refund & Cancellation Policy"
+
+      - name: Verify production alias
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 20); do
+            CODE="$(curl -sS -L -o /tmp/alias.html -w "%{http_code}" "$PRODUCTION_ALIAS/" || true)"
+            if [ "$CODE" = "200" ] && grep -q "International-grade websites. Built in minutes." /tmp/alias.html; then break; fi
+            sleep 3
+          done
+          test "$CODE" = "200"
+          grep -q "International-grade websites. Built in minutes." /tmp/alias.html
+          curl -fsSL "$PRODUCTION_ALIAS/terms" | grep -q "Terms & Conditions"
+          curl -fsSL "$PRODUCTION_ALIAS/privacy" | grep -q "Privacy Policy"
+          curl -fsSL "$PRODUCTION_ALIAS/refund" | grep -q "Refund & Cancellation Policy"
+          echo "WebStart production alias verified."
+
+      - name: Publish deployment summary
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          {
+            echo "## IZAKHONO WebStart Deploy Result"
+            echo "- URL: $URL"
+            echo "- Production alias: $PRODUCTION_ALIAS"
+            echo "- Target: production"
+            echo "- Project: $VERCEL_PROJECT_ID"
+            echo "- International headline: verified"
+            echo "- 95% quality gate messaging: verified"
+            echo "- Legal pages: verified"
+            echo "- Commit: ${GITHUB_SHA::7}"
+          } >> "$GITHUB_STEP_SUMMARY"
