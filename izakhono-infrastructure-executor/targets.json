@@ -1,0 +1,111 @@
+{
+  "schema": "izakhono.infrastructure-executor-targets/v1",
+  "authority": "IZAKHONO_INFRASTRUCTURE",
+  "laptop_eligible": false,
+  "targets": {
+    "izakhono-flagship": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-izakhono-flagship.sh",
+        "main"
+      ]
+    },
+    "growth-os-v2": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-growth-os-v2.sh",
+        "main"
+      ]
+    },
+    "creative-suite": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-creative-suite.sh",
+        "main"
+      ]
+    },
+    "auto-ai": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-auto-ai.sh",
+        "main"
+      ]
+    },
+    "learner-driver-sa": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-learner-driver-sa.sh",
+        "main"
+      ]
+    },
+    "legacymart": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-legacymart.sh",
+        "main"
+      ]
+    },
+    "izakhono-pay": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/go-live-izakhono-pay.sh"
+      ]
+    },
+    "izakhono-domains": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-izakhono-domains.sh",
+        "main"
+      ]
+    },
+    "memory-mania": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-memory-mania.sh",
+        "main"
+      ]
+    },
+    "crowne-hair": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-crowne-hair.sh",
+        "main"
+      ]
+    },
+    "izakhono-revenue-desk": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-revenue-desk.sh",
+        "main"
+      ]
+    },
+    "kora-kids": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-kora-kids.sh",
+        "main"
+      ]
+    },
+    "yhvh-gospel-tv": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-yhvh-gospel-tv.sh",
+        "main"
+      ]
+    },
+    "izakhono-one-ai": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-izakhono-one-ai.sh",
+        "main"
+      ]
+    }
+  },
+  "legacy_laptop_deployers_blocked": [
+    "kora-network",
+    "faisready",
+    "allegro-vibez",
+    "the-chancellor",
+    "izakhono-analytics-collector"
+  ]
+}
