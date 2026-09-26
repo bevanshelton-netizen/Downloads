@@ -33,6 +33,6 @@ Installation fails closed on WSL, portable/laptop chassis types, and systems exp
 
 ## Current migration boundary
 
-Linux-native portfolio targets are allow-listed now. Historical Windows/ISN-01 deployers are explicitly blocked and must be migrated to Linux-native infrastructure deployers before the executor will accept them.
+Linux-native portfolio targets are allow-listed now. Historical IZAKHONO Windows/ISN-01 deployers are explicitly blocked and must be migrated to Linux-native infrastructure deployers before the executor will accept them. EDU-BUILD/ECD360 is not part of the IZAKHONO portfolio and is intentionally outside this executor.
 
 A successful executor receipt proves infrastructure execution only. It does **not** create an `OWNED LIVE VERIFIED` claim; public DNS, TLS, EDGE, backup/restore, product and payment gates remain separate.
