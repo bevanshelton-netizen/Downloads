@@ -18,9 +18,9 @@
 </head>
 <body>
 <main class="wrap">
-  <a class="poster" data-handoff data-content="campaign_poster" href="#" target="_blank" rel="noopener"><img src="./ad.svg" alt="Learner Driver SA advert"></a>
+  <a class="poster" data-handoff data-content="campaign_poster" href="https://bevanshelton-netizen.github.io/Downloads/learner-driver-sa-v6-live/" target="_blank" rel="noopener"><img src="./ad.svg" alt="Learner Driver SA advert"></a>
   <div class="actions">
-    <a class="btn go" data-handoff data-content="start_learning_today" href="#" target="_blank" rel="noopener">START LEARNING TODAY →</a>
+    <a class="btn go" data-handoff data-content="start_learning_today" href="https://bevanshelton-netizen.github.io/Downloads/learner-driver-sa-v6-live/" target="_blank" rel="noopener">START LEARNING TODAY →</a>
     <button class="btn share" id="share" type="button">↗ SHARE</button>
   </div>
   <p class="small">Tap the picture or button to open Learner Driver SA.</p>
@@ -29,7 +29,9 @@
 (()=>{
   const U='https://yfawrenhudjomhnglfhq.supabase.co';
   const K='sb_publishable_3KY--8Y_uuKEdfdumC2txg__OWTRo2p';
-  const APP='https://bevanshelton-netizen.github.io/Downloads/learner-driver-sa-v6-live/';
+  const RESILIENCE='https://bevanshelton-netizen.github.io/Downloads/learner-driver-sa-v6-live/';
+  const OWNED='https://learnerdriver.domains.izakhonoafrica.co.za/';
+  let APP=RESILIENCE;
   const q=new URLSearchParams(location.search);
   const refHost=(()=>{try{return document.referrer?new URL(document.referrer).hostname:''}catch{return''}})();
   const source=q.get('utm_source')||refHost||'campaign_page';
@@ -58,6 +60,19 @@
     try{return fetch(U+'/rest/v1/learner_driver_campaign_events',{method:'POST',headers:{apikey:K,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(row),keepalive:true}).catch(()=>{})}catch{}
   }
 
+  async function resolveApp(){
+    try{
+      const response=await fetch('./route.json',{cache:'no-store'});
+      if(!response.ok) return RESILIENCE;
+      const state=await response.json();
+      const allowed=new Set([RESILIENCE,OWNED]);
+      if(state?.schema!=='izakhono.learner-driver-route/v1') return RESILIENCE;
+      if(!allowed.has(String(state.url||''))) return RESILIENCE;
+      if(state.active==='owned' && state.public_verified===true && state.url===OWNED) return OWNED;
+      return RESILIENCE;
+    }catch{return RESILIENCE}
+  }
+
   function appUrl(content){
     const u=new URL(APP);
     u.searchParams.set('utm_source',source);
@@ -68,13 +83,17 @@
     return u.toString();
   }
 
-  document.querySelectorAll('[data-handoff]').forEach(a=>{
-    const content=a.dataset.content||'campaign_cta';
-    a.href=appUrl(content);
-    a.addEventListener('click',()=>track('campaign_cta_click',content));
-  });
+  async function wireHandoff(){
+    APP=await resolveApp();
+    document.querySelectorAll('[data-handoff]').forEach(a=>{
+      const content=a.dataset.content||'campaign_cta';
+      a.href=appUrl(content);
+      a.addEventListener('click',()=>track('campaign_cta_click',content));
+    });
+    track('campaign_visit','campaign_page');
+  }
 
-  track('campaign_visit','campaign_page');
+  wireHandoff();
 
   document.querySelector('#share').onclick=async()=>{
     track('share','campaign_share');
