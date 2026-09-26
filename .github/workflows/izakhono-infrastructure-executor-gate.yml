@@ -39,6 +39,11 @@ jobs:
           bash -n izakhono-infrastructure-executor/sync-source.sh
           bash -n izakhono-infrastructure-executor/run-once.sh
           bash -n izakhono-infrastructure-executor/install-linux.sh
+          bash -n izakhono-owned-cloud/deploy-kora-network.sh
+          bash -n izakhono-owned-cloud/deploy-faisready.sh
+          bash -n izakhono-owned-cloud/deploy-allegro-vibez.sh
+          bash -n izakhono-owned-cloud/deploy-the-chancellor.sh
+          bash -n izakhono-owned-cloud/deploy-izakhono-analytics-collector.sh
 
           node - <<'NODE'
           const fs=require('fs');
@@ -64,7 +69,13 @@ jobs:
           const catalog=JSON.parse(fs.readFileSync('owner-host/platforms.json','utf8'));
           const legacy=(catalog.platforms||[]).filter(p=>String(p.deploy||'').endsWith('.ps1')).map(p=>p.id).sort();
           const blocked=[...(targets.legacy_laptop_deployers_blocked||[])].sort();
-          if(JSON.stringify(legacy)!==JSON.stringify(blocked)) throw new Error('legacy Windows deployer quarantine is incomplete');
+          if(legacy.length!==0) throw new Error('registered IZAKHONO platform still uses a Windows deployer: '+legacy.join(','));
+          if(blocked.length!==0) throw new Error('legacy executor quarantine should now be empty: '+blocked.join(','));
+          for(const p of catalog.platforms||[]){
+            const t=targets.targets?.[p.id] || (p.productId?targets.targets?.[p.productId]:null);
+            if(!t) throw new Error(p.id+': missing infrastructure executor target');
+            if(p.deploy!==t.command?.[1]) throw new Error(p.id+': catalog/executor deployer mismatch');
+          }
           NODE
 
           ELIGIBILITY="$(bash izakhono-infrastructure-executor/host-eligibility.sh)"
