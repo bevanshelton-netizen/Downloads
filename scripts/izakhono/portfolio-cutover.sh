@@ -61,4 +61,4 @@ until curl --fail --silent --show-error "http://127.0.0.1:${host_port}${health_p
   sleep 2
 done
 
-echo "[PASS] $slug promoted to IZAKHONO owner host on loopback port $host_port"
+echo "[PASS] $slug promoted to IZAKHONO infrastructure on loopback port $host_port"
