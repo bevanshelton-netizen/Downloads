@@ -57,6 +57,7 @@ else
 fi
 git_source -C "$CACHE" fetch --prune origin "$REVISION"
 RESOLVED="$(sudo git -C "$CACHE" rev-parse FETCH_HEAD)"
+SOURCE_TREE="$(sudo git -C "$CACHE" rev-parse "$RESOLVED:$SOURCE_DIR")"
 unset REPO_TOKEN GIT_AUTH
 RELEASE="$RELEASE_BASE/$RESOLVED"
 
@@ -108,15 +109,16 @@ if curl -fsS --max-time 8 "https://$HOSTNAME/health" >/tmp/learner-driver-sa-pub
 fi
 
 TMP_REPORT="$(mktemp)"
-node - "$TMP_REPORT" "$HOSTNAME" "$RESOLVED" "$DEPLOYMENT_ID" "$EDGE" "$PUBLIC_HTTPS" <<'NODE'
+node - "$TMP_REPORT" "$HOSTNAME" "$RESOLVED" "$SOURCE_TREE" "$DEPLOYMENT_ID" "$EDGE" "$PUBLIC_HTTPS" <<'NODE'
 const fs=require("fs");
-const [path,hostname,revision,deploymentId,edge,publicHttps]=process.argv.slice(2);
+const [path,hostname,revision,sourceTree,deploymentId,edge,publicHttps]=process.argv.slice(2);
 fs.writeFileSync(path,JSON.stringify({
   schema:"izakhono.learner-driver-sa-deployment/v1",
   app:"learner-driver-sa",
   product:"Learner Driver SA",
   hostname,
   revision,
+  source_tree:sourceTree,
   deployment_id:deploymentId,
   source:"IZAKHONO_CODE",
   runtime:"IZAKHONO_RUNTIME",
@@ -139,6 +141,7 @@ LEARNER DRIVER SA OWNED DEPLOYMENT
 APP=$APP
 HOSTNAME=$HOSTNAME
 REVISION=$RESOLVED
+SOURCE_TREE=$SOURCE_TREE
 DEPLOYMENT_ID=$DEPLOYMENT_ID
 SOURCE=IZAKHONO_CODE
 ENGINE=INDEPENDENT
