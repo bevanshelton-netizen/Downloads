@@ -54,7 +54,7 @@ jobs:
   deploy-on-node01:
     if: github.event_name == 'workflow_dispatch'
     needs: verify-package
-    runs-on: [self-hosted, linux, x64]
+    runs-on: [self-hosted, linux, x64, izakhono-infrastructure]
     timeout-minutes: 45
     steps:
       - name: Prove IZAKHONO-owned execution authority
