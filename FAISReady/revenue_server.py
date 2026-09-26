@@ -492,6 +492,8 @@ class RevenueHandler(BaseHTTPRequestHandler):
                 200,
                 {
                     "payments_configured": bool(cfg["ready"]),
+                    "payment_provider": "payfast",
+                    "payment_mode": "sandbox" if cfg["sandbox"] else "live",
                     "payfast_sandbox": bool(cfg["sandbox"]),
                     "plans": {k: {"label": v["label"], "amount": v["amount"], "days": v["days"]} for k, v in PLANS.items()},
                 },
