@@ -99,13 +99,42 @@
         "izakhono-owned-cloud/deploy-izakhono-one-ai.sh",
         "main"
       ]
+    },
+    "kora-network": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-kora-network.sh",
+        "main"
+      ]
+    },
+    "faisready": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-faisready.sh",
+        "main"
+      ]
+    },
+    "allegro-vibez": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-allegro-vibez.sh",
+        "main"
+      ]
+    },
+    "the-chancellor": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-the-chancellor.sh",
+        "main"
+      ]
+    },
+    "izakhono-analytics-collector": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-izakhono-analytics-collector.sh",
+        "main"
+      ]
     }
   },
-  "legacy_laptop_deployers_blocked": [
-    "kora-network",
-    "faisready",
-    "allegro-vibez",
-    "the-chancellor",
-    "izakhono-analytics-collector"
-  ]
+  "legacy_laptop_deployers_blocked": []
 }
