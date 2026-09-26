@@ -13,6 +13,8 @@ const httpsPort=19243;
 const tunnelPort=19278;
 const controlPort=19295;
 const runtimePort=19200;
+const analyticsPort=19212;
+const analyticsHost="analytics.local";
 const key=randomBytes(24).toString("hex");
 
 rmSync(root,{recursive:true,force:true});
@@ -33,6 +35,24 @@ const runtime=createServer((req,res)=>{
 });
 await new Promise(resolve=>runtime.listen(runtimePort,"127.0.0.1",resolve));
 
+const analytics=createServer((req,res)=>{
+  if(req.url==="/healthz" && req.method==="GET"){
+    res.writeHead(200,{"content-type":"application/json"});
+    return res.end('{"ok":true,"service":"analytics-mock"}');
+  }
+  if(req.url?.startsWith("/beacon.js") && req.method==="GET"){
+    res.writeHead(200,{"content-type":"application/javascript"});
+    return res.end("/* analytics beacon */");
+  }
+  if(req.url==="/v1/hit" && ["POST","OPTIONS"].includes(req.method||"")){
+    res.writeHead(req.method==="OPTIONS"?204:202,{"content-type":"application/json"});
+    return res.end(req.method==="OPTIONS"?"":'{"ok":true}');
+  }
+  res.writeHead(418,{"content-type":"text/plain"});
+  res.end("analytics-private-route");
+});
+await new Promise(resolve=>analytics.listen(analyticsPort,"127.0.0.1",resolve));
+
 const child=spawn(process.execPath,["server.mjs"],{
   env:{
     ...process.env,
@@ -47,6 +67,9 @@ const child=spawn(process.execPath,["server.mjs"],{
     CONTROL_PORT:String(controlPort),
     RUNTIME_HOST:"127.0.0.1",
     RUNTIME_PORT:String(runtimePort),
+    ANALYTICS_PUBLIC_HOST:analyticsHost,
+    ANALYTICS_UPSTREAM_HOST:"127.0.0.1",
+    ANALYTICS_UPSTREAM_PORT:String(analyticsPort),
     IZAKHONO_EDGE_KEY:key,
     IZAKHONO_TLS_CERT:resolve(tls,"cert.pem"),
     IZAKHONO_TLS_KEY:resolve(tls,"key.pem"),
@@ -173,6 +196,25 @@ try{
     throw new Error("FORTRESS content-type guard failed: "+protectedType.status);
   }
 
+  const analyticsHealth=await secureRequest({path:"/healthz",method:"GET",host:analyticsHost});
+  if(analyticsHealth.status!==200 || !analyticsHealth.body.includes("analytics-mock")) {
+    throw new Error("Analytics collector health route failed: "+analyticsHealth.status);
+  }
+
+  const analyticsHit=await secureRequest({
+    path:"/v1/hit",
+    method:"POST",
+    host:analyticsHost,
+    headers:{"content-type":"application/json","origin":"https://allegro.example"},
+    body:'{"platform":"allegro-vibez"}'
+  });
+  if(analyticsHit.status!==202) throw new Error("Analytics collector POST route failed: "+analyticsHit.status);
+
+  const analyticsPrivate=await secureRequest({path:"/api/summary",method:"GET",host:analyticsHost});
+  if(analyticsPrivate.status!==404 || !analyticsPrivate.body.includes("public route not found")) {
+    throw new Error("Analytics private reporting route escaped public edge: "+analyticsPrivate.status);
+  }
+
   const blockedMethod=await secureRequest({path:"/",method:"TRACE",host:"method.local"});
   if(blockedMethod.status!==405 || !blockedMethod.body.includes("FORTRESS")) {
     throw new Error("FORTRESS method guard failed: "+blockedMethod.status);
@@ -182,6 +224,7 @@ try{
 }finally{
   child.kill("SIGTERM");
   runtime.close();
+  analytics.close();
   await sleep(150);
   rmSync(root,{recursive:true,force:true});
 }

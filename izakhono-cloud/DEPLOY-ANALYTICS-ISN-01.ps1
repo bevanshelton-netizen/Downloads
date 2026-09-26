@@ -37,12 +37,13 @@ PINNED="__PINNED__"
 ROOT="$HOME/izakhono-fleet"
 REPO="$ROOT/Downloads"
 SECRET_FILE="$ROOT/analytics-hash-secret"
+ADMIN_FILE="$ROOT/analytics-admin-token"
 APP="izakhono-analytics"
 CANARY="izakhono-analytics-canary"
 CANARY_PORT="18212"
 PROD_PORT="18112"
 DATA_VOL="izakhono_analytics_data"
-ALLOWED_ORIGINS="http://127.0.0.1:18105,http://127.0.0.1:18106,http://127.0.0.1:18107,http://127.0.0.1:18108,http://127.0.0.1:18110,http://127.0.0.1:18111"
+LOCAL_ORIGINS="http://127.0.0.1:18105,http://127.0.0.1:18106,http://127.0.0.1:18107,http://127.0.0.1:18108,http://127.0.0.1:18110,http://127.0.0.1:18111"
 mkdir -p "$ROOT"
 
 for cmd in git docker curl python3; do
@@ -62,6 +63,21 @@ fi
 git fetch origin "$PINNED"
 git checkout --detach "$PINNED"
 
+PUBLIC_ORIGINS="$(python3 - owner-host/platforms.json <<'PY'
+import json,sys
+p=json.load(open(sys.argv[1],encoding="utf-8"))
+origins=[]
+for item in p.get("platforms",[]):
+    host=str(item.get("defaultHostname") or "").strip().lower().rstrip(".")
+    if host:
+        origins.append("https://"+host)
+print(",".join(dict.fromkeys(origins)))
+PY
+)"
+ALLOWED_ORIGINS="$LOCAL_ORIGINS"
+if [ -n "$PUBLIC_ORIGINS" ]; then ALLOWED_ORIGINS="$ALLOWED_ORIGINS,$PUBLIC_ORIGINS"; fi
+if [ -n "${IZAKHONO_ANALYTICS_PUBLIC_ORIGINS:-}" ]; then ALLOWED_ORIGINS="$ALLOWED_ORIGINS,${IZAKHONO_ANALYTICS_PUBLIC_ORIGINS}"; fi
+
 if [ ! -s "$SECRET_FILE" ]; then
   umask 077
   python3 - <<'PY' > "$SECRET_FILE"
@@ -73,13 +89,24 @@ fi
 HASH_SECRET="$(cat "$SECRET_FILE")"
 [ "$(printf '%s' "$HASH_SECRET" | wc -c)" -ge 32 ] || { echo "Analytics hash secret invalid"; exit 4; }
 
+if [ ! -s "$ADMIN_FILE" ]; then
+  umask 077
+  python3 - <<'PY' > "$ADMIN_FILE"
+import secrets
+print(secrets.token_urlsafe(48))
+PY
+  chmod 600 "$ADMIN_FILE"
+fi
+ADMIN_TOKEN="$(cat "$ADMIN_FILE")"
+[ "$(printf '%s' "$ADMIN_TOKEN" | wc -c)" -ge 32 ] || { echo "Analytics admin token invalid"; exit 4; }
+
 IMAGE="izakhono-analytics:$(printf '%s' "$PINNED" | cut -c1-12)"
 docker build   --label "za.co.izakhono.product=IZAKHONO Analytics"   --label "za.co.izakhono.commit=$PINNED"   --label "za.co.izakhono.channel=private-pilot"   -t "$IMAGE" izakhono-analytics
 
 docker volume inspect "$DATA_VOL" >/dev/null 2>&1 || docker volume create "$DATA_VOL" >/dev/null
 
 docker rm -f "$CANARY" >/dev/null 2>&1 || true
-docker run -d --name "$CANARY"   -e ANALYTICS_HASH_SECRET="$HASH_SECRET"   -e ANALYTICS_RETENTION_DAYS=180   -e ANALYTICS_ALLOWED_ORIGINS="$ALLOWED_ORIGINS"   -v "$DATA_VOL:/data"   -p "127.0.0.1:$CANARY_PORT:8080" "$IMAGE" >/dev/null
+docker run -d --name "$CANARY"   -e ANALYTICS_HASH_SECRET="$HASH_SECRET"   -e ANALYTICS_RETENTION_DAYS=180   -e ANALYTICS_ALLOWED_ORIGINS="$ALLOWED_ORIGINS"   -e ANALYTICS_ADMIN_TOKEN="$ADMIN_TOKEN"   -e ANALYTICS_REQUIRE_ORIGIN=true   -v "$DATA_VOL:/data"   -p "127.0.0.1:$CANARY_PORT:8080" "$IMAGE" >/dev/null
 
 cleanup_canary(){ docker rm -f "$CANARY" >/dev/null 2>&1 || true; }
 trap cleanup_canary EXIT INT TERM
@@ -102,11 +129,11 @@ fi
 rollback(){
   docker rm -f "$APP" >/dev/null 2>&1 || true
   if [ -n "$old_image" ]; then
-    docker run -d --name "$APP" --restart unless-stopped       -e ANALYTICS_HASH_SECRET="$HASH_SECRET"       -e ANALYTICS_RETENTION_DAYS=180       -e ANALYTICS_ALLOWED_ORIGINS="$ALLOWED_ORIGINS"       -v "$DATA_VOL:/data"       -p "127.0.0.1:$PROD_PORT:8080" "$old_image" >/dev/null || true
+    docker run -d --name "$APP" --restart unless-stopped       -e ANALYTICS_HASH_SECRET="$HASH_SECRET"       -e ANALYTICS_RETENTION_DAYS=180       -e ANALYTICS_ALLOWED_ORIGINS="$ALLOWED_ORIGINS"       -e ANALYTICS_ADMIN_TOKEN="$ADMIN_TOKEN"       -e ANALYTICS_REQUIRE_ORIGIN=true       -v "$DATA_VOL:/data"       -p "127.0.0.1:$PROD_PORT:8080" "$old_image" >/dev/null || true
   fi
 }
 
-docker run -d --name "$APP" --restart unless-stopped   -e ANALYTICS_HASH_SECRET="$HASH_SECRET"   -e ANALYTICS_RETENTION_DAYS=180   -e ANALYTICS_ALLOWED_ORIGINS="$ALLOWED_ORIGINS"   -v "$DATA_VOL:/data"   -p "127.0.0.1:$PROD_PORT:8080" "$IMAGE" >/dev/null || { rollback; exit 5; }
+docker run -d --name "$APP" --restart unless-stopped   -e ANALYTICS_HASH_SECRET="$HASH_SECRET"   -e ANALYTICS_RETENTION_DAYS=180   -e ANALYTICS_ALLOWED_ORIGINS="$ALLOWED_ORIGINS"   -e ANALYTICS_ADMIN_TOKEN="$ADMIN_TOKEN"   -e ANALYTICS_REQUIRE_ORIGIN=true   -v "$DATA_VOL:/data"   -p "127.0.0.1:$PROD_PORT:8080" "$IMAGE" >/dev/null || { rollback; exit 5; }
 
 for _ in $(seq 1 30); do
   curl -fsS "http://127.0.0.1:$PROD_PORT/healthz" >/tmp/analytics-health.json && break
@@ -114,7 +141,7 @@ for _ in $(seq 1 30); do
 done
 curl -fsS "http://127.0.0.1:$PROD_PORT/healthz" >/tmp/analytics-health.json || { rollback; exit 6; }
 grep -q '"ok":true' /tmp/analytics-health.json || { rollback; exit 7; }
-curl -fsS "http://127.0.0.1:$PROD_PORT/api/summary?days=1" >/tmp/analytics-summary.json || { rollback; exit 8; }
+curl -fsS -H "Authorization: Bearer $ADMIN_TOKEN" "http://127.0.0.1:$PROD_PORT/api/summary?days=1" >/tmp/analytics-summary.json || { rollback; exit 8; }
 
 python3 - "$PINNED" <<'PY' > "$ROOT/analytics-cutover.json"
 import datetime, json, sys
@@ -128,6 +155,9 @@ print(json.dumps({
   "dashboard_url":"http://127.0.0.1:18112/dashboard",
   "health_passed":True,
   "privacy_mode":"no-raw-ip-storage",
+  "require_origin":True,
+  "admin_protected":True,
+  "collector_hostname":"analytics.domains.izakhonoafrica.co.za",
   "retention_days":180,
   "persistent_data_volume":"izakhono_analytics_data",
   "public_dns_changed":False,
@@ -170,4 +200,5 @@ Write-Host ""
 Write-Host "IZAKHONO ANALYTICS COMMAND CENTRE: VERIFIED PRIVATE PILOT" -ForegroundColor Green
 Write-Host "Dashboard: $LocalOrigin/dashboard"
 Write-Host "Receipt: $Receipt"
+Write-Host "Administrator token remains owner-host only in ~/izakhono-fleet/analytics-admin-token." -ForegroundColor Cyan
 Write-Host "Analytics data remains on the owner host; no public edge or live payments changed." -ForegroundColor Yellow

@@ -35,6 +35,7 @@ jobs:
           ANALYTICS_HASH_SECRET: ci-only-analytics-secret-0123456789abcdef
           ANALYTICS_ALLOWED_ORIGINS: https://allegro.example
           ANALYTICS_ADMIN_TOKEN: ci-only-admin-token-0123456789abcdef
+          ANALYTICS_REQUIRE_ORIGIN: 'true'
         run: |
           python3 izakhono-analytics/server.py >/tmp/analytics.log 2>&1 &
           echo $! >/tmp/analytics.pid
@@ -45,8 +46,8 @@ jobs:
           grep -q '"ok":true' /tmp/health.json
       - name: Prove hit and summary
         run: |
-          curl -fsS -X POST -H 'content-type: application/json'             --data '{"platform":"allegro-vibez","event":"pageview","path":"/artists","visitor_id":"visitor-a","session_id":"session-a"}'             http://127.0.0.1:18080/v1/hit
-          curl -fsS -X POST -H 'content-type: application/json'             --data '{"platform":"allegro-vibez","event":"purchase","path":"/checkout","visitor_id":"visitor-a","session_id":"session-a","value_minor":39900}'             http://127.0.0.1:18080/v1/hit
+          curl -fsS -X POST -H 'Origin: https://allegro.example' -H 'content-type: application/json'             --data '{"platform":"allegro-vibez","event":"pageview","path":"/artists","visitor_id":"visitor-a","session_id":"session-a"}'             http://127.0.0.1:18080/v1/hit
+          curl -fsS -X POST -H 'Origin: https://allegro.example' -H 'content-type: application/json'             --data '{"platform":"allegro-vibez","event":"purchase","path":"/checkout","visitor_id":"visitor-a","session_id":"session-a","value_minor":39900}'             http://127.0.0.1:18080/v1/hit
           code=$(curl -sS -o /tmp/unauth.json -w '%{http_code}' 'http://127.0.0.1:18080/api/summary?days=1')
           test "$code" = "401"
           curl -fsS -H 'Authorization: Bearer ci-only-admin-token-0123456789abcdef'             'http://127.0.0.1:18080/api/summary?days=1' >/tmp/summary.json
@@ -62,6 +63,8 @@ jobs:
           PY
       - name: Prove origin allowlist
         run: |
+          code=$(curl -sS -o /tmp/missing-origin.json -w '%{http_code}' -X POST             -H 'content-type: application/json'             --data '{"platform":"allegro-vibez","event":"pageview","path":"/","visitor_id":"missing","session_id":"missing"}'             http://127.0.0.1:18080/v1/hit)
+          test "$code" = "403"
           code=$(curl -sS -o /tmp/deny.json -w '%{http_code}' -X POST             -H 'Origin: https://evil.example'             -H 'content-type: application/json'             --data '{"platform":"allegro-vibez","event":"pageview","path":"/","visitor_id":"x","session_id":"y"}'             http://127.0.0.1:18080/v1/hit)
           test "$code" = "403"
           curl -fsS -X POST             -H 'Origin: https://allegro.example'             -H 'content-type: application/json'             --data '{"platform":"allegro-vibez","event":"pageview","path":"/allowed","visitor_id":"x2","session_id":"y2"}'             http://127.0.0.1:18080/v1/hit

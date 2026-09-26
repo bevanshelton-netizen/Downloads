@@ -40,6 +40,9 @@ jobs:
           grep -q 'hybrid' install-linux.sh
           grep -q 'TUNNEL_INGRESS' server.mjs
           grep -q 'DIRECT_INGRESS' server.mjs
+          grep -q 'ANALYTICS_PUBLIC_HOST' server.mjs
+          grep -q 'analyticsDashboardPublic:false' server.mjs
+          grep -q 'ANALYTICS_UPSTREAM_PORT=18112' install-linux.sh
           grep -q 'x-fortress-protector' server.mjs
           grep -q 'sensitive-route rate limit exceeded' server.mjs
           grep -q 'IZAKHONO_WITNESS_MODE=observe' install-linux.sh

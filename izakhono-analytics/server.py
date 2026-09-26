@@ -27,6 +27,7 @@ ALLOWED_ORIGINS = {
     ).split(",") if o.strip()
 }
 ADMIN_TOKEN = os.environ.get("ANALYTICS_ADMIN_TOKEN", "").strip()
+REQUIRE_ORIGIN = os.environ.get("ANALYTICS_REQUIRE_ORIGIN", "false").strip().lower() in {"1","true","yes","on"}
 
 if len(HASH_SECRET) < 32:
     raise SystemExit("ANALYTICS_HASH_SECRET must be at least 32 characters")
@@ -277,7 +278,7 @@ class Handler(BaseHTTPRequestHandler):
     def _origin_allowed(self):
         origin = self.headers.get("Origin", "").strip().rstrip("/")
         if not origin:
-            return True
+            return not REQUIRE_ORIGIN
         return origin in ALLOWED_ORIGINS
 
     def _admin_allowed(self):
@@ -331,7 +332,8 @@ class Handler(BaseHTTPRequestHandler):
                 "ok": True,
                 "admin_protected": bool(ADMIN_TOKEN),
                 "allowed_origin_count": len(ALLOWED_ORIGINS),
-                "retention_days": RETENTION_DAYS
+                "retention_days": RETENTION_DAYS,
+                "require_origin": REQUIRE_ORIGIN
             })
         if url.path == "/api/summary":
             if not self._admin_allowed():
@@ -348,6 +350,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if self.path != "/v1/hit":
             return self._send(404, {"error": "not_found"})
+        if REQUIRE_ORIGIN and not self.headers.get("Origin", "").strip():
+            return self._send(403, {"error": "origin_required"}, cors=True)
         if not self._origin_allowed():
             return self._send(403, {"error": "origin_not_allowed"}, cors=True)
         try:
