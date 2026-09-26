@@ -115,7 +115,7 @@ jobs:
           set -euo pipefail
           for f in             .github/workflows/learner-driver-node01-deploy.yml             .github/workflows/izakhono-one-owner-runner-activation.yml             .github/workflows/izakhono-pay-owner-live.yml             .github/workflows/izakhono-crm-owner-live.yml             .github/workflows/izakhono-portfolio-cutover.yml             .github/workflows/yhvh-gospel-node01-deploy.yml
           do
-            if grep -Eq 'runs-on:[[:space:]]*\[[^]]*self-hosted|^[[:space:]]*-[[:space:]]*self-hosted[[:space:]]* "$f"; then
+            if grep -Fq 'self-hosted' "$f"; then
               echo "Production workflow still contains self-hosted execution: $f" >&2
               exit 2
             fi
