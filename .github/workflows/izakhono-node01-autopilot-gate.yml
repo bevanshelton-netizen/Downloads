@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'owner-host/node01-autopilot.sh'
+      - 'owner-host/owner-agent.sh'
+      - 'owner-host/control/node01-desired-state.json'
       - 'owner-host/drop01-milestone-watch.mjs'
       - 'izakhono-data-node/server.mjs'
       - 'owner-host/INSTALL-IZAKHONO-NODE01-AUTOPILOT.ps1'
@@ -15,6 +17,8 @@ on:
     branches: [main]
     paths:
       - 'owner-host/node01-autopilot.sh'
+      - 'owner-host/owner-agent.sh'
+      - 'owner-host/control/node01-desired-state.json'
       - 'owner-host/drop01-milestone-watch.mjs'
       - 'izakhono-data-node/server.mjs'
       - 'owner-host/INSTALL-IZAKHONO-NODE01-AUTOPILOT.ps1'
@@ -41,6 +45,13 @@ jobs:
           grep -q 'drop01-milestone-watch.mjs' owner-host/node01-autopilot.sh
           grep -q 'campaignSales=url.pathname.match' izakhono-data-node/server.mjs
           grep -q 'owner-agent.sh' owner-host/node01-autopilot.sh
+          grep -q 'node01-desired-state.json' owner-host/node01-autopilot.sh
+          grep -q 'node01-state.json' owner-host/node01-autopilot.sh
+          grep -q '127.0.0.1:8940/health' owner-host/node01-autopilot.sh
+          grep -q 'node01_local' owner-host/node01-autopilot.sh
+          grep -q '"build-node01"' owner-host/owner-agent.sh
+          grep -q 'izakhono-node01/install-linux.sh' owner-host/owner-agent.sh
+          node -e 'const x=require("./owner-host/control/node01-desired-state.json");if(x.enabled!==true||x.action!=="build-node01"||x.params==null)process.exit(2)'
           grep -q 'YHVH_HOSTNAME' owner-host/node01-autopilot.sh
           grep -q 'yhvh-gospel-engine' owner-host/node01-autopilot.sh
           grep -q 'yhvh-gospel-tv' owner-host/node01-autopilot.sh
