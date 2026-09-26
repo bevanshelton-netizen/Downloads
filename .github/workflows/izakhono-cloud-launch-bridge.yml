@@ -203,7 +203,7 @@ jobs:
           FAISREADY_PAYMENT_PROVIDER: ikhokha
           PUBLIC_BASE_URL: https://faisready.co.za
           IKHOKHA_APP_ID: APPID1234
-          IKHOKHA_APP_SECRET: ci-only-secret
+          IKHOKHA_APP_KEY: ci-only-key
           IKHOKHA_LIVE_APPROVED: "false"
         run: |
           python3 FAISReady/revenue_server_gateway.py >/tmp/faisready-ikhokha.log 2>&1 &
