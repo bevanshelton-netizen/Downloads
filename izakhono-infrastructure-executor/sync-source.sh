@@ -42,7 +42,29 @@ sync_code(){
   return 0
 }
 
-if sync_code; then exit 0; fi
+if sync_code; then
+  OWNED_COMMIT="$(git -C "$ROOT" rev-parse HEAD)"
+  if [ "$ALLOW_EXTERNAL" = "1" ]; then
+    remote="$(git -C "$ROOT" remote get-url origin 2>/dev/null || true)"
+    case "$remote" in
+      https://github.com/bevanshelton-netizen/Downloads*|git@github.com:bevanshelton-netizen/Downloads*)
+        EXTERNAL_HEAD="$(timeout 8 git ls-remote "$remote" refs/heads/main 2>/dev/null | awk 'NR==1{print $1}')"
+        if [ -n "$EXTERNAL_HEAD" ] && [ "$EXTERNAL_HEAD" != "$OWNED_COMMIT" ] && [ -x "$ROOT/izakhono-owned-cloud/migrate-source-to-code.sh" ]; then
+          if bash "$ROOT/izakhono-owned-cloud/migrate-source-to-code.sh" >/var/tmp/izakhono-infrastructure-code-refresh.log 2>&1; then
+            sync_code
+            echo "CODE_REFRESH=IMPORTED_APPROVED_EXTERNAL_MIRROR"
+          else
+            echo "CODE_REFRESH=FAILED_NON_BLOCKING"
+          fi
+        else
+          echo "CODE_REFRESH=UP_TO_DATE_OR_UNAVAILABLE"
+        fi
+        ;;
+      *) echo "CODE_REFRESH=NO_APPROVED_EXTERNAL_MIRROR" ;;
+    esac
+  fi
+  exit 0
+fi
 [ "$ALLOW_EXTERNAL" = "1" ] || fail "IZAKHONO CODE unavailable and external source fallback is disabled."
 
 remote="$(git -C "$ROOT" remote get-url origin 2>/dev/null || true)"
