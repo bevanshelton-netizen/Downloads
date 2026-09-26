@@ -83,8 +83,9 @@ if (-not $Cloudflared) {
 $Provider = if ($env:FAISREADY_PAYMENT_PROVIDER) { $env:FAISREADY_PAYMENT_PROVIDER.Trim().ToLowerInvariant() } else { 'ikhokha' }
 switch ($Provider) {
   'ikhokha' {
-    if (-not $env:IKHOKHA_APP_ID -or -not $env:IKHOKHA_APP_SECRET) {
-      Fail 'iKhokha is selected but IKHOKHA_APP_ID / IKHOKHA_APP_SECRET are missing.'
+    $IKKey = if ($env:IKHOKHA_APP_KEY) { $env:IKHOKHA_APP_KEY } else { $env:IKHOKHA_APP_SECRET }
+    if (-not $env:IKHOKHA_APP_ID -or -not $IKKey) {
+      Fail 'iKhokha is selected but IKHOKHA_APP_ID and IKHOKHA_APP_KEY are missing.'
     }
     if ($env:IKHOKHA_LIVE_APPROVED -ne 'true') {
       Fail 'iKhokha remains fail-closed. Set IKHOKHA_LIVE_APPROVED=true only for the controlled live transaction.'
