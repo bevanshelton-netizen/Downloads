@@ -36,6 +36,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - name: Verify immediate portfolio experience directive
+        run: node quality/verify-portfolio-public-experience.mjs
       - name: Verify portfolio premium contract
         run: node quality/verify-premium-products.mjs
       - name: Verify premium Wave 1 experience layer
