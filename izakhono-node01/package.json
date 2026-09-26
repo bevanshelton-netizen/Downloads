@@ -1,0 +1,9 @@
+{
+  "name": "izakhono-node01",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check server.mjs && node scripts/self-test.mjs"
+  }
+}
