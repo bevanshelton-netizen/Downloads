@@ -211,6 +211,11 @@ jobs:
           $ps = Get-Content 'owner-host/START-IZAKHONO-OWNER-HOST.ps1' -Raw
           if ($ps -notmatch 'Ubuntu-24.04') { throw 'Ubuntu owner-host target missing' }
           if ($ps -notmatch 'bootstrap-linux.sh') { throw 'Linux bootstrap handoff missing' }
+          if ($ps -notmatch 'IZAKHONO_NODE01_INSTALL_STACK=0') { throw 'Sovereign NODE01 automatic build missing' }
+          if ($ps -notmatch 'izakhono-node01/install-linux.sh') { throw 'NODE01 installer handoff missing' }
+          if ($ps -notmatch '127.0.0.1:8940/health') { throw 'NODE01 local health verification missing' }
+          if ($ps -notmatch 'IZAKHONO_SOVEREIGN_NODE') { throw 'NODE01 sovereign execution contract missing' }
+          if ($ps -notmatch 'NODE01 LOCAL: VERIFIED') { throw 'NODE01 local verified status missing' }
           if ($ps -notmatch 'IZAKHONO-OWNER-HOST-STATUS.txt') { throw 'Owner-host desktop status report missing' }
           if ($ps -notmatch 'growth.domains.izakhonoafrica.co.za') { throw 'Growth OS owned hostname missing from owner launcher' }
           if ($ps -notmatch 'owned_public_edge_state') { throw 'Owned public-edge result handling missing' }
