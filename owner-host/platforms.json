@@ -45,7 +45,7 @@
     {
       "id": "kora-network",
       "hostnameEnv": "KORA_PUBLIC_HOST",
-      "deploy": "izakhono-cloud/DEPLOY-KORA-ISN-01.ps1",
+      "deploy": "izakhono-owned-cloud/deploy-kora-network.sh",
       "qualityProfile": "izakhono-premium-v1",
       "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
       "laptopRuntimeDependency": false,
@@ -84,7 +84,7 @@
     {
       "id": "faisready",
       "hostnameEnv": "FAISREADY_PUBLIC_HOST",
-      "deploy": "izakhono-cloud/DEPLOY-FAISREADY-ISN-01.ps1",
+      "deploy": "izakhono-owned-cloud/deploy-faisready.sh",
       "qualityProfile": "izakhono-premium-v1",
       "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
       "laptopRuntimeDependency": false,
@@ -96,7 +96,7 @@
     {
       "id": "allegro-vibez",
       "hostnameEnv": "ALLEGRO_PUBLIC_HOST",
-      "deploy": "izakhono-cloud/DEPLOY-ALLEGRO-ISN-01.ps1",
+      "deploy": "izakhono-owned-cloud/deploy-allegro-vibez.sh",
       "qualityProfile": "izakhono-premium-v1",
       "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
       "laptopRuntimeDependency": false,
@@ -108,7 +108,7 @@
     {
       "id": "the-chancellor",
       "hostnameEnv": "CHANCELLOR_PUBLIC_HOST",
-      "deploy": "izakhono-cloud/DEPLOY-CHANCELLOR-ISN-01.ps1",
+      "deploy": "izakhono-owned-cloud/deploy-the-chancellor.sh",
       "qualityProfile": "izakhono-premium-v1",
       "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
       "laptopRuntimeDependency": false,
@@ -146,7 +146,7 @@
       "id": "izakhono-analytics-collector",
       "hostnameEnv": "IZAKHONO_ANALYTICS_PUBLIC_HOST",
       "defaultHostname": "analytics.domains.izakhonoafrica.co.za",
-      "deploy": "izakhono-cloud/DEPLOY-ANALYTICS-ISN-01.ps1",
+      "deploy": "izakhono-owned-cloud/deploy-izakhono-analytics-collector.sh",
       "qualityProfile": "izakhono-premium-v1",
       "publicSurface": "collector-only",
       "publicPaths": [
