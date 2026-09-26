@@ -2,6 +2,11 @@ name: IZAKHONO Flagship Hybrid Deploy
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'izakhono-group/**'
+      - '.github/workflows/izakhono-flagship-hybrid-deploy.yml'
   push:
     branches: [main]
     paths:
@@ -41,6 +46,48 @@ jobs:
           curl -fsS http://127.0.0.1:18331/ | grep -q "KORA"
           echo "OWNED PACKAGE: VERIFIED"
 
+  external-pages-resilience:
+    needs: verify-owned-package
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      PAGES_URL: https://bevanshelton-netizen.github.io/Downloads/izakhono-group/
+    steps:
+      - name: Wait for GitHub Pages deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 30); do
+            CODE="$(curl -sS -L -o /tmp/flagship-pages.html -w "%{http_code}" "$PAGES_URL" || true)"
+            if [ "$CODE" = "200" ] && grep -q "WE BUILD" /tmp/flagship-pages.html; then
+              break
+            fi
+            sleep 3
+          done
+          test "$CODE" = "200"
+          grep -q "WE BUILD" /tmp/flagship-pages.html
+          grep -q "AUTO AI" /tmp/flagship-pages.html
+          grep -q "KORA" /tmp/flagship-pages.html
+
+      - name: Verify Pages health marker
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsS "${PAGES_URL}health.json" >/tmp/pages-health.json
+          node -e 'const x=require("/tmp/pages-health.json");if(x.ok!==true||x.service!=="IZAKHONO FLAGSHIP"||x.runtime!=="external-resilience")process.exit(2)'
+          echo "GITHUB PAGES EXTERNAL RESILIENCE: VERIFIED"
+
+      - name: Publish Pages resilience receipt
+        run: |
+          {
+            echo "## IZAKHONO Flagship External Resilience"
+            echo "- Route: $PAGES_URL"
+            echo "- HTTPS 200: verified"
+            echo "- Same flagship content markers: verified"
+            echo "- External health marker: verified"
+            echo "- Role: resilience only"
+          } >> "$GITHUB_STEP_SUMMARY"
+
   external-resilience:
     needs: verify-owned-package
     runs-on: ubuntu-latest
@@ -56,19 +103,27 @@ jobs:
         with:
           node-version: 22
 
-      - name: Require external resilience credentials
+      - name: Detect optional Vercel resilience credentials
+        id: credentials
+        shell: bash
         run: |
-          test -n "$VERCEL_TOKEN" || { echo "Missing VERCEL_TOKEN"; exit 1; }
-          test -n "$VERCEL_ORG_ID" || { echo "Missing VERCEL_ORG_ID"; exit 1; }
+          if [ -n "$VERCEL_TOKEN" ] && [ -n "$VERCEL_ORG_ID" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+            echo "Vercel resilience credentials available."
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Vercel resilience skipped because VERCEL_TOKEN is not configured. GitHub Pages remains the verified external resilience route."
+          fi
 
       - name: Resolve or create dedicated resilience project
+        if: steps.credentials.outputs.ready == 'true'
         id: project
         shell: bash
         run: |
           set -euo pipefail
           CODE="$(curl -sS -o /tmp/vercel-project.json -w "%{http_code}"             "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_NAME?teamId=$VERCEL_ORG_ID"             -H "Authorization: Bearer $VERCEL_TOKEN")"
           if [ "$CODE" = "404" ]; then
-            CODE="$(curl -sS -o /tmp/vercel-project.json -w "%{http_code}"               -X POST "https://api.vercel.com/v10/projects?teamId=$VERCEL_ORG_ID"               -H "Authorization: Bearer $VERCEL_TOKEN"               -H "Content-Type: application/json"               --data "{"name":"$VERCEL_PROJECT_NAME"}")"
+            CODE="$(curl -sS -o /tmp/vercel-project.json -w "%{http_code}"               -X POST "https://api.vercel.com/v10/projects?teamId=$VERCEL_ORG_ID"               -H "Authorization: Bearer $VERCEL_TOKEN"               -H "Content-Type: application/json"               --data "$(node -e 'process.stdout.write(JSON.stringify({name:process.argv[1]}))' "$VERCEL_PROJECT_NAME")")"
           fi
           [[ "$CODE" =~ ^2 ]] || { cat /tmp/vercel-project.json; exit 1; }
           PROJECT_ID="$(node -e 'const x=require("/tmp/vercel-project.json");if(!x.id)process.exit(2);process.stdout.write(x.id)')"
@@ -76,6 +131,7 @@ jobs:
           echo "Dedicated resilience project: $PROJECT_ID"
 
       - name: Disable deployment authentication for public resilience route
+        if: steps.credentials.outputs.ready == 'true'
         env:
           PROJECT_ID: ${{ steps.project.outputs.project_id }}
         run: |
@@ -84,6 +140,7 @@ jobs:
           [[ "$CODE" =~ ^2 ]] || { cat /tmp/project-update.json; exit 1; }
 
       - name: Link flagship source to resilience project
+        if: steps.credentials.outputs.ready == 'true'
         working-directory: izakhono-group
         env:
           PROJECT_ID: ${{ steps.project.outputs.project_id }}
@@ -92,6 +149,7 @@ jobs:
           node -e "require('fs').writeFileSync('.vercel/project.json', JSON.stringify({orgId:process.env.VERCEL_ORG_ID,projectId:process.env.PROJECT_ID,projectName:process.env.VERCEL_PROJECT_NAME}))"
 
       - name: Deploy external resilience production
+        if: steps.credentials.outputs.ready == 'true'
         id: deploy
         working-directory: izakhono-group
         run: |
@@ -102,6 +160,7 @@ jobs:
           echo "Resilience deployment: $URL"
 
       - name: Verify immutable external deployment
+        if: steps.credentials.outputs.ready == 'true'
         env:
           URL: ${{ steps.deploy.outputs.url }}
         run: |
@@ -121,6 +180,7 @@ jobs:
           echo "EXTERNAL RESILIENCE: VERIFIED"
 
       - name: Publish hybrid deployment receipt
+        if: steps.credentials.outputs.ready == 'true'
         env:
           URL: ${{ steps.deploy.outputs.url }}
           PROJECT_ID: ${{ steps.project.outputs.project_id }}
