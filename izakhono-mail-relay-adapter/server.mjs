@@ -5,7 +5,7 @@ import { timingSafeEqual } from "node:crypto";
 import { readFileSync } from "node:fs";
 
 const HOST=process.env.HOST||"127.0.0.1";
-const PORT=Number(process.env.PORT||8870);
+const PORT=Number(process.env.PORT||8845);
 const ADAPTER_KEY=process.env.IZAKHONO_MAIL_ADAPTER_KEY||"";
 const SMTP_HOST=process.env.IZAKHONO_SMTP_HOST||"";
 const SMTP_PORT=Number(process.env.IZAKHONO_SMTP_PORT||587);
