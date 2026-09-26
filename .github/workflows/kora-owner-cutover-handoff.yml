@@ -50,6 +50,7 @@ jobs:
           if ($p -notmatch '127\.0\.0\.1:18107') { throw 'loopback KORA port missing' }
           if ($p -notmatch 'PAYFAST_SANDBOX.+true') { throw 'PayFast sandbox guard missing' }
           if ($p -notmatch 'KORA_TICKET_CHECKOUT_MODE.+off') { throw 'ticket checkout guard missing' }
+          if ($p -notmatch 'IZAKHONO_ANALYTICS_URL.+127.0.0.1:18112') { throw 'local analytics wiring missing' }
           if ($p -notmatch 'KORA_IZAKHONO_PAY_LIVE_APPROVED.+false') { throw 'IZAKHONO PAY live guard missing' }
           if ($p -notmatch 'public_dns_changed.+False') { throw 'DNS safety receipt missing' }
           if ($p -notmatch 'live_payments_changed.+False') { throw 'payment safety receipt missing' }
