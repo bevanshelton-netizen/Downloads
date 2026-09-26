@@ -26,6 +26,9 @@ for c in git node curl flock systemctl; do need "$c"; done
 started="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 source_state="UNKNOWN"
 agent_state="NOT_RUN"
+node01_owner_agent="NOT_RUN"
+node01_owner_request_id=""
+node01_local="NOT_VERIFIED"
 one_agent_state="NOT_RUN"
 growth_bridge_agent_state="NOT_RUN"
 growth_bridge_public="NOT_VERIFIED"
@@ -74,6 +77,28 @@ else
     fi
   else
     agent_state="EXIT_$agent_exit"
+  fi
+
+  NODE01_CONTROL="$ROOT/owner-host/control/node01-desired-state.json"
+  if [ -f "$NODE01_CONTROL" ]; then
+    set +e
+    IZAKHONO_OWNER_CONTROL_PATH="owner-host/control/node01-desired-state.json" \
+    IZAKHONO_OWNER_AGENT_STATE_FILE="/var/lib/izakhono-owner-agent/node01-state.json" \
+      bash "$ROOT/owner-host/owner-agent.sh"
+    node01_agent_exit=$?
+    set -e
+    if [ "$node01_agent_exit" -eq 0 ]; then
+      if [ -s /var/lib/izakhono-owner-agent/node01-state.json ]; then
+        node01_owner_agent="$(node -e 'try{const x=require(process.argv[1]);process.stdout.write(String(x.status||"UNKNOWN"))}catch{process.stdout.write("UNKNOWN")}' /var/lib/izakhono-owner-agent/node01-state.json)"
+        node01_owner_request_id="$(node -e 'try{const x=require(process.argv[1]);process.stdout.write(String(x.request_id||""))}catch{}' /var/lib/izakhono-owner-agent/node01-state.json)"
+      else
+        node01_owner_agent="IDLE_OR_NO_RECEIPT"
+      fi
+    else
+      node01_owner_agent="EXIT_$node01_agent_exit"
+    fi
+  else
+    node01_owner_agent="CONTROL_MISSING"
   fi
 
   ONE_CONTROL="$ROOT/owner-host/control/one-desired-state.json"
@@ -192,6 +217,18 @@ if [ -s /opt/izakhono-actions-runner/.service ]; then
   service_name="$(cat /opt/izakhono-actions-runner/.service)"
   systemctl start "$service_name" >/dev/null 2>&1 || true
   if systemctl is-active --quiet "$service_name"; then runner_state="ACTIVE"; else runner_state="INACTIVE"; fi
+fi
+
+if curl -fsS --max-time 8 http://127.0.0.1:8940/health >/tmp/node01-autopilot-health.json 2>/dev/null; then
+  if node - <<'NODE' >/dev/null 2>&1
+const x=require('/tmp/node01-autopilot-health.json');
+if(x.ok!==true||x.service!=='izakhono-node01'||x.product!=='IZAKHONO NODE01') process.exit(2);
+if(x.authority!=='IZAKHONO'||x.execution_class!=='IZAKHONO_SOVEREIGN_NODE') process.exit(3);
+if(x.external_runtime_dependency!==false||x.public_live_claim!==false) process.exit(4);
+NODE
+  then
+    node01_local="VERIFIED"
+  fi
 fi
 
 if [ -s /var/lib/izakhono-owner-agent/state.json ]; then
@@ -338,9 +375,9 @@ fi
 
 ended="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 commit="$(git -C "$ROOT" rev-parse HEAD 2>/dev/null || true)"
-node - "$REPORT" "$started" "$ended" "$commit" "$source_state" "$agent_state" "$one_agent_state" "$growth_bridge_agent_state" "$growth_bridge_public" "$runner_state" "$crm_v020" "$crm_v020_exit" "$crm_notify" "$crm_notify_exit" "$local_one" "$yhvh_owner_request_id" "$yhvh_owner_agent" "$yhvh_engine_local" "$yhvh_channel_local" "$yhvh_public_https" "$owned_edge" "$owned_edge_exit" "$public_https" "$drop01_watch" "$drop01_watch_exit" "$learner_driver_funnel_watch" "$learner_driver_funnel_watch_exit" "$R0_MODE" <<'NODE'
+node - "$REPORT" "$started" "$ended" "$commit" "$source_state" "$agent_state" "$node01_owner_request_id" "$node01_owner_agent" "$node01_local" "$one_agent_state" "$growth_bridge_agent_state" "$growth_bridge_public" "$runner_state" "$crm_v020" "$crm_v020_exit" "$crm_notify" "$crm_notify_exit" "$local_one" "$yhvh_owner_request_id" "$yhvh_owner_agent" "$yhvh_engine_local" "$yhvh_channel_local" "$yhvh_public_https" "$owned_edge" "$owned_edge_exit" "$public_https" "$drop01_watch" "$drop01_watch_exit" "$learner_driver_funnel_watch" "$learner_driver_funnel_watch_exit" "$R0_MODE" <<'NODE'
 const fs=require('fs');
-const [path,started,ended,commit,source,agent,oneAgent,growthBridgeAgent,growthBridgePublic,runner,crmV020,crmV020Exit,crmNotify,crmNotifyExit,localOne,yhvhRequest,yhvhAgent,yhvhEngine,yhvhChannel,yhvhPublic,edge,edgeExit,publicHttps,drop01Watch,drop01WatchExit,learnerDriverFunnelWatch,learnerDriverFunnelWatchExit,r0Mode]=process.argv.slice(2);
+const [path,started,ended,commit,source,agent,node01Request,node01Agent,node01Local,oneAgent,growthBridgeAgent,growthBridgePublic,runner,crmV020,crmV020Exit,crmNotify,crmNotifyExit,localOne,yhvhRequest,yhvhAgent,yhvhEngine,yhvhChannel,yhvhPublic,edge,edgeExit,publicHttps,drop01Watch,drop01WatchExit,learnerDriverFunnelWatch,learnerDriverFunnelWatchExit,r0Mode]=process.argv.slice(2);
 fs.writeFileSync(path,JSON.stringify({
   schema:'izakhono.node01-autopilot/v1',
   node:'NODE01',
@@ -348,6 +385,9 @@ fs.writeFileSync(path,JSON.stringify({
   source_commit:commit||null,
   source_state:source,
   owner_agent:agent,
+  node01_owner_request_id:node01Request||null,
+  node01_owner_agent:node01Agent,
+  node01_local:node01Local,
   one_owner_agent:oneAgent,
   growth_bridge_owner_agent:growthBridgeAgent,
   growth_bridge_public:growthBridgePublic,
@@ -387,6 +427,9 @@ chmod 0600 "$REPORT"
 echo "IZAKHONO NODE01 AUTOPILOT"
 echo "SOURCE=$source_state"
 echo "OWNER_AGENT=$agent_state"
+echo "NODE01_OWNER_REQUEST=${node01_owner_request_id:-NONE}"
+echo "NODE01_OWNER_AGENT=$node01_owner_agent"
+echo "NODE01_LOCAL=$node01_local"
 echo "ONE_OWNER_AGENT=$one_agent_state"
 echo "GROWTH_BRIDGE_OWNER_AGENT=$growth_bridge_agent_state"
 echo "GROWTH_BRIDGE_PUBLIC=$growth_bridge_public"
