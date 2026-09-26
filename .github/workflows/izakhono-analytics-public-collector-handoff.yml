@@ -1,0 +1,85 @@
+name: IZAKHONO Analytics Public Collector Handoff
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'owner-host/START-IZAKHONO-ANALYTICS-PUBLIC-COLLECTOR.ps1'
+      - 'START-IZAKHONO-ANALYTICS-PUBLIC-COLLECTOR.cmd'
+      - 'izakhono-cloud/DEPLOY-ANALYTICS-ISN-01.ps1'
+      - '.github/workflows/izakhono-analytics-owner-handoff.yml'
+      - '.github/workflows/izakhono-analytics-public-collector-handoff.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'owner-host/START-IZAKHONO-ANALYTICS-PUBLIC-COLLECTOR.ps1'
+      - 'START-IZAKHONO-ANALYTICS-PUBLIC-COLLECTOR.cmd'
+      - 'izakhono-cloud/DEPLOY-ANALYTICS-ISN-01.ps1'
+      - '.github/workflows/izakhono-analytics-owner-handoff.yml'
+      - '.github/workflows/izakhono-analytics-public-collector-handoff.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Parse PowerShell launchers
+        shell: pwsh
+        run: |
+          foreach($path in @(
+            'owner-host/START-IZAKHONO-ANALYTICS-PUBLIC-COLLECTOR.ps1',
+            'izakhono-cloud/DEPLOY-ANALYTICS-ISN-01.ps1'
+          )){
+            $tokens=$null; $errors=$null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $path), [ref]$tokens, [ref]$errors
+            ) | Out-Null
+            if($errors.Count -gt 0){
+              $errors | ForEach-Object { Write-Error "$path :: $($_.Message)" }
+              exit 1
+            }
+          }
+
+      - name: Guard collector-only public contract
+        shell: pwsh
+        run: |
+          $p = Get-Content 'owner-host/START-IZAKHONO-ANALYTICS-PUBLIC-COLLECTOR.ps1' -Raw
+          foreach($required in @(
+            'analytics.domains.izakhonoafrica.co.za',
+            '/healthz',
+            '/beacon.js?platform=legacymart',
+            '/v1/hit',
+            '/dashboard',
+            '/api/summary?days=1',
+            'missing_origin_rejected',
+            'approved_origin_preflight',
+            'market.domains.izakhonoafrica.co.za',
+            'ANALYTICS-PUBLIC-COLLECTOR.json'
+          )){
+            if($p -notmatch [regex]::Escape($required)){ throw "Missing public collector contract: $required" }
+          }
+          if($p -notmatch 'dashboardStatus -ne 404'){ throw 'Dashboard public-block proof missing' }
+          if($p -notmatch 'summaryStatus -ne 404'){ throw 'Reporting API public-block proof missing' }
+          if($p -notmatch 'missingOriginStatus -ne 403'){ throw 'Missing-Origin rejection proof missing' }
+          if($p -notmatch 'optionsStatus -ne 204'){ throw 'Approved Origin preflight proof missing' }
+
+      - name: Guard pinned secure Analytics release
+        shell: pwsh
+        run: |
+          $p = Get-Content 'izakhono-cloud/DEPLOY-ANALYTICS-ISN-01.ps1' -Raw
+          if($p -notmatch '0fe23bf3eddba2254e2347032dc61ff0b037545e'){ throw 'Secure Analytics release is not pinned' }
+          if($p -notmatch 'ANALYTICS_REQUIRE_ORIGIN=true'){ throw 'Origin enforcement missing from owner runtime' }
+          if($p -notmatch 'ANALYTICS_ADMIN_TOKEN'){ throw 'Admin token protection missing from owner runtime' }
+
+      - name: Validate one-click CMD
+        shell: pwsh
+        run: |
+          $c = Get-Content 'START-IZAKHONO-ANALYTICS-PUBLIC-COLLECTOR.cmd' -Raw
+          if($c -notmatch 'START-IZAKHONO-ANALYTICS-PUBLIC-COLLECTOR.ps1'){ throw 'CMD target mismatch' }
+          if($c -notmatch 'raw.githubusercontent.com/bevanshelton-netizen/Downloads/main'){ throw 'CMD must use merged main launcher' }
