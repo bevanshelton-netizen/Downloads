@@ -19,46 +19,112 @@ function Import-DotEnv([string]$Path) {
   }
 }
 
+function Fail([string]$Message) {
+  Write-Host ''
+  Write-Host "FAISReady live launch stopped safely: $Message" -ForegroundColor Red
+  exit 1
+}
+
+if (-not (Test-Path $EnvFile)) {
+  $Template = Join-Path $PSScriptRoot '.env.example'
+  if (-not (Test-Path $Template)) { Fail '.env.example is missing.' }
+  Copy-Item $Template $EnvFile -Force
+  Write-Host ''
+  Write-Host 'Created FAISReady\.env.local from the safe template.' -ForegroundColor Yellow
+  Write-Host 'Add the named-tunnel token and authorised payment credentials, then run START-FAISREADY-LIVE.cmd again.'
+  if (Get-Command notepad.exe -ErrorAction SilentlyContinue) {
+    Start-Process notepad.exe $EnvFile
+  }
+  exit 2
+}
+
 Import-DotEnv $EnvFile
 
 if (-not $env:PUBLIC_BASE_URL -or -not $env:PUBLIC_BASE_URL.StartsWith('https://')) {
-  throw 'PUBLIC_BASE_URL must be set to the approved HTTPS FAISReady hostname in FAISReady/.env.local.'
+  Fail 'PUBLIC_BASE_URL must be the approved HTTPS FAISReady hostname.'
 }
-if (-not $env:TUNNEL_TOKEN -and -not $env:TUNNEL_TOKEN_FILE) {
-  throw 'Set TUNNEL_TOKEN or TUNNEL_TOKEN_FILE in FAISReady/.env.local. The token is never placed on the command line.'
+try {
+  $PublicUri = [Uri]$env:PUBLIC_BASE_URL
+} catch {
+  Fail 'PUBLIC_BASE_URL is not a valid HTTPS URL.'
 }
-if (-not (Get-Command py -ErrorAction SilentlyContinue) -and -not (Get-Command python -ErrorAction SilentlyContinue)) {
-  throw 'Python 3 is required on the owner host.'
-}
-if (-not (Get-Command cloudflared -ErrorAction SilentlyContinue)) {
-  throw 'cloudflared is required for the stable named HTTPS edge.'
+$HostName = $PublicUri.DnsSafeHost.ToLowerInvariant()
+if ($HostName -ne 'faisready.co.za' -and -not $HostName.EndsWith('.faisready.co.za')) {
+  Fail 'PUBLIC_BASE_URL must use faisready.co.za or an approved subdomain of faisready.co.za.'
 }
 
-if ($env:PAYFAST_SANDBOX -eq 'false') {
-  if (-not $env:PAYFAST_MERCHANT_ID -or -not $env:PAYFAST_MERCHANT_KEY -or -not $env:PAYFAST_PASSPHRASE) {
-    throw 'Live PayFast is selected but merchant credentials are incomplete.'
+if (-not $env:TUNNEL_TOKEN -and -not $env:TUNNEL_TOKEN_FILE) {
+  Fail 'Set TUNNEL_TOKEN or TUNNEL_TOKEN_FILE in FAISReady\.env.local.'
+}
+if ($env:TUNNEL_TOKEN_FILE -and -not (Test-Path $env:TUNNEL_TOKEN_FILE)) {
+  Fail 'TUNNEL_TOKEN_FILE does not exist.'
+}
+
+$Py = Get-Command py.exe -ErrorAction SilentlyContinue
+$Python = Get-Command python.exe -ErrorAction SilentlyContinue
+if (-not $Py -and -not $Python) {
+  Fail 'Python 3 is required on the owner host.'
+}
+
+$Cloudflared = Get-Command cloudflared.exe -ErrorAction SilentlyContinue
+if (-not $Cloudflared) {
+  $Winget = Get-Command winget.exe -ErrorAction SilentlyContinue
+  if (-not $Winget) { Fail 'cloudflared is missing and winget is unavailable.' }
+  Write-Host 'Installing Cloudflare Tunnel client...' -ForegroundColor Cyan
+  & $Winget.Source install --id Cloudflare.cloudflared -e --accept-package-agreements --accept-source-agreements --silent
+  if ($LASTEXITCODE -ne 0) { Fail "cloudflared installation failed with code $LASTEXITCODE." }
+  $MachinePath = [Environment]::GetEnvironmentVariable('Path','Machine')
+  $UserPath = [Environment]::GetEnvironmentVariable('Path','User')
+  $env:Path = "$MachinePath;$UserPath"
+  $Cloudflared = Get-Command cloudflared.exe -ErrorAction SilentlyContinue
+  if (-not $Cloudflared) { Fail 'cloudflared was installed; reopen the launcher once so Windows refreshes PATH.' }
+}
+
+$Provider = if ($env:FAISREADY_PAYMENT_PROVIDER) { $env:FAISREADY_PAYMENT_PROVIDER.Trim().ToLowerInvariant() } else { 'ikhokha' }
+switch ($Provider) {
+  'ikhokha' {
+    if (-not $env:IKHOKHA_APP_ID -or -not $env:IKHOKHA_APP_SECRET) {
+      Fail 'iKhokha is selected but IKHOKHA_APP_ID / IKHOKHA_APP_SECRET are missing.'
+    }
+    if ($env:IKHOKHA_LIVE_APPROVED -ne 'true') {
+      Fail 'iKhokha remains fail-closed. Set IKHOKHA_LIVE_APPROVED=true only for the controlled live transaction.'
+    }
   }
-  if ($env:FAISREADY_LIVE_PAYMENTS_APPROVED -ne 'true') {
-    throw 'Live PayFast remains fail-closed. Set FAISREADY_LIVE_PAYMENTS_APPROVED=true only after merchant approval and a successful sandbox proof.'
+  'payfast' {
+    if ($env:PAYFAST_SANDBOX -ne 'false') {
+      Fail 'The LIVE launcher will not treat PayFast sandbox as production. Use START-FAISREADY-SANDBOX.cmd for sandbox proof.'
+    }
+    if (-not $env:PAYFAST_MERCHANT_ID -or -not $env:PAYFAST_MERCHANT_KEY -or -not $env:PAYFAST_PASSPHRASE) {
+      Fail 'PayFast live is selected but merchant credentials are incomplete.'
+    }
+    if ($env:FAISREADY_LIVE_PAYMENTS_APPROVED -ne 'true') {
+      Fail 'PayFast live remains fail-closed until FAISREADY_LIVE_PAYMENTS_APPROVED=true.'
+    }
+  }
+  'izakhono' {
+    if (-not $env:IZAKHONO_PAY_URL -or -not $env:IZAKHONO_PAY_API_KEY -or -not $env:IZAKHONO_PAY_WEBHOOK_SECRET) {
+      Fail 'IZAKHONO PAY is selected but its URL/API/webhook credentials are incomplete.'
+    }
+  }
+  default {
+    Fail 'FAISREADY_PAYMENT_PROVIDER must be ikhokha, payfast, or izakhono.'
   }
 }
 
 Push-Location $PSScriptRoot
 try {
   Write-Host ''
-  Write-Host 'FAISReady — IZAKHONO owner-host launch' -ForegroundColor Cyan
+  Write-Host 'FAISReady — IZAKHONO owner-host production launch' -ForegroundColor Cyan
   Write-Host "Public URL: $env:PUBLIC_BASE_URL"
-  if ($env:PAYFAST_SANDBOX -eq 'false') {
-    Write-Host 'Payments: LIVE-approved mode' -ForegroundColor Green
-  } else {
-    Write-Host 'Payments: sandbox/disabled until PayFast approval' -ForegroundColor Yellow
-  }
+  Write-Host "Payment provider: $Provider"
+  Write-Host 'Origin: loopback only (127.0.0.1:18091)'
+  Write-Host 'Public edge: named outbound HTTPS tunnel'
   Write-Host ''
 
-  if (Get-Command py -ErrorAction SilentlyContinue) {
-    & py -3 edge_runner.py --mode named
+  if ($Py) {
+    & $Py.Source -3 edge_runner.py --mode named
   } else {
-    & python edge_runner.py --mode named
+    & $Python.Source edge_runner.py --mode named
   }
   exit $LASTEXITCODE
 }
