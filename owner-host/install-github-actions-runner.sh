@@ -14,6 +14,41 @@ REPORT_DIR="/var/lib/izakhono-deploy"
 REPORT="$REPORT_DIR/github-actions-runner.json"
 TOKEN="${IZAKHONO_GITHUB_RUNNER_TOKEN:-}"
 
+# Portfolio directive 26 Sep 2026: owner laptop is an administration client only.
+# Never expose this laptop as a production execution target.
+mkdir -p "$REPORT_DIR"
+chmod 0700 "$REPORT_DIR"
+if [ -s "$RUNNER_ROOT/.service" ]; then
+  LEGACY_SERVICE="$(cat "$RUNNER_ROOT/.service" 2>/dev/null || true)"
+  if [ -n "$LEGACY_SERVICE" ]; then
+    systemctl stop "$LEGACY_SERVICE" >/dev/null 2>&1 || true
+    systemctl disable "$LEGACY_SERVICE" >/dev/null 2>&1 || true
+  fi
+fi
+cat >"$REPORT" <<'JSON'
+{
+  "schema": "izakhono.github-actions-runner/v1",
+  "node": null,
+  "runner_name": "IZAKHONO-ADMIN-CLIENT",
+  "labels": ["izakhono-admin-client"],
+  "repository": "bevanshelton-netizen/Downloads",
+  "state": "ADMIN_CLIENT_ONLY",
+  "service": null,
+  "runner_version": null,
+  "token_persisted": false,
+  "authority": "ADMIN_CLIENT_ONLY",
+  "external_compute_authority": false,
+  "platform_execution_allowed": false,
+  "production_runner_label": "izakhono-infrastructure",
+  "laptop_runtime_dependency": false
+}
+JSON
+chmod 0600 "$REPORT"
+echo "IZAKHONO LAPTOP RUNNER: DISABLED FOR PLATFORM EXECUTION"
+echo "ROLE=ADMIN_CLIENT_ONLY"
+echo "PRODUCTION_RUNNER_LABEL=izakhono-infrastructure"
+exit 0
+
 if [ "${1:-}" = "--token-stdin" ]; then
   IFS= read -r TOKEN || true
 fi
