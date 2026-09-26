@@ -9,8 +9,8 @@ Security properties:
 - API credentials live only in the owner-host environment.
 - outbound iKhokha requests are HMAC-SHA256 signed.
 - checkout links are accepted only from approved iKhokha HTTPS hosts.
-- webhook HMAC + App ID are verified before processing.
-- a successful webhook is confirmed against iKhokha's payment-status API.
+- the callback is treated only as a trigger, never as proof of payment.
+- every successful trigger is confirmed against iKhokha's signed status API.
 - entitlement is granted only when the independently queried status is PAID
   and the amount matches the server-side order.
 """
@@ -57,7 +57,7 @@ def payment_provider() -> str:
 
 def ikhokha_settings(*, require_approval: bool = False) -> dict[str, object]:
     app_id = os.environ.get("IKHOKHA_APP_ID", "").strip()
-    secret = os.environ.get("IKHOKHA_APP_SECRET", "").strip()
+    secret = (os.environ.get("IKHOKHA_APP_KEY", "").strip() or os.environ.get("IKHOKHA_APP_SECRET", "").strip())
     approved = base.env_bool("IKHOKHA_LIVE_APPROVED", False)
     if app_id and not APPID_RE.fullmatch(app_id):
         raise ValueError("IKHOKHA_APP_ID contains unsupported characters")
@@ -285,24 +285,25 @@ def get_remote_status(paylink_id: str) -> dict[str, object]:
     return result
 
 
-def verify_webhook_signature(handler: base.BaseHTTPRequestHandler, raw: bytes) -> tuple[dict[str, object], bool, bool]:
+def parse_webhook_trigger(handler: base.BaseHTTPRequestHandler, raw: bytes) -> tuple[dict[str, object], bool, bool]:
+    """Parse a callback as a trigger only.
+
+    The public callback is not trusted to grant access. We record whether the
+    expected iKhokha headers were present/matched for audit, but the signed
+    server-to-server status lookup remains the payment authority.
+    """
     cfg = ikhokha_settings(require_approval=True)
     app_id = handler.headers.get("ik-appid", "").strip()
-    signature = handler.headers.get("ik-sign", "").strip().lower()
+    signature = handler.headers.get("ik-sign", "").strip()
     app_ok = bool(app_id) and hmac.compare_digest(app_id, str(cfg["app_id"]))
+    signature_present = bool(signature)
     try:
-        text = raw.decode("utf-8")
-    except UnicodeDecodeError as exc:
-        raise ValueError("invalid iKhokha webhook encoding") from exc
-    expected = sign_payload("/api/ikhokha/webhook", text, str(cfg["secret"]))
-    sig_ok = bool(signature) and hmac.compare_digest(signature, expected)
-    try:
-        payload = json.loads(text)
-    except json.JSONDecodeError as exc:
+        payload = json.loads(raw.decode("utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
         raise ValueError("invalid iKhokha webhook JSON") from exc
     if not isinstance(payload, dict):
         raise ValueError("invalid iKhokha webhook payload")
-    return payload, app_ok, sig_ok
+    return payload, app_ok, signature_present
 
 
 def validate_remote_paid(
@@ -372,7 +373,7 @@ def mark_link_paid(order_id: str, paylink_id: str) -> None:
 
 
 def accept_webhook(handler: base.BaseHTTPRequestHandler, raw: bytes) -> str:
-    payload, app_ok, sig_ok = verify_webhook_signature(handler, raw)
+    payload, app_ok, sig_present = parse_webhook_trigger(handler, raw)
     paylink_id = str(payload.get("paylinkID") or "").strip()
     webhook_status = str(payload.get("status") or "").strip().upper()
     external = str(payload.get("externalTransactionID") or "").strip()
@@ -389,27 +390,22 @@ def accept_webhook(handler: base.BaseHTTPRequestHandler, raw: bytes) -> str:
 
     remote_ok = False
     amount_ok = False
-    if app_ok and sig_ok and mapping_ok and webhook_status == "SUCCESS" and response_code == "00":
+    if mapping_ok:
         remote = get_remote_status(paylink_id)
         assert order is not None and link is not None
         remote_ok, amount_ok = validate_remote_paid(order, link, remote)
 
-    accepted = bool(
-        app_ok
-        and sig_ok
-        and mapping_ok
-        and webhook_status == "SUCCESS"
-        and response_code == "00"
-        and remote_ok
-        and amount_ok
-    )
+    # The callback itself is only a wake-up signal. Access depends solely on a
+    # known server-side order/paylink mapping plus iKhokha's signed GET status
+    # returning PAID for the exact amount.
+    accepted = bool(mapping_ok and remote_ok and amount_ok)
     record_event(
         order_id=external if order is not None else None,
         paylink_id=paylink_id,
         webhook_status=webhook_status,
         response_code=response_code,
         app_ok=app_ok,
-        sig_ok=sig_ok,
+        sig_ok=sig_present,
         mapping_ok=mapping_ok,
         remote_ok=remote_ok,
         amount_ok=amount_ok,
