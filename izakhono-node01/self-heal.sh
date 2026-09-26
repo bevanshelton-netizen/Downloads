@@ -15,7 +15,10 @@ services=(
   izakhono-auth-node
   izakhono-analytics-node
   izakhono-notify-node
+  izakhono-mail-relay-adapter
   izakhono-ai-gateway-node
+  izakhono-gpu-compute-node
+  izakhono-model-worker-node
   izakhono-code-node
   izakhono-package-node
   izakhono-ci-worker-node
