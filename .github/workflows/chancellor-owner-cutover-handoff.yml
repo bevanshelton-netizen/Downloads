@@ -42,10 +42,11 @@ jobs:
         shell: pwsh
         run: |
           $p = Get-Content 'izakhono-cloud/DEPLOY-CHANCELLOR-ISN-01.ps1' -Raw
-          if ($p -notmatch '0b05fa7c3721ecb3e342a2ad2e9fcf0a4ad06fdd') { throw 'Chancellor revision is not pinned' }
+          if ($p -notmatch 'cd3b6eea19ab584a5654ca8c647feb4c3b8ea6cc') { throw 'Chancellor revision is not pinned' }
           if ($p -notmatch 'ENGINE-PROOF.json') { throw 'ISN-01 Engine proof is not required' }
           if ($p -notmatch '127\.0\.0\.1:18106') { throw 'loopback Chancellor port missing' }
           if ($p -notmatch 'PAYFAST_MODE=sandbox') { throw 'PayFast sandbox guard missing' }
+          if ($p -notmatch 'IZAKHONO_ANALYTICS_URL=http://127.0.0.1:18112') { throw 'local analytics wiring missing' }
           if ($p -notmatch 'PAYFAST_MERCHANT_ID=') { throw 'merchant-disable guard missing' }
           if ($p -notmatch 'readyForPaidTraffic":false') { throw 'paid-traffic fail-closed gate missing' }
           if ($p -notmatch 'public_dns_changed.+False') { throw 'DNS safety receipt missing' }
