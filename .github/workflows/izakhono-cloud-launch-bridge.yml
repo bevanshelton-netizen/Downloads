@@ -14,6 +14,11 @@ on:
       - 'FAISReady/test_revenue_server.py'
       - 'FAISReady/edge_runner.py'
       - 'FAISReady/backup_revenue_data.py'
+      - 'VERIFY-FAISREADY-FIRST-SALE.cmd'
+      - 'VERIFY-FAISREADY-PREFLIGHT.cmd'
+      - 'FAISReady/verify-faisready-first-sale.ps1'
+      - 'FAISReady/verify-faisready-preflight.ps1'
+      - 'FAISReady/verify_activation.py'
       - 'FAISReady/start-faisready-sandbox.ps1'
       - 'FAISReady/start-faisready-live.ps1'
       - 'FAISReady/store.html'
@@ -60,13 +65,16 @@ jobs:
           python3 -m py_compile FAISReady/test_revenue_server.py
           python3 -m py_compile FAISReady/edge_runner.py
           python3 -m py_compile FAISReady/backup_revenue_data.py
+          python3 -m py_compile FAISReady/verify_activation.py
       - name: Parse Windows helpers
         shell: pwsh
         run: |
           $files = @(
             'izakhono-cloud/launch-bridge-windows.ps1',
             'FAISReady/start-faisready-sandbox.ps1',
-            'FAISReady/start-faisready-live.ps1'
+            'FAISReady/start-faisready-live.ps1',
+            'FAISReady/verify-faisready-preflight.ps1',
+            'FAISReady/verify-faisready-first-sale.ps1'
           )
           foreach ($file in $files) {
             $tokens = $null
@@ -100,6 +108,10 @@ jobs:
           if ($livePs -notmatch 'LOCKED \(stable-host preflight only\)') { throw 'live launcher must support payment-locked stable-host proof' }
           if ($livePs -notmatch 'faisready\.co\.za') { throw 'live launcher must pin the approved FAISReady hostname family' }
           if ($livePs -match 'TUNNEL_TOKEN\s+--') { throw 'tunnel token must never be placed on command line' }
+          $preflightCmd = Get-Content 'VERIFY-FAISREADY-PREFLIGHT.cmd' -Raw
+          if ($preflightCmd -notmatch 'FAISReady\\verify-faisready-preflight.ps1') { throw 'preflight CMD wrapper target is incorrect' }
+          $saleCmd = Get-Content 'VERIFY-FAISREADY-FIRST-SALE.cmd' -Raw
+          if ($saleCmd -notmatch 'FAISReady\\verify-faisready-first-sale.ps1') { throw 'first-sale CMD wrapper target is incorrect' }
       - name: Generate deterministic bridge plans
         run: |
           python3 izakhono-cloud/launch-bridge.py plan izakhono-cloud/fixtures/launch-bridge-manifest.json --out /tmp/plan-a.json
@@ -152,6 +164,10 @@ jobs:
         working-directory: FAISReady
         run: |
           python3 backup_revenue_data.py --self-test
+      - name: Verify activation receipt logic
+        working-directory: FAISReady
+        run: |
+          python3 verify_activation.py --self-test
       - name: Prove FAISReady on the native launch bridge
         env:
           FAISREADY_DATA_DIR: /tmp/faisready-bridge-data
@@ -248,6 +264,8 @@ jobs:
           mkdir -p /tmp/IZAKHONO-FAISReady-Activation
           cp START-FAISREADY-SANDBOX.cmd /tmp/IZAKHONO-FAISReady-Activation/
           cp START-FAISREADY-LIVE.cmd /tmp/IZAKHONO-FAISReady-Activation/
+          cp VERIFY-FAISREADY-PREFLIGHT.cmd /tmp/IZAKHONO-FAISReady-Activation/
+          cp VERIFY-FAISREADY-FIRST-SALE.cmd /tmp/IZAKHONO-FAISReady-Activation/
           cp -a FAISReady /tmp/IZAKHONO-FAISReady-Activation/
           mkdir -p /tmp/IZAKHONO-FAISReady-Activation/izakhono-cloud
           cp izakhono-cloud/launch-bridge.py /tmp/IZAKHONO-FAISReady-Activation/izakhono-cloud/
@@ -263,8 +281,12 @@ jobs:
              named-tunnel route while checkout remains locked.
           4. Only after the stable-host checks pass, add authorised iKhokha API
              credentials and set IKHOKHA_LIVE_APPROVED=true for ONE controlled
-             transaction. Keep broad promotion off until entitlement and backup
-             receipts pass.
+             transaction.
+          5. Run VERIFY-FAISREADY-PREFLIGHT.cmd before enabling money, then run
+             VERIFY-FAISREADY-FIRST-SALE.cmd immediately after the controlled
+             transaction. The receipts exclude customer PII and access tokens.
+          6. Keep broad promotion off until entitlement, backup/restore and
+             off-machine encrypted backup/governance checks pass.
           EOF
 
       - name: Upload Windows activation package
