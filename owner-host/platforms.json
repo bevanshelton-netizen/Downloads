@@ -1,40 +1,60 @@
 {
-  "schema": "izakhono.owner-host-platforms/v1",
-  "edgeOrigin": "http://127.0.0.1:8780",
-  "routing": "hostname-through-IZAKHONO-EDGE-to-RUNTIME",
+  "schema": "izakhono.platform-catalog/v2",
+  "edgeOrigin": "IZAKHONO_EDGE",
+  "routing": "hostname-through-IZAKHONO-EDGE-to-infrastructure-runtime",
   "platforms": [
     {
       "id": "izakhono-flagship",
       "hostnameEnv": "IZAKHONO_FLAGSHIP_PUBLIC_HOST",
       "defaultHostname": "izakhono.co.za",
       "deploy": "izakhono-owned-cloud/deploy-izakhono-flagship.sh",
-      "qualityProfile": "izakhono-premium-v1"
+      "qualityProfile": "izakhono-premium-v1",
+      "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
+      "laptopRuntimeDependency": false,
+      "laptopDeploymentTarget": false,
+      "laptopDataPlane": false
     },
     {
       "id": "growth-os-v2",
       "hostnameEnv": "GROWTH_OS_V2_PUBLIC_HOST",
       "defaultHostname": "growth.domains.izakhonoafrica.co.za",
       "deploy": "izakhono-owned-cloud/deploy-growth-os-v2.sh",
-      "qualityProfile": "izakhono-premium-v1"
+      "qualityProfile": "izakhono-premium-v1",
+      "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
+      "laptopRuntimeDependency": false,
+      "laptopDeploymentTarget": false,
+      "laptopDataPlane": false
     },
     {
       "id": "creative-suite",
       "hostnameEnv": "CREATIVE_SUITE_PUBLIC_HOST",
       "defaultHostname": "creative.domains.izakhonoafrica.co.za",
       "deploy": "izakhono-owned-cloud/deploy-creative-suite.sh",
-      "qualityProfile": "izakhono-premium-v1"
+      "qualityProfile": "izakhono-premium-v1",
+      "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
+      "laptopRuntimeDependency": false,
+      "laptopDeploymentTarget": false,
+      "laptopDataPlane": false
     },
     {
       "id": "kora-network",
       "hostnameEnv": "KORA_PUBLIC_HOST",
       "deploy": "izakhono-cloud/DEPLOY-KORA-ISN-01.ps1",
-      "qualityProfile": "izakhono-premium-v1"
+      "qualityProfile": "izakhono-premium-v1",
+      "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
+      "laptopRuntimeDependency": false,
+      "laptopDeploymentTarget": false,
+      "laptopDataPlane": false
     },
     {
       "id": "auto-ai",
       "hostnameEnv": "AUTO_AI_PUBLIC_HOST",
       "deploy": "izakhono-owned-cloud/deploy-auto-ai.sh",
-      "qualityProfile": "izakhono-premium-v1"
+      "qualityProfile": "izakhono-premium-v1",
+      "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
+      "laptopRuntimeDependency": false,
+      "laptopDeploymentTarget": false,
+      "laptopDataPlane": false
     },
     {
       "id": "learner-driver-sa",
@@ -43,44 +63,72 @@
       "deploy": "izakhono-owned-cloud/deploy-learner-driver-sa.sh",
       "qualityProfile": "izakhono-premium-v1",
       "engine": "learner-driver-sa",
-      "engineIndependent": true
+      "engineIndependent": true,
+      "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
+      "laptopRuntimeDependency": false,
+      "laptopDeploymentTarget": false,
+      "laptopDataPlane": false
     },
     {
       "id": "faisready",
       "hostnameEnv": "FAISREADY_PUBLIC_HOST",
       "deploy": "izakhono-cloud/DEPLOY-FAISREADY-ISN-01.ps1",
-      "qualityProfile": "izakhono-premium-v1"
+      "qualityProfile": "izakhono-premium-v1",
+      "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
+      "laptopRuntimeDependency": false,
+      "laptopDeploymentTarget": false,
+      "laptopDataPlane": false
     },
     {
       "id": "ecd360",
       "hostnameEnv": "ECD360_PUBLIC_HOST",
       "deploy": "izakhono-cloud/DEPLOY-ECD360-ISN-01.ps1",
-      "qualityProfile": "izakhono-premium-v1"
+      "qualityProfile": "izakhono-premium-v1",
+      "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
+      "laptopRuntimeDependency": false,
+      "laptopDeploymentTarget": false,
+      "laptopDataPlane": false
     },
     {
       "id": "allegro-vibez",
       "hostnameEnv": "ALLEGRO_PUBLIC_HOST",
       "deploy": "izakhono-cloud/DEPLOY-ALLEGRO-ISN-01.ps1",
-      "qualityProfile": "izakhono-premium-v1"
+      "qualityProfile": "izakhono-premium-v1",
+      "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
+      "laptopRuntimeDependency": false,
+      "laptopDeploymentTarget": false,
+      "laptopDataPlane": false
     },
     {
       "id": "the-chancellor",
       "hostnameEnv": "CHANCELLOR_PUBLIC_HOST",
       "deploy": "izakhono-cloud/DEPLOY-CHANCELLOR-ISN-01.ps1",
-      "qualityProfile": "izakhono-premium-v1"
+      "qualityProfile": "izakhono-premium-v1",
+      "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
+      "laptopRuntimeDependency": false,
+      "laptopDeploymentTarget": false,
+      "laptopDataPlane": false
     },
     {
       "id": "legacymart",
       "hostnameEnv": "LEGACYMART_PUBLIC_HOST",
       "defaultHostname": "market.domains.izakhonoafrica.co.za",
       "deploy": "izakhono-owned-cloud/deploy-legacymart.sh",
-      "qualityProfile": "izakhono-premium-v1"
+      "qualityProfile": "izakhono-premium-v1",
+      "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
+      "laptopRuntimeDependency": false,
+      "laptopDeploymentTarget": false,
+      "laptopDataPlane": false
     },
     {
       "id": "izakhono-pay",
       "hostnameEnv": "IZAKHONO_PAY_PUBLIC_HOST",
       "deploy": "izakhono-owned-cloud/go-live-izakhono-pay.sh",
-      "qualityProfile": "izakhono-premium-v1"
+      "qualityProfile": "izakhono-premium-v1",
+      "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
+      "laptopRuntimeDependency": false,
+      "laptopDeploymentTarget": false,
+      "laptopDataPlane": false
     },
     {
       "id": "izakhono-analytics-collector",
@@ -99,42 +147,66 @@
         "/dashboard",
         "/api/summary",
         "/api/config"
-      ]
+      ],
+      "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
+      "laptopRuntimeDependency": false,
+      "laptopDeploymentTarget": false,
+      "laptopDataPlane": false
     },
     {
       "id": "izakhono-domains",
       "hostnameEnv": "IZAKHONO_DOMAINS_PUBLIC_HOST",
       "defaultHostname": "domains.izakhonoafrica.co.za",
       "deploy": "izakhono-owned-cloud/deploy-izakhono-domains.sh",
-      "qualityProfile": "izakhono-premium-v1"
+      "qualityProfile": "izakhono-premium-v1",
+      "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
+      "laptopRuntimeDependency": false,
+      "laptopDeploymentTarget": false,
+      "laptopDataPlane": false
     },
     {
       "id": "memory-mania",
       "hostnameEnv": "MEMORY_MANIA_PUBLIC_HOST",
       "defaultHostname": "memorymania.domains.izakhonoafrica.co.za",
       "deploy": "izakhono-owned-cloud/deploy-memory-mania.sh",
-      "qualityProfile": "izakhono-premium-v1"
+      "qualityProfile": "izakhono-premium-v1",
+      "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
+      "laptopRuntimeDependency": false,
+      "laptopDeploymentTarget": false,
+      "laptopDataPlane": false
     },
     {
       "id": "crowne-hair",
       "hostnameEnv": "CROWNE_HAIR_PUBLIC_HOST",
       "defaultHostname": "hair.domains.izakhonoafrica.co.za",
       "deploy": "izakhono-owned-cloud/deploy-crowne-hair.sh",
-      "qualityProfile": "izakhono-premium-v1"
+      "qualityProfile": "izakhono-premium-v1",
+      "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
+      "laptopRuntimeDependency": false,
+      "laptopDeploymentTarget": false,
+      "laptopDataPlane": false
     },
     {
       "id": "izakhono-revenue-desk",
       "hostnameEnv": "IZAKHONO_REVENUE_PUBLIC_HOST",
       "defaultHostname": "revenue.domains.izakhonoafrica.co.za",
       "deploy": "izakhono-owned-cloud/deploy-revenue-desk.sh",
-      "qualityProfile": "izakhono-premium-v1"
+      "qualityProfile": "izakhono-premium-v1",
+      "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
+      "laptopRuntimeDependency": false,
+      "laptopDeploymentTarget": false,
+      "laptopDataPlane": false
     },
     {
       "id": "kora-kids",
       "hostnameEnv": "KORA_KIDS_PUBLIC_HOST",
       "defaultHostname": "korakids.domains.izakhonoafrica.co.za",
       "deploy": "izakhono-owned-cloud/deploy-kora-kids.sh",
-      "qualityProfile": "izakhono-premium-v1"
+      "qualityProfile": "izakhono-premium-v1",
+      "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
+      "laptopRuntimeDependency": false,
+      "laptopDeploymentTarget": false,
+      "laptopDataPlane": false
     },
     {
       "id": "kora-gospel-tv",
@@ -147,14 +219,32 @@
       "engine": "yhvh-gospel-engine",
       "engineIndependent": true,
       "enginePort": 8892,
-      "legacyRuntimeId": "kora-gospel-tv"
+      "legacyRuntimeId": "kora-gospel-tv",
+      "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
+      "laptopRuntimeDependency": false,
+      "laptopDeploymentTarget": false,
+      "laptopDataPlane": false
     },
     {
       "id": "izakhono-one-ai",
       "hostnameEnv": "IZAKHONO_ONE_AI_PUBLIC_HOST",
       "defaultHostname": "one.domains.izakhonoafrica.co.za",
       "deploy": "izakhono-owned-cloud/deploy-izakhono-one-ai.sh",
-      "qualityProfile": "izakhono-premium-v1"
+      "qualityProfile": "izakhono-premium-v1",
+      "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
+      "laptopRuntimeDependency": false,
+      "laptopDeploymentTarget": false,
+      "laptopDataPlane": false
     }
-  ]
+  ],
+  "infrastructurePolicy": {
+    "authority": "IZAKHONO_INFRASTRUCTURE",
+    "policyFile": "IZAKHONO-INFRASTRUCTURE-AUTHORITY.json",
+    "laptopRole": "ADMIN_CLIENT_ONLY",
+    "laptopRuntimeDependency": false,
+    "laptopDeploymentTarget": false,
+    "laptopDataPlane": false,
+    "productionRunnerLabel": "izakhono-infrastructure",
+    "externalResilienceAllowed": true
+  }
 }
