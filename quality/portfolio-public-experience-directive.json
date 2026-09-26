@@ -2,7 +2,7 @@
   "schema": "izakhono.portfolio-public-experience/v1",
   "effective": "2026-09-26",
   "status": "IMMEDIATE_EFFECT",
-  "scope": "ALL_IZAKHONO_PLATFORMS",
+  "scope": "ALL_IZAKHONO_PLATFORMS_EXCLUDING_SEPARATE_ENTITIES",
   "infrastructure": {
     "ownedPrimary": true,
     "externalIndependentResilience": true,
@@ -43,5 +43,15 @@
     "collector-only",
     "api-only",
     "machine-only"
+  ],
+  "explicitExclusions": [
+    {
+      "organization": "EDU-BUILD INSTITUTE – Shelton Campuses",
+      "products": [
+        "ECD360",
+        "EDU-BUILD 360"
+      ],
+      "reason": "Separate business/entity; not part of IZAKHONO portfolio"
+    }
   ]
 }
