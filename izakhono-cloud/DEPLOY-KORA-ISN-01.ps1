@@ -103,6 +103,7 @@ updates={
     "KORA_TICKET_LIVE_APPROVED":"false",
     "KORA_IZAKHONO_PAY_LIVE_APPROVED":"false",
     "KORA_PRIVATE_SIGNUP_ENABLED":"true",
+    "IZAKHONO_ANALYTICS_URL":"http://127.0.0.1:18112",
 }
 lines=raw.splitlines()
 seen=set()

@@ -8,7 +8,7 @@ $ErrorActionPreference = "Stop"
 $State = Join-Path $env:ProgramData "IZAKHONO\ISN-01"
 $EngineProof = Join-Path $State "ENGINE-PROOF.json"
 $Receipt = Join-Path $State "ECD360-CUTOVER.json"
-$Pinned = "f41693bbd45951825f8a1265ddab2a93d455856e"
+$Pinned = "8a7b3f4dc5feb7f38be4c35e58cf472fbae9293b"
 
 function Fail([string]$Message) {
     Write-Host "FAIL: $Message" -ForegroundColor Red
@@ -61,7 +61,7 @@ fi
 git fetch origin "$PINNED"
 git checkout --detach "$PINNED"
 
-GITHUB_SHA="$PINNED" sh scripts/izakhono/production-cutover.sh
+VITE_IZAKHONO_ANALYTICS_URL=http://127.0.0.1:18112 GITHUB_SHA="$PINNED" sh scripts/izakhono/production-cutover.sh
 
 curl -fsS http://127.0.0.1:18105/healthz >/dev/null
 READINESS="$(curl -fsS http://127.0.0.1:18105/go-live.json)"

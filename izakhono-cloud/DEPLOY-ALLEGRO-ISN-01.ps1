@@ -10,7 +10,7 @@ $EngineProof = Join-Path $State "ENGINE-PROOF.json"
 $EnvFile = Join-Path $State "ALLEGRO.env"
 $EnvTemplate = Join-Path $State "ALLEGRO.env.template"
 $Receipt = Join-Path $State "ALLEGRO-CUTOVER.json"
-$Pinned = "5aa51d0bd94040f5c180418c6e1973228f5f2044"
+$Pinned = "8aead9c37557a66c89240b299a3b2a67d47073f7"
 $LocalOrigin = "http://127.0.0.1:18108"
 
 function Fail([string]$Message) {
@@ -150,7 +150,7 @@ git fetch origin "$PINNED"
 git checkout --detach "$PINNED"
 
 IMAGE="allegro-vibez:izakhono-$(printf '%s' "$PINNED" | cut -c1-12)"
-docker build   --build-arg "VITE_IZAKHONO_CORE_URL=$CORE_URL"   --build-arg "VITE_IZAKHONO_PROJECT=$PROJECT"   --build-arg "VITE_IZAKHONO_PUBLIC_KEY=$PUBLIC_KEY"   --label "za.co.izakhono.product=ALLEGRO VIBEZ"   --label "za.co.izakhono.commit=$PINNED"   --label "za.co.izakhono.channel=private-pilot"   -t "$IMAGE" .
+docker build   --build-arg "VITE_IZAKHONO_CORE_URL=$CORE_URL"   --build-arg "VITE_IZAKHONO_PROJECT=$PROJECT"   --build-arg "VITE_IZAKHONO_PUBLIC_KEY=$PUBLIC_KEY"   --build-arg "VITE_IZAKHONO_ANALYTICS_URL=http://127.0.0.1:18112"   --label "za.co.izakhono.product=ALLEGRO VIBEZ"   --label "za.co.izakhono.commit=$PINNED"   --label "za.co.izakhono.channel=private-pilot"   -t "$IMAGE" .
 
 docker rm -f "$CANARY" >/dev/null 2>&1 || true
 docker run -d --name "$CANARY" -p "127.0.0.1:$CANARY_PORT:8080" "$IMAGE" >/dev/null

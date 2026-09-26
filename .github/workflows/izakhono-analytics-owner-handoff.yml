@@ -40,10 +40,11 @@ jobs:
         run: |
           $p = Get-Content 'izakhono-cloud/DEPLOY-ANALYTICS-ISN-01.ps1' -Raw
           foreach ($required in @(
-            '01c74fb780b491fb0697ebfdcd3afbcdf2c0d72f',
+            '19150fb7b70dd118fbe23ab3021f502c0299ee5f',
             'ENGINE-PROOF.json',
             '127.0.0.1:18112',
             'izakhono_analytics_data',
+            'ANALYTICS_ALLOWED_ORIGINS',
             'no-raw-ip-storage',
             'ANALYTICS-CUTOVER.json'
           )) {

@@ -45,11 +45,12 @@ jobs:
         run: |
           $p = Get-Content 'izakhono-cloud/DEPLOY-ALLEGRO-ISN-01.ps1' -Raw
           foreach ($required in @(
-            '5aa51d0bd94040f5c180418c6e1973228f5f2044',
+            '8aead9c37557a66c89240b299a3b2a67d47073f7',
             'ENGINE-PROOF.json',
             'ALLEGRO.env',
             'VITE_IZAKHONO_CORE_URL',
             'VITE_IZAKHONO_PUBLIC_KEY',
+            'VITE_IZAKHONO_ANALYTICS_URL=http://127.0.0.1:18112',
             '127.0.0.1:18108',
             'ALLEGRO-CUTOVER.json'
           )) {
