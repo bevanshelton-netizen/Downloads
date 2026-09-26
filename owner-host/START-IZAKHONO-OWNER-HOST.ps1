@@ -57,6 +57,26 @@ $payload | & wsl.exe -d Ubuntu-24.04 -u root -- bash -s
 if ($LASTEXITCODE -ne 0) { throw "IZAKHONO owner-host bootstrap failed inside Ubuntu." }
 
 Write-Host ""
+Write-Host "Building/repairing sovereign NODE01..." -ForegroundColor Cyan
+& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cd /opt/izakhono-source/Downloads && IZAKHONO_NODE01_INSTALL_STACK=0 bash izakhono-node01/install-linux.sh"
+if ($LASTEXITCODE -ne 0) {
+    throw "Sovereign NODE01 installation or local acceptance failed."
+}
+$Node01HealthRaw = (& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "curl -fsS --max-time 10 http://127.0.0.1:8940/health") -join [Environment]::NewLine
+if (-not $Node01HealthRaw.Trim()) { throw "NODE01 local health receipt is missing." }
+$Node01Health = $Node01HealthRaw | ConvertFrom-Json
+if ($Node01Health.ok -ne $true -or
+    $Node01Health.service -ne "izakhono-node01" -or
+    $Node01Health.authority -ne "IZAKHONO" -or
+    $Node01Health.execution_class -ne "IZAKHONO_SOVEREIGN_NODE" -or
+    $Node01Health.external_runtime_dependency -ne $false -or
+    $Node01Health.public_live_claim -ne $false) {
+    throw "NODE01 local health contract did not pass."
+}
+Write-Host "NODE01 LOCAL: VERIFIED" -ForegroundColor Green
+Write-Host "Node instance: $($Node01Health.node_instance)" -ForegroundColor Green
+
+Write-Host ""
 Write-Host "Ensuring NODE01 GitHub runner control path..." -ForegroundColor Cyan
 $runnerBootstrap = Join-Path $State "INSTALL-IZAKHONO-NODE01-GITHUB-RUNNER.ps1"
 $runnerUrl = "https://raw.githubusercontent.com/bevanshelton-netizen/Downloads/main/owner-host/INSTALL-IZAKHONO-NODE01-GITHUB-RUNNER.ps1"
@@ -93,13 +113,16 @@ Write-Host "Checking host status..." -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Evaluating go-live state..." -ForegroundColor Cyan
 
+$Node01JsonRaw = (& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "curl -fsS --max-time 10 http://127.0.0.1:8940/v1/status 2>/dev/null || true") -join "`n"
 $OwnerJsonRaw = (& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cat /var/lib/izakhono-deploy/owner-host.json 2>/dev/null || true") -join "`n"
 $EdgeJsonRaw = (& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cat /var/lib/izakhono-deploy/owned-public-edge.json 2>/dev/null || true") -join "`n"
 $GrowthJsonRaw = (& wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "cat /var/lib/izakhono-deploy/growth-os-v2.json 2>/dev/null || true") -join "`n"
 
+$Node01 = $null
 $Owner = $null
 $Edge = $null
 $Growth = $null
+if ($Node01JsonRaw.Trim()) { $Node01 = $Node01JsonRaw | ConvertFrom-Json }
 if ($OwnerJsonRaw.Trim()) { $Owner = $OwnerJsonRaw | ConvertFrom-Json }
 if ($EdgeJsonRaw.Trim()) { $Edge = $EdgeJsonRaw | ConvertFrom-Json }
 if ($GrowthJsonRaw.Trim()) { $Growth = $GrowthJsonRaw | ConvertFrom-Json }
@@ -137,7 +160,12 @@ try {
 $ReportLines = @(
     "IZAKHONO OWNER HOST - FINAL STATUS"
     "Generated: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss K')"
-    "Node: ISN-01"
+    "Node: ISN-01 / NODE01"
+    "NODE01 local verified: $($Node01 -and $Node01.ok -eq $true)"
+    "NODE01 instance: $(if($Node01){$Node01.node_instance}else{'UNAVAILABLE'})"
+    "NODE01 authority: $(if($Node01){$Node01.authority}else{'UNAVAILABLE'})"
+    "NODE01 execution class: $(if($Node01){$Node01.execution_class}else{'UNAVAILABLE'})"
+    "NODE01 required components healthy: $(if($Node01){$Node01.components.required_healthy}else{'UNAVAILABLE'})/$(if($Node01){$Node01.components.required_total}else{'UNAVAILABLE'})"
     "Growth OS: $PublicUrl"
     "Result: $Result"
     "Public health verified: $PublicVerified"
@@ -176,5 +204,6 @@ if ($PublicVerified) {
 }
 
 Write-Host ""
+Write-Host "Sovereign NODE01 controller: LOCAL VERIFIED on 127.0.0.1:8940." -ForegroundColor Green
 Write-Host "The private IZAKHONO stack, Growth OS runtime, FORTRESS, NODE01 runner and Autopilot do not depend on Vercel." -ForegroundColor Green
 Write-Host "Owned public promotion still requires independent HTTPS verification." -ForegroundColor Yellow
