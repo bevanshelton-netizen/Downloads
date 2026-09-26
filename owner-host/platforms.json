@@ -37,6 +37,15 @@
       "qualityProfile": "izakhono-premium-v1"
     },
     {
+      "id": "learner-driver-sa",
+      "hostnameEnv": "LEARNER_DRIVER_SA_PUBLIC_HOST",
+      "defaultHostname": "learnerdriver.domains.izakhonoafrica.co.za",
+      "deploy": "izakhono-owned-cloud/deploy-learner-driver-sa.sh",
+      "qualityProfile": "izakhono-premium-v1",
+      "engine": "learner-driver-sa",
+      "engineIndependent": true
+    },
+    {
       "id": "faisready",
       "hostnameEnv": "FAISREADY_PUBLIC_HOST",
       "deploy": "izakhono-cloud/DEPLOY-FAISREADY-ISN-01.ps1",
