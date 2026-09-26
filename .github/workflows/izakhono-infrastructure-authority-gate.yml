@@ -7,6 +7,8 @@ on:
       - 'IZAKHONO-PLATFORM-INFRASTRUCTURE-DIRECTIVE.md'
       - 'IZAKHONO-INFRASTRUCTURE-AUTHORITY.json'
       - 'owner-host/platforms.json'
+      - 'infrastructure/**'
+      - 'izakhono-infrastructure-executor/**'
       - 'owner-host/**'
       - '.github/workflows/**'
       - 'izakhono-owned-cloud/**'
@@ -17,6 +19,8 @@ on:
       - 'IZAKHONO-PLATFORM-INFRASTRUCTURE-DIRECTIVE.md'
       - 'IZAKHONO-INFRASTRUCTURE-AUTHORITY.json'
       - 'owner-host/platforms.json'
+      - 'infrastructure/**'
+      - 'izakhono-infrastructure-executor/**'
       - 'owner-host/**'
       - '.github/workflows/**'
       - 'izakhono-owned-cloud/**'
@@ -47,6 +51,11 @@ jobs:
           }
           if(p.runner_policy?.production_required_label!=='izakhono-infrastructure') throw new Error('production runner label mismatch');
           if(p.runner_policy?.owner_laptop_execution_allowed!==false) throw new Error('owner laptop execution must be forbidden');
+          if(p.execution_policy?.production_scheduler!=='IZAKHONO_INFRASTRUCTURE_EXECUTOR') throw new Error('production scheduler mismatch');
+          if(p.execution_policy?.production_control_path!=='infrastructure/control/portfolio-desired-state.json') throw new Error('production control path mismatch');
+          if(p.execution_policy?.github_self_hosted_runner_required_for_production!==false) throw new Error('GitHub self-hosted runner must not be required for production');
+          if(p.execution_policy?.arbitrary_command_from_control_allowed!==false) throw new Error('arbitrary control commands must be forbidden');
+          if(p.execution_policy?.allowlisted_deployment_targets_only!==true) throw new Error('allow-listed deployment targets must be required');
           const cp=p.communication_policy||{};
           for(const k of ['platform_to_laptop','customer_traffic_to_laptop','runtime_callback_to_laptop','health_check_dependency_on_laptop','worker_queue_traffic_to_laptop','data_sync_to_laptop']){
             if(cp[k]!=='DENY') throw new Error('communication policy '+k+' must be DENY');
