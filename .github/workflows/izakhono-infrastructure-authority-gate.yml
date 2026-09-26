@@ -47,6 +47,12 @@ jobs:
           }
           if(p.runner_policy?.production_required_label!=='izakhono-infrastructure') throw new Error('production runner label mismatch');
           if(p.runner_policy?.owner_laptop_execution_allowed!==false) throw new Error('owner laptop execution must be forbidden');
+          const cp=p.communication_policy||{};
+          for(const k of ['platform_to_laptop','customer_traffic_to_laptop','runtime_callback_to_laptop','health_check_dependency_on_laptop','worker_queue_traffic_to_laptop','data_sync_to_laptop']){
+            if(cp[k]!=='DENY') throw new Error('communication policy '+k+' must be DENY');
+          }
+          if(cp.laptop_to_platform_admin!=='AUTHENTICATED_MANAGEMENT_ONLY') throw new Error('laptop admin direction must be authenticated management only');
+          if(cp.laptop_admin_session_required_for_availability!==false) throw new Error('laptop admin session must not be required for availability');
           for(const [id,node] of Object.entries(p.node_roles||{})){
             if(node.laptop_eligible!==false||node.requires_managed_infrastructure!==true) throw new Error(id+' laptop eligibility invalid');
           }
@@ -65,12 +71,19 @@ jobs:
           if(ip.laptopRole!=='ADMIN_CLIENT_ONLY') throw new Error('catalog laptop role mismatch');
           if(ip.productionRunnerLabel!=='izakhono-infrastructure') throw new Error('catalog runner label mismatch');
           for(const k of ['laptopRuntimeDependency','laptopDeploymentTarget','laptopDataPlane']) if(ip[k]!==false) throw new Error(k+' must be false');
+          for(const k of ['platformToLaptopTraffic','customerTrafficToLaptop','runtimeCallbackToLaptop','healthCheckDependencyOnLaptop','workerQueueTrafficToLaptop','dataSyncToLaptop']){
+            if(ip[k]!=='DENY') throw new Error(k+' must be DENY');
+          }
+          if(ip.laptopToPlatformAdmin!=='AUTHENTICATED_MANAGEMENT_ONLY') throw new Error('catalog laptop admin direction mismatch');
+          if(ip.laptopAdminSessionRequiredForAvailability!==false) throw new Error('catalog laptop admin session dependency must be false');
           if(!Array.isArray(x.platforms)||x.platforms.length===0) throw new Error('platform catalog empty');
           for(const p of x.platforms){
             if(p.runtimeAuthority!=='IZAKHONO_INFRASTRUCTURE') throw new Error(p.id+': runtime authority mismatch');
             if(p.laptopRuntimeDependency!==false) throw new Error(p.id+': laptop runtime dependency not false');
             if(p.laptopDeploymentTarget!==false) throw new Error(p.id+': laptop deployment target not false');
             if(p.laptopDataPlane!==false) throw new Error(p.id+': laptop data plane not false');
+            if(p.platformToLaptopTraffic!=='DENY') throw new Error(p.id+': platform-to-laptop traffic must be DENY');
+            if(p.laptopAdminSessionRequiredForAvailability!==false) throw new Error(p.id+': laptop admin session dependency must be false');
           }
           console.log('PLATFORMS_NO_LAPTOP_RUNTIME='+x.platforms.length);
           NODE

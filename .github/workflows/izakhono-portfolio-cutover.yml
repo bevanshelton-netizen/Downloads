@@ -1,4 +1,4 @@
-name: IZAKHONO Portfolio Owner-Host Cutover
+name: IZAKHONO Portfolio Infrastructure Cutover
 
 on:
   workflow_dispatch:
@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: izakhono-portfolio-owner-host
+  group: izakhono-portfolio-infrastructure
   cancel-in-progress: true
 
 jobs:
@@ -23,7 +23,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - name: Verify owner-host cutover packages without requiring NODE01
+      - name: Verify infrastructure cutover packages
         shell: bash
         run: |
           set -euo pipefail
@@ -35,7 +35,7 @@ jobs:
             test -f "$path$health"
             echo "READY_PACKAGE $name $path$health"
           done
-          echo 'Owner-host packages verified. Physical deployment remains NODE01-authoritative.'
+          echo 'Infrastructure packages verified. Production execution requires izakhono-infrastructure.'
 
   yenzanow:
     if: github.event_name == 'workflow_dispatch'

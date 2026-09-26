@@ -70,7 +70,7 @@ jobs:
     runs-on: [self-hosted, linux, x64, izakhono, izakhono-infrastructure]
     timeout-minutes: 20
     steps:
-      - name: Run allow-listed NODE01 owner agent
+      - name: Run allow-listed IZAKHONO infrastructure control agent
         shell: bash
         run: |
           set -euo pipefail
@@ -85,6 +85,16 @@ jobs:
             chmod 0700 /tmp/izakhono-sync-owner-source.sh
             sudo -n bash /tmp/izakhono-sync-owner-source.sh "$ROOT"
           fi
+          node - "$ROOT/IZAKHONO-INFRASTRUCTURE-AUTHORITY.json" <<'NODE'
+          const fs=require('fs');
+          const p=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
+          if(p.runtime_authority!=='IZAKHONO_INFRASTRUCTURE') throw new Error('runtime authority mismatch');
+          if(p.laptop?.deployment_target!==false||p.laptop?.runtime_dependency!==false) throw new Error('laptop execution not forbidden');
+          if(p.communication_policy?.platform_to_laptop!=='DENY') throw new Error('platform-to-laptop traffic not denied');
+          if(p.runner_policy?.production_required_label!=='izakhono-infrastructure') throw new Error('infrastructure runner label mismatch');
+          console.log('EXECUTION_TARGET=IZAKHONO_INFRASTRUCTURE');
+          console.log('PLATFORM_TO_LAPTOP=DENY');
+          NODE
           sudo -n bash "$ROOT/owner-host/owner-agent.sh"
 
       - name: Verify owner-agent deployment receipt

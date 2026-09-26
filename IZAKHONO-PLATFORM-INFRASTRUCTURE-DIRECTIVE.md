@@ -141,6 +141,9 @@ Each platform repository, package or deployment record must carry or inherit:
 - `laptopRuntimeDependency: false`;
 - `laptopDataPlane: false`;
 - `laptopDeploymentTarget: false`;
+- `platformToLaptopTraffic: DENY`;
+- `laptopAdminSessionRequiredForAvailability: false`;
+- laptop administration is permitted only as `AUTHENTICATED_MANAGEMENT_ONLY`;
 - its authoritative source location and approved commit/version;
 - its owned infrastructure target and currently verified public route;
 - its external fallback route;
