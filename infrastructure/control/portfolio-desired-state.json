@@ -2,7 +2,7 @@
   "schema": "izakhono.infrastructure-desired-state/v1",
   "authority": "IZAKHONO_INFRASTRUCTURE",
   "enabled": true,
-  "generated_at": "2026-09-26T19:15:00Z",
+  "generated_at": "2026-09-26T19:30:00Z",
   "requests": [
     {
       "id": "yhvh-gospel-tv-infrastructure-20260926-01",
@@ -10,6 +10,94 @@
       "action": "deploy-platform",
       "platform_id": "yhvh-gospel-tv",
       "ref": "main",
+      "max_attempts": 3,
+      "public_live_claim": false,
+      "external_resilience_preserve": true,
+      "laptop_target": false
+    },
+    {
+      "id": "learner-driver-infrastructure-20260926-01",
+      "action": "deploy-platform",
+      "platform_id": "learner-driver-sa",
+      "ref": "main",
+      "enabled": true,
+      "max_attempts": 3,
+      "public_live_claim": false,
+      "external_resilience_preserve": true,
+      "laptop_target": false
+    },
+    {
+      "id": "izakhono-pay-infrastructure-20260926-01",
+      "action": "deploy-platform",
+      "platform_id": "izakhono-pay",
+      "ref": "main",
+      "enabled": true,
+      "max_attempts": 3,
+      "public_live_claim": false,
+      "external_resilience_preserve": true,
+      "laptop_target": false
+    },
+    {
+      "id": "izakhono-one-local-model-infrastructure-20260926-01",
+      "action": "run-workload",
+      "workload_id": "izakhono-one-local-model",
+      "ref": "main",
+      "enabled": true,
+      "max_attempts": 3,
+      "public_live_claim": false,
+      "external_resilience_preserve": true,
+      "laptop_target": false
+    },
+    {
+      "id": "izakhono-crm-v020-infrastructure-20260926-01",
+      "action": "run-workload",
+      "workload_id": "izakhono-crm-v020",
+      "ref": "main",
+      "enabled": true,
+      "max_attempts": 3,
+      "public_live_claim": false,
+      "external_resilience_preserve": true,
+      "laptop_target": false
+    },
+    {
+      "id": "portfolio-yenzanow-infrastructure-20260926-01",
+      "action": "run-workload",
+      "workload_id": "portfolio-yenzanow",
+      "ref": "main",
+      "enabled": true,
+      "max_attempts": 3,
+      "public_live_claim": false,
+      "external_resilience_preserve": true,
+      "laptop_target": false
+    },
+    {
+      "id": "portfolio-matric-rewrite-infrastructure-20260926-01",
+      "action": "run-workload",
+      "workload_id": "portfolio-matric-rewrite",
+      "ref": "main",
+      "enabled": true,
+      "max_attempts": 3,
+      "public_live_claim": false,
+      "external_resilience_preserve": true,
+      "laptop_target": false
+    },
+    {
+      "id": "portfolio-command-center-infrastructure-20260926-01",
+      "action": "run-workload",
+      "workload_id": "portfolio-command-center",
+      "ref": "main",
+      "enabled": true,
+      "max_attempts": 3,
+      "public_live_claim": false,
+      "external_resilience_preserve": true,
+      "laptop_target": false
+    },
+    {
+      "id": "portfolio-containers-infrastructure-20260926-01",
+      "action": "run-workload",
+      "workload_id": "portfolio-containers",
+      "ref": "main",
+      "enabled": true,
       "max_attempts": 3,
       "public_live_claim": false,
       "external_resilience_preserve": true,

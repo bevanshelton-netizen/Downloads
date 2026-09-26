@@ -1,4 +1,4 @@
-name: IZAKHONO CRM Owner-Host Deploy
+name: IZAKHONO CRM Native Infrastructure Deploy
 
 on:
   workflow_dispatch:
@@ -6,11 +6,17 @@ on:
     branches: [main]
     paths:
       - 'deploy/IZAKHONO_CRM_OWNER_LIVE'
+      - 'izakhono-owned-cloud/deploy-izakhono-crm-v020.sh'
+      - 'infrastructure/control/portfolio-desired-state.json'
+      - 'izakhono-infrastructure-executor/targets.json'
       - '.github/workflows/izakhono-crm-owner-live.yml'
   pull_request:
     branches: [main]
     paths:
       - 'deploy/IZAKHONO_CRM_OWNER_LIVE'
+      - 'izakhono-owned-cloud/deploy-izakhono-crm-v020.sh'
+      - 'infrastructure/control/portfolio-desired-state.json'
+      - 'izakhono-infrastructure-executor/targets.json'
       - '.github/workflows/izakhono-crm-owner-live.yml'
 
 permissions:
@@ -21,7 +27,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  verify-package:
+  verify-package-and-request:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -34,94 +40,30 @@ jobs:
           path: canonical-builder
           fetch-depth: 0
           persist-credentials: false
-      - name: Verify CRM v0.2.0 owned deployment package
+      - name: Verify CRM v0.2.0 package and native workload request
         shell: bash
         run: |
           set -euo pipefail
           REQUIRED='3d115c5ae5c092beb7011622fdda1534f885e68a'
           git -C canonical-builder merge-base --is-ancestor "$REQUIRED" HEAD
+          bash -n canonical-builder/infra/app-fabric-runtime/activate-node01.sh
+          bash -n izakhono-owned-cloud/deploy-izakhono-crm-v020.sh
           node - <<'NODE'
+          const fs=require('fs');
           const p=require('./canonical-builder/products/izakhono-crm/package.json');
           if(p.version!=='0.2.0') throw new Error('expected CRM v0.2.0');
           const m=require('./canonical-builder/products/izakhono-crm/.izakhono.json');
           if(m.application_version!=='0.2.0') throw new Error('CRM capability manifest mismatch');
-          if(m.infrastructure?.owned_target!=='NODE01') throw new Error('owned target is not NODE01');
+          const a=JSON.parse(fs.readFileSync('IZAKHONO-INFRASTRUCTURE-AUTHORITY.json','utf8'));
+          if(a.execution_policy?.production_scheduler!=='IZAKHONO_INFRASTRUCTURE_EXECUTOR') throw new Error('native executor not authoritative');
+          if(a.execution_policy?.github_self_hosted_runner_required_for_production!==false) throw new Error('GitHub runner still required');
+          const c=JSON.parse(fs.readFileSync('infrastructure/control/portfolio-desired-state.json','utf8'));
+          const r=(c.requests||[]).find(x=>x.id==='izakhono-crm-v020-infrastructure-20260926-01');
+          if(!r||r.enabled!==true||r.action!=='run-workload'||r.workload_id!=='izakhono-crm-v020') throw new Error('CRM workload request missing');
+          if(r.laptop_target!==false||r.public_live_claim!==false) throw new Error('CRM request safety mismatch');
+          const t=JSON.parse(fs.readFileSync('izakhono-infrastructure-executor/targets.json','utf8'));
+          if(t.workloads?.['izakhono-crm-v020']?.command?.[1]!=='izakhono-owned-cloud/deploy-izakhono-crm-v020.sh') throw new Error('CRM workload target mismatch');
           console.log('CRM_PACKAGE=VERIFIED');
-          console.log('OWNED_TARGET=NODE01');
+          console.log('CRM_NATIVE_EXECUTOR_REQUEST=VERIFIED');
+          console.log('PUBLIC_LIVE_CLAIM=false');
           NODE
-          bash -n canonical-builder/infra/app-fabric-runtime/activate-node01.sh
-
-  deploy-on-node01:
-    if: github.event_name == 'workflow_dispatch'
-    needs: verify-package
-    runs-on: [self-hosted, linux, x64, izakhono-infrastructure]
-    timeout-minutes: 45
-    steps:
-      - name: Prove IZAKHONO-owned execution authority
-        shell: bash
-        run: |
-          set -euo pipefail
-          proof=''
-          if [ -s /var/lib/izakhono-deploy/github-actions-runner.json ]; then
-            if node - <<'NODE'
-          const fs=require('fs');
-          const x=JSON.parse(fs.readFileSync('/var/lib/izakhono-deploy/github-actions-runner.json','utf8'));
-          if(x.schema!=='izakhono.github-actions-runner/v1') process.exit(2);
-          if(x.state!=='ACTIVE'||x.authority!=='NODE01') process.exit(3);
-          if(x.token_persisted!==false||x.external_compute_authority!==false) process.exit(4);
-          NODE
-            then proof='NODE01_RUNNER_RECEIPT'; fi
-          fi
-          if [ -z "$proof" ] && [ -s /var/lib/izakhono-deploy/primary-deployment.txt ]; then
-            grep -q 'DEPLOYMENT_STATE=PRIMARY_NODE_PROVED' /var/lib/izakhono-deploy/primary-deployment.txt
-            grep -q 'GITHUB_RUNTIME_DEPENDENCY=NO' /var/lib/izakhono-deploy/primary-deployment.txt
-            grep -q 'VERCEL_RUNTIME_DEPENDENCY=NO' /var/lib/izakhono-deploy/primary-deployment.txt
-            proof='OWNED_CLOUD_PRIMARY_PROOF'
-          fi
-          [ -n "$proof" ] || { echo "::error::Self-hosted runner is not proven as IZAKHONO-owned NODE01/owned-cloud authority."; exit 20; }
-          echo "IZAKHONO_OWNED_NODE_PROOF=$proof" >> "$GITHUB_ENV"
-
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - uses: actions/checkout@v4
-        with:
-          repository: bevanshelton-netizen/izakhono-builder
-          ref: main
-          path: canonical-builder
-          persist-credentials: false
-
-      - name: Activate CRM plus APP FABRIC on IZAKHONO-owned node role
-        shell: bash
-        run: |
-          set -euo pipefail
-          sudo -E bash canonical-builder/infra/app-fabric-runtime/activate-node01.sh /opt/izakhono/evidence/IZAKHONO-CRM-V020-NODE01-REPORT.json
-
-      - name: Verify fail-closed CRM v0.2.0 and internal integration
-        shell: bash
-        run: |
-          set -euo pipefail
-          docker exec izakhono-crm node - <<'NODE'
-          const base='http://127.0.0.1:8080';
-          const h=await fetch(base+'/health').then(r=>r.json());
-          if(h.ok!==true||h.service!=='izakhono-crm'||h.version!=='0.2.0') throw new Error('CRM health/version mismatch');
-          if(h.auth==='local-dev') throw new Error('insecure local auth is enabled');
-          const r=await fetch(base+'/api/summary',{headers:{'x-entity-id':'izakhono-africa','x-platform-id':'faisready'}});
-          if(r.status!==401) throw new Error('unauthenticated CRM access did not fail closed: '+r.status);
-          NODE
-          sudo bash -lc 'set -a; source /opt/izakhono/secrets/app-fabric-runtime.env; set +a; docker exec izakhono-app-fabric-gateway node -e "fetch(\"http://127.0.0.1:8090/api/fabric/selftest\",{method:\"POST\",headers:{authorization:\"Bearer \"+process.env.IZAKHONO_FABRIC_INTERNAL_TOKEN}}).then(async r=>{const v=await r.json();if(!r.ok||v.ok!==true||v.mode!==\"non-writing\"||v.crm?.dry_run!==true)process.exit(1)}).catch(()=>process.exit(1))"'
-
-      - name: Capture owned deployment evidence
-        shell: bash
-        run: |
-          set -euo pipefail
-          sudo cp /opt/izakhono/evidence/IZAKHONO-CRM-V020-NODE01-REPORT.json "$GITHUB_WORKSPACE/IZAKHONO-CRM-V020-NODE01-REPORT.json"
-          sudo chown "$(id -u):$(id -g)" "$GITHUB_WORKSPACE/IZAKHONO-CRM-V020-NODE01-REPORT.json"
-          jq -e '.overall=="PASS_INTERNAL_OWNED" and .crm.health=="healthy" and .fabric.health=="healthy" and .public_cutover_performed==false' "$GITHUB_WORKSPACE/IZAKHONO-CRM-V020-NODE01-REPORT.json" >/dev/null
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: IZAKHONO-CRM-V020-OWNED-EVIDENCE
-          path: IZAKHONO-CRM-V020-NODE01-REPORT.json
-          if-no-files-found: error
-          retention-days: 30

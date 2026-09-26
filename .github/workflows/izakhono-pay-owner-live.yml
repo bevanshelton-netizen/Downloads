@@ -1,4 +1,4 @@
-name: IZAKHONO PAY Owner-Host Go Live
+name: IZAKHONO PAY Native Infrastructure Go Live
 
 on:
   workflow_dispatch:
@@ -8,6 +8,17 @@ on:
       - 'izakhono-pay/deploy/GO_LIVE'
       - 'izakhono-pay/runtime.mjs'
       - 'izakhono-owned-cloud/go-live-izakhono-pay.sh'
+      - 'infrastructure/control/portfolio-desired-state.json'
+      - 'izakhono-infrastructure-executor/targets.json'
+      - '.github/workflows/izakhono-pay-owner-live.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'izakhono-pay/deploy/GO_LIVE'
+      - 'izakhono-pay/runtime.mjs'
+      - 'izakhono-owned-cloud/go-live-izakhono-pay.sh'
+      - 'infrastructure/control/portfolio-desired-state.json'
+      - 'izakhono-infrastructure-executor/targets.json'
       - '.github/workflows/izakhono-pay-owner-live.yml'
 
 permissions:
@@ -15,17 +26,67 @@ permissions:
 
 concurrency:
   group: izakhono-pay-owner-live
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
-  go-live:
-    runs-on: [self-hosted, linux, x64, izakhono, izakhono-infrastructure]
-    timeout-minutes: 30
+  verify-request:
+    name: Verify IZAKHONO PAY native executor request
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - name: Activate FORTRESS-protected IZAKHONO PAY
-        env:
-          IZAKHONO_PAY_ENV_FILE: ${{ vars.IZAKHONO_PAY_ENV_FILE }}
-        run: sudo -E bash izakhono-owned-cloud/go-live-izakhono-pay.sh
+      - name: Validate fixed infrastructure deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n izakhono-owned-cloud/go-live-izakhono-pay.sh
+          node - <<'NODE'
+          const fs=require('fs');
+          const a=JSON.parse(fs.readFileSync('IZAKHONO-INFRASTRUCTURE-AUTHORITY.json','utf8'));
+          if(a.execution_policy?.production_scheduler!=='IZAKHONO_INFRASTRUCTURE_EXECUTOR') throw new Error('native executor not authoritative');
+          if(a.execution_policy?.github_self_hosted_runner_required_for_production!==false) throw new Error('GitHub runner still required');
+          const c=JSON.parse(fs.readFileSync('infrastructure/control/portfolio-desired-state.json','utf8'));
+          const r=(c.requests||[]).find(x=>x.id==='izakhono-pay-infrastructure-20260926-01');
+          if(!r||r.enabled!==true||r.action!=='deploy-platform'||r.platform_id!=='izakhono-pay') throw new Error('PAY request missing');
+          if(r.laptop_target!==false||r.public_live_claim!==false||r.external_resilience_preserve!==true) throw new Error('PAY request safety mismatch');
+          const t=JSON.parse(fs.readFileSync('izakhono-infrastructure-executor/targets.json','utf8'));
+          if(t.targets?.['izakhono-pay']?.command?.[1]!=='izakhono-owned-cloud/go-live-izakhono-pay.sh') throw new Error('PAY executor target mismatch');
+          console.log('IZAKHONO_PAY_NATIVE_EXECUTOR_REQUEST=VERIFIED');
+          console.log('GITHUB_PRODUCTION_EXECUTION=false');
+          NODE
+
+  observe-public:
+    name: Observe IZAKHONO PAY public route
+    needs: verify-request
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Observe route without substituting for executor receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL='https://pay.izakhonoafrica.co.za/health'
+          set +e
+          curl -fsS --connect-timeout 5 --max-time 20 -D /tmp/pay-headers -o /tmp/pay-health "$URL"
+          RC=$?
+          set -e
+          if [ "$RC" -ne 0 ]; then
+            echo 'IZAKHONO_PAY_PUBLIC_ROUTE=NOT_VERIFIED'
+            echo 'OWNED_LIVE_CLAIM=false'
+            exit 0
+          fi
+          if node - <<'NODE'
+          const x=require('/tmp/pay-health');
+          if(x.ok!==true||x.service!=='izakhono-pay'||x.primary_provider!=='ikhokha') process.exit(2);
+          NODE
+          then
+            if grep -qi '^x-fortress-protector: active' /tmp/pay-headers; then
+              echo 'IZAKHONO_PAY_PUBLIC_ROUTE=HEALTH_AND_FORTRESS_VERIFIED'
+            else
+              echo 'IZAKHONO_PAY_PUBLIC_ROUTE=HEALTH_VERIFIED_FORTRESS_HEADER_MISSING'
+            fi
+          else
+            echo 'IZAKHONO_PAY_PUBLIC_ROUTE=IDENTITY_MISMATCH'
+          fi
+          echo 'OWNED_LIVE_CLAIM=false'
+          echo 'NOTE=Executor receipt is independently required before an owned-live claim.'

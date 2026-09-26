@@ -1,4 +1,4 @@
-name: IZAKHONO ONE Infrastructure Activation
+name: IZAKHONO ONE Native Infrastructure Activation
 
 on:
   workflow_dispatch:
@@ -6,15 +6,19 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/izakhono-one-owner-runner-activation.yml'
-      - 'owner-host/control/one-desired-state.json'
-      - 'owner-host/owner-agent.sh'
+      - 'infrastructure/control/portfolio-desired-state.json'
+      - 'izakhono-infrastructure-executor/targets.json'
+      - 'izakhono-owned-cloud/activate-izakhono-one-local-model.sh'
+      - 'izakhono-owned-cloud/activate-local-model-engine.sh'
       - 'IZAKHONO-INFRASTRUCTURE-AUTHORITY.json'
   pull_request:
     branches: [main]
     paths:
       - '.github/workflows/izakhono-one-owner-runner-activation.yml'
-      - 'owner-host/control/one-desired-state.json'
-      - 'owner-host/owner-agent.sh'
+      - 'infrastructure/control/portfolio-desired-state.json'
+      - 'izakhono-infrastructure-executor/targets.json'
+      - 'izakhono-owned-cloud/activate-izakhono-one-local-model.sh'
+      - 'izakhono-owned-cloud/activate-local-model-engine.sh'
       - 'IZAKHONO-INFRASTRUCTURE-AUTHORITY.json'
 
 permissions:
@@ -26,75 +30,56 @@ concurrency:
 
 jobs:
   verify-request:
+    name: Verify ONE native executor request
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - name: Verify infrastructure authority and ONE request
+      - name: Verify infrastructure authority and fixed workload
         shell: bash
         run: |
           set -euo pipefail
+          bash -n izakhono-owned-cloud/activate-izakhono-one-local-model.sh
           node - <<'NODE'
           const fs=require('fs');
           const p=JSON.parse(fs.readFileSync('IZAKHONO-INFRASTRUCTURE-AUTHORITY.json','utf8'));
           if(p.runtime_authority!=='IZAKHONO_INFRASTRUCTURE') throw new Error('infrastructure authority mismatch');
-          if(p.laptop?.deployment_target!==false||p.laptop?.runtime_dependency!==false) throw new Error('laptop execution not forbidden');
-          const x=JSON.parse(fs.readFileSync('owner-host/control/one-desired-state.json','utf8'));
-          if(x.enabled!==true) throw new Error('ONE request is disabled');
-          if(x.action!=='activate-one-local-model') throw new Error('unexpected ONE action');
-          if(!x.id) throw new Error('ONE request id missing');
-          console.log('ONE_REQUEST=VERIFIED');
-          console.log('RUNTIME_AUTHORITY=IZAKHONO_INFRASTRUCTURE');
+          if(p.execution_policy?.production_scheduler!=='IZAKHONO_INFRASTRUCTURE_EXECUTOR') throw new Error('native executor not authoritative');
+          if(p.execution_policy?.github_self_hosted_runner_required_for_production!==false) throw new Error('GitHub runner still required');
+          if(p.laptop?.deployment_target!==false||p.communication_policy?.platform_to_laptop!=='DENY') throw new Error('laptop isolation failed');
+          const c=JSON.parse(fs.readFileSync('infrastructure/control/portfolio-desired-state.json','utf8'));
+          const r=(c.requests||[]).find(x=>x.id==='izakhono-one-local-model-infrastructure-20260926-01');
+          if(!r||r.action!=='run-workload'||r.workload_id!=='izakhono-one-local-model'||r.enabled!==true) throw new Error('ONE workload request missing');
+          if(r.laptop_target!==false||r.public_live_claim!==false) throw new Error('ONE request safety mismatch');
+          const t=JSON.parse(fs.readFileSync('izakhono-infrastructure-executor/targets.json','utf8'));
+          if(t.workloads?.['izakhono-one-local-model']?.command?.[1]!=='izakhono-owned-cloud/activate-izakhono-one-local-model.sh') throw new Error('ONE workload target mismatch');
+          console.log('ONE_NATIVE_EXECUTOR_REQUEST=VERIFIED');
+          console.log('GITHUB_PRODUCTION_EXECUTION=false');
           NODE
 
-  activate:
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
+  observe-owned-public:
+    name: Observe IZAKHONO ONE owned public HTTPS
     needs: verify-request
-    name: Activate IZAKHONO ONE on infrastructure
-    runs-on: [self-hosted, linux, x64, izakhono, izakhono-infrastructure]
-    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: Prove infrastructure execution policy
+      - name: Observe without creating a live claim
         shell: bash
         run: |
           set -euo pipefail
-          node - <<'NODE'
-          const p=require('./IZAKHONO-INFRASTRUCTURE-AUTHORITY.json');
-          if(p.runner_policy?.production_required_label!=='izakhono-infrastructure') process.exit(2);
-          if(p.laptop?.role!=='ADMIN_CLIENT_ONLY') process.exit(3);
-          console.log('EXECUTION_TARGET=IZAKHONO_INFRASTRUCTURE');
-          console.log('LAPTOP_TARGET=false');
-          NODE
-
-      - name: Execute allow-listed ONE request
-        shell: bash
-        run: |
-          set -euo pipefail
-          sudo -E env             IZAKHONO_OWNER_CONTROL_PATH=owner-host/control/one-desired-state.json             IZAKHONO_OWNER_AGENT_STATE_FILE=/var/lib/izakhono-owner-agent/one-infrastructure-state.json             bash owner-host/owner-agent.sh
-
-      - name: Verify ONE runtime on infrastructure
-        shell: bash
-        run: |
-          set -euo pipefail
-          REQUEST_ID="$(node -e "const x=require('./owner-host/control/one-desired-state.json');process.stdout.write(x.id)")"
-          sudo test -s /var/lib/izakhono-owner-agent/one-infrastructure-state.json
-          sudo node - "$REQUEST_ID" <<'NODE'
-          const fs=require('fs');
-          const request=process.argv[2];
-          const x=JSON.parse(fs.readFileSync('/var/lib/izakhono-owner-agent/one-infrastructure-state.json','utf8'));
-          if(x.request_id!==request) throw new Error('request id mismatch');
-          if(x.status!=='success') throw new Error('ONE infrastructure activation failed: '+x.status);
-          console.log('OWNER_AGENT=VERIFIED');
-          NODE
-          curl -fsS --max-time 8 -H 'Host: one.domains.izakhonoafrica.co.za' http://127.0.0.1:8080/health >/tmp/one-health.json
-          node - <<'NODE'
-          const x=require('/tmp/one-health.json');
-          if(x.product!=='IZAKHONO ONE AI'||x.status!=='healthy') process.exit(2);
-          if(x.tracking!==false||x.promptPersistence!==false) process.exit(3);
-          console.log('ONE_INFRASTRUCTURE_RUNTIME=VERIFIED');
-          console.log('PUBLIC_LIVE_CLAIM=false');
-          NODE
+          HOST='one.domains.izakhonoafrica.co.za'
+          set +e
+          HEALTH="$(curl -fsS --connect-timeout 5 --max-time 20 "https://$HOST/health" 2>/dev/null)"
+          RC=$?
+          set -e
+          if [ "$RC" -ne 0 ] || [ -z "$HEALTH" ]; then
+            echo 'IZAKHONO_ONE_OWNED_PUBLIC_HTTPS=NOT_VERIFIED'
+            echo 'PUBLIC_LIVE_CLAIM=false'
+            exit 0
+          fi
+          if node -e 'const x=JSON.parse(process.argv[1]);if(x.product!=="IZAKHONO ONE AI"||x.status!=="healthy")process.exit(2)' "$HEALTH"; then
+            echo 'IZAKHONO_ONE_OWNED_PUBLIC_HTTPS=VERIFIED'
+          else
+            echo 'IZAKHONO_ONE_OWNED_PUBLIC_HTTPS=IDENTITY_MISMATCH'
+          fi
+          echo 'PUBLIC_LIVE_CLAIM=false'
