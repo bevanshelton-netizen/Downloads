@@ -70,7 +70,7 @@ jobs:
           OK=0
           for i in {1..6}; do
             if PAGE="$(curl -LfsS --connect-timeout 5 --max-time 20 "$URL" 2>/dev/null)"; then
-              if printf '%s' "$PAGE" | grep -Fqi 'Learner Driver SA'; then
+              if grep -Fqi 'Learner Driver SA' <<<"$PAGE"; then
                 OK=1
                 break
               fi
@@ -132,7 +132,7 @@ jobs:
           HEALTH="$(curl -fsS --max-time 5 -H 'Host: learnerdriver.domains.izakhonoafrica.co.za' http://127.0.0.1:8080/health)"
           node -e 'const x=JSON.parse(process.argv[1]);if(x.ok!==true||x.service!=="learner-driver-sa"||x.runtime!=="izakhono-owned"||x.engine_independent!==true||x.behavioural_tracking!==false)process.exit(2)' "$HEALTH"
           ROOT_PAGE="$(curl -fsS --max-time 5 -H 'Host: learnerdriver.domains.izakhonoafrica.co.za' http://127.0.0.1:8080/)"
-          printf '%s' "$ROOT_PAGE" | grep -Fqi 'Learner Driver SA'
+          grep -Fqi 'Learner Driver SA' <<<"$ROOT_PAGE"
           echo 'LEARNER_DRIVER_NODE01_LOCAL=VERIFIED'
 
   independent-public-verify:
