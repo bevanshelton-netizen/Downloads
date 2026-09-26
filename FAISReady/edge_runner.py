@@ -174,6 +174,8 @@ def write_receipt(path: Path, bridge, plan: dict, mode: str, base_url: str, http
         "public_https_health_verified": True,
         "https_health": {"url": https_proof["url"], "status": https_proof["status"]},
         "payments_configured": bool(config.get("payments_configured")),
+        "payment_provider": str(config.get("payment_provider") or ("payfast" if config.get("payfast_sandbox") is not None else "unknown")),
+        "payment_mode": str(config.get("payment_mode") or ("sandbox" if config.get("payfast_sandbox") else "live")),
         "payfast_sandbox": bool(config.get("payfast_sandbox")),
         "docker_used": False,
         "public_origin_ip_required": False,
@@ -218,6 +220,7 @@ def run(args: argparse.Namespace) -> int:
             settings = {
                 "PUBLIC_BASE_URL": base_url,
                 "FAISREADY_TRUST_CLOUDFLARE": "true",
+                "FAISREADY_PAYMENT_PROVIDER": "payfast",
                 "PAYFAST_SANDBOX": "true",
             }
             if args.public_payfast_sandbox:
