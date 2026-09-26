@@ -91,7 +91,7 @@ form?.addEventListener('submit', async (event) => {
     if (error) throw error;
     await mirrorLeadToFabric(reference, data).catch(() => null);
     form.reset();
-    setMessage(`Received securely. Your reference is ${reference}. We will reply by email.`);
+    setMessage(`Received securely. Your reference is ${reference}. Keep this reference and continue using the on-site DOXA-SURE Help Desk for immediate guidance.`);
   } catch (error) {
     setMessage(error.message || 'We could not submit your enquiry. Please try again.', true);
   } finally {
