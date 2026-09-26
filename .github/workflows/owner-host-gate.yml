@@ -87,6 +87,11 @@ jobs:
           bash -n izakhono-owned-cloud/deploy-creative-suite.sh
           bash -n izakhono-owned-cloud/deploy-learner-driver-sa.sh
           node --check learner-driver-sa-v6-live/server.mjs
+          grep -q 'SOURCE_TREE=' izakhono-owned-cloud/deploy-learner-driver-sa.sh
+          grep -q 'source_tree:sourceTree' izakhono-owned-cloud/deploy-learner-driver-sa.sh
+          grep -q 'desired_learner_tree' owner-host/node01-autopilot.sh
+          grep -q 'LEARNER_DRIVER_OWNED_DEPLOYMENT=' owner-host/node01-autopilot.sh
+          grep -q 'learner_driver_owned_live_claim:false' owner-host/node01-autopilot.sh
           bash -n izakhono-owned-cloud/import-repo-to-code.sh
           bash -n izakhono-owned-cloud/deploy-legacymart.sh
           bash -n izakhono-owned-cloud/deploy-izakhono-one-ai.sh
