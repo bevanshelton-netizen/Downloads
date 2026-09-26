@@ -1,4 +1,13 @@
 import { spawn } from 'node:child_process';
+import { readFile } from 'node:fs/promises';
+
+const contract=JSON.parse(await readFile(new URL('../port-contract.json',import.meta.url),'utf8'));
+const seen=new Map();
+for(const row of contract.ports||[]){
+  if(seen.has(row.port)) throw new Error('port collision '+row.port+' between '+seen.get(row.port)+' and '+row.id);
+  seen.set(row.port,row.id);
+}
+if(seen.get(8845)!=='mail-relay'||seen.get(8870)!=='backup') throw new Error('mail relay / backup port contract mismatch');
 
 const port=18940;
 const child=spawn(process.execPath,['server.mjs'],{
