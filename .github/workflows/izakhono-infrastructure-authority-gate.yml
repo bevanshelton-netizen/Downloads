@@ -1,0 +1,132 @@
+name: IZAKHONO Infrastructure Authority Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'IZAKHONO-PLATFORM-INFRASTRUCTURE-DIRECTIVE.md'
+      - 'IZAKHONO-INFRASTRUCTURE-AUTHORITY.json'
+      - 'owner-host/platforms.json'
+      - 'owner-host/**'
+      - '.github/workflows/**'
+      - 'izakhono-owned-cloud/**'
+      - 'izakhono-cloud/**'
+  push:
+    branches: [main]
+    paths:
+      - 'IZAKHONO-PLATFORM-INFRASTRUCTURE-DIRECTIVE.md'
+      - 'IZAKHONO-INFRASTRUCTURE-AUTHORITY.json'
+      - 'owner-host/platforms.json'
+      - 'owner-host/**'
+      - '.github/workflows/**'
+      - 'izakhono-owned-cloud/**'
+      - 'izakhono-cloud/**'
+
+permissions:
+  contents: read
+
+jobs:
+  enforce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify portfolio authority contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs=require('fs');
+          const p=JSON.parse(fs.readFileSync('IZAKHONO-INFRASTRUCTURE-AUTHORITY.json','utf8'));
+          if(p.runtime_authority!=='IZAKHONO_INFRASTRUCTURE') throw new Error('runtime authority mismatch');
+          if(p.primary_execution_fabric!=='IZAKHONO_INFRASTRUCTURE_FABRIC') throw new Error('execution fabric mismatch');
+          if(p.laptop?.role!=='ADMIN_CLIENT_ONLY') throw new Error('laptop role must be ADMIN_CLIENT_ONLY');
+          for(const k of ['runtime_dependency','deployment_target','data_plane','public_ingress','worker','queue','database','storage','auth_authority','ai_inference','dns_authority','tls_authority','edge_origin','payment_processor','backup_authority','scheduler','monitoring_dependency']){
+            if(p.laptop?.[k]!==false) throw new Error('laptop '+k+' must be false');
+          }
+          if(p.runner_policy?.production_required_label!=='izakhono-infrastructure') throw new Error('production runner label mismatch');
+          if(p.runner_policy?.owner_laptop_execution_allowed!==false) throw new Error('owner laptop execution must be forbidden');
+          for(const [id,node] of Object.entries(p.node_roles||{})){
+            if(node.laptop_eligible!==false||node.requires_managed_infrastructure!==true) throw new Error(id+' laptop eligibility invalid');
+          }
+          console.log('INFRASTRUCTURE_AUTHORITY=VERIFIED');
+          NODE
+
+      - name: Verify every registered platform inherits no-laptop runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs=require('fs');
+          const x=JSON.parse(fs.readFileSync('owner-host/platforms.json','utf8'));
+          const ip=x.infrastructurePolicy||{};
+          if(ip.authority!=='IZAKHONO_INFRASTRUCTURE') throw new Error('catalog authority mismatch');
+          if(ip.laptopRole!=='ADMIN_CLIENT_ONLY') throw new Error('catalog laptop role mismatch');
+          if(ip.productionRunnerLabel!=='izakhono-infrastructure') throw new Error('catalog runner label mismatch');
+          for(const k of ['laptopRuntimeDependency','laptopDeploymentTarget','laptopDataPlane']) if(ip[k]!==false) throw new Error(k+' must be false');
+          if(!Array.isArray(x.platforms)||x.platforms.length===0) throw new Error('platform catalog empty');
+          for(const p of x.platforms){
+            if(p.runtimeAuthority!=='IZAKHONO_INFRASTRUCTURE') throw new Error(p.id+': runtime authority mismatch');
+            if(p.laptopRuntimeDependency!==false) throw new Error(p.id+': laptop runtime dependency not false');
+            if(p.laptopDeploymentTarget!==false) throw new Error(p.id+': laptop deployment target not false');
+            if(p.laptopDataPlane!==false) throw new Error(p.id+': laptop data plane not false');
+          }
+          console.log('PLATFORMS_NO_LAPTOP_RUNTIME='+x.platforms.length);
+          NODE
+
+      - name: Reject ambiguous self-hosted workflow targets
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs=require('fs');
+          const path=require('path');
+          const dir='.github/workflows';
+          const violations=[];
+          for(const name of fs.readdirSync(dir)){
+            if(!/\.ya?ml$/i.test(name)) continue;
+            const file=path.join(dir,name);
+            const lines=fs.readFileSync(file,'utf8').split(/\r?\n/);
+            for(let i=0;i<lines.length;i++){
+              const line=lines[i];
+              const m=line.match(/^(\s*)runs-on\s*:\s*(.*)$/);
+              if(!m) continue;
+              const indent=m[1].length;
+              let block=m[2];
+              if(!block.trim()){
+                let j=i+1;
+                for(;j<lines.length;j++){
+                  const next=lines[j];
+                  if(!next.trim()) continue;
+                  const nextIndent=(next.match(/^\s*/)||[''])[0].length;
+                  if(nextIndent<=indent) break;
+                  block+='\n'+next;
+                }
+              }
+              if(/self-hosted/.test(block) && !/izakhono-infrastructure/.test(block)){
+                violations.push(file+':'+(i+1)+' => '+block.trim().replace(/\s+/g,' '));
+              }
+            }
+          }
+          if(violations.length){
+            console.error('Self-hosted production execution must explicitly require izakhono-infrastructure.');
+            for(const v of violations) console.error(v);
+            process.exit(2);
+          }
+          console.log('SELF_HOSTED_TARGETS=INFRASTRUCTURE_ONLY');
+          NODE
+
+      - name: Verify legacy laptop launchers fail closed
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in             owner-host/START-IZAKHONO-OWNER-HOST.ps1             owner-host/RUN-NODE01-NOW.ps1             owner-host/BUILD-IZAKHONO-NODE01.ps1             owner-host/INSTALL-IZAKHONO-NODE01-GITHUB-RUNNER.ps1             owner-host/INSTALL-IZAKHONO-NODE01-AUTOPILOT.ps1             owner-host/INSTALL-IZAKHONO-NODE01-BOOT-WAKE.ps1
+          do
+            grep -Fq 'Role: ADMIN CLIENT ONLY' "$f"
+            grep -Fq 'Action: BLOCKED_LEGACY_LAPTOP_RUNTIME' "$f"
+            grep -Fq 'exit 0' "$f"
+          done
+          grep -Fq 'platform_execution_allowed": false' owner-host/install-github-actions-runner.sh
+          grep -Fq 'PRODUCTION_RUNNER_LABEL=izakhono-infrastructure' owner-host/install-github-actions-runner.sh
+          echo 'LAPTOP_EXECUTION_PATH=BLOCKED'
