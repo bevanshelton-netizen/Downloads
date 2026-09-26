@@ -35,12 +35,6 @@
       "marker": "izakhono-premium-v1"
     },
     {
-      "id": "ecd360",
-      "source": "external:bevanshelton-netizen/edubuild-ecd360",
-      "marker": "dedicated-repository premium pass",
-      "releaseCommit": "1de39a9d015f3a3db5b213977791723f33e21fee"
-    },
-    {
       "id": "legacymart",
       "source": "external:bevanshelton-netizen/bevanshelton-netizen-legacymart",
       "marker": "dedicated-repository premium pass",

@@ -30,9 +30,9 @@ const domains=await read("izakhono-owned-cloud/deploy-izakhono-domains.sh");
 if(!domains.includes("Checkout safety gate did not fail closed")) fail("IZAKHONO DOMAINS fail-closed checkout proof missing");
 if(!domains.includes("IZAKHONO CODE")) fail("IZAKHONO DOMAINS owned source authority missing");
 const registry=JSON.parse(await read("owner-host/platforms.json"));
-for(const id of ["growth-os-v2","ecd360","legacymart","izakhono-pay","izakhono-domains","memory-mania","crowne-hair","izakhono-revenue-desk","kora-gospel-tv","izakhono-one-ai"]){
+for(const id of ["growth-os-v2","legacymart","izakhono-pay","izakhono-domains","memory-mania","crowne-hair","izakhono-revenue-desk","kora-gospel-tv","izakhono-one-ai"]){
  const p=registry.platforms.find(x=>x.id===id);
  if(!p) fail("registry missing "+id);
  else if(p.qualityProfile!=="izakhono-premium-v1") fail(id+" lost premium profile");
 }
-if(!process.exitCode) console.log("IZAKHONO_PREMIUM_WAVE2=PASS customer=8 infrastructure=2");
+if(!process.exitCode) console.log("IZAKHONO_PREMIUM_WAVE2=PASS customer=7 infrastructure=2");

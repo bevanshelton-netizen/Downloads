@@ -18,7 +18,7 @@ if(standard.securityPrivacy?.publicAdminInterfacesAllowed!==false) fail("public 
 if(standard.media?.finalVideoMinimum!=="1920x1080") fail("premium video baseline must remain 1080p or higher");
 
 const platforms=registry.platforms||[];
-if(platforms.length<18) fail("portfolio registry unexpectedly lost platforms");
+if(platforms.length<17) fail("portfolio registry unexpectedly lost IZAKHONO platforms");
 const ids=new Set();
 for(const p of platforms){
   if(!p.id) { fail("platform missing id"); continue; }
@@ -30,7 +30,7 @@ for(const p of platforms){
   else if(!(await exists(p.deploy))) fail(p.id+" deploy target missing: "+p.deploy);
 }
 
-const required=["izakhono-flagship","growth-os-v2","creative-suite","kora-network","auto-ai","faisready","ecd360","allegro-vibez","the-chancellor","legacymart","izakhono-pay","izakhono-domains","memory-mania","crowne-hair","izakhono-revenue-desk","kora-kids","kora-gospel-tv","izakhono-one-ai"];
+const required=["izakhono-flagship","growth-os-v2","creative-suite","kora-network","auto-ai","faisready","allegro-vibez","the-chancellor","legacymart","izakhono-pay","izakhono-domains","memory-mania","crowne-hair","izakhono-revenue-desk","kora-kids","kora-gospel-tv","izakhono-one-ai"];
 for(const id of required) if(!ids.has(id)) fail("required product missing from owner-host registry: "+id);
 
 // KORA KIDS premium media/product boundary.

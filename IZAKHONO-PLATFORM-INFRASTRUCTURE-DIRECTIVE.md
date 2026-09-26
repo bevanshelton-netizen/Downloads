@@ -124,7 +124,6 @@ This directive applies to the full IZAKHONO portfolio, including:
 
 - KORA, KORA Cinema, YHVH Gospel TV and KORA Kids
 - Allegro-Vibez and Allegro Radio
-- Edu-Build and ECD360
 - FAISReady and DOXA-SURE
 - AUTO AI and Learner Driver SA
 - WorkNow, Memory Mania, Music School and Recording Studio
@@ -132,6 +131,18 @@ This directive applies to the full IZAKHONO portfolio, including:
 - ZEELY-style platform, Business Websites / Supercool and The Chancellor
 - FORTRESS, IZAKHONO Code, IZAKHONO Work, IZAKHONO Cloud and IZAKHONO Send
 - every current and future IZAKHONO product unless a signed product-specific exception explicitly supersedes this directive
+
+## Explicitly outside IZAKHONO portfolio scope
+
+**EDU-BUILD INSTITUTE – Shelton Campuses is a separate organisation/business and is not an IZAKHONO platform.**
+
+The IZAKHONO portfolio directive, IZAKHONO branding rules, IZAKHONO product registry and IZAKHONO platform release gates do **not** claim ownership or governance over:
+
+- EDU-BUILD INSTITUTE – Shelton Campuses;
+- ECD360 / EDU-BUILD 360 and EDU-BUILD-specific learning, campus, shop or administration products;
+- any other product explicitly owned and operated under EDU-BUILD rather than IZAKHONO.
+
+Shared technical services may only be used through an explicit inter-company/shared-services arrangement and must not blur legal ownership, branding, customer data boundaries, merchant identity or governance.
 
 ## Required platform inheritance
 
@@ -180,3 +191,39 @@ Therefore the current portfolio position is:
 8. Fail back externally whenever an owned-route gate fails; never fail back to the laptop.
 
 This directive is effective immediately across the full IZAKHONO portfolio.
+
+
+## Public experience and presentation rule — immediate effect
+
+**Effective 26 September 2026, this rule applies across the full IZAKHONO portfolio without requiring the owner to repeat it.**
+
+Every customer-facing IZAKHONO website, app, platform, landing page and public product surface must:
+
+- use **IZAKHONO-owned infrastructure as the primary authority AND an independent external resilience route**;
+- remain externally reversible and independently deployable;
+- meet an **international professional presentation standard** before it is promoted as ready;
+- explain **what the product is, who it is for, what it offers, why it matters and what the visitor should do next** immediately;
+- use a strong hero section with modern typography and an obvious primary action;
+- use **relevant real-world photography, product imagery or original graphics/illustration** that accurately represents the offer;
+- use visual storytelling rather than large empty/bland text blocks;
+- prioritise mobile presentation and conversion;
+- show appropriate trust, proof, pricing/commercial path, contact and payment information where applicable;
+- avoid dead links, unfinished-looking sections, generic template appearance and meaningless decorative filler;
+- never display placeholder or “coming soon”-style public experiences as finished products;
+- never call a route live until its HTTPS endpoint and expected product experience are independently verified.
+
+Infrastructure-only services such as collectors, APIs and machine-only endpoints are exempt from the visual-media requirement, but not from security, resilience or verification requirements.
+
+### Portfolio design principle
+
+A visitor should understand the platform **within seconds**.
+
+The platform name, purpose, offer and primary action must be visually obvious. Graphics and pictures must help explain or sell the actual product; they are not optional decoration added after development.
+
+### Enforcement
+
+This standard is inherited by every current and future IZAKHONO platform through the portfolio registry and the `izakhono-premium-v1` quality profile.
+
+A customer-facing release that does not satisfy this presentation standard is **not professionally ready**, even if its code builds successfully.
+
+This rule is effective immediately and does not require the owner to restate “use internal and external infrastructure” or “make the site professional with graphics and pictures.”

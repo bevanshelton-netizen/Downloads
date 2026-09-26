@@ -9,7 +9,10 @@
     "externalMayBecomeSystemOfRecord": false,
     "liveStatusRequiresIndependentHttpsVerification": true,
     "immutableReleasePreferred": true,
-    "healthEndpointRequired": true
+    "healthEndpointRequired": true,
+    "ownedInfrastructurePrimaryRequired": true,
+    "externalResilienceRequiredForPublicPlatforms": true,
+    "internalAndExternalDeliveryRequired": true
   },
   "productExperience": {
     "brandClarityRequired": true,
@@ -19,7 +22,20 @@
     "readableContrastRequired": true,
     "clearPrimaryActionRequired": true,
     "loadingAndErrorStatesRequired": true,
-    "brokenLinksAllowed": false
+    "brokenLinksAllowed": false,
+    "offerClarityRequired": true,
+    "audienceClarityRequired": true,
+    "benefitClarityRequired": true,
+    "relevantHeroMediaRequired": true,
+    "originalGraphicsOrRelevantPhotographyRequired": true,
+    "modernTypographyRequired": true,
+    "visualStorytellingRequired": true,
+    "trustSignalsRequired": true,
+    "clearPricingOrCommercialPathRequiredWhereApplicable": true,
+    "mobileConversionPathRequired": true,
+    "placeholderPublicPagesAllowed": false,
+    "genericTemplateLookAllowed": false,
+    "primaryMessageMustExplainProductImmediately": true
   },
   "engineering": {
     "healthCheckRequired": true,
@@ -46,7 +62,10 @@
     "finalVideoMinimum": "1920x1080",
     "captionsRequiredForSpokenVideo": true,
     "guideMediaMustBeClearlyMarkedNonFinal": true,
-    "finalAudioRequiresRightsAndTechnicalReview": true
+    "finalAudioRequiresRightsAndTechnicalReview": true,
+    "relevantProductImageryRequiredForCustomerFacingSites": true,
+    "stockLikeGenericFillerDiscouraged": true,
+    "originalOrLicensedVisualsRequired": true
   },
   "releaseStates": [
     "SOURCE_VALIDATED",
