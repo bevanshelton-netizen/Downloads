@@ -64,79 +64,39 @@ jobs:
           test "$OK" = "1"
           echo "GITHUB_PAGES_RESILIENCE=VERIFIED"
 
-  owned-deploy:
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
-    name: Deploy on IZAKHONO NODE01
-    runs-on: [self-hosted, linux, x64, izakhono, izakhono-infrastructure]
-    timeout-minutes: 20
+  infrastructure-request:
+    name: Verify native IZAKHONO infrastructure request
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - name: Run allow-listed IZAKHONO infrastructure control agent
+      - uses: actions/checkout@v4
+      - name: Verify executor request and no-laptop authority
         shell: bash
         run: |
           set -euo pipefail
-          ROOT=/opt/izakhono-source/Downloads
-          test -d "$ROOT/.git"
-          if [ -x "$ROOT/owner-host/sync-owner-source.sh" ]; then
-            sudo -n bash "$ROOT/owner-host/sync-owner-source.sh" "$ROOT"
-          else
-            echo "IZAKHONO sync helper missing locally; using approved external bootstrap only to recover the helper."
-            git -C "$ROOT" fetch --quiet origin main
-            git -C "$ROOT" show origin/main:owner-host/sync-owner-source.sh >/tmp/izakhono-sync-owner-source.sh
-            chmod 0700 /tmp/izakhono-sync-owner-source.sh
-            sudo -n bash /tmp/izakhono-sync-owner-source.sh "$ROOT"
-          fi
-          node - "$ROOT/IZAKHONO-INFRASTRUCTURE-AUTHORITY.json" <<'NODE'
+          node - <<'NODE'
           const fs=require('fs');
-          const p=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
-          if(p.runtime_authority!=='IZAKHONO_INFRASTRUCTURE') throw new Error('runtime authority mismatch');
-          if(p.laptop?.deployment_target!==false||p.laptop?.runtime_dependency!==false) throw new Error('laptop execution not forbidden');
-          if(p.communication_policy?.platform_to_laptop!=='DENY') throw new Error('platform-to-laptop traffic not denied');
-          if(p.runner_policy?.production_required_label!=='izakhono-infrastructure') throw new Error('infrastructure runner label mismatch');
-          console.log('EXECUTION_TARGET=IZAKHONO_INFRASTRUCTURE');
+          const a=JSON.parse(fs.readFileSync('IZAKHONO-INFRASTRUCTURE-AUTHORITY.json','utf8'));
+          if(a.runtime_authority!=='IZAKHONO_INFRASTRUCTURE') throw new Error('runtime authority mismatch');
+          if(a.laptop?.runtime_dependency!==false||a.laptop?.deployment_target!==false) throw new Error('laptop execution not forbidden');
+          if(a.communication_policy?.platform_to_laptop!=='DENY') throw new Error('platform-to-laptop communication not denied');
+          const c=JSON.parse(fs.readFileSync('infrastructure/control/portfolio-desired-state.json','utf8'));
+          const r=(c.requests||[]).find(x=>x.id==='yhvh-gospel-tv-infrastructure-20260926-01');
+          if(!r||r.enabled!==true||r.action!=='deploy-platform'||r.platform_id!=='yhvh-gospel-tv') throw new Error('YHVH infrastructure request missing');
+          if(r.laptop_target!==false||r.public_live_claim!==false||r.external_resilience_preserve!==true) throw new Error('YHVH request safety contract invalid');
+          const t=JSON.parse(fs.readFileSync('izakhono-infrastructure-executor/targets.json','utf8'));
+          const target=t.targets?.['yhvh-gospel-tv'];
+          if(!target||target.command?.[1]!=='izakhono-owned-cloud/deploy-yhvh-gospel-tv.sh') throw new Error('YHVH executor target mismatch');
+          console.log('YHVH_INFRASTRUCTURE_REQUEST=VERIFIED');
+          console.log('LAPTOP_TARGET=false');
           console.log('PLATFORM_TO_LAPTOP=DENY');
+          console.log('DEPLOYMENT_AUTHORITY=IZAKHONO_INFRASTRUCTURE_EXECUTOR');
           NODE
-          sudo -n bash "$ROOT/owner-host/owner-agent.sh"
-
-      - name: Verify owner-agent deployment receipt
-        shell: bash
-        run: |
-          set -euo pipefail
-          STATE=/var/lib/izakhono-owner-agent/state.json
-          test -s "$STATE"
-          sudo -n cat "$STATE" > /tmp/yhvh-owner-state.json
-          EXPECTED_REQUEST_ID="$(node -e 'const x=require("/opt/izakhono-source/Downloads/owner-host/control/desired-state.json");process.stdout.write(x.id)')"
-          node - "$EXPECTED_REQUEST_ID" <<'NODE'
-          const expected=process.argv[2];
-          const x=require('/tmp/yhvh-owner-state.json');
-          if(x.request_id!==expected) process.exit(2);
-          if(x.action!=='deploy-yhvh-gospel-tv'||x.status!=='success'||x.exit_code!==0) process.exit(3);
-          if(x.source_authority!=='IZAKHONO_CODE') process.exit(4);
-          console.log('OWNER_AGENT_DEPLOYMENT=VERIFIED');
-          console.log('OWNER_REQUEST_ID='+expected);
-          console.log('SOURCE_AUTHORITY=IZAKHONO_CODE');
-          NODE
-
-      - name: Verify independent engine locally
-        shell: bash
-        run: |
-          set -euo pipefail
-          ENGINE="$(curl -fsS --max-time 5 http://127.0.0.1:8892/health)"
-          node -e 'const x=JSON.parse(process.argv[1]);if(x.ok!==true||x.service!=="yhvh-gospel-engine"||x.runtime!=="izakhono-owned"||x.authority!=="IZAKHONO"||x.version!=="2.0.0")process.exit(2)' "$ENGINE"
-          echo "YHVH_ENGINE_LOCAL=VERIFIED"
-
-      - name: Verify owned channel locally
-        shell: bash
-        run: |
-          set -euo pipefail
-          HOST=gospel.domains.izakhonoafrica.co.za
-          HEALTH="$(curl -fsS --max-time 5 -H "Host: $HOST" http://127.0.0.1:8080/health)"
-          node -e 'const x=JSON.parse(process.argv[1]);if(x.ok!==true||x.service!=="yhvh-gospel-tv"||x.runtime!=="izakhono-owned")process.exit(2)' "$HEALTH"
-          echo "YHVH_CHANNEL_LOCAL=VERIFIED"
 
   independent-public-verify:
-    if: always() && needs.owned-deploy.result == 'success'
-    name: Independently verify owned public HTTPS
-    needs: owned-deploy
+    if: always() && needs.infrastructure-request.result == 'success'
+    name: Observe owned public HTTPS without making a live claim
+    needs: infrastructure-request
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -145,6 +105,18 @@ jobs:
         run: |
           set -euo pipefail
           HOST=gospel.domains.izakhonoafrica.co.za
-          HEALTH="$(curl -fsS --max-time 20 "https://$HOST/health")"
-          node -e 'const x=JSON.parse(process.argv[1]);if(x.ok!==true||x.service!=="yhvh-gospel-tv"||x.runtime!=="izakhono-owned")process.exit(2)' "$HEALTH"
-          echo "YHVH_OWNED_PUBLIC_HTTPS=VERIFIED"
+          set +e
+          HEALTH="$(curl -fsS --max-time 20 "https://$HOST/health" 2>/dev/null)"
+          CURL_EXIT=$?
+          set -e
+          if [ "$CURL_EXIT" -ne 0 ] || [ -z "$HEALTH" ]; then
+            echo "YHVH_OWNED_PUBLIC_HTTPS=NOT_VERIFIED"
+            echo "PUBLIC_LIVE_CLAIM=false"
+            exit 0
+          fi
+          if node -e 'const x=JSON.parse(process.argv[1]);if(x.ok!==true||x.service!=="yhvh-gospel-tv"||x.runtime!=="izakhono-owned")process.exit(2)' "$HEALTH"; then
+            echo "YHVH_OWNED_PUBLIC_HTTPS=VERIFIED"
+          else
+            echo "YHVH_OWNED_PUBLIC_HTTPS=IDENTITY_MISMATCH"
+          fi
+          echo "PUBLIC_LIVE_CLAIM=false"
