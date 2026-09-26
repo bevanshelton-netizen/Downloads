@@ -1,0 +1,46 @@
+name: IZAKHONO NODE01 Run Now Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'owner-host/RUN-NODE01-NOW.ps1'
+      - 'RUN-NODE01-NOW.cmd'
+      - '.github/workflows/izakhono-node01-run-now-gate.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'owner-host/RUN-NODE01-NOW.ps1'
+      - 'RUN-NODE01-NOW.cmd'
+      - '.github/workflows/izakhono-node01-run-now-gate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate one-click NODE01 start and proof
+        shell: pwsh
+        run: |
+          $p='owner-host/RUN-NODE01-NOW.ps1'
+          $tokens=$null; $errors=$null
+          [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $p),[ref]$tokens,[ref]$errors) | Out-Null
+          if($errors.Count -gt 0){ $errors | ForEach-Object { Write-Error $_.Message }; exit 1 }
+
+          $ps=Get-Content $p -Raw
+          if($ps -notmatch 'START-IZAKHONO-OWNER-HOST.ps1'){ throw 'owner-host bootstrap handoff missing' }
+          if($ps -notmatch '127.0.0.1:8940/health'){ throw 'NODE01 local health proof missing' }
+          if($ps -notmatch 'IZAKHONO_SOVEREIGN_NODE'){ throw 'sovereign execution-class proof missing' }
+          if($ps -notmatch 'external_runtime_dependency'){ throw 'external runtime dependency check missing' }
+          if($ps -notmatch 'public_live_claim'){ throw 'public live claim boundary missing' }
+          if($ps -notmatch 'izakhono-actions-runner'){ throw 'runner proof missing' }
+          if($ps -notmatch 'node01-autopilot.json'){ throw 'Autopilot receipt proof missing' }
+          if($ps -match 'registration-token'){ throw 'Run Now must not request runner registration tokens directly' }
+          if($ps -match 'ghp_|github_pat_'){ throw 'Run Now contains forbidden credential material' }
+
+          $cmd=Get-Content 'RUN-NODE01-NOW.cmd' -Raw
+          if($cmd -notmatch 'RUN-NODE01-NOW.ps1'){ throw 'CMD handoff mismatch' }
+          if($cmd -notmatch 'Start-Process powershell.exe -Verb RunAs -Wait'){ throw 'elevated wait handoff missing' }
