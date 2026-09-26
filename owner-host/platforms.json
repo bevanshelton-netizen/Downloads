@@ -83,6 +83,25 @@
       "qualityProfile": "izakhono-premium-v1"
     },
     {
+      "id": "izakhono-analytics-collector",
+      "hostnameEnv": "IZAKHONO_ANALYTICS_PUBLIC_HOST",
+      "defaultHostname": "analytics.domains.izakhonoafrica.co.za",
+      "deploy": "izakhono-cloud/DEPLOY-ANALYTICS-ISN-01.ps1",
+      "qualityProfile": "izakhono-premium-v1",
+      "publicSurface": "collector-only",
+      "publicPaths": [
+        "GET /healthz",
+        "GET /beacon.js",
+        "POST /v1/hit",
+        "OPTIONS /v1/hit"
+      ],
+      "privatePaths": [
+        "/dashboard",
+        "/api/summary",
+        "/api/config"
+      ]
+    },
+    {
       "id": "izakhono-domains",
       "hostnameEnv": "IZAKHONO_DOMAINS_PUBLIC_HOST",
       "defaultHostname": "domains.izakhonoafrica.co.za",
