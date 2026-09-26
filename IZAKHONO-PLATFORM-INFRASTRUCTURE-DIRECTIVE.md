@@ -163,7 +163,7 @@ Each platform repository, package or deployment record must carry or inherit:
 - health, backup, restore and rollback evidence;
 - one of the approved status labels above.
 
-Self-hosted production workflows must require the `izakhono-infrastructure` runner label. A generic `self-hosted`, `izakhono`, `owner-host`, `ISN-01` or laptop-bound label is insufficient for production execution.
+The preferred production scheduler is the **IZAKHONO Infrastructure Executor**, running inside the managed infrastructure fabric from allow-listed desired-state. GitHub self-hosted runners are not required for production execution. Where an infrastructure self-hosted runner is retained for compatibility or evidence, it must require the `izakhono-infrastructure` label; generic `self-hosted`, `izakhono`, `owner-host`, `ISN-01` or laptop-bound labels are insufficient.
 
 ## Current evidence position
 
