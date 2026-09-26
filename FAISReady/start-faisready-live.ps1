@@ -84,11 +84,14 @@ $Provider = if ($env:FAISREADY_PAYMENT_PROVIDER) { $env:FAISREADY_PAYMENT_PROVID
 switch ($Provider) {
   'ikhokha' {
     $IKKey = if ($env:IKHOKHA_APP_KEY) { $env:IKHOKHA_APP_KEY } else { $env:IKHOKHA_APP_SECRET }
-    if (-not $env:IKHOKHA_APP_ID -or -not $IKKey) {
-      Fail 'iKhokha is selected but IKHOKHA_APP_ID and IKHOKHA_APP_KEY are missing.'
-    }
-    if ($env:IKHOKHA_LIVE_APPROVED -ne 'true') {
-      Fail 'iKhokha remains fail-closed. Set IKHOKHA_LIVE_APPROVED=true only for the controlled live transaction.'
+    if ($env:IKHOKHA_LIVE_APPROVED -eq 'true') {
+      if (-not $env:IKHOKHA_APP_ID -or -not $IKKey) {
+        Fail 'iKhokha live approval is enabled but IKHOKHA_APP_ID / IKHOKHA_APP_KEY are missing.'
+      }
+      Write-Host 'iKhokha checkout: CONTROLLED LIVE TRANSACTION ENABLED' -ForegroundColor Green
+    } else {
+      Write-Host 'iKhokha checkout: LOCKED (stable-host preflight only)' -ForegroundColor Yellow
+      Write-Host 'The public site may be verified, but /api/checkout remains fail-closed.'
     }
   }
   'payfast' {
