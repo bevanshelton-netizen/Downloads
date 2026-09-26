@@ -1,0 +1,100 @@
+name: IZAKHONO ONE Infrastructure Activation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/izakhono-one-owner-runner-activation.yml'
+      - 'owner-host/control/one-desired-state.json'
+      - 'owner-host/owner-agent.sh'
+      - 'IZAKHONO-INFRASTRUCTURE-AUTHORITY.json'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/izakhono-one-owner-runner-activation.yml'
+      - 'owner-host/control/one-desired-state.json'
+      - 'owner-host/owner-agent.sh'
+      - 'IZAKHONO-INFRASTRUCTURE-AUTHORITY.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: izakhono-one-infrastructure-activation
+  cancel-in-progress: true
+
+jobs:
+  verify-request:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify infrastructure authority and ONE request
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs=require('fs');
+          const p=JSON.parse(fs.readFileSync('IZAKHONO-INFRASTRUCTURE-AUTHORITY.json','utf8'));
+          if(p.runtime_authority!=='IZAKHONO_INFRASTRUCTURE') throw new Error('infrastructure authority mismatch');
+          if(p.laptop?.deployment_target!==false||p.laptop?.runtime_dependency!==false) throw new Error('laptop execution not forbidden');
+          const x=JSON.parse(fs.readFileSync('owner-host/control/one-desired-state.json','utf8'));
+          if(x.enabled!==true) throw new Error('ONE request is disabled');
+          if(x.action!=='activate-one-local-model') throw new Error('unexpected ONE action');
+          if(!x.id) throw new Error('ONE request id missing');
+          console.log('ONE_REQUEST=VERIFIED');
+          console.log('RUNTIME_AUTHORITY=IZAKHONO_INFRASTRUCTURE');
+          NODE
+
+  activate:
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
+    needs: verify-request
+    name: Activate IZAKHONO ONE on infrastructure
+    runs-on: [self-hosted, linux, x64, izakhono, izakhono-infrastructure]
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Prove infrastructure execution policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const p=require('./IZAKHONO-INFRASTRUCTURE-AUTHORITY.json');
+          if(p.runner_policy?.production_required_label!=='izakhono-infrastructure') process.exit(2);
+          if(p.laptop?.role!=='ADMIN_CLIENT_ONLY') process.exit(3);
+          console.log('EXECUTION_TARGET=IZAKHONO_INFRASTRUCTURE');
+          console.log('LAPTOP_TARGET=false');
+          NODE
+
+      - name: Execute allow-listed ONE request
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo -E env             IZAKHONO_OWNER_CONTROL_PATH=owner-host/control/one-desired-state.json             IZAKHONO_OWNER_AGENT_STATE_FILE=/var/lib/izakhono-owner-agent/one-infrastructure-state.json             bash owner-host/owner-agent.sh
+
+      - name: Verify ONE runtime on infrastructure
+        shell: bash
+        run: |
+          set -euo pipefail
+          REQUEST_ID="$(node -e "const x=require('./owner-host/control/one-desired-state.json');process.stdout.write(x.id)")"
+          sudo test -s /var/lib/izakhono-owner-agent/one-infrastructure-state.json
+          sudo node - "$REQUEST_ID" <<'NODE'
+          const fs=require('fs');
+          const request=process.argv[2];
+          const x=JSON.parse(fs.readFileSync('/var/lib/izakhono-owner-agent/one-infrastructure-state.json','utf8'));
+          if(x.request_id!==request) throw new Error('request id mismatch');
+          if(x.status!=='success') throw new Error('ONE infrastructure activation failed: '+x.status);
+          console.log('OWNER_AGENT=VERIFIED');
+          NODE
+          curl -fsS --max-time 8 -H 'Host: one.domains.izakhonoafrica.co.za' http://127.0.0.1:8080/health >/tmp/one-health.json
+          node - <<'NODE'
+          const x=require('/tmp/one-health.json');
+          if(x.product!=='IZAKHONO ONE AI'||x.status!=='healthy') process.exit(2);
+          if(x.tracking!==false||x.promptPersistence!==false) process.exit(3);
+          console.log('ONE_INFRASTRUCTURE_RUNTIME=VERIFIED');
+          console.log('PUBLIC_LIVE_CLAIM=false');
+          NODE
