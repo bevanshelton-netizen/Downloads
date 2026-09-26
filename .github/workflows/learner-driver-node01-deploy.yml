@@ -101,6 +101,15 @@ jobs:
             chmod 0700 /tmp/izakhono-sync-owner-source.sh
             sudo -n bash /tmp/izakhono-sync-owner-source.sh "$ROOT"
           fi
+          node - "$ROOT/IZAKHONO-INFRASTRUCTURE-AUTHORITY.json" <<'NODE'
+          const fs=require('fs');
+          const p=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
+          if(p.runtime_authority!=='IZAKHONO_INFRASTRUCTURE') throw new Error('runtime authority mismatch');
+          if(p.communication_policy?.platform_to_laptop!=='DENY') throw new Error('platform-to-laptop traffic not denied');
+          if(p.laptop?.deployment_target!==false||p.laptop?.runtime_dependency!==false) throw new Error('laptop execution not forbidden');
+          console.log('EXECUTION_TARGET=IZAKHONO_INFRASTRUCTURE');
+          console.log('PLATFORM_TO_LAPTOP=DENY');
+          NODE
 
       - name: Deploy independent Learner Driver engine
         shell: bash
