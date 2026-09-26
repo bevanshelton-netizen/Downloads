@@ -2,6 +2,11 @@ name: IZAKHONO Flagship Hybrid Deploy
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'izakhono-group/**'
+      - '.github/workflows/izakhono-flagship-hybrid-deploy.yml'
   push:
     branches: [main]
     paths:
@@ -118,7 +123,7 @@ jobs:
           set -euo pipefail
           CODE="$(curl -sS -o /tmp/vercel-project.json -w "%{http_code}"             "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_NAME?teamId=$VERCEL_ORG_ID"             -H "Authorization: Bearer $VERCEL_TOKEN")"
           if [ "$CODE" = "404" ]; then
-            CODE="$(curl -sS -o /tmp/vercel-project.json -w "%{http_code}"               -X POST "https://api.vercel.com/v10/projects?teamId=$VERCEL_ORG_ID"               -H "Authorization: Bearer $VERCEL_TOKEN"               -H "Content-Type: application/json"               --data "{"name":"$VERCEL_PROJECT_NAME"}")"
+            CODE="$(curl -sS -o /tmp/vercel-project.json -w "%{http_code}"               -X POST "https://api.vercel.com/v10/projects?teamId=$VERCEL_ORG_ID"               -H "Authorization: Bearer $VERCEL_TOKEN"               -H "Content-Type: application/json"               --data "$(node -e 'process.stdout.write(JSON.stringify({name:process.argv[1]}))' "$VERCEL_PROJECT_NAME")")"
           fi
           [[ "$CODE" =~ ^2 ]] || { cat /tmp/vercel-project.json; exit 1; }
           PROJECT_ID="$(node -e 'const x=require("/tmp/vercel-project.json");if(!x.id)process.exit(2);process.stdout.write(x.id)')"
