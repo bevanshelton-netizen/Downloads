@@ -41,6 +41,13 @@ jobs:
           grep -q 'drop01-milestone-watch.mjs' owner-host/node01-autopilot.sh
           grep -q 'campaignSales=url.pathname.match' izakhono-data-node/server.mjs
           grep -q 'owner-agent.sh' owner-host/node01-autopilot.sh
+          grep -q 'YHVH_HOSTNAME' owner-host/node01-autopilot.sh
+          grep -q 'yhvh-gospel-engine' owner-host/node01-autopilot.sh
+          grep -q 'yhvh-gospel-tv' owner-host/node01-autopilot.sh
+          grep -q 'yhvh_engine_local' owner-host/node01-autopilot.sh
+          grep -q 'yhvh_channel_local' owner-host/node01-autopilot.sh
+          grep -q 'yhvh_public_https' owner-host/node01-autopilot.sh
+          grep -q 'yhvh_live_claim:false' owner-host/node01-autopilot.sh
           grep -q 'growth-os-bridge-desired-state.json' owner-host/node01-autopilot.sh
           grep -q 'growth-bridge-state.json' owner-host/node01-autopilot.sh
           grep -q 'bridge.domains.izakhonoafrica.co.za/health' owner-host/node01-autopilot.sh
@@ -67,6 +74,8 @@ jobs:
           if($ps -notmatch 'New-ScheduledTaskTrigger'){ throw 'Scheduled trigger missing' }
           if($ps -notmatch 'Minutes 5'){ throw 'Five-minute retry missing' }
           if($ps -notmatch 'node01-autopilot.sh'){ throw 'Linux autopilot handoff missing' }
+          if($ps -notmatch 'YHVH engine local'){ throw 'YHVH owned engine status missing' }
+          if($ps -notmatch 'YHVH public HTTPS'){ throw 'YHVH public proof status missing' }
           if($ps -notmatch 'Independent HTTPS verification required'){ throw 'Live verification boundary missing' }
           $cmd=Get-Content 'START-IZAKHONO-NODE01-AUTOPILOT.cmd' -Raw
           if($cmd -notmatch 'INSTALL-IZAKHONO-NODE01-AUTOPILOT.ps1'){ throw 'CMD handoff mismatch' }
