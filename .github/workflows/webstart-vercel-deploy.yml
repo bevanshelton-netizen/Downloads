@@ -69,6 +69,8 @@ jobs:
           grep -q "International-grade websites. Built in minutes." /tmp/webstart.html
           grep -q "95% quality gate" /tmp/webstart.html
           grep -q "No behavioural tracking" /tmp/webstart.html
+          ! grep -q "Build a serious website in minutes." /tmp/webstart.html
+          ! grep -qi "portfolio-growth" /tmp/webstart.html
           curl -fsSL "$URL/terms" | grep -q "Terms & Conditions"
           curl -fsSL "$URL/privacy" | grep -q "Privacy Policy"
           curl -fsSL "$URL/refund" | grep -q "Refund & Cancellation Policy"
@@ -84,6 +86,8 @@ jobs:
           done
           test "$CODE" = "200"
           grep -q "International-grade websites. Built in minutes." /tmp/alias.html
+          ! grep -q "Build a serious website in minutes." /tmp/alias.html
+          ! grep -qi "portfolio-growth" /tmp/alias.html
           curl -fsSL "$PRODUCTION_ALIAS/terms" | grep -q "Terms & Conditions"
           curl -fsSL "$PRODUCTION_ALIAS/privacy" | grep -q "Privacy Policy"
           curl -fsSL "$PRODUCTION_ALIAS/refund" | grep -q "Refund & Cancellation Policy"
