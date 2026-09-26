@@ -136,7 +136,10 @@ jobs:
           grep -q 'deploy-izakhono-one-ai.sh main' izakhono-owned-cloud/activate-local-model-engine.sh
           ! grep -q -- '--privileged' izakhono-owned-cloud/activate-local-model-engine.sh
           node -e 'const x=JSON.parse(require("fs").readFileSync("owner-host/control/desired-state.json","utf8")); const ok=new Set(["activate-one-local-model","configure-one-ai","deploy-one-ai","verify-one-ai","deploy-yhvh-gospel-tv","deploy-growth-os-bridge"]); if(!x.id||!ok.has(x.action)||typeof x.enabled!=="boolean")process.exit(2); if(x.params?.hostname&&!String(x.params.hostname).endsWith(".izakhonoafrica.co.za"))process.exit(3)'
-          grep -q 'const allowed=new Set(\["activate-one-local-model","configure-one-ai","deploy-one-ai","verify-one-ai","deploy-yhvh-gospel-tv","deploy-growth-os-bridge"\])' owner-host/owner-agent.sh
+          grep -q 'const allowed=new Set(\["activate-one-local-model","configure-one-ai","deploy-one-ai","verify-one-ai","deploy-yhvh-gospel-tv","deploy-growth-os-bridge","build-node01"\])' owner-host/owner-agent.sh
+          grep -q 'build-node01)' owner-host/owner-agent.sh
+          grep -q 'izakhono-node01/install-linux.sh' owner-host/owner-agent.sh
+          grep -q '127.0.0.1:8940/health' owner-host/owner-agent.sh
           grep -q 'deploy-growth-os-bridge)' owner-host/owner-agent.sh
           grep -q 'izakhono-growth-bridge-node/install-linux.sh' owner-host/owner-agent.sh
           grep -q 'start-growth-os-outbound-bridge.sh' owner-host/owner-agent.sh
