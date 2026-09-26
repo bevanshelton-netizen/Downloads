@@ -1,0 +1,32 @@
+{
+  "schema": "izakhono.node01-port-contract/v1",
+  "node": "NODE01",
+  "authority": "IZAKHONO",
+  "ports": [
+    {"id":"edge-tunnel-origin","port":8780},
+    {"id":"data","port":8787},
+    {"id":"runtime-control","port":8790},
+    {"id":"edge-control","port":8795},
+    {"id":"object","port":8800},
+    {"id":"queue","port":8810},
+    {"id":"auth","port":8820},
+    {"id":"analytics","port":8830},
+    {"id":"notify","port":8840},
+    {"id":"mail-relay","port":8845},
+    {"id":"ai-gateway","port":8850},
+    {"id":"code","port":8860},
+    {"id":"gpu-compute","port":8865},
+    {"id":"model-worker","port":8866},
+    {"id":"backup","port":8870},
+    {"id":"ci-worker","port":8880},
+    {"id":"replica","port":8890},
+    {"id":"dns-control","port":8900},
+    {"id":"package","port":8910},
+    {"id":"failover","port":8920},
+    {"id":"witness","port":8930},
+    {"id":"node01-control","port":8940},
+    {"id":"fortress","port":18109}
+  ],
+  "reserved_public": [80,443],
+  "dns_safe_data_plane": 5353
+}
