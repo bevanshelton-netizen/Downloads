@@ -136,5 +136,43 @@
       ]
     }
   },
-  "legacy_laptop_deployers_blocked": []
+  "legacy_laptop_deployers_blocked": [],
+  "workloads": {
+    "izakhono-one-local-model": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/activate-izakhono-one-local-model.sh"
+      ]
+    },
+    "izakhono-crm-v020": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-izakhono-crm-v020.sh"
+      ]
+    },
+    "portfolio-yenzanow": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-yenzanow.sh"
+      ]
+    },
+    "portfolio-matric-rewrite": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-matric-rewrite.sh"
+      ]
+    },
+    "portfolio-command-center": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-command-center.sh"
+      ]
+    },
+    "portfolio-containers": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-containers.sh"
+      ]
+    }
+  }
 }
