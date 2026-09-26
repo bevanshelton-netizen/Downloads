@@ -1,0 +1,72 @@
+{
+  "schema": "izakhono.infrastructure-authority/v1",
+  "effective_at": "2026-09-26T14:40:00Z",
+  "operator": "IZAKHONO AFRICA (PTY) LTD",
+  "runtime_authority": "IZAKHONO_INFRASTRUCTURE",
+  "primary_execution_fabric": "IZAKHONO_INFRASTRUCTURE_FABRIC",
+  "node_roles": {
+    "NODE01": {
+      "class": "PRIMARY_RUNTIME_ROLE",
+      "laptop_eligible": false,
+      "requires_managed_infrastructure": true
+    },
+    "NODE02": {
+      "class": "STANDBY_SCALE_ROLE",
+      "laptop_eligible": false,
+      "requires_managed_infrastructure": true
+    },
+    "NODE03": {
+      "class": "BACKUP_RECOVERY_ROLE",
+      "laptop_eligible": false,
+      "requires_managed_infrastructure": true
+    },
+    "NODE04": {
+      "class": "FUTURE_SCALE_ROLE",
+      "laptop_eligible": false,
+      "requires_managed_infrastructure": true
+    }
+  },
+  "laptop": {
+    "role": "ADMIN_CLIENT_ONLY",
+    "runtime_dependency": false,
+    "deployment_target": false,
+    "data_plane": false,
+    "public_ingress": false,
+    "worker": false,
+    "queue": false,
+    "database": false,
+    "storage": false,
+    "auth_authority": false,
+    "ai_inference": false,
+    "dns_authority": false,
+    "tls_authority": false,
+    "edge_origin": false,
+    "payment_processor": false,
+    "backup_authority": false,
+    "scheduler": false,
+    "monitoring_dependency": false
+  },
+  "runner_policy": {
+    "production_required_label": "izakhono-infrastructure",
+    "generic_self_hosted_is_sufficient": false,
+    "generic_izakhono_label_is_sufficient": false,
+    "owner_laptop_execution_allowed": false
+  },
+  "external_resilience": {
+    "allowed": true,
+    "replaceable": true,
+    "source_of_truth": false,
+    "fallback_to_laptop_allowed": false
+  },
+  "privacy": {
+    "behavioural_tracking": false,
+    "profiling": false,
+    "silent_analytics": false,
+    "advertising_identifiers": false
+  },
+  "inheritance": {
+    "all_current_platforms": true,
+    "all_future_platforms": true,
+    "exceptions_require_signed_product_specific_override": true
+  }
+}

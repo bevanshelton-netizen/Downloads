@@ -53,7 +53,7 @@ jobs:
   deploy-node01:
     if: github.event_name != 'pull_request'
     needs: verify
-    runs-on: [self-hosted, linux, x64, izakhono]
+    runs-on: [self-hosted, linux, x64, izakhono, izakhono-infrastructure]
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4

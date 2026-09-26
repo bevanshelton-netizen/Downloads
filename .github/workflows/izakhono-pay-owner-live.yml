@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   go-live:
-    runs-on: [self-hosted, linux, x64, izakhono]
+    runs-on: [self-hosted, linux, x64, izakhono, izakhono-infrastructure]
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4

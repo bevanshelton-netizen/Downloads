@@ -32,7 +32,7 @@ jobs:
   deploy-owned:
     if: github.event_name == 'workflow_dispatch'
     needs: package-and-verify
-    runs-on: [self-hosted, linux, x64, izakhono]
+    runs-on: [self-hosted, linux, x64, izakhono, izakhono-infrastructure]
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4

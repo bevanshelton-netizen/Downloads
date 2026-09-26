@@ -16,6 +16,29 @@ if(-not (Is-Admin)){
   exit 0
 }
 
+# Portfolio directive 26 Sep 2026: the owner laptop is ADMIN CLIENT ONLY.
+# Production runtime, deployment runners, NODE roles, queues, data-plane services,
+# DNS/TLS/EDGE and background platform availability must run on IZAKHONO infrastructure.
+$PolicyStatus = Join-Path ([Environment]::GetFolderPath("Desktop")) "IZAKHONO-LAPTOP-ROLE.txt"
+@(
+  "IZAKHONO LAPTOP ROLE"
+  "Generated: $(Get-Date -Format o)"
+  "Role: ADMIN CLIENT ONLY"
+  "Runtime authority: IZAKHONO_INFRASTRUCTURE"
+  "Laptop runtime dependency: false"
+  "Laptop deployment target: false"
+  "Laptop data plane: false"
+  "Production runner label: izakhono-infrastructure"
+  "Action: BLOCKED_LEGACY_LAPTOP_RUNTIME"
+) | Set-Content -Path $PolicyStatus -Encoding UTF8
+Write-Host ""
+Write-Host "IZAKHONO LAPTOP: ADMIN CLIENT ONLY" -ForegroundColor Green
+Write-Host "Platform runtime/deployment on this laptop is blocked by portfolio policy." -ForegroundColor Yellow
+Write-Host "Use IZAKHONO infrastructure for NODE01 and all production execution." -ForegroundColor Cyan
+Write-Host "Status: $PolicyStatus" -ForegroundColor Cyan
+exit 0
+
+
 if(-not (Get-Command wsl.exe -ErrorAction SilentlyContinue)){
   throw 'WSL is unavailable. Use a dedicated Ubuntu/Debian host for production NODE01, or install WSL first.'
 }

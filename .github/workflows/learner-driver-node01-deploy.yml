@@ -83,7 +83,7 @@ jobs:
   owned-deploy:
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
     name: Deploy Learner Driver on IZAKHONO NODE01
-    runs-on: [self-hosted, linux, x64, izakhono]
+    runs-on: [self-hosted, linux, x64, izakhono, izakhono-infrastructure]
     timeout-minutes: 20
     steps:
       - name: Synchronize approved source authority
