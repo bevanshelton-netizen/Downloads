@@ -68,5 +68,15 @@
     "all_current_platforms": true,
     "all_future_platforms": true,
     "exceptions_require_signed_product_specific_override": true
+  },
+  "communication_policy": {
+    "platform_to_laptop": "DENY",
+    "customer_traffic_to_laptop": "DENY",
+    "runtime_callback_to_laptop": "DENY",
+    "health_check_dependency_on_laptop": "DENY",
+    "worker_queue_traffic_to_laptop": "DENY",
+    "data_sync_to_laptop": "DENY",
+    "laptop_to_platform_admin": "AUTHENTICATED_MANAGEMENT_ONLY",
+    "laptop_admin_session_required_for_availability": false
   }
 }
