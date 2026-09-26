@@ -1,13 +1,13 @@
 {
   "schema": "izakhono.owner-agent-request/v1",
-  "id": "yhvh-gospel-tv-owned-proof-20260925-08",
+  "id": "yhvh-gospel-tv-owned-proof-20260926-09",
   "enabled": true,
   "action": "deploy-yhvh-gospel-tv",
-  "requested_at": "2026-09-25T21:10:00Z",
+  "requested_at": "2026-09-26T06:45:00Z",
   "expires_at": "2026-10-31T23:59:59Z",
   "max_attempts": 3,
   "params": {
     "hostname": "gospel.domains.izakhonoafrica.co.za"
   },
-  "note": "YHVH owned rollout after CEO operating-strategy hardening merged at 8231ba3c52fcb6902b18cd3f337925091a60e14b. Execute from IZAKHONO CODE, install/refresh YHVH Gospel Engine v2, deploy to IZAKHONO RUNTIME, verify local owned runtime, activate owned DNS/TLS/EDGE, then use the reversible outbound bridge only as last-mile transport if direct parent DNS or inbound TLS is unavailable. If parent delegation/DNS is not yet public and no usable bridge can publish the hostname, record waiting-public-dns without consuming deployment attempts and retry on later Owner Agent ticks. Success still requires exact current request proof, source_authority=IZAKHONO_CODE, public HTTPS health, YHVH engine authority, and no exposed secrets/log paths. Preserve Vercel and GitHub Pages as verified resilience delivery."
+  "note": "YHVH owned rollout after runner-independent NODE01 Autopilot proof merged at 3e16f7c2da0e1c3a21e7c903cbef3ab0c5ddeaa4. Execute directly through NODE01 Autopilot/owner-agent from IZAKHONO CODE; GitHub self-hosted runner is optional proof transport, not a runtime dependency. Install/refresh YHVH Gospel Engine v2, deploy to IZAKHONO RUNTIME, verify local engine and channel, activate owned DNS/TLS/EDGE, and use the reversible outbound bridge only as last-mile transport when required. Preserve external delivery as resilience only. Do not claim OWNED LIVE VERIFIED until independent public HTTPS verification passes."
 }
