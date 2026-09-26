@@ -124,7 +124,6 @@ This directive applies to the full IZAKHONO portfolio, including:
 
 - KORA, KORA Cinema, YHVH Gospel TV and KORA Kids
 - Allegro-Vibez and Allegro Radio
-- Edu-Build and ECD360
 - FAISReady and DOXA-SURE
 - AUTO AI and Learner Driver SA
 - WorkNow, Memory Mania, Music School and Recording Studio
@@ -132,6 +131,18 @@ This directive applies to the full IZAKHONO portfolio, including:
 - ZEELY-style platform, Business Websites / Supercool and The Chancellor
 - FORTRESS, IZAKHONO Code, IZAKHONO Work, IZAKHONO Cloud and IZAKHONO Send
 - every current and future IZAKHONO product unless a signed product-specific exception explicitly supersedes this directive
+
+## Explicitly outside IZAKHONO portfolio scope
+
+**EDU-BUILD INSTITUTE – Shelton Campuses is a separate organisation/business and is not an IZAKHONO platform.**
+
+The IZAKHONO portfolio directive, IZAKHONO branding rules, IZAKHONO product registry and IZAKHONO platform release gates do **not** claim ownership or governance over:
+
+- EDU-BUILD INSTITUTE – Shelton Campuses;
+- ECD360 / EDU-BUILD 360 and EDU-BUILD-specific learning, campus, shop or administration products;
+- any other product explicitly owned and operated under EDU-BUILD rather than IZAKHONO.
+
+Shared technical services may only be used through an explicit inter-company/shared-services arrangement and must not blur legal ownership, branding, customer data boundaries, merchant identity or governance.
 
 ## Required platform inheritance
 
