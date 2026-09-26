@@ -20,8 +20,8 @@ A systemd timer invokes `run-once.sh`. The executor:
 1. synchronizes the approved source into the infrastructure checkout, preferring IZAKHONO CODE;
 2. validates `IZAKHONO-INFRASTRUCTURE-AUTHORITY.json`;
 3. reads `infrastructure/control/portfolio-desired-state.json`;
-4. accepts only `deploy-platform` requests whose platform is registered as IZAKHONO infrastructure-owned;
-5. maps the platform to a fixed command in `targets.json`;
+4. accepts only `deploy-platform` for registered platforms or `run-workload` for fixed internal workload IDs;
+5. resolves both request types to fixed commands in `targets.json`; control requests never contain commands;
 6. executes only an allow-listed Linux deployer under `izakhono-owned-cloud/`;
 7. writes root-only request receipts under `/var/lib/izakhono-infrastructure-executor/requests/`.
 
