@@ -19,6 +19,9 @@ const CONTROL_PORT=Number(process.env.CONTROL_PORT || 8795);
 const CONTROL_KEY=process.env.IZAKHONO_EDGE_KEY || "";
 const RUNTIME_HOST=process.env.RUNTIME_HOST || "127.0.0.1";
 const RUNTIME_PORT=Number(process.env.RUNTIME_PORT || 8080);
+const ANALYTICS_PUBLIC_HOST=(process.env.ANALYTICS_PUBLIC_HOST || "analytics.domains.izakhonoafrica.co.za").trim().toLowerCase();
+const ANALYTICS_UPSTREAM_HOST=process.env.ANALYTICS_UPSTREAM_HOST || "127.0.0.1";
+const ANALYTICS_UPSTREAM_PORT=Number(process.env.ANALYTICS_UPSTREAM_PORT || 18112);
 const TLS_CERT=resolve(process.env.IZAKHONO_TLS_CERT || "/etc/izakhono/tls/fullchain.pem");
 const TLS_KEY=resolve(process.env.IZAKHONO_TLS_KEY || "/etc/izakhono/tls/privkey.pem");
 const ACCESS_LOG=resolve(process.env.IZAKHONO_EDGE_ACCESS_LOG || "./logs/access.jsonl");
@@ -133,6 +136,16 @@ function send(res,status,body,headers={}){
   res.end(payload);
 }
 
+function analyticsPublicRoute(host,path,method){
+  if(host!==ANALYTICS_PUBLIC_HOST) return {matched:false};
+  const verb=(method||"GET").toUpperCase();
+  const allowed =
+    (verb==="GET" && (path==="/healthz" || path==="/beacon.js")) ||
+    (verb==="POST" && path==="/v1/hit") ||
+    (verb==="OPTIONS" && path==="/v1/hit");
+  return {matched:true,allowed};
+}
+
 function proxy(req,res){
   const started=Date.now();
   const host=normalizedHost(req);
@@ -143,6 +156,12 @@ function proxy(req,res){
   }
 
   const path=(req.url||"/").split("?")[0];
+  const analyticsRoute=analyticsPublicRoute(host,path,req.method);
+  if(analyticsRoute.matched && !analyticsRoute.allowed){
+    securityHeaders(res);
+    logAccess({ip:clientIp(req),host,method:req.method,path:req.url,status:404,analyticsCollector:true,durationMs:Date.now()-started});
+    return send(res,404,"IZAKHONO ANALYTICS COLLECTOR: public route not found");
+  }
 
   if(isWriteMethod(req.method) && !witness.canWrite()){
     securityHeaders(res);
@@ -202,9 +221,12 @@ function proxy(req,res){
   headers["x-forwarded-for"]=clientIp(req);
   Object.assign(headers,witness.requestHeaders());
 
+  const upstreamHost=analyticsRoute.matched?ANALYTICS_UPSTREAM_HOST:RUNTIME_HOST;
+  const upstreamPort=analyticsRoute.matched?ANALYTICS_UPSTREAM_PORT:RUNTIME_PORT;
+
   const upstream=httpRequest({
-    hostname:RUNTIME_HOST,
-    port:RUNTIME_PORT,
+    hostname:upstreamHost,
+    port:upstreamPort,
     method:req.method,
     path:req.url,
     headers
@@ -292,6 +314,10 @@ const control=createHttpServer((req,res)=>{
       product:"IZAKHONO EDGE NODE",
       status:"healthy",
       runtimeUpstream:`${RUNTIME_HOST}:${RUNTIME_PORT}`,
+      analyticsPublicHost:ANALYTICS_PUBLIC_HOST,
+      analyticsUpstream:`${ANALYTICS_UPSTREAM_HOST}:${ANALYTICS_UPSTREAM_PORT}`,
+      analyticsPublicPaths:["GET /healthz","GET /beacon.js","POST /v1/hit","OPTIONS /v1/hit"],
+      analyticsDashboardPublic:false,
       tls:DIRECT_INGRESS,
       ingressMode:INGRESS_MODE,
       directHttps:DIRECT_INGRESS?`https://${HTTPS_HOST}:${HTTPS_PORT}`:null,
