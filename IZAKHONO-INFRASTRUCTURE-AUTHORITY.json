@@ -78,5 +78,14 @@
     "data_sync_to_laptop": "DENY",
     "laptop_to_platform_admin": "AUTHENTICATED_MANAGEMENT_ONLY",
     "laptop_admin_session_required_for_availability": false
+  },
+  "execution_policy": {
+    "production_scheduler": "IZAKHONO_INFRASTRUCTURE_EXECUTOR",
+    "production_control_path": "infrastructure/control/portfolio-desired-state.json",
+    "github_self_hosted_runner_required_for_production": false,
+    "arbitrary_command_from_control_allowed": false,
+    "allowlisted_deployment_targets_only": true,
+    "source_authority_preference": "IZAKHONO_CODE",
+    "external_source_mirror_reversible": true
   }
 }
