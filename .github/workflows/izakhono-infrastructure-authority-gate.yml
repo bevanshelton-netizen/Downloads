@@ -139,6 +139,33 @@ jobs:
           console.log('SELF_HOSTED_TARGETS=INFRASTRUCTURE_ONLY');
           NODE
 
+      - name: Enforce native executor as production scheduler
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const p=require('./IZAKHONO-INFRASTRUCTURE-AUTHORITY.json');
+          if(p.execution_policy?.production_scheduler!=='IZAKHONO_INFRASTRUCTURE_EXECUTOR') process.exit(2);
+          if(p.execution_policy?.github_self_hosted_runner_required_for_production!==false) process.exit(3);
+          NODE
+          for f in             .github/workflows/learner-driver-node01-deploy.yml             .github/workflows/izakhono-one-owner-runner-activation.yml             .github/workflows/izakhono-pay-owner-live.yml             .github/workflows/izakhono-crm-owner-live.yml             .github/workflows/izakhono-portfolio-cutover.yml             .github/workflows/yhvh-gospel-node01-deploy.yml
+          do
+            ! grep -Eq 'runs-on:[[:space:]]*\[[^]]*self-hosted|^[[:space:]]*-[[:space:]]*self-hosted[[:space:]]*        shell: bash
+        run: |
+          set -euo pipefail
+          for f in             owner-host/START-IZAKHONO-OWNER-HOST.ps1             owner-host/RUN-NODE01-NOW.ps1             owner-host/BUILD-IZAKHONO-NODE01.ps1             owner-host/INSTALL-IZAKHONO-NODE01-GITHUB-RUNNER.ps1             owner-host/INSTALL-IZAKHONO-NODE01-AUTOPILOT.ps1             owner-host/INSTALL-IZAKHONO-NODE01-BOOT-WAKE.ps1
+          do
+            grep -Fq 'Role: ADMIN CLIENT ONLY' "$f"
+            grep -Fq 'Action: BLOCKED_LEGACY_LAPTOP_RUNTIME' "$f"
+            grep -Fq 'exit 0' "$f"
+          done
+          grep -Fq 'platform_execution_allowed": false' owner-host/install-github-actions-runner.sh
+          grep -Fq 'PRODUCTION_RUNNER_LABEL=izakhono-infrastructure' owner-host/install-github-actions-runner.sh
+          echo 'LAPTOP_EXECUTION_PATH=BLOCKED'
+ "$f"
+          done
+          echo 'NATIVE_EXECUTOR_PRODUCTION_SCHEDULER=ENFORCED'
+
       - name: Verify legacy laptop launchers fail closed
         shell: bash
         run: |
