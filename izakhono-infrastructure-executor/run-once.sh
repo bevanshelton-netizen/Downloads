@@ -62,24 +62,36 @@ const t=JSON.parse(fs.readFileSync(targetsPath,'utf8'));
 const catalog=JSON.parse(fs.readFileSync(catalogPath,'utf8'));
 const r=(c.requests||[]).find(x=>x.id===id);
 if(!r||r.enabled!==true) process.exit(10);
-if(r.action!=='deploy-platform') throw new Error('unsupported action');
+if(!['deploy-platform','run-workload'].includes(r.action)) throw new Error('unsupported action');
 if(r.laptop_target!==false) throw new Error('laptop target must be false');
 if(r.public_live_claim!==false) throw new Error('executor cannot create a public-live claim');
 if(r.external_resilience_preserve!==true) throw new Error('external resilience must be preserved');
-const target=t.targets?.[r.platform_id];
+
+let target,targetId,targetKind;
+if(r.action==='deploy-platform'){
+  targetId=String(r.platform_id||'');
+  targetKind='platform';
+  target=t.targets?.[targetId];
+  const platform=(catalog.platforms||[]).find(p=>p.id===targetId||p.productId===targetId);
+  if(!platform) throw new Error('platform missing from catalog');
+  if(platform.runtimeAuthority!=='IZAKHONO_INFRASTRUCTURE'||platform.laptopRuntimeDependency!==false||platform.laptopDeploymentTarget!==false||platform.platformToLaptopTraffic!=='DENY') throw new Error('platform infrastructure policy mismatch');
+}else{
+  targetId=String(r.workload_id||'');
+  targetKind='workload';
+  target=t.workloads?.[targetId];
+  if(!/^[a-z0-9][a-z0-9._-]{2,119}$/.test(targetId)) throw new Error('invalid workload id');
+}
 if(!target||!Array.isArray(target.command)||target.command.length<2) throw new Error('target is not infrastructure-native or is not allow-listed');
 if(target.command[0]!=='bash') throw new Error('only allow-listed bash deployment wrappers are supported');
 const script=String(target.command[1]||'');
 if(!/^izakhono-owned-cloud\/[A-Za-z0-9._-]+\.sh$/.test(script)) throw new Error('deployment path outside owned-cloud allowlist');
-const platform=(catalog.platforms||[]).find(p=>p.id===r.platform_id||p.productId===r.platform_id);
-if(!platform) throw new Error('platform missing from catalog');
-if(platform.runtimeAuthority!=='IZAKHONO_INFRASTRUCTURE'||platform.laptopRuntimeDependency!==false||platform.laptopDeploymentTarget!==false||platform.platformToLaptopTraffic!=='DENY') throw new Error('platform infrastructure policy mismatch');
 const max=Math.min(10,Math.max(1,Number(r.max_attempts||3)));
-console.log(JSON.stringify({platformId:r.platform_id,command:target.command,maxAttempts:max}));
+console.log(JSON.stringify({targetId,targetKind,command:target.command,maxAttempts:max}));
 NODE
 )" || { echo "Request $REQUEST_ID rejected by infrastructure policy." >&2; continue; }
 
-  PLATFORM_ID="$(node -e 'const x=JSON.parse(process.argv[1]);process.stdout.write(x.platformId)' "$META")"
+  TARGET_ID="$(node -e 'const x=JSON.parse(process.argv[1]);process.stdout.write(x.targetId)' "$META")"
+  TARGET_KIND="$(node -e 'const x=JSON.parse(process.argv[1]);process.stdout.write(x.targetKind)' "$META")"
   MAX_ATTEMPTS="$(node -e 'const x=JSON.parse(process.argv[1]);process.stdout.write(String(x.maxAttempts))' "$META")"
   STATE="$STATE_DIR/requests/$REQUEST_ID.json"
   LOG="$STATE_DIR/logs/$REQUEST_ID.log"
@@ -98,12 +110,15 @@ NODE
   SOURCE_AUTHORITY="$(awk -F= '$1=="SOURCE_AUTHORITY"{print $2;exit}' "$STATE_DIR/last-source-sync.txt")"
   SOURCE_COMMIT="$(awk -F= '$1=="SOURCE_COMMIT"{print $2;exit}' "$STATE_DIR/last-source-sync.txt")"
 
-  node - "$STATE" "$REQUEST_ID" "$PLATFORM_ID" "$ATTEMPT" "$STARTED" "$SOURCE_AUTHORITY" "$SOURCE_COMMIT" <<'NODE'
+  node - "$STATE" "$REQUEST_ID" "$TARGET_ID" "$TARGET_KIND" "$ATTEMPT" "$STARTED" "$SOURCE_AUTHORITY" "$SOURCE_COMMIT" <<'NODE'
 const fs=require('fs');
-const [path,id,platform,attempt,started,sourceAuthority,sourceCommit]=process.argv.slice(2);
+const [path,id,targetId,targetKind,attempt,started,sourceAuthority,sourceCommit]=process.argv.slice(2);
 fs.writeFileSync(path,JSON.stringify({
   schema:'izakhono.infrastructure-executor-receipt/v1',
-  request_id:id,platform_id:platform,status:'running',attempts:Number(attempt),
+  request_id:id,target_id:targetId,target_kind:targetKind,
+  platform_id:targetKind==='platform'?targetId:null,
+  workload_id:targetKind==='workload'?targetId:null,
+  status:'running',attempts:Number(attempt),
   started_at:started,completed_at:null,exit_code:null,
   runtime_authority:'IZAKHONO_INFRASTRUCTURE',
   source_authority:sourceAuthority||null,source_commit:sourceCommit||null,
@@ -117,7 +132,7 @@ NODE
   [ -f "$ROOT/$SCRIPT" ] || { echo "Missing allow-listed deployer: $SCRIPT" >>"$LOG"; EXIT_CODE=40; }
   if [ -f "$ROOT/$SCRIPT" ]; then
     {
-      echo "[executor] request=$REQUEST_ID platform=$PLATFORM_ID attempt=$ATTEMPT"
+      echo "[executor] request=$REQUEST_ID target_kind=$TARGET_KIND target=$TARGET_ID attempt=$ATTEMPT"
       echo "[executor] authority=IZAKHONO_INFRASTRUCTURE laptop_target=false"
       cd "$ROOT"
       set +e
@@ -152,7 +167,7 @@ const summary={
  authority:'IZAKHONO_INFRASTRUCTURE',
  laptop_dependency:false,
  platform_to_laptop_traffic:'DENY',
- requests:receipts.map(x=>({request_id:x.request_id,platform_id:x.platform_id,status:x.status,attempts:x.attempts,completed_at:x.completed_at}))
+ requests:receipts.map(x=>({request_id:x.request_id,target_id:x.target_id||x.platform_id||x.workload_id,target_kind:x.target_kind||'platform',platform_id:x.platform_id||null,workload_id:x.workload_id||null,status:x.status,attempts:x.attempts,completed_at:x.completed_at}))
 };
 fs.writeFileSync(path.join(process.argv[2],'status.json'),JSON.stringify(summary,null,2)+'\n',{mode:0o600});
 NODE
