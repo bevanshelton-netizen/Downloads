@@ -103,7 +103,7 @@
     }
     var ads=[
       {id:"mandatory-regulatory-exams",eyebrow:"PROFESSIONAL PREP",title:"Mandatory Regulatory Exams",body:"Find the regulatory exam that applies to you and start preparing.",cta:"FIND YOUR EXAM",url:"https://mandatory-regulatory-exams.vercel.app/"},
-      {id:"learner-driver-sa",eyebrow:"GET ROAD READY",title:"Learner Driver SA",body:"Explore learner-driver preparation for Codes 08, 10, 14 and motorcycles.",cta:"START LEARNING",url:"https://kora-network.vercel.app/learner-driver"},
+      {id:"learner-driver-sa",eyebrow:"GET ROAD READY",title:"Learner Driver SA",body:"Explore learner-driver preparation for Codes 08, 10, 14 and motorcycles.",cta:"START LEARNING",url:"https://bevanshelton-netizen.github.io/Downloads/learner-driver-sa-v6-live"},
       {id:"allegro",eyebrow:"MUSIC WITHOUT BORDERS",title:"ALLEGRO VIBEZ",body:"Discover music across cultures and support the artists behind it.",cta:"EXPLORE ALLEGRO",url:"https://allegro-vibez.vercel.app/"},
       {id:"kora",eyebrow:"AFRICA TO THE WORLD",title:"KORA",body:"African digital entertainment, music, creators and live experiences in one network.",cta:"EXPLORE KORA",url:"https://kora-network.vercel.app/"},
       {id:"the-chancellor",eyebrow:"BUILD A STRONGER BUSINESS",title:"The Chancellor",body:"Start with the R500 Business Readiness Audit and identify your next growth step.",cta:"START R500 AUDIT",url:"https://the-chancellor.vercel.app/"}
