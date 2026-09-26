@@ -25,7 +25,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: izakhono-one-native-infrastructure-activation
+  group: izakhono-one-infrastructure-activation
   cancel-in-progress: true
 
 jobs:
