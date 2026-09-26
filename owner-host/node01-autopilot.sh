@@ -9,6 +9,7 @@ ROOT="${IZAKHONO_AUTOPILOT_ROOT:-/opt/izakhono-source/Downloads}"
 REPORT_DIR="/var/lib/izakhono-deploy"
 REPORT="$REPORT_DIR/node01-autopilot.json"
 HOSTNAME="${IZAKHONO_ONE_AI_HOSTNAME:-one.domains.izakhonoafrica.co.za}"
+YHVH_HOSTNAME="${YHVH_GOSPEL_TV_HOSTNAME:-gospel.domains.izakhonoafrica.co.za}"
 R0_MODE="${IZAKHONO_ONE_R0_MODE:-1}"
 LOCK="/run/lock/izakhono-node01-autopilot.lock"
 
@@ -30,6 +31,11 @@ growth_bridge_agent_state="NOT_RUN"
 growth_bridge_public="NOT_VERIFIED"
 runner_state="NOT_CONFIGURED"
 local_one="NOT_VERIFIED"
+yhvh_owner_request_id=""
+yhvh_owner_agent="NOT_RUN"
+yhvh_engine_local="NOT_VERIFIED"
+yhvh_channel_local="NOT_VERIFIED"
+yhvh_public_https="NOT_VERIFIED"
 owned_edge="NOT_ATTEMPTED"
 owned_edge_exit=0
 public_https="NOT_VERIFIED"
@@ -188,6 +194,43 @@ if [ -s /opt/izakhono-actions-runner/.service ]; then
   if systemctl is-active --quiet "$service_name"; then runner_state="ACTIVE"; else runner_state="INACTIVE"; fi
 fi
 
+if [ -s /var/lib/izakhono-owner-agent/state.json ]; then
+  yhvh_owner_request_id="$(node -e 'try{const x=require(process.argv[1]);if(x.action==="deploy-yhvh-gospel-tv")process.stdout.write(String(x.request_id||""))}catch{}' /var/lib/izakhono-owner-agent/state.json)"
+  yhvh_owner_agent="$(node -e 'try{const x=require(process.argv[1]);process.stdout.write(x.action==="deploy-yhvh-gospel-tv"?String(x.status||"UNKNOWN"):"NOT_CURRENT_REQUEST")}catch{process.stdout.write("STATE_INVALID")}' /var/lib/izakhono-owner-agent/state.json)"
+fi
+
+if curl -fsS --max-time 5 http://127.0.0.1:8892/health >/tmp/yhvh-engine-autopilot-health.json 2>/dev/null; then
+  if node - <<'NODE' >/dev/null 2>&1
+const x=require('/tmp/yhvh-engine-autopilot-health.json');
+if(x.ok!==true||x.service!=='yhvh-gospel-engine'||x.runtime!=='izakhono-owned'||x.authority!=='IZAKHONO'||x.independent_engine!==true) process.exit(2);
+if(x.privacy?.behavioural_tracking!==false||x.privacy?.profiling!==false||x.privacy?.silent_analytics!==false) process.exit(3);
+NODE
+  then
+    yhvh_engine_local="VERIFIED"
+  fi
+fi
+
+if curl -fsS --max-time 5 -H "Host: $YHVH_HOSTNAME" http://127.0.0.1:8080/health >/tmp/yhvh-channel-autopilot-health.json 2>/dev/null; then
+  if node - <<'NODE' >/dev/null 2>&1
+const x=require('/tmp/yhvh-channel-autopilot-health.json');
+if(x.ok!==true||x.service!=='yhvh-gospel-tv'||x.runtime!=='izakhono-owned') process.exit(2);
+if(x.product&&x.product!=='YHVH GOSPEL TV') process.exit(3);
+NODE
+  then
+    yhvh_channel_local="VERIFIED"
+  fi
+fi
+
+if curl -fsS --max-time 10 "https://$YHVH_HOSTNAME/health" >/tmp/yhvh-public-autopilot-health.json 2>/dev/null; then
+  if node - <<'NODE' >/dev/null 2>&1
+const x=require('/tmp/yhvh-public-autopilot-health.json');
+if(x.ok!==true||x.service!=='yhvh-gospel-tv'||x.runtime!=='izakhono-owned') process.exit(2);
+NODE
+  then
+    yhvh_public_https="LOCALLY_REACHABLE_PENDING_INDEPENDENT_VERIFY"
+  fi
+fi
+
 if curl -fsS --max-time 5 -H "Host: $HOSTNAME" http://127.0.0.1:8080/health >/tmp/izakhono-one-autopilot-health.json 2>/dev/null; then
   if node - <<'NODE' >/dev/null 2>&1
 const x=require('/tmp/izakhono-one-autopilot-health.json');
@@ -295,9 +338,9 @@ fi
 
 ended="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 commit="$(git -C "$ROOT" rev-parse HEAD 2>/dev/null || true)"
-node - "$REPORT" "$started" "$ended" "$commit" "$source_state" "$agent_state" "$one_agent_state" "$growth_bridge_agent_state" "$growth_bridge_public" "$runner_state" "$crm_v020" "$crm_v020_exit" "$crm_notify" "$crm_notify_exit" "$local_one" "$owned_edge" "$owned_edge_exit" "$public_https" "$drop01_watch" "$drop01_watch_exit" "$learner_driver_funnel_watch" "$learner_driver_funnel_watch_exit" "$R0_MODE" <<'NODE'
+node - "$REPORT" "$started" "$ended" "$commit" "$source_state" "$agent_state" "$one_agent_state" "$growth_bridge_agent_state" "$growth_bridge_public" "$runner_state" "$crm_v020" "$crm_v020_exit" "$crm_notify" "$crm_notify_exit" "$local_one" "$yhvh_owner_request_id" "$yhvh_owner_agent" "$yhvh_engine_local" "$yhvh_channel_local" "$yhvh_public_https" "$owned_edge" "$owned_edge_exit" "$public_https" "$drop01_watch" "$drop01_watch_exit" "$learner_driver_funnel_watch" "$learner_driver_funnel_watch_exit" "$R0_MODE" <<'NODE'
 const fs=require('fs');
-const [path,started,ended,commit,source,agent,oneAgent,growthBridgeAgent,growthBridgePublic,runner,crmV020,crmV020Exit,crmNotify,crmNotifyExit,localOne,edge,edgeExit,publicHttps,drop01Watch,drop01WatchExit,learnerDriverFunnelWatch,learnerDriverFunnelWatchExit,r0Mode]=process.argv.slice(2);
+const [path,started,ended,commit,source,agent,oneAgent,growthBridgeAgent,growthBridgePublic,runner,crmV020,crmV020Exit,crmNotify,crmNotifyExit,localOne,yhvhRequest,yhvhAgent,yhvhEngine,yhvhChannel,yhvhPublic,edge,edgeExit,publicHttps,drop01Watch,drop01WatchExit,learnerDriverFunnelWatch,learnerDriverFunnelWatchExit,r0Mode]=process.argv.slice(2);
 fs.writeFileSync(path,JSON.stringify({
   schema:'izakhono.node01-autopilot/v1',
   node:'NODE01',
@@ -316,6 +359,12 @@ fs.writeFileSync(path,JSON.stringify({
   crm_v020_notification:crmNotify,
   crm_v020_notification_exit:Number(crmNotifyExit),
   one_local_runtime:localOne,
+  yhvh_owner_request_id:yhvhRequest||null,
+  yhvh_owner_agent:yhvhAgent,
+  yhvh_engine_local:yhvhEngine,
+  yhvh_channel_local:yhvhChannel,
+  yhvh_public_https:yhvhPublic,
+  yhvh_live_claim:false,
   owned_edge_state:edge,
   owned_edge_exit:Number(edgeExit),
   public_https:publicHttps,
@@ -347,6 +396,12 @@ echo "GITHUB_RUNNER=$runner_state"
 echo "CRM_V020=$crm_v020"
 echo "CRM_V020_NOTIFY=$crm_notify"
 echo "ONE_LOCAL=$local_one"
+echo "YHVH_OWNER_REQUEST=${yhvh_owner_request_id:-NONE}"
+echo "YHVH_OWNER_AGENT=$yhvh_owner_agent"
+echo "YHVH_ENGINE_LOCAL=$yhvh_engine_local"
+echo "YHVH_CHANNEL_LOCAL=$yhvh_channel_local"
+echo "YHVH_PUBLIC_HTTPS=$yhvh_public_https"
+echo "YHVH_LIVE_CLAIM=false"
 echo "OWNED_EDGE=$owned_edge"
 echo "PUBLIC_HTTPS=$public_https"
 echo "ZERO_BUDGET_MODE=$R0_MODE"
