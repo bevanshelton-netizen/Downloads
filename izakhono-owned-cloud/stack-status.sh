@@ -9,7 +9,10 @@ services=(
   izakhono-auth-node
   izakhono-analytics-node
   izakhono-notify-node
+  izakhono-mail-relay-adapter
   izakhono-ai-gateway-node
+  izakhono-gpu-compute-node
+  izakhono-model-worker-node
   izakhono-code-node
   izakhono-package-node
   izakhono-ci-worker-node
@@ -49,8 +52,11 @@ probe QUEUE http://127.0.0.1:8810/health
 probe AUTH http://127.0.0.1:8820/health
 probe ANALYTICS http://127.0.0.1:8830/health
 probe NOTIFY http://127.0.0.1:8840/health
+probe MAIL_RELAY http://127.0.0.1:8845/health
 probe AI_GATEWAY http://127.0.0.1:8850/health
 probe CODE http://127.0.0.1:8860/health
+probe GPU_COMPUTE http://127.0.0.1:8865/health
+probe MODEL_WORKER http://127.0.0.1:8866/health
 probe PACKAGE http://127.0.0.1:8910/health
 probe BACKUP http://127.0.0.1:8870/health
 probe CI_WORKER http://127.0.0.1:8880/health

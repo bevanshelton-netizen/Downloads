@@ -1,0 +1,27 @@
+[Unit]
+Description=IZAKHONO NODE01 sovereign node controller
+After=network-online.target izakhono-runtime-node.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=izakhono
+Group=izakhono
+WorkingDirectory=/opt/izakhono-node01
+EnvironmentFile=-/etc/izakhono/node01.env
+ExecStart=/usr/bin/node /opt/izakhono-node01/server.mjs
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+[Install]
+WantedBy=multi-user.target

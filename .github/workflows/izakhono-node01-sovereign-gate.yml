@@ -1,0 +1,67 @@
+name: IZAKHONO NODE01 Sovereign Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'izakhono-node01/**'
+      - 'BUILD-IZAKHONO-NODE01.sh'
+      - 'BUILD-IZAKHONO-NODE01.cmd'
+      - 'owner-host/BUILD-IZAKHONO-NODE01.ps1'
+      - '.github/workflows/izakhono-node01-sovereign-gate.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'izakhono-node01/**'
+      - 'BUILD-IZAKHONO-NODE01.sh'
+      - 'BUILD-IZAKHONO-NODE01.cmd'
+      - 'owner-host/BUILD-IZAKHONO-NODE01.ps1'
+      - '.github/workflows/izakhono-node01-sovereign-gate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate NODE01 software
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check izakhono-node01/server.mjs
+          node --check izakhono-node01/scripts/self-test.mjs
+          bash -n izakhono-node01/install-linux.sh
+          bash -n izakhono-node01/self-heal.sh
+          bash -n izakhono-node01/acceptance.sh
+          bash -n BUILD-IZAKHONO-NODE01.sh
+          node izakhono-node01/scripts/self-test.mjs
+          grep -q '"execution_class": "IZAKHONO_SOVEREIGN_NODE"' izakhono-node01/node01.manifest.json
+          grep -q '"external_runtime_dependency": false' izakhono-node01/node01.manifest.json
+          grep -q '"tracking": false' izakhono-node01/node01.manifest.json
+          grep -q 'IZAKHONO NODE01' izakhono-node01/README.md
+          grep -q 'public_live_claim:false' izakhono-node01/server.mjs
+          grep -q 'public_dns_changed:false' izakhono-node01/self-heal.sh
+          grep -q 'payment_routing_changed:false' izakhono-node01/self-heal.sh
+          ! grep -R -E 'googletagmanager|google-analytics|facebook[^[:space:]]*(pixel|track)|hotjar|clarity\.ms|mixpanel|amplitude' izakhono-node01
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse NODE01 owner-host launcher
+        shell: pwsh
+        run: |
+          $p='owner-host/BUILD-IZAKHONO-NODE01.ps1'
+          $tokens=$null; $errors=$null
+          [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $p),[ref]$tokens,[ref]$errors) | Out-Null
+          if($errors.Count -gt 0){ $errors | ForEach-Object { Write-Error $_.Message }; exit 1 }
+          $ps=Get-Content $p -Raw
+          if($ps -notmatch 'BUILD-IZAKHONO-NODE01.sh'){ throw 'Linux NODE01 installer handoff missing' }
+          if($ps -notmatch '127.0.0.1:8940'){ throw 'NODE01 local control proof missing' }
+          $cmd=Get-Content 'BUILD-IZAKHONO-NODE01.cmd' -Raw
+          if($cmd -notmatch 'BUILD-IZAKHONO-NODE01.ps1'){ throw 'One-click launcher mismatch' }

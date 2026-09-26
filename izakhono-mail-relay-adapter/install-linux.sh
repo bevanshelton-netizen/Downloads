@@ -9,7 +9,7 @@ if [ ! -f /etc/izakhono/mail-relay.env ]; then
   KEY="$(node -e 'console.log(require("crypto").randomBytes(32).toString("hex"))')"
   sudo tee /etc/izakhono/mail-relay.env >/dev/null <<EOF
 HOST=127.0.0.1
-PORT=8870
+PORT=8845
 IZAKHONO_MAIL_ADAPTER_KEY=$KEY
 IZAKHONO_SMTP_HOST=
 IZAKHONO_SMTP_PORT=587
@@ -21,6 +21,11 @@ IZAKHONO_SMTP_FROM=
 IZAKHONO_SMTP_FROM_NAME=IZAKHONO ONE
 IZAKHONO_SMTP_TIMEOUT_MS=15000
 EOF
+  sudo chmod 600 /etc/izakhono/mail-relay.env
+elif sudo grep -qx 'PORT=8870' /etc/izakhono/mail-relay.env; then
+  echo "Migrating legacy MAIL RELAY port 8870 -> 8845 to remove BACKUP NODE collision..."
+  sudo cp /etc/izakhono/mail-relay.env /etc/izakhono/mail-relay.env.pre-node01-port-migration
+  sudo sed -i 's/^PORT=8870$/PORT=8845/' /etc/izakhono/mail-relay.env
   sudo chmod 600 /etc/izakhono/mail-relay.env
 fi
 sudo cp systemd/izakhono-mail-relay-adapter.service /etc/systemd/system/

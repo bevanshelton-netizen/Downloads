@@ -19,14 +19,18 @@
       ├─ IZAKHONO AUTH NODE      :8820
       ├─ IZAKHONO ANALYTICS NODE :8830
       ├─ IZAKHONO NOTIFY NODE    :8840
+      ├─ IZAKHONO MAIL RELAY      :8845
       ├─ IZAKHONO AI GATEWAY NODE :8850
       ├─ IZAKHONO CODE NODE       :8860
+      ├─ IZAKHONO GPU COMPUTE NODE :8865
+      ├─ IZAKHONO MODEL WORKER NODE :8866
       ├─ IZAKHONO PACKAGE NODE    :8910
       ├─ IZAKHONO BACKUP NODE     :8870
       ├─ IZAKHONO CI WORKER NODE  :8880
       ├─ IZAKHONO REPLICA NODE    :8890
       ├─ IZAKHONO FAILOVER NODE   :8920
-      └─ IZAKHONO DNS control     :8900
+      ├─ IZAKHONO DNS control     :8900
+      └─ IZAKHONO NODE01 control  :8940
 
 Control interfaces bind to loopback: RUNTIME control :8790, EDGE control :8795 and DNS control :8900. DNS data-plane starts safely on 127.0.0.1:5353 and moves to authoritative port 53 only during deliberate public-edge activation.
 

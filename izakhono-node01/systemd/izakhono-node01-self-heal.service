@@ -1,0 +1,12 @@
+[Unit]
+Description=IZAKHONO NODE01 self-heal pass
+After=multi-user.target
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/opt/izakhono-node01/self-heal.sh
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
