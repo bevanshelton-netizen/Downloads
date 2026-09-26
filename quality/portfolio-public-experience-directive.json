@@ -1,0 +1,47 @@
+{
+  "schema": "izakhono.portfolio-public-experience/v1",
+  "effective": "2026-09-26",
+  "status": "IMMEDIATE_EFFECT",
+  "scope": "ALL_IZAKHONO_PLATFORMS",
+  "infrastructure": {
+    "ownedPrimary": true,
+    "externalIndependentResilience": true,
+    "bothRequiredForPublicCustomerFacingPlatforms": true,
+    "reversibleExternalProviders": true,
+    "laptopProductionRole": false,
+    "independentHttpsVerificationBeforeLiveClaim": true
+  },
+  "customerFacingExperience": {
+    "internationalProfessionalStandard": true,
+    "immediatelyExplainWhatWeOffer": true,
+    "immediatelyExplainWhoItIsFor": true,
+    "immediatelyExplainWhyItMatters": true,
+    "primaryActionAboveFold": true,
+    "relevantPhotographyOrOriginalGraphics": true,
+    "strongHeroVisual": true,
+    "modernTypography": true,
+    "visualStorytelling": true,
+    "responsiveMobileFirst": true,
+    "trustSignals": true,
+    "commercialPathWhereApplicable": true,
+    "shareCapabilityPreferred": true,
+    "placeholdersForbidden": true,
+    "genericTemplateLookForbidden": true,
+    "deadLinksForbidden": true,
+    "unverifiedLiveClaimsForbidden": true
+  },
+  "visualPrinciples": {
+    "useRelevantRealWorldPhotographyWhereItStrengthensUnderstanding": true,
+    "useOriginalIllustrationGraphicsDiagramsOrProductVisualsWherePhotographyIsNotBest": true,
+    "imageryMustRepresentActualOffer": true,
+    "avoidDecorativeFiller": true,
+    "avoidOutdatedOrObviouslyGenericVisuals": true,
+    "productNameAndPurposeMustBeVisuallyDominant": true
+  },
+  "releaseRule": "A customer-facing platform may not be promoted as professionally ready unless the experience and hybrid-delivery gates pass.",
+  "exemptions": [
+    "collector-only",
+    "api-only",
+    "machine-only"
+  ]
+}
