@@ -40,7 +40,7 @@ jobs:
   yenzanow:
     if: github.event_name == 'workflow_dispatch'
     needs: verify-packages
-    runs-on: [self-hosted, linux, x64, izakhono]
+    runs-on: [self-hosted, linux, x64, izakhono, izakhono-infrastructure]
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -49,7 +49,7 @@ jobs:
   matric-rewrite:
     if: github.event_name == 'workflow_dispatch'
     needs: verify-packages
-    runs-on: [self-hosted, linux, x64, izakhono]
+    runs-on: [self-hosted, linux, x64, izakhono, izakhono-infrastructure]
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -58,7 +58,7 @@ jobs:
   command-center:
     if: github.event_name == 'workflow_dispatch'
     needs: verify-packages
-    runs-on: [self-hosted, linux, x64, izakhono]
+    runs-on: [self-hosted, linux, x64, izakhono, izakhono-infrastructure]
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -67,7 +67,7 @@ jobs:
   containers:
     if: github.event_name == 'workflow_dispatch'
     needs: verify-packages
-    runs-on: [self-hosted, linux, x64, izakhono]
+    runs-on: [self-hosted, linux, x64, izakhono, izakhono-infrastructure]
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
