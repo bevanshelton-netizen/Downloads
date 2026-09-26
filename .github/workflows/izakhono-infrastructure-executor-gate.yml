@@ -67,7 +67,8 @@ jobs:
           if(JSON.stringify(legacy)!==JSON.stringify(blocked)) throw new Error('legacy Windows deployer quarantine is incomplete');
           NODE
 
-          bash izakhono-infrastructure-executor/host-eligibility.sh | grep -q 'INFRASTRUCTURE_HOST_ELIGIBLE=true'
+          ELIGIBILITY="$(bash izakhono-infrastructure-executor/host-eligibility.sh)"
+          grep -q 'INFRASTRUCTURE_HOST_ELIGIBLE=true' <<<"$ELIGIBILITY"
           grep -Fq 'IZAKHONO INFRASTRUCTURE EXECUTOR' izakhono-owned-cloud/install-owned-stack.sh
           grep -Fq 'PLATFORM_TO_LAPTOP=DENY' izakhono-infrastructure-executor/install-linux.sh
           grep -Fq 'WSL_FORBIDDEN' izakhono-infrastructure-executor/host-eligibility.sh
