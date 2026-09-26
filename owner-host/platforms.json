@@ -12,7 +12,9 @@
       "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
       "laptopRuntimeDependency": false,
       "laptopDeploymentTarget": false,
-      "laptopDataPlane": false
+      "laptopDataPlane": false,
+      "platformToLaptopTraffic": "DENY",
+      "laptopAdminSessionRequiredForAvailability": false
     },
     {
       "id": "growth-os-v2",
@@ -23,7 +25,9 @@
       "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
       "laptopRuntimeDependency": false,
       "laptopDeploymentTarget": false,
-      "laptopDataPlane": false
+      "laptopDataPlane": false,
+      "platformToLaptopTraffic": "DENY",
+      "laptopAdminSessionRequiredForAvailability": false
     },
     {
       "id": "creative-suite",
@@ -34,7 +38,9 @@
       "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
       "laptopRuntimeDependency": false,
       "laptopDeploymentTarget": false,
-      "laptopDataPlane": false
+      "laptopDataPlane": false,
+      "platformToLaptopTraffic": "DENY",
+      "laptopAdminSessionRequiredForAvailability": false
     },
     {
       "id": "kora-network",
@@ -44,7 +50,9 @@
       "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
       "laptopRuntimeDependency": false,
       "laptopDeploymentTarget": false,
-      "laptopDataPlane": false
+      "laptopDataPlane": false,
+      "platformToLaptopTraffic": "DENY",
+      "laptopAdminSessionRequiredForAvailability": false
     },
     {
       "id": "auto-ai",
@@ -54,7 +62,9 @@
       "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
       "laptopRuntimeDependency": false,
       "laptopDeploymentTarget": false,
-      "laptopDataPlane": false
+      "laptopDataPlane": false,
+      "platformToLaptopTraffic": "DENY",
+      "laptopAdminSessionRequiredForAvailability": false
     },
     {
       "id": "learner-driver-sa",
@@ -67,7 +77,9 @@
       "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
       "laptopRuntimeDependency": false,
       "laptopDeploymentTarget": false,
-      "laptopDataPlane": false
+      "laptopDataPlane": false,
+      "platformToLaptopTraffic": "DENY",
+      "laptopAdminSessionRequiredForAvailability": false
     },
     {
       "id": "faisready",
@@ -77,7 +89,9 @@
       "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
       "laptopRuntimeDependency": false,
       "laptopDeploymentTarget": false,
-      "laptopDataPlane": false
+      "laptopDataPlane": false,
+      "platformToLaptopTraffic": "DENY",
+      "laptopAdminSessionRequiredForAvailability": false
     },
     {
       "id": "ecd360",
@@ -87,7 +101,9 @@
       "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
       "laptopRuntimeDependency": false,
       "laptopDeploymentTarget": false,
-      "laptopDataPlane": false
+      "laptopDataPlane": false,
+      "platformToLaptopTraffic": "DENY",
+      "laptopAdminSessionRequiredForAvailability": false
     },
     {
       "id": "allegro-vibez",
@@ -97,7 +113,9 @@
       "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
       "laptopRuntimeDependency": false,
       "laptopDeploymentTarget": false,
-      "laptopDataPlane": false
+      "laptopDataPlane": false,
+      "platformToLaptopTraffic": "DENY",
+      "laptopAdminSessionRequiredForAvailability": false
     },
     {
       "id": "the-chancellor",
@@ -107,7 +125,9 @@
       "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
       "laptopRuntimeDependency": false,
       "laptopDeploymentTarget": false,
-      "laptopDataPlane": false
+      "laptopDataPlane": false,
+      "platformToLaptopTraffic": "DENY",
+      "laptopAdminSessionRequiredForAvailability": false
     },
     {
       "id": "legacymart",
@@ -118,7 +138,9 @@
       "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
       "laptopRuntimeDependency": false,
       "laptopDeploymentTarget": false,
-      "laptopDataPlane": false
+      "laptopDataPlane": false,
+      "platformToLaptopTraffic": "DENY",
+      "laptopAdminSessionRequiredForAvailability": false
     },
     {
       "id": "izakhono-pay",
@@ -128,7 +150,9 @@
       "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
       "laptopRuntimeDependency": false,
       "laptopDeploymentTarget": false,
-      "laptopDataPlane": false
+      "laptopDataPlane": false,
+      "platformToLaptopTraffic": "DENY",
+      "laptopAdminSessionRequiredForAvailability": false
     },
     {
       "id": "izakhono-analytics-collector",
@@ -151,7 +175,9 @@
       "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
       "laptopRuntimeDependency": false,
       "laptopDeploymentTarget": false,
-      "laptopDataPlane": false
+      "laptopDataPlane": false,
+      "platformToLaptopTraffic": "DENY",
+      "laptopAdminSessionRequiredForAvailability": false
     },
     {
       "id": "izakhono-domains",
@@ -162,7 +188,9 @@
       "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
       "laptopRuntimeDependency": false,
       "laptopDeploymentTarget": false,
-      "laptopDataPlane": false
+      "laptopDataPlane": false,
+      "platformToLaptopTraffic": "DENY",
+      "laptopAdminSessionRequiredForAvailability": false
     },
     {
       "id": "memory-mania",
@@ -173,7 +201,9 @@
       "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
       "laptopRuntimeDependency": false,
       "laptopDeploymentTarget": false,
-      "laptopDataPlane": false
+      "laptopDataPlane": false,
+      "platformToLaptopTraffic": "DENY",
+      "laptopAdminSessionRequiredForAvailability": false
     },
     {
       "id": "crowne-hair",
@@ -184,7 +214,9 @@
       "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
       "laptopRuntimeDependency": false,
       "laptopDeploymentTarget": false,
-      "laptopDataPlane": false
+      "laptopDataPlane": false,
+      "platformToLaptopTraffic": "DENY",
+      "laptopAdminSessionRequiredForAvailability": false
     },
     {
       "id": "izakhono-revenue-desk",
@@ -195,7 +227,9 @@
       "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
       "laptopRuntimeDependency": false,
       "laptopDeploymentTarget": false,
-      "laptopDataPlane": false
+      "laptopDataPlane": false,
+      "platformToLaptopTraffic": "DENY",
+      "laptopAdminSessionRequiredForAvailability": false
     },
     {
       "id": "kora-kids",
@@ -206,7 +240,9 @@
       "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
       "laptopRuntimeDependency": false,
       "laptopDeploymentTarget": false,
-      "laptopDataPlane": false
+      "laptopDataPlane": false,
+      "platformToLaptopTraffic": "DENY",
+      "laptopAdminSessionRequiredForAvailability": false
     },
     {
       "id": "kora-gospel-tv",
@@ -223,7 +259,9 @@
       "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
       "laptopRuntimeDependency": false,
       "laptopDeploymentTarget": false,
-      "laptopDataPlane": false
+      "laptopDataPlane": false,
+      "platformToLaptopTraffic": "DENY",
+      "laptopAdminSessionRequiredForAvailability": false
     },
     {
       "id": "izakhono-one-ai",
@@ -234,7 +272,9 @@
       "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
       "laptopRuntimeDependency": false,
       "laptopDeploymentTarget": false,
-      "laptopDataPlane": false
+      "laptopDataPlane": false,
+      "platformToLaptopTraffic": "DENY",
+      "laptopAdminSessionRequiredForAvailability": false
     }
   ],
   "infrastructurePolicy": {
@@ -245,6 +285,14 @@
     "laptopDeploymentTarget": false,
     "laptopDataPlane": false,
     "productionRunnerLabel": "izakhono-infrastructure",
-    "externalResilienceAllowed": true
+    "externalResilienceAllowed": true,
+    "platformToLaptopTraffic": "DENY",
+    "customerTrafficToLaptop": "DENY",
+    "runtimeCallbackToLaptop": "DENY",
+    "healthCheckDependencyOnLaptop": "DENY",
+    "workerQueueTrafficToLaptop": "DENY",
+    "dataSyncToLaptop": "DENY",
+    "laptopToPlatformAdmin": "AUTHENTICATED_MANAGEMENT_ONLY",
+    "laptopAdminSessionRequiredForAvailability": false
   }
 }
