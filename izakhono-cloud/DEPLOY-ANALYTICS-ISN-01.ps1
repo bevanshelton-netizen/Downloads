@@ -8,7 +8,7 @@ $ErrorActionPreference = "Stop"
 $State = Join-Path $env:ProgramData "IZAKHONO\ISN-01"
 $EngineProof = Join-Path $State "ENGINE-PROOF.json"
 $Receipt = Join-Path $State "ANALYTICS-CUTOVER.json"
-$Pinned = "19150fb7b70dd118fbe23ab3021f502c0299ee5f"
+$Pinned = "0fe23bf3eddba2254e2347032dc61ff0b037545e"
 $LocalOrigin = "http://127.0.0.1:18112"
 
 function Fail([string]$Message) {
