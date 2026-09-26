@@ -1,0 +1,12 @@
+[Unit]
+Description=Run IZAKHONO NODE01 self-heal every two minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=2min
+AccuracySec=15s
+Persistent=true
+Unit=izakhono-node01-self-heal.service
+
+[Install]
+WantedBy=timers.target
