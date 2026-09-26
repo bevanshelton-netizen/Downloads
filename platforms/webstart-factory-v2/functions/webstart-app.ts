@@ -1,0 +1,327 @@
+const html = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IZAKHONO WebStart — Build your business website</title>
+<meta name="description" content="Build, publish and manage a professional coded business website.">
+<style>
+:root{--bg:#07101f;--panel:#0e1b2e;--paper:#fff;--ink:#101827;--muted:#657287;--brand:#0bb3bf;--gold:#d4af37;--line:#dfe6ed;--soft:#f5f8fb;--danger:#b42318}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--soft);color:var(--ink)}button,input,select,textarea{font:inherit}.top{background:var(--bg);color:#fff;padding:16px max(4vw,20px);display:flex;justify-content:space-between;align-items:center;gap:20px;position:sticky;top:0;z-index:20}.brand{font-weight:950;letter-spacing:-.04em;font-size:1.2rem}.brand span{color:var(--brand)}.topnav{display:flex;gap:10px;align-items:center}.btn{border:0;border-radius:12px;padding:12px 16px;font-weight:850;cursor:pointer}.btn.primary{background:var(--brand);color:#fff}.btn.gold{background:var(--gold);color:#17130a}.btn.ghost{background:#ffffff12;color:#fff;border:1px solid #ffffff24}.btn.soft{background:#e9f7f8;color:#075c63}.btn.dark{background:var(--bg);color:#fff}.btn.warn{background:#fff0ed;color:#8e1d15}.btn:disabled{opacity:.5;cursor:not-allowed}
+.hero{background:linear-gradient(125deg,#07101f 0%,#10243e 60%,#0c5158 100%);color:#fff;padding:80px max(5vw,24px) 96px;overflow:hidden}.heroInner{max-width:1180px;margin:auto}.eyebrow{color:var(--gold);text-transform:uppercase;letter-spacing:.16em;font-weight:900}.hero h1{font-size:clamp(3rem,7vw,6.4rem);line-height:.92;letter-spacing:-.065em;max-width:1050px;margin:18px 0}.hero p{font-size:1.2rem;max-width:720px;color:#d8e4ed}.heroActions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.packages{max-width:1180px;margin:-46px auto 36px;padding:0 20px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.pkg{background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:0 18px 50px #11233b18}.pkg h3{margin:0;font-size:1.35rem}.price{font-size:2rem;font-weight:950;margin:10px 0 0}.sub{color:var(--muted);font-size:.9rem}.pkg ul{padding-left:18px;color:#4a596d;min-height:110px}
+.shell{max-width:1320px;margin:auto;padding:24px}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 8px 30px #11233b0b}.auth{max-width:560px;margin:32px auto}.authTabs{display:flex;gap:8px;margin-bottom:16px}.authTabs button{flex:1}
+.grid2{display:grid;grid-template-columns:330px 1fr;gap:18px}.side{display:flex;flex-direction:column;gap:14px}.siteList{display:flex;flex-direction:column;gap:8px}.siteItem{padding:12px;border:1px solid var(--line);border-radius:12px;cursor:pointer;background:#fff}.siteItem.active{border-color:var(--brand);box-shadow:0 0 0 2px #0bb3bf22}.siteItem small{color:var(--muted)}.status{display:inline-flex;border-radius:999px;padding:4px 8px;background:#eef4f8;font-size:.75rem;font-weight:800}.status.published{background:#e7f7ed;color:#146c35}
+.editorTop{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.toolbar{display:flex;gap:8px;flex-wrap:wrap}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:.82rem;font-weight:850;color:#536174}.field input,.field select,.field textarea{width:100%;border:1px solid #ccd6df;border-radius:11px;padding:11px 12px;background:#fff}.field textarea{min-height:100px;resize:vertical}.uploadRow{display:grid;grid-template-columns:1fr 1fr;gap:12px}.preview{width:100%;height:620px;border:1px solid var(--line);border-radius:14px;background:#fff;margin-top:18px}.notice{border-radius:12px;padding:12px 14px;background:#eef8f9;color:#0c5a61;font-size:.92rem;margin:12px 0}.notice.warn{background:#fff7e6;color:#76510c}.notice.error{background:#fff0ed;color:#8e1d15}.muted{color:var(--muted)}.hidden{display:none!important}.sectionTitle{font-size:1.1rem;font-weight:950;margin:6px 0 12px}.split{display:grid;grid-template-columns:1fr 1fr;gap:14px}.orderRow,.domainRow,.leadRow{padding:12px 0;border-top:1px solid var(--line)}.leadRow:first-child{border-top:0}.leadRow strong{display:block}.leadMeta{font-size:.78rem;color:var(--muted);margin:3px 0}.leadMsg{font-size:.88rem;color:#3e4b5d;margin:5px 0}.leadActions{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.leadActions button{padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:#fff;cursor:pointer;font-size:.75rem;font-weight:800}.link{color:#077f89;font-weight:800}.factory{margin:18px 0;padding:26px;border:1px solid #b8e8eb;border-radius:26px;background:linear-gradient(135deg,#eefafa,#fff);box-shadow:0 18px 54px rgba(7,80,88,.07)}.factoryHead{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}.factory h3{margin:0;font-size:1.35rem}.directions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}.direction{border:1px solid var(--line);border-radius:18px;padding:18px;background:#fff;transition:transform .18s ease,box-shadow .18s ease}.direction.active{border-color:var(--brand);box-shadow:0 0 0 3px #0bb3bf22,0 14px 38px rgba(11,179,191,.1);transform:translateY(-2px)}.direction h4{margin:0 0 6px}.direction p{font-size:.88rem;color:var(--muted);min-height:62px}.qaBadge{display:inline-flex;padding:7px 11px;border-radius:999px;background:#e7f7ed;color:#146c35;font-size:.75rem;font-weight:900}.foot{padding:30px;text-align:center;color:#69778a;font-size:.9rem}
+@media(max-width:900px){.packages,.grid2,.split,.directions{grid-template-columns:1fr}.packages{margin-top:-42px}.fields,.uploadRow{grid-template-columns:1fr}.field.full{grid-column:auto}.preview{height:460px}.topnav .hideMobile{display:none}.hero{min-height:auto;padding-top:84px}.hero h1{font-size:clamp(3.4rem,15vw,5.7rem)}}@media(max-width:560px){.top{padding:12px 14px}.hero{padding-left:16px;padding-right:16px;padding-bottom:110px}.packages{padding:0 14px}.shell{padding:0 14px}.card{border-radius:20px}.factory{padding:20px}}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="brand">IZAKHONO <span>WebStart</span></div><div class="topnav"><button id="logoutBtn" class="btn ghost hidden">Sign out</button><button id="dashboardBtn" class="btn primary">Start building</button></div></header>
+
+<section id="landing">
+  <div class="hero"><div class="heroInner"><div class="eyebrow">IZAKHONO WEBSITE FACTORY · INTERNATIONAL STANDARD</div><h1>International-grade websites. Built in minutes.</h1><p>Give WebStart one clear business brief. It creates three polished directions, builds the coded site, runs a 95-point international professionalism gate and only publishes after independent HTTPS verification.</p><div class="heroActions"><button class="btn primary" onclick="showAuth()">Build now</button><button class="btn ghost" onclick="document.getElementById('pricing').scrollIntoView()">View packages</button></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:28px"><span class="pill">95% quality gate</span><span class="pill">Mobile-first</span><span class="pill">No behavioural tracking</span><span class="pill">Verified HTTPS publish</span></div></div></div>
+  <div id="pricing" class="packages">
+    <article class="pkg"><h3>Start</h3><div class="price">R999</div><div class="sub">once-off + R99/month</div><ul><li>1–3 page coded site</li><li>WhatsApp/contact</li><li>Free hosted WebStart address & SSL</li></ul><button class="btn dark" onclick="startPackage('start')">Choose Start</button></article>
+    <article class="pkg"><h3>Business</h3><div class="price">R2,499</div><div class="sub">once-off + R199/month</div><ul><li>5–8 page structure</li><li>SEO-ready copy</li><li>Gallery, CRM-ready forms & SEO</li></ul><button class="btn primary" onclick="startPackage('business')">Choose Business</button></article>
+    <article class="pkg"><h3>Commerce</h3><div class="price">R4,999</div><div class="sub">once-off + R349/month</div><ul><li>Commerce-ready structure</li><li>Payments/order-ready</li><li>Customer dashboard foundation</li></ul><button class="btn gold" onclick="startPackage('commerce')">Choose Commerce</button></article>
+  </div>
+</section>
+
+<main class="shell">
+  <section id="authPanel" class="card auth hidden">
+    <div class="authTabs"><button id="loginTab" class="btn dark" onclick="setAuthMode('login')">Sign in</button><button id="signupTab" class="btn soft" onclick="setAuthMode('signup')">Create account</button></div>
+    <div class="field"><label>Email</label><input id="authEmail" type="email" autocomplete="email"></div>
+    <div class="field" style="margin-top:12px"><label>Password</label><input id="authPassword" type="password" autocomplete="current-password"></div>
+    <button id="authSubmit" class="btn primary" style="width:100%;margin-top:16px" onclick="submitAuth()">Sign in</button>
+    <div id="signupConsent" class="notice hidden"><label style="display:flex;gap:10px;align-items:flex-start"><input id="acceptTerms" type="checkbox" style="margin-top:4px"><span>I agree to the <a class="link" target="_blank" rel="noopener" href="/terms">Terms</a> and <a class="link" target="_blank" rel="noopener" href="/privacy">Privacy Policy</a>.</span></label></div><div id="authMsg" class="notice hidden"></div>
+  </section>
+
+  <section id="app" class="hidden">
+    <div class="grid2">
+      <aside class="side">
+        <div class="card"><div class="sectionTitle">Your websites</div><div id="siteList" class="siteList"></div><button class="btn primary" style="width:100%;margin-top:12px" onclick="newSite()">+ New website</button></div>
+        <div class="card"><div class="sectionTitle">Leads</div><div id="leads"><span class="muted">No enquiries yet.</span></div></div>
+        <div class="card"><div class="sectionTitle">Hosting & renewals</div><div id="subscriptions"><span class="muted">No active service yet.</span></div></div>
+        
+        <div class="card"><div class="sectionTitle">Orders</div><div id="orders"><span class="muted">No orders yet.</span></div></div>
+        <div class="card"><div class="sectionTitle">Domains</div><div class="notice">Free WebStart hosted address is included. A custom domain is optional later.</div><div id="domains"><span class="muted">No custom domain requests.</span></div></div>
+      </aside>
+      <section class="card">
+        <div id="emptyState"><h2>Create your first business website</h2><p class="muted">Choose “New website”, add your business details, generate the site and publish it.</p></div>
+        <div id="editor" class="hidden">
+          <div class="editorTop"><div><div class="sectionTitle" style="font-size:1.35rem">Website Builder</div><div id="editorStatus" class="muted"></div></div><div class="toolbar"><button class="btn primary" onclick="factoryBuild()">Build Fast</button><button class="btn soft" onclick="smartDraft(false)">3 Directions</button><button class="btn dark" onclick="saveSite()">Save</button><button class="btn primary" onclick="generateSite()">Generate</button><button class="btn gold" onclick="publishSite()">Publish</button></div></div>
+          <div id="msg" class="notice hidden"></div>
+          <div class="factory"><div class="factoryHead"><div><div class="eyebrow" style="color:#087f89">WEBSITE FACTORY</div><h3>One brief. Three professional directions.</h3><p class="muted" style="margin:6px 0">Tell us what the business does, who it serves, where it operates and what makes it different. The factory handles structure, copy direction, responsive design and quality checks.</p></div><span id="qaBadge" class="qaBadge hidden">INTERNATIONAL QA</span></div><div class="field full"><label>Business brief</label><textarea id="factoryBrief" placeholder="Example: We are a Johannesburg construction company specialising in renovations, maintenance and commercial projects. We want to look established, professional and easy to contact."></textarea></div><div id="directionCards" class="directions"></div></div>
+          <div class="fields">
+            <div class="field"><label>Business name</label><input id="name"></div>
+            <div class="field"><label>Website slug</label><input id="slug"></div>
+            <div class="field"><label>Industry</label><select id="industry"><option>construction</option><option>salon</option><option>restaurant</option><option>clothing</option><option>consulting</option><option>security</option><option>transport</option><option>cleaning</option><option>education</option><option>automotive</option><option>technology</option><option>energy</option><option>mining</option><option>agriculture</option><option>general</option></select></div>
+            <div class="field"><label>Theme</label><select id="theme"><option value="bold">Bold</option><option value="classic">Classic</option><option value="minimal">Minimal</option></select></div>
+            <div class="field"><label>Package</label><select id="package"><option value="start">Start</option><option value="business">Business</option><option value="commerce">Commerce</option></select></div>
+            <div class="field"><label>Brand colour</label><input id="brandColor" type="color" value="#0bb3bf"></div>
+            <div class="field"><label>Accent colour</label><input id="accentColor" type="color" value="#d4af37"></div>
+            <div class="field full"><label>Tagline</label><input id="tagline"></div>
+            <div class="field full"><label>About the business</label><textarea id="about"></textarea></div>
+            <div class="field full"><label>Services — one per line</label><textarea id="services"></textarea></div>
+            <div class="field"><label>Phone</label><input id="phone"></div>
+            <div class="field"><label>WhatsApp</label><input id="whatsapp"></div>
+            <div class="field"><label>Email</label><input id="email"></div>
+            <div class="field"><label>Address / area</label><input id="address"></div>
+            <div class="field full"><label>Call to action</label><input id="cta"></div>
+          </div>
+          <div class="uploadRow" style="margin-top:18px">
+            <div class="card"><strong>Logo</strong><p class="muted">PNG, JPG, WebP or SVG. Max 5MB.</p><input id="logoFile" type="file" accept="image/*"><button class="btn soft" style="margin-top:8px" onclick="uploadAsset('logo')">Upload logo</button></div>
+            <div class="card"><strong>Hero image</strong><p class="muted">Use a strong photo showing the business, product or service.</p><input id="heroFile" type="file" accept="image/*"><button class="btn soft" style="margin-top:8px" onclick="uploadAsset('hero')">Upload hero</button></div>
+          </div>
+          <div class="split" style="margin-top:18px">
+            <div class="card"><div class="sectionTitle">Commercial</div><p class="muted">Create a secure iKhokha checkout for the setup fee plus the first month. Payment confirmation updates automatically.</p><button class="btn dark" onclick="createOrder()">Create package order</button></div>
+            <div class="card"><div class="sectionTitle">Optional custom domain</div><p class="muted">Skip this to stay on the free route. Your published site will still be live on its WebStart address.</p><input id="domainName" placeholder="www.yourbusiness.co.za" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px"><button class="btn soft" style="margin-top:8px" onclick="requestDomain()">Request domain connection</button></div>
+          </div>
+          <iframe id="preview" class="preview" title="Website preview"></iframe>
+        </div>
+      </section>
+    </div>
+  </section>
+</main>
+<footer class="foot"><strong>IZAKHONO AFRICA (PTY) LTD</strong> · Reg. 2022/699539/07 · Merchant responsible for WebStart services.<br><a class="link" target="_blank" rel="noopener" href="/terms">Terms & Conditions</a> · <a class="link" target="_blank" rel="noopener" href="/privacy">Privacy</a> · <a class="link" target="_blank" rel="noopener" href="/refund">Refunds & Cancellations</a></footer>
+
+<script>
+const SUPA="https://yfawrenhudjomhnglfhq.supabase.co";
+const KEY="sb_publishable_3KY--8Y_uuKEdfdumC2txg__OWTRo2p";
+let authMode="login", session=null, user=null, sites=[], selected=null, preferredPackage="start";
+const $=id=>document.getElementById(id);
+function show(el,yes){el.classList.toggle("hidden",!yes)}
+function message(text,type){const el=$("msg");el.textContent=text;el.className="notice"+(type?" "+type:"");show(el,true)}
+function authMessage(text,type){const el=$("authMsg");el.textContent=text;el.className="notice"+(type?" "+type:"");show(el,true)}
+function slugify(s){return String(s||"").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,70)||"my-business"}
+function startPackage(p){preferredPackage=p;showAuth()}
+function showAuth(){window.scrollTo({top:0,behavior:"smooth"});show($("landing"),false);show($("app"),false);show($("authPanel"),true)}
+function setAuthMode(m){authMode=m;$("authSubmit").textContent=m==="login"?"Sign in":"Create account";$("loginTab").className=m==="login"?"btn dark":"btn soft";$("signupTab").className=m==="signup"?"btn dark":"btn soft";show($("signupConsent"),m==="signup");show($("authMsg"),false)}
+function headers(extra){return Object.assign({"apikey":KEY,"content-type":"application/json"},extra||{})}
+function jwtExp(token){try{return JSON.parse(atob(token.split(".")[1].replace(/-/g,"+").replace(/_/g,"/"))).exp*1000}catch(e){return 0}}
+async function refresh(){
+  if(!session||!session.refresh_token)return false;
+  const r=await fetch(SUPA+"/auth/v1/token?grant_type=refresh_token",{method:"POST",headers:headers(),body:JSON.stringify({refresh_token:session.refresh_token})});
+  if(!r.ok)return false; session=await r.json();localStorage.setItem("webstart_session",JSON.stringify(session));return true
+}
+async function afetch(url,opt){
+  opt=opt||{};if(!session)return null;if(jwtExp(session.access_token)<Date.now()+30000){if(!(await refresh()))return null}
+  opt.headers=Object.assign({},headers(),opt.headers||{},{"authorization":"Bearer "+session.access_token});
+  let r=await fetch(url,opt);if(r.status===401&&await refresh()){opt.headers["authorization"]="Bearer "+session.access_token;r=await fetch(url,opt)}return r
+}
+async function submitAuth(){
+  const email=$("authEmail").value.trim(),password=$("authPassword").value;
+  if(!email||password.length<6){authMessage("Enter a valid email and a password of at least 6 characters.","error");return} if(authMode==="signup"&&!$("acceptTerms").checked){authMessage("Please accept the Terms and Privacy Policy to create an account.","error");return}
+  $("authSubmit").disabled=true;
+  try{
+    const url=authMode==="login"?SUPA+"/auth/v1/token?grant_type=password":SUPA+"/auth/v1/signup";
+    const r=await fetch(url,{method:"POST",headers:headers(),body:JSON.stringify({email:email,password:password})});
+    const d=await r.json();
+    if(!r.ok){authMessage(d.msg||d.error_description||d.message||"Authentication failed.","error");return}
+    if(d.access_token){session=d;localStorage.setItem("webstart_session",JSON.stringify(d));await enterApp()}
+    else authMessage("Account created. Check your email to confirm it, then sign in.","")
+  }finally{$("authSubmit").disabled=false}
+}
+async function enterApp(){
+  if(!session)return showAuth();
+  const r=await afetch(SUPA+"/auth/v1/user",{method:"GET",headers:{"content-type":"application/json"}});
+  if(!r||!r.ok){localStorage.removeItem("webstart_session");session=null;return showAuth()}
+  user=await r.json();show($("landing"),false);show($("authPanel"),false);show($("app"),true);show($("logoutBtn"),true);$("dashboardBtn").textContent="Dashboard";await Promise.all([loadSites(),loadLeads(),loadSubscriptions(),loadOrders(),loadDomains()])
+}
+function logout(){localStorage.removeItem("webstart_session");session=null;user=null;selected=null;location.reload()}
+async function loadSites(){
+  const r=await afetch(SUPA+"/rest/v1/sites?select=*&order=created_at.desc",{method:"GET",headers:{"content-type":"application/json"}});
+  if(!r||!r.ok)return;sites=await r.json();renderSites();if(selected){const fresh=sites.find(x=>x.id===selected.id);if(fresh)selectSite(fresh.id)}
+}
+function renderSites(){
+  const box=$("siteList");box.innerHTML="";
+  if(!sites.length){box.innerHTML="<span class='muted'>No websites yet.</span>";return}
+  sites.forEach(s=>{const d=document.createElement("div");d.className="siteItem"+(selected&&selected.id===s.id?" active":"");const n=document.createElement("strong");n.textContent=s.name;const br=document.createElement("br");const sm=document.createElement("small");sm.textContent=s.slug+" · "+s.package+" · "+s.status;d.append(n,br,sm);d.onclick=()=>selectSite(s.id);box.appendChild(d)})
+}
+function newSite(){
+  selected={id:null,name:"",slug:"",industry:"general",theme:"bold",package:preferredPackage,status:"draft",brand_color:"#0bb3bf",accent_color:"#d4af37",contact:{},content:{},brief:{},design_directions:[],selected_direction:null,qa_report:{},generation_mode:"manual",generated_html:""};
+  fillEditor();show($("emptyState"),false);show($("editor"),true);renderSites()
+}
+function selectSite(id){selected=sites.find(s=>s.id===id);if(!selected)return;fillEditor();show($("emptyState"),false);show($("editor"),true);renderSites()}
+function fillEditor(){
+  const s=selected,c=s.content||{},ct=s.contact||{},br=s.brief||{};
+  $("name").value=s.name||"";$("slug").value=s.slug||"";$("industry").value=s.industry||"general";$("theme").value=s.theme||"bold";$("package").value=s.package||"start";$("brandColor").value=s.brand_color||"#0bb3bf";$("accentColor").value=s.accent_color||"#d4af37";$("tagline").value=c.tagline||"";$("about").value=c.about||"";$("services").value=(c.services||[]).join("\n");$("phone").value=ct.phone||"";$("whatsapp").value=ct.whatsapp||"";$("email").value=ct.email||"";$("address").value=ct.address||"";$("cta").value=c.cta||"";$("factoryBrief").value=br.text||"";$("editorStatus").textContent=(s.status||"draft").toUpperCase()+(s.verified_at?" · VERIFIED LIVE":s.published_url?" · LIVE":"");$("preview").srcdoc=s.generated_html||"<div style='font-family:system-ui;padding:40px;color:#5c6775'>Use Build Fast or Generate to create a preview.</div>";renderDirections(s.design_directions||[],s.selected_direction);const qb=$("qaBadge");if(s.qa_report&&s.qa_report.pass){qb.textContent="QA "+(s.qa_report.score||100)+"%";show(qb,true)}else show(qb,false)
+}
+function payload(){
+  const name=$("name").value.trim();let slug=$("slug").value.trim();if(!slug)slug=slugify(name);$("slug").value=slug;
+  return {name:name,slug:slugify(slug),industry:$("industry").value,theme:$("theme").value,package:$("package").value,brand_color:$("brandColor").value,accent_color:$("accentColor").value,contact:{phone:$("phone").value.trim(),whatsapp:$("whatsapp").value.trim(),email:$("email").value.trim(),address:$("address").value.trim()},content:{tagline:$("tagline").value.trim(),about:$("about").value.trim(),services:$("services").value.split("\n").map(x=>x.trim()).filter(Boolean),cta:$("cta").value.trim()},brief:{text:$("factoryBrief").value.trim()},design_directions:selected?.design_directions||[],selected_direction:selected?.selected_direction||null,generation_mode:selected?.generation_mode||"manual"}
+}
+async function saveSite(){
+  const p=payload();if(p.name.length<2){message("Enter the business name.","error");return false}
+  let r;
+  if(selected.id){r=await afetch(SUPA+"/rest/v1/sites?id=eq."+encodeURIComponent(selected.id),{method:"PATCH",headers:{prefer:"return=representation"},body:JSON.stringify(p)})}
+  else{p.owner_id=user.id;r=await afetch(SUPA+"/rest/v1/sites",{method:"POST",headers:{prefer:"return=representation"},body:JSON.stringify(p)})}
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok){message(d.message||d.details||"Could not save website.","error");return false}
+  selected=Array.isArray(d)?d[0]:d;message("Website saved.");await loadSites();return true
+}
+function renderDirections(dirs,chosen){
+  const box=$("directionCards");box.innerHTML="";if(!Array.isArray(dirs)||!dirs.length){box.innerHTML="<div class='muted'>Create three directions to compare design and copy options.</div>";return}
+  dirs.forEach(d=>{const card=document.createElement("div");card.className="direction"+(chosen===d.id?" active":"");const h=document.createElement("h4");h.textContent=d.label||d.id;const p=document.createElement("p");p.textContent=d.summary||"";const meta=document.createElement("div");meta.className="muted";meta.style.fontSize=".78rem";meta.textContent=(d.theme||"")+" · "+(d.tagline||"");const b=document.createElement("button");b.className="btn "+(chosen===d.id?"primary":"soft");b.style.marginTop="10px";b.textContent=chosen===d.id?"Selected":"Use this direction";b.onclick=()=>chooseDirection(d.id);card.append(h,p,meta,b);box.appendChild(card)})
+}
+function chooseDirection(id){
+  const dirs=selected?.design_directions||[];const d=dirs.find(x=>x.id===id);if(!d)return;selected.selected_direction=id;selected.generation_mode="factory-fast";$("theme").value=d.theme||"bold";$("brandColor").value=d.brand_color||"#0bb3bf";$("accentColor").value=d.accent_color||"#d4af37";$("tagline").value=d.tagline||"";$("about").value=d.about||"";$("services").value=(d.services||[]).join("\n");$("cta").value=d.cta||"";renderDirections(dirs,id);message((d.label||"Direction")+" selected. Generate when ready.")
+}
+async function smartDraft(autoGenerate){
+  if(!$("name").value.trim()){message("Enter the business name first.","error");return}
+  if(!selected||!selected.id){if(!(await saveSite()))return}else if(!(await saveSite()))return;
+  message("Creating three professional directions...");
+  const r=await afetch(SUPA+"/functions/v1/webstart-draft",{method:"POST",body:JSON.stringify({site_id:selected.id,business_name:$("name").value.trim(),brief:$("factoryBrief").value.trim(),industry:$("industry").value,services:$("services").value.split("\n").filter(Boolean)})});
+  const d=await r.json();if(!r.ok){message(d.error||"Direction generation failed.","error");return}
+  selected.design_directions=d.directions||[];selected.generation_mode="factory-fast";selected.industry=d.inferred_industry||$("industry").value;$("industry").value=selected.industry;renderDirections(selected.design_directions,selected.selected_direction);
+  if(selected.design_directions.length)chooseDirection(selected.design_directions[0].id);
+  if(autoGenerate){await generateSite();return}
+  message("Three directions are ready. Choose one, then Generate.")
+}
+async function factoryBuild(){await smartDraft(true)}
+async function generateSite(){
+  if(!selected||!selected.id){if(!(await saveSite()))return}else if(!(await saveSite()))return;
+  message("Generating coded website and running QA...");
+  const r=await afetch(SUPA+"/functions/v1/webstart-generate",{method:"POST",body:JSON.stringify({site_id:selected.id,direction:selected.selected_direction||null})});
+  const d=await r.json();if(!r.ok){message(d.error||"Generation failed.","error");return}
+  selected=d.site;$("preview").srcdoc=d.html;renderDirections(selected.design_directions||[],selected.selected_direction);const qb=$("qaBadge");qb.textContent="QA "+(d.qa?.score||100)+"%";show(qb,true);message("Website generated. Automated QA passed at "+(d.qa?.score||100)+"%.");await loadSites()
+}
+async function publishSite(){
+  if(!selected||!selected.id){message("Save and generate the website first.","error");return}
+  message("Publishing and verifying the public site...");
+  const r=await afetch(SUPA+"/functions/v1/webstart-publish",{method:"POST",body:JSON.stringify({site_id:selected.id})});
+  const d=await r.json();
+  if(!r.ok){
+    if(r.status===402){message("Payment is required before public launch. Opening secure iKhokha checkout...","warn");await createOrder("initial");return}
+    message(d.error||"Publish failed.","error");return
+  }
+  message("Verified live — HTTP "+(d.http_status||200)+". Opening the website...");await Promise.all([loadSites(),loadSubscription()]);window.open(d.url,"_blank","noopener")
+}
+async function uploadAsset(kind){
+  if(!selected||!selected.id){if(!(await saveSite()))return}
+  const input=kind==="logo"?$("logoFile"):$("heroFile"),file=input.files[0];if(!file){message("Choose an image first.","error");return}
+  if(file.size>5242880){message("Image must be under 5MB.","error");return}
+  const ext=(file.name.split(".").pop()||"jpg").replace(/[^a-z0-9]/gi,"").toLowerCase();const path=user.id+"/"+selected.id+"/"+kind+"-"+Date.now()+"."+ext;
+  const r=await afetch(SUPA+"/storage/v1/object/webstart-assets/"+path.split("/").map(encodeURIComponent).join("/"),{method:"POST",headers:{"content-type":file.type||"application/octet-stream","x-upsert":"true"},body:file});
+  if(!r.ok){const t=await r.text();message("Upload failed: "+t,"error");return}
+  const publicUrl=SUPA+"/storage/v1/object/public/webstart-assets/"+path.split("/").map(encodeURIComponent).join("/");
+  const patch={};patch[kind==="logo"?"logo_url":"hero_image_url"]=publicUrl;
+  const u=await afetch(SUPA+"/rest/v1/sites?id=eq."+encodeURIComponent(selected.id),{method:"PATCH",headers:{prefer:"return=representation"},body:JSON.stringify(patch)});
+  const d=await u.json();if(u.ok){selected=d[0];message(kind==="logo"?"Logo uploaded.":"Hero image uploaded.");await loadSites()}else message("Could not attach image.","error")
+}
+async function createOrder(billingType){
+  if(!selected||!selected.id){message("Save the website first.","error");return}
+  const type=billingType==="renewal"?"renewal":"initial";
+  message(type==="renewal"?"Creating monthly renewal checkout...":"Creating secure iKhokha checkout...");
+  const r=await afetch(SUPA+"/functions/v1/webstart-checkout",{method:"POST",body:JSON.stringify({site_id:selected.id,package:$("package").value,billing_type:type})});
+  const d=await r.json();
+  if(!r.ok){
+    if(d.setup_required)message("iKhokha API credentials still need to be installed before live checkout can open.","warn");
+    else message(d.error||"Could not create secure checkout.","error");
+    await loadOrders();return
+  }
+  message(type==="renewal"?"Monthly renewal link created. Opening iKhokha...":"Secure checkout created. Opening iKhokha...");
+  if(d.checkout_url)window.open(d.checkout_url,"_blank","noopener");
+  await loadOrders()
+}
+async function loadSubscription(){
+  if(!user)return;
+  const r=await afetch(SUPA+"/rest/v1/webstart_subscriptions?select=*&order=updated_at.desc&limit=20",{method:"GET"});
+  if(!r||!r.ok)return;
+  const rows=await r.json(),box=$("subscription");box.innerHTML="";
+  const sub=selected?rows.find(x=>x.site_id===selected.id):rows[0];
+  if(!sub){box.innerHTML="<span class='muted'>No active hosting subscription yet.</span>";return}
+  const wrap=document.createElement("div");
+  const name=sites.find(s=>s.id===sub.site_id)?.name||"Website";
+  const title=document.createElement("strong");title.textContent=name+" · "+sub.package;
+  const meta=document.createElement("div");meta.className="muted";meta.textContent="Status: "+sub.status+" · Next renewal: "+(sub.next_due_at?new Date(sub.next_due_at).toLocaleDateString():"not set");
+  const price=document.createElement("div");price.className="muted";price.textContent="R"+(sub.monthly_cents/100).toLocaleString()+"/month";
+  const btn=document.createElement("button");btn.className="btn soft";btn.style.marginTop="10px";btn.textContent="Renew hosting";btn.onclick=()=>createOrder("renewal");
+  wrap.append(title,meta,price,btn);box.appendChild(wrap)
+}
+async function loadLeads(){
+  if(!user)return;
+  const r=await afetch(SUPA+"/rest/v1/webstart_leads?select=id,site_id,name,email,phone,message,status,created_at&order=created_at.desc&limit=30",{method:"GET"});
+  if(!r||!r.ok)return;
+  const rows=await r.json(),box=$("leads");box.innerHTML="";
+  if(!rows.length){box.innerHTML="<span class='muted'>No enquiries yet.</span>";return}
+  rows.forEach(x=>{
+    const site=sites.find(s=>s.id===x.site_id);
+    const d=document.createElement("div");d.className="leadRow";
+    const n=document.createElement("strong");n.textContent=x.name;
+    const meta=document.createElement("div");meta.className="leadMeta";meta.textContent=(site?.name||"Website")+" · "+new Date(x.created_at).toLocaleString()+" · "+x.status;
+    const em=document.createElement("a");em.className="link";em.href="mailto:"+encodeURIComponent(x.email);em.textContent=x.email;
+    const msg=document.createElement("div");msg.className="leadMsg";msg.textContent=x.message;
+    const actions=document.createElement("div");actions.className="leadActions";
+    ["reviewed","contacted","closed"].forEach(st=>{const b=document.createElement("button");b.textContent=st;b.disabled=x.status===st;b.onclick=()=>updateLead(x.id,st);actions.appendChild(b)});
+    d.append(n,meta,em,msg,actions);box.appendChild(d)
+  })
+}
+async function updateLead(id,status){
+  const r=await afetch(SUPA+"/rest/v1/webstart_leads?id=eq."+encodeURIComponent(id),{method:"PATCH",headers:{prefer:"return=minimal"},body:JSON.stringify({status})});
+  if(r&&r.ok){message("Lead marked "+status+".");await loadLeads()}else message("Could not update lead.","error")
+}
+async function loadSubscriptions(){
+  if(!user)return;
+  const r=await afetch(SUPA+"/rest/v1/webstart_subscriptions?select=id,site_id,package,monthly_cents,status,current_period_end,next_due_at&order=created_at.desc",{method:"GET"});
+  if(!r||!r.ok)return;
+  const rows=await r.json(),box=$("subscriptions");box.innerHTML="";
+  if(!rows.length){box.innerHTML="<span class='muted'>No active service yet.</span>";return}
+  rows.forEach(s=>{
+    const site=sites.find(x=>x.id===s.site_id);
+    const d=document.createElement("div");d.className="orderRow";
+    const st=document.createElement("strong");st.textContent=(site?.name||"Website")+" · "+s.package;
+    const meta=document.createElement("div");meta.className="muted";
+    const due=s.next_due_at?new Date(s.next_due_at).toLocaleDateString():"—";
+    meta.textContent="R"+(Number(s.monthly_cents||0)/100).toLocaleString()+"/month · "+s.status+" · next due "+due;
+    const b=document.createElement("button");b.className="btn soft";b.style.marginTop="8px";b.textContent="Pay next month";b.onclick=()=>createRenewal(s);
+    d.append(st,meta,b);box.appendChild(d)
+  })
+}
+async function createRenewal(subscription){
+  const site=sites.find(x=>x.id===subscription.site_id);
+  if(!site){message("Website not found for this renewal.","error");return}
+  message("Creating monthly renewal checkout...");
+  const r=await afetch(SUPA+"/functions/v1/webstart-checkout",{method:"POST",body:JSON.stringify({site_id:site.id,package:subscription.package,billing_type:"renewal"})});
+  const d=await r.json();
+  if(!r.ok){message(d.error||"Could not create renewal checkout.","error");return}
+  if(d.checkout_url)window.open(d.checkout_url,"_blank","noopener");
+  message("Renewal checkout created securely.");
+  await Promise.all([loadSubscriptions(),loadOrders()])
+}
+async function loadOrders(){
+  if(!user)return;const r=await afetch(SUPA+"/rest/v1/orders?select=*&order=created_at.desc&limit=10",{method:"GET"});if(!r||!r.ok)return;const rows=await r.json(),box=$("orders");box.innerHTML="";
+  if(!rows.length){box.innerHTML="<span class='muted'>No orders yet.</span>";return}
+  rows.forEach(o=>{const d=document.createElement("div");d.className="orderRow";const st=document.createElement("strong");st.textContent=o.package;const br=document.createElement("br");const m=document.createElement("span");m.className="muted";m.textContent="R"+(o.once_off_cents/100).toLocaleString()+" + R"+(o.monthly_cents/100).toLocaleString()+"/month · "+o.status;d.append(st,br,m);if(o.checkout_url){const a=document.createElement("a");a.href=o.checkout_url;a.target="_blank";a.rel="noopener";a.className="link";a.textContent="Pay securely";d.append(document.createElement("br"),a)}box.appendChild(d)})
+}
+async function requestDomain(){
+  if(!selected||!selected.id){message("Save the website first.","error");return}
+  const hostname=$("domainName").value.trim().toLowerCase().replace(/^https?:\/\//,"").replace(/\/$/,"");
+  if(!/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i.test(hostname)){message("Enter a valid domain name.","error");return}
+  const r=await afetch(SUPA+"/rest/v1/domains",{method:"POST",headers:{prefer:"return=representation"},body:JSON.stringify({owner_id:user.id,site_id:selected.id,hostname:hostname,status:"requested"})});const d=await r.json();
+  if(!r.ok){message(d.message||"Domain request failed.","error");return}message("Domain request recorded. Verification token: "+d[0].verification_token);await loadDomains()
+}
+async function loadDomains(){
+  if(!user)return;const r=await afetch(SUPA+"/rest/v1/domains?select=*&order=created_at.desc&limit=10",{method:"GET"});if(!r||!r.ok)return;const rows=await r.json(),box=$("domains");box.innerHTML="";
+  if(!rows.length){box.innerHTML="<span class='muted'>No domain requests yet.</span>";return}
+  rows.forEach(x=>{const d=document.createElement("div");d.className="domainRow";const a=document.createElement("strong");a.textContent=x.hostname;const p=document.createElement("div");p.className="muted";p.textContent=x.status;d.append(a,p);box.appendChild(d)})
+}
+$("logoutBtn").onclick=logout;$("dashboardBtn").onclick=()=>session?enterApp():showAuth();
+$("name").addEventListener("input",()=>{if(selected&&!selected.id&&!$("slug").dataset.touched)$("slug").value=slugify($("name").value)});
+$("slug").addEventListener("input",()=>{$("slug").dataset.touched="1"});
+try{session=JSON.parse(localStorage.getItem("webstart_session")||"null")}catch(e){}
+if(session)enterApp();
+</script>
+</body>
+</html>`;
+
+Deno.serve((_req: Request) => new Response(html, {
+  headers: {
+    "content-type":"text/html; charset=utf-8",
+    "cache-control":"public, max-age=60",
+    "x-content-type-options":"nosniff",
+    "referrer-policy":"strict-origin-when-cross-origin"
+  }
+}));

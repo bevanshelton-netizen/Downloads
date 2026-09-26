@@ -1,0 +1,1 @@
+export default function handler(req,res){res.status(200).json({ok:true,service:"IZAKHONO WebStart Renderer",version:"1.0.0"});}

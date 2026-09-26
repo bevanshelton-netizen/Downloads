@@ -1,0 +1,10 @@
+services:
+  webstart:
+    build: .
+    restart: unless-stopped
+    environment:
+      PORT: 8080
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_PUBLISHABLE_KEY: ${SUPABASE_PUBLISHABLE_KEY}
+    ports:
+      - "127.0.0.1:8288:8080"
