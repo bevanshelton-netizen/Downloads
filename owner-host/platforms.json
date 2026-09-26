@@ -94,18 +94,6 @@
       "laptopAdminSessionRequiredForAvailability": false
     },
     {
-      "id": "ecd360",
-      "hostnameEnv": "ECD360_PUBLIC_HOST",
-      "deploy": "izakhono-cloud/DEPLOY-ECD360-ISN-01.ps1",
-      "qualityProfile": "izakhono-premium-v1",
-      "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
-      "laptopRuntimeDependency": false,
-      "laptopDeploymentTarget": false,
-      "laptopDataPlane": false,
-      "platformToLaptopTraffic": "DENY",
-      "laptopAdminSessionRequiredForAvailability": false
-    },
-    {
       "id": "allegro-vibez",
       "hostnameEnv": "ALLEGRO_PUBLIC_HOST",
       "deploy": "izakhono-cloud/DEPLOY-ALLEGRO-ISN-01.ps1",
@@ -322,5 +310,16 @@
     "genericTemplateLookAllowed": false,
     "deadLinksAllowed": false,
     "unverifiedLiveClaimsAllowed": false
-  }
+  },
+  "excludedOrganizations": [
+    {
+      "id": "edu-build-institute-shelton-campuses",
+      "reason": "Separate business/entity; not an IZAKHONO platform",
+      "products": [
+        "ecd360",
+        "edu-build-360"
+      ],
+      "sharedInfrastructurePolicy": "EXPLICIT_SHARED_SERVICES_AGREEMENT_ONLY"
+    }
+  ]
 }
