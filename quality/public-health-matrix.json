@@ -97,6 +97,18 @@
       "product": "izakhono-one-ai",
       "url": "https://one.domains.izakhonoafrica.co.za",
       "mode": "observe"
+    },
+    {
+      "id": "worknow-fallback",
+      "product": "worknow",
+      "url": "https://bevanshelton-netizen.github.io/Downloads/worknow/",
+      "mode": "required-resilience"
+    },
+    {
+      "id": "doxa-sure-fallback",
+      "product": "doxa-sure",
+      "url": "https://bevanshelton-netizen.github.io/Downloads/doxa-sure/",
+      "mode": "required-resilience"
     }
   ]
 }
