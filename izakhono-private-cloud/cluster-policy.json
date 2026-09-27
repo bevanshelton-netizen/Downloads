@@ -1,0 +1,19 @@
+{
+  "schema":"izakhono.private-cloud/v1",
+  "authority":"IZAKHONO_INFRASTRUCTURE",
+  "nodes":{
+    "NODE01":{"role":"PRIMARY_HYPERVISOR","productionEligible":true},
+    "NODE02":{"role":"FAILOVER_HYPERVISOR","productionEligible":true}
+  },
+  "laptop":{"role":"ADMIN_CLIENT_ONLY","productionEligible":false},
+  "failover":{
+    "automaticApplicationRecovery":true,
+    "requireHealthProof":true,
+    "allowUnverifiedLiveClaim":false,
+    "preserveExternalResilience":true,
+    "paymentFailClosed":true,
+    "fortressRequired":true
+  },
+  "secrets":{"replicateEncryptedOnly":true,"commitToSource":false},
+  "control":{"arbitraryRemoteShell":false,"allowlistedWorkloadsOnly":true}
+}
