@@ -1,0 +1,9 @@
+/* IZAKHONO Premium Experience Layer v1 */
+:root{--iz-premium-focus:#fff36e;--iz-premium-touch:44px}
+html{text-rendering:optimizeLegibility;-webkit-text-size-adjust:100%}
+button,input,select,textarea{font:inherit}
+button,[role="button"],input[type="submit"],input[type="button"],select,.btn{min-height:var(--iz-premium-touch)}
+img,svg,video,canvas{max-width:100%}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--iz-premium-focus)!important;outline-offset:3px!important}
+@media(pointer:coarse){button,[role="button"],.btn,input[type="submit"],input[type="button"],select{min-height:48px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
