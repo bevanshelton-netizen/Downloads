@@ -109,13 +109,18 @@ const servers=[
   "kora-network/public/izakhono-revenue/server.mjs",
   "ports/kora-gospel-tv/server.mjs",
   "izakhono-one-ai/server.mjs",
-  "crowne-hair/server.mjs"
+  "crowne-hair/server.mjs",
+  "worknow/server.mjs"
 ];
 for(const file of servers){
   const src=await read(file);
   for(const header of ["x-content-type-options","referrer-policy","permissions-policy"]){
     if(!src.toLowerCase().includes(header)) fail(file+" missing security header "+header);
   }
+}
+const doxaServer=await read("doxa-sure/owner_service.py");
+for(const header of ["x-content-type-options","referrer-policy","permissions-policy"]){
+  if(!doxaServer.toLowerCase().includes(header)) fail("DOXA-SURE runtime missing security header "+header);
 }
 const gospel=await read("ports/kora-gospel-tv/server.mjs");
 if(!gospel.toLowerCase().includes("content-security-policy")) fail("Gospel runtime missing CSP");

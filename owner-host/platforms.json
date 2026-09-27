@@ -263,6 +263,34 @@
       "laptopDataPlane": false,
       "platformToLaptopTraffic": "DENY",
       "laptopAdminSessionRequiredForAvailability": false
+    },
+    {
+      "qualityProfile": "izakhono-premium-v1",
+      "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
+      "laptopRuntimeDependency": false,
+      "laptopDeploymentTarget": false,
+      "laptopDataPlane": false,
+      "platformToLaptopTraffic": "DENY",
+      "laptopAdminSessionRequiredForAvailability": false,
+      "id": "doxa-sure",
+      "hostnameEnv": "DOXA_SURE_PUBLIC_HOST",
+      "defaultHostname": "doxa.domains.izakhonoafrica.co.za",
+      "deploy": "izakhono-owned-cloud/deploy-doxa-sure.sh",
+      "externalResilience": "https://bevanshelton-netizen.github.io/Downloads/doxa-sure/"
+    },
+    {
+      "qualityProfile": "izakhono-premium-v1",
+      "runtimeAuthority": "IZAKHONO_INFRASTRUCTURE",
+      "laptopRuntimeDependency": false,
+      "laptopDeploymentTarget": false,
+      "laptopDataPlane": false,
+      "platformToLaptopTraffic": "DENY",
+      "laptopAdminSessionRequiredForAvailability": false,
+      "id": "worknow",
+      "hostnameEnv": "WORKNOW_PUBLIC_HOST",
+      "defaultHostname": "worknow.domains.izakhonoafrica.co.za",
+      "deploy": "izakhono-owned-cloud/deploy-worknow.sh",
+      "externalResilience": "https://bevanshelton-netizen.github.io/Downloads/worknow/"
     }
   ],
   "infrastructurePolicy": {

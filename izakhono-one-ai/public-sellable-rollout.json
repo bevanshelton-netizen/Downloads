@@ -133,12 +133,12 @@
     {
       "id": "doxa-sure",
       "name": "DOXA-SURE",
-      "owned_target": null,
-      "fallback": null,
-      "public_status": "not-routed",
+      "owned_target": "https://doxa.domains.izakhonoafrica.co.za",
+      "fallback": "https://bevanshelton-netizen.github.io/Downloads/doxa-sure/",
+      "public_status": "target-defined",
       "commercial_status": "pilot",
-      "payment": "nonregulated-services-only",
-      "next_blocker": "stable public address + regulated-boundary review"
+      "payment": "fail-closed-unless-configured",
+      "next_blocker": "owned public HTTPS + legal/commercial review + verified external resilience"
     },
     {
       "id": "legacymart",
@@ -239,6 +239,16 @@
       "commercial_status": "pilot",
       "payment": "final-price-required",
       "next_blocker": "record canonical public URL + final pricing"
+    },
+    {
+      "id": "worknow",
+      "name": "WorkNow",
+      "owned_target": "https://worknow.domains.izakhonoafrica.co.za",
+      "fallback": "https://bevanshelton-netizen.github.io/Downloads/worknow/",
+      "public_status": "target-defined",
+      "commercial_status": "pilot",
+      "payment": "free-for-job-seekers; employer monetisation pending",
+      "next_blocker": "owned public HTTPS + verified external resilience + employer onboarding"
     }
   ]
 }

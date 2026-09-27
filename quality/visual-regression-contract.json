@@ -94,6 +94,30 @@
       "landmarks": [
         "KORA KIDS"
       ]
+    },
+    {
+      "id": "doxa-sure",
+      "html": "doxa-sure/index.html",
+      "css": [
+        "doxa-sure/styles.css",
+        "doxa-sure/premium-v1.css"
+      ],
+      "landmarks": [
+        "DOXA-SURE",
+        "SAVE MY ASSET"
+      ]
+    },
+    {
+      "id": "worknow",
+      "html": "worknow/index.html",
+      "css": [
+        "worknow/styles.css",
+        "worknow/premium-v1.css"
+      ],
+      "landmarks": [
+        "WorkNow",
+        "Ready for work"
+      ]
     }
   ],
   "applicationSurfaces": [
