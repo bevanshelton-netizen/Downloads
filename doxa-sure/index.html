@@ -7,8 +7,9 @@
   <meta name="description" content="DOXA-SURE helps people act early when homes, vehicles, income and essential assets are at risk." />
   <title>DOXA-SURE — Protect what has been entrusted to you</title>
   <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./premium-v1.css" />
 </head>
-<body>
+<body data-quality-profile="izakhono-premium-v1">
   <div id="modeBanner" class="mode-banner hidden"></div>
 
   <header class="topbar">
@@ -40,7 +41,13 @@
           <p class="legal-mini">Bootstrap pilot: rescue coordination and case organisation only. No insurance benefit, legal representation or debt-counselling service is sold or promised by this MVP.</p>
         </div>
 
-        <aside class="card auth-card" id="authCard">
+        <aside class="hero-side">
+          <div class="asset-visual" aria-label="Home and essential assets protected by early action">
+            <img src="https://images.unsplash.com/photo-1776222075410-5acc108845c8?auto=format&fit=crop&fm=jpg&q=82&w=1600" alt="Modern family home illuminated at dusk">
+            <div class="asset-visual-shade"></div>
+            <div class="asset-visual-copy"><small>PROTECT EARLY</small><strong>Your home. Your vehicle. Your income. Your business.</strong><span>See pressure sooner and prepare the next step before the situation gets worse.</span></div>
+          </div>
+          <div class="card auth-card" id="authCard">
           <div class="shield-mark">DS</div>
           <h2>Start your Shield</h2>
           <p>Use your email to open a secure pilot profile. Phone/SMS login is deferred to keep launch costs near zero.</p>
@@ -52,6 +59,7 @@
             <button class="btn full" type="submit">Continue</button>
           </form>
           <div id="authMessage" class="form-message" role="status"></div>
+          </div>
         </aside>
       </div>
     </section>
