@@ -152,8 +152,8 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 def main() -> int:
-    host = os.environ.get("DOXA_HOST", "127.0.0.1")
-    port = int(os.environ.get("DOXA_PORT", "8080"))
+    host = os.environ.get("DOXA_HOST", os.environ.get("HOST", "127.0.0.1"))
+    port = int(os.environ.get("DOXA_PORT", os.environ.get("PORT", "8080")))
     if not (1024 <= port <= 65535):
         raise SystemExit("invalid port")
     init_db()
