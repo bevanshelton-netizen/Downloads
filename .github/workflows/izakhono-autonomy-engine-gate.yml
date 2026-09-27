@@ -1,0 +1,38 @@
+name: IZAKHONO Autonomy Engine Gate
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'izakhono-autonomy-engine/**'
+      - 'IZAKHONO-INFRASTRUCTURE-AUTHORITY.json'
+      - 'izakhono-infrastructure-executor/**'
+      - 'infrastructure/control/portfolio-desired-state.json'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'izakhono-autonomy-engine/**'
+      - 'IZAKHONO-INFRASTRUCTURE-AUTHORITY.json'
+      - 'izakhono-infrastructure-executor/**'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate autonomous fail-closed engine
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n izakhono-autonomy-engine/run.sh
+          bash -n izakhono-autonomy-engine/install-linux.sh
+          grep -q 'ADMIN_CLIENT_ONLY' izakhono-autonomy-engine/run.sh
+          grep -q 'allowlistedTargetsOnly:true' izakhono-autonomy-engine/run.sh
+          grep -q 'arbitraryCommands:false' izakhono-autonomy-engine/run.sh
+          grep -q 'OnUnitActiveSec=60s' izakhono-autonomy-engine/systemd/izakhono-autonomy-engine.timer
+          node - <<'NODE'
+          const a=require('./IZAKHONO-INFRASTRUCTURE-AUTHORITY.json');
+          if(a.laptop?.runtime_dependency!==false||a.laptop?.deployment_target!==false)process.exit(2);
+          if(a.execution_policy?.production_scheduler!=='IZAKHONO_INFRASTRUCTURE_EXECUTOR')process.exit(3);
+          if(a.execution_policy?.arbitrary_command_from_control_allowed!==false)process.exit(4);
+          NODE
