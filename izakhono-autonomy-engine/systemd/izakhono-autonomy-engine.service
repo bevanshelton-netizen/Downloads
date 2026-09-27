@@ -1,0 +1,16 @@
+[Unit]
+Description=IZAKHONO Autonomous Infrastructure Engine
+After=network-online.target izakhono-infrastructure-executor.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+EnvironmentFile=-/etc/izakhono/infrastructure-executor.env
+ExecStart=/bin/bash /opt/izakhono-autonomy-engine/run.sh
+PrivateTmp=true
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
