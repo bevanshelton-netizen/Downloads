@@ -1,0 +1,80 @@
+name: Wave 2 External Resilience Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "quality/visual-regression-contract.json"
+      - ".github/workflows/doxa-sure-pages.yml"
+      - ".github/workflows/wave2-external-resilience-gate.yml"
+  push:
+    branches: [main]
+    paths:
+      - "worknow/**"
+      - "doxa-sure/**"
+      - ".github/workflows/doxa-sure-pages.yml"
+      - ".github/workflows/wave2-external-resilience-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify fallback sources are packaged
+        run: |
+          set -euo pipefail
+          grep -Fq "cp -R worknow/. _site/worknow/" .github/workflows/doxa-sure-pages.yml
+          grep -Fq "cp -R doxa-sure/. _site/doxa-sure/" .github/workflows/doxa-sure-pages.yml
+          test -s worknow/index.html
+          test -s worknow/health.json
+          test -s doxa-sure/index.html
+          test -s doxa-sure/health.json
+
+  verify:
+    if: github.event_name != 'pull_request'
+    needs: source-contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify WorkNow external resilience
+        run: |
+          set -euo pipefail
+          BASE="https://bevanshelton-netizen.github.io/Downloads/worknow"
+          ok=0
+          for i in $(seq 1 40); do
+            if curl -fsSL --connect-timeout 4 --max-time 10 "$BASE/" -o /tmp/worknow.html &&
+               grep -q "Ready for work" /tmp/worknow.html &&
+               curl -fsSL --connect-timeout 4 --max-time 10 "$BASE/health.json" -o /tmp/worknow-health.json; then
+              ok=1
+              break
+            fi
+            sleep 5
+          done
+          test "$ok" -eq 1
+          node -e 'const x=require("/tmp/worknow-health.json");if(x.ok!==true||x.service!=="worknow"||x.runtime!=="external-resilience")process.exit(2)'
+
+      - name: Verify DOXA-SURE external resilience
+        run: |
+          set -euo pipefail
+          BASE="https://bevanshelton-netizen.github.io/Downloads/doxa-sure"
+          ok=0
+          for i in $(seq 1 40); do
+            if curl -fsSL --connect-timeout 4 --max-time 10 "$BASE/" -o /tmp/doxa.html &&
+               grep -q "Protect what you worked for" /tmp/doxa.html &&
+               curl -fsSL --connect-timeout 4 --max-time 10 "$BASE/health.json" -o /tmp/doxa-health.json; then
+              ok=1
+              break
+            fi
+            sleep 5
+          done
+          test "$ok" -eq 1
+          node -e 'const x=require("/tmp/doxa-health.json");if(x.ok!==true||x.service!=="doxa-sure"||x.runtime!=="external-resilience")process.exit(2)'
+
+      - name: Report verified fallback routes
+        run: |
+          echo "WORKNOW_EXTERNAL_RESILIENCE=VERIFIED"
+          echo "DOXA_SURE_EXTERNAL_RESILIENCE=VERIFIED"

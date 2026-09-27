@@ -10,6 +10,7 @@ on:
       - 'ports/revenue-sprint/**'
       - 'kora-network/public/izakhono-revenue/**'
       - 'doxa-sure/**'
+      - 'worknow/**'
       - 'ports/izakhono-one/**'
       - 'one/**'
       - 'ports/kora-kids/**'
@@ -88,7 +89,7 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf _site
-          mkdir -p _site/doxa-sure _site/yenzanow _site/revenue-sprint
+          mkdir -p _site/doxa-sure _site/worknow _site/yenzanow _site/revenue-sprint
           mkdir -p _site/izakhono-one
           mkdir -p _site/one
           mkdir -p _site/ports/izakhono-one
@@ -106,6 +107,7 @@ jobs:
           # Preserve the previous Revenue Sprint as a reversible fallback.
           cp ports/revenue-sprint/index.html _site/revenue-sprint/index.html
           cp -R doxa-sure/. _site/doxa-sure/
+          cp -R worknow/. _site/worknow/
           cp ports/yenzanow/index.html _site/yenzanow/index.html
           cp ports/yenzanow/healthz.txt _site/yenzanow/healthz.txt
           cp -R portfolio-growth/. _site/portfolio-growth/
