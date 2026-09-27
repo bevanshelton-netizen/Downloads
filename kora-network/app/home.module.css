@@ -123,3 +123,16 @@
 .offerCard p{color:#e3e6fb;line-height:1.55;margin:0 0 28px}
 .offerCard span{margin-top:auto;font-size:13px;font-weight:1000;letter-spacing:.06em;color:var(--offer-accent)}
 @media(max-width:900px){.offerGrid{grid-template-columns:1fr}}
+
+/* Wave 1 professional image-led offer strip */
+.visualPromise{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:22px 6vw 48px}
+.visualTile{position:relative;min-height:430px;overflow:hidden;border-radius:28px;border:1px solid #ffffff35;box-shadow:0 24px 70px #09062f70}
+.visualTile>img{object-fit:cover;transition:transform .45s ease}
+.visualTile:hover>img{transform:scale(1.035)}
+.visualShade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 20%,rgba(7,7,38,.93) 92%)}
+.visualTile>div:last-child{position:absolute;z-index:2;left:0;right:0;bottom:0;padding:28px}
+.visualTile small{font-size:10px;letter-spacing:.16em;font-weight:1000;color:#70fff1}
+.visualTile h2{font-size:clamp(28px,3vw,46px);line-height:.96;letter-spacing:-.035em;margin:10px 0 9px}
+.visualTile p{margin:0;color:#eef0ff;line-height:1.45;font-size:14px}
+@media(max-width:900px){.visualPromise{grid-template-columns:1fr}.visualTile{min-height:380px}}
+@media(prefers-reduced-motion:reduce){.visualTile>img{transition:none}}

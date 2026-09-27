@@ -58,6 +58,24 @@ export default function Home() {
         <span>LIVE TV</span><span>SHORT DRAMA</span><span>MUSIC</span><span>COMEDY</span><span>FAITH</span><span>KIDS</span><span>CREATOR TV</span>
       </div></div>
 
+      <section className={styles.visualPromise} aria-label="What KORA offers">
+        <article className={styles.visualTile}>
+          <Image src="/images/kora-original-drama.webp" alt="African drama production scene for KORA Originals" fill sizes="(max-width: 760px) 92vw, 31vw" />
+          <div className={styles.visualShade} />
+          <div><small>KORA ORIGINALS</small><h2>Stories that look and feel like us.</h2><p>Drama, film and creator-led entertainment made for African audiences and the world.</p></div>
+        </article>
+        <article className={styles.visualTile}>
+          <Image src="/images/kora-live-music.webp" alt="Live African musicians performing on stage" fill sizes="(max-width: 760px) 92vw, 31vw" />
+          <div className={styles.visualShade} />
+          <div><small>LIVE MUSIC</small><h2>Turn the stage into a global screen.</h2><p>Concerts, showcases and music culture with direct routes for artists, fans and partners.</p></div>
+        </article>
+        <article className={styles.visualTile}>
+          <Image src="/images/kora-programme-montage.webp" alt="Montage of KORA programmes and creators" fill sizes="(max-width: 760px) 92vw, 31vw" />
+          <div className={styles.visualShade} />
+          <div><small>CREATOR ECONOMY</small><h2>Watch. Create. Partner. Grow.</h2><p>One entertainment network connecting viewers, creators, channels and brands.</p></div>
+        </article>
+      </section>
+
       <section className={styles.networkOffers} aria-label="KORA Gospel TV">\n        <header className={styles.sectionHead}>\n          <div className={styles.eyebrow}>NEW KORA CHANNEL</div>\n          <h2>Gospel TV — owned by us, distributed everywhere useful.</h2>\n          <p>YHVH GOSPEL TV runs on IZAKHONO-owned infrastructure as its primary origin, with KORA/Vercel and public mirrors kept active for reach and resilience.</p>\n        </header>\n        <div className={styles.offerGrid}>\n          <Link className={styles.offerCard} href="/gospel" style={{'--offer-accent':'#f5c451'} as React.CSSProperties}>\n            <small>24/7 GOSPEL TELEVISION</small>\n            <h3>YHVH GOSPEL TV</h3>\n            <p>Faith. Worship. Word. Africa to the World.</p>\n            <span>Open Gospel TV →</span>\n          </Link>\n        </div>\n      </section>\n\n      <section className={styles.networkOffers} aria-label="Useful services from the IZAKHONO network">
         <header className={styles.sectionHead}>
           <div className={styles.eyebrow}>USEFUL SERVICES FROM OUR NETWORK</div>
