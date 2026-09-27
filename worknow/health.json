@@ -1,0 +1,6 @@
+{
+  "ok": true,
+  "service": "worknow",
+  "runtime": "external-resilience",
+  "version": "1.0.0"
+}
