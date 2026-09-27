@@ -173,6 +173,12 @@
         "bash",
         "izakhono-owned-cloud/deploy-containers.sh"
       ]
+    },
+    "growth-os-owner-bridge": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-growth-os-bridge.sh"
+      ]
     }
   }
 }
