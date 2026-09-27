@@ -1,6 +1,6 @@
 {
   "schema": "izakhono.gateway/v1",
-  "effective_at": "2026-09-25T23:51:00+02:00",
+  "effective_at": "2026-09-27T20:45:00+02:00",
   "mode": "TEMPORARY_GATEWAY_FIRST",
   "primary_entrypoint": "https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-gateway",
   "policy": {
@@ -132,5 +132,16 @@
   },
   "revenue_frontend_status": "LIVE_VERIFIED",
   "revenue_frontend_design": "LIGHT_PREMIUM_WITH_SERVICE_IMAGES",
-  "opera_mini_compatibility": "LIGHTWEIGHT_SYSTEM_FONT_HIGH_CONTRAST"
+  "opera_mini_compatibility": "LIGHTWEIGHT_SYSTEM_FONT_HIGH_CONTRAST",
+  "pimped_visual_release": {
+    "status": "LIVE_VERIFIED",
+    "commit": "cdde58971a5c735b8f64a08d10d5ce3ab263ee60",
+    "deployment": "dpl_2jhZgnyDteWgbyx44qhWUpa2tmsQ",
+    "features": [
+      "light theme",
+      "real images beside all seven commercial headings",
+      "mobile responsive",
+      "Opera Mini-friendly layout"
+    ]
+  }
 }
