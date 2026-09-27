@@ -112,6 +112,12 @@ def record(value: dict, path: Path | None = None) -> dict:
 class Handler(SimpleHTTPRequestHandler):
     server_version = "DOXASURE/1.0"
 
+    def end_headers(self) -> None:
+        self.send_header("Referrer-Policy", "strict-origin-when-cross-origin")
+        self.send_header("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+        self.send_header("X-Frame-Options", "DENY")
+        super().end_headers()
+
     def json_response(self, status: int, value: dict) -> None:
         raw = json.dumps(value, separators=(",", ":")).encode()
         self.send_response(status)
