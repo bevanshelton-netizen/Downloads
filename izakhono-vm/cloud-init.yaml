@@ -1,0 +1,26 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+packages: [git,curl,jq,ca-certificates,openssl,python3,nodejs,npm]
+users:
+  - name: izakhono
+    groups: [sudo]
+    shell: /bin/bash
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    lock_passwd: true
+ssh_pwauth: false
+disable_root: true
+write_files:
+  - path: /etc/sysctl.d/99-izakhono.conf
+    permissions: '0644'
+    content: |
+      net.ipv4.conf.all.rp_filter=1
+      net.ipv4.conf.default.rp_filter=1
+      kernel.kptr_restrict=2
+      kernel.dmesg_restrict=1
+runcmd:
+  - [sysctl,--system]
+  - [install,-d,-o,izakhono,-g,izakhono,-m,0750,/opt/izakhono-source]
+  - [install,-d,-o,root,-g,root,-m,0700,/var/lib/izakhono-bootstrap]
+  - [bash,-lc,"echo IZAKHONO_VM_BOOTSTRAPPED=true > /var/lib/izakhono-bootstrap/status"]
+final_message: "IZAKHONO VM base bootstrap complete"
