@@ -7,6 +7,8 @@ on:
       - "quality/**"
       - "izakhono-group/**"
       - "auto-ai/**"
+      - "worknow/**"
+      - "doxa-sure/**"
       - "FAISReady/**"
       - "kora-network/**"
       - "IZAKHONO-STUDIO/**"
@@ -68,6 +70,7 @@ jobs:
           node --check ports/kora-gospel-tv/server.mjs
           node --check izakhono-one-ai/server.mjs
           node --check crowne-hair/server.mjs
+          node --check worknow/server.mjs
 
   public-health:
     name: public-https-matrix
