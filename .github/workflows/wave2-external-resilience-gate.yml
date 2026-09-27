@@ -1,0 +1,40 @@
+name: Wave 2 External Resilience Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "quality/visual-regression-contract.json"
+      - ".github/workflows/wave2-external-resilience-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify WorkNow external resilience
+        run: |
+          set -euo pipefail
+          BASE="https://bevanshelton-netizen.github.io/Downloads/worknow"
+          curl -fsSL --retry 4 --retry-delay 2 "$BASE/" -o /tmp/worknow.html
+          grep -q "Ready for work" /tmp/worknow.html
+          curl -fsSL --retry 4 --retry-delay 2 "$BASE/health.json" -o /tmp/worknow-health.json
+          node -e 'const x=require("/tmp/worknow-health.json");if(x.ok!==true||x.service!=="worknow"||x.runtime!=="external-resilience")process.exit(2)'
+
+      - name: Verify DOXA-SURE external resilience
+        run: |
+          set -euo pipefail
+          BASE="https://bevanshelton-netizen.github.io/Downloads/doxa-sure"
+          curl -fsSL --retry 4 --retry-delay 2 "$BASE/" -o /tmp/doxa.html
+          grep -q "Protect what you worked for" /tmp/doxa.html
+          curl -fsSL --retry 4 --retry-delay 2 "$BASE/health.json" -o /tmp/doxa-health.json
+          node -e 'const x=require("/tmp/doxa-health.json");if(x.ok!==true||x.service!=="doxa-sure"||x.runtime!=="external-resilience")process.exit(2)'
+
+      - name: Report verified fallback routes
+        run: |
+          echo "WORKNOW_EXTERNAL_RESILIENCE=VERIFIED"
+          echo "DOXA_SURE_EXTERNAL_RESILIENCE=VERIFIED"
