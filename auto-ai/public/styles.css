@@ -76,3 +76,19 @@ box-shadow:inset 0 1px rgba(255,255,255,.06),0 30px 80px #0007}
 .sticky-live-cta{position:fixed;right:18px;bottom:18px;z-index:9997;display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:center;padding:11px 15px;border-radius:16px;background:linear-gradient(135deg,#f8c95b,#f0a920);color:#0b1520;box-shadow:0 18px 45px rgba(0,0,0,.42);border:1px solid #ffe18a}
 .sticky-live-cta span{grid-row:1/3;font-size:24px}.sticky-live-cta b{font-size:12px;line-height:1}.sticky-live-cta small{font-size:10px;opacity:.72;margin-top:4px}
 @media(max-width:700px){.top-live-cta{display:none}.sticky-live-cta{left:14px;right:14px;bottom:14px;justify-content:center}.hero-cta-row{align-items:flex-start;flex-direction:column}.live-hero-cta{width:100%;justify-content:center}.live-link{font-size:10px}}
+
+/* Wave 1: real-car visual experience */
+.realCarStage{position:relative;min-height:540px;overflow:hidden;border-radius:30px;border:1px solid rgba(126,224,255,.28);box-shadow:0 36px 90px rgba(0,0,0,.42);background:#07111c}
+.realCarPhoto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:saturate(.95) contrast(1.08)}
+.realCarShade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,10,18,.06) 22%,rgba(3,10,18,.78) 100%),linear-gradient(90deg,rgba(3,10,18,.48),transparent 55%)}
+.diagnosticHud{position:absolute;z-index:2;border:1px solid rgba(110,232,217,.32);background:rgba(5,18,29,.78);backdrop-filter:blur(14px);box-shadow:0 18px 42px rgba(0,0,0,.3);color:#f6fbff}
+.diagnosticHud small{color:#a7c4d4}
+.hudTop{left:22px;top:22px;right:22px;padding:16px 18px;border-radius:18px}
+.hudTop small{display:block;font-size:10px;letter-spacing:.15em;color:#55e3cf;font-weight:900}
+.hudTop strong{display:block;margin-top:5px;font-size:19px}
+.hudOne,.hudTwo,.hudThree{display:flex;align-items:center;gap:11px;min-width:210px;padding:13px 14px;border-radius:16px}
+.hudOne{left:22px;bottom:118px}.hudTwo{right:22px;bottom:70px}.hudThree{left:50%;transform:translateX(-50%);bottom:22px}
+.diagnosticHud>b{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:#ffcc4d;color:#07111c}
+.diagnosticHud span strong,.diagnosticHud span small{display:block}.diagnosticHud span strong{font-size:13px}.diagnosticHud span small{font-size:10px;margin-top:2px}
+.realCarStage .graphic-caption{position:absolute;z-index:3;left:20px;bottom:20px}
+@media(max-width:760px){.realCarStage{min-height:470px}.hudTwo{right:12px}.hudOne{left:12px}.hudThree{display:none}.realCarStage .graphic-caption{display:none}}
