@@ -113,6 +113,17 @@
       "public_live_claim": false,
       "external_resilience_preserve": true,
       "laptop_target": false
+    },
+    {
+      "id": "izakhono-pay-public-edge-20260927-01",
+      "action": "run-workload",
+      "workload_id": "izakhono-pay-public-edge",
+      "ref": "main",
+      "enabled": true,
+      "max_attempts": 3,
+      "public_live_claim": false,
+      "external_resilience_preserve": true,
+      "laptop_target": false
     }
   ]
 }
