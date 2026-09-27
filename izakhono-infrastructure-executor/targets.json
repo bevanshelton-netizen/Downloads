@@ -179,6 +179,12 @@
         "bash",
         "izakhono-owned-cloud/deploy-growth-os-bridge.sh"
       ]
+    },
+    "izakhono-pay-public-edge": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/publish-izakhono-pay-outbound.sh"
+      ]
     }
   }
 }
