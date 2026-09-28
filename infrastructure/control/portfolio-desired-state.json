@@ -2,7 +2,7 @@
   "schema": "izakhono.infrastructure-desired-state/v1",
   "authority": "IZAKHONO_INFRASTRUCTURE",
   "enabled": true,
-  "generated_at": "2026-09-26T19:30:00Z",
+  "generated_at": "2026-09-28T05:35:00Z",
   "requests": [
     {
       "id": "yhvh-gospel-tv-infrastructure-20260926-01",
@@ -118,6 +118,39 @@
       "id": "izakhono-pay-public-edge-20260927-01",
       "action": "run-workload",
       "workload_id": "izakhono-pay-public-edge",
+      "ref": "main",
+      "enabled": true,
+      "max_attempts": 3,
+      "public_live_claim": false,
+      "external_resilience_preserve": true,
+      "laptop_target": false
+    },
+    {
+      "id": "izakhono-domains-infrastructure-20260928-01",
+      "action": "deploy-platform",
+      "platform_id": "izakhono-domains",
+      "ref": "main",
+      "enabled": true,
+      "max_attempts": 3,
+      "public_live_claim": false,
+      "external_resilience_preserve": true,
+      "laptop_target": false
+    },
+    {
+      "id": "izakhono-one-ai-infrastructure-20260928-01",
+      "action": "deploy-platform",
+      "platform_id": "izakhono-one-ai",
+      "ref": "main",
+      "enabled": true,
+      "max_attempts": 3,
+      "public_live_claim": false,
+      "external_resilience_preserve": true,
+      "laptop_target": false
+    },
+    {
+      "id": "faisready-infrastructure-20260928-01",
+      "action": "deploy-platform",
+      "platform_id": "faisready",
       "ref": "main",
       "enabled": true,
       "max_attempts": 3,
