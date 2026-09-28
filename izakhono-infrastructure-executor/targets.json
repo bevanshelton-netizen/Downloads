@@ -134,6 +134,20 @@
         "izakhono-owned-cloud/deploy-izakhono-analytics-collector.sh",
         "main"
       ]
+    },
+    "doxa-sure": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-doxa-sure.sh",
+        "main"
+      ]
+    },
+    "worknow": {
+      "command": [
+        "bash",
+        "izakhono-owned-cloud/deploy-worknow.sh",
+        "main"
+      ]
     }
   },
   "legacy_laptop_deployers_blocked": [],
