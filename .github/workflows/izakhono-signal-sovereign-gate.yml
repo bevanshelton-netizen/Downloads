@@ -1,0 +1,60 @@
+name: IZAKHONO SIGNAL Sovereign Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'izakhono-signal/**'
+      - 'izakhono-cloud/DEPLOY-SIGNAL-ISN-01.ps1'
+      - 'DEPLOY-IZAKHONO-SIGNAL-ISN-01.cmd'
+      - '.github/workflows/izakhono-signal-sovereign-gate.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'izakhono-signal/**'
+      - 'izakhono-cloud/DEPLOY-SIGNAL-ISN-01.ps1'
+      - 'DEPLOY-IZAKHONO-SIGNAL-ISN-01.cmd'
+      - '.github/workflows/izakhono-signal-sovereign-gate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate sovereign package
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f izakhono-signal/releases/IZAKHONO-SIGNAL-v2-SOVEREIGN.zip
+          echo '8788acea2db00c031c93e379344d3d904929242ace0b3417ef8f0afe594a94e7  izakhono-signal/releases/IZAKHONO-SIGNAL-v2-SOVEREIGN.zip' | sha256sum -c -
+          rm -rf /tmp/signal-v2
+          mkdir -p /tmp/signal-v2
+          unzip -q izakhono-signal/releases/IZAKHONO-SIGNAL-v2-SOVEREIGN.zip -d /tmp/signal-v2
+          cd /tmp/signal-v2/izakhono-signal-v2
+          node --check server.mjs
+          node --check selftest.mjs
+          node selftest.mjs
+          grep -q '"browser_secrets_allowed": false' .izakhono.json
+          grep -q 'SIGNAL_MASTER_KEY' .izakhono.json
+          grep -q 'SIGNAL_ADMIN_KEY' .izakhono.json
+          grep -q '127.0.0.1:18116' "$GITHUB_WORKSPACE/izakhono-cloud/DEPLOY-SIGNAL-ISN-01.ps1"
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse owner-node launcher
+        shell: pwsh
+        run: |
+          $p='izakhono-cloud/DEPLOY-SIGNAL-ISN-01.ps1'
+          $tokens=$null; $errors=$null
+          [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $p),[ref]$tokens,[ref]$errors) | Out-Null
+          if($errors.Count -gt 0){ $errors | ForEach-Object { Write-Error $_.Message }; exit 1 }
+          $cmd=Get-Content 'DEPLOY-IZAKHONO-SIGNAL-ISN-01.cmd' -Raw
+          if($cmd -notmatch 'DEPLOY-SIGNAL-ISN-01.ps1'){ throw 'SIGNAL one-click launcher mismatch' }
