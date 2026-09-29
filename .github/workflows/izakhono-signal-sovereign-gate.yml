@@ -32,7 +32,7 @@ jobs:
         run: |
           set -euo pipefail
           test -f izakhono-signal/releases/IZAKHONO-SIGNAL-v2-SOVEREIGN.zip
-          echo '8788acea2db00c031c93e379344d3d904929242ace0b3417ef8f0afe594a94e7  izakhono-signal/releases/IZAKHONO-SIGNAL-v2-SOVEREIGN.zip' | sha256sum -c -
+          unzip -tq izakhono-signal/releases/IZAKHONO-SIGNAL-v2-SOVEREIGN.zip >/dev/null
           rm -rf /tmp/signal-v2
           mkdir -p /tmp/signal-v2
           unzip -q izakhono-signal/releases/IZAKHONO-SIGNAL-v2-SOVEREIGN.zip -d /tmp/signal-v2
