@@ -11,7 +11,6 @@ $EnvFile = Join-Path $State "SIGNAL.env"
 $Receipt = Join-Path $State "SIGNAL-CUTOVER.json"
 $LocalOrigin = "http://127.0.0.1:18116"
 $ReleaseCommit = "a543832efc2c50745a9969c22d6703f2d22f1dd4"
-$ReleaseSha256 = "8788acea2db00c031c93e379344d3d904929242ace0b3417ef8f0afe594a94e7"
 
 function Fail([string]$Message) {
     Write-Host "FAIL: $Message" -ForegroundColor Red
@@ -70,7 +69,6 @@ $bash = @'
 set -euo pipefail
 
 RELEASE_COMMIT="__RELEASE_COMMIT__"
-RELEASE_SHA256="__RELEASE_SHA256__"
 ROOT="$HOME/izakhono-fleet"
 ZIP="$ROOT/IZAKHONO-SIGNAL-v2-SOVEREIGN.zip"
 SRC="$ROOT/signal-v2-src"
@@ -141,7 +139,7 @@ PY
 cat "$ROOT/signal-cutover.json"
 '@
 
-$bash = $bash.Replace("__RELEASE_COMMIT__", $ReleaseCommit).Replace("__RELEASE_SHA256__", $ReleaseSha256)
+$bash = $bash.Replace("__RELEASE_COMMIT__", $ReleaseCommit)
 $tmp = Join-Path $env:TEMP "izakhono-signal-isn01-pilot.sh"
 Set-Content -Path $tmp -Value $bash -Encoding UTF8
 $linuxTmp = "/tmp/izakhono-signal-isn01-pilot.sh"
