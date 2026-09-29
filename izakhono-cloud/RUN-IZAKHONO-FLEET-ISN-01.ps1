@@ -27,7 +27,8 @@ foreach ($field in @("scheduler_dispatch","image_pull","container_start","http_h
 }
 
 $apps = @(
-    @{ name="IZAKHONO Analytics"; script="DEPLOY-ANALYTICS-ISN-01.ps1"; receipt="ANALYTICS-CUTOVER.json"; required=$true },\n    @{ name="IZAKHONO SIGNAL v2"; script="DEPLOY-SIGNAL-ISN-01.ps1"; receipt="SIGNAL-CUTOVER.json"; required=$false },
+    @{ name="IZAKHONO Analytics"; script="DEPLOY-ANALYTICS-ISN-01.ps1"; receipt="ANALYTICS-CUTOVER.json"; required=$true },
+    @{ name="IZAKHONO SIGNAL v2"; script="DEPLOY-SIGNAL-ISN-01.ps1"; receipt="SIGNAL-CUTOVER.json"; required=$false },
     @{ name="ECD360"; script="DEPLOY-ECD360-ISN-01.ps1"; receipt="ECD360-CUTOVER.json"; required=$true },
     @{ name="ALLEGRO VIBEZ"; script="DEPLOY-ALLEGRO-ISN-01.ps1"; receipt="ALLEGRO-CUTOVER.json"; required=$false },
     @{ name="THE CHANCELLOR"; script="DEPLOY-CHANCELLOR-ISN-01.ps1"; receipt="CHANCELLOR-CUTOVER.json"; required=$true },
