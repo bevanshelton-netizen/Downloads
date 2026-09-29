@@ -1,4 +1,5 @@
 #requires -Version 5.1
+# Source policy: resolve current main to an exact commit and validate the packaged SIGNAL release before cutover.
 [CmdletBinding()]
 param()
 
@@ -10,7 +11,7 @@ $EngineProof = Join-Path $State "ENGINE-PROOF.json"
 $EnvFile = Join-Path $State "SIGNAL.env"
 $Receipt = Join-Path $State "SIGNAL-CUTOVER.json"
 $LocalOrigin = "http://127.0.0.1:18116"
-$ReleaseCommit = "a543832efc2c50745a9969c22d6703f2d22f1dd4"
+$SourceRef = "main"
 
 function Fail([string]$Message) {
     Write-Host "FAIL: $Message" -ForegroundColor Red
@@ -68,9 +69,10 @@ if ($LASTEXITCODE -ne 0) { Fail "Could not transfer SIGNAL.env into the owner-co
 $bash = @'
 set -euo pipefail
 
-RELEASE_COMMIT="__RELEASE_COMMIT__"
+SOURCE_REF="__SOURCE_REF__"
 ROOT="$HOME/izakhono-fleet"
-ZIP="$ROOT/IZAKHONO-SIGNAL-v2-SOVEREIGN.zip"
+REPO="$ROOT/Downloads"
+ZIP="$REPO/izakhono-signal/releases/IZAKHONO-SIGNAL-v2-SOVEREIGN.zip"
 SRC="$ROOT/signal-v2-src"
 ENV_FILE="/tmp/izakhono-signal-owner.env"
 LOCAL="http://127.0.0.1:18116"
@@ -79,14 +81,27 @@ cleanup(){ rm -f "$ENV_FILE"; }
 trap cleanup EXIT INT TERM
 
 mkdir -p "$ROOT"
-for cmd in docker curl python3 unzip sha256sum; do
+for cmd in git docker curl python3 unzip; do
   command -v "$cmd" >/dev/null || { echo "$cmd missing"; exit 2; }
 done
 docker info >/dev/null
 [ -s "$ENV_FILE" ] || { echo "SIGNAL environment was not transferred"; exit 2; }
 
-curl -fsSL "https://raw.githubusercontent.com/bevanshelton-netizen/Downloads/$RELEASE_COMMIT/izakhono-signal/releases/IZAKHONO-SIGNAL-v2-SOVEREIGN.zip" -o "$ZIP"
-printf '%s  %s\n' "$RELEASE_SHA256" "$ZIP" | sha256sum -c -
+if [ ! -d "$REPO/.git" ]; then
+  git clone --filter=blob:none https://github.com/bevanshelton-netizen/Downloads.git "$REPO"
+fi
+cd "$REPO"
+if [ -n "$(git status --porcelain)" ]; then
+  echo "Dedicated Downloads checkout has local changes; refusing to overwrite." >&2
+  exit 3
+fi
+
+git fetch origin "$SOURCE_REF"
+RESOLVED="$(git rev-parse "origin/$SOURCE_REF")"
+git checkout --detach "$RESOLVED"
+
+test -f "$ZIP"
+unzip -tq "$ZIP" >/dev/null
 
 rm -rf "$SRC"
 mkdir -p "$SRC"
@@ -98,7 +113,14 @@ APP="$SRC/izakhono-signal-v2"
 docker build -t izakhono/signal:v2 "$APP"
 docker volume create izakhono_signal_data >/dev/null
 docker rm -f izakhono-signal-v2 >/dev/null 2>&1 || true
-docker run -d   --name izakhono-signal-v2   --restart unless-stopped   --env-file "$ENV_FILE"   -e DATA_DIR=/data   -p 127.0.0.1:18116:8080   -v izakhono_signal_data:/data   izakhono/signal:v2 >/dev/null
+docker run -d \
+  --name izakhono-signal-v2 \
+  --restart unless-stopped \
+  --env-file "$ENV_FILE" \
+  -e DATA_DIR=/data \
+  -p 127.0.0.1:18116:8080 \
+  -v izakhono_signal_data:/data \
+  izakhono/signal:v2 >/dev/null
 
 for i in $(seq 1 30); do
   if curl -fsS "$LOCAL/api/health" >/tmp/signal-health.json; then break; fi
@@ -107,10 +129,11 @@ done
 
 HEALTH="$(cat /tmp/signal-health.json)"
 CATALOG="$(curl -fsS "$LOCAL/api/catalog")"
-python3 - "$HEALTH" "$CATALOG" <<'PY' > "$ROOT/signal-cutover.json"
+python3 - "$RESOLVED" "$HEALTH" "$CATALOG" <<'PY' > "$ROOT/signal-cutover.json"
 import datetime, json, sys
-health=json.loads(sys.argv[1])
-catalog=json.loads(sys.argv[2])
+revision=sys.argv[1]
+health=json.loads(sys.argv[2])
+catalog=json.loads(sys.argv[3])
 if health.get("ok") is not True:
     raise SystemExit("SIGNAL health payload invalid")
 if health.get("configured") is not True:
@@ -122,6 +145,7 @@ print(json.dumps({
   "schema":"izakhono.owner-cutover/v1",
   "node_name":"ISN-01",
   "app":"izakhono-signal-v2",
+  "revision":revision,
   "runtime":"docker-loopback-owner-pilot",
   "local_url":"http://127.0.0.1:18116",
   "health_passed":True,
@@ -139,7 +163,7 @@ PY
 cat "$ROOT/signal-cutover.json"
 '@
 
-$bash = $bash.Replace("__RELEASE_COMMIT__", $ReleaseCommit)
+$bash = $bash.Replace("__SOURCE_REF__", $SourceRef)
 $tmp = Join-Path $env:TEMP "izakhono-signal-isn01-pilot.sh"
 Set-Content -Path $tmp -Value $bash -Encoding UTF8
 $linuxTmp = "/tmp/izakhono-signal-isn01-pilot.sh"
