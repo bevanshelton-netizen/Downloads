@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ALLEGRO STUDIOS — Live Studio</title>
+<meta name="description" content="ALLEGRO STUDIOS — Johannesburg recording, mixing, mastering, podcast, video and creator production.">
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#07070b;color:#f7f7fb;font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}main{max-width:1050px;margin:auto;padding:48px 22px 70px}h1{font-size:clamp(48px,8vw,92px);line-height:.9;margin:14px 0}.ey{color:#4ee9cf;font-size:12px;font-weight:900;letter-spacing:.16em}.gold{color:#e9b94e}.lead{color:#c4c4d0;font-size:18px;max-width:780px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:30px 0}.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}.card,form{background:#111119;border:1px solid #30303e;border-radius:20px;padding:24px}.card h3{margin-top:0}.price{color:#e9b94e;font-weight:900}label{display:grid;gap:6px;margin:12px 0;color:#bbb;font-size:12px;font-weight:800}input,select,textarea{width:100%;padding:12px;border-radius:10px;border:1px solid #343442;background:#09090e;color:#fff;font:inherit}button{border:0;border-radius:999px;background:#e9b94e;color:#111;padding:13px 20px;font-weight:900;cursor:pointer}.notice{margin-top:12px;padding:12px;border-radius:12px;background:#10241f;border:1px solid #285f51}.bad{background:#2a1414;border-color:#6b3735}footer{color:#888;margin-top:35px}@media(max-width:700px){.grid,.two{grid-template-columns:1fr}}
+</style></head>
+<body><main>
+<div class="ey">ALLEGRO · LIVE STUDIO · JOHANNESBURG</div>
+<h1>Your sound.<br><span class="gold">Fully realised.</span></h1>
+<p class="lead">Professional recording, mixing, mastering, podcast, video and creator production. Request a session, receive a booking code and move into the ALLEGRO project workflow after confirmation.</p>
+<div class="grid">
+<div class="card"><h3>🎙 Vocal Recording</h3><p>Recording and engineer support.</p><span class="price">From R650/hour</span></div>
+<div class="card"><h3>🎚 Mix & Master</h3><p>Release-ready stereo production.</p><span class="price">From R1,450/song</span></div>
+<div class="card"><h3>📻 Podcast / Broadcast</h3><p>Podcast and interview production.</p><span class="price">From R950/hour</span></div>
+</div>
+<div class="two">
+<form id="booking"><div class="ey">REQUEST A SESSION</div>
+<label>Service<select name="service"><option>Vocal Recording</option><option>Band / Live Room</option><option>Mix & Master</option><option>Dolby Atmos Mix</option><option>Live Video Session</option><option>Podcast / Broadcast</option></select></label>
+<label>Name<input name="customer_name" required></label><label>Mobile / WhatsApp<input name="mobile" required></label>
+<label>Email<input name="email" type="email" required></label><label>Preferred date<input name="preferred_date" type="date" required></label>
+<label>Session length<select name="duration_hours"><option value="1">1 hour</option><option value="2">2 hours</option><option value="3">3 hours</option><option value="4">4 hours</option><option value="8">8 hours</option></select></label>
+<label>Project brief<textarea name="project_notes" rows="4"></textarea></label><button>REQUEST SESSION</button><div id="bm"></div></form>
+<div class="card"><div class="ey">HOW IT WORKS</div><h2>1. Request</h2><p class="lead">Tell us what you need and your preferred date.</p><h2>2. Confirm</h2><p class="lead">The studio confirms room and engineer availability before payment.</p><h2>3. Create</h2><p class="lead">Your booking enters the ALLEGRO workflow for files, approvals and delivery.</p></div>
+</div>
+<section style="margin-top:42px"><div class="ey">CREATOR GROWTH DESK</div><h2>Artist · Podcaster · Creator · School · Brand</h2><p class="lead">Enquire about studio offers, education partnerships, creator programmes or brand media production.</p>
+<form id="growth"><label>Name<input name="name" required></label><label>Audience<select name="audience"><option value="artist">Artist / Musician</option><option value="podcaster">Podcaster / Presenter</option><option value="creator">Content Creator</option><option value="school">Music School / Educator</option><option value="business">Business / Brand</option></select></label><label>Email<input name="email" type="email"></label><label>Mobile<input name="mobile"></label><label>Message<textarea name="message" rows="3"></textarea></label><button>SEND TO GROWTH DESK</button><div id="gm"></div></form></section>
+<footer>ALLEGRO STUDIOS · Johannesburg · Session requests are confirmed before payment.</footer>
+</main>
+<script>
+const API="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/allegro-studio-api",GROWTH="https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/allegro-studio-growth";
+booking.addEventListener("submit",async e=>{e.preventDefault();bm.textContent="Sending…";const b=Object.fromEntries(new FormData(booking));b.action="book";b.duration_hours=Number(b.duration_hours);try{const r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)}),d=await r.json();if(!r.ok)throw Error(d.error||"Request failed");bm.className="notice";bm.innerHTML="<b>Request received — "+(d.booking_code||"submitted")+"</b><br>No payment has been taken. Keep your booking code.";booking.reset()}catch(x){bm.className="notice bad";bm.textContent=x.message}});
+growth.addEventListener("submit",async e=>{e.preventDefault();gm.textContent="Sending…";const b=Object.fromEntries(new FormData(growth));b.action="lead";b.source="allegro-studios-live";try{const r=await fetch(GROWTH,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)}),d=await r.json();if(!r.ok)throw Error(d.error||"Request failed");gm.className="notice";gm.textContent="Enquiry received. The ALLEGRO growth desk will follow up.";growth.reset()}catch(x){gm.className="notice bad";gm.textContent=x.message}});
+</script></body></html>
