@@ -1,0 +1,85 @@
+{
+  "year": 2026,
+  "provinces": [
+    "Eastern Cape",
+    "Free State",
+    "Gauteng",
+    "KwaZulu-Natal",
+    "Limpopo",
+    "Mpumalanga",
+    "Northern Cape",
+    "North West",
+    "Western Cape"
+  ],
+  "subjects": [
+    "Mathematics",
+    "Mathematical Literacy",
+    "Technical Mathematics",
+    "Physical Sciences",
+    "Technical Sciences",
+    "Life Sciences",
+    "Accounting",
+    "Business Studies",
+    "Economics",
+    "Geography",
+    "History",
+    "English HL/FAL/SAL",
+    "Afrikaans HL/FAL/SAL",
+    "isiXhosa HL/FAL/SAL",
+    "isiZulu HL/FAL/SAL",
+    "Sepedi HL/FAL/SAL",
+    "Sesotho HL/FAL/SAL",
+    "Setswana HL/FAL/SAL",
+    "siSwati HL/FAL/SAL",
+    "Tshivenda HL/FAL/SAL",
+    "isiNdebele HL/FAL/SAL",
+    "XiTsonga HL/FAL/SAL",
+    "Life Orientation",
+    "Computer Applications Technology",
+    "Information Technology",
+    "Agricultural Sciences",
+    "Consumer Studies",
+    "Tourism",
+    "Hospitality Studies",
+    "Engineering Graphics and Design",
+    "Visual Arts",
+    "Dramatic Arts",
+    "Design",
+    "Music",
+    "Agricultural Management Practices",
+    "Agricultural Technology",
+    "Civil Technology",
+    "Electrical Technology",
+    "Mechanical Technology"
+  ],
+  "examAnchors": [
+    [
+      "Mathematics P1",
+      "2026-10-23"
+    ],
+    [
+      "Mathematical Literacy P1",
+      "2026-10-23"
+    ],
+    [
+      "Mathematics P2",
+      "2026-10-26"
+    ],
+    [
+      "English P1",
+      "2026-10-28"
+    ],
+    [
+      "Accounting P2",
+      "2026-10-28"
+    ],
+    [
+      "Physical Sciences Physics P1",
+      "2026-10-30"
+    ],
+    [
+      "Physical Sciences Chemistry P2",
+      "2026-11-02"
+    ]
+  ]
+}
