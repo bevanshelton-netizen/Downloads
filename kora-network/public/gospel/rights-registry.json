@@ -1,0 +1,6 @@
+{
+  "schema": "yhvh.gospel-tv.territory-rights-registry/v1",
+  "authority": "IZAKHONO",
+  "default_status": "REVIEW_REQUIRED",
+  "territories": []
+}
