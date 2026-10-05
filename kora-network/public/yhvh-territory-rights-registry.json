@@ -1,0 +1,21 @@
+{
+  "schema": "yhvh.gospel-tv.territory-rights-registry/v1",
+  "version": "2026-10-05",
+  "authority": "IZAKHONO",
+  "default_status": "REVIEW_REQUIRED",
+  "statuses": ["REVIEW_REQUIRED", "CLEAR", "RESTRICTED", "PARTNER_ONLY", "BLOCKED"],
+  "decision_rule": "No distribution route may be activated unless the territory and specific content/distribution rights are verified.",
+  "territories": [],
+  "record_schema": {
+    "territory": "ISO country/territory identifier",
+    "content_id": "YHVH content identifier",
+    "distribution_method": "web|tv|satellite|ott|fast|mobile|digital|event|partner",
+    "status": "registry status",
+    "rights_source": "agreement/licence/partner record",
+    "valid_from": "ISO date",
+    "valid_until": "ISO date",
+    "regulatory_review": "pending|cleared|required",
+    "approved_by": "IZAKHONO authority record",
+    "notes": "operator notes"
+  }
+}
