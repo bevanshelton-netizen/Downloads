@@ -1,0 +1,65 @@
+{
+  "schema": "yhvh.gospel-tv.disclaimer-policy/v1",
+  "authority": "IZAKHONO",
+  "brand": "YHVH GOSPEL TV",
+  "purpose": "Provide clear, proportionate protection for viewers, contributors, churches, ministries, artists, children, staff, partners, sponsors, advertisers, rights holders and IZAKHONO while preserving Gospel expression and editorial independence.",
+  "legal_notice": "This policy is an operational framework, not a substitute for jurisdiction-specific legal advice or definitive contracts. Where local law, regulation, licence conditions or a signed agreement imposes a higher requirement, that requirement applies.",
+  "principles": [
+    "Truthful, clear and prominent disclosures",
+    "Editorial independence",
+    "No payment-for-editorial-approval rule",
+    "Rights and permissions must be verified before broadcast",
+    "Territorial and regulatory restrictions must be respected",
+    "Creator and third-party rights are protected",
+    "Children and vulnerable people receive enhanced safeguards",
+    "Good-faith complaints and takedown requests are reviewed promptly",
+    "No disclaimer is used to excuse unlawful, deceptive or harmful conduct",
+    "Protection applies to everyone, including YHVH and IZAKHONO"
+  ],
+  "master_viewer_disclaimer": "YHVH GOSPEL TV provides Gospel programming, worship, teaching, testimony, Christian music, interviews, events and related content. Views and statements expressed by guests, contributors, ministries, artists, advertisers or third parties are their own unless expressly stated otherwise and do not necessarily represent YHVH GOSPEL TV or IZAKHONO. Faith-based testimony is not medical, legal, financial or other professional advice. Prayer and faith programming do not replace emergency services or qualified professional care. Content availability depends on rights, licences, territory and applicable law.",
+  "content_disclaimers": {
+    "testimony": "Personal testimonies describe individual experiences and are not guarantees that another person will experience the same outcome.",
+    "healing": "Prayer, testimony or statements concerning healing are matters of faith and personal experience and must not be presented as a substitute for diagnosis, treatment or advice from qualified healthcare professionals.",
+    "financial": "Statements about money, giving, prosperity, investments, fundraising or financial outcomes are not financial advice or guarantees of financial return.",
+    "legal": "Legal topics are presented for general information and faith discussion and are not legal advice.",
+    "political": "YHVH GOSPEL TV does not sell political endorsement. Political statements by contributors are attributable to those contributors unless expressly adopted by YHVH GOSPEL TV.",
+    "third_party": "Third-party programmes and statements remain the responsibility of their respective producers, presenters or rights holders, subject to YHVH review and applicable agreements.",
+    "ai": "Where materially AI-generated, AI-translated, AI-enhanced or reconstructed content is used, YHVH may identify that use where appropriate to avoid misleading viewers. AI output is subject to human review where required.",
+    "music": "Broadcast of music requires appropriate recording, composition, performer, publishing, synchronization, performance or other rights as applicable. A platform's statement that an item is free to use does not by itself establish worldwide broadcast clearance."
+  },
+  "rights_disclaimer": "Free, open, Creative Commons, public-domain or platform-licensed material is not automatically cleared for every YHVH broadcast, territory, language, platform or commercial use. Each item must pass rights review and retain source and licence evidence before being marked CLEAR.",
+  "commercial_disclaimer": "Sponsorship, advertising, donations, partnership fees or production payments do not purchase editorial approval, ministry endorsement, guaranteed airtime, favorable coverage or a broadcast slot. Commercial arrangements remain subject to rights, suitability, verification, technical quality and editorial decisions.",
+  "partner_disclaimer": "A partner's participation does not mean YHVH GOSPEL TV endorses every belief, statement, product, service, fundraising claim or activity of that partner. Partner status may be suspended or terminated following rights, safeguarding, legal, regulatory, safety or editorial concerns.",
+  "safeguarding": {
+    "minors": "Content involving minors requires appropriate consent, safeguarding review and lawful handling. Sensitive identifying information must not be published unnecessarily.",
+    "vulnerable_people": "Contributors who may be vulnerable must be treated with dignity and appropriate consent, privacy and safeguarding protections.",
+    "no_exploitation": "Faith, financial need, illness, grief, disability or vulnerability must not be exploited for deceptive fundraising, sensationalism or coercion."
+  },
+  "privacy": "Personal information submitted through YHVH forms, applications, prayer requests or partner processes should be collected only for defined purposes, protected appropriately and handled according to applicable privacy and data-protection requirements.",
+  "complaints_and_takedowns": {
+    "policy": "Rights holders, contributors, viewers and affected persons may request review of content or raise a rights, privacy, safeguarding, factual, impersonation or other legitimate concern.",
+    "action": "YHVH may temporarily hold, restrict, geo-restrict, remove or replace content while a material concern is investigated.",
+    "no_retaliation": "Good-faith complaints will not be penalized merely because they challenge YHVH, a partner or a programme."
+  },
+  "territorial_distribution": "YHVH distribution is subject to verified territorial rights, programme rights, distribution-method rights and applicable regulatory requirements. Where these are unresolved, distribution must fail closed or use an independently authorised local route.",
+  "emergency": "YHVH programming must not be represented as an emergency-response service. Viewers should contact the appropriate emergency, police, medical or other official service when immediate assistance is required.",
+  "editorial_independence": "No contributor, sponsor, advertiser, donor, ministry, broadcaster, government body or commercial partner may override YHVH editorial, rights, safeguarding, legal or technical review through payment or influence.",
+  "operational_gate": {
+    "required_before_broadcast": [
+      "identity_or_source_record",
+      "rights_evidence",
+      "territory_status",
+      "distribution_method_status",
+      "editorial_review",
+      "safeguarding_review_when_applicable",
+      "commercial_suitability_review_when_applicable",
+      "technical_qc",
+      "disclaimer_classification"
+    ],
+    "default": "REVIEW_REQUIRED",
+    "fail_closed": true
+  },
+  "contract_priority": "This policy operates alongside the YHVH Partner Charter and definitive distribution, licence, production, sponsorship, advertising and content agreements. A signed agreement must not be interpreted as granting rights beyond those expressly granted.",
+  "owner_protection": "IZAKHONO and YHVH GOSPEL TV do not warrant that every third-party statement, claim, work, rights assertion or source is accurate merely because it was submitted or published. Reasonable verification, review and takedown processes are required, but no media platform can guarantee that no third party will ever make a false or unlawful claim.",
+  "version": "1.0.0"
+}
