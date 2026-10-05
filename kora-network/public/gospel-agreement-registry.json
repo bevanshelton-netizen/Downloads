@@ -1,0 +1,50 @@
+{
+  "schema": "yhvh.gospel-tv.agreement-registry/v1",
+  "authority": "IZAKHONO",
+  "brand": "YHVH GOSPEL TV",
+  "mission": "Create a repeatable legal and operational pathway for channel-to-channel Gospel distribution worldwide.",
+  "agreement_types": [
+    "channel_distribution",
+    "content_exchange",
+    "programme_license",
+    "simulcast",
+    "co_production",
+    "event_broadcast",
+    "digital_distribution",
+    "translation_localisation"
+  ],
+  "default_model": "non-exclusive unless a definitive agreement expressly states otherwise",
+  "mandatory_gates": [
+    "counterparty_identity_verification",
+    "authority_to_sign",
+    "rights_and_clearances",
+    "territory_and_language_schedule",
+    "technical_delivery_schedule",
+    "editorial_and_safeguarding_acceptance",
+    "commercial_terms_if_applicable",
+    "legal_review_for_material_or_cross-border_terms",
+    "signed_definitive_agreement",
+    "technical_qc",
+    "activation_and_reporting"
+  ],
+  "commercial_rule": "Payment or sponsorship never purchases editorial approval, airtime, ministry endorsement or preferential treatment.",
+  "rights_rule": "No worldwide rights are assumed. Each agreement must expressly state territory, language, media, term, exclusivity and permitted uses.",
+  "distribution_rule": "External broadcasters and platforms are distribution partners; IZAKHONO retains YHVH network editorial authority unless a definitive agreement states otherwise.",
+  "territory_strategy": "Worldwide acquisition across Africa, Middle East, Europe, North America, Latin America, Caribbean, Asia and Oceania, subject to local law and partner licensing requirements.",
+  "status_values": [
+    "prospect",
+    "contacted",
+    "interested",
+    "application",
+    "due_diligence",
+    "agreement_sent",
+    "negotiation",
+    "signed",
+    "technical_qc",
+    "active",
+    "paused",
+    "terminated"
+  ],
+  "agreement_document": "YHVH Gospel TV Global Channel Distribution & Content Partnership Agreement",
+  "legal_note": "This registry defines an operational contracting framework. Each definitive agreement must be reviewed for the applicable parties, territory, rights, tax, regulatory, privacy and governing-law requirements before signature."
+}
