@@ -1,0 +1,50 @@
+{
+  "schema": "kora.gospel-tv.founding-100/v1",
+  "programme": "YHVH GOSPEL TV — FOUNDING 100",
+  "objective": "Build the first verified network of high-fit Gospel churches, ministries, artists, choirs, events, producers, broadcasters, distributors and commercial partners.",
+  "authority": "IZAKHONO",
+  "status": "active",
+  "targets": {
+    "churches_ministries": 100,
+    "artists_choirs": 100,
+    "gospel_events": 50,
+    "producers_content_studios": 25,
+    "broadcasters_radio": 25,
+    "distribution_platforms": 25,
+    "commercial_partners": 25
+  },
+  "pipeline": [
+    "invite",
+    "application",
+    "charter_acceptance",
+    "identity_entity_review",
+    "rights_review",
+    "safeguarding_editorial_review",
+    "agreement",
+    "technical_qc",
+    "broadcast_distribution",
+    "commercial_reporting"
+  ],
+  "rules": {
+    "editorial_independence": true,
+    "payment_does_not_guarantee_airtime": true,
+    "rights_required": true,
+    "safeguarding_required_for_minors": true,
+    "external_distribution_is_not_editorial_authority": true
+  },
+  "wave_1_status": {
+    "invited": 10,
+    "known_targets": [
+      "TBN Africa",
+      "Rhema Bible Church",
+      "Faith TV / Faith Africa",
+      "Radio Pulpit",
+      "INGOMA Foundation",
+      "One Gospel",
+      "Kenneth Copeland Ministries Africa",
+      "Christ for all Nations South Africa"
+    ],
+    "note": "Invitations are selective, tailored and relationship-led; duplicate outreach should be avoided."
+  },
+  "next_operating_step": "Expand verified target list territory by territory while converting positive responses into applications through /gospel/join."
+}
