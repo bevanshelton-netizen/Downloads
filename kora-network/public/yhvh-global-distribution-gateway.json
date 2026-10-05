@@ -1,0 +1,59 @@
+{
+  "schema": "yhvh.gospel-tv.global-distribution-gateway/v1",
+  "version": "2026-10-05",
+  "authority": "IZAKHONO",
+  "brand": "YHVH GOSPEL TV",
+  "mission": "Maximise lawful Gospel distribution worldwide without bypassing local law, licensing, censorship controls or territorial rights.",
+  "architecture": {
+    "control_plane": "IZAKHONO",
+    "primary_distribution": "Licensed YHVH and partner feeds",
+    "private_network": "IZAKHONO secure VPN for authorised staff, production, engineering and partner operations only",
+    "external_fallback": "Approved external distribution surfaces",
+    "rights_engine": "Territory and programme rights must be verified before activation"
+  },
+  "territory_policy": {
+    "default": "deny_until_rights_verified",
+    "requires": [
+      "territory rights status",
+      "content rights status",
+      "distribution method approval",
+      "local regulatory review where applicable",
+      "partner authorisation where applicable"
+    ],
+    "no_bypass": true,
+    "no_censorship_evasion": true
+  },
+  "distribution_routes": [
+    "owned_web",
+    "licensed_partner_tv",
+    "satellite",
+    "OTT",
+    "FAST",
+    "mobile",
+    "digital_platform",
+    "radio_or_audio_partner",
+    "event_feed",
+    "authorised local distributor"
+  ],
+  "private_vpn": {
+    "purpose": "Secure operational connectivity and protected content contribution between authorised YHVH/IZAKHONO personnel and facilities.",
+    "access": "identity-based, least-privilege, logged, revocable",
+    "prohibited_purpose": "Circumventing territorial restrictions, government controls, licensing requirements or content bans."
+  },
+  "failover": {
+    "strategy": "switch only among routes authorised for the territory and content",
+    "fallback_order": ["owned_web", "licensed_partner", "approved_external_distribution", "authorised_local_distributor"],
+    "never_fallback_to_unlicensed_route": true
+  },
+  "commercial": {
+    "editorial_independence": true,
+    "payment_does_not_guarantee_airtime": true,
+    "revenue_reporting": "agreement-defined"
+  },
+  "audit": {
+    "log_route_selection": true,
+    "log_rights_decision": true,
+    "log_operator": true,
+    "log_timestamp": true
+  }
+}
