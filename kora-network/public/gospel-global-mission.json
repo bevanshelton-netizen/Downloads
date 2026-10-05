@@ -1,0 +1,22 @@
+{
+  "schema":"kora.gospel-tv.global-mission/v1",
+  "mission":"Make Gospel programming available everywhere through lawful, rights-cleared, locally appropriate distribution.",
+  "principles":["Gospel-first","rights-first","local-language-first","editorial independence","safeguarding","lawful distribution","owned control plane","external distribution as reversible reach"],
+  "distribution_layers":["IZAKHONO owned web/app","web/PWA","mobile","smart TV/CTV/FAST","licensed satellite/cable/IPTV","partner broadcasters","social/video platforms","downloadable/offline packages where lawful"],
+  "language_tracks":["English","isiZulu","isiXhosa","French","Portuguese","Spanish","Swahili","Arabic","Turkish","Farsi","Hindi","Indonesian","Yoruba","Hausa"],
+  "territory_workstreams":[
+    {"region":"Africa","status":"acquisition","countries":"all African states","priority":"founding network"},
+    {"region":"Middle East","status":"acquisition","countries":["Saudi Arabia","United Arab Emirates","Qatar","Kuwait","Bahrain","Oman","Jordan","Lebanon","Iraq","Syria","Palestine","Israel","Iran","Türkiye","Yemen"],"priority":"licensed partners + diaspora/digital + satellite where lawful"},
+    {"region":"Europe","status":"acquisition","countries":"all European markets","priority":"diaspora + broadcasters + CTV"},
+    {"region":"North America","status":"acquisition","countries":["United States","Canada"],"priority":"diaspora + CTV + FAST + digital"},
+    {"region":"Latin America & Caribbean","status":"acquisition","countries":"all markets","priority":"Spanish/Portuguese localization"},
+    {"region":"Asia-Pacific","status":"acquisition","countries":"all markets","priority":"language localization + digital + partner distribution"}
+  ],
+  "saudi_track": {
+    "country":"Saudi Arabia",
+    "mode":"regulated-partnership-track",
+    "actions":["map current media/distribution requirements","identify licensed local and regional distribution partners","prepare Arabic metadata and programming packages","offer digital and diaspora distribution where lawful","never imply terrestrial/satellite carriage without verified rights or authorization"]
+  },
+  "content_pipeline":["source","rights_attestation","identity_verification","safeguarding_review","editorial_review","language_localization","technical_QC","territory_rights_check","distribution","measurement","renewal"],
+  "owner":"IZAKHONO / YHVH GOSPEL TV"
+}
