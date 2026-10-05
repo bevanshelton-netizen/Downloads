@@ -1,0 +1,16 @@
+{
+  "schema": "yhvh.gospel-tv.route-decision-contract/v1",
+  "authority": "IZAKHONO",
+  "purpose": "Contract for the distribution gateway to select only an authorised route.",
+  "input": ["territory", "contentId", "distributionMethod"],
+  "decision": {
+    "CLEAR": "route may be selected if technical health checks pass",
+    "PARTNER_ONLY": "route requires the named authorised partner",
+    "RESTRICTED": "do not select until restriction is resolved",
+    "BLOCKED": "never select",
+    "REVIEW_REQUIRED": "do not select until rights/regulatory review is cleared"
+  },
+  "technical_failover": "Only between routes that independently pass the same rights gate.",
+  "security": "No client-side flag can override the gate.",
+  "audit": "Record decision, content, territory, route, rights source and timestamp."
+}
