@@ -1,0 +1,203 @@
+{
+  "schema": "yhvh.gospel-tv.free-content-manifest/v1",
+  "authority": "IZAKHONO",
+  "purpose": "Catalog only content whose published source explicitly identifies a usable free/open license. This manifest is an acquisition queue, not a claim that every item is cleared for every YHVH broadcast territory.",
+  "ingestion_policy": {
+    "require_license_evidence": true,
+    "require_source_record": true,
+    "require_rights_review_before_broadcast": true,
+    "default_status": "REVIEW_REQUIRED",
+    "commercial_use": "Only where the published license permits it.",
+    "music_and_performer_rights": "Must be separately considered where applicable."
+  },
+  "sources": [
+    {
+      "id": "commons-nigeria-worship-2026",
+      "title": "Christian faithfuls gathering to worship",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Christian_faithfuls_gathering_to_worship.webm",
+      "license": "CC BY-SA 4.0",
+      "category": "worship",
+      "origin": "Nigeria",
+      "durationSeconds": 25.603,
+      "resolution": "3840x2160",
+      "broadcastStatus": "REVIEW_REQUIRED",
+      "notes": "Attribution and share-alike obligations apply. Verify downstream programme treatment before broadcast."
+    },
+    {
+      "id": "commons-female-pastor-nigeria",
+      "title": "A female pastor worshipping her God in a church",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:A_female_pastor_worshipping_her_God_in_a_church_VP8.webm",
+      "license": "CC BY-SA 4.0",
+      "category": "worship",
+      "origin": "Nigeria",
+      "durationSeconds": 28.035,
+      "resolution": "320x240",
+      "broadcastStatus": "REVIEW_REQUIRED",
+      "notes": "Attribution and share-alike obligations apply."
+    },
+    {
+      "id": "commons-good-friday-buea",
+      "title": "Good Friday Procession in Buea",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Good_Friday_Procession_in_Buea.webm",
+      "license": "CC BY-SA 4.0",
+      "category": "faith-event",
+      "origin": "Cameroon",
+      "broadcastStatus": "REVIEW_REQUIRED",
+      "notes": "CC BY-SA 4.0 is stated on the source page; verify any identifiable-person, music and programme-context considerations before broadcast."
+    },
+    {
+      "id": "commons-gicharani-church-kenya",
+      "title": "Gicharani Catholic Church",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Gicharani_Catholic_Church.webm",
+      "license": "CC BY-SA 4.0",
+      "category": "church-africa",
+      "origin": "Kenya",
+      "broadcastStatus": "REVIEW_REQUIRED",
+      "notes": "Original uploader license is CC BY-SA 4.0."
+    },
+    {
+      "id": "commons-rwanda-worship-photo",
+      "title": "Worshiping God in Rwanda",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Worshiping_God_in_Rwanda.jpg",
+      "license": "CC0 1.0",
+      "category": "faith-imagery",
+      "origin": "Rwanda",
+      "broadcastStatus": "CLEAR_FOR_ASSET_USE",
+      "notes": "CC0 dedication permits copying, modification, distribution and commercial use, subject to applicable non-copyright considerations."
+    },
+    {
+      "id": "pexels-church-worship-7411164",
+      "title": "Christians Worship at the Church",
+      "source": "Pexels",
+      "sourceUrl": "https://www.pexels.com/video/christians-worship-at-the-church-7411164/",
+      "license": "Pexels License / free download",
+      "category": "worship",
+      "broadcastStatus": "REVIEW_REQUIRED",
+      "notes": "Source page identifies the media as free to use; retain source/license evidence and check current Pexels terms at ingestion time."
+    },
+    {
+      "id": "pexels-golden-cross-8776992",
+      "title": "Close Up Shot of a Golden Cross",
+      "source": "Pexels",
+      "sourceUrl": "https://www.pexels.com/video/close-up-shot-of-a-golden-cross-8776992/",
+      "license": "Pexels License / free use",
+      "category": "faith-interstitial",
+      "broadcastStatus": "REVIEW_REQUIRED",
+      "notes": "Suitable candidate for channel idents/interstitials after license evidence capture."
+    },
+    {
+      "id": "pexels-praying-28145076",
+      "title": "Praying",
+      "source": "Pexels",
+      "sourceUrl": "https://www.pexels.com/video/praying-28145076/",
+      "license": "Pexels License / free download",
+      "category": "prayer",
+      "broadcastStatus": "REVIEW_REQUIRED",
+      "notes": "Source page describes adults worshipping during a church service."
+    },
+    {
+      "id": "pexels-pastor-preaching-6266116",
+      "title": "A Pastor Preaching while on the Altar",
+      "source": "Pexels",
+      "sourceUrl": "https://www.pexels.com/video/a-pastor-preaching-while-on-the-altar-6266116/",
+      "license": "Pexels License / free download",
+      "category": "preaching",
+      "broadcastStatus": "REVIEW_REQUIRED",
+      "notes": "Use as stock/interstitial footage, not as an implied endorsement of the depicted ministry."
+    },
+    {
+      "id": "pexels-live-worship-37639524",
+      "title": "Energetic Live Christian Concert with Worship",
+      "source": "Pexels",
+      "sourceUrl": "https://www.pexels.com/video/energetic-live-christian-concert-with-worship-37639524/",
+      "license": "Pexels Free",
+      "category": "worship-event",
+      "durationSeconds": 13,
+      "resolution": "3840x2160",
+      "broadcastStatus": "REVIEW_REQUIRED",
+      "notes": "Free source media; verify current terms and any identifiable-person/music considerations before broadcast."
+    },
+    {
+      "id": "pixabay-worship-342323",
+      "title": "Worship, Praise, Christian",
+      "source": "Pixabay",
+      "sourceUrl": "https://pixabay.com/videos/worship-praise-christian-342323/",
+      "license": "Pixabay Content License",
+      "category": "worship",
+      "resolution": "2160x3840",
+      "broadcastStatus": "REVIEW_REQUIRED",
+      "notes": "Source page states free for use and download."
+    },
+    {
+      "id": "pixabay-worship-297260",
+      "title": "Worship, Praise, Christian",
+      "source": "Pixabay",
+      "sourceUrl": "https://pixabay.com/videos/worship-praise-christian-297260/",
+      "license": "Pixabay Content License",
+      "category": "worship",
+      "resolution": "2160x2160",
+      "broadcastStatus": "REVIEW_REQUIRED",
+      "notes": "Source page states free for use and download."
+    },
+    {
+      "id": "pixabay-prayer-55039",
+      "title": "Worship, Pray, Praying",
+      "source": "Pixabay",
+      "sourceUrl": "https://pixabay.com/videos/worship-pray-praying-church-jesus-55039/",
+      "license": "Pixabay Content License",
+      "category": "prayer",
+      "resolution": "1920x1080",
+      "broadcastStatus": "REVIEW_REQUIRED",
+      "notes": "Source page states free for use and download."
+    },
+    {
+      "id": "pixabay-cross-church-54983",
+      "title": "Worship, Cross, Church",
+      "source": "Pixabay",
+      "sourceUrl": "https://pixabay.com/videos/worship-cross-church-prayer-bible-54983/",
+      "license": "Pixabay Content License",
+      "category": "faith-interstitial",
+      "resolution": "1920x1080",
+      "broadcastStatus": "REVIEW_REQUIRED",
+      "notes": "Source page states free for use and download."
+    },
+    {
+      "id": "pixabay-worship-music-585716",
+      "title": "Worship Gospel Christian Church Music",
+      "source": "Pixabay",
+      "sourceUrl": "https://pixabay.com/music/religious-theme-worship-gospel-christian-church-music-585716/",
+      "license": "Pixabay Content License",
+      "category": "music",
+      "durationSeconds": 138,
+      "broadcastStatus": "REVIEW_REQUIRED",
+      "notes": "Source page states free for use. It also displays Content ID Registered; YHVH must retain the source evidence and test platform claims before broadcast."
+    },
+    {
+      "id": "pixabay-christian-instrumental-576404",
+      "title": "Christian Worship Instrumental Music",
+      "source": "Pixabay",
+      "sourceUrl": "https://pixabay.com/music/religious-theme-christian-worship-instrumental-music-576404/",
+      "license": "Pixabay Content License",
+      "category": "music",
+      "durationSeconds": 140,
+      "broadcastStatus": "REVIEW_REQUIRED",
+      "notes": "Source page states free for use. It also displays Content ID Registered; verify claims before broadcast."
+    },
+    {
+      "id": "pixabay-christian-gospel-512207",
+      "title": "All because of You",
+      "source": "Pixabay",
+      "license": "Pixabay Content License",
+      "category": "music",
+      "durationSeconds": 169,
+      "sourceUrl": "https://pixabay.com/music/pop-all-because-of-you-512207/",
+      "broadcastStatus": "REVIEW_REQUIRED",
+      "notes": "Source page states free for use; the track is marked AI generated. Verify current license and platform claim status before broadcast."
+    }
+  ]
+}
