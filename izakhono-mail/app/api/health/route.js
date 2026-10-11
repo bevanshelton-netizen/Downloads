@@ -1,0 +1,1 @@
+export async function GET(){return Response.json({ok:true,service:'IZAKHONO MAIL',mode:'owned-first',microsoftGraph:'adapter-ready'})}
