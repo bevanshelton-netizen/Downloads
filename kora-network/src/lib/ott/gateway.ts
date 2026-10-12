@@ -5,10 +5,16 @@ import type { KoraEntitlement, KoraSubscription } from './entitlements';
 import { checkEntitlement } from './entitlements';
 import { createPlaybackSession } from './playback';
 
+export interface KoraResolvedContent {
+  id: string;
+  active: boolean;
+}
+
 export interface KoraGatewayContext {
   catalog: KoraCatalog;
   session?: KoraAuthSession;
   subscription?: KoraSubscription;
+  content?: KoraResolvedContent;
 }
 
 export interface KoraPlaybackDecision {
@@ -23,8 +29,11 @@ export function authorizePlayback(
   contentType: KoraEntitlement,
   now = new Date(),
 ): KoraPlaybackDecision {
+  const resolved = context.content?.id === request.contentId ? context.content : undefined;
   const channel = context.catalog.channels.find((item) => item.id === request.contentId);
-  if (!channel || !channel.active) return { allowed: false, reason: 'content_not_found' };
+  if ((!resolved || !resolved.active) && (!channel || !channel.active)) {
+    return { allowed: false, reason: 'content_not_found' };
+  }
 
   if (context.subscription) {
     const entitlement = checkEntitlement(context.subscription, contentType, now);
