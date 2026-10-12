@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import TvRemoteShell from './TvRemoteShell';
+import TvContentRails from './TvContentRails';
 import styles from './tv.module.css';
 
 const platforms = [
@@ -17,14 +18,14 @@ const services = ['Identity & profiles', 'Live channel guide', 'VOD catalogue', 
 export default function KoraTV() {
   return <main className={styles.page}>
     <section className={styles.hero}>
-      <div className={styles.eyebrow}>KORA TV PLATFORM</div>
-      <h1>One KORA.<br /><span>Every screen.</span></h1>
+      <div className={styles.eyebrow}>KORA TV PLATFORM</div><h1>One KORA.<br /><span>Every screen.</span></h1>
       <p>A cinematic, African-first television platform connecting live channels, VOD, creators, sports, music, faith and family entertainment through one service layer.</p>
       <div className={styles.actions}><Link className={styles.primary} href="/watch">Watch KORA →</Link><Link className={styles.secondary} href="/live">Open Live TV</Link></div>
       <div className={styles.heroStats}><div><strong>8</strong><span>screen targets</span></div><div><strong>1</strong><span>service layer</span></div><div><strong>24/7</strong><span>TV vision</span></div></div>
     </section>
 
     <TvRemoteShell />
+    <TvContentRails />
 
     <section className={styles.section}>
       <div className={styles.sectionHead}><div className={styles.eyebrow}>DEVICE EXPANSION</div><h2>Built once. Distributed everywhere.</h2><p>The same KORA identity, catalogue, entitlement, playback and commercial services power every screen.</p></div>
