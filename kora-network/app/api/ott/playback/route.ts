@@ -48,6 +48,8 @@ export async function POST(request: Request) {
     }
   }
 
+  let resolvedContent: { id: string; active: boolean } | undefined;
+
   if (productionId) {
     const { data: production } = await supabase
       .from('productions')
@@ -57,23 +59,23 @@ export async function POST(request: Request) {
     if (!production || production.status !== 'published') return NextResponse.json({ ok: false, reason: 'content_not_found' }, { status: 404 });
     if (!accessModes.has(production.access_mode as KoraProductionAccessMode)) return NextResponse.json({ ok: false, reason: 'content_not_found' }, { status: 404 });
     contentType = entitlementForProduction(production.access_mode as KoraProductionAccessMode);
+
+    if (contentType === 'vod') {
+      const { data: episode } = await supabase
+        .from('episodes')
+        .select('id,production_id,status,playback_id')
+        .eq('id', contentId)
+        .eq('production_id', productionId)
+        .maybeSingle();
+      if (!episode || episode.status !== 'published') return NextResponse.json({ ok: false, reason: 'content_not_found' }, { status: 404 });
+      if (!episode.playback_id) return NextResponse.json({ ok: false, reason: 'content_not_found' }, { status: 404 });
+      resolvedContent = { id: episode.id, active: true };
+    }
   }
 
-  if (productionId && contentType === 'vod') {
-    const { data: episode } = await supabase
-      .from('episodes')
-      .select('id,production_id,status,playback_id')
-      .eq('id', contentId)
-      .eq('production_id', productionId)
-      .maybeSingle();
-    if (!episode || episode.status !== 'published') return NextResponse.json({ ok: false, reason: 'content_not_found' }, { status: 404 });
-    if (!episode.playback_id) return NextResponse.json({ ok: false, reason: 'content_not_found' }, { status: 404 });
-  }
-
-  const channelContentId = productionId ? 'kora-live' : contentId;
   const decision = authorizePlayback(
-    { catalog: starterCatalog, subscription },
-    { contentId: channelContentId, device, protocol, userId: user?.id },
+    { catalog: starterCatalog, subscription, content: resolvedContent },
+    { contentId, device, protocol, userId: user?.id },
     contentType,
   );
 
