@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { starterCatalog } from '@/lib/ott/catalog';
 import { authorizePlayback } from '@/lib/ott/gateway';
+import { isSupportedDevice, preferredProtocol, supportedDevices, type KoraDevice } from '@/lib/ott/devices';
 import { entitlementForProduction, type KoraProductionAccessMode } from '@/lib/ott/production';
 import type { KoraEntitlement } from '@/lib/ott/entitlements';
 import type { KoraPlaybackProtocol } from '@/lib/ott/playback';
@@ -14,13 +15,16 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
   const contentId = String(body.contentId ?? '');
   const productionId = String(body.productionId ?? '');
-  const device = String(body.device ?? 'web');
-  const protocol = String(body.protocol ?? 'hls') as KoraPlaybackProtocol;
+  const deviceValue = String(body.device ?? 'web');
+  if (!isSupportedDevice(deviceValue)) return NextResponse.json({ error: 'Unsupported KORA device' }, { status: 400 });
+  const device = deviceValue as KoraDevice;
+  const requestedProtocol = String(body.protocol ?? preferredProtocol(device)) as KoraPlaybackProtocol;
+  const protocol = protocols.has(requestedProtocol) ? requestedProtocol : preferredProtocol(device);
   let contentType = String(body.contentType ?? 'live') as KoraEntitlement;
 
   if (!contentId && !productionId) return NextResponse.json({ error: 'contentId or productionId is required' }, { status: 400 });
-  if (!protocols.has(protocol)) return NextResponse.json({ error: 'Unsupported playback protocol' }, { status: 400 });
-  if (contentId && !productionId && !contentTypes.has(contentType)) return NextResponse.json({ error: 'Unsupported content type' }, { status: 400 });
+  if (!contentTypes.has(contentType) && !productionId) return NextResponse.json({ error: 'Unsupported content type' }, { status: 400 });
+  if (!supportedDevices[device].playback.includes(protocol)) return NextResponse.json({ error: 'Playback protocol is not supported by this device' }, { status: 400 });
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -67,8 +71,7 @@ export async function POST(request: Request) {
         .eq('id', contentId)
         .eq('production_id', productionId)
         .maybeSingle();
-      if (!episode || episode.status !== 'published') return NextResponse.json({ ok: false, reason: 'content_not_found' }, { status: 404 });
-      if (!episode.playback_id) return NextResponse.json({ ok: false, reason: 'content_not_found' }, { status: 404 });
+      if (!episode || episode.status !== 'published' || !episode.playback_id) return NextResponse.json({ ok: false, reason: 'content_not_found' }, { status: 404 });
       resolvedContent = { id: episode.id, active: true };
     }
   }
@@ -80,5 +83,11 @@ export async function POST(request: Request) {
   );
 
   if (!decision.allowed) return NextResponse.json({ ok: false, reason: decision.reason }, { status: 403 });
-  return NextResponse.json({ ok: true, contentId, productionId: productionId || null, playback: decision.playbackSession });
+  return NextResponse.json({
+    ok: true,
+    contentId,
+    productionId: productionId || null,
+    device: { id: device, ...supportedDevices[device] },
+    playback: decision.playbackSession,
+  });
 }
