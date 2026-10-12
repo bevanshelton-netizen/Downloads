@@ -12,8 +12,8 @@ export function createWatchPlaybackSession({ contentId, userId, device = 'web', 
   subscription?: KoraSubscription;
 }) {
   return authorizePlayback(
-    { catalog: starterCatalog, subscription },
-    { contentId: 'kora-live', device, protocol, userId },
+    { catalog: starterCatalog, subscription, content: { id: contentId, active: true } },
+    { contentId, device, protocol, userId },
     contentType,
   );
 }
