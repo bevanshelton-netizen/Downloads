@@ -1,0 +1,88 @@
+name: KORA Owned Runtime Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "kora-network/**"
+      - ".github/workflows/kora-owned-runtime.yml"
+  push:
+    branches: [main]
+    paths:
+      - "kora-network/**"
+      - ".github/workflows/kora-owned-runtime.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-kora-owned-runtime:
+    name: Verify KORA production runtime
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: kora-network
+    steps:
+      - name: Checkout KORA
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: kora-network/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Typecheck
+        env:
+          SUPABASE_SERVICE_ROLE_KEY: build-only-placeholder-service-role-key
+          SUPABASE_SECRET_KEY: build-only-placeholder-secret-key
+          VIDEO_PROVIDER: mock
+          PAYFAST_MERCHANT_ID: 10000100
+          PAYFAST_MERCHANT_KEY: build-only-placeholder-merchant-key
+          PAYFAST_PASSPHRASE: build-only-placeholder-passphrase
+          PAYFAST_SANDBOX: "true"
+          KORA_TICKET_CHECKOUT_MODE: off
+          KORA_TICKET_LIVE_APPROVED: "false"
+          KORA_INTERNAL_API_SECRET: build-only-placeholder-internal-secret-0123456789
+        run: npm run typecheck
+
+      - name: Build production image
+        env:
+          NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: build-only-placeholder-publishable-key
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: build-only-placeholder-anon-key
+          NEXT_PUBLIC_OPERATOR_NAME: IZAKHONO AFRICA
+        run: docker build --file Dockerfile.izakhono-production --tag kora-owned-runtime:ci .
+
+      - name: Start production container
+        run: |
+          docker run --detach --rm --name kora-owned-runtime \
+            --publish 3000:3000 \
+            --env NODE_ENV=production \
+            kora-owned-runtime:ci
+
+      - name: Health check
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:3000/api/health; then
+              echo
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs kora-owned-runtime || true
+          exit 1
+
+      - name: Version check
+        run: curl --fail --silent http://127.0.0.1:3000/api/version
+
+      - name: Stop container
+        if: always()
+        run: docker stop kora-owned-runtime 2>/dev/null || true
