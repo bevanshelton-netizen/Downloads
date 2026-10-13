@@ -10,6 +10,12 @@
 |---|---|---|---|---|
 | SHELTON H2 Hydrogen-Electric SUV | Vehicle / IP | Shelton Motor Corporation / SHELTON Vehicles | Strategic R&D | Feasibility, supplier RFQ, prototype and homologation |
 | SHELTON H2 emergency water/wading package | Vehicle subsystem | Shelton Motor Corporation | R&D subsystem | Engineering validation and safety/regulatory review |
+| SHELTON S3 R | Compact executive performance sedan | Shelton Motor Corporation | P0 engineering | CAD/CAE, supplier RFIs, prototype and validation |
+| SHELTON S8 R | Seven-seat flagship ultra-luxury performance SUV | Shelton Motor Corporation | P0 engineering | CAD/CAE, supplier RFIs, prototype and validation |
+| SHELTON S8 GT Royal | Grand-tourer / ultra-luxury performance vehicle | Shelton Motor Corporation | P0 engineering | Architecture freeze, water-mode feasibility and validation |
+| SHELTON X9 Royal | Flagship luxury SUV / PHEV | Shelton Motor Corporation | P0 engineering | Hydrodynamic safety case, prototype and homologation |
+| SHELTON S10 R | Two-seat halo hypercar | Shelton Motor Corporation | P0 engineering | CAD/CAE, prototype sourcing and validation |
+| SHELTON Sovereign SV-A1 | Luxury coach / accessible mobility platform | Shelton Motor Corporation | Strategic R&D | Vehicle/marine feasibility, accessibility engineering and certification |
 | Memory Mania | Game / learning entertainment | Memory Mania | Product | Owner-host/runtime verification, product polish, monetisation |
 | IZAKHONO PAY | Payment orchestration | IZAKHONO Digital Finance / IZAKHONO ecosystem | Commercial / partnership | Regulatory/acquirer pathway, sandbox, controlled production route |
 | IZAKHONO professional business websites | Digital service | IZAKHONO Services / IZAKHONO Website Factory | Commercial | Package, checkout, provisioning automation |
@@ -37,6 +43,12 @@ These already exist in the master catalogue and must be checked against the orig
 - Edu-Build / FAISReady / DOXA-SURE / Ubuntu AI Tutor / WeLEARN / Matric Rewrite Academy
 - Ubuntu Market / LegacyMart / Connecta / The Chancellor / LeadPilot AI / RevenueForge AI / ProofForge AI / NexAI Global Markets
 
+## New vehicle-family discovery from the picture/archive pass
+
+The vehicle work is materially broader than one SHELTON H2 concept. The archive contains controlled engineering handover packages for **S3 R, S8 R, S8 GT Royal, X9 Royal, S10 R and Sovereign SV-A1**, in addition to SHELTON H2. These are therefore recorded as separate programme identities under Shelton Motor Corporation rather than being collapsed into a generic “SHELTON Vehicles” entry.
+
+The engineering documents explicitly mark these programmes as concept/P0 engineering inputs rather than production releases. They require CAD/CAE, prototype, validation and homologation gates before production or customer-facing performance/safety claims. Water/amphibious capability is likewise treated as an engineering programme requiring formal safety cases, physical testing and regulatory review.
+
 ## Evidence rules
 
 1. A picture is discovery evidence, not proof that a product is production-ready.
@@ -45,6 +57,7 @@ These already exist in the master catalogue and must be checked against the orig
 4. Financial/payment products must carry regulatory and partner gates before live processing.
 5. No product is marked **LIVE**, **DEPLOYED**, **CERTIFIED**, **APPROVED** or **REVENUE VERIFIED** without direct evidence.
 6. Duplicate concepts are merged while preserving every meaningful feature/variant from the source images.
+7. Vehicle water-mode/amphibious claims remain engineering targets until validated and approved; they must not be marketed as certified capability prematurely.
 
 ## Commercial routing
 
@@ -72,6 +85,12 @@ These already exist in the master catalogue and must be checked against the orig
 ## Strategic P2/P3 candidates
 
 - SHELTON H2
+- SHELTON S3 R
+- SHELTON S8 R
+- SHELTON S8 GT Royal
+- SHELTON X9 Royal
+- SHELTON S10 R
+- SHELTON Sovereign SV-A1
 - Rail portfolio
 - SheltonAir
 - IZAKHONO Cloud / Code / OS
