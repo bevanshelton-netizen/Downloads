@@ -22,25 +22,33 @@
 | Music release catalogue workflow | Creator software | Allegro Vibez / Allegro Studio | P1 | Rights + release + analytics + payout completion |
 | Edu-Build branded learning/marketing assets | Education product family | Edu-Build | P1 | Convert campaigns into enrolment funnel and products |
 
-## Recovered SHELTON vehicle programmes
+## Recovered SHELTON vehicle portfolio architecture
 
-These are separate programmes, not duplicates. The engineering packs currently describe controlled concept/P0 work and explicitly do **not** authorise uncontrolled fabrication, production tooling or customer-facing performance/safety claims.
+The archive reveals a broader SHELTON Motor Company architecture beyond the individual programmes already recovered. The engineering programme defines shared families and staged physical prototypes. fileciteturn131file6
 
-| Programme | Vehicle class | Priority | Next engineering gate |
+| Family / programme | Vehicle class | Priority | Next gate |
 |---|---|---|---|
-| SHELTON H2 Gen 1 | Hydrogen-electric premium SUV | P3 | Feasibility, certified H2 supplier, prototype mule, homologation plan |
+| S-Series / SHELTON S1 R | Hatchback / sedan / fastback / GT family | P3 | Platform architecture, CAD/CAE, prototype and validation |
 | SHELTON S3 R | Executive performance sedan | P3 | CAD/CAE master, powertrain mule, crash/durability DVP&R |
 | SHELTON S8 R | Seven-seat flagship PHEV SUV | P3 | Architecture freeze, CAE, supplier RFIs, prototype feasibility |
 | SHELTON S8 GT Royal | Grand-tourer flagship | P3 | Packaging/mass closure, water-mode feasibility, CAE |
+| SHELTON X-Series / X7 AR | Luxury / performance SUV family | P3 | Halo demonstrator feasibility, CAE, prototype and validation |
 | SHELTON X9 Royal | Flagship luxury PHEV SUV | P3 | Mass/CG closure, water-mode safety case, CAE |
+| SHELTON B-Series / XR | Premium performance bakkie | P3 | Market specification, chassis/powertrain architecture, supplier RFIs |
+| SHELTON Z-Series / Z1 Royal | Ultra-luxury people mover | P3 | Packaging, accessibility, certification architecture |
+| SHELTON Liners | Single/deck and double-deck intercity coaches | P3 | Body engineering, chassis integration, accessibility and certification |
 | SHELTON S10 R | Two-seat halo hypercar | P3 | P0 CAD/CAE, supplier architecture, prototype strategy |
-| SHELTON Sovereign SV-A1 | Luxury coach / accessible mobility | P3/P4 | Vehicle certification architecture, supplier and accessibility validation |
+| SHELTON H2 Gen 1 | Hydrogen-electric premium SUV | P3 | Feasibility, certified H2 supplier, prototype mule, homologation plan |
+| SHELTON Sovereign SV-A1 | Luxury coach / accessible amphibious demonstrator | P3/P4 | Vehicle certification, naval/water feasibility, accessibility validation |
+| SHELTON Ultimate X | Advanced mobility demonstrator | P3/P4 | Separate technical/regulatory work packages and evidence |
+
+The programme pack explicitly identifies S-Series, X-Series, B-Series/XR, Z-Series, Shelton Liners and Sovereign as distinct families. It describes X7 AR as a halo technology demonstrator rather than a certified production vehicle. fileciteturn131file6
 
 ### SHELTON engineering safety rule
 
 Water/amphibious capability is treated as an **engineering programme target**, never as a production or marketing claim until the declared test matrix, safety case and applicable regulatory review are complete. The recovered packs require hydrostatic/freeboard analysis, watertight zoning, HV isolation, emergency egress, physical testing and market-specific homologation. fileciteturn125file0
 
-South African road use must ultimately satisfy applicable compulsory specifications and NRCS requirements. NRCS states that vehicles used on public roads, whether locally manufactured or imported, must conform to applicable requirements, and an LOA/homologation pathway applies to new or modified/unapproved vehicle designs. citeturn0search0turn0search15
+South African road use must ultimately satisfy applicable compulsory specifications and NRCS requirements. NRCS states that vehicles used on public roads, whether locally manufactured or imported, must conform to applicable requirements and an applicable LOA/homologation pathway. citeturn0search0turn0search15
 
 ## BEVAN SHELTON apparel architecture recovered
 
@@ -54,6 +62,20 @@ The picture/archive evidence confirms a broader brand architecture than a single
 - **BEVAN SHELTON Golf** — course-to-clubhouse lifestyle: polos, quarter-zips, trousers, caps and outerwear. fileciteturn128file5
 
 The recovered 90-day launch plan further defines kids' sublimated sets, TOP DAWG tracksuits, black/gold sets, adult oversized sets, adult premium graphic sets, adult tracksuits and TOP DAWG jackets. fileciteturn128file3
+
+## BEVAN SHELTON Golf product universe
+
+The Golf concept is now treated as a complete product ecosystem rather than apparel alone:
+
+- Performance apparel: men's and women's polos, trousers, shorts, skorts, quarter-zips, sweaters, jackets, rainwear and socks.
+- Accessories: caps, visors, Cabretta gloves, belts, towels, umbrellas, markers, divot tools and headcovers.
+- Bags and travel: stand bags, cart bags, staff bags, shoe bags, weekend bags, travel covers and luggage.
+- Equipment: drivers, fairway woods, hybrids, irons, wedges, putters and golf balls, subject to engineering and conformance.
+- Footwear: premium spikeless/performance golf shoes and lifestyle crossover footwear.
+- Corporate Golf: player packs, executive gifting, event merchandise and tournament prizes.
+- Golf House: men's and women's collections, equipment gallery, bag gallery, signature collection, fitting studio, corporate golf desk and FEST Hydration Lounge. fileciteturn131file0
+
+The golf-club programme is explicitly phase-gated through specification → prototype → test → refine → conform → launch, with applicable R&A/USGA evaluation before mass production/marketing where conformance applies. fileciteturn130file5
 
 ## Digital identity product
 
@@ -128,13 +150,18 @@ These already exist in the master catalogue and must be checked against original
 14. FORTRESS / NAV / I-CONNECT / FleetShield
 
 ### 🟣 P3 — Engineering / capital programmes
-15. SHELTON S3 R
-16. SHELTON H2
-17. SHELTON S8 R / S8 GT Royal / X9 Royal
-18. SHELTON S10 R
-19. SHELTON Sovereign
-20. Rail portfolio
-21. SheltonAir
+15. SHELTON S1 R / S-Series platform
+16. SHELTON S3 R
+17. SHELTON H2
+18. SHELTON S8 R / S8 GT Royal / X7 AR / X9 Royal
+19. SHELTON B-Series / XR
+20. SHELTON Z1 Royal
+21. SHELTON Liners
+22. SHELTON S10 R
+23. SHELTON Sovereign
+24. SHELTON Ultimate X
+25. Rail portfolio
+26. SheltonAir
 
 ## Lock-in objective
 
