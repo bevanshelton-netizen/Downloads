@@ -1,34 +1,75 @@
 # IZAKHONO Picture Product Recovery Register
 
-**Purpose:** recover product, invention, service and platform concepts visible in prior user-supplied pictures/library artifacts and reconcile them against the 54-business master portfolio.
+**Purpose:** recover product, invention, service and platform concepts visible in prior user-supplied pictures/library artifacts and reconcile them against the master portfolio.
 
 **Rule:** Do not discard an idea because it is not yet production-ready. Classify it, preserve the source evidence, assign an owner business, and route it through the commercial/build pipeline.
 
-## Recovered / confirmed from picture and artifact evidence
+## Recovered / confirmed product families
 
-| Product / concept | Type | Portfolio owner / home | Status | Next gate |
+| Product / concept | Type | Portfolio owner / home | Priority | Current gate |
 |---|---|---|---|---|
-| SHELTON H2 Hydrogen-Electric SUV | Vehicle / IP | Shelton Motor Corporation / SHELTON Vehicles | Strategic R&D | Feasibility, supplier RFQ, prototype and homologation |
-| SHELTON H2 emergency water/wading package | Vehicle subsystem | Shelton Motor Corporation | R&D subsystem | Engineering validation and safety/regulatory review |
-| SHELTON S3 R | Compact executive performance sedan | Shelton Motor Corporation | P0 engineering | CAD/CAE, supplier RFIs, prototype and validation |
-| SHELTON S8 R | Seven-seat flagship ultra-luxury performance SUV | Shelton Motor Corporation | P0 engineering | CAD/CAE, supplier RFIs, prototype and validation |
-| SHELTON S8 GT Royal | Grand-tourer / ultra-luxury performance vehicle | Shelton Motor Corporation | P0 engineering | Architecture freeze, water-mode feasibility and validation |
-| SHELTON X9 Royal | Flagship luxury SUV / PHEV | Shelton Motor Corporation | P0 engineering | Hydrodynamic safety case, prototype and homologation |
-| SHELTON S10 R | Two-seat halo hypercar | Shelton Motor Corporation | P0 engineering | CAD/CAE, prototype sourcing and validation |
-| SHELTON Sovereign SV-A1 | Luxury coach / accessible mobility platform | Shelton Motor Corporation | Strategic R&D | Vehicle/marine feasibility, accessibility engineering and certification |
-| Memory Mania | Game / learning entertainment | Memory Mania | Product | Owner-host/runtime verification, product polish, monetisation |
-| IZAKHONO PAY | Payment orchestration | IZAKHONO Digital Finance / IZAKHONO ecosystem | Commercial / partnership | Regulatory/acquirer pathway, sandbox, controlled production route |
-| IZAKHONO professional business websites | Digital service | IZAKHONO Services / IZAKHONO Website Factory | Commercial | Package, checkout, provisioning automation |
-| Luxury digital business cards / Meishi | Digital product | IZAKHONO Services / Creative Suite | Product | Package, self-service creation, recurring plan |
-| BEVAN SHELTON premium apparel collections | Physical products | BEVAN SHELTON / IZAKHONO Africa | Commercial | Sample, costing, demand validation, production |
-| Top Dawg Kiddies range | Apparel / kids | BEVAN SHELTON | Product concept | Sample capsule, sizing/safety/market validation |
-| Edu-Build branded learning/marketing assets | Education product family | Edu-Build | Commercial | Convert campaigns into enrolment funnel and products |
-| IZAKHONO ONE | Creative AI platform | IZAKHONO ONE | Product / platform | Production hardening, plans, usage billing |
-| Music release catalogue workflow | Creator software | Allegro Vibez / Allegro Studio | Product | Rights, release, analytics and payout workflow completion |
+| IZAKHONO professional business websites | Digital service | IZAKHONO Services / Website Factory | P0 | Package + checkout + automated provisioning |
+| Luxury digital business cards / Meishi | Digital product | IZAKHONO Services / Creative Suite | P0 | Productise self-service + recurring plan |
+| CashFlow Guardian / SUPER ACCOUNTANT ecosystem | SaaS / finance operations | IZAKHONO Digital Finance | P0 | Commercial launch + verified payment |
+| IZAKHONO ONE | Creative AI platform | IZAKHONO ONE | P0/P1 | Production hardening + plans + usage billing |
+| KORA Expansion Network | Media infrastructure | KORA | P0/P1 | Structured intake + rights/compliance + partner pipeline |
+| BEVAN SHELTON core apparel | Physical products | BEVAN SHELTON / IZAKHONO Africa | P0/P1 | Samples + costing + demand validation |
+| Tha Top Dawg Kiddies | Apparel / children | BEVAN SHELTON | P0/P1 | Sample capsule + sizing/safety + launch validation |
+| Tha Top Cat | Women's apparel | BEVAN SHELTON | P1 | Sampling + IP/technical review |
+| BEVAN SHELTON Golf | Golf / executive apparel | BEVAN SHELTON | P1 | Sampling + B2B/corporate demand validation |
+| Memory Mania | Game / learning entertainment | Memory Mania | P1 | Runtime/owner verification + monetisation |
+| IZAKHONO PAY | Payment orchestration | IZAKHONO Digital Finance | P2/P4 | Acquirer/sponsor-bank + SARB pathway before live money |
+| Music release catalogue workflow | Creator software | Allegro Vibez / Allegro Studio | P1 | Rights + release + analytics + payout completion |
+| Edu-Build branded learning/marketing assets | Education product family | Edu-Build | P1 | Convert campaigns into enrolment funnel and products |
+
+## Recovered SHELTON vehicle programmes
+
+These are separate programmes, not duplicates. The engineering packs currently describe controlled concept/P0 work and explicitly do **not** authorise uncontrolled fabrication, production tooling or customer-facing performance/safety claims.
+
+| Programme | Vehicle class | Priority | Next engineering gate |
+|---|---|---|---|
+| SHELTON H2 Gen 1 | Hydrogen-electric premium SUV | P3 | Feasibility, certified H2 supplier, prototype mule, homologation plan |
+| SHELTON S3 R | Executive performance sedan | P3 | CAD/CAE master, powertrain mule, crash/durability DVP&R |
+| SHELTON S8 R | Seven-seat flagship PHEV SUV | P3 | Architecture freeze, CAE, supplier RFIs, prototype feasibility |
+| SHELTON S8 GT Royal | Grand-tourer flagship | P3 | Packaging/mass closure, water-mode feasibility, CAE |
+| SHELTON X9 Royal | Flagship luxury PHEV SUV | P3 | Mass/CG closure, water-mode safety case, CAE |
+| SHELTON S10 R | Two-seat halo hypercar | P3 | P0 CAD/CAE, supplier architecture, prototype strategy |
+| SHELTON Sovereign SV-A1 | Luxury coach / accessible mobility | P3/P4 | Vehicle certification architecture, supplier and accessibility validation |
+
+### SHELTON engineering safety rule
+
+Water/amphibious capability is treated as an **engineering programme target**, never as a production or marketing claim until the declared test matrix, safety case and applicable regulatory review are complete. The recovered packs require hydrostatic/freeboard analysis, watertight zoning, HV isolation, emergency egress, physical testing and market-specific homologation. fileciteturn125file0
+
+South African road use must ultimately satisfy applicable compulsory specifications and NRCS requirements. NRCS states that vehicles used on public roads, whether locally manufactured or imported, must conform to applicable requirements, and an LOA/homologation pathway applies to new or modified/unapproved vehicle designs. citeturn0search0turn0search15
+
+## BEVAN SHELTON apparel architecture recovered
+
+The picture/archive evidence confirms a broader brand architecture than a single streetwear range:
+
+- **BEVAN SHELTON Signature** — refined premium lifestyle: cardigans, jackets, polos, knitwear.
+- **BEVAN SHELTON Street** — bold street-luxury: hoodies, cargo sets, oversized silhouettes.
+- **Royal Fit** — inclusive sizing through 6XL.
+- **Tha Top Cat** — women's expressive streetwear.
+- **Tha Top Dawg Kiddies** — premium children's fashion.
+- **BEVAN SHELTON Golf** — course-to-clubhouse lifestyle: polos, quarter-zips, trousers, caps and outerwear. fileciteturn128file5
+
+The recovered 90-day launch plan further defines kids' sublimated sets, TOP DAWG tracksuits, black/gold sets, adult oversized sets, adult premium graphic sets, adult tracksuits and TOP DAWG jackets. fileciteturn128file3
+
+## Digital identity product
+
+The recovered Meishi system is a modular executive digital-card product intended for introductions, WhatsApp, email signatures, NFC taps and meetings, with business-specific cards rather than exposing the entire portfolio at once. fileciteturn127file4turn127file5
+
+## IZAKHONO PAY control gate
+
+IZAKHONO PAY remains a strategic payment-infrastructure product, but it is **not marked LIVE**. Its current architecture is intentionally non-custodial: an authorised acquiring partner processes and settles the regulated payment leg while IZAKHONO PAY provides merchant onboarding, orchestration, transaction state, reconciliation, support and reporting. The partnership pack explicitly says no public real-money launch should occur until the applicable sponsor/acquirer and regulatory requirements are complete. fileciteturn127file0turn127file7
+
+## IZAKHONO ONE
+
+IZAKHONO ONE is already represented by an active product workspace with a campaign-generation workflow spanning design, posts/ads, video, voice, music, websites, copy, email and publishing. It is therefore routed as a commercial creative platform rather than merely an idea. fileciteturn128file9
 
 ## Existing portfolio concepts requiring picture-level reconciliation
 
-These already exist in the master catalogue and must be checked against the original images for variants/features that may have been omitted:
+These already exist in the master catalogue and must be checked against original images for variants/features that may have been omitted:
 
 - KORA / KORA Kids / KORA TV / YHVH Gospel TV
 - AUTO AI / Learner Driver SA / Pimp My Old Car
@@ -43,12 +84,6 @@ These already exist in the master catalogue and must be checked against the orig
 - Edu-Build / FAISReady / DOXA-SURE / Ubuntu AI Tutor / WeLEARN / Matric Rewrite Academy
 - Ubuntu Market / LegacyMart / Connecta / The Chancellor / LeadPilot AI / RevenueForge AI / ProofForge AI / NexAI Global Markets
 
-## New vehicle-family discovery from the picture/archive pass
-
-The vehicle work is materially broader than one SHELTON H2 concept. The archive contains controlled engineering handover packages for **S3 R, S8 R, S8 GT Royal, X9 Royal, S10 R and Sovereign SV-A1**, in addition to SHELTON H2. These are therefore recorded as separate programme identities under Shelton Motor Corporation rather than being collapsed into a generic “SHELTON Vehicles” entry.
-
-The engineering documents explicitly mark these programmes as concept/P0 engineering inputs rather than production releases. They require CAD/CAE, prototype, validation and homologation gates before production or customer-facing performance/safety claims. Water/amphibious capability is likewise treated as an engineering programme requiring formal safety cases, physical testing and regulatory review.
-
 ## Evidence rules
 
 1. A picture is discovery evidence, not proof that a product is production-ready.
@@ -57,7 +92,6 @@ The engineering documents explicitly mark these programmes as concept/P0 enginee
 4. Financial/payment products must carry regulatory and partner gates before live processing.
 5. No product is marked **LIVE**, **DEPLOYED**, **CERTIFIED**, **APPROVED** or **REVENUE VERIFIED** without direct evidence.
 6. Duplicate concepts are merged while preserving every meaningful feature/variant from the source images.
-7. Vehicle water-mode/amphibious claims remain engineering targets until validated and approved; they must not be marketed as certified capability prematurely.
 
 ## Commercial routing
 
@@ -71,35 +105,37 @@ The engineering documents explicitly mark these programmes as concept/P0 enginee
 - **P3 — R&D / capital:** engineering, manufacturing, certification or major partnerships required.
 - **P4 — Partner/JV:** external capability, licensing or regulated infrastructure required.
 
-## Immediate P0/P1 candidates from recovered evidence
+## Current execution order
 
+### 🔥 P0 — Monetise immediately
 1. IZAKHONO professional websites + provisioning
-2. Luxury digital business cards / Meishi
+2. Luxury digital Meishi/cards
 3. CashFlow Guardian / SUPER ACCOUNTANT ecosystem
-4. IZAKHONO ONE creative campaigns
-5. KORA Expansion Network / creator and partner channels
-6. BEVAN SHELTON core apparel and uniforms
-7. Memory Mania commercial product
-8. IZAKHONO PAY partnership pathway
+4. IZAKHONO ONE campaigns
+5. BEVAN SHELTON core apparel / TOP DAWG pre-sales
 
-## Strategic P2/P3 candidates
+### 🟢 P1 — Fast commercial build
+6. KORA Expansion Network
+7. Memory Mania
+8. Allegro creator/release workflow
+9. Tha Top Cat / Golf apparel capsules
+10. Edu-Build digital enrolment/product funnel
 
-- SHELTON H2
-- SHELTON S3 R
-- SHELTON S8 R
-- SHELTON S8 GT Royal
-- SHELTON X9 Royal
-- SHELTON S10 R
-- SHELTON Sovereign SV-A1
-- Rail portfolio
-- SheltonAir
-- IZAKHONO Cloud / Code / OS
-- FORTRESS
-- I-CONNECT
-- IZAKHONO NAV
-- Industrial/manufacturing expansion
-- Agricultural equipment and Free Bird Agri-Quip expansion
+### 🔵 P2 — Strategic infrastructure
+11. IZAKHONO PAY partner pathway
+12. IZAKHONO Project Factory
+13. IZAKHONO Cloud / Code / OS
+14. FORTRESS / NAV / I-CONNECT / FleetShield
+
+### 🟣 P3 — Engineering / capital programmes
+15. SHELTON S3 R
+16. SHELTON H2
+17. SHELTON S8 R / S8 GT Royal / X9 Royal
+18. SHELTON S10 R
+19. SHELTON Sovereign
+20. Rail portfolio
+21. SheltonAir
 
 ## Lock-in objective
 
-The picture archive becomes a permanent **Product/IP Discovery Layer** feeding the IZAKHONO Project Factory. No future product idea should be lost merely because it first appeared in an image, mockup, screenshot, handwritten concept, catalogue or presentation.
+The picture archive is now a permanent **Product/IP Discovery Layer** feeding the IZAKHONO Project Factory. No future product idea should be lost merely because it first appeared in an image, mockup, screenshot, handwritten concept, catalogue or presentation.
