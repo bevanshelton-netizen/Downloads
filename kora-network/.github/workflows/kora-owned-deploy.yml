@@ -1,0 +1,153 @@
+name: KORA Owned Infrastructure Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Deployment target'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+  push:
+    branches: [main]
+    paths:
+      - 'kora-network/**'
+      - '.github/workflows/kora-owned-deploy.yml'
+
+concurrency:
+  group: kora-owned-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  APP_DIR: /opt/kora-network
+  APP_NAME: kora-network
+
+jobs:
+  build-and-deploy:
+    name: Build and deploy to IZAKHONO Runtime
+    runs-on: ubuntu-latest
+    environment: production
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: kora-network/package-lock.json
+
+      - name: Install dependencies
+        working-directory: kora-network
+        run: npm ci
+
+      - name: Typecheck
+        working-directory: kora-network
+        run: npm run typecheck
+
+      - name: Build production container
+        working-directory: kora-network
+        env:
+          NEXT_PUBLIC_APP_URL: ${{ vars.KORA_PUBLIC_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.KORA_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.KORA_SUPABASE_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_OPERATOR_NAME: ${{ vars.KORA_OPERATOR_NAME }}
+          NEXT_PUBLIC_SUPPORT_EMAIL: ${{ vars.KORA_SUPPORT_EMAIL }}
+          NEXT_PUBLIC_PRIVACY_EMAIL: ${{ vars.KORA_PRIVACY_EMAIL }}
+          NEXT_PUBLIC_RIGHTS_EMAIL: ${{ vars.KORA_RIGHTS_EMAIL }}
+        run: |
+          docker build \
+            -f Dockerfile.izakhono-production \
+            --build-arg NEXT_PUBLIC_APP_URL="$NEXT_PUBLIC_APP_URL" \
+            --build-arg NEXT_PUBLIC_SUPABASE_URL="$NEXT_PUBLIC_SUPABASE_URL" \
+            --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" \
+            --build-arg NEXT_PUBLIC_OPERATOR_NAME="$NEXT_PUBLIC_OPERATOR_NAME" \
+            --build-arg NEXT_PUBLIC_SUPPORT_EMAIL="$NEXT_PUBLIC_SUPPORT_EMAIL" \
+            --build-arg NEXT_PUBLIC_PRIVACY_EMAIL="$NEXT_PUBLIC_PRIVACY_EMAIL" \
+            --build-arg NEXT_PUBLIC_RIGHTS_EMAIL="$NEXT_PUBLIC_RIGHTS_EMAIL" \
+            -t "$APP_NAME:${GITHUB_SHA}" .
+
+      - name: Save image
+        working-directory: kora-network
+        run: docker save "$APP_NAME:${GITHUB_SHA}" | gzip > /tmp/kora-image.tar.gz
+
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.IZAKHONO_SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.IZAKHONO_SSH_HOST }}
+        run: |
+          test -n "$SSH_HOST" || { echo 'IZAKHONO_SSH_HOST is not configured'; exit 1; }
+          test -n "$SSH_PRIVATE_KEY" || { echo 'IZAKHONO_SSH_PRIVATE_KEY is not configured'; exit 1; }
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+
+      - name: Prepare runtime directory
+        env:
+          SSH_HOST: ${{ secrets.IZAKHONO_SSH_HOST }}
+          SSH_USER: ${{ secrets.IZAKHONO_SSH_USER }}
+        run: |
+          test -n "$SSH_USER" || { echo 'IZAKHONO_SSH_USER is not configured'; exit 1; }
+          ssh "$SSH_USER@$SSH_HOST" "sudo mkdir -p '$APP_DIR/releases/${GITHUB_SHA}' && sudo chown -R \"$USER\":\"$USER\" '$APP_DIR' || true"
+
+      - name: Transfer release image
+        env:
+          SSH_HOST: ${{ secrets.IZAKHONO_SSH_HOST }}
+          SSH_USER: ${{ secrets.IZAKHONO_SSH_USER }}
+        run: |
+          scp /tmp/kora-image.tar.gz "$SSH_USER@$SSH_HOST:$APP_DIR/releases/${GITHUB_SHA}/kora-image.tar.gz"
+
+      - name: Activate release
+        env:
+          SSH_HOST: ${{ secrets.IZAKHONO_SSH_HOST }}
+          SSH_USER: ${{ secrets.IZAKHONO_SSH_USER }}
+          KORA_PUBLIC_URL: ${{ vars.KORA_PUBLIC_URL }}
+        run: |
+          ssh "$SSH_USER@$SSH_HOST" bash -s -- "$APP_DIR" "$APP_NAME" "${GITHUB_SHA}" "$KORA_PUBLIC_URL" <<'REMOTE'
+          set -euo pipefail
+          APP_DIR="$1"
+          APP_NAME="$2"
+          RELEASE="$3"
+          PUBLIC_URL="$4"
+          cd "$APP_DIR/releases/$RELEASE"
+          docker load < kora-image.tar.gz
+          docker rm -f "$APP_NAME" >/dev/null 2>&1 || true
+          docker run -d \
+            --name "$APP_NAME" \
+            --restart unless-stopped \
+            -p 127.0.0.1:3000:3000 \
+            --env-file "$APP_DIR/.env.production" \
+            "$APP_NAME:$RELEASE"
+          sleep 8
+          curl --fail --silent --show-error http://127.0.0.1:3000/api/health
+          curl --fail --silent --show-error http://127.0.0.1:3000/api/version
+          REMOTE
+
+      - name: Public production smoke test
+        env:
+          KORA_PUBLIC_URL: ${{ vars.KORA_PUBLIC_URL }}
+        working-directory: kora-network
+        run: |
+          test -n "$KORA_PUBLIC_URL" || { echo 'KORA_PUBLIC_URL is not configured'; exit 1; }
+          export KORA_EXPECT_READY=true
+          export KORA_APP_URL="$KORA_PUBLIC_URL"
+          npm run smoke:production
+
+      - name: Verify key routes
+        env:
+          KORA_PUBLIC_URL: ${{ vars.KORA_PUBLIC_URL }}
+        run: |
+          for route in / /tv /watch /creators; do
+            code=$(curl -L -s -o /dev/null -w '%{http_code}' --max-time 30 "$KORA_PUBLIC_URL$route")
+            echo "$route -> $code"
+            test "$code" -ge 200
+            test "$code" -lt 400
+          done
