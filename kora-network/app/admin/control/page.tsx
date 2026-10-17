@@ -20,12 +20,12 @@ export default async function ControlPlane() {
 
   const runtime = getKoraRuntime();
   const checks = [
-    ['Web application', 'Ready'],
-    ['Live TV / HLS', runtime.videoProvider === 'mock' ? 'Provider configured as mock' : 'Provider configured'],
+    ['Web application', `Primary: ${runtime.primary}`],
+    ['Live streaming', runtime.streaming === 'configured' ? 'Configured' : 'Standby'],
     ['EPG / scheduling', 'Ready'],
     ['VOD / productions', 'Ready'],
-    ['Monetisation', 'Payment adapters configured'],
-    ['Provider independence', runtime.runtimeMode === 'dual' ? 'Dual runtime' : runtime.runtimeMode],
+    ['Database', runtime.database === 'configured' ? 'Configured' : 'Standby'],
+    ['Provider independence', `Fallback: ${runtime.fallback}`],
   ];
 
   return (
@@ -42,7 +42,7 @@ export default async function ControlPlane() {
         <article className="panel"><span className="eyebrow">VOD CATALOGUE</span><h2>{productionCount ?? 0}</h2><p>Productions available to the operator layer.</p><Link className="secondary" href="/admin/moderation">Review content</Link></article>
         <article className="panel"><span className="eyebrow">CREATOR QUEUE</span><h2>{applicationCount ?? 0}</h2><p>Applications waiting for creator-acquisition decisions.</p><Link className="secondary" href="/admin/creators">Creator operations</Link></article>
         <article className="panel"><span className="eyebrow">CAMPAIGNS</span><h2>{campaignCount ?? 0}</h2><p>Advertising campaigns in the commercial layer.</p><Link className="secondary" href="/admin/campaigns">Commercial control</Link></article>
-        <article className="panel"><span className="eyebrow">RUNTIME</span><h2>{runtime.runtimeMode}</h2><p>Provider-independent application runtime configuration.</p><Link className="secondary" href="/admin/launch">Launch readiness</Link></article>
+        <article className="panel"><span className="eyebrow">RUNTIME</span><h2>{runtime.primary}</h2><p>Primary runtime with an independent fallback path.</p><Link className="secondary" href="/admin/launch">Launch readiness</Link></article>
       </section>
 
       <section className="panel">
