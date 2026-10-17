@@ -1,0 +1,72 @@
+name: KORA Owned Runtime Image
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "kora-network/**"
+      - ".github/workflows/kora-owned-image.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/${{ github.repository_owner }}/kora-network
+
+jobs:
+  publish:
+    name: Build and publish KORA runtime
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: kora-network
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate public build configuration
+        env:
+          KORA_PUBLIC_APP_URL: ${{ vars.KORA_PUBLIC_APP_URL }}
+          KORA_SUPABASE_URL: ${{ vars.KORA_SUPABASE_URL }}
+          KORA_SUPABASE_PUBLISHABLE_KEY: ${{ vars.KORA_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          test -n "$KORA_PUBLIC_APP_URL" || { echo "Missing repository variable KORA_PUBLIC_APP_URL"; exit 1; }
+          test -n "$KORA_SUPABASE_URL" || { echo "Missing repository variable KORA_SUPABASE_URL"; exit 1; }
+          test -n "$KORA_SUPABASE_PUBLISHABLE_KEY" || { echo "Missing repository variable KORA_SUPABASE_PUBLISHABLE_KEY"; exit 1; }
+
+      - name: Build runtime image
+        env:
+          NEXT_PUBLIC_APP_URL: ${{ vars.KORA_PUBLIC_APP_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.KORA_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.KORA_SUPABASE_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_OPERATOR_NAME: IZAKHONO AFRICA
+        run: |
+          docker build \
+            --file Dockerfile.izakhono-production \
+            --build-arg NEXT_PUBLIC_APP_URL="$NEXT_PUBLIC_APP_URL" \
+            --build-arg NEXT_PUBLIC_SUPABASE_URL="$NEXT_PUBLIC_SUPABASE_URL" \
+            --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" \
+            --build-arg NEXT_PUBLIC_OPERATOR_NAME="$NEXT_PUBLIC_OPERATOR_NAME" \
+            --tag "$IMAGE:${GITHUB_SHA}" \
+            --tag "$IMAGE:main" \
+            .
+
+      - name: Publish runtime image
+        run: |
+          docker push "$IMAGE:${GITHUB_SHA}"
+          docker push "$IMAGE:main"
+
+      - name: Runtime image summary
+        run: |
+          echo "KORA owned runtime image published: $IMAGE:${GITHUB_SHA}"
+          echo "Use the immutable SHA tag for production promotion."
