@@ -1,125 +1,100 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { brand } from '@/lib/brand';
 import { featured, channels } from '@/lib/catalog';
 import styles from './home.module.css';
-import { houseAds } from '@/lib/house-ads';
 
-const genres = [
-  ['🎬', 'Drama & Film'],
-  ['🎵', 'Music'],
-  ['😂', 'Comedy'],
-  ['⚽', 'Sport & Culture'],
-  ['✨', 'Faith & Family'],
-  ['🌍', 'African Stories'],
+const categories = [
+  ['◉', 'Live TV', '/live'],
+  ['▦', 'News', '/live'],
+  ['⚽', 'Sports', '/live'],
+  ['▶', 'Movies & Series', '/watch'],
+  ['♪', 'Music', '/music'],
+  ['✦', 'KORA Originals', '/watch'],
+  ['♥', 'Faith & Family', '/gospel'],
+  ['●', 'Kids', '/kids'],
 ];
 
-const programmeArt = [
-  '/images/kora-original-drama.webp',
-  '/images/kora-programme-montage.webp',
-  '/images/kora-live-music.webp',
-  '/images/kora-hero-entertainment.webp',
+const heroCards = [
+  ['/images/kora-hero-entertainment.webp', 'KORA PREMIERE', 'Africa to the World', 'Original entertainment, live television and creator stories.'],
+  ['/images/kora-live-music.webp', 'KORA LIVE', 'The Stage Is Open', 'Concerts, showcases and music culture — live when rights permit.'],
+  ['/images/kora-original-drama.webp', 'KORA ORIGINALS', 'Stories That Feel Like Home', 'Drama, film and creator-led entertainment built for African audiences.'],
 ];
+
+const channelNames = channels.slice(0, 8);
 
 export default function Home() {
   return (
     <main className={styles.page} id="main-content">
+      <nav className={styles.topbar} aria-label="KORA TV navigation">
+        <Link href="/" className={styles.logo} aria-label="KORA TV home"><span className={styles.logoMark}>K</span><span>KORA <b>TV</b></span></Link>
+        <div className={styles.navLinks}>
+          <Link href="/live">Live</Link><Link href="/watch">On Demand</Link><Link href="/music">Music</Link><Link href="/gospel">Faith</Link><Link href="/kids">Kids</Link>
+        </div>
+        <div className={styles.navActions}><button className={styles.searchButton} aria-label="Search KORA">⌕</button><Link href="/account" className={styles.profile}>◯</Link></div>
+      </nav>
+
       <section className={styles.hero}>
-        <div className={styles.copy}>
-          <div className={styles.kicker}><span className={styles.pulse} /> AFRICA&apos;S CREATOR-FIRST DIGITAL TV NETWORK</div>
-          <h1 className={styles.title}>Our stories.<span>Our screen.</span>Our economy.</h1>
-          <p className={styles.lead}>{brand.description} KORA brings live channels, on-demand originals, creator television, family entertainment and measurable brand partnerships into one colourful African network.</p>
-          <div className={styles.actions}>
-            <Link className={styles.primary} href="/watch">Start watching →</Link>
-            <Link className={styles.secondary} href="/live">Explore live TV</Link>
-          </div>
-          <div className={styles.micro}>
-            <span>Family-safe</span><span>Creator-first</span><span>Live + On Demand</span><span>Viewer rewards from cleared revenue</span>
-          </div>
+        <div className={styles.heroBackdrop} />
+        <div className={styles.heroCopy}>
+          <div className={styles.liveBadge}><span /> LIVE + ON DEMAND</div>
+          <h1>AFRICA<br /><em>TO THE WORLD.</em></h1>
+          <p>Live TV, news, sports, movies, series, music and African originals — one premium entertainment destination.</p>
+          <div className={styles.heroActions}><Link href="/live" className={styles.primary}>▶ Watch Live</Link><Link href="/watch" className={styles.secondary}>Explore KORA</Link></div>
+          <div className={styles.heroMeta}><span>HD STREAMING</span><i /> <span>WEB • MOBILE • TV</span><i /> <span>AFRICAN-FIRST</span></div>
         </div>
-        <div className={styles.stage} aria-label="KORA entertainment universe">
-          <Image
-            src="/images/kora-hero-entertainment.webp"
-            alt="African actors, musicians, creators and a family enjoying the KORA entertainment experience"
-            fill
-            priority
-            sizes="(max-width: 980px) 94vw, 48vw"
-            className={styles.heroImage}
-          />
-          <div className={styles.heroShade} aria-hidden="true" />
-          <div className={`${styles.floatCard} ${styles.one}`}><small>KORA ORIGINALS</small><strong>Stories that feel like home.</strong></div>
-          <div className={`${styles.floatCard} ${styles.two}`}><small>LIVE & LOUD</small><strong>Africa&apos;s sound. One stage.</strong></div>
-          <div className={`${styles.floatCard} ${styles.three}`}><small>CREATOR TV</small><strong>Publish. Grow. Participate.</strong></div>
+        <div className={styles.heroVisual}>
+          <Image src={heroCards[0][0]} alt="KORA TV entertainment" fill priority sizes="(max-width: 900px) 100vw, 56vw" className={styles.heroImage} />
+          <div className={styles.heroVignette} />
+          <div className={styles.playerChrome}><span>● LIVE</span><span>1080P</span><span>▣</span></div>
+          <div className={styles.nowPlaying}><small>NOW PLAYING</small><strong>KORA PRIME</strong><span>Original African entertainment</span></div>
         </div>
       </section>
 
-      <div className={styles.ticker} aria-hidden="true"><div className={styles.tickerTrack}>
-        <span>LIVE TV</span><span>SHORT DRAMA</span><span>MUSIC</span><span>COMEDY</span><span>FAITH</span><span>KIDS</span><span>CREATOR TV</span>
-        <span>LIVE TV</span><span>SHORT DRAMA</span><span>MUSIC</span><span>COMEDY</span><span>FAITH</span><span>KIDS</span><span>CREATOR TV</span>
-      </div></div>
-
-      <section className={styles.visualPromise} aria-label="What KORA offers">
-        <article className={styles.visualTile}>
-          <Image src="/images/kora-original-drama.webp" alt="African drama production scene for KORA Originals" fill sizes="(max-width: 760px) 92vw, 31vw" />
-          <div className={styles.visualShade} />
-          <div><small>KORA ORIGINALS</small><h2>Stories that look and feel like us.</h2><p>Drama, film and creator-led entertainment made for African audiences and the world.</p></div>
-        </article>
-        <article className={styles.visualTile}>
-          <Image src="/images/kora-live-music.webp" alt="Live African musicians performing on stage" fill sizes="(max-width: 760px) 92vw, 31vw" />
-          <div className={styles.visualShade} />
-          <div><small>LIVE MUSIC</small><h2>Turn the stage into a global screen.</h2><p>Concerts, showcases and music culture with direct routes for artists, fans and partners.</p></div>
-        </article>
-        <article className={styles.visualTile}>
-          <Image src="/images/kora-programme-montage.webp" alt="Montage of KORA programmes and creators" fill sizes="(max-width: 760px) 92vw, 31vw" />
-          <div className={styles.visualShade} />
-          <div><small>CREATOR ECONOMY</small><h2>Watch. Create. Partner. Grow.</h2><p>One entertainment network connecting viewers, creators, channels and brands.</p></div>
-        </article>
+      <section className={styles.categoryBar} aria-label="Browse categories">
+        {categories.map(([icon, label, href]) => <Link key={label} href={href} className={styles.category}><span>{icon}</span><b>{label}</b></Link>)}
       </section>
 
-      <section className={styles.networkOffers} aria-label="KORA Gospel TV">\n        <header className={styles.sectionHead}>\n          <div className={styles.eyebrow}>NEW KORA CHANNEL</div>\n          <h2>Gospel TV — owned by us, distributed everywhere useful.</h2>\n          <p>YHVH GOSPEL TV runs on IZAKHONO-owned infrastructure as its primary origin, with KORA/Vercel and public mirrors kept active for reach and resilience.</p>\n        </header>\n        <div className={styles.offerGrid}>\n          <Link className={styles.offerCard} href="/gospel" style={{'--offer-accent':'#f5c451'} as React.CSSProperties}>\n            <small>24/7 GOSPEL TELEVISION</small>\n            <h3>YHVH GOSPEL TV</h3>\n            <p>Faith. Worship. Word. Africa to the World.</p>\n            <span>Open Gospel TV →</span>\n          </Link>\n        </div>\n      </section>\n\n      <section className={styles.networkOffers} aria-label="Useful services from the IZAKHONO network">
-        <header className={styles.sectionHead}>
-          <div className={styles.eyebrow}>USEFUL SERVICES FROM OUR NETWORK</div>
-          <h2>Need help beyond entertainment?</h2>
-          <p>Open practical services from the wider network. Each link goes straight to the service.</p>
-        </header>
-        <div className={styles.offerGrid}>
-          {houseAds.map((offer) => <a key={offer.id} className={styles.offerCard} href={offer.clickUrl} target="_blank" rel="noopener noreferrer" style={{'--offer-accent': offer.accent} as React.CSSProperties}>
-            <small>IZAKHONO NETWORK</small>
-            <h3>{offer.name}</h3>
-            <p>{offer.body}</p>
-            <span>{offer.cta} →</span>
-          </a>)}
+      <section className={styles.section}>
+        <div className={styles.sectionTitle}><div><small>LIVE CHANNELS</small><h2>What's on now</h2></div><Link href="/live">See all channels →</Link></div>
+        <div className={styles.liveGrid}>
+          {channelNames.map((channel, index) => <Link href="/live" className={styles.liveCard} key={channel}>
+            <div className={`${styles.channelArt} ${styles[`art${index % 4}`]}`}><span className={styles.channelIcon}>{['K','A','N','S'][index % 4]}</span><span className={styles.liveDot}>● LIVE</span><div className={styles.channelWave} /></div>
+            <div className={styles.liveInfo}><strong>{channel}</strong><span>{index % 2 === 0 ? 'Now playing' : 'Live programming'}</span><small>{index % 3 === 0 ? 'HD' : 'LIVE'}</small></div>
+          </Link>)}
+        </div>
+      </section>
+
+      <section className={styles.sectionDark}>
+        <div className={styles.sectionTitle}><div><small>KORA ORIGINALS</small><h2>Made here. Seen everywhere.</h2></div><Link href="/watch">Browse originals →</Link></div>
+        <div className={styles.posterGrid}>
+          {heroCards.map(([image, badge, title, description], index) => <Link href="/watch" className={styles.poster} key={title}>
+            <Image src={image} alt={title} fill sizes="(max-width: 700px) 90vw, 30vw" />
+            <div className={styles.posterShade} />
+            <div className={styles.posterText}><small>{badge}</small><h3>{title}</h3><p>{description}</p><span>Watch now →</span></div>
+          </Link>)}
         </div>
       </section>
 
       <section className={styles.section}>
-        <header className={styles.sectionHead}><div className={styles.eyebrow}>WHATEVER YOUR VIBE</div><h2>There is a place for it on KORA.</h2><p>Built to feel fresh for younger viewers, familiar for families, and proudly African for audiences everywhere.</p></header>
-        <div className={styles.genres}>{genres.map(([icon, label]) => <article className={styles.genre} key={label}><span>{icon}</span><strong>{label}</strong></article>)}</div>
+        <div className={styles.sectionTitle}><div><small>SPORTS • NEWS • ENTERTAINMENT</small><h2>Your world, one screen.</h2></div></div>
+        <div className={styles.featureGrid}>
+          <Link href="/live" className={styles.featureCard}><div className={styles.featureIcon}>⚽</div><div><small>SPORTS</small><h3>Never miss the moment.</h3><p>Live sports, highlights and a future-ready sports hub built for African audiences.</p></div><b>Open Sports →</b></Link>
+          <Link href="/live" className={styles.featureCard}><div className={styles.featureIcon}>▤</div><div><small>NEWS</small><h3>Fast. Clear. African.</h3><p>News programming and current-affairs channels with room for local voices.</p></div><b>Open News →</b></Link>
+          <Link href="/music" className={styles.featureCard}><div className={styles.featureIcon}>♫</div><div><small>MUSIC</small><h3>Turn up the continent.</h3><p>Music, radio, concerts and artist-led programming in one entertainment layer.</p></div><b>Open Music →</b></Link>
+        </div>
       </section>
 
-      <section className={styles.section}>
-        <header className={styles.sectionHead}><div className={styles.eyebrow}>FEATURED NOW</div><h2>Big feeling. New voices.</h2><p>Discover the mix KORA is built for—from short drama and music to faith, family and creator-led entertainment.</p></header>
-        <div className={styles.showGrid}>{featured.map((show, index) => <article className={styles.show} key={show.title}><Image src={programmeArt[index]} alt="" fill sizes="(max-width: 580px) 92vw, (max-width: 980px) 46vw, 23vw" className={styles.showImage} /><div className={styles.showShade} /><div className={styles.showCopy}>{show.badge ? <small>{show.badge}</small> : <small>{show.genre}</small>}<h3>{show.title}</h3><p>{show.description}</p><span>{show.format} • {show.language}</span></div></article>)}</div>
-        <div className={styles.actions}><Link className={styles.primary} href="/watch">Browse On Demand</Link></div>
+      <section className={styles.watchStrip}>
+        <div><small>WATCH ANYWHERE</small><h2>One KORA account.<br />Every screen.</h2><p>Designed for phones, tablets, browsers and connected TV experiences, with adaptive streaming for changing network conditions.</p></div>
+        <div className={styles.deviceStack}><div className={styles.tvMock}><div className={styles.tvScreen}><span>KORA</span><b>TV</b></div></div><div className={styles.phoneMock}><div><b>KORA</b><span>LIVE</span></div></div><div className={styles.tabletMock}><span>▶</span></div></div>
       </section>
 
-      <section className={styles.section}>
-        <header className={styles.sectionHead}><div className={styles.eyebrow}>KORA LIVE</div><h2>Television that never sleeps.</h2><p>Digital channels bring premieres, music, drama, family viewing and creator programming together around the clock.</p></header>
-        <div className={styles.channelGrid}>{channels.map((channel, index) => <article className={styles.channel} key={channel}><span className={styles.live}>{index < 2 ? '● LIVE' : '24/7'}</span><b>{channel}</b><small>{index === 0 ? 'Flagship entertainment and premieres.' : index === 1 ? 'Binge-worthy African drama.' : 'Curated African programming.'}</small></article>)}</div>
-        <div className={styles.actions}><Link className={styles.secondary} href="/live">Open live guide →</Link></div>
+      <section className={styles.pricing}>
+        <div><small>KORA PLUS</small><h2>Entertainment without the clutter.</h2><p>Start with free and ad-supported experiences, then unlock premium programming as licensed content and partner offers come online.</p></div>
+        <div className={styles.plan}><span>COMING NEXT</span><strong>Premium</strong><b>Multi-screen entertainment</b><ul><li>Premium channels</li><li>Originals & early access</li><li>Replay & catch-up where licensed</li><li>Family profiles</li></ul><Link href="/account" className={styles.primary}>Join KORA →</Link></div>
       </section>
 
-      <section className={styles.split}>
-        <article className={styles.creator}><div className={styles.eyebrow}>FOR CREATORS</div><h2>Your story. Your audience. Your IP.</h2><p>KORA gives filmmakers and creators a structured route from application to moderated publication, accepted commercial terms, analytics and controlled payouts.</p><div className={styles.steps}><div><span>1</span><div><b>Apply & qualify</b><small>Rights, safety and audience fit are reviewed.</small></div></div><div><span>2</span><div><b>Publish through Studio</b><small>Upload securely and send work to moderation.</small></div></div><div><span>3</span><div><b>Grow transparently</b><small>Track accepted deals, revenue and payout status.</small></div></div></div><div className={styles.actions}><Link className={styles.primary} href="/creators">Creator opportunities →</Link></div></article>
-        <article className={styles.brand}><div className={styles.eyebrow}>FOR BRANDS</div><h2>Reach culture, not just clicks.</h2><p>Plan family-safe contextual campaigns, sponsor programmes, submit approved creative and measure verified delivery without behavioural profiling of children.</p><div className={styles.steps}><div><span>1</span><div><b>Plan the campaign</b><small>Budget, dates and reward allocation stay transparent.</small></div></div><div><span>2</span><div><b>Approve creative</b><small>Human review protects viewers and the brand.</small></div></div><div><span>3</span><div><b>Measure delivery</b><small>Reporting is based on trusted platform events.</small></div></div></div><div className={styles.actions}><Link className={styles.primary} href="/advertise">Advertise on KORA →</Link></div></article>
-      </section>
-
-      <section className={styles.economy}>
-        <div className={styles.eyebrow}>A HEALTHIER ATTENTION ECONOMY</div><h2>Value moves only after real value arrives.</h2><p>Viewer cash rewards are separated from site credits and funded from cleared campaign revenue. Creator allocations are protected from double-spending against those reward reserves. That makes the model understandable before it becomes exciting.</p>
-        <div className={styles.flow}><div><strong>1. Brands fund</strong><small>Campaign money clears before reward pools activate.</small></div><div><strong>2. Viewers engage</strong><small>Only trusted, verified completion events qualify.</small></div><div><strong>3. Creators participate</strong><small>Accepted revenue-share terms govern creator allocation.</small></div><div><strong>4. KORA reconciles</strong><small>Ledgers, entitlements and payouts remain auditable.</small></div></div>
-      </section>
-
-      <section className={styles.cta}><div className={styles.eyebrow}>THE NEXT AFRICAN SCREEN</div><h2>Watch it. Build it. Back it.</h2><p>KORA is one network for audiences, creators and brands—designed to grow from Africa to the world without losing the people who make the stories matter.</p><div className={styles.actions}><Link className={styles.dark} href="/account">My KORA</Link><Link className={styles.secondary} href="/creators">Create on KORA</Link><Link className={styles.secondary} href="/advertise">Partner with KORA</Link></div></section>
+      <section className={styles.finalCta}><div className={styles.logoLarge}><span className={styles.logoMark}>K</span>KORA <b>TV</b></div><h2>THE NEXT AFRICAN SCREEN.</h2><p>Watch it. Create it. Own the future of entertainment.</p><div className={styles.heroActions}><Link href="/live" className={styles.primary}>Start Watching</Link><Link href="/creators" className={styles.secondary}>Create on KORA</Link></div></section>
     </main>
   );
 }
