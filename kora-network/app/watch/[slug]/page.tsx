@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { createSignedPlaybackUrl } from '@/lib/video';
-import { createWatchPlaybackSession } from '@/lib/ott/watch-session';
+import { createWatchPlaybackSession } from '@/src/lib/ott/watch-session';
 import AdSupportedPlayer from '@/components/AdSupportedPlayer';
 import PurchaseGate from '@/components/PurchaseGate';
 
