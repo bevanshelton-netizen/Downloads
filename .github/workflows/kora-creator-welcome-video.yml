@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - .github/workflows/kora-creator-welcome-video.yml
+      - kora-network/public/media/kora-creator-welcome.mp4.b64
 
 permissions:
   contents: write
@@ -16,25 +17,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Install video tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg espeak
-
-      - name: Render MP4
+      - name: Build MP4 from packaged asset
         run: |
           set -e
           mkdir -p kora-network/public/media
-          SCRIPT="Welcome to KORA. KORA is a creator-first African media and digital platform built to connect stories, talent, audiences and opportunity. We give creators a home to publish, grow audiences, showcase their work and participate in a connected media ecosystem. Your creativity is not an afterthought. KORA is being built so creators can be discovered, heard and valued. Create. Publish. Connect. Grow. Bring your culture, your voice and your original ideas to the world. Welcome to the movement. KORA. Africa to the World. Your story belongs here."
-          espeak -s 145 -v en -w /tmp/kora-voice.wav "$SCRIPT"
-          ffmpeg -y -f lavfi -i "color=c=0x08080a:s=1280x720:r=30:d=60" -i /tmp/kora-voice.wav -vf "drawbox=x=0:y=0:w=14:h=720:color=0xD4AA4A:t=fill,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='KORA':x=80:y=70:fontsize=48:fontcolor=0xD4AA4A,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='WELCOME TO KORA':x=80:y=250:fontsize=62:fontcolor=white,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf:text='Who we are  |  What we do  |  What it means for creators':x=80:y=350:fontsize=31:fontcolor=0xB9B9BE,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf:text='Africa to the World':x=80:y=455:fontsize=40:fontcolor=0xD4AA4A,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf:text='KORA CREATOR ECOSYSTEM':x=80:y=620:fontsize=22:fontcolor=0x8A8A90" -t 60 -c:v libx264 -preset medium -crf 27 -pix_fmt yuv420p -c:a aac -b:a 96k -shortest kora-network/public/media/kora-creator-welcome.mp4
+          base64 -d kora-network/public/media/kora-creator-welcome.mp4.b64 > kora-network/public/media/kora-creator-welcome.mp4
           test -s kora-network/public/media/kora-creator-welcome.mp4
-
-      - name: Commit generated MP4
+          rm kora-network/public/media/kora-creator-welcome.mp4.b64
+      - name: Commit MP4
         run: |
           git config user.name "KORA Build Worker"
           git config user.email "actions@users.noreply.github.com"
-          git add kora-network/public/media/kora-creator-welcome.mp4
+          git add kora-network/public/media/kora-creator-welcome.mp4 kora-network/public/media/kora-creator-welcome.mp4.b64
           git commit -m "Add KORA Creator Welcome video asset" || exit 0
           git push origin HEAD:main
