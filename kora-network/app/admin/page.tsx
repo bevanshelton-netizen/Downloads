@@ -12,6 +12,7 @@ export default async function AdminHub() {
   return (
     <main>
       <section className="subHero"><div className="eyebrow">KORA OPERATIONS</div><h1>Network control.</h1><p>Moderation, broadcast scheduling, creator acquisition and money controls stay separated from public creator and viewer workflows.</p></section>
+      {profile.role === 'admin' ? <section className="panel"><span className="eyebrow">COMMAND CENTRE</span><h2>Operator control plane</h2><p>See the network's operational state, catalogue counts, broadcast readiness and runtime configuration from one protected surface.</p><Link className="primary" href="/admin/control">Open control plane</Link></section> : null}
       <section className="grid three">
         <article className="panel"><h3>Content moderation</h3><p>Review productions, assign separate Kids approval and handle viewer reports.</p><Link className="primary" href="/admin/moderation">Open moderation</Link></article>
         <article className="panel"><h3>Master control</h3><p>Connect live channel feeds and programme the electronic guide.</p><Link className="primary" href="/admin/schedule">Open schedule</Link></article>
