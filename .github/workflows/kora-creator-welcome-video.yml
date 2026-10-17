@@ -1,0 +1,49 @@
+name: Build KORA Creator Welcome Video
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/kora-creator-welcome-video.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build-video:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install video tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg espeak
+
+      - name: Render creator welcome video
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p kora-network/public/media
+          cat > /tmp/kora-script.txt <<'EOF'
+Welcome to KORA. KORA is a creator-first African media and digital platform built to connect stories, talent, audiences and opportunity. We give creators a home to publish, grow audiences, showcase their work and participate in a connected media ecosystem. Your creativity is not an afterthought. KORA is being built so creators can be discovered, heard and valued. Your KORA journey is simple: create, publish, connect and grow. Bring your culture, your voice and your original ideas to the world. Welcome to the movement. KORA. Africa to the World. Your story belongs here.
+EOF
+          espeak -s 145 -v en -w /tmp/kora-voice.wav "$(cat /tmp/kora-script.txt)"
+          ffmpeg -y -f lavfi -i color=c=0x08080a:s=1280x720:r=30 -i /tmp/kora-voice.wav \
+            -filter_complex "drawbox=x=0:y=0:w=14:h=720:color=0xD4AA4A:t=fill,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='KORA':x=80:y=65:fontsize=44:fontcolor=0xD4AA4A,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='WELCOME TO KORA':x=80:y=250:fontsize=62:fontcolor=white:enable='between(t,0,10)',drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf:text='Africa to the World.':x=80:y=345:fontsize=38:fontcolor=0xB9B9BE:enable='between(t,0,10)',drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='WHO IS KORA?':x=80:y=250:fontsize=62:fontcolor=white:enable='between(t,10,20)',drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf:text='A creator-first African media and digital platform.':x=80:y=345:fontsize=34:fontcolor=0xB9B9BE:enable='between(t,10,20)',drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='WHAT DOES KORA DO?':x=80:y=250:fontsize=58:fontcolor=white:enable='between(t,20,30)',drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf:text='Publish. Grow audiences. Showcase your work.':x=80:y=345:fontsize=34:fontcolor=0xB9B9BE:enable='between(t,20,30)',drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='WHAT DOES IT MEAN FOR YOU?':x=80:y=250:fontsize=52:fontcolor=white:enable='between(t,30,40)',drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf:text='Your creativity can be discovered, heard and valued.':x=80:y=345:fontsize=32:fontcolor=0xB9B9BE:enable='between(t,30,40)',drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='YOUR KORA JOURNEY':x=80:y=250:fontsize=60:fontcolor=white:enable='between(t,40,50)',drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf:text='Create. Publish. Connect. Grow.':x=80:y=345:fontsize=38:fontcolor=0xB9B9BE:enable='between(t,40,50)',drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='WELCOME TO THE MOVEMENT':x=80:y=250:fontsize=54:fontcolor=white:enable='between(t,50,60)',drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf:text='KORA - Africa to the World. Your story belongs here.':x=80:y=345:fontsize=31:fontcolor=0xB9B9BE:enable='between(t,50,60)',drawline=x1=80:y1=610:x2=360:y2=610:color=0xD4AA4A:thickness=5" \
+            -t 60 -c:v libx264 -preset medium -crf 27 -pix_fmt yuv420p -c:a aac -b:a 96k -shortest \
+            kora-network/public/media/kora-creator-welcome.mp4
+
+      - name: Commit video
+        shell: bash
+        run: |
+          git config user.name "KORA Build Worker"
+          git config user.email "actions@users.noreply.github.com"
+          git add kora-network/public/media/kora-creator-welcome.mp4
+          if git diff --cached --quiet; then
+            echo "Video already present; nothing to commit."
+          else
+            git commit -m "Add KORA Creator Welcome video asset"
+            git push origin HEAD:main
+          fi
