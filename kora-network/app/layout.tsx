@@ -6,6 +6,7 @@ import './brand-boost.css';
 import './forms.css';
 import './workspaces.css';
 import './premium-v1.css';
+import './broadcast-tv.css';
 import { brand } from '@/lib/brand';
 import ShareButton from './share-button';
 import AutoAiPromo from './auto-ai-promo';
@@ -77,7 +78,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/creators">Creators</Link>
             <Link href="/perform-live">Perform Live</Link>
             <Link href="/studio">Studio</Link>
-            <Link href="/advertise">Advertise</Link>\n            <Link href="/partners">Partners</Link>
+            <Link href="/advertise">Advertise</Link>
+            <Link href="/partners">Partners</Link>
           </nav>
           <Link className="pill" href="/account">My KORA</Link>
         </header>
@@ -93,7 +95,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/legal/creator-agreement">Creators</Link>
             <Link href="/legal/advertiser-terms">Advertisers</Link>
             <Link href="/legal/copyright">Copyright</Link>
-            <Link href="/legal/refunds">Refunds</Link>\n            <Link href="/partners">Media Partners</Link>
+            <Link href="/legal/refunds">Refunds</Link>
+            <Link href="/partners">Media Partners</Link>
           </div>
         </footer>
       </body>
