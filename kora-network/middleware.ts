@@ -158,6 +158,8 @@ export async function middleware(request: NextRequest) {
   return response;
 }
 
+// Static media must bypass the application/session middleware so Vercel can serve
+// the actual bytes. This includes the creator welcome MP4 and future KORA audio/video.
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4|webm|mov|m4v|mp3|wav|ogg|aac)$).*)'],
 };
