@@ -14,6 +14,7 @@
     "validate:activation": "node scripts/validate-activation-orchestration.mjs",
     "validate:independence": "node scripts/validate-independence.mjs",
     "validate:release-readiness": "node scripts/validate-release-readiness.mjs",
+    "validate:production-contract": "node scripts/validate-production-contract.mjs",
     "build:bootstrap-sql": "node scripts/build-production-bootstrap.mjs",
     "bootstrap:admin": "node scripts/bootstrap-admin.mjs",
     "ensure:production-db": "bash scripts/ensure-production-db.sh",
