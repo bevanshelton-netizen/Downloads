@@ -55,6 +55,12 @@ jobs:
       - name: Activation orchestration
         run: npm run validate:activation
 
+      - name: Independence readiness
+        run: npm run validate:independence
+
+      - name: Release readiness contract
+        run: npm run validate:release-readiness
+
       - name: Partner gateway contract
         run: npm run validate:partner-gateway
 
@@ -72,8 +78,10 @@ jobs:
             echo '- Money integrity: executed'
             echo '- Public experience: executed'
             echo '- Activation orchestration: executed'
+            echo '- Independence readiness contract: executed'
+            echo '- Release readiness contract: executed'
             echo '- Partner gateway contract: executed'
             echo '- Next.js production build: executed'
             echo ''
-            echo 'A passing workflow validates the application build; it does not by itself claim public production deployment.'
+            echo 'A passing workflow validates the application build and release contracts; it does not by itself claim public production deployment.'
           } >> "$GITHUB_STEP_SUMMARY"
