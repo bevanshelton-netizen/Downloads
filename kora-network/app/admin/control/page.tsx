@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getKoraRuntime } from '@/lib/runtime';
+import { getIndependenceEngines } from '@/lib/independence';
 
 export default async function ControlPlane() {
   const supabase = await createClient();
@@ -19,6 +20,9 @@ export default async function ControlPlane() {
   ]);
 
   const runtime = getKoraRuntime();
+  const engines = getIndependenceEngines();
+  const requiredEngines = engines.filter((engine) => engine.requiredForKora);
+  const verifiedEngines = requiredEngines.filter((engine) => engine.status === 'verified');
   const checks = [
     ['Web application', `Primary: ${runtime.primary}`],
     ['Live streaming', runtime.streaming === 'configured' ? 'Configured' : 'Standby'],
@@ -51,6 +55,19 @@ export default async function ControlPlane() {
           {checks.map(([name, status]) => <div className="productionRow" key={name}><strong>{name}</strong><span>{status}</span></div>)}
         </div>
         <p className="muted">A green control-plane status does not by itself certify content rights, payment credentials, stream health, or public deployment. Those remain explicit release gates.</p>
+      </section>
+
+      <section className="panel">
+        <div className="sectionHead"><div><span className="eyebrow">IZAKHONO INDEPENDENCE</span><h2>{verifiedEngines.length}/{requiredEngines.length} required engines verified</h2></div><Link className="secondary" href="/api/health">Health API</Link></div>
+        <div className="grid three">
+          {engines.map((engine) => (
+            <div className="productionRow" key={engine.engine}>
+              <strong>{engine.engine.replaceAll('_', ' ')}</strong>
+              <span>{engine.status} · {engine.provider}</span>
+            </div>
+          ))}
+        </div>
+        <p className="muted">Configured endpoints are not treated as independent until the corresponding first-party engine is externally deployed and verified. This dashboard is an operational readiness view, not a public-live claim.</p>
       </section>
     </main>
   );
