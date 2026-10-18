@@ -24,10 +24,7 @@ export type IndependenceEngineState = {
   requiredForKora: boolean;
 };
 
-const ENGINE_REQUIREMENTS: Array<{
-  engine: IndependenceEngine;
-  requiredForKora: boolean;
-}> = [
+const ENGINE_REQUIREMENTS: Array<{ engine: IndependenceEngine; requiredForKora: boolean }> = [
   { engine: 'edge', requiredForKora: true },
   { engine: 'dns', requiredForKora: true },
   { engine: 'cdn', requiredForKora: true },
@@ -66,4 +63,16 @@ export function isKoraInfrastructureIndependent(): boolean {
   return getIndependenceEngines()
     .filter((engine) => engine.requiredForKora)
     .every((engine) => engine.status === 'verified');
+}
+
+export function getIndependenceSummary() {
+  const engines = getIndependenceEngines();
+  const required = engines.filter((engine) => engine.requiredForKora);
+  const verified = required.filter((engine) => engine.status === 'verified');
+  return {
+    independent: verified.length === required.length,
+    required: required.length,
+    verified: verified.length,
+    remaining: required.filter((engine) => engine.status !== 'verified').map((engine) => engine.engine),
+  };
 }
