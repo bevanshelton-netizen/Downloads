@@ -12,6 +12,7 @@
     "validate:money-integrity": "node scripts/validate-money-integrity.mjs",
     "validate:public-experience": "node scripts/validate-public-experience.mjs",
     "validate:activation": "node scripts/validate-activation-orchestration.mjs",
+    "validate:independence": "node scripts/validate-independence.mjs",
     "build:bootstrap-sql": "node scripts/build-production-bootstrap.mjs",
     "bootstrap:admin": "node scripts/bootstrap-admin.mjs",
     "ensure:production-db": "bash scripts/ensure-production-db.sh",
