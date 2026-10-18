@@ -33,7 +33,7 @@ const privateBetaInfrastructureChecks = [
 ];
 
 async function json(path) {
-  const response = await fetch(new URL(path, base), { redirect: 'follow', headers: { 'user-agent': 'kora-production-smoke/1.0' } });
+  const response = await fetch(new URL(path, base), { redirect: 'follow', headers: { 'user-agent': 'kora-production-smoke/1.1' } });
   const text = await response.text();
   let body = null;
   try { body = JSON.parse(text); } catch {}
@@ -41,7 +41,7 @@ async function json(path) {
 }
 
 async function page(path) {
-  const response = await fetch(new URL(path, base), { redirect: 'manual', headers: { 'user-agent': 'kora-production-smoke/1.0' } });
+  const response = await fetch(new URL(path, base), { redirect: 'manual', headers: { 'user-agent': 'kora-production-smoke/1.1' } });
   return response;
 }
 
@@ -86,13 +86,21 @@ console.log(`${versionOk ? 'PASS' : 'FAIL'}  /api/version — HTTP ${version.res
 failed ||= !versionOk;
 
 const home = await page('/');
-let homeOk = [200, 302, 303, 307, 308].includes(home.status);
+let homeOk = home.status === 200;
 if (expectReady) {
   const location = home.headers.get('location') || '';
-  if (home.status !== 200 || /\/coming-soon(?:$|\?)/.test(location)) homeOk = false;
+  if (/\/coming-soon(?:$|\?)/.test(location)) homeOk = false;
 }
 console.log(`${homeOk ? 'PASS' : 'FAIL'}  / — HTTP ${home.status}${home.headers.get('location') ? ` → ${home.headers.get('location')}` : ''}`);
 failed ||= !homeOk;
+
+const criticalRoutes = ['/live', '/watch'];
+for (const route of criticalRoutes) {
+  const response = await page(route);
+  const ok = response.status === 200;
+  console.log(`${ok ? 'PASS' : 'FAIL'}  ${route} — HTTP ${response.status}`);
+  failed ||= !ok;
+}
 
 if (failed) process.exit(1);
 console.log(`\nKORA ${expectReady ? 'public-launch' : 'private-beta'} smoke test passed.`);
