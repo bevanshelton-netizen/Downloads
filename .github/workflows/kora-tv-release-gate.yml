@@ -71,7 +71,7 @@ jobs:
         run: npm run build
 
       - name: Owned runtime smoke test
-        if: ${{ env.KORA_OWNED_RUNTIME_TARGET != '' }}
+        if: ${{ vars.KORA_OWNED_RUNTIME_TARGET != '' }}
         env:
           KORA_OWNED_RUNTIME_TARGET: ${{ vars.KORA_OWNED_RUNTIME_TARGET }}
           KORA_OWNED_RUNTIME_HOSTNAME: ${{ vars.KORA_OWNED_RUNTIME_HOSTNAME }}
