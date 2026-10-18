@@ -70,6 +70,13 @@ jobs:
       - name: Production build
         run: npm run build
 
+      - name: Owned runtime smoke test
+        if: ${{ env.KORA_OWNED_RUNTIME_TARGET != '' }}
+        env:
+          KORA_OWNED_RUNTIME_TARGET: ${{ vars.KORA_OWNED_RUNTIME_TARGET }}
+          KORA_OWNED_RUNTIME_HOSTNAME: ${{ vars.KORA_OWNED_RUNTIME_HOSTNAME }}
+        run: npm run smoke:owned-runtime
+
       - name: Release summary
         if: always()
         run: |
@@ -86,6 +93,7 @@ jobs:
             echo '- Production contract: executed'
             echo '- Partner gateway contract: executed'
             echo '- Next.js production build: executed'
+            echo '- Owned-runtime smoke test: executed when KORA_OWNED_RUNTIME_TARGET is configured'
             echo ''
-            echo 'A passing workflow validates the application build and release contracts; it does not by itself claim public production deployment.'
+            echo 'A passing workflow validates the application and any configured runtime endpoint; it does not by itself claim public production deployment.'
           } >> "$GITHUB_STEP_SUMMARY"
