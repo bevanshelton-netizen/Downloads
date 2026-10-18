@@ -1,0 +1,18 @@
+.tvChannelHero{position:relative;overflow:hidden;background:radial-gradient(circle at 75% 20%,rgba(216,180,90,.16),transparent 34%),linear-gradient(135deg,#06070a,#11141a)}
+.tvChannelHero:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 0 45%,rgba(255,255,255,.04) 50%,transparent 55%);animation:tvSweep 7s linear infinite}
+.broadcastStage{position:relative;width:min(1180px,92vw);margin:28px auto 0;overflow:hidden;border:1px solid rgba(216,180,90,.35);background:#000;box-shadow:0 24px 80px rgba(0,0,0,.45)}
+.tvPlayerFrame{position:relative;aspect-ratio:16/9;background:#000;overflow:hidden}
+.livePlayer{display:block;width:100%;height:100%;object-fit:cover;background:#000}
+.tvLiveBug{position:absolute;top:20px;left:20px;display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:5px;background:#e51b23;color:#fff;font-size:12px;font-weight:900;letter-spacing:.08em;box-shadow:0 5px 18px rgba(0,0,0,.4)}
+.tvLiveDot{width:7px;height:7px;border-radius:50%;background:#fff;animation:tvPulse 1.1s ease-in-out infinite}
+.tvChannelBug{position:absolute;top:20px;right:20px;padding:7px 12px;border-radius:5px;background:rgba(5,6,8,.78);border:1px solid rgba(255,255,255,.16);font-size:12px;font-weight:800;letter-spacing:.08em}
+.tvPlayerStatus{position:absolute;left:20px;bottom:20px;max-width:60%;padding:8px 12px;background:rgba(5,6,8,.76);border-left:3px solid var(--gold);font-size:12px;color:#e7e8eb}
+.tvNowNext{position:absolute;right:20px;bottom:20px;display:flex;gap:1px;background:rgba(5,6,8,.88);border:1px solid rgba(255,255,255,.13);backdrop-filter:blur(12px)}
+.tvNowNext>div{padding:10px 14px;min-width:180px}.tvNowNext>div+div{border-left:1px solid rgba(255,255,255,.12)}
+.tvNowNext small,.tvProgrammeBar small{display:block;color:var(--gold);font-size:9px;font-weight:900;letter-spacing:.12em;margin-bottom:4px}.tvNowNext strong,.tvProgrammeBar strong{display:block;font-size:13px;line-height:1.25}
+.tvProgrammeBar{width:min(1180px,92vw);margin:0 auto;display:grid;grid-template-columns:2fr 2fr 1fr;background:#0d1015;border:1px solid rgba(255,255,255,.1);border-top:0}
+.tvProgrammeBar>div{padding:15px 18px}.tvProgrammeBar>div+div{border-left:1px solid rgba(255,255,255,.1)}
+.broadcastStandby{position:relative;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;text-align:center;background:radial-gradient(circle at 50% 45%,#1b2028 0,#07090c 58%,#030405 100%);color:#fff}.broadcastStandby b{font-size:clamp(24px,4vw,48px);letter-spacing:.08em}.broadcastStandby>span:not(.tvLiveBug){color:#a9adb5}
+@keyframes tvPulse{0%,100%{opacity:.45;transform:scale(.9)}50%{opacity:1;transform:scale(1.15)}}
+@keyframes tvSweep{0%{transform:translateX(-40%)}100%{transform:translateX(40%)}}
+@media(max-width:800px){.tvNowNext{left:20px;right:20px}.tvNowNext>div{min-width:0;flex:1}.tvProgrammeBar{grid-template-columns:1fr}.tvProgrammeBar>div+div{border-left:0;border-top:1px solid rgba(255,255,255,.1)}.tvPlayerStatus{max-width:calc(100% - 40px);bottom:78px}.tvChannelBug{top:20px;right:20px}.broadcastStage{width:100%;margin-top:16px}}
