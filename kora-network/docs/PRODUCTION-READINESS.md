@@ -49,21 +49,45 @@ Release telemetry must cover at minimum: page/view events, playback start, playb
 
 Validate the public home, live catalogue, player, watch catalogue and watch player at mobile, tablet and desktop widths. Player controls and primary calls-to-action must remain usable without horizontal overflow.
 
-## Deployment sequence
+## Owned-runtime launch sequence
 
 1. Validate TypeScript and production build.
 2. Run release policy, money integrity, public experience, activation and partner-gateway checks.
 3. Run independence verification without treating missing infrastructure secrets as a source-code failure.
-4. Build and deploy through the authorized IZAKHONO runtime executor.
-5. Verify the owned runtime externally.
-6. Verify database read/write and authentication.
-7. Verify a licensed live stream and EPG entry.
-8. Verify one published VOD playback path.
-9. Verify one payment success and one failed/duplicate payment path in a non-production-safe test environment.
-10. Run public smoke tests.
-11. Only after all gates pass, perform DNS/public cutover.
-12. Keep external Vercel/Cloudflare services as rollback-only until the owned runtime has demonstrated stable operation and recovery.
+4. Submit the KORA desired state to the authorized IZAKHONO runtime executor.
+5. Require an executor receipt identifying the deployed release and target runtime.
+6. Verify the owned runtime externally over HTTPS.
+7. Verify database read/write and authentication.
+8. Verify a licensed live stream and EPG entry.
+9. Verify one published VOD playback path.
+10. Verify one payment success and one failed/duplicate payment path in a non-production-safe test environment.
+11. Run public smoke tests for `/`, `/live`, `/watch`, `/api/health`, `/api/readiness` and `/api/version`.
+12. Verify customer flows independently: signup/login, entitlement, playback and payment confirmation.
+13. Only after all gates pass, perform DNS/public cutover.
+14. Continue monitoring recovery, backups, security and playback stability after cutover.
 
-## Current known blocker
+## Current blocker
 
-The repository's latest recorded Vercel status checks are failing because the Vercel account is at its build-rate/deployment limit. This does not establish a KORA application defect. It does mean Vercel cannot currently be used as evidence of a successful production deployment. The owned runtime executor and externally verified first-party infrastructure remain the required path for provider-independent production readiness.
+The remaining launch blocker is **physical activation and external verification of the IZAKHONO-owned runtime and its required first-party infrastructure engines**. Repository configuration, application release gates and deployment contracts do not constitute physical deployment evidence.
+
+Vercel is **not** a KORA TV production dependency and must not be used to establish launch readiness. External providers may remain replaceable resilience paths, but KORA production must not depend on them for its primary runtime.
+
+## Live declaration rule
+
+KORA TV may be declared **LIVE AND VERIFIED** only when all of the following are independently evidenced:
+
+- public HTTPS endpoint resolves to the owned runtime;
+- homepage loads successfully;
+- `/live` and `/watch` load successfully;
+- `/api/health` reports healthy;
+- readiness/version contracts pass;
+- at least one authorized live stream is externally playable;
+- EPG data is visible;
+- at least one authorized VOD title is externally playable;
+- authentication works;
+- a paid entitlement is granted only after verified payment confirmation;
+- failed/duplicate payment cannot grant entitlement;
+- required first-party infrastructure engines have verification evidence;
+- deployment and runtime recovery paths are documented and tested.
+
+Until those conditions are met, status remains **NOT LIVE / IN VERIFICATION**.
