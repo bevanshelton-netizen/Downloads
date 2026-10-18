@@ -1,0 +1,1 @@
+export default function handler(req,res){res.status(200).json({ok:true,service:'XQWAXQWAMILÉ Holdings website',mailOutbound:!!process.env.RESEND_API_KEY,mailTo:process.env.MAIL_TO||'info@xqwaxqwamile.co.za'});}
