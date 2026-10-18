@@ -61,6 +61,9 @@ jobs:
       - name: Release readiness contract
         run: npm run validate:release-readiness
 
+      - name: Production contract
+        run: npm run validate:production-contract
+
       - name: Partner gateway contract
         run: npm run validate:partner-gateway
 
@@ -80,6 +83,7 @@ jobs:
             echo '- Activation orchestration: executed'
             echo '- Independence readiness contract: executed'
             echo '- Release readiness contract: executed'
+            echo '- Production contract: executed'
             echo '- Partner gateway contract: executed'
             echo '- Next.js production build: executed'
             echo ''
