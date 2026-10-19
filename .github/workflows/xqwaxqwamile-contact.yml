@@ -1,0 +1,24 @@
+name: XQWAXQWAMILE Contact API
+
+on:
+  push:
+    paths:
+      - 'sites/xqwaxqwamile-holdings/api/**'
+      - '.github/workflows/xqwaxqwamile-contact.yml'
+  pull_request:
+    paths:
+      - 'sites/xqwaxqwamile-holdings/api/**'
+      - '.github/workflows/xqwaxqwamile-contact.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Syntax check
+        run: node --check sites/xqwaxqwamile-holdings/api/contact.js
+      - name: Acceptance tests
+        run: node sites/xqwaxqwamile-holdings/api/contact.test.mjs
