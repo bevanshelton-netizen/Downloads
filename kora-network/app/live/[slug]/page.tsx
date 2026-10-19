@@ -16,11 +16,12 @@ export default async function ChannelPage({ params }: { params: Promise<{ slug: 
   const now = new Date();
   const current = result.schedule.find((item) => new Date(item.starts_at) <= now && new Date(item.ends_at) > now) ?? null;
   const next = result.schedule.find((item) => new Date(item.starts_at) > now) ?? null;
+  const preview = result.schedule_source === 'continuity-preview';
 
   return (
     <main>
       <section className="subHero tvChannelHero">
-        <div className="eyebrow">KORA LIVE CHANNEL • {current ? 'ON AIR' : 'PROGRAMMING'}</div>
+        <div className="eyebrow">KORA LIVE CHANNEL • {result.channel.playback_url ? 'STREAM READY' : 'STANDBY'}</div>
         <h1>{result.channel.name}</h1>
         <p>{result.channel.description}</p>
       </section>
@@ -36,14 +37,14 @@ export default async function ChannelPage({ params }: { params: Promise<{ slug: 
             />
           ) : (
             <div className="broadcastStandby">
-              <span className="tvLiveBug"><span className="tvLiveDot" /> LIVE</span>
+              <span className="tvLiveBug"><span className="tvLiveDot" /> STANDBY</span>
               <b>CHANNEL STANDBY</b>
-              <span>Production HLS feed is not connected to this channel yet.</span>
+              <span>The production HLS feed is not connected to this channel yet. KORA will not claim a live broadcast until a verified feed is attached.</span>
             </div>
           )}
         </div>
         <div className="tvProgrammeBar">
-          <div><small>NOW PLAYING</small><strong>{current?.title ?? 'No programme currently scheduled'}</strong></div>
+          <div><small>{preview ? 'SCHEDULE PREVIEW' : 'NOW PLAYING'}</small><strong>{current?.title ?? 'No programme currently scheduled'}</strong></div>
           <div><small>UP NEXT</small><strong>{next?.title ?? 'Programming to be announced'}</strong></div>
           <div><small>CHANNEL</small><strong>{result.channel.name}</strong></div>
         </div>
@@ -55,7 +56,7 @@ export default async function ChannelPage({ params }: { params: Promise<{ slug: 
           {result.schedule.length ? result.schedule.map((item) => (
             <div className="productionRow" key={item.id}>
               <strong>{catDateTime(item.starts_at)} • {item.title}</strong>
-              <span>{item.is_premiere ? 'Premiere • ' : ''}{item.sponsor_name ? `Sponsored by ${item.sponsor_name}` : 'KORA programming'}</span>
+              <span>{item.is_synthetic ? 'Continuity preview — not a confirmed broadcast' : `${item.is_premiere ? 'Premiere • ' : ''}${item.sponsor_name ? `Sponsored by ${item.sponsor_name}` : 'KORA programming'}`}</span>
             </div>
           )) : <div className="panel"><p>The schedule is being programmed.</p></div>}
         </div>
