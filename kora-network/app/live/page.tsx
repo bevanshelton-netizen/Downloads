@@ -21,7 +21,18 @@ export default async function Live() {
           return (
             <article className="channel" key={channel.id}>
               <span className="live">{channel.playback_url ? (channel.now ? '● STREAM READY' : 'STREAM READY') : '● PROGRAMMING'}</span>
-              <strong>{channel.name}</strong>
+              <strong
+                style={{
+                  display: 'block',
+                  fontSize: 'clamp(1.75rem, 3.5vw, 2.75rem)',
+                  fontWeight: 800,
+                  lineHeight: 1.05,
+                  margin: '0.4rem 0 0.6rem',
+                  letterSpacing: '-0.02em',
+                }}
+              >
+                {channel.name}
+              </strong>
               <small>{channel.description}</small>
               {channel.now ? <p><b>{preview ? 'Schedule preview:' : 'Now:'}</b> {channel.now.title} • until {catTime(channel.now.ends_at)}</p> : <p>No current programme is published.</p>}
               {channel.next ? <small>Next: {channel.next.title} • {catTime(channel.next.starts_at)} CAT</small> : null}
