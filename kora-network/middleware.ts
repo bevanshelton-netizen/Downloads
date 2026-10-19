@@ -23,27 +23,20 @@ export async function middleware(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
-  // Health must prove the application process itself without depending on an external provider.
-  // Deeper database/provider readiness remains a separate production gate at /api/readiness.
   if (pathname === '/api/health') {
     return response;
   }
 
-  // DOXA-SURE is an isolated static pilot published through the existing Vercel project.
-  // The public route now uses a brand masthead so visitors identify the site immediately.
   if (pathname === '/doxa-sure' || pathname === '/doxa-sure/') {
     const destination = request.nextUrl.clone();
     destination.pathname = '/doxa-sure-brand.html';
     return NextResponse.rewrite(destination);
   }
 
-  // Keep both isolated static DOXA-SURE targets independent of KORA session state.
   if (pathname === '/doxa-sure-brand.html' || pathname === '/doxa-sure-site.html') {
     return response;
   }
 
-  // IZAKHONO Revenue Desk is a public static commercial page.
-  // Rewrite the friendly route to the deployed public HTML and bypass KORA launch/session gates.
   if (pathname === '/izakhono-revenue' || pathname === '/izakhono-revenue/') {
     const destination = request.nextUrl.clone();
     destination.pathname = '/izakhono-revenue/index.html';
@@ -54,8 +47,6 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // IZAKHONO ONE is an isolated external public-pilot shell.
-  // It bypasses KORA launch/session gates and preserves NODE 01 as the owned authority.
   if (pathname === '/one' || pathname === '/one/') {
     const destination = request.nextUrl.clone();
     destination.pathname = '/one/index.html';
@@ -66,7 +57,6 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // Public-beta discovery routes stay informational/free; payment, private and readiness gates stay intact.
   const alwaysPublic = pathname === '/'
     || pathname === '/coming-soon'
     || pathname === '/robots.txt'
@@ -85,6 +75,10 @@ export async function middleware(request: NextRequest) {
     || pathname.startsWith('/artists/')
     || pathname === '/tickets'
     || pathname.startsWith('/tickets/')
+    || pathname === '/live'
+    || pathname.startsWith('/live/')
+    || pathname === '/live-tv'
+    || pathname === '/live-tv/'
     || pathname.startsWith('/legal/')
     || pathname === '/creators'
     || pathname === '/advertise'
@@ -158,8 +152,6 @@ export async function middleware(request: NextRequest) {
   return response;
 }
 
-// Static media must bypass the application/session middleware so Vercel can serve
-// the actual bytes. This includes the creator welcome MP4 and future KORA audio/video.
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4|webm|mov|m4v|mp3|wav|ogg|aac)$).*)'],
 };
