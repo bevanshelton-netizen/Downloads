@@ -8,7 +8,9 @@ export async function GET() {
   const summary = getIndependenceSummary();
 
   return NextResponse.json({
-    service: 'KORA',
+    ok: true,
+    service: 'kora-tv',
+    check: 'liveness',
     status: summary.independent ? 'ok' : 'degraded',
     environment: process.env.NODE_ENV || 'unknown',
     infrastructure: {
@@ -17,5 +19,5 @@ export async function GET() {
       engines,
     },
     timestamp: new Date().toISOString(),
-  }, { status: summary.independent ? 200 : 503 });
+  }, { status: 200, headers: { 'cache-control': 'no-store' } });
 }
