@@ -51,7 +51,7 @@ export default async function ChannelPage({ params }: { params: Promise<{ slug: 
         {current?.sponsor_name ? <div className="panel"><span className="live">SPONSORED</span><p>Presented with {current.sponsor_name}</p></div> : null}
       </section>
       <section>
-        <div className="sectionHead"><h2>Next 24 hours</h2><span>Central Africa Time</span></div>
+        <div className="sectionHead"><h2>Next 24 hours</h2><span>South Africa Standard Time</span></div>
         <div className="productionList">
           {result.schedule.length ? result.schedule.map((item) => (
             <div className="productionRow" key={item.id}>
