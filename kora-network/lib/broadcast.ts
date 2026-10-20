@@ -7,7 +7,7 @@ export type GuideItem = {
   ends_at: string;
   sponsor_name: string | null;
   is_premiere: boolean;
-  is_synthetic?: boolean;
+  is_synthetic: boolean;
 };
 
 export type BroadcastChannel = {
@@ -100,7 +100,17 @@ export async function getBroadcastGuide(): Promise<BroadcastChannel[]> {
     if (channelError || scheduleError || !channels?.length) return fallbackGuide();
 
     return channels.map((channel) => {
-      const items = (schedule ?? []).filter((item) => item.channel_id === channel.id);
+      const items: GuideItem[] = (schedule ?? [])
+        .filter((item) => item.channel_id === channel.id)
+        .map((item) => ({
+          id: item.id,
+          title: item.title,
+          starts_at: item.starts_at,
+          ends_at: item.ends_at,
+          sponsor_name: item.sponsor_name,
+          is_premiere: item.is_premiere,
+          is_synthetic: false,
+        }));
       const current = items.find((item) => new Date(item.starts_at) <= now && new Date(item.ends_at) > now) ?? null;
       const upcoming = items.find((item) => new Date(item.starts_at) > now) ?? null;
       const preview = continuityGuide(channel.id, now);
@@ -138,11 +148,20 @@ export async function getChannel(slug: string) {
         .order('starts_at')
         .limit(12);
       const preview = continuityGuide(channel.id, now);
-      const items = schedule?.length ? schedule : preview;
+      const items: GuideItem[] = (schedule ?? []).map((item) => ({
+        id: item.id,
+        title: item.title,
+        starts_at: item.starts_at,
+        ends_at: item.ends_at,
+        sponsor_name: item.sponsor_name,
+        is_premiere: item.is_premiere,
+        is_synthetic: false,
+      }));
+      const normalizedSchedule = items.length ? items : preview;
       return {
         channel: { ...channel, playback_url: channel.playback_url || envStream(channel.slug) },
-        schedule: items,
-        schedule_source: schedule?.length ? 'database' : 'continuity-preview',
+        schedule: normalizedSchedule,
+        schedule_source: items.length ? 'database' as const : 'continuity-preview' as const,
       };
     }
   } catch {
