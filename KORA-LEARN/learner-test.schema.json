@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KORA Learner Test",
+  "type": "object",
+  "required": ["testId", "jurisdictionRef", "licenceCategory", "questions", "mode"],
+  "properties": {
+    "testId": { "type": "string" },
+    "jurisdictionRef": { "type": "string" },
+    "licenceCategory": { "type": "string" },
+    "language": { "type": "string" },
+    "mode": { "enum": ["practice", "mock"] },
+    "timeLimitSeconds": { "type": "integer", "minimum": 0 },
+    "passMarkPercent": { "type": "number", "minimum": 0, "maximum": 100 },
+    "questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["questionId", "topic", "prompt", "options", "correctOptionId", "status"],
+        "properties": {
+          "questionId": { "type": "string" },
+          "topic": { "type": "string" },
+          "prompt": { "type": "string" },
+          "options": { "type": "array", "items": { "type": "object" } },
+          "correctOptionId": { "type": "string" },
+          "explanation": { "type": "string" },
+          "status": { "enum": ["draft", "review", "verified", "withdrawn"] },
+          "sourceRefs": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}
