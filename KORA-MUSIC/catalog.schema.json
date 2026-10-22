@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KORA Music Catalogue",
+  "type": "object",
+  "required": ["catalogId", "artists", "releases", "tracks"],
+  "properties": {
+    "catalogId": {"type": "string"},
+    "artists": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["artistId", "name"],
+        "properties": {
+          "artistId": {"type": "string"},
+          "name": {"type": "string"},
+          "country": {"type": "string"},
+          "genres": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": false
+      }
+    },
+    "releases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["releaseId", "title", "releaseType", "artistIds"],
+        "properties": {
+          "releaseId": {"type": "string"},
+          "title": {"type": "string"},
+          "releaseType": {"enum": ["single", "EP", "album"]},
+          "artistIds": {"type": "array", "items": {"type": "string"}},
+          "releaseDate": {"type": "string", "format": "date"},
+          "territories": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": false
+      }
+    },
+    "tracks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["trackId", "title", "artistIds"],
+        "properties": {
+          "trackId": {"type": "string"},
+          "title": {"type": "string"},
+          "artistIds": {"type": "array", "items": {"type": "string"}},
+          "releaseId": {"type": ["string", "null"]},
+          "durationSeconds": {"type": "integer", "minimum": 0},
+          "explicit": {"type": "boolean"},
+          "playbackRef": {"type": ["string", "null"]},
+          "availability": {"enum": ["draft", "active", "restricted", "unavailable"]}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
