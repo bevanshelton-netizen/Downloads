@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kora.africa/schemas/live-session.json",
+  "title": "KORA LIVE Session",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["sessionId", "profile", "source", "destination", "state", "createdAt"],
+  "properties": {
+    "sessionId": { "type": "string", "minLength": 3 },
+    "profile": { "enum": ["mobile", "broadcast", "emergency", "fleet"] },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "label"],
+      "properties": {
+        "kind": { "enum": ["camera", "phone", "encoder", "vehicle", "studio", "sensor"] },
+        "label": { "type": "string", "minLength": 1 }
+      }
+    },
+    "destination": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "label"],
+      "properties": {
+        "kind": { "enum": ["kora-tv", "kora-radio", "kora-nav", "kora-emergency", "custom"] },
+        "label": { "type": "string", "minLength": 1 }
+      }
+    },
+    "protocol": { "enum": ["srt", "rtmp", "webrtc", "vendor-neutral"] },
+    "state": {
+      "enum": ["STARTING", "LIVE", "DEGRADED", "FAILOVER", "RECOVERING", "STOPPING", "ENDED", "ERROR"]
+    },
+    "activeLinkId": { "type": ["string", "null"] },
+    "failoverLinkIds": { "type": "array", "items": { "type": "string" } },
+    "acceptedOutput": { "type": "boolean" },
+    "health": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["score", "updatedAt"],
+      "properties": {
+        "score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "latencyMs": { "type": "number", "minimum": 0 },
+        "packetLossPct": { "type": "number", "minimum": 0, "maximum": 100 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  }
+}
