@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KORA News Story",
+  "type": "object",
+  "required": ["storyId", "headline", "status", "publishedAt"],
+  "properties": {
+    "storyId": {"type": "string"},
+    "headline": {"type": "string", "minLength": 1},
+    "summary": {"type": "string"},
+    "body": {"type": "string"},
+    "status": {"enum": ["draft", "pending_review", "verified", "published", "updated", "corrected", "withdrawn"]},
+    "priority": {"enum": ["standard", "breaking", "emergency"]},
+    "topics": {"type": "array", "items": {"type": "string"}},
+    "country": {"type": "string"},
+    "region": {"type": "string"},
+    "authorRef": {"type": ["string", "null"]},
+    "sourceRefs": {"type": "array", "items": {"type": "string"}},
+    "mediaRefs": {"type": "array", "items": {"type": "string"}},
+    "relatedLiveSessionId": {"type": ["string", "null"]},
+    "publishedAt": {"type": "string", "format": "date-time"},
+    "updatedAt": {"type": ["string", "null"], "format": "date-time"}
+  },
+  "additionalProperties": false
+}
