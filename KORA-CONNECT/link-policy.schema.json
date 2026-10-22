@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kora-network.vercel.app/schemas/kora-connect-link-policy.json",
+  "title": "KORA CONNECT Link Policy",
+  "type": "object",
+  "required": ["profile", "links", "applicationPriority"],
+  "properties": {
+    "profile": {"type": "string", "enum": ["mobile", "broadcast", "emergency", "fleet"]},
+    "applicationPriority": {"type": "string", "enum": ["best-effort", "realtime", "safety-critical"]},
+    "links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "enabled", "priority"],
+        "properties": {
+          "id": {"type": "string"},
+          "type": {"type": "string", "enum": ["5g", "4g", "wifi", "ethernet", "satellite", "ip"]},
+          "enabled": {"type": "boolean"},
+          "priority": {"type": "integer", "minimum": 1},
+          "maxCostPerMb": {"type": "number", "minimum": 0},
+          "minThroughputMbps": {"type": "number", "minimum": 0},
+          "maxLatencyMs": {"type": "number", "minimum": 0},
+          "maxPacketLossPct": {"type": "number", "minimum": 0, "maximum": 100}
+        }
+      }
+    },
+    "failover": {
+      "type": "object",
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "recoveryWindowSeconds": {"type": "integer", "minimum": 1}
+      }
+    }
+  }
+}
