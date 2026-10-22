@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kora.africa/schemas/tv-channel.json",
+  "title": "KORA TV Channel",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["channelId", "name", "mode", "status", "outputs"],
+  "properties": {
+    "channelId": { "type": "string", "minLength": 2 },
+    "name": { "type": "string", "minLength": 2 },
+    "description": { "type": "string" },
+    "mode": { "enum": ["scheduled", "live", "simulcast", "emergency", "offline"] },
+    "status": { "enum": ["READY", "ON_AIR", "DEGRADED", "FAILOVER", "OFFLINE"] },
+    "activeSessionId": { "type": ["string", "null"] },
+    "scheduleId": { "type": ["string", "null"] },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["outputId", "kind", "enabled"],
+        "properties": {
+          "outputId": { "type": "string" },
+          "kind": { "enum": ["web", "mobile", "smart-tv", "radio-visual", "partner", "archive"] },
+          "enabled": { "type": "boolean" },
+          "endpointRef": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "emergencyOverride": { "type": "boolean" },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  }
+}
