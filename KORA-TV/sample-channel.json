@@ -1,0 +1,16 @@
+{
+  "channelId": "kora-tv-main",
+  "name": "KORA TV",
+  "description": "KORA's live television and video channel control plane.",
+  "mode": "scheduled",
+  "status": "READY",
+  "activeSessionId": null,
+  "scheduleId": "kora-main-schedule",
+  "outputs": [
+    { "outputId": "web-main", "kind": "web", "enabled": true, "endpointRef": null },
+    { "outputId": "mobile-main", "kind": "mobile", "enabled": true, "endpointRef": null },
+    { "outputId": "smart-tv-main", "kind": "smart-tv", "enabled": false, "endpointRef": null }
+  ],
+  "emergencyOverride": false,
+  "updatedAt": "2026-10-22T00:00:00Z"
+}
