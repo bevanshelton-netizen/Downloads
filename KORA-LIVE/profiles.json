@@ -1,0 +1,27 @@
+{
+  "mobile": {
+    "priority": ["availability", "latency", "cost"],
+    "targetLatencyMs": 1500,
+    "minimumScore": 45,
+    "failoverRequired": true
+  },
+  "broadcast": {
+    "priority": ["availability", "packetLoss", "latency", "throughput"],
+    "targetLatencyMs": 800,
+    "minimumScore": 65,
+    "failoverRequired": true
+  },
+  "emergency": {
+    "priority": ["availability", "packetLoss", "latency"],
+    "targetLatencyMs": 500,
+    "minimumScore": 75,
+    "failoverRequired": true,
+    "offlineResilience": true
+  },
+  "fleet": {
+    "priority": ["availability", "cost", "latency"],
+    "targetLatencyMs": 1200,
+    "minimumScore": 55,
+    "failoverRequired": true
+  }
+}
