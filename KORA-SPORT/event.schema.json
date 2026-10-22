@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KORA Sport Event",
+  "type": "object",
+  "required": ["eventId", "sport", "status", "participants"],
+  "properties": {
+    "eventId": {"type": "string"},
+    "sport": {"type": "string"},
+    "competition": {"type": "string"},
+    "status": {"enum": ["scheduled", "pre_match", "live", "halftime", "paused", "finished", "postponed", "cancelled", "unknown"]},
+    "startTime": {"type": ["string", "null"], "format": "date-time"},
+    "participants": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["participantId", "name", "score"],
+        "properties": {
+          "participantId": {"type": "string"},
+          "name": {"type": "string"},
+          "score": {"type": "number"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "period": {"type": ["string", "null"]},
+    "clock": {"type": ["string", "null"]},
+    "dataFreshness": {"enum": ["live", "recent", "stale", "unknown"]},
+    "sourceRefs": {"type": "array", "items": {"type": "string"}},
+    "updatedAt": {"type": "string", "format": "date-time"}
+  },
+  "additionalProperties": false
+}
