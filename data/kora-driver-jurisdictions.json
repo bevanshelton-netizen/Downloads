@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "1.0.0",
+  "product": "KORA Global Driver Academy",
+  "jurisdictions": [
+    {"country":"ZA","name":"South Africa","regions":[],"categories":["Code 1","Code 2","Code 3"],"status":"foundation"},
+    {"country":"GB","name":"United Kingdom","regions":[],"categories":["Car","Motorcycle","Other applicable categories"],"status":"foundation"},
+    {"country":"IE","name":"Ireland","regions":[],"categories":["Motorcycle","Car/Work Vehicle/Tractor","Heavy Commercial Vehicle","Bus"],"status":"foundation"},
+    {"country":"AU","name":"Australia","regions":["NSW","VIC","QLD","SA","WA","TAS","ACT","NT"],"categories":["Learner driver categories by jurisdiction"],"status":"foundation"},
+    {"country":"NZ","name":"New Zealand","regions":[],"categories":["Learner licence categories"],"status":"foundation"},
+    {"country":"US","name":"United States","regions":["State-specific"],"categories":["Learner permit categories by state"],"status":"foundation"},
+    {"country":"CA","name":"Canada","regions":["Province/Territory-specific"],"categories":["Learner categories by jurisdiction"],"status":"foundation"}
+  ],
+  "contentPolicy": {
+    "officialExam": false,
+    "requireJurisdictionSource": true,
+    "requireVersioning": true,
+    "allowUnverifiedQuestionClaims": false
+  }
+}
