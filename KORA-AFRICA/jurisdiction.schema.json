@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KORA Africa Jurisdiction",
+  "type": "object",
+  "required": ["jurisdictionId", "countryCode", "name", "status", "languages", "currency", "updatedAt"],
+  "properties": {
+    "jurisdictionId": { "type": "string" },
+    "countryCode": { "type": "string", "minLength": 2, "maxLength": 3 },
+    "name": { "type": "string" },
+    "region": { "type": "string" },
+    "status": { "enum": ["draft", "configured", "verified", "restricted", "inactive"] },
+    "languages": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "currency": { "type": "string", "minLength": 3, "maxLength": 3 },
+    "locales": { "type": "array", "items": { "type": "string" } },
+    "serviceRefs": { "type": "array", "items": { "type": "string" } },
+    "policyRefs": { "type": "array", "items": { "type": "string" } },
+    "emergencyRefs": { "type": "array", "items": { "type": "string" } },
+    "sourceRefs": { "type": "array", "items": { "type": "string" } },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  }
+}
