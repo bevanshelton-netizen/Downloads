@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KORA WORK Record",
+  "type": "object",
+  "required": ["workId", "kind", "status", "title", "updatedAt"],
+  "properties": {
+    "workId": { "type": "string" },
+    "kind": { "enum": ["job", "project", "gig", "assignment", "service"] },
+    "status": { "enum": ["draft", "open", "screening", "matched", "accepted", "in_progress", "completed", "cancelled", "closed"] },
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "employerRef": { "type": "string" },
+    "workerRef": { "type": "string" },
+    "skills": { "type": "array", "items": { "type": "string" } },
+    "qualificationRefs": { "type": "array", "items": { "type": "string" } },
+    "location": { "type": "string" },
+    "remote": { "type": "boolean" },
+    "compensation": { "type": "object", "properties": { "amount": { "type": "number" }, "currency": { "type": "string" }, "unit": { "type": "string" } }, "required": ["amount", "currency"] },
+    "verification": { "enum": ["unverified", "pending", "verified", "rejected"] },
+    "paymentRef": { "type": "string" },
+    "sourceRefs": { "type": "array", "items": { "type": "string" } },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  }
+}
