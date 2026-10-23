@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KORA NAV Navigation Session",
+  "type": "object",
+  "required": ["sessionId", "mode", "status", "updatedAt"],
+  "properties": {
+    "sessionId": { "type": "string" },
+    "mode": { "enum": ["navigation", "safety", "fleet", "emergency", "offline"] },
+    "status": { "enum": ["ready", "routing", "active", "degraded", "offline", "emergency", "ended"] },
+    "originRef": { "type": "string" },
+    "destinationRef": { "type": "string" },
+    "routeRef": { "type": "string" },
+    "locationSource": { "enum": ["gps", "network", "fused", "cached", "unknown"] },
+    "connectivity": { "enum": ["online", "degraded", "offline", "unknown"] },
+    "safetyLevel": { "enum": ["normal", "caution", "high_risk", "emergency"] },
+    "hazardRefs": { "type": "array", "items": { "type": "string" } },
+    "emergencyRef": { "type": "string" },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  }
+}
