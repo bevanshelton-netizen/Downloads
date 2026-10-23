@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kora.africa/schemas/access.schema.json",
+  "title": "KORA Access Request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["accessRequestId", "subjectRef", "resourceRef", "action", "decision", "updatedAt"],
+  "properties": {
+    "accessRequestId": { "type": "string", "minLength": 1 },
+    "subjectRef": { "type": "string", "minLength": 1 },
+    "subjectType": { "type": "string", "enum": ["user", "organisation", "device", "vehicle", "service"] },
+    "resourceRef": { "type": "string", "minLength": 1 },
+    "resourceType": { "type": "string", "enum": ["service", "account", "vehicle", "fleet", "record", "capability", "other"] },
+    "action": { "type": "string", "enum": ["read", "create", "update", "operate", "approve", "administer", "export", "emergency-use"] },
+    "decision": { "type": "string", "enum": ["allow", "deny", "conditional", "step-up-required", "unknown"] },
+    "policyRefs": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+    "trustRefs": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+    "securityRef": { "type": "string" },
+    "organisationRef": { "type": "string" },
+    "jurisdictionRef": { "type": "string" },
+    "purpose": { "type": "string" },
+    "conditions": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "expiresAt": { "type": "string", "format": "date-time" },
+    "auditEventRefs": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  }
+}
