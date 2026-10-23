@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kora.africa/schemas/trust.schema.json",
+  "title": "KORA Trust Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["trustId", "subjectRef", "claim", "state", "updatedAt"],
+  "properties": {
+    "trustId": { "type": "string", "minLength": 1 },
+    "subjectRef": { "type": "string", "minLength": 1 },
+    "claim": { "type": "string", "minLength": 1 },
+    "claimType": {
+      "type": "string",
+      "enum": ["identity", "authentication", "device", "vehicle", "organisation", "qualification", "licence", "service", "security", "other"]
+    },
+    "state": {
+      "type": "string",
+      "enum": ["unverified", "pending", "verified", "expired", "revoked", "failed", "unknown"]
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["low", "moderate", "high", "unknown"]
+    },
+    "verifierRef": { "type": "string" },
+    "evidenceRefs": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "purpose": { "type": "string" },
+        "jurisdictionRef": { "type": "string" },
+        "organisationRef": { "type": "string" },
+        "serviceRef": { "type": "string" }
+      }
+    },
+    "issuedAt": { "type": "string", "format": "date-time" },
+    "expiresAt": { "type": "string", "format": "date-time" },
+    "revokedAt": { "type": "string", "format": "date-time" },
+    "fortressRef": { "type": "string" },
+    "auditEventRefs": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  }
+}
