@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KORA Vehicle",
+  "type": "object",
+  "required": ["vehicleId", "status", "updatedAt"],
+  "properties": {
+    "vehicleId": { "type": "string" },
+    "identityRef": { "type": "string" },
+    "fleetRef": { "type": "string" },
+    "manufacturerRef": { "type": "string" },
+    "modelRef": { "type": "string" },
+    "status": { "enum": ["unknown", "parked", "active", "moving", "idle", "degraded", "offline", "emergency"] },
+    "telemetry": {
+      "type": "object",
+      "properties": {
+        "speedKph": { "type": "number", "minimum": 0 },
+        "headingDegrees": { "type": "number", "minimum": 0, "maximum": 360 },
+        "odometerKm": { "type": "number", "minimum": 0 },
+        "fuelPercent": { "type": "number", "minimum": 0, "maximum": 100 },
+        "batteryPercent": { "type": "number", "minimum": 0, "maximum": 100 }
+      },
+      "additionalProperties": true
+    },
+    "diagnosticRefs": { "type": "array", "items": { "type": "string" } },
+    "safetySignalRefs": { "type": "array", "items": { "type": "string" } },
+    "locationRef": { "type": "string" },
+    "lastVerifiedAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  }
+}
