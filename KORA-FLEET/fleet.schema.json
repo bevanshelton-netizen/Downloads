@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KORA Fleet",
+  "type": "object",
+  "required": ["fleetId", "status", "updatedAt"],
+  "properties": {
+    "fleetId": { "type": "string" },
+    "organisationRef": { "type": "string" },
+    "name": { "type": "string" },
+    "type": { "enum": ["commercial", "logistics", "passenger", "public-service", "security", "cit", "mixed"] },
+    "status": { "enum": ["draft", "active", "degraded", "offline", "suspended"] },
+    "vehicleRefs": { "type": "array", "items": { "type": "string" } },
+    "driverRefs": { "type": "array", "items": { "type": "string" } },
+    "activeTripRefs": { "type": "array", "items": { "type": "string" } },
+    "incidentRefs": { "type": "array", "items": { "type": "string" } },
+    "policyRefs": { "type": "array", "items": { "type": "string" } },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  }
+}
