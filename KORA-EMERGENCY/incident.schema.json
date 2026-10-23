@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KORA Emergency Incident",
+  "type": "object",
+  "required": ["incidentId", "type", "status", "priority", "createdAt", "updatedAt"],
+  "properties": {
+    "incidentId": { "type": "string" },
+    "type": { "enum": ["sos", "hijacking", "collision", "medical", "fire", "security", "hazard", "other"] },
+    "status": { "enum": ["triggered", "verifying", "dispatching", "sent", "acknowledged", "confirmed", "resolved", "cancelled", "failed"] },
+    "priority": { "enum": ["urgent", "critical"] },
+    "identityRef": { "type": "string" },
+    "vehicleRef": { "type": "string" },
+    "locationRef": { "type": "string" },
+    "responseChannelRefs": { "type": "array", "items": { "type": "string" } },
+    "trustedContactRefs": { "type": "array", "items": { "type": "string" } },
+    "confirmationRef": { "type": "string" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  }
+}
