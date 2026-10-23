@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kora.africa/schemas/security.schema.json",
+  "title": "KORA Security Session",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["securitySessionId", "identityRef", "state", "updatedAt"],
+  "properties": {
+    "securitySessionId": { "type": "string", "minLength": 1 },
+    "identityRef": { "type": "string", "minLength": 1 },
+    "trustedDeviceRefs": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "accessPolicyRefs": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "state": {
+      "type": "string",
+      "enum": ["normal", "elevated", "threat", "lockdown", "offline", "compromised", "resolved"]
+    },
+    "riskLevel": {
+      "type": "string",
+      "enum": ["low", "moderate", "high", "critical", "unknown"]
+    },
+    "incidentRefs": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "controlRequests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["controlId", "action", "status"],
+        "properties": {
+          "controlId": { "type": "string", "minLength": 1 },
+          "action": {
+            "type": "string",
+            "enum": ["monitor", "warn", "restrict", "escalate", "lock"]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["requested", "pending", "executing", "acknowledged", "failed", "reversed"]
+          },
+          "executionRef": { "type": "string" },
+          "requestedAt": { "type": "string", "format": "date-time" },
+          "acknowledgedAt": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "fortressRef": { "type": "string" },
+    "locationRef": { "type": "string" },
+    "connectivityState": {
+      "type": "string",
+      "enum": ["online", "degraded", "offline", "unknown"]
+    },
+    "auditEventRefs": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "jurisdictionRef": { "type": "string" },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  }
+}
