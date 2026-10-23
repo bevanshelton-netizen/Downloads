@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KORA ID Identity",
+  "type": "object",
+  "required": ["identityId", "status", "locale", "createdAt", "updatedAt"],
+  "properties": {
+    "identityId": { "type": "string" },
+    "status": { "enum": ["created", "active", "suspended", "closed"] },
+    "displayName": { "type": "string" },
+    "emailRef": { "type": "string" },
+    "phoneRef": { "type": "string" },
+    "locale": { "type": "string" },
+    "jurisdictionRef": { "type": "string" },
+    "roles": { "type": "array", "items": { "type": "string" } },
+    "organisationRefs": { "type": "array", "items": { "type": "string" } },
+    "verification": { "enum": ["none", "pending", "verified", "rejected"] },
+    "consentRefs": { "type": "array", "items": { "type": "string" } },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  }
+}
