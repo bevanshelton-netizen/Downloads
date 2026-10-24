@@ -10,6 +10,7 @@ import './broadcast-tv.css';
 import { brand } from '@/lib/brand';
 import ShareButton from './share-button';
 import AutoAiPromo from './auto-ai-promo';
+import GrowthCta from './growth-cta';
 
 export const dynamic = 'force-dynamic';
 
@@ -55,49 +56,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body data-quality-profile="izakhono-premium-v1">
-        {analyticsOrigin ? (
-          <Script
-            id="izakhono-analytics"
-            src={`${analyticsOrigin}/beacon.js?platform=kora-network`}
-            strategy="afterInteractive"
-          />
-        ) : null}
+        {analyticsOrigin ? <Script id="izakhono-analytics" src={`${analyticsOrigin}/beacon.js?platform=kora-network`} strategy="afterInteractive" /> : null}
         <Script id="izakhono-portfolio-growth" src="https://bevanshelton-netizen.github.io/Downloads/portfolio-growth/bridge.js" data-platform="kora" strategy="afterInteractive" />
         <a className="skipLink" href="#page-content">Skip to content</a>
         <header className="top">
           <Link className="logo" href="/" aria-label="KORA Network home"><KoraMark /><span className="logoWords"><b>{brand.name}</b><small>NETWORK</small></span></Link>
           <nav aria-label="Main navigation">
-            <Link href="/open-africa">Watch Free</Link>
-            <Link href="/open-library">Open Library</Link>
-            <Link href="/music">Music</Link>
-            <Link href="/tour2screen">Tour2Screen</Link>
-            <Link href="/tickets">Tickets</Link>
-            <Link href="/watch">On Demand</Link>
-            <Link href="/live">Live TV</Link>
-            <Link href="/kids">Kids</Link>
-            <Link href="/creators">Creators</Link>
-            <Link href="/perform-live">Perform Live</Link>
-            <Link href="/studio">Studio</Link>
-            <Link href="/advertise">Advertise</Link>
-            <Link href="/partners">Partners</Link>
+            <Link href="/open-africa">Watch Free</Link><Link href="/open-library">Open Library</Link><Link href="/music">Music</Link><Link href="/tour2screen">Tour2Screen</Link><Link href="/tickets">Tickets</Link><Link href="/watch">On Demand</Link><Link href="/live">Live TV</Link><Link href="/kids">Kids</Link><Link href="/creators">Creators</Link><Link href="/perform-live">Perform Live</Link><Link href="/studio">Studio</Link><Link href="/advertise">Advertise</Link><Link href="/partners">Partners</Link>
           </nav>
           <Link className="pill" href="/account">My KORA</Link>
         </header>
         <div id="page-content" tabIndex={-1}>{children}</div>
+        <GrowthCta />
         <AutoAiPromo />
         <ShareButton />
         <footer>
           <div className="footerBrand"><div className="footerLogo"><KoraMark /><strong>{brand.name}</strong></div><span>Family-safe creator television • No pornography or explicit sexual content.</span></div>
-          <div className="footerLinks" aria-label="Legal and policy links">
-            <Link href="/legal/terms">Terms</Link>
-            <Link href="/legal/privacy">Privacy</Link>
-            <Link href="/legal/content-policy">Safety</Link>
-            <Link href="/legal/creator-agreement">Creators</Link>
-            <Link href="/legal/advertiser-terms">Advertisers</Link>
-            <Link href="/legal/copyright">Copyright</Link>
-            <Link href="/legal/refunds">Refunds</Link>
-            <Link href="/partners">Media Partners</Link>
-          </div>
+          <div className="footerLinks" aria-label="Legal and policy links"><Link href="/legal/terms">Terms</Link><Link href="/legal/privacy">Privacy</Link><Link href="/legal/content-policy">Safety</Link><Link href="/legal/creator-agreement">Creators</Link><Link href="/legal/advertiser-terms">Advertisers</Link><Link href="/legal/copyright">Copyright</Link><Link href="/legal/refunds">Refunds</Link><Link href="/partners">Media Partners</Link></div>
         </footer>
       </body>
     </html>
