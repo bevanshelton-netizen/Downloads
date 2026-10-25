@@ -29,7 +29,7 @@ export default function RateCardPage() {
         <h1 style={{ fontSize: 'clamp(3rem,8vw,7rem)', lineHeight: .88, letterSpacing: '-.06em', margin: '14px 0 22px' }}>PUT YOUR BRAND<br /><span style={{ color: '#e6c76b' }}>ON THE AFRICAN SCREEN.</span></h1>
         <p style={{ maxWidth: 820, color: '#c7ccd7', fontSize: 19, lineHeight: 1.65 }}>KORA offers advertising, sponsorship, creator and media partnership opportunities built around African entertainment and audiences. These are starting packages; final inventory, territory, duration, placement and exclusivity are confirmed in a commercial proposal.</p>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 28 }}>
-          <a href="mailto:info@streamkoraafrica.com?subject=KORA%20Media%20Kit%20Request" style={{ padding: '14px 22px', borderRadius: 999, background: 'linear-gradient(135deg,#f1d47b,#c79a3d)', color: '#17130a', fontWeight: 900 }}>Request Media Kit →</a>
+          <Link href="/advertise/enquiry" style={{ padding: '14px 22px', borderRadius: 999, background: 'linear-gradient(135deg,#f1d47b,#c79a3d)', color: '#17130a', fontWeight: 900 }}>Start Commercial Enquiry →</Link>
           <Link href="/advertise" style={{ padding: '14px 22px', borderRadius: 999, border: '1px solid #ffffff30', fontWeight: 900 }}>Explore KORA Advertising</Link>
         </div>
         <p style={{ marginTop: 14, color: '#8f96a4', fontSize: 12 }}>Commercial enquiry: info@streamkoraafrica.com. Public mailbox activation remains subject to KORA mail acceptance verification.</p>
@@ -60,7 +60,7 @@ export default function RateCardPage() {
         <div style={{ padding: '45px 30px', borderRadius: 30, background: 'linear-gradient(110deg,#1a3f8f,#702c9c,#c23c78)' }}>
           <h2 style={{ fontSize: 'clamp(2.2rem,5vw,4.5rem)', lineHeight: .95, margin: '0 0 16px' }}>Ready to reach KORA audiences?</h2>
           <p style={{ color: '#eee', lineHeight: 1.6 }}>Send your brand, campaign objective, territory and timing. KORA can then prepare the appropriate commercial proposal.</p>
-          <a href="mailto:info@streamkoraafrica.com?subject=KORA%20Advertising%20Enquiry" style={{ display: 'inline-block', marginTop: 18, padding: '14px 24px', borderRadius: 999, background: '#fff', color: '#211335', fontWeight: 900 }}>Start Commercial Enquiry →</a>
+          <Link href="/advertise/enquiry" style={{ display: 'inline-block', marginTop: 18, padding: '14px 24px', borderRadius: 999, background: '#fff', color: '#211335', fontWeight: 900 }}>Start Commercial Enquiry →</Link>
         </div>
       </section>
     </main>
