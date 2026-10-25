@@ -17,6 +17,7 @@ export default async function Advertise() {
           <p>Build measurable campaigns around African entertainment, creators and communities. KORA combines contextual video advertising, show sponsorship, verified delivery, transparent campaign economics and carefully controlled viewer rewards.</p>
           <div className={styles.actions}>
             <Link className={styles.primary} href={primaryHref}>{primaryLabel} →</Link>
+            <Link className={styles.secondary} href="/advertise/rate-card">Media Kit &amp; Rate Card →</Link>
             <Link className={styles.secondary} href="/legal/advertiser-terms">Read advertiser terms</Link>
           </div>
           {!campaignsOpen ? <p className={styles.note}><strong>Brand campaigns are currently in controlled launch.</strong> Invited partners can sign in while public campaign creation remains closed.</p> : null}
@@ -57,7 +58,7 @@ export default async function Advertise() {
 
       <section className={styles.cta}>
         <div className={styles.eyebrow}>PARTNER WITH THE NEXT AFRICAN SCREEN</div><h2>Put your brand where the stories are going.</h2><p>Invited partners can enter the campaign workspace now. Public campaign creation only opens when KORA operations deliberately enables it.</p>
-        <div className={styles.actions}><Link className={styles.primary} href={primaryHref}>{primaryLabel}</Link><Link className={styles.secondary} href="/legal/privacy">Privacy approach</Link></div>
+        <div className={styles.actions}><Link className={styles.primary} href={primaryHref}>{primaryLabel}</Link><Link className={styles.secondary} href="/advertise/rate-card">Request Media Kit &amp; Rate Card</Link><Link className={styles.secondary} href="/legal/privacy">Privacy approach</Link></div>
       </section>
     </main>
   );
