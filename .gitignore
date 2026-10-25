@@ -5,4 +5,5 @@ node_modules/
 .DS_Store
 owned/.env
 owned/data/
+owned/backups/
 owned/node_modules/
