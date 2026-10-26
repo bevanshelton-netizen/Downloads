@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import ShareButton from '@/components/ShareButton';
 import styles from './home.module.css';
 
 const categories = [
@@ -56,6 +57,7 @@ export default function Home() {
           <div className={styles.heroActions}>
             <Link href="/live" className={styles.primary}>▶ WATCH NOW</Link>
             <Link href="/watch" className={styles.secondary}>EXPLORE KORA</Link>
+            <ShareButton title="KORA Stream Africa" text="Discover KORA Stream Africa — Africa's screen to the world." className={styles.secondary} />
           </div>
         </div>
       </section>
@@ -106,7 +108,7 @@ export default function Home() {
         <div className={styles.finalBrand}>KORA <span>STREAM</span> AFRICA</div>
         <h2>AFRICA'S SCREEN.<br /><em>TO THE WORLD.</em></h2>
         <p>Watch it. Discover it. Create it. Share it.</p>
-        <div className={styles.heroActions}><Link href="/live" className={styles.primary}>START WATCHING</Link><Link href="/account" className={styles.secondary}>CREATE ACCOUNT</Link></div>
+        <div className={styles.heroActions}><Link href="/live" className={styles.primary}>START WATCHING</Link><Link href="/account" className={styles.secondary}>CREATE ACCOUNT</Link><ShareButton title="KORA Stream Africa" text="Discover KORA Stream Africa — Africa's screen to the world." className={styles.secondary} /></div>
       </section>
     </main>
   );
