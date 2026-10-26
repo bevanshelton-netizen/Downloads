@@ -1,0 +1,17 @@
+services:
+  marketing-os:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      IZAKHONO_INFRA: NODES01
+      IZAKHONO_SECURITY: FORTRESS
+      METRICOOL_BRAND_ID: "7233518"
+      METRICOOL_TIMEZONE: Africa/Johannesburg
+    healthcheck:
+      test: ["CMD-SHELL","wget -qO- http://127.0.0.1:3000 >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
