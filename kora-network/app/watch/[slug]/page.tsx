@@ -5,6 +5,7 @@ import { createSignedPlaybackUrl } from '@/lib/video';
 import { createWatchPlaybackSession } from '@/src/lib/ott/watch-session';
 import AdSupportedPlayer from '@/components/AdSupportedPlayer';
 import PurchaseGate from '@/components/PurchaseGate';
+import ShareButton from '@/components/ShareButton';
 
 export default async function WatchShow({ params, searchParams }: {
   params: Promise<{ slug: string }>;
@@ -32,7 +33,7 @@ export default async function WatchShow({ params, searchParams }: {
     purchased = Boolean(purchase);
     if (!purchase) {
       const price = Number(production.purchase_price || 0);
-      return <main><section className="subHero"><div className="eyebrow">PREMIUM PREMIERE</div><h1>{production.title}</h1><p>This title is a one-time paid unlock. Access is granted only after KORA securely verifies the payment provider's server confirmation.</p><PurchaseGate productionId={production.id} price={price} paymentStatus={payment}/><div className="actions"><Link className="secondary" href="/watch">← Back to catalogue</Link></div></section></main>;
+      return <main><section className="subHero"><div className="eyebrow">PREMIUM PREMIERE</div><h1>{production.title}</h1><p>This title is a one-time paid unlock. Access is granted only after KORA securely verifies the payment provider's server confirmation.</p><div className="actions"><ShareButton title={production.title} text={production.synopsis || 'Watch this title on KORA Stream Africa.'} /><PurchaseGate productionId={production.id} price={price} paymentStatus={payment}/><Link className="secondary" href="/watch">← Back to catalogue</Link></div></section></main>;
     }
   }
 
@@ -55,7 +56,7 @@ export default async function WatchShow({ params, searchParams }: {
   }
 
   return <main>
-    <section className="watchHero"><div className="eyebrow">{production.access_mode.replace('_', ' ').toUpperCase()} • {production.age_rating || 'UNRATED'}</div><h1>{production.title}</h1><p>{production.synopsis}</p></section>
+    <section className="watchHero"><div className="eyebrow">{production.access_mode.replace('_', ' ').toUpperCase()} • {production.age_rating || 'UNRATED'}</div><h1>{production.title}</h1><p>{production.synopsis}</p><div className="actions"><ShareButton title={production.title} text={production.synopsis || 'Watch this title on KORA Stream Africa.'} /><Link className="secondary" href="/watch">← Back to catalogue</Link></div></section>
     <section className="watchLayout">
       <div className="playerShell">{selected ? <AdSupportedPlayer contentUrl={playbackUrl} episodeId={selected.id} title={selected.title || production.title} adsEnabled={adsEnabled} playbackSessionId={playbackSessionId} /> : <div className="playerPlaceholder"><strong>No published episodes yet.</strong></div>}</div>
       <aside className="episodeRail"><h3>Episodes</h3>{(episodes ?? []).map((item) => <Link className={`episodeLink ${item.id === selected?.id ? 'active' : ''}`} href={`/watch/${slug}?episode=${item.id}`} key={item.id}><strong>{item.episode_number}. {item.title}</strong><span>{Math.ceil(Number(item.duration_seconds || 0) / 60)} min</span></Link>)}</aside>
