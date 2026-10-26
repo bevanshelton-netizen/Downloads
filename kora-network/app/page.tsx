@@ -4,18 +4,18 @@ import ShareButton from '@/components/ShareButton';
 import styles from './home.module.css';
 
 const ecosystem = [
-  ['📺', 'KORA TV', 'Movies, series, documentaries and KORA Originals.', '/watch'],
-  ['🔴', 'KORA LIVE', 'Live channels, events and broadcast experiences.', '/live'],
-  ['🎵', 'KORA MUSIC', 'Artists, albums, playlists, performances and music video.', '/music'],
-  ['▶️', 'KORA VIDEO', 'Creator video, shorts, education and culture.', '/watch'],
-  ['🎧', 'KORA AUDIO', 'Podcasts, audiobooks, spoken word and radio-style audio.', '/music'],
-  ['🧒', 'KORA KIDS', 'A dedicated destination for children and families.', '/kids'],
-  ['⚽', 'KORA SPORTS', 'Rights-cleared sports, highlights and live experiences.', '/live'],
-  ['✦', 'KORA CREATOR', 'Creator hubs, audiences, memberships and analytics.', '/creators'],
-  ['🎟️', 'KORA EVENTS', 'Concerts, festivals, conferences, masterclasses and hybrid events.', '/events'],
-  ['🛍️', 'KORA COMMERCE', 'Tickets, merchandise, courses and digital products.', '/events'],
+  ['🎬', 'MOVIES', 'African films, cinema releases, classics and KORA movie collections.', '/watch'],
+  ['📺', 'SERIES', 'Original series, drama, comedy, documentaries and episodic stories.', '/watch'],
+  ['🎵', 'MUSIC', 'Artists, albums, playlists, performances and music video.', '/music'],
+  ['🧒', 'KIDS', 'A dedicated destination for children and families.', '/kids'],
+  ['🔴', 'LIVE TV', 'Live channels, events and broadcast experiences.', '/live'],
+  ['🌍', 'BROWSE BY COUNTRY', 'Discover African stories, creators and entertainment by country and region.', '/global'],
+  ['✦', 'CREATORS', 'Creator hubs, audiences, memberships and analytics.', '/creators'],
+  ['🎟️', 'EVENTS', 'Concerts, festivals, conferences, masterclasses and hybrid events.', '/events'],
+  ['🛍️', 'COMMERCE', 'Tickets, merchandise, courses and digital products.', '/events'],
   ['💳', 'KORA PAY', 'Subscriptions, PPV, memberships, tips and creator earnings.', '/account'],
-  ['🌍', 'KORA GLOBAL', 'Connect African creativity with audiences and partners worldwide.', '/global'],
+  ['🤝', 'PARTNER WITH KORA', 'For broadcasters, brands, creators, rights holders and institutions.', '/partner'],
+  ['🎞️', 'SUBMIT YOUR FILM', 'Bring African film and original storytelling to the KORA ecosystem.', '/partner'],
 ];
 
 const doors = [
