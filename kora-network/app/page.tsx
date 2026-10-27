@@ -4,18 +4,20 @@ import ShareButton from '@/components/ShareButton';
 import styles from './home.module.css';
 
 const ecosystem = [
-  ['🎬', 'MOVIES', 'African films, cinema releases, classics and KORA movie collections.', '/watch'],
-  ['📺', 'SERIES', 'Original series, drama, comedy, documentaries and episodic stories.', '/watch'],
-  ['🎵', 'MUSIC', 'Artists, albums, playlists, performances and music video.', '/music'],
-  ['🧒', 'KIDS', 'A dedicated destination for children and families.', '/kids'],
-  ['🔴', 'LIVE TV', 'Live channels, events and broadcast experiences.', '/live'],
-  ['🌍', 'BROWSE BY COUNTRY', 'Discover African stories, creators and entertainment by country and region.', '/global'],
-  ['✦', 'CREATORS', 'Creator hubs, audiences, memberships and analytics.', '/creators'],
-  ['🎟️', 'EVENTS', 'Concerts, festivals, conferences, masterclasses and hybrid events.', '/events'],
-  ['🛍️', 'COMMERCE', 'Tickets, merchandise, courses and digital products.', '/events'],
+  ['📺', 'KORA TV', 'Movies, series, documentaries and KORA Originals in one African-first television home.', '/watch'],
+  ['🔴', 'KORA LIVE', 'Live channels, live programming, premieres and event-led broadcast experiences.', '/live'],
+  ['🎵', 'KORA MUSIC', 'Artists, albums, playlists, performances, music videos and music discovery.', '/music'],
+  ['▶️', 'KORA VIDEO', 'Creator video, shorts, education, culture and audience-first video channels.', '/watch'],
+  ['🎧', 'KORA AUDIO', 'Podcasts, audiobooks, spoken word and radio-style audio experiences.', '/watch'],
+  ['🧒', 'KORA KIDS', 'A dedicated destination for children and families with protected programming.', '/kids'],
+  ['⚽', 'KORA SPORTS', 'Rights-cleared sports, highlights, live experiences and sports communities.', '/live'],
+  ['✦', 'KORA CREATOR', 'Creator hubs, channels, followers, memberships, analytics and earnings.', '/creators'],
+  ['🎟️', 'KORA EVENTS', 'Concerts, festivals, gospel, comedy, conferences, masterclasses and hybrid events.', '/events'],
+  ['🛍️', 'KORA COMMERCE', 'Tickets, merchandise, courses, digital products and creator offers.', '/events'],
   ['💳', 'KORA PAY', 'Subscriptions, PPV, memberships, tips and creator earnings.', '/account'],
-  ['🤝', 'PARTNER WITH KORA', 'For broadcasters, brands, creators, rights holders and institutions.', '/partners'],
-  ['🎞️', 'SUBMIT YOUR FILM', 'Bring African film and original storytelling to the KORA ecosystem.', '/partners'],
+  ['🤝', 'KORA PARTNER', 'Infrastructure and distribution for broadcasters, brands, rights holders and institutions.', '/partners'],
+  ['🌍', 'KORA GLOBAL', 'Connect African creativity with international audiences, partners, rights and events.', '/global'],
+  ['🗺️', 'BROWSE BY COUNTRY', 'Discover African stories, creators and entertainment by country and region.', '/global'],
 ];
 
 const doors = [
@@ -43,7 +45,7 @@ export default function Home() {
           <span><b>KORA</b><em>STREAM</em><small>AFRICA</small></span>
         </Link>
         <div className={styles.navLinks}>
-          <Link href="/watch">Movies</Link><Link href="/watch">Series</Link><Link href="/music">Music</Link><Link href="/kids">Kids</Link><Link href="/live">Live TV</Link><Link href="/global">Countries</Link><Link href="/creators">Creators</Link><Link href="/events">Events</Link><Link href="/account">KORA Pay</Link><Link href="/partners">Partner</Link>
+          <Link href="/watch">TV</Link><Link href="/watch">Movies</Link><Link href="/watch">Series</Link><Link href="/music">Music</Link><Link href="/watch">Video</Link><Link href="/kids">Kids</Link><Link href="/live">Live TV</Link><Link href="/global">Countries</Link><Link href="/creators">Creators</Link><Link href="/events">Events</Link><Link href="/partners">Partner</Link>
         </div>
         <div className={styles.navActions}><button className={styles.searchButton} aria-label="Search KORA">⌕</button><Link href="/account" aria-label="Profile / Account">◯</Link></div>
       </nav>
@@ -54,15 +56,15 @@ export default function Home() {
         <div className={styles.heroContent}>
           <div className={styles.heroBrand}>KORA</div>
           <div className={styles.heroStream}>STREAM AFRICA</div>
-          <div className={styles.heroAfrica}>AFRICAN ENTERTAINMENT. GLOBAL REACH.</div>
+          <div className={styles.heroAfrica}>AFRICA'S DIGITAL ENTERTAINMENT HOME.</div>
           <p className={styles.tagline}>WATCH • LISTEN • CREATE • GO LIVE • ATTEND • CONNECT • GROW</p>
-          <p className={styles.heroText}>Movies, series, music, kids, live TV, creators, events, commerce and global entertainment — one connected African-first streaming ecosystem.</p>
-          <div className={styles.heroActions}><Link href="/watch" className={styles.primary}>WATCH NOW</Link><Link href="/watch" className={styles.secondary}>EXPLORE KORA</Link><ShareButton title="KORA Stream Africa" text="Discover KORA Stream Africa — African entertainment, creators, live TV, music and events." className={styles.secondary} /></div>
+          <p className={styles.heroText}>TV, music, video, audio, kids, sports, creators, live channels, events, commerce and global entertainment — one connected African-first ecosystem.</p>
+          <div className={styles.heroActions}><Link href="/watch" className={styles.primary}>WATCH NOW</Link><Link href="#explore-kora" className={styles.secondary}>EXPLORE KORA</Link><ShareButton title="KORA Stream Africa" text="Discover KORA Stream Africa — African entertainment, creators, live TV, music and events." className={styles.secondary} /></div>
         </div>
       </section>
 
       <section className={styles.categorySection} aria-labelledby="explore-kora">
-        <div className={styles.sectionIntro}><small>ONE ACCOUNT. EVERY FORMAT.</small><h1 id="explore-kora">The KORA ecosystem.</h1><p>Not just movies. KORA connects the formats, audiences and businesses that make African entertainment move.</p></div>
+        <div className={styles.sectionIntro}><small>ONE ACCOUNT. EVERY FORMAT.</small><h1 id="explore-kora">The KORA ecosystem.</h1><p>Not just movies. KORA connects the formats, audiences and businesses that make African entertainment move — from television and music to creators, events, commerce and global distribution.</p></div>
         <div className={styles.categoryGrid}>{ecosystem.map(([icon, label, description, href]) => <Link href={href} className={styles.categoryCard} key={label}><div className={styles.cardContent}><span className={styles.cardIcon}>{icon}</span><h2>{label}</h2><p>{description}</p><b>Explore →</b></div></Link>)}</div>
       </section>
 
