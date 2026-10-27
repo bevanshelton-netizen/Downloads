@@ -35,6 +35,18 @@ const featured = [
 const liveChannels = ['KORA ONE', 'KORA MUSIC', 'KORA DRAMA', 'KORA FAMILY', 'KORA FAITH', 'KORA KIDS'];
 const creatorDestinations = ['Your Profile', 'Your Channel', 'Your Music', 'Your Videos', 'Your Live Events', 'Your Audience', 'Your Members', 'Your Money'];
 const globalDestinations = ['Africa → Europe', 'Africa → Korea', 'Africa → Americas', 'Africa → Middle East', 'Africa → Asia', 'World → Africa', 'Rights & Distribution', 'Global Events'];
+const cableChannels = [
+  ['FAST', 'AMusic Channel', 'Nigerian music and entertainment', 'FAST Channels TV'],
+  ['AFRICA', 'Aforevo 2', 'African stories and drama', 'FAST Channels TV'],
+  ['AFRICA', 'Mama Benz TV', 'African women, culture and lifestyle', 'FAST Channels TV'],
+  ['AFRICA', 'Nigbati TV', 'Yoruba culture, entertainment and language', 'FAST Channels TV'],
+  ['AFRICA', 'Teen Africa', 'Family, education and entertainment', 'FAST Channels TV'],
+  ['AFRICA', 'X2DTV', 'Music, dance, comedy, fashion, food and arts', 'FAST Channels TV'],
+  ['AFRICA', 'Nolly Africa', 'Nollywood and African movies and series', 'FAST Channels TV'],
+  ['MUSIC', '4ACETV AFROBEAT', 'Amapiano, Afrobeats and Afrohouse', 'FAST Channels TV'],
+  ['GLOBAL', 'The Africa Channel', 'African stories for global and diaspora audiences', 'Strategic licensing target'],
+  ['AFRICA', 'AFREE TV ecosystem', 'Live TV, radio, VOD and podcasts across Africa', 'Strategic distribution target'],
+];
 
 export default function Home() {
   return (
@@ -81,6 +93,11 @@ export default function Home() {
       <section className={styles.featureSection}>
         <div className={styles.sectionTitle}><div><small>KORA LIVE</small><h2>Television built for now.</h2></div><Link href="/live">Open Live →</Link></div>
         <div className={styles.featureGrid}>{liveChannels.map((channel, index) => <Link href="/live" className={styles.featureCard} key={channel}><div className={styles.featureIcon}>{['K','♫','🎭','♥','✝','●'][index]}</div><div><small>CHANNEL</small><h3>{channel}</h3><p>Discover live programming, channels and event-led experiences.</p></div><b>Open channel →</b></Link>)}</div>
+      </section>
+
+      <section className={styles.featureSection}>
+        <div className={styles.sectionTitle}><div><small>KORA CABLE</small><h2>African channels. One guide.</h2></div><Link href="/live">Open EPG →</Link></div>
+        <div className={styles.featureGrid}>{cableChannels.map(([type, name, description, source]) => <Link href="/live" className={styles.featureCard} key={name}><div className={styles.featureIcon}>📡</div><div><small>{type} • {source}</small><h3>{name}</h3><p>{description}. Availability is subject to rights, territory and commercial approval.</p></div><b>Request channel →</b></Link>)}</div>
       </section>
 
       <section className={styles.featureSection}>
