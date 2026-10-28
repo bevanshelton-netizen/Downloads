@@ -1,0 +1,33 @@
+name: Runtime Fabric Integrity CI
+
+on:
+  push:
+    paths:
+      - 'kora-network/infra/runtime-fabric/controller/**'
+      - '.github/workflows/runtime-fabric-integrity-ci.yml'
+  pull_request:
+    paths:
+      - 'kora-network/infra/runtime-fabric/controller/**'
+      - '.github/workflows/runtime-fabric-integrity-ci.yml'
+
+jobs:
+  integrity-recovery:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: kora-network/infra/runtime-fabric/controller
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile controller modules
+        run: python -m py_compile recovery_worker.py recovery_integrity_guard.py recovery_integrity_transaction.py integrity_checkpoint.py event_hash_chain.py
+      - name: Run recovery worker integrity tests
+        run: python test_recovery_worker.py
+      - name: Run integrity transaction tests
+        run: python test_recovery_integrity_transaction.py
+      - name: Run checkpoint tests
+        run: python test_integrity_checkpoint.py
+      - name: Run hash-chain tests
+        run: python test_event_hash_chain.py
