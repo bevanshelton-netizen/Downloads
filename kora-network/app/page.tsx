@@ -72,7 +72,7 @@ export default function Home() {
           <span><b>KORA</b><em>STREAM</em><small>AFRICA</small></span>
         </Link>
         <div className={styles.navLinks}>
-          <Link href="/watch">Explore</Link><Link href="#genres">Genres</Link><Link href="/live">Live TV</Link><Link href="/music">Music</Link><Link href="/kids">Kids</Link><Link href="/creators">Creators</Link><Link href="/events">Events</Link><Link href="/global">Countries</Link><Link href="/partners">Partner</Link>
+          <Link href="/watch">Explore</Link><Link href="#genres">Genres</Link><Link href="/live">Live TV</Link><Link href="/music">Music</Link><Link href="/kids">Kids</Link><Link href="/creators">Creators</Link><Link href="/advertise">Advertise</Link><Link href="/events">Events</Link><Link href="/global">Countries</Link><Link href="/partners">Partner</Link>
         </div>
         <div className={styles.navActions}><button className={styles.searchButton} aria-label="Search KORA">⌕</button><Link href="/account" aria-label="Profile / Account">◯</Link></div>
       </nav>
@@ -108,6 +108,11 @@ export default function Home() {
       <section className={styles.countrySection}>
         <div><small>KORA CREATOR</small><h2>Don’t just upload.<br />Build your world.</h2><p>A creator identity can become a television home: profile, channel, music, videos, live events, audience, memberships, merch and earnings — connected in one place.</p><Link href="/creators" className={styles.primary}>BUILD A CREATOR HUB →</Link></div>
         <div className={styles.countryGrid}>{creatorDestinations.map(item => <Link href="/creators" key={item}>{item}<span>→</span></Link>)}</div>
+      </section>
+
+      <section className={styles.creatorSection}>
+        <div className={styles.creatorCard}><span>✦</span><small>KORA CREATOR ECONOMY</small><h2>Turn attention into sustainable revenue.</h2><p>Creators can build audiences, memberships, events, commerce and earnings while KORA keeps commercial rewards tied to cleared revenue and verified activity.</p><Link href="/creators">Explore creator revenue →</Link></div>
+        <div className={styles.creatorCard}><span>🎁</span><small>CLEARED-REVENUE REWARDS</small><h2>Reward real participation.</h2><p>Eligible rewards are funded from cleared revenue pools and verified events — not promises, simulated balances or unverified income.</p><Link href="/advertise">Explore KORA advertising →</Link></div>
       </section>
 
       <section className={styles.featureSection}>
