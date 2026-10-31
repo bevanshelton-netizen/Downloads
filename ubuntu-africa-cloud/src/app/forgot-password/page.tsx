@@ -1,0 +1,2 @@
+import { resetRequest } from "./actions";
+export default function ForgotPasswordPage(){return <main className="mx-auto max-w-md px-6 py-20"><h1 className="text-3xl font-bold">Reset password</h1><p className="mt-2 text-slate-600">Enter your account email and we’ll send a reset link.</p><form action={resetRequest} className="mt-8 grid gap-4"><input required type="email" name="email" placeholder="Email" className="rounded-xl border px-4 py-3"/><button className="rounded-xl bg-slate-950 px-4 py-3 font-semibold text-white">Send reset link</button></form></main>}

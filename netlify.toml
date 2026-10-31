@@ -1,0 +1,9 @@
+[build]
+  base = "ubuntu-africa-cloud"
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NPM_FLAGS = "--no-audit --no-fund"
+  NETLIFY_NEXT_SKEW_PROTECTION = "true"
