@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Submit to ALLEGRO VIBEZ</title>
+<style>
+:root{--bg:#07100e;--panel:#0e1b17;--gold:#d9b35b;--mint:#83e2bd;--text:#f5f3ea;--muted:#a9b4ae;--line:#294039}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#17352b 0,#07100e 42%);color:var(--text);font-family:Inter,system-ui,sans-serif}nav{padding:22px 6%;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}nav b{letter-spacing:.16em;color:var(--gold)}nav a{color:var(--mint);text-decoration:none}.wrap{max-width:1000px;margin:auto;padding:70px 6%}.eyebrow{color:var(--mint);letter-spacing:.18em;font-size:12px;font-weight:800}.hero h1{font-size:clamp(42px,7vw,82px);line-height:.95;margin:16px 0}.hero p{font-size:19px;color:var(--muted);max-width:700px;line-height:1.65}.panel{margin-top:45px;background:rgba(14,27,23,.92);border:1px solid var(--line);border-radius:26px;padding:30px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}label{display:block;color:#dce5df;font-size:13px;font-weight:700;margin-bottom:7px}input,select,textarea{width:100%;padding:14px 15px;border-radius:12px;border:1px solid var(--line);background:#08120f;color:white;font:inherit}textarea{min-height:120px;resize:vertical}.full{grid-column:1/-1}.check{display:flex;gap:10px;align-items:flex-start;margin:10px 0;color:var(--muted);font-size:13px;line-height:1.5}.check input{width:auto;margin-top:3px}.rights{padding:18px;background:#0a1512;border:1px solid var(--line);border-radius:15px;margin-top:18px}.rights strong{color:var(--gold)}button{margin-top:22px;padding:15px 22px;border:0;border-radius:12px;background:var(--gold);color:#10140f;font-weight:900;cursor:pointer}.msg{margin-top:18px;padding:15px;border-radius:12px;display:none}.ok{background:#103d2c;color:#b8f2d8}.err{background:#451d1d;color:#ffd0d0}.hp{position:absolute;left:-9999px}@media(max-width:700px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.wrap{padding-top:45px}}
+</style></head>
+<body>
+<nav><b>ALLEGRO VIBEZ</b><a href="index.html">ALLEGRO STUDIOS →</a></nav>
+<main class="wrap">
+<section class="hero"><div class="eyebrow">ARTIST • DJ • SHOW • CREATOR INTAKE</div><h1>Put your sound on the map.</h1><p>Submit music, DJ mixes, radio shows, interviews or live sessions to ALLEGRO VIBEZ. Every submission enters a rights review before it can be scheduled for broadcast.</p></section>
+<section class="panel">
+<form id="form">
+<div class="grid">
+<div><label>Submission type</label><select name="submission_type"><option value="track">Music track</option><option value="show">Radio show</option><option value="dj_mix">DJ mix</option><option value="interview">Interview</option><option value="live_session">Live session</option></select></div>
+<div><label>Artist / Show name *</label><input name="artist_name" required></div>
+<div><label>Contact email *</label><input name="contact_email" type="email" required></div>
+<div><label>Country</label><input name="country" placeholder="South Africa"></div>
+<div><label>Title *</label><input name="title" required></div>
+<div><label>Genre</label><input name="genre" placeholder="Afrobeat, House, Jazz..."></div>
+<div class="full"><label>Audio / show URL *</label><input name="audio_url" type="url" placeholder="https://..." required></div>
+<div><label>Artwork URL</label><input name="artwork_url" type="url"></div>
+<div><label>Source / artist page</label><input name="source_url" type="url"></div>
+<div><label>Licence</label><select name="licence_name" required><option value="CC0">CC0 / Public Domain dedication</option><option value="CC BY">Creative Commons Attribution (CC BY)</option><option value="CC BY-SA">Creative Commons Attribution-ShareAlike (CC BY-SA)</option><option value="Public Domain">Public Domain</option><option value="Artist Permission">Written artist permission for commercial broadcast</option></select></div>
+<div><label>Licence URL</label><input name="licence_url" type="url" placeholder="https://creativecommons.org/licenses/..."></div>
+<div class="full"><label>Required attribution</label><input name="attribution_text" placeholder="Artist — Track — Licence / source credit"></div>
+<div class="full"><label>Description / bio</label><textarea name="description"></textarea></div>
+<div class="full"><label>Rights notes</label><input name="derivative_restriction" placeholder="e.g. No remixing; broadcast permitted"></div>
+</div>
+<div class="rights"><strong>Rights declaration</strong><div class="check"><input type="checkbox" name="commercial_use_confirmed" required><span>I confirm this submission is permitted for commercial broadcast under the licence selected above.</span></div><div class="check"><input type="checkbox" name="rights_holder_confirmed" required><span>I am the rights holder or am authorised to submit this material.</span></div><div class="check"><input type="checkbox" name="consent_to_broadcast" required><span>I grant ALLEGRO VIBEZ permission to broadcast this submission if approved.</span></div></div>
+<input class="hp" name="website" tabindex="-1" autocomplete="off">
+<button type="submit">SUBMIT TO ALLEGRO VIBEZ</button><div id="msg" class="msg"></div>
+</form></section>
+</main>
+<script>
+const SUPABASE_URL='https://yfawrenhudjomhnglfhq.supabase.co';
+const SUPABASE_KEY='sb_publishable_3KY--8Y_uuKEdfdumC2txg__OWTRo2p';
+const form=document.getElementById('form'),msg=document.getElementById('msg');
+form.addEventListener('submit',async e=>{e.preventDefault();msg.style.display='none';const fd=new FormData(form);const data=Object.fromEntries(fd.entries());['commercial_use_confirmed','rights_holder_confirmed','consent_to_broadcast'].forEach(k=>data[k]=fd.has(k));try{const r=await fetch(SUPABASE_URL+'/rest/v1/allegro_music_submissions',{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(data)});if(!r.ok)throw new Error(await r.text());form.reset();msg.className='msg ok';msg.textContent='Received. Your submission is now in the ALLEGRO VIBEZ rights-review queue.';msg.style.display='block'}catch(err){msg.className='msg err';msg.textContent='Submission could not be saved. Please check your URLs and rights declarations and try again.';msg.style.display='block'}});
+</script></body></html>
