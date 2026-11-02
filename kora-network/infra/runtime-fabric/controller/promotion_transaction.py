@@ -1,8 +1,9 @@
 """Durable, fail-closed promotion transaction boundary.
 
-This adapter makes the final READY_FOR_PROMOTION -> LIVE_VERIFIED transition
-idempotent while keeping storage provider-neutral. Only PromotionGate may
-authorize promotion; the injected durable transition is the sole state writer.
+Only PromotionGate may authorize promotion; the injected durable transition is
+the sole state writer. The durable transition must confirm that the expected
+state was actually changed, preventing a concurrent state change from being
+reported as LIVE_VERIFIED.
 """
 from __future__ import annotations
 
@@ -29,7 +30,7 @@ class DurablePromotionTransaction:
         self,
         load_request: Callable[[str], PromotionRequest],
         current_state: Callable[[str], str | None],
-        transition_if_current: Callable[[str, str, str], None],
+        transition_if_current: Callable[[str, str, str], bool],
         gate: PromotionGate,
     ) -> None:
         self.load_request = load_request
@@ -53,12 +54,21 @@ class DurablePromotionTransaction:
             return DurablePromotionResult(deployment_id, "BLOCKED", decision.reason, decision)
 
         try:
-            self.transition_if_current(deployment_id, PromotionGate.REQUIRED_STATE, self.LIVE_STATE)
+            changed = self.transition_if_current(
+                deployment_id, PromotionGate.REQUIRED_STATE, self.LIVE_STATE
+            )
         except Exception as exc:
             return DurablePromotionResult(
                 deployment_id,
                 "BLOCKED",
                 f"durable promotion failed closed: {exc}",
+                decision,
+            )
+        if not changed:
+            return DurablePromotionResult(
+                deployment_id,
+                "BLOCKED",
+                "durable promotion compare-and-swap did not change READY_FOR_PROMOTION",
                 decision,
             )
         return DurablePromotionResult(deployment_id, self.LIVE_STATE, decision.reason, decision)
