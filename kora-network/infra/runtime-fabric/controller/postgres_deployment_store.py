@@ -106,26 +106,48 @@ class PostgresDeploymentStore:
         finally:
             cursor.close()
 
-    def promote_if_ready(self, deployment_id: str, workload: str, node: str) -> bool:
-        """Atomically perform only READY_FOR_PROMOTION -> LIVE_VERIFIED."""
-        if not deployment_id or not workload or not node:
-            raise ValueError("deployment identity is required")
+    def transition_if_current(
+        self, deployment_id: str, expected_state: str, next_state: str,
+        workload: str | None = None, node: str | None = None,
+    ) -> bool:
+        """Atomically transition one deployment only if its identity/state match."""
+        if not deployment_id or not expected_state or not next_state:
+            raise ValueError("deployment transition identity is required")
+        if next_state == "LIVE_VERIFIED" and (not workload or not node):
+            raise ValueError("LIVE_VERIFIED transition requires workload and node")
         cursor = self.connection.cursor()
         try:
+            clauses = ["deployment_id=%s", "state=%s"]
+            params: list[Any] = [deployment_id, expected_state]
+            if workload is not None:
+                clauses.append("workload=%s")
+                params.append(workload)
+            if node is not None:
+                clauses.append("node=%s")
+                params.append(node)
             cursor.execute(
-                "UPDATE izakhono_runtime_deployments SET state='LIVE_VERIFIED', updated_at=NOW() "
-                "WHERE deployment_id=%s AND workload=%s AND node=%s "
-                "AND state='READY_FOR_PROMOTION' RETURNING deployment_id",
-                (deployment_id, workload, node),
+                "UPDATE izakhono_runtime_deployments SET state=%s, updated_at=NOW() "
+                "WHERE " + " AND ".join(clauses) + " RETURNING deployment_id",
+                [next_state, *params],
             )
-            promoted = cursor.fetchone() is not None
+            changed = cursor.fetchone() is not None
             self.connection.commit()
-            return promoted
+            return changed
         except Exception:
             self.connection.rollback()
             raise
         finally:
             cursor.close()
+
+    def promote_if_ready(self, deployment_id: str, workload: str, node: str) -> bool:
+        """Atomically perform only READY_FOR_PROMOTION -> LIVE_VERIFIED."""
+        return self.transition_if_current(
+            deployment_id,
+            "READY_FOR_PROMOTION",
+            "LIVE_VERIFIED",
+            workload=workload,
+            node=node,
+        )
 
     @staticmethod
     def _row(row: tuple[Any, ...]) -> DeploymentRecord:
