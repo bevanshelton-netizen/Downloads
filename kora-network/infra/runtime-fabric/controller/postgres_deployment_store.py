@@ -1,9 +1,4 @@
-"""Durable PostgreSQL deployment state and atomic promotion boundary.
-
-The store persists Runtime Fabric state. The only method that can perform the
-final READY_FOR_PROMOTION -> LIVE_VERIFIED write is promote_if_ready(), which
-uses a compare-and-swap UPDATE inside a PostgreSQL transaction.
-"""
+"""Durable PostgreSQL deployment state and atomic promotion boundary."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -38,13 +33,10 @@ CREATE TABLE IF NOT EXISTS izakhono_runtime_deployments (
     metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-
 CREATE INDEX IF NOT EXISTS idx_runtime_deployments_active
     ON izakhono_runtime_deployments (state, updated_at);
-
 CREATE TABLE IF NOT EXISTS izakhono_runtime_deployment_leases (
-    deployment_id TEXT PRIMARY KEY
-        REFERENCES izakhono_runtime_deployments(deployment_id) ON DELETE CASCADE,
+    deployment_id TEXT PRIMARY KEY REFERENCES izakhono_runtime_deployments(deployment_id) ON DELETE CASCADE,
     owner_id TEXT NOT NULL,
     expires_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -87,9 +79,8 @@ class PostgresDeploymentStore:
         try:
             cursor.execute(
                 "SELECT deployment_id,workload,state,node,checkpoint,attempts,metadata "
-                "FROM izakhono_runtime_deployments "
-                "WHERE state NOT IN ('LIVE_VERIFIED','ROLLED_BACK','FAILED') "
-                "ORDER BY updated_at"
+                "FROM izakhono_runtime_deployments WHERE state NOT IN "
+                "('LIVE_VERIFIED','ROLLED_BACK','FAILED') ORDER BY updated_at"
             )
             return [self._row(row) for row in cursor.fetchall()]
         finally:
@@ -116,21 +107,15 @@ class PostgresDeploymentStore:
             cursor.close()
 
     def promote_if_ready(self, deployment_id: str, workload: str, node: str) -> bool:
-        """Atomically authorize only READY_FOR_PROMOTION -> LIVE_VERIFIED.
-
-        A zero-row update is fail-closed: callers must re-read state and decide
-        whether this was an already-live idempotent call or a concurrent change.
-        """
+        """Atomically perform only READY_FOR_PROMOTION -> LIVE_VERIFIED."""
         if not deployment_id or not workload or not node:
             raise ValueError("deployment identity is required")
         cursor = self.connection.cursor()
         try:
             cursor.execute(
-                "UPDATE izakhono_runtime_deployments "
-                "SET state='LIVE_VERIFIED', updated_at=NOW() "
+                "UPDATE izakhono_runtime_deployments SET state='LIVE_VERIFIED', updated_at=NOW() "
                 "WHERE deployment_id=%s AND workload=%s AND node=%s "
-                "AND state='READY_FOR_PROMOTION' "
-                "RETURNING deployment_id",
+                "AND state='READY_FOR_PROMOTION' RETURNING deployment_id",
                 (deployment_id, workload, node),
             )
             promoted = cursor.fetchone() is not None
@@ -142,21 +127,15 @@ class PostgresDeploymentStore:
         finally:
             cursor.close()
 
-
-def _json(value: dict[str, Any]) -> str:
-    import json
-    return json.dumps(value, sort_keys=True, separators=(",", ":"))
-
-
     @staticmethod
     def _row(row: tuple[Any, ...]) -> DeploymentRecord:
         deployment_id, workload, state, node, checkpoint, attempts, metadata = row
         return DeploymentRecord(
-            deployment_id=deployment_id,
-            workload=workload,
-            state=state,
-            node=node,
-            checkpoint=checkpoint,
-            attempts=attempts,
-            metadata=metadata or {},
+            deployment_id=deployment_id, workload=workload, state=state,
+            node=node, checkpoint=checkpoint, attempts=attempts, metadata=metadata or {},
         )
+
+
+def _json(value: dict[str, Any]) -> str:
+    import json
+    return json.dumps(value, sort_keys=True, separators=(",", ":"))
