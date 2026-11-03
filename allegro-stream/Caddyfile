@@ -1,0 +1,3 @@
+radio.allegrovibez.com {
+    reverse_proxy icecast:8000
+}
