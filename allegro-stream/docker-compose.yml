@@ -1,0 +1,45 @@
+services:
+  icecast:
+    image: infiniteproject/icecast:2.4.4
+    restart: unless-stopped
+    environment:
+      ICECAST_SOURCE_PASSWORD: ${ICECAST_SOURCE_PASSWORD}
+      ICECAST_RELAY_PASSWORD: ${ICECAST_RELAY_PASSWORD}
+      ICECAST_ADMIN_PASSWORD: ${ICECAST_ADMIN_PASSWORD}
+      ICECAST_HOSTNAME: ${ICECAST_HOSTNAME:-radio.allegrovibez.com}
+      ICECAST_MAX_CLIENTS: ${ICECAST_MAX_CLIENTS:-1000}
+      ICECAST_MAX_SOURCES: ${ICECAST_MAX_SOURCES:-8}
+    expose:
+      - "8000"
+    volumes:
+      - icecast_logs:/var/log/icecast2
+
+  liquidsoap:
+    image: savonet/liquidsoap:v2.2.5
+    restart: unless-stopped
+    depends_on:
+      - icecast
+    environment:
+      ICECAST_SOURCE_PASSWORD: ${ICECAST_SOURCE_PASSWORD}
+    volumes:
+      - /srv/media:/media:ro
+      - ./liquidsoap.liq:/etc/liquidsoap/allegro.liq:ro
+    command: ["liquidsoap", "/etc/liquidsoap/allegro.liq"]
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - icecast
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  icecast_logs:
+  caddy_data:
+  caddy_config:
