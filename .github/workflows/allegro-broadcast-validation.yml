@@ -1,0 +1,36 @@
+name: ALLEGRO VIBEZ Broadcast Validation
+
+on:
+  push:
+    paths:
+      - "allegro-studios/broadcast/**"
+      - ".github/workflows/allegro-broadcast-validation.yml"
+  pull_request:
+    paths:
+      - "allegro-studios/broadcast/**"
+      - ".github/workflows/allegro-broadcast-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-liquidsoap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Validate compose configuration
+        working-directory: allegro-studios/broadcast
+        run: docker compose -f docker-compose.release.yml config --quiet
+
+      - name: Pull pinned Liquidsoap runtime
+        run: docker pull savonet/liquidsoap:v2.4.6
+
+      - name: Typecheck broadcast script
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}/allegro-studios/broadcast/liquidsoap:/etc/liquidsoap:ro" \
+            savonet/liquidsoap:v2.4.6 \
+            liquidsoap --strict --check /etc/liquidsoap/radio.liq
