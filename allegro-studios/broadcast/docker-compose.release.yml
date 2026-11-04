@@ -8,4 +8,4 @@ services:
     volumes:
       - ./liquidsoap:/etc/liquidsoap:ro
       - ./media:/media:ro
-    command: ["liquidsoap", "/etc/liquidsoap/radio.liq"]
+    command: ["/etc/liquidsoap/radio.liq"]
