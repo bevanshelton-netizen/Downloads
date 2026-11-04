@@ -1,22 +1,17 @@
 services:
-  icecast:
-    image: infiniteproject/icecast:2.4.4
+  broadcaster:
+    image: savonet/liquidsoap:v2.4.5
     restart: unless-stopped
+    init: true
     ports:
       - "8000:8000"
-    environment:
-      ICECAST_SOURCE_PASSWORD: ${ICECAST_SOURCE_PASSWORD}
-      ICECAST_ADMIN_PASSWORD: ${ICECAST_ADMIN_PASSWORD}
-      ICECAST_RELAY_PASSWORD: ${ICECAST_RELAY_PASSWORD}
-      ICECAST_HOSTNAME: ${ICECAST_HOSTNAME}
-    volumes:
-      - ./icecast.xml:/etc/icecast2/icecast.xml:ro
-
-  broadcaster:
-    image: savonet/liquidsoap:1.4.4
-    restart: unless-stopped
-    depends_on:
-      - icecast
     volumes:
       - ./liquidsoap:/etc/liquidsoap:ro
       - ./media:/media:ro
+    command: ["liquidsoap", "/etc/liquidsoap/radio.liq"]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8000/allegro-vibez.mp3 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
