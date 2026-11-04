@@ -28,9 +28,46 @@
 </main>
 <footer class="footer"><div class="wrap foot"><div><b>ALLEGRO VIBEZ</b><br>Johannesburg · South Africa</div><div>Music · Culture · Creators · Broadcast</div></div></footer>
 <div class="modal" id="modal"><div class="modalbox"><button class="close" id="close">×</button><div class="ey">PLAYER STATUS</div><h3>Audio stream not connected yet.</h3><p>The radio interface is ready, but I could not verify a real ALLEGRO VIBEZ stream endpoint. I have deliberately left the player silent rather than attaching another station's audio.</p><p>Once the ALLEGRO stream URL is available, it can be connected here without redesigning the station.</p></div></div>
+<audio id="radio-audio" preload="none" playsinline></audio>
 <script>
-const play=document.getElementById('play'),status=document.getElementById('status'),modal=document.getElementById('modal'),close=document.getElementById('close');
-play.addEventListener('click',()=>{modal.classList.add('open');status.innerHTML='<strong>Stream endpoint required.</strong> The player is ready for the ALLEGRO VIBEZ broadcast URL.'});
-close.addEventListener('click',()=>modal.classList.remove('open'));modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('open')});
+/* Set this only after the IZAKHONO broadcast endpoint has passed an external playback test. */
+const ALLEGRO_STREAM_URL = "";
+const audio = document.getElementById('radio-audio');
+const play = document.getElementById('play');
+const status = document.getElementById('status');
+const volume = document.getElementById('vol');
+const modal = document.getElementById('modal');
+const close = document.getElementById('close');
+audio.volume = Number(volume.value);
+volume.addEventListener('input', () => { audio.volume = Number(volume.value); });
+play.addEventListener('click', async () => {
+  if (!ALLEGRO_STREAM_URL) {
+    modal.classList.add('open');
+    status.innerHTML = '<strong>Stream endpoint required.</strong> The player is ready; no unverified audio source is configured.';
+    return;
+  }
+  if (!audio.paused) {
+    audio.pause();
+    play.textContent = '▶';
+    status.innerHTML = '<strong>Paused.</strong> ALLEGRO VIBEZ broadcast.';
+    return;
+  }
+  if (!audio.src) audio.src = ALLEGRO_STREAM_URL;
+  try {
+    await audio.play();
+    play.textContent = 'Ⅱ';
+    status.innerHTML = '<strong>Connected.</strong> You are listening to ALLEGRO VIBEZ.';
+  } catch (error) {
+    status.innerHTML = '<strong>Playback unavailable.</strong> The stream could not be started. Please try again later.';
+  }
+});
+audio.addEventListener('playing', () => { play.textContent = 'Ⅱ'; });
+audio.addEventListener('pause', () => { play.textContent = '▶'; });
+audio.addEventListener('error', () => {
+  play.textContent = '▶';
+  status.innerHTML = '<strong>Stream connection failed.</strong> The broadcast endpoint did not return playable audio.';
+});
+close.addEventListener('click', () => modal.classList.remove('open'));
+modal.addEventListener('click', event => { if (event.target === modal) modal.classList.remove('open'); });
 </script>
 </body></html>
