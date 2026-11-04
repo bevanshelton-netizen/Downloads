@@ -33,4 +33,4 @@ jobs:
           docker run --rm \
             -v "${{ github.workspace }}/allegro-studios/broadcast/liquidsoap:/etc/liquidsoap:ro" \
             savonet/liquidsoap:v2.4.6 \
-            liquidsoap --strict --check /etc/liquidsoap/radio.liq
+            --strict --check /etc/liquidsoap/radio.liq
