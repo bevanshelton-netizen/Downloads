@@ -1,6 +1,6 @@
 services:
   broadcaster:
-    image: savonet/liquidsoap:v2.4.5
+    image: savonet/liquidsoap:v2.4.x-latest
     restart: unless-stopped
     init: true
     ports:
@@ -8,4 +8,4 @@ services:
     volumes:
       - ./liquidsoap:/etc/liquidsoap:ro
       - ./media:/media:ro
-    command: ["liquidsoap", "/etc/liquidsoap/radio.liq"]
+    command: ["/etc/liquidsoap/radio.liq"]
