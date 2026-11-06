@@ -6,7 +6,7 @@ on:
       - 'izakhono-marketing-os/**'
       - '.github/workflows/marketing-os-owned-runtime.yml'
   push:
-    branches: [main]
+    branches: ['**']
     paths:
       - 'izakhono-marketing-os/**'
       - '.github/workflows/marketing-os-owned-runtime.yml'
