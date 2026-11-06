@@ -1,0 +1,31 @@
+name: IZAKHONO Marketing OS Owned Runtime CI
+
+on:
+  pull_request:
+    paths:
+      - 'izakhono-marketing-os/**'
+      - '.github/workflows/marketing-os-owned-runtime.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'izakhono-marketing-os/**'
+      - '.github/workflows/marketing-os-owned-runtime.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Validate Compose configuration
+        working-directory: izakhono-marketing-os
+        run: docker compose config --quiet
+      - name: Build owned-runtime container image
+        run: docker build --pull -t izakhono-marketing-os:ci -f izakhono-marketing-os/Dockerfile izakhono-marketing-os
+      - name: Verify image metadata
+        run: |
+          docker image inspect izakhono-marketing-os:ci --format '{{.Os}}/{{.Architecture}} {{.Config.ExposedPorts}}'
