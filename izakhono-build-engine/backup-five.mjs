@@ -36,14 +36,22 @@ function mountInfo(path) {
   const mount = execFileSync("findmnt", ["-n", "-o", "TARGET,SOURCE,FSTYPE", "--target", target], { encoding: "utf8" }).trim();
   const [mountTarget, source, fsType] = mount.split(/\s+/);
   if (!mountTarget || resolve(mountTarget) !== target) fail("BACKUP_TARGET_NOT_MOUNT_ROOT:" + target);
+  if (["tmpfs", "ramfs", "overlay", "squashfs"].includes(fsType)) fail("BACKUP_TARGET_NOT_DURABLE:" + target);
   let failureDomain = source;
   if (source.startsWith("/dev/")) {
     try {
-      const parents = execFileSync("lsblk", ["-no", "PKNAME", source], { encoding: "utf8" }).trim().split(/\\s+/).filter(Boolean).sort();
-      if (parents.length) failureDomain = parents.join(",");
+      const rows = execFileSync("lsblk", ["-s", "-n", "-o", "NAME,TYPE", source], { encoding: "utf8" })
+        .trim().split(/\r?\n/).map(line => line.trim().split(/\s+/));
+      const disks = rows.filter(row => row[1] === "disk").map(row => row[0]).sort();
+      if (!disks.length) fail("CANNOT_PROVE_PHYSICAL_BACKUP_DEVICE:" + target);
+      failureDomain = disks.join(",");
     } catch {
       fail("CANNOT_PROVE_PHYSICAL_BACKUP_DEVICE:" + target);
     }
+  } else if (source.startsWith("//")) {
+    failureDomain = source.slice(2).split("/")[0].toLowerCase();
+  } else if (source.includes(":")) {
+    failureDomain = source.split(":")[0].toLowerCase();
   }
   return { mountTarget, source, fsType, device: String(statSync(target).dev), failureDomain };
 }
