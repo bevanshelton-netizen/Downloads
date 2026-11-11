@@ -14,7 +14,7 @@ CI_GROUP="$(id -gn izakhono-ci)"
 install -d -m 0755 /opt/izakhono-build-engine
 install -d -o root -g "$CI_GROUP" -m 0750 /var/lib/izakhono-build-engine
 install -d -o root -g "$CI_GROUP" -m 0750 /var/lib/izakhono-build-engine/receipts
-install -d -o izakhono-ci -g "$CI_GROUP" -m 0700 /var/tmp/izakhono-build-engine
+install -d -o izakhono-ci -g "$CI_GROUP" -m 0700 /var/tmp/izakhono-build-engine\ninstall -d -o izakhono-ci -g "$CI_GROUP" -m 0750 /var/cache/izakhono-build-engine/npm
 install -d -m 0750 /etc/izakhono/build-engine
 
 install -m 0644 "$ROOT/engine.mjs" /opt/izakhono-build-engine/engine.mjs
