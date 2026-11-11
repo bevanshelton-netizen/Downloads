@@ -62,13 +62,13 @@ if [[ "$R2_EXISTS" != "yes" ]]; then
 fi
 
 # Materialise the resource identifiers into the temporary deployment config.
-node -e '
+VIDEONOMY_D1_ID="$D1_ID" VIDEONOMY_R2_NAME="$R2_NAME" node -e '
 const fs=require("fs"),p="wrangler.jsonc",c=JSON.parse(fs.readFileSync(p,"utf8"));
 if(!c.d1_databases?.length||!c.r2_buckets?.length)throw new Error("Expected D1 and R2 bindings in wrangler.jsonc");
 c.d1_databases[0].database_id=process.env.VIDEONOMY_D1_ID;
 c.r2_buckets[0].bucket_name=process.env.VIDEONOMY_R2_NAME;
 fs.writeFileSync(p,JSON.stringify(c,null,2)+"\n");
-' VIDEONOMY_D1_ID="$D1_ID" VIDEONOMY_R2_NAME="$R2_NAME"
+'
 
 echo "[VIDEONOMY] Deploying Worker with provisioned D1/R2 bindings"
 "$WRANGLER" deploy
