@@ -44,7 +44,8 @@ fi
 
 sudo cp systemd/izakhono-backup-node.service /etc/systemd/system/izakhono-backup-node.service
 sudo systemctl daemon-reload
-sudo systemctl enable --now izakhono-backup-node
+sudo systemctl enable izakhono-backup-node
+sudo systemctl restart izakhono-backup-node 2>/dev/null || sudo systemctl start izakhono-backup-node
 sudo systemctl --no-pager --full status izakhono-backup-node
 
 echo
