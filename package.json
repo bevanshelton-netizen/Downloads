@@ -24,5 +24,8 @@
         "description": "PayFast passphrase. Optional until live checkout is activated."
       }
     }
+  },
+  "devDependencies": {
+    "wrangler": "4.127.1"
   }
 }
