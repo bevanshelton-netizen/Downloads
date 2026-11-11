@@ -112,7 +112,12 @@ async function main() {
   }
   let sets = await request("/v1/sets", key);
   if (preflightOnly) {
-    if (!(sets.sets || []).some(x => x.name === "owned-build-engine")) fail("OWNED_BUILD_ENGINE_BACKUP_SET_MISSING");
+    const engineSet = (sets.sets || []).find(x => x.name === "owned-build-engine");
+    if (!engineSet) fail("OWNED_BUILD_ENGINE_BACKUP_SET_MISSING");
+    const engineSources = new Set(engineSet.sources || []);
+    if (!engineSources.has("/opt/izakhono-build-engine") || !engineSources.has("/var/lib/izakhono-build-engine")) {
+      fail("OWNED_BUILD_ENGINE_BACKUP_SET_INCOMPLETE");
+    }
     process.stdout.write(JSON.stringify({
       status: "BACKUP_PREFLIGHT_PASS",
       copies: 5,
@@ -138,6 +143,11 @@ async function main() {
     }
   }
   if (!set) fail("BUILD_ENGINE_BACKUP_SET_MISSING:" + setName);
+  if (project) {
+    const expectedSources = ["/opt/izakhono-build-engine", "/var/lib/izakhono-build-engine", resolve("/var/lib/izakhono-runtime/releases", project)];
+    const actualSources = new Set(set.sources || []);
+    if (expectedSources.some(source => !actualSources.has(source))) fail("PROJECT_BACKUP_SET_SOURCE_MISMATCH:" + project);
+  }
   const created = await request("/v1/sets/" + encodeURIComponent(set.id) + "/snapshots", key, "POST", {});
   const snapshot = created.snapshot;
   if (!snapshot || snapshot.state !== "complete" || !snapshot.archive_path || !snapshot.sha256) fail("PRIMARY_BACKUP_NOT_COMPLETE");
