@@ -34,6 +34,12 @@ jobs:
           bash -n izakhono-owned-cloud/configure-stack-backup.sh
           bash -n izakhono-owned-cloud/install-owned-stack.sh
           bash -n izakhono-backup-node/install-linux.sh
+      - name: Verify infrastructure-only Vercel skip gate
+        run: |
+          git fetch --no-tags --depth=1 origin main
+          BASE_SHA="$(git rev-parse FETCH_HEAD)"
+          HEAD_SHA="$(git rev-parse HEAD)"
+          VERCEL_GIT_PREVIOUS_SHA="$BASE_SHA" VERCEL_GIT_COMMIT_SHA="$HEAD_SHA" bash scripts/vercel-ignore-build.sh
       - name: Build engine tests
         working-directory: izakhono-build-engine
         run: npm run check
