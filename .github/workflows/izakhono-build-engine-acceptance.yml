@@ -28,6 +28,7 @@ jobs:
         run: |
           node --check izakhono-build-engine/engine.mjs
           node --check izakhono-build-engine/backup-five.mjs
+          node --check izakhono-build-engine/configure-node02-peer.mjs
           node --check izakhono-build-engine/tests/self-test.mjs
           bash -n izakhono-build-engine/install-linux.sh
           bash -n izakhono-owned-cloud/configure-build-engine-backup.sh
