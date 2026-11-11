@@ -127,7 +127,7 @@ async function main() {
   const peer = (peers.peers || []).find(x => x.name === node02Config.peerName && x.enabled);
   if (!peer) fail("NODE02_REPLICA_PEER_NOT_REGISTERED_OR_DISABLED");
   const peerUrl = new URL(peer.base_url);
-  if (peerUrl.protocol !== "https:" || ["localhost", "127.0.0.1", "::1"].includes(peerUrl.hostname.toLowerCase())) {
+  if (peerUrl.protocol !== "https:" || peerUrl.pathname !== "/" || peerUrl.search || peerUrl.hash || ["localhost", "127.0.0.1", "::1"].includes(peerUrl.hostname.toLowerCase())) {
     fail("NODE02_REPLICA_MUST_BE_A_SEPARATE_HTTPS_HOST");
   }
   const remoteHealthResponse = await fetch(new URL("/health", peerUrl), { signal: AbortSignal.timeout(5000) });
