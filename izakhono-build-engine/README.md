@@ -70,7 +70,7 @@ Set `IZAKHONO_BACKUP_MIRROR_ROOTS` to the comma-separated paths for disk, NAS, N
 sudo systemctl restart izakhono-backup-node
 ```
 
-Configure the core backup set to include the build-engine state directory. Export the backup recovery key to a separate offline medium. Never keep the only recovery key on the primary host.
+The dedicated `owned-build-engine` set is created by the installer; it includes the engine state and immutable runtime releases. Export the backup recovery key to a separate offline medium. Never keep the only recovery key on the primary host.
 
 ## Project plan
 
