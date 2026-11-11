@@ -5,7 +5,7 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node
 import { basename, relative, resolve } from "node:path";
 
 const serverSource=readFileSync(resolve("server.mjs"),"utf8");
-if(!serverSource.includes("MIRROR_ROOT_NOT_MOUNTED") || !serverSource.includes('"degraded"')) throw new Error("Mirror mount guard or degraded snapshot state missing");
+if(!serverSource.includes("MIRROR_ROOT_NOT_MOUNTED") || !serverSource.includes("PRIMARY_BACKUP_VOLUME_NOT_MOUNTED") || !serverSource.includes('"degraded"')) throw new Error("Mirror mount guard or degraded snapshot state missing");
 
 const root=resolve("./.self-test");
 const source=resolve(root,"source");
