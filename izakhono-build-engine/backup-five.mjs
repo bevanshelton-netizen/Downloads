@@ -71,6 +71,8 @@ async function main() {
     const info = mountInfo(target.path);
     if (devices.has(info.device)) fail("BACKUP_TARGETS_SHARE_FILESYSTEM:" + target.id);
     devices.add(info.device);
+    if (failureDomains.has(info.failureDomain)) fail("BACKUP_TARGETS_SHARE_PHYSICAL_FAILURE_DOMAIN:" + target.id);
+    failureDomains.add(info.failureDomain);
     return { ...target, ...info };
   });
   const required = ["primary-encrypted", "separate-physical-disk", "separate-nas", "node02-replica", "offline-rotation"];
