@@ -33,6 +33,15 @@ EOF
   sudo chmod 600 /etc/izakhono/backup-node.env
 fi
 
+# Extend existing installations without replacing generated recovery credentials.
+if ! grep -q '^IZAKHONO_BACKUP_SOURCE_ALLOWLIST=.*\/var\/lib\/izakhono-build-engine' /etc/izakhono/backup-node.env; then
+  if grep -q '^IZAKHONO_BACKUP_SOURCE_ALLOWLIST=' /etc/izakhono/backup-node.env; then
+    sudo sed -i '/^IZAKHONO_BACKUP_SOURCE_ALLOWLIST=/ s|$|,/var/lib/izakhono-build-engine|' /etc/izakhono/backup-node.env
+  else
+    echo 'IZAKHONO_BACKUP_SOURCE_ALLOWLIST=/etc/izakhono,/var/lib/izakhono-build-engine' | sudo tee -a /etc/izakhono/backup-node.env >/dev/null
+  fi
+fi
+
 sudo cp systemd/izakhono-backup-node.service /etc/systemd/system/izakhono-backup-node.service
 sudo systemctl daemon-reload
 sudo systemctl enable --now izakhono-backup-node
