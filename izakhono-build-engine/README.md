@@ -98,7 +98,7 @@ sudo node /opt/izakhono-build-engine/engine.mjs rollback example-app
 - No production deploy before all five encrypted backup copies are verified.
 - No public DNS changes or payment routing changes.
 - No laptop/WSL deployment target.
-- No third-party build/runtime dependency.
+- The engine itself has no third-party runtime dependencies; application dependencies are resolved through IZAKHONO PACKAGE NODE.
 - Secrets are read from root-owned service environment files and never placed in project build environments.
 - Existing active release remains in service until the new release passes its health check.
 - A successful local runtime deployment does not by itself prove public DNS/TLS or external payment readiness.
