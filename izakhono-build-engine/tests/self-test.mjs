@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";\nimport { spawnSync } from "node:child_process";
+import { dirname, join } from "node:path";
+import { spawnSync } from "node:child_process";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const engine = readFileSync(join(here, "..", "engine.mjs"), "utf8");
