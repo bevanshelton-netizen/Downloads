@@ -10,7 +10,7 @@ if ! command -v tar >/dev/null 2>&1; then
   exit 3
 fi
 
-sudo mkdir -p /opt/izakhono-backup-node/scripts /var/lib/izakhono-backup/archives /var/lib/izakhono-backup/restores /var/lib/izakhono-backup/mirrors /mnt/izakhono-backup /etc/izakhono
+sudo mkdir -p /opt/izakhono-backup-node/scripts /var/lib/izakhono-backup/archives /var/lib/izakhono-backup/restores /var/lib/izakhono-backup/mirrors /mnt/izakhono-backup/disk /mnt/izakhono-backup/nas /mnt/izakhono-backup/node02 /mnt/izakhono-backup/offline /etc/izakhono
 sudo cp server.mjs /opt/izakhono-backup-node/server.mjs
 sudo cp scripts/restore-external.mjs /opt/izakhono-backup-node/scripts/restore-external.mjs
 sudo chmod 0755 /opt/izakhono-backup-node/scripts/restore-external.mjs
