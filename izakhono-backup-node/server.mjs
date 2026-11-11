@@ -10,7 +10,7 @@ import {
   rmSync, statSync, unlinkSync, writeFileSync
 } from "node:fs";
 import { dirname, join, resolve, sep } from "node:path";
-import { spawn } from "node:child_process";
+import { spawn, execFileSync } from "node:child_process";
 import { pipeline } from "node:stream/promises";
 import { DatabaseSync } from "node:sqlite";
 
@@ -164,6 +164,11 @@ function mirrorSnapshot(setName,archivePath,sha){
   const mirrors=[];
   for(const root of MIRROR_ROOTS){
     try{
+      const resolvedRoot=resolve(root);
+      if(process.env.IZAKHONO_BACKUP_TEST_MODE!=="1"){
+        const mountedAt=execFileSync("findmnt",["-n","-o","TARGET","--target",resolvedRoot],{encoding:"utf8"}).trim();
+        if(!mountedAt || resolve(mountedAt)!==resolvedRoot) throw new Error("MIRROR_ROOT_NOT_MOUNTED:"+resolvedRoot);
+      }
       mkdirSync(root,{recursive:true});
       const dir=join(root,setName);
       mkdirSync(dir,{recursive:true});
