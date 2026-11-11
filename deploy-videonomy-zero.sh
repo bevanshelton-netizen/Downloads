@@ -1,17 +1,57 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -Eeuo pipefail
 
-rm -rf .videonomy-deploy
-mkdir -p .videonomy-deploy
+# The Pages build starts from the repository default branch. The VIDEONOMY
+# release is maintained separately; assemble the checked-in chunk files from
+# that branch instead of requesting the obsolete single-file archive.
+RELEASE_BRANCH="${VIDEONOMY_RELEASE_BRANCH:-videonomy-cloudflare-zero}"
+DEPLOY_DIR=".videonomy-deploy"
+SOURCE_DIR="$DEPLOY_DIR/source"
+BUNDLE_DIR="$SOURCE_DIR/videonomy-bundle"
 
-# Cloudflare initially checks out the repository default branch (main).
-# Pull the validated VIDEONOMY release bundle directly from its launch branch
-# so the first production deployment uses the correct source.
-git fetch --depth=1 origin videonomy-cloudflare-zero
-git show FETCH_HEAD:videonomy-cloudflare-zero-v0.3.tgz.b64 > .videonomy-deploy/app.b64
+rm -rf "$DEPLOY_DIR"
+mkdir -p "$SOURCE_DIR"
 
-base64 -d .videonomy-deploy/app.b64 > .videonomy-deploy/app.tgz
-tar -xzf .videonomy-deploy/app.tgz -C .videonomy-deploy
-cd .videonomy-deploy
-npm install
+echo "[VIDEONOMY] Fetching release branch: $RELEASE_BRANCH"
+git fetch --depth=1 origin "$RELEASE_BRANCH"
+RELEASE_COMMIT="$(git rev-parse FETCH_HEAD)"
+echo "[VIDEONOMY] Release commit: $RELEASE_COMMIT"
+
+git archive "$RELEASE_COMMIT" videonomy-bundle | tar -x -C "$SOURCE_DIR"
+
+shopt -s nullglob
+chunks=("$BUNDLE_DIR"/chunk-*.b64)
+if (( ${#chunks[@]} == 0 )); then
+  echo "[VIDEONOMY] ERROR: no release bundle chunks found in $RELEASE_BRANCH" >&2
+  exit 1
+fi
+
+echo "[VIDEONOMY] Assembling ${#chunks[@]} bundle chunks"
+cat "${chunks[@]}" | base64 --decode > "$DEPLOY_DIR/app.tgz"
+tar -tzf "$DEPLOY_DIR/app.tgz" >/dev/null
+mkdir -p "$DEPLOY_DIR/app"
+tar -xzf "$DEPLOY_DIR/app.tgz" -C "$DEPLOY_DIR/app"
+
+cd "$DEPLOY_DIR/app"
+if [[ ! -f package.json || ! -f wrangler.jsonc ]]; then
+  echo "[VIDEONOMY] ERROR: release archive is missing package.json or wrangler.jsonc" >&2
+  exit 1
+fi
+
+echo "[VIDEONOMY] Installing pinned application dependencies"
+if [[ -f package-lock.json ]]; then
+  npm ci --no-audit --no-fund
+else
+  npm install --no-audit --no-fund
+fi
+
+echo "[VIDEONOMY] Initial deploy and automatic D1/R2 provisioning"
 npx wrangler deploy
+
+echo "[VIDEONOMY] Applying production D1 migrations"
+npx wrangler d1 migrations apply DB --remote
+
+echo "[VIDEONOMY] Final deployment"
+npx wrangler deploy
+
+echo "[VIDEONOMY] Cloudflare deployment command completed successfully"
