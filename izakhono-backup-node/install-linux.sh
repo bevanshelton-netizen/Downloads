@@ -10,7 +10,7 @@ if ! command -v tar >/dev/null 2>&1; then
   exit 3
 fi
 
-sudo mkdir -p /opt/izakhono-backup-node/scripts /var/lib/izakhono-backup/archives /var/lib/izakhono-backup/restores /var/lib/izakhono-backup/mirrors /mnt/izakhono-backup/disk /mnt/izakhono-backup/nas /mnt/izakhono-backup/node02 /mnt/izakhono-backup/offline /etc/izakhono
+sudo mkdir -p /opt/izakhono-backup-node/scripts /var/lib/izakhono-backup/archives /var/lib/izakhono-backup/restores /var/lib/izakhono-backup/mirrors /mnt/izakhono-backup/disk /mnt/izakhono-backup/nas /mnt/izakhono-backup/offline /etc/izakhono
 sudo cp server.mjs /opt/izakhono-backup-node/server.mjs
 sudo cp scripts/restore-external.mjs /opt/izakhono-backup-node/scripts/restore-external.mjs
 sudo chmod 0755 /opt/izakhono-backup-node/scripts/restore-external.mjs
@@ -39,6 +39,14 @@ if ! sudo grep -q '^IZAKHONO_BACKUP_SOURCE_ALLOWLIST=.*\/var\/lib\/izakhono-buil
     sudo sed -i '/^IZAKHONO_BACKUP_SOURCE_ALLOWLIST=/ s|$|,/var/lib/izakhono-build-engine|' /etc/izakhono/backup-node.env
   else
     echo 'IZAKHONO_BACKUP_SOURCE_ALLOWLIST=/etc/izakhono,/var/lib/izakhono-build-engine' | sudo tee -a /etc/izakhono/backup-node.env >/dev/null
+  fi
+fi
+
+if ! sudo grep -q '^IZAKHONO_BACKUP_MIRROR_ROOTS=.' /etc/izakhono/backup-node.env; then
+  if sudo grep -q '^IZAKHONO_BACKUP_MIRROR_ROOTS=' /etc/izakhono/backup-node.env; then
+    sudo sed -i '/^IZAKHONO_BACKUP_MIRROR_ROOTS=/ s|$|/mnt/izakhono-backup/disk,/mnt/izakhono-backup/nas,/mnt/izakhono-backup/offline|' /etc/izakhono/backup-node.env
+  else
+    echo 'IZAKHONO_BACKUP_MIRROR_ROOTS=/mnt/izakhono-backup/disk,/mnt/izakhono-backup/nas,/mnt/izakhono-backup/offline' | sudo tee -a /etc/izakhono/backup-node.env >/dev/null
   fi
 fi
 
