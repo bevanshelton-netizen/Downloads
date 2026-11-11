@@ -113,7 +113,7 @@ async function main() {
   if (project) {
     if (!/^[a-z0-9][a-z0-9-]{1,62}$/.test(project)) fail("INVALID_BACKUP_PROJECT_ID");
     const projectReleaseRoot = resolve("/var/lib/izakhono-build-engine/current", project);
-    if (!existsSync(projectReleaseRoot)) fail("PROJECT_RELEASE_ROOT_MISSING");
+    if (!preflightOnly && !existsSync(projectReleaseRoot)) fail("PROJECT_RELEASE_ROOT_MISSING");
     setName = "build-" + project;
   }
   let sets = await request("/v1/sets", key);
@@ -123,6 +123,14 @@ async function main() {
     const engineSources = new Set(engineSet.sources || []);
     if (!engineSources.has("/opt/izakhono-build-engine") || !engineSources.has("/var/lib/izakhono-build-engine")) {
       fail("OWNED_BUILD_ENGINE_BACKUP_SET_INCOMPLETE");
+    }
+    if (project) {
+      const projectSet = (sets.sets || []).find(x => x.name === setName);
+      if (projectSet) {
+        const expected = ["/opt/izakhono-build-engine", resolve("/var/lib/izakhono-build-engine/current", project)];
+        const actual = new Set(projectSet.sources || []);
+        if (expected.some(source => !actual.has(source))) fail("PROJECT_BACKUP_SET_SOURCE_MISMATCH:" + project);
+      }
     }
     process.stdout.write(JSON.stringify({
       status: "BACKUP_PREFLIGHT_PASS",
