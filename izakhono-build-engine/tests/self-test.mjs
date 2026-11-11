@@ -28,7 +28,7 @@ assert.match(engine, /PrivateNetwork=yes/);
 assert.match(engine, /NoNewPrivileges=yes/);
 assert.match(engine, /ProtectSystem=strict/);
 assert.match(engine, /deployment-receipt/);
-assert.match(engine, /chown.*izakhono-ci/s);
+assert.match(engine, /chown.*izakhono-build/s);
 assert.match(engine, /\/etc\/izakhono\/apps\//);
 assert.match(backup, /BACKUP_TARGETS_SHARE_FILESYSTEM/);
 assert.match(backup, /BACKUP_TARGETS_SHARE_PHYSICAL_FAILURE_DOMAIN/);
