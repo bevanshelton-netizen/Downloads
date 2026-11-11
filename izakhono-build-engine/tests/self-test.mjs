@@ -24,6 +24,7 @@ assert.deepEqual(new Set(targets.targets.map(x => x.kind)), new Set([
   "primary-encrypted", "separate-physical-disk", "separate-nas", "node02-replica", "offline-rotation"
 ]));
 assert.match(engine, /FIVE_BACKUP_GATE_FAILED_DEPLOYMENT_BLOCKED/);
+assert.match(engine, /FIVE_BACKUP_PREFLIGHT_FAILED/);
 assert.match(engine, /BUILD_ALREADY_RUNNING_FOR_PROJECT/);
 assert.match(engine, /PrivateNetwork=yes/);
 assert.match(engine, /NoNewPrivileges=yes/);
@@ -31,7 +32,8 @@ assert.match(engine, /ProtectSystem=strict/);
 assert.match(engine, /deployment-receipt/);
 assert.match(engine, /chown.*izakhono-build/s);
 assert.match(engine, /\/etc\/izakhono\/apps\//);
-assert.match(backup, /BACKUP_PREFLIGHT_PASS/);\nassert.match(backup, /BACKUP_TARGETS_SHARE_FILESYSTEM/);
+assert.match(backup, /BACKUP_PREFLIGHT_PASS/);
+assert.match(backup, /BACKUP_TARGETS_SHARE_FILESYSTEM/);
 assert.match(backup, /BACKUP_TARGETS_SHARE_PHYSICAL_FAILURE_DOMAIN/);
 assert.match(backup, /BACKUP_TARGET_NOT_DURABLE/);
 assert.match(backup, /FOUR_EXTERNAL_BACKUP_COPIES_NOT_REPORTED/);
