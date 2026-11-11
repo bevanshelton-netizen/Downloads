@@ -23,7 +23,7 @@
     {
       "id": "node02",
       "kind": "node02-replica",
-      "path": "/mnt/izakhono-backup/node02",
+      "peerName": "node02",
       "required": true
     },
     {
