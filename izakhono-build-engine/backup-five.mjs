@@ -83,6 +83,12 @@ async function main() {
     kinds.add(target.kind);
     if (typeof target.path !== "string" || !existsSync(target.path)) fail("BACKUP_TARGET_MISSING:" + target.id);
     const info = mountInfo(target.path);
+    if (["primary-encrypted", "separate-physical-disk", "offline-rotation"].includes(target.kind) && !info.source.startsWith("/dev/")) {
+      fail("BACKUP_TARGET_REQUIRES_BLOCK_DEVICE:" + target.id);
+    }
+    if (["separate-nas", "node02-replica"].includes(target.kind) && !(info.source.startsWith("//") || info.source.includes(":"))) {
+      fail("BACKUP_TARGET_REQUIRES_REMOTE_HOST:" + target.id);
+    }
     if (devices.has(info.device)) fail("BACKUP_TARGETS_SHARE_FILESYSTEM:" + target.id);
     devices.add(info.device);
     for (const component of info.failureComponents) {
