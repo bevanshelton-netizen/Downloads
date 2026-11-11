@@ -33,7 +33,8 @@ assert.match(engine, /\/etc\/izakhono\/apps\//);
 assert.match(backup, /BACKUP_TARGETS_SHARE_FILESYSTEM/);
 assert.match(backup, /BACKUP_TARGETS_SHARE_PHYSICAL_FAILURE_DOMAIN/);
 assert.match(backup, /BACKUP_TARGET_NOT_DURABLE/);
-assert.match(backup, /FOUR_EXTERNAL_BACKUP_COPIES_NOT_REPORTED/);\nassert.match(backup, /setName = "build-" \+ project/);
+assert.match(backup, /FOUR_EXTERNAL_BACKUP_COPIES_NOT_REPORTED/);
+assert.match(backup, /setName = "build-" \+ project/);
 assert.doesNotMatch(engine, /VERCEL_TOKEN|CLOUDFLARE_API_TOKEN|SUPABASE_SERVICE_ROLE_KEY/);
 const validation = spawnSync(process.execPath, [
   join(here, "..", "engine.mjs"),
