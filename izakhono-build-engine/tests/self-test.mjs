@@ -31,7 +31,7 @@ assert.match(engine, /ProtectSystem=strict/);
 assert.match(engine, /deployment-receipt/);
 assert.match(engine, /chown.*izakhono-build/s);
 assert.match(engine, /\/etc\/izakhono\/apps\//);
-assert.match(backup, /BACKUP_TARGETS_SHARE_FILESYSTEM/);
+assert.match(backup, /BACKUP_PREFLIGHT_PASS/);\nassert.match(backup, /BACKUP_TARGETS_SHARE_FILESYSTEM/);
 assert.match(backup, /BACKUP_TARGETS_SHARE_PHYSICAL_FAILURE_DOMAIN/);
 assert.match(backup, /BACKUP_TARGET_NOT_DURABLE/);
 assert.match(backup, /FOUR_EXTERNAL_BACKUP_COPIES_NOT_REPORTED/);
