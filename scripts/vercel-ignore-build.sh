@@ -15,7 +15,7 @@ if ! git -C "$ROOT" cat-file -e "$HEAD_SHA^{commit}" 2>/dev/null; then
   exit 1
 fi
 
-NON_INFRA="$(git -C "$ROOT" diff --name-only "$BASE" "$HEAD_SHA" | grep -Ev '^(izakhono-build-engine/|izakhono-owned-cloud/|izakhono-backup-node/|izakhono-node01/|scripts/vercel-ignore-build\.sh$|\.github/workflows/izakhono-build-engine-acceptance\.yml$)' || true)"
+NON_INFRA="$(git -C "$ROOT" diff --name-only "$BASE" "$HEAD_SHA" | grep -Ev '^(izakhono-build-engine/|izakhono-owned-cloud/|izakhono-backup-node/|izakhono-replica-node/|izakhono-node01/|scripts/vercel-ignore-build\.sh$|\.github/workflows/izakhono-build-engine-acceptance\.yml$)' || true)"
 if [[ -n "$NON_INFRA" ]]; then
   echo "BUILD_REQUIRED=APPLICATION_SOURCE_CHANGED"
   printf '%s\n' "$NON_INFRA"
