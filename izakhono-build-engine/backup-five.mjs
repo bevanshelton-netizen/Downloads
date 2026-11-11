@@ -130,6 +130,9 @@ async function main() {
   if (peerUrl.protocol !== "https:" || ["localhost", "127.0.0.1", "::1"].includes(peerUrl.hostname.toLowerCase())) {
     fail("NODE02_REPLICA_MUST_BE_A_SEPARATE_HTTPS_HOST");
   }
+  const remoteHealthResponse = await fetch(new URL("/health", peerUrl), { signal: AbortSignal.timeout(5000) });
+  const remoteHealth = await remoteHealthResponse.json().catch(() => ({}));
+  if (!remoteHealthResponse.ok || remoteHealth.status !== "healthy") fail("NODE02_REPLICA_REMOTE_HEALTH_FAILED");
   node02Config.remoteHost = peerUrl.hostname;
   node02Config.peerId = peer.id;
   const replicaFailureDomain = "host:" + peerUrl.hostname.toLowerCase();
