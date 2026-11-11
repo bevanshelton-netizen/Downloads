@@ -8,11 +8,12 @@
   "source": {
     "root": "/opt/izakhono-source/Downloads",
     "path": "example-app",
-    "ref": "main"
+    "ref": "main",
+    "syncScript": "/opt/izakhono-infrastructure-executor/sync-source.sh"
   },
   "build": {
     "commands": [
-      { "run": ["npm", "ci", "--no-audit", "--no-fund"], "network": true, "timeoutSeconds": 900 },
+      { "run": ["npm", "ci", "--prefer-offline", "--no-audit", "--no-fund"], "network": true, "timeoutSeconds": 900 },
       { "run": ["npm", "run", "build"], "network": false, "timeoutSeconds": 900 }
     ],
     "artifacts": ["dist", "package.json", "server.mjs"],
