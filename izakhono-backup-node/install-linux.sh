@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+command -v findmnt >/dev/null 2>&1 || { echo "util-linux findmnt is required for safe mirror mounting."; exit 2; }
+
 if ! command -v node >/dev/null 2>&1; then
   echo "Node.js 22.13+ is required."
   exit 2
