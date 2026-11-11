@@ -1,0 +1,20 @@
+{
+  "id": "/Downloads/one/work/",
+  "name": "IZAKHONO WORK",
+  "short_name": "IZAKHONO",
+  "description": "Owner command platform for IZAKHONO companies, manufacturing, funding and projects.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f3f7fa",
+  "theme_color": "#07182e",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
