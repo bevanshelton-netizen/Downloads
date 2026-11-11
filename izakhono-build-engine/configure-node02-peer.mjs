@@ -15,7 +15,8 @@ function readEnv(path) {
 async function main() {
   const replica = readEnv("/etc/izakhono/replica-node.env");
   const peerConfigPath = "/etc/izakhono/node02-peer.env";
-  if ((statSync(peerConfigPath).mode & 0o077) !== 0) fail("NODE02_PEER_ENV_MUST_BE_MODE_0600");
+  const peerConfigStat = statSync(peerConfigPath);
+  if (peerConfigStat.uid !== 0 || (peerConfigStat.mode & 0o077) !== 0) fail("NODE02_PEER_ENV_MUST_BE_ROOT_OWNED_MODE_0600");
   const peerConfig = readEnv(peerConfigPath);
   const adminKey = replica.IZAKHONO_REPLICA_ADMIN_KEY;
   const baseUrl = peerConfig.NODE02_REPLICA_URL;
