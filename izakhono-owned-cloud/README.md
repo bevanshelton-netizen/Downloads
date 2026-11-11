@@ -25,6 +25,8 @@ This integration uses FORTRESS as an internal protection and incident-readiness 
 15. **IZAKHONO PACKAGE NODE** — owned npm-compatible package metadata/tarball cache for builds.
 16. **IZAKHONO FAILOVER NODE** — owned active/standby monitoring and fenced promotion control.
 
+The **IZAKHONO BUILD ENGINE** is the shared release controller above the node services. It uses CODE, CI WORKER, PACKAGE, RUNTIME and BACKUP/REPLICA nodes to build immutable releases, require five verified backup copies and perform health-gated activation. It is not a separate hosted provider.
+
 All sixteen services are designed to run on Linux hardware you control and use Node.js built-ins plus SQLite. They do not require hosted database, object-store, queue, authentication or analytics subscriptions.
 
 ## Install
