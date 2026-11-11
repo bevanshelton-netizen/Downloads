@@ -82,7 +82,7 @@ Copy `config/build-plan.example.json` and set:
 - runtime artifact paths;
 - runtime command, environment file and health path.
 
-Commands are argument arrays, not shell strings. Only the documented build executables are accepted. Network is disabled by default and may be enabled only for npm dependency-install steps. The npm cache persists on NODE01 and uses IZAKHONO PACKAGE NODE as its registry, reducing repeated package downloads. Build steps run with resource limits, no inherited infrastructure secrets and write access limited to the disposable workspace and package cache.
+Commands are argument arrays, not shell strings. Only the documented build executables are accepted. Network is disabled by default and may be enabled only for npm dependency-install steps. The npm cache persists on NODE01 and uses IZAKHONO PACKAGE NODE as its registry, reducing repeated package downloads. Build steps run under the engine's own non-login `izakhono-build` account with resource limits, no inherited infrastructure secrets and write access limited to the disposable workspace and package cache. The engine does not require the separate CI WORKER service to execute builds.
 
 ## Commands
 
