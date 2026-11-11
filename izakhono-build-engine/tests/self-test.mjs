@@ -6,7 +6,7 @@ import { spawnSync } from "node:child_process";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const engine = readFileSync(join(here, "..", "engine.mjs"), "utf8");
-const backup = readFileSync(join(here, "..", "backup-five.mjs"), "utf8");
+const backup = readFileSync(join(here, "..", "backup-five.mjs"), "utf8");\nconst peerSetup = readFileSync(join(here, "..", "configure-node02-peer.mjs"), "utf8");
 const plan = JSON.parse(readFileSync(join(here, "..", "config", "build-plan.example.json"), "utf8"));
 const targets = JSON.parse(readFileSync(join(here, "..", "config", "five-backups.example.json"), "utf8"));
 
@@ -44,7 +44,7 @@ assert.match(backup, /BACKUP_TARGET_REQUIRES_REMOTE_HOST/);
 assert.match(backup, /THREE_EXTERNAL_BACKUP_COPIES_NOT_REPORTED/);
 assert.match(backup, /NODE02_REPLICA_COPY_NOT_VERIFIED/);
 assert.match(backup, /NODE02_REPLICA_MUST_BE_A_SEPARATE_HTTPS_HOST/);
-assert.match(backup, /NODE02_REPLICA_REMOTE_HEALTH_FAILED/);
+assert.match(backup, /NODE02_REPLICA_REMOTE_HEALTH_FAILED/);\nassert.match(peerSetup, /NODE02_HOST_NOT_IN_REPLICA_TARGET_ALLOWLIST/);\nassert.match(peerSetup, /NODE02_RECEIVER_NOT_HEALTHY/);
 assert.match(backup, /setName = "build-" \+ project/);
 assert.doesNotMatch(engine, /VERCEL_TOKEN|CLOUDFLARE_API_TOKEN|SUPABASE_SERVICE_ROLE_KEY/);
 const validation = spawnSync(process.execPath, [
