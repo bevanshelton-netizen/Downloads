@@ -23,6 +23,7 @@ assert.equal(new Set(targets.targets.map(x => x.kind)).size, 5);
 assert.deepEqual(new Set(targets.targets.map(x => x.kind)), new Set([
   "primary-encrypted", "separate-physical-disk", "separate-nas", "node02-replica", "offline-rotation"
 ]));
+assert.equal(targets.targets.find(x => x.kind === "node02-replica").peerName, "node02");
 assert.match(engine, /FIVE_BACKUP_GATE_FAILED_DEPLOYMENT_BLOCKED/);
 assert.match(engine, /FIVE_BACKUP_PREFLIGHT_FAILED/);
 assert.match(engine, /BUILD_ALREADY_RUNNING_FOR_PROJECT/);
@@ -40,7 +41,9 @@ assert.match(backup, /BACKUP_TARGETS_SHARE_PHYSICAL_FAILURE_DOMAIN/);
 assert.match(backup, /BACKUP_TARGET_NOT_DURABLE/);
 assert.match(backup, /BACKUP_TARGET_REQUIRES_BLOCK_DEVICE/);
 assert.match(backup, /BACKUP_TARGET_REQUIRES_REMOTE_HOST/);
-assert.match(backup, /THREE_EXTERNAL_BACKUP_COPIES_NOT_REPORTED/);\nassert.match(backup, /NODE02_REPLICA_COPY_NOT_VERIFIED/);\nassert.match(backup, /NODE02_REPLICA_MUST_BE_A_SEPARATE_HTTPS_HOST/);
+assert.match(backup, /THREE_EXTERNAL_BACKUP_COPIES_NOT_REPORTED/);
+assert.match(backup, /NODE02_REPLICA_COPY_NOT_VERIFIED/);
+assert.match(backup, /NODE02_REPLICA_MUST_BE_A_SEPARATE_HTTPS_HOST/);
 assert.match(backup, /setName = "build-" \+ project/);
 assert.doesNotMatch(engine, /VERCEL_TOKEN|CLOUDFLARE_API_TOKEN|SUPABASE_SERVICE_ROLE_KEY/);
 const validation = spawnSync(process.execPath, [
