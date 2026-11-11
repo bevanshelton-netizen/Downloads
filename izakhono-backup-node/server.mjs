@@ -227,10 +227,12 @@ async function createSnapshot(set){
     const size=statSync(finalPath).size;
     const mirrors=mirrorSnapshot(set.name,finalPath,sha);
     const mirrorFailures=mirrors.filter(x=>x.status!=="complete");
-    const snapshotState=mirrorFailures.length?"degraded":"complete";
+    const mirrorConfigMissing=MIRROR_ROOTS.length===0;
+    const snapshotState=(mirrorConfigMissing||mirrorFailures.length)?"degraded":"complete";
+    const snapshotError=mirrorConfigMissing?"MIRROR_CONFIGURATION_MISSING":(mirrorFailures.length?"MIRROR_COPIES_INCOMPLETE":null);
     db.prepare("UPDATE snapshots SET state=?,sha256=?,size_bytes=?,mirror_json=?,completed_at=datetime('now'),error=? WHERE id=?")
-      .run(snapshotState,sha,size,JSON.stringify(mirrors),mirrorFailures.length?"MIRROR_COPIES_INCOMPLETE":null,id);
-    audit("snapshot."+snapshotState,id,mirrorFailures.length?"degraded":"success",{setId:set.id,size,sha256:sha,mirrors});
+      .run(snapshotState,sha,size,JSON.stringify(mirrors),snapshotError,id);
+    audit("snapshot."+snapshotState,id,snapshotState==="degraded"?"degraded":"success",{setId:set.id,size,sha256:sha,mirrors});
     pruneRetention(set);
     return snapshotById(id);
   }catch(error){
