@@ -9,8 +9,10 @@ NODE="$(command -v node || true)"
 command -v systemd-run >/dev/null
 command -v findmnt >/dev/null
 
-useradd --system --user-group --home /nonexistent --shell /usr/sbin/nologin izakhono-build 2>/dev/null || true
-BUILD_GROUP="$(id -gn izakhono-build)"
+getent group izakhono-build >/dev/null 2>&1 || groupadd --system izakhono-build
+id izakhono-build >/dev/null 2>&1 || useradd --system --gid izakhono-build --home /nonexistent --shell /usr/sbin/nologin izakhono-build
+usermod --gid izakhono-build izakhono-build
+BUILD_GROUP="izakhono-build"
 
 install -d -m 0755 /opt/izakhono-build-engine
 install -d -o root -g "$BUILD_GROUP" -m 0750 /var/lib/izakhono-build-engine
