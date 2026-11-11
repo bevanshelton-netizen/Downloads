@@ -14,6 +14,14 @@ export default function SubscribeButton({ planCode, label }: { planCode: string;
         body: JSON.stringify({ planCode }),
       });
       const checkout = await response.json();
+      if (response.status === 401) {
+        window.location.href = `/login?next=${encodeURIComponent('/membership')}`;
+        return;
+      }
+      if (response.status === 409) {
+        window.location.href = '/account?message=You%20already%20have%20an%20active%20membership';
+        return;
+      }
       if (!response.ok) throw new Error(checkout.error || 'Checkout unavailable');
 
       const form = document.createElement('form');
