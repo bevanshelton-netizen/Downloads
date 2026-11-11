@@ -112,7 +112,7 @@ async function preflight(plan) {
 }
 function runSandbox(command, cwd, network, timeoutSeconds) {
   return new Promise((resolvePromise, reject) => {
-    const args = ["--quiet", "--wait", "--collect", "--pipe", "--service-type=exec", "--uid=izakhono-ci",
+    const args = ["--quiet", "--wait", "--collect", "--pipe", "--service-type=exec", "--uid=izakhono-build",
       "--property=NoNewPrivileges=yes", "--property=PrivateTmp=yes", "--property=ProtectSystem=strict",
       "--property=ProtectHome=yes", "--property=PrivateDevices=yes", "--property=RestrictSUIDSGID=yes",
       "--property=LockPersonality=yes", "--property=MemoryMax=2048M", "--property=CPUQuota=200%",
@@ -155,11 +155,11 @@ async function deploy(planPath) {
   const work = join(WORK_ROOT, id);
   const sourceDir = join(work, "source");
   mkdirSync(sourceDir, { recursive: true, mode: 0o700 });
-  await execFileAsync("chown", ["-R", "izakhono-ci:izakhono-ci", work]);
+  await execFileAsync("chown", ["-R", "izakhono-build:izakhono-build", work]);
   await runGitArchive(ctx.root, ctx.commit, plan.source.path, sourceDir);
   const appSource = join(sourceDir, plan.source.path);
   if (!existsSync(appSource)) fail("SOURCE_PROJECT_DIRECTORY_NOT_FOUND");
-  await execFileAsync("chown", ["-R", "izakhono-ci:izakhono-ci", appSource]);
+  await execFileAsync("chown", ["-R", "izakhono-build:izakhono-build", appSource]);
   mkdirSync(join(appSource, ".home"), { recursive: true });
   for (let i = 0; i < plan.build.commands.length; i++) {
     const step = plan.build.commands[i];
