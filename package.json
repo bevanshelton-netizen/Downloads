@@ -1,0 +1,9 @@
+{
+  "name": "izakhono-videonomy-cloudflare-deploy",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "npm@11.19.1",
+  "devDependencies": {
+    "wrangler": "4.127.1"
+  }
+}
