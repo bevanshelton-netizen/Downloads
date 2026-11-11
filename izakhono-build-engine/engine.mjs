@@ -230,6 +230,24 @@ async function deploy(planPath) {
   process.stdout.write(JSON.stringify(receipt, null, 2) + "\n");
   rmSync(work, { recursive: true, force: true });
 }
+async function deployWithProjectLock(planPath) {
+  const plan = validate(JSON.parse(readFileSync(planPath, "utf8")));
+  const lockRoot = join(STATE_ROOT, "locks");
+  mkdirSync(lockRoot, { recursive: true, mode: 0o700 });
+  const lockPath = join(lockRoot, plan.project.id);
+  try {
+    mkdirSync(lockPath, { mode: 0o700 });
+  } catch (error) {
+    if (error.code === "EEXIST") fail("BUILD_ALREADY_RUNNING_FOR_PROJECT:" + plan.project.id);
+    throw error;
+  }
+  writeFileSync(join(lockPath, "pid"), String(process.pid), { mode: 0o600 });
+  try {
+    await deploy(planPath);
+  } finally {
+    rmSync(lockPath, { recursive: true, force: true });
+  }
+}
 async function rollback(app) {
   if (!/^[a-z0-9][a-z0-9-]{1,62}$/.test(app || "")) fail("INVALID_APP_NAME");
   const env = parseEnv("/etc/izakhono/runtime-node.env");
