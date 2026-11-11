@@ -21,12 +21,12 @@ function readEnv(path) {
   }
   return out;
 }
-async function requestAt(base, path, key, method = "GET", body, label = "API") {
+async function requestAt(base, path, key, method = "GET", body, label = "API", timeoutMs = 120000) {
   const response = await fetch(base + path, {
     method,
     headers: { "x-izakhono-key": key, ...(body ? { "content-type": "application/json" } : {}) },
     ...(body ? { body: JSON.stringify(body) } : {}),
-    signal: AbortSignal.timeout(120000)
+    signal: AbortSignal.timeout(timeoutMs)
   });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) fail(label + "_" + response.status + ":" + (payload.error || "request failed"));
@@ -227,7 +227,7 @@ async function main() {
   const replicaResult = await requestAt(replicaBase, "/v1/replicate", replicaKey, "POST", {
     peerId: peer.id,
     archivePath: snapshot.archive_path
-  }, "REPLICA_API");
+  }, "REPLICA_API", 1800000);
   const replication = replicaResult.replication;
   if (!replication || !["complete", "duplicate"].includes(replication.state) ||
       replication.sha256 !== snapshot.sha256 || Number(replication.size_bytes) !== Number(snapshot.size_bytes)) {
