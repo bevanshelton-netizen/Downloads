@@ -125,7 +125,7 @@ async function main() {
     try {
       const registered = await request("/v1/sets", key, "POST", {
         name: setName,
-        sources: ["/var/lib/izakhono-build-engine", resolve("/var/lib/izakhono-runtime/releases", project)],
+        sources: ["/opt/izakhono-build-engine", "/var/lib/izakhono-build-engine", resolve("/var/lib/izakhono-runtime/releases", project)],
         retentionCount: 30,
         enabled: true
       });
