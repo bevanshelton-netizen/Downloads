@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFileSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
 
 function fail(message) { throw new Error(message); }
 function readEnv(path) {
@@ -14,11 +14,14 @@ function readEnv(path) {
 }
 async function main() {
   const replica = readEnv("/etc/izakhono/replica-node.env");
-  const peerConfig = readEnv("/etc/izakhono/node02-peer.env");
+  const peerConfigPath = "/etc/izakhono/node02-peer.env";
+  if ((statSync(peerConfigPath).mode & 0o077) !== 0) fail("NODE02_PEER_ENV_MUST_BE_MODE_0600");
+  const peerConfig = readEnv(peerConfigPath);
   const adminKey = replica.IZAKHONO_REPLICA_ADMIN_KEY;
   const baseUrl = peerConfig.NODE02_REPLICA_URL;
   const receiveKey = peerConfig.NODE02_REPLICA_RECEIVE_KEY;
   if (!adminKey || !baseUrl || !receiveKey) fail("NODE02_PEER_CONFIGURATION_INCOMPLETE");
+  if (!/^[a-f0-9]{64}$/i.test(receiveKey)) fail("NODE02_RECEIVE_KEY_MUST_BE_32_BYTE_HEX");
   const url = new URL(baseUrl);
   if (url.protocol !== "https:" || url.pathname !== "/" || url.search || url.hash) fail("NODE02_PEER_URL_MUST_BE_HTTPS_ORIGIN");
   const canonicalBaseUrl = url.origin;
