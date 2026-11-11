@@ -40,7 +40,7 @@ The backup gate requires exactly five separately mounted filesystems/failure dom
 
 The existing BACKUP NODE encrypts archives with AES-256-GCM, verifies authenticated decryption and writes SHA-256 sidecars for mirrors. The build engine additionally checks that all five configured targets are present, have distinct filesystem device IDs, that all four external mirrors completed, and that the primary archive passes cryptographic verification. Deployment is blocked unless all five copies pass.
 
-The example target paths are placeholders, not claims that hardware is already mounted. Configure actual independent storage roots in `/etc/izakhono/build-engine/five-backups.json`, then configure the four external roots in `IZAKHONO_BACKUP_MIRROR_ROOTS` in `/etc/izakhono/backup-node.env`. Each external target must be mounted at its configured root. The offline target must be attached for the backup gate to pass.
+The example target paths are placeholders, not claims that hardware is already mounted. Block-device targets are checked against their parent physical disks; network targets are checked against their remote source hosts. RAM-backed and overlay filesystems are not accepted. Configure actual independent storage roots in `/etc/izakhono/build-engine/five-backups.json`, then configure the four external roots in `IZAKHONO_BACKUP_MIRROR_ROOTS` in `/etc/izakhono/backup-node.env`. Each external target must be mounted at its configured root. The offline target must be attached for the backup gate to pass.
 
 The installer registers a dedicated `owned-build-engine` encrypted backup set containing `/var/lib/izakhono-build-engine` and `/var/lib/izakhono-runtime` (including immutable releases). The backup service source allowlist must include `/var/lib/izakhono-build-engine`.
 
@@ -82,7 +82,7 @@ Copy `config/build-plan.example.json` and set:
 - runtime artifact paths;
 - runtime command, environment file and health path.
 
-Commands are argument arrays, not shell strings. Only the documented build executables are accepted. Network is disabled by default and may be enabled only for npm dependency-install steps. Build steps run with resource limits, no inherited infrastructure secrets and workspace-only write access.
+Commands are argument arrays, not shell strings. Only the documented build executables are accepted. Network is disabled by default and may be enabled only for npm dependency-install steps. The npm cache persists on NODE01 and uses IZAKHONO PACKAGE NODE as its registry, reducing repeated package downloads. Build steps run with resource limits, no inherited infrastructure secrets and write access limited to the disposable workspace and package cache.
 
 ## Commands
 
