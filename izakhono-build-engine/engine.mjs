@@ -146,6 +146,7 @@ async function deploy(planPath) {
   await runGitArchive(ctx.root, ctx.commit, plan.source.path, sourceDir);
   const appSource = join(sourceDir, plan.source.path);
   if (!existsSync(appSource)) fail("SOURCE_PROJECT_DIRECTORY_NOT_FOUND");
+  await execFileAsync("chown", ["-R", "izakhono-ci:izakhono-ci", appSource]);
   mkdirSync(join(appSource, ".home"), { recursive: true });
   for (let i = 0; i < plan.build.commands.length; i++) {
     const step = plan.build.commands[i];
