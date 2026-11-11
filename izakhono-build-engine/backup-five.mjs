@@ -100,7 +100,9 @@ async function main() {
     fail("BACKUP_NODE_MUST_BE_CONFIGURED_WITH_THE_FOUR_EXTERNAL_MIRROR_ROOTS");
   }
 
-  const project = process.argv[2] || "";
+  const args = process.argv.slice(2);
+  const preflightOnly = args.includes("--preflight");
+  const project = args.find(x => x !== "--preflight") || "";
   let setName = "owned-build-engine";
   if (project) {
     if (!/^[a-z0-9][a-z0-9-]{1,62}$/.test(project)) fail("INVALID_BACKUP_PROJECT_ID");
@@ -109,6 +111,15 @@ async function main() {
     setName = "build-" + project;
   }
   let sets = await request("/v1/sets", key);
+  if (preflightOnly) {
+    if (!(sets.sets || []).some(x => x.name === "owned-build-engine")) fail("OWNED_BUILD_ENGINE_BACKUP_SET_MISSING");
+    process.stdout.write(JSON.stringify({
+      status: "BACKUP_PREFLIGHT_PASS",
+      copies: 5,
+      targets: targets.map(t => ({ id: t.id, kind: t.kind, mount: t.mountTarget, failureDomain: t.failureDomain }))
+    }, null, 2) + "\\n");
+    return;
+  }
   let set = (sets.sets || []).find(x => x.name === setName);
   if (!set && project) {
     try {
