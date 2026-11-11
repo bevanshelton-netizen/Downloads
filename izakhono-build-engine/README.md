@@ -68,7 +68,7 @@ Set `IZAKHONO_BACKUP_MIRROR_ROOTS` to the comma-separated paths for disk, NAS, N
 sudo systemctl restart izakhono-backup-node
 ```
 
-The installer creates an `owned-build-engine` backup set for engine control state. Each project deployment creates or reuses a `build-{project}` set containing the engine state and only that project's immutable release directory. The existing `owned-cloud-core` set protects the complete runtime data tree. The engine checks all five mount points and mirror configuration before it starts a build, then creates, decrypts and hashes all five copies before deployment. Export the backup recovery key to a separate offline medium. Never keep the only recovery key on the primary host.
+The installer creates an `owned-build-engine` backup set for engine control state. Each project deployment creates or reuses a `build-{project}` set containing the installed engine software, engine state and only that project's immutable release directory. The existing `owned-cloud-core` set protects the complete runtime data tree. The engine checks all five mount points and mirror configuration before it starts a build, then creates, decrypts and hashes all five copies before deployment. Export the backup recovery key to a separate offline medium. Never keep the only recovery key on the primary host.
 
 ## Project plan
 
