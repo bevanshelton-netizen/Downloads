@@ -199,7 +199,7 @@ async function deploy(planPath) {
   await execFileAsync("chown", ["-R", "izakhono:izakhono", release]);
   process.stdout.write("[IZAKHONO BUILD] Immutable release prepared: " + release + "\n");
 
-  const backup = spawn("node", [join(resolve(import.meta.dirname), "backup-five.mjs")], { stdio: "inherit", env: process.env });
+  const backup = spawn("node", [join(resolve(import.meta.dirname), "backup-five.mjs"), plan.project.id], { stdio: "inherit", env: process.env });
   const backupCode = await new Promise((resolvePromise, reject) => { backup.on("error", reject); backup.on("close", resolvePromise); });
   if (backupCode !== 0) fail("FIVE_BACKUP_GATE_FAILED_DEPLOYMENT_BLOCKED");
 
