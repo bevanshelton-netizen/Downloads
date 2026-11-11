@@ -20,7 +20,7 @@
   },
   "runtime": {
     "command": ["node", "server.mjs"],
-    "envFile": "/var/lib/izakhono-runtime/env/example-app.env"
+    "envFile": "/etc/izakhono/apps/example-app.env"
   },
   "backup": {
     "targetsFile": "/etc/izakhono/build-engine/five-backups.json",
