@@ -5,6 +5,7 @@ import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 
 const ENV_FILE = process.env.IZAKHONO_BACKUP_ENV || "/etc/izakhono/backup-node.env";
+const REPLICA_ENV_FILE = process.env.IZAKHONO_REPLICA_ENV || "/etc/izakhono/replica-node.env";
 const CONFIG_FILE = process.env.IZAKHONO_BUILD_BACKUPS || "/etc/izakhono/build-engine/five-backups.json";
 const BASE_URL = process.env.IZAKHONO_BACKUP_URL || "http://127.0.0.1:8870";
 
@@ -20,16 +21,19 @@ function readEnv(path) {
   }
   return out;
 }
-async function request(path, key, method = "GET", body) {
-  const response = await fetch(BASE_URL + path, {
+async function requestAt(base, path, key, method = "GET", body, label = "API") {
+  const response = await fetch(base + path, {
     method,
     headers: { "x-izakhono-key": key, ...(body ? { "content-type": "application/json" } : {}) },
     ...(body ? { body: JSON.stringify(body) } : {}),
     signal: AbortSignal.timeout(120000)
   });
   const payload = await response.json().catch(() => ({}));
-  if (!response.ok) fail("BACKUP_API_" + response.status + ":" + (payload.error || "request failed"));
+  if (!response.ok) fail(label + "_" + response.status + ":" + (payload.error || "request failed"));
   return payload;
+}
+async function request(path, key, method = "GET", body) {
+  return requestAt(BASE_URL, path, key, method, body, "BACKUP_API");
 }
 function mountInfo(path) {
   const target = resolve(path);
@@ -67,10 +71,16 @@ async function sha256(path) {
   return hash.digest("hex");
 }
 async function main() {
-  if (!existsSync(ENV_FILE) || !existsSync(CONFIG_FILE)) fail("BACKUP_CONFIGURATION_MISSING");
+  if (!existsSync(ENV_FILE) || !existsSync(REPLICA_ENV_FILE) || !existsSync(CONFIG_FILE)) fail("BACKUP_CONFIGURATION_MISSING");
   const env = readEnv(ENV_FILE);
   const key = env.IZAKHONO_BACKUP_ADMIN_KEY;
   if (!key) fail("BACKUP_ADMIN_KEY_MISSING");
+  const replicaEnv = readEnv(REPLICA_ENV_FILE);
+  const replicaKey = replicaEnv.IZAKHONO_REPLICA_ADMIN_KEY;
+  if (!replicaKey) fail("REPLICA_NODE_ADMIN_KEY_MISSING");
+  const replicaHost = process.env.IZAKHONO_REPLICA_HOST || replicaEnv.HOST || "127.0.0.1";
+  const replicaPort = process.env.IZAKHONO_REPLICA_PORT || replicaEnv.PORT || "8890";
+  const replicaBase = process.env.IZAKHONO_REPLICA_URL || "http://" + replicaHost + ":" + replicaPort;
   const config = JSON.parse(readFileSync(CONFIG_FILE, "utf8"));
   if (config.schema !== "izakhono.build-engine.backups/v1" || config.requiredCopies !== 5 ||
       !Array.isArray(config.targets) || config.targets.length !== 5) fail("EXACTLY_FIVE_BACKUP_TARGETS_REQUIRED");
@@ -81,12 +91,16 @@ async function main() {
     ids.add(target.id);
     if (typeof target.kind !== "string" || kinds.has(target.kind)) fail("DUPLICATE_BACKUP_FAILURE_DOMAIN");
     kinds.add(target.kind);
+    if (target.kind === "node02-replica") {
+      if (typeof target.peerName !== "string" || !/^[a-z0-9][a-z0-9-]{1,62}$/.test(target.peerName)) fail("NODE02_REPLICA_PEER_NAME_REQUIRED");
+      return { ...target };
+    }
     if (typeof target.path !== "string" || !existsSync(target.path)) fail("BACKUP_TARGET_MISSING:" + target.id);
     const info = mountInfo(target.path);
     if (["primary-encrypted", "separate-physical-disk", "offline-rotation"].includes(target.kind) && !info.source.startsWith("/dev/")) {
       fail("BACKUP_TARGET_REQUIRES_BLOCK_DEVICE:" + target.id);
     }
-    if (["separate-nas", "node02-replica"].includes(target.kind) && !(info.source.startsWith("//") || info.source.includes(":"))) {
+    if (target.kind === "separate-nas" && !(info.source.startsWith("//") || info.source.includes(":"))) {
       fail("BACKUP_TARGET_REQUIRES_REMOTE_HOST:" + target.id);
     }
     if (devices.has(info.device)) fail("BACKUP_TARGETS_SHARE_FILESYSTEM:" + target.id);
@@ -101,10 +115,26 @@ async function main() {
   if (required.some(kind => !kinds.has(kind))) fail("FIVE_REQUIRED_BACKUP_FAILURE_DOMAINS_NOT_CONFIGURED");
 
   const mirrorRoots = (env.IZAKHONO_BACKUP_MIRROR_ROOTS || "").split(",").map(x => x.trim()).filter(Boolean).map(x => resolve(x));
-  const mirrorTargets = targets.filter(x => x.kind !== "primary-encrypted");
-  if (mirrorRoots.length !== 4 || mirrorTargets.some(t => !mirrorRoots.includes(resolve(t.path)))) {
-    fail("BACKUP_NODE_MUST_BE_CONFIGURED_WITH_THE_FOUR_EXTERNAL_MIRROR_ROOTS");
+  const mirrorTargets = targets.filter(x => ["separate-physical-disk", "separate-nas", "offline-rotation"].includes(x.kind));
+  if (mirrorRoots.length !== 3 || mirrorTargets.some(t => !mirrorRoots.includes(resolve(t.path)))) {
+    fail("BACKUP_NODE_MUST_BE_CONFIGURED_WITH_THREE_FILESYSTEM_MIRROR_ROOTS");
   }
+
+  const replicaHealth = await requestAt(replicaBase, "/health", replicaKey, "GET", undefined, "REPLICA_API");
+  if (replicaHealth.status !== "healthy") fail("REPLICA_NODE_UNHEALTHY");
+  const peers = await requestAt(replicaBase, "/v1/peers", replicaKey, "GET", undefined, "REPLICA_API");
+  const node02Config = targets.find(x => x.kind === "node02-replica");
+  const peer = (peers.peers || []).find(x => x.name === node02Config.peerName && x.enabled);
+  if (!peer) fail("NODE02_REPLICA_PEER_NOT_REGISTERED_OR_DISABLED");
+  const peerUrl = new URL(peer.base_url);
+  if (peerUrl.protocol !== "https:" || ["localhost", "127.0.0.1", "::1"].includes(peerUrl.hostname.toLowerCase())) {
+    fail("NODE02_REPLICA_MUST_BE_A_SEPARATE_HTTPS_HOST");
+  }
+  node02Config.remoteHost = peerUrl.hostname;
+  node02Config.peerId = peer.id;
+  const replicaFailureDomain = "host:" + peerUrl.hostname.toLowerCase();
+  if (failureComponents.has(replicaFailureDomain)) fail("BACKUP_TARGETS_SHARE_PHYSICAL_FAILURE_DOMAIN:node02");
+  failureComponents.add(replicaFailureDomain);
 
   const args = process.argv.slice(2);
   const preflightOnly = args.includes("--preflight");
@@ -112,8 +142,8 @@ async function main() {
   let setName = "owned-build-engine";
   if (project) {
     if (!/^[a-z0-9][a-z0-9-]{1,62}$/.test(project)) fail("INVALID_BACKUP_PROJECT_ID");
-    const projectReleaseRoot = resolve("/var/lib/izakhono-build-engine/current", project);
-    if (!preflightOnly && !existsSync(projectReleaseRoot)) fail("PROJECT_RELEASE_ROOT_MISSING");
+    const projectCurrentRoot = resolve("/var/lib/izakhono-build-engine/current", project);
+    if (!preflightOnly && !existsSync(projectCurrentRoot)) fail("PROJECT_CURRENT_RELEASE_ROOT_MISSING");
     setName = "build-" + project;
   }
   let sets = await request("/v1/sets", key);
@@ -135,8 +165,13 @@ async function main() {
     process.stdout.write(JSON.stringify({
       status: "BACKUP_PREFLIGHT_PASS",
       copies: 5,
-      targets: targets.map(t => ({ id: t.id, kind: t.kind, mount: t.mountTarget, failureDomain: t.failureDomain }))
-    }, null, 2) + "\\n");
+      targets: targets.map(t => ({
+        id: t.id,
+        kind: t.kind,
+        mount: t.mountTarget || null,
+        failureDomain: t.failureDomain || t.remoteHost || null
+      }))
+    }, null, 2) + "\n");
     return;
   }
   let set = (sets.sets || []).find(x => x.name === setName);
@@ -174,7 +209,7 @@ async function main() {
 
   let mirrors = snapshot.mirror_json;
   if (typeof mirrors === "string") mirrors = JSON.parse(mirrors);
-  if (!Array.isArray(mirrors) || mirrors.length !== 4) fail("FOUR_EXTERNAL_BACKUP_COPIES_NOT_REPORTED");
+  if (!Array.isArray(mirrors) || mirrors.length !== 3) fail("THREE_EXTERNAL_BACKUP_COPIES_NOT_REPORTED");
   for (const target of mirrorTargets) {
     const mirror = mirrors.find(x => resolve(x.root || "") === resolve(target.path));
     if (!mirror || mirror.status !== "complete" || !mirror.path || !existsSync(mirror.path)) fail("EXTERNAL_BACKUP_COPY_FAILED:" + target.id);
@@ -186,6 +221,16 @@ async function main() {
     if (await sha256(mirror.path) !== snapshot.sha256) fail("EXTERNAL_BACKUP_SHA256_MISMATCH:" + target.id);
   }
 
+  const replicaResult = await requestAt(replicaBase, "/v1/replicate", replicaKey, "POST", {
+    peerId: peer.id,
+    archivePath: snapshot.archive_path
+  }, "REPLICA_API");
+  const replication = replicaResult.replication;
+  if (!replication || !["complete", "duplicate"].includes(replication.state) ||
+      replication.sha256 !== snapshot.sha256 || Number(replication.size_bytes) !== Number(snapshot.size_bytes)) {
+    fail("NODE02_REPLICA_COPY_NOT_VERIFIED");
+  }
+
   const receipt = {
     schema: "izakhono.build-engine.backup-receipt/v1",
     status: "PASS",
@@ -194,7 +239,22 @@ async function main() {
     sha256: snapshot.sha256,
     sizeBytes: snapshot.size_bytes,
     verifiedAt: new Date().toISOString(),
-    targets: targets.map(t => ({ id: t.id, kind: t.kind, mount: t.mountTarget, source: t.source, filesystem: t.fsType, failureDomain: t.failureDomain, failureComponents: t.failureComponents }))
+    node02Replica: {
+      peerName: peer.name,
+      remoteHost: peerUrl.hostname,
+      state: replication.state,
+      objectKey: replication.object_key,
+      sha256: replication.sha256,
+      sizeBytes: replication.size_bytes
+    },
+    targets: targets.map(t => ({
+      id: t.id,
+      kind: t.kind,
+      mount: t.mountTarget || null,
+      source: t.source || null,
+      filesystem: t.fsType || null,
+      failureDomain: t.failureDomain || t.remoteHost || null
+    }))
   };
   process.stdout.write(JSON.stringify(receipt, null, 2) + "\n");
 }
