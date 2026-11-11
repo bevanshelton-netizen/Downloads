@@ -100,9 +100,26 @@ async function main() {
     fail("BACKUP_NODE_MUST_BE_CONFIGURED_WITH_THE_FOUR_EXTERNAL_MIRROR_ROOTS");
   }
 
-  const sets = await request("/v1/sets", key);
-  const set = (sets.sets || []).find(x => x.name === "owned-build-engine");
-  if (!set) fail("OWNED_BUILD_ENGINE_BACKUP_SET_MISSING");
+  const project = process.argv[2] || "";
+  let setName = "owned-build-engine";
+  if (project) {
+    if (!/^[a-z0-9][a-z0-9-]{1,62}$/.test(project)) fail("INVALID_BACKUP_PROJECT_ID");
+    const projectReleaseRoot = resolve("/var/lib/izakhono-runtime/releases", project);
+    if (!existsSync(projectReleaseRoot)) fail("PROJECT_RELEASE_ROOT_MISSING");
+    setName = "build-" + project;
+  }
+  let sets = await request("/v1/sets", key);
+  let set = (sets.sets || []).find(x => x.name === setName);
+  if (!set && project) {
+    const registered = await request("/v1/sets", key, "POST", {
+      name: setName,
+      sources: ["/var/lib/izakhono-build-engine", resolve("/var/lib/izakhono-runtime/releases", project)],
+      retentionCount: 30,
+      enabled: true
+    });
+    set = registered.set;
+  }
+  if (!set) fail("BUILD_ENGINE_BACKUP_SET_MISSING:" + setName);
   const created = await request("/v1/sets/" + encodeURIComponent(set.id) + "/snapshots", key, "POST", {});
   const snapshot = created.snapshot;
   if (!snapshot || snapshot.state !== "complete" || !snapshot.archive_path || !snapshot.sha256) fail("PRIMARY_BACKUP_NOT_COMPLETE");
