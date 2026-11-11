@@ -111,13 +111,20 @@ async function main() {
   let sets = await request("/v1/sets", key);
   let set = (sets.sets || []).find(x => x.name === setName);
   if (!set && project) {
-    const registered = await request("/v1/sets", key, "POST", {
-      name: setName,
-      sources: ["/var/lib/izakhono-build-engine", resolve("/var/lib/izakhono-runtime/releases", project)],
-      retentionCount: 30,
-      enabled: true
-    });
-    set = registered.set;
+    try {
+      const registered = await request("/v1/sets", key, "POST", {
+        name: setName,
+        sources: ["/var/lib/izakhono-build-engine", resolve("/var/lib/izakhono-runtime/releases", project)],
+        retentionCount: 30,
+        enabled: true
+      });
+      set = registered.set;
+    } catch (error) {
+      if (!String(error.message || error).includes("BACKUP_API_409")) throw error;
+      sets = await request("/v1/sets", key);
+      set = (sets.sets || []).find(x => x.name === setName);
+      if (!set) throw error;
+    }
   }
   if (!set) fail("BUILD_ENGINE_BACKUP_SET_MISSING:" + setName);
   const created = await request("/v1/sets/" + encodeURIComponent(set.id) + "/snapshots", key, "POST", {});
