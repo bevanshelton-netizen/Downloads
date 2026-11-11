@@ -38,22 +38,28 @@ function mountInfo(path) {
   if (!mountTarget || resolve(mountTarget) !== target) fail("BACKUP_TARGET_NOT_MOUNT_ROOT:" + target);
   if (["tmpfs", "ramfs", "overlay", "squashfs"].includes(fsType)) fail("BACKUP_TARGET_NOT_DURABLE:" + target);
   let failureDomain = source;
+  let failureComponents = [];
   if (source.startsWith("/dev/")) {
     try {
       const rows = execFileSync("lsblk", ["-s", "-n", "-o", "NAME,TYPE", source], { encoding: "utf8" })
         .trim().split(/\r?\n/).map(line => line.trim().split(/\s+/));
       const disks = rows.filter(row => row[1] === "disk").map(row => row[0]).sort();
       if (!disks.length) fail("CANNOT_PROVE_PHYSICAL_BACKUP_DEVICE:" + target);
+      failureComponents = disks.map(name => "disk:" + name);
       failureDomain = disks.join(",");
     } catch {
       fail("CANNOT_PROVE_PHYSICAL_BACKUP_DEVICE:" + target);
     }
   } else if (source.startsWith("//")) {
     failureDomain = source.slice(2).split("/")[0].toLowerCase();
+    failureComponents = ["host:" + failureDomain];
   } else if (source.includes(":")) {
     failureDomain = source.split(":")[0].toLowerCase();
+    failureComponents = ["host:" + failureDomain];
+  } else {
+    failureComponents = ["source:" + source];
   }
-  return { mountTarget, source, fsType, device: String(statSync(target).dev), failureDomain };
+  return { mountTarget, source, fsType, device: String(statSync(target).dev), failureDomain, failureComponents };
 }
 async function sha256(path) {
   const hash = createHash("sha256");
@@ -69,7 +75,7 @@ async function main() {
   if (config.schema !== "izakhono.build-engine.backups/v1" || config.requiredCopies !== 5 ||
       !Array.isArray(config.targets) || config.targets.length !== 5) fail("EXACTLY_FIVE_BACKUP_TARGETS_REQUIRED");
 
-  const ids = new Set(), kinds = new Set(), devices = new Set(), failureDomains = new Set();
+  const ids = new Set(), kinds = new Set(), devices = new Set(), failureComponents = new Set();
   const targets = config.targets.map(target => {
     if (!target || typeof target.id !== "string" || ids.has(target.id) || !target.required) fail("INVALID_BACKUP_TARGET");
     ids.add(target.id);
@@ -79,8 +85,10 @@ async function main() {
     const info = mountInfo(target.path);
     if (devices.has(info.device)) fail("BACKUP_TARGETS_SHARE_FILESYSTEM:" + target.id);
     devices.add(info.device);
-    if (failureDomains.has(info.failureDomain)) fail("BACKUP_TARGETS_SHARE_PHYSICAL_FAILURE_DOMAIN:" + target.id);
-    failureDomains.add(info.failureDomain);
+    for (const component of info.failureComponents) {
+      if (failureComponents.has(component)) fail("BACKUP_TARGETS_SHARE_PHYSICAL_FAILURE_DOMAIN:" + target.id);
+      failureComponents.add(component);
+    }
     return { ...target, ...info };
   });
   const required = ["primary-encrypted", "separate-physical-disk", "separate-nas", "node02-replica", "offline-rotation"];
@@ -127,7 +135,7 @@ async function main() {
     sha256: snapshot.sha256,
     sizeBytes: snapshot.size_bytes,
     verifiedAt: new Date().toISOString(),
-    targets: targets.map(t => ({ id: t.id, kind: t.kind, mount: t.mountTarget, source: t.source, filesystem: t.fsType, failureDomain: t.failureDomain }))
+    targets: targets.map(t => ({ id: t.id, kind: t.kind, mount: t.mountTarget, source: t.source, filesystem: t.fsType, failureDomain: t.failureDomain, failureComponents: t.failureComponents }))
   };
   process.stdout.write(JSON.stringify(receipt, null, 2) + "\n");
 }
