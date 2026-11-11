@@ -31,7 +31,8 @@ const child=spawn(process.execPath,["server.mjs"],{
     IZAKHONO_BACKUP_ADMIN_KEY:admin,
     IZAKHONO_BACKUP_ENCRYPTION_KEY:enc,
     IZAKHONO_BACKUP_SOURCE_ALLOWLIST:source,
-    IZAKHONO_BACKUP_MIRROR_ROOTS:mirror,\n    IZAKHONO_BACKUP_TEST_MODE:"1",
+    IZAKHONO_BACKUP_MIRROR_ROOTS:mirror,
+    IZAKHONO_BACKUP_TEST_MODE:"1",
     IZAKHONO_BACKUP_INTERVAL_HOURS:"0"
   },
   stdio:["ignore","pipe","pipe"]
