@@ -5,7 +5,7 @@
     {
       "id": "primary",
       "kind": "primary-encrypted",
-      "path": "/var/lib/izakhono-backup/archives",
+      "path": "/var/lib/izakhono-backup",
       "required": true
     },
     {
