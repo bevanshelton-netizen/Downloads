@@ -103,6 +103,12 @@ async function preflight(plan) {
   await health(BACKUP_URL + "/health");
   await health(PACKAGE_URL.replace(/\/$/, "") + "/health");
   if (!runtimeEnv.IZAKHONO_RUNTIME_KEY || !backupEnv.IZAKHONO_BACKUP_ADMIN_KEY) fail("SERVICE_AUTHORITY_KEY_MISSING");
+  const backupCheck = await execFileAsync("node", [join(resolve(import.meta.dirname), "backup-five.mjs"), "--preflight"], {
+    env: process.env,
+    maxBuffer: 4 * 1024 * 1024
+  });
+  if (!backupCheck.stdout.includes("BACKUP_PREFLIGHT_PASS")) fail("FIVE_BACKUP_PREFLIGHT_FAILED");
+  process.stdout.write(backupCheck.stdout);
   if (plan.runtime.envFile && !existsSync(plan.runtime.envFile)) fail("RUNTIME_APP_ENV_FILE_MISSING");
   const git = await execFileAsync("git", ["-C", root, "rev-parse", "--verify", plan.source.ref + "^{commit}"]);
   const commit = git.stdout.trim();
