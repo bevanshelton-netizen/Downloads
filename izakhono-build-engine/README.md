@@ -9,7 +9,7 @@ Independent, reusable, owned-first build and deployment controller for IZAKHONO 
 - Build execution: disposable Linux systemd sandbox under the dedicated non-login `izakhono-build` account.
 - Dependency source: IZAKHONO PACKAGE NODE where configured.
 - Runtime: IZAKHONO RUNTIME NODE.
-- Recovery: IZAKHONO BACKUP NODE plus four separately mounted copies.
+- Recovery: IZAKHONO BACKUP NODE plus three separately mounted filesystem mirrors and one remote NODE02 Replica Node.
 - GitHub, Vercel and Cloudflare are not runtime or build authorities. They may remain optional source mirrors or external resilience adapters.
 
 ## One reusable pipeline
@@ -38,9 +38,9 @@ The backup gate requires exactly five separately mounted filesystems/failure dom
 4. NODE02 replica.
 5. Offline rotation media.
 
-The existing BACKUP NODE encrypts archives with AES-256-GCM, verifies authenticated decryption and writes SHA-256 sidecars for mirrors. The build engine additionally checks that all five configured targets are present, have distinct filesystems and non-overlapping physical disks or remote hosts, that all four external mirrors completed, and that the primary archive passes cryptographic verification. Deployment is blocked unless all five copies pass.
+The existing BACKUP NODE encrypts archives with AES-256-GCM, verifies authenticated decryption and writes SHA-256 sidecars for mirrors. The build engine additionally checks that all five configured targets are present, have distinct filesystems and non-overlapping physical disks or remote hosts, that all three filesystem mirrors completed and the NODE02 Replica Node accepted the encrypted archive with matching SHA-256 and size, and that the primary archive passes cryptographic verification. Deployment is blocked unless all five copies pass.
 
-The example target paths are placeholders, not claims that hardware is already mounted. Block-device targets are checked against their parent physical disks; network targets are checked against their remote source hosts. RAM-backed and overlay filesystems are not accepted. Configure actual independent storage roots in `/etc/izakhono/build-engine/five-backups.json`, then configure the four external roots in `IZAKHONO_BACKUP_MIRROR_ROOTS` in `/etc/izakhono/backup-node.env`. Each external target must be mounted at its configured root. The offline target must be attached for the backup gate to pass.
+The example target paths are placeholders, not claims that hardware is already mounted. Block-device targets are checked against their parent physical disks; network targets are checked against their remote source hosts. RAM-backed and overlay filesystems are not accepted. Configure actual independent storage roots in `/etc/izakhono/build-engine/five-backups.json`, then configure the three filesystem roots in `IZAKHONO_BACKUP_MIRROR_ROOTS` in `/etc/izakhono/backup-node.env`. Register an enabled Replica Node peer named exactly `node02` with a separate HTTPS receiver. Each filesystem target must be mounted at its configured root. The offline target must be attached for the backup gate to pass.
 
 ## Install
 
@@ -62,13 +62,13 @@ sudo nano /etc/izakhono/build-engine/five-backups.json
 sudo nano /etc/izakhono/backup-node.env
 ```
 
-Set `IZAKHONO_BACKUP_MIRROR_ROOTS` to the comma-separated paths for disk, NAS, NODE02 and offline rotation. Restart BACKUP NODE after changing its environment file:
+Set `IZAKHONO_BACKUP_MIRROR_ROOTS` to the comma-separated paths for disk, NAS and offline rotation. Configure the NODE02 peer in IZAKHONO REPLICA NODE. Restart BACKUP NODE after changing its environment file:
 
 ```bash
 sudo systemctl restart izakhono-backup-node
 ```
 
-The installer creates an `owned-build-engine` backup set for engine control state. Each project deployment stages the current immutable release in a stable engine-owned recovery directory, then creates or reuses a `build-{project}` set containing the installed engine software and only that current release. This avoids re-archiving every historical release on every build. The existing `owned-cloud-core` set protects the complete runtime data tree. The engine checks all five mount points and mirror configuration before it starts a build, then creates, decrypts and hashes all five copies before deployment. Export the backup recovery key to a separate offline medium. Never keep the only recovery key on the primary host.
+The installer creates an `owned-build-engine` backup set for engine control state. Each project deployment stages the current immutable release in a stable engine-owned recovery directory, then creates or reuses a `build-{project}` set containing the installed engine software and only that current release. This avoids re-archiving every historical release on every build. The existing `owned-cloud-core` set protects the complete runtime data tree. The engine checks all four filesystem mount points, the three local mirror roots and the enabled NODE02 HTTPS peer before it starts a build, then creates and verifies all five encrypted copies before deployment. Export the backup recovery key to a separate offline medium. Never keep the only recovery key on the primary host.
 
 ## Project plan
 
