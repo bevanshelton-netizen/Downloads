@@ -1,57 +1,46 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-# The Pages build starts from the repository default branch. The VIDEONOMY
-# release is maintained separately; assemble the checked-in chunk files from
-# that branch instead of requesting the obsolete single-file archive.
-RELEASE_BRANCH="${VIDEONOMY_RELEASE_BRANCH:-videonomy-cloudflare-zero}"
-DEPLOY_DIR=".videonomy-deploy"
-SOURCE_DIR="$DEPLOY_DIR/source"
-BUNDLE_DIR="$SOURCE_DIR/videonomy-bundle"
+# Deploy the current VIDEONOMY production release directly. Do not use the
+# retired v0.3 base64 bundle or the obsolete single-file archive.
+RELEASE_BRANCH="${VIDEONOMY_RELEASE_BRANCH:-videonomy-production}"
+ROOT_DIR="$(pwd)"
+DEPLOY_DIR="$ROOT_DIR/.videonomy-deploy"
+APP_DIR="$DEPLOY_DIR/app"
+WRANGLER="$ROOT_DIR/node_modules/.bin/wrangler"
 
 rm -rf "$DEPLOY_DIR"
-mkdir -p "$SOURCE_DIR"
+mkdir -p "$APP_DIR"
 
-echo "[VIDEONOMY] Fetching release branch: $RELEASE_BRANCH"
+echo "[VIDEONOMY] Fetching current production source: $RELEASE_BRANCH"
 git fetch --depth=1 origin "$RELEASE_BRANCH"
 RELEASE_COMMIT="$(git rev-parse FETCH_HEAD)"
-echo "[VIDEONOMY] Release commit: $RELEASE_COMMIT"
+echo "[VIDEONOMY] Production source commit: $RELEASE_COMMIT"
 
-git archive "$RELEASE_COMMIT" videonomy-bundle | tar -x -C "$SOURCE_DIR"
+git archive "$RELEASE_COMMIT" package.json wrangler.jsonc src public migrations | tar -x -C "$APP_DIR"
 
-shopt -s nullglob
-chunks=("$BUNDLE_DIR"/chunk-*.b64)
-if (( ${#chunks[@]} == 0 )); then
-  echo "[VIDEONOMY] ERROR: no release bundle chunks found in $RELEASE_BRANCH" >&2
+for required in package.json wrangler.jsonc src/index.ts public migrations; do
+  if [[ ! -e "$APP_DIR/$required" ]]; then
+    echo "[VIDEONOMY] ERROR: production source is missing $required" >&2
+    exit 1
+  fi
+done
+
+if [[ ! -x "$WRANGLER" ]]; then
+  echo "[VIDEONOMY] ERROR: cached/root Wrangler dependency is missing." >&2
+  echo "[VIDEONOMY] Check Workers Builds root directory and automatic dependency installation." >&2
   exit 1
 fi
 
-echo "[VIDEONOMY] Assembling ${#chunks[@]} bundle chunks"
-cat "${chunks[@]}" | base64 --decode > "$DEPLOY_DIR/app.tgz"
-tar -tzf "$DEPLOY_DIR/app.tgz" >/dev/null
-mkdir -p "$DEPLOY_DIR/app"
-tar -xzf "$DEPLOY_DIR/app.tgz" -C "$DEPLOY_DIR/app"
+cd "$APP_DIR"
 
-cd "$DEPLOY_DIR/app"
-if [[ ! -f package.json || ! -f wrangler.jsonc ]]; then
-  echo "[VIDEONOMY] ERROR: release archive is missing package.json or wrangler.jsonc" >&2
-  exit 1
-fi
+echo "[VIDEONOMY] Initial deploy: provision/check configured Cloudflare resources"
+"$WRANGLER" deploy
 
-echo "[VIDEONOMY] Installing pinned application dependencies"
-if [[ -f package-lock.json ]]; then
-  npm ci --no-audit --no-fund
-else
-  npm install --no-audit --no-fund
-fi
+echo "[VIDEONOMY] Apply production D1 migrations"
+"$WRANGLER" d1 migrations apply DB --remote
 
-echo "[VIDEONOMY] Initial deploy and automatic D1/R2 provisioning"
-npx wrangler deploy
+echo "[VIDEONOMY] Final deploy"
+"$WRANGLER" deploy
 
-echo "[VIDEONOMY] Applying production D1 migrations"
-npx wrangler d1 migrations apply DB --remote
-
-echo "[VIDEONOMY] Final deployment"
-npx wrangler deploy
-
-echo "[VIDEONOMY] Cloudflare deployment command completed successfully"
+echo "[VIDEONOMY] Production deployment command completed successfully"
