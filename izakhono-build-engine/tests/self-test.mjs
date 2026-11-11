@@ -23,7 +23,8 @@ assert.equal(new Set(targets.targets.map(x => x.kind)).size, 5);
 assert.deepEqual(new Set(targets.targets.map(x => x.kind)), new Set([
   "primary-encrypted", "separate-physical-disk", "separate-nas", "node02-replica", "offline-rotation"
 ]));
-assert.match(engine, /FIVE_BACKUP_GATE_FAILED_DEPLOYMENT_BLOCKED/);\nassert.match(engine, /BUILD_ALREADY_RUNNING_FOR_PROJECT/);
+assert.match(engine, /FIVE_BACKUP_GATE_FAILED_DEPLOYMENT_BLOCKED/);
+assert.match(engine, /BUILD_ALREADY_RUNNING_FOR_PROJECT/);
 assert.match(engine, /PrivateNetwork=yes/);
 assert.match(engine, /NoNewPrivileges=yes/);
 assert.match(engine, /ProtectSystem=strict/);
