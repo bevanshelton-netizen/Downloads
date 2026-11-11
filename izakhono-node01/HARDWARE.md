@@ -1,29 +1,16 @@
-# NODE01 Hardware Profile
+# NODE01 Software Runtime — Hardware Requirements
 
-NODE01 is software-defined and can move between machines without changing application contracts.
+NODE01 is the stable IZAKHONO software/runtime identity. It is not a machine, server, laptop, VM, hostname or hardware asset. The following describes an optional execution environment on which the software may run.
 
-## Development / proof node
+## Reference execution environment
+- Enterprise CPU capacity sized to the target workload.
+- ECC memory where supported; 128 GB baseline for a larger production profile.
+- Mirrored boot storage and redundant workload storage.
+- Redundant networking and isolated management access.
+- TPM-backed security and Secure Boot where available.
+- Protected power and tested recovery procedures.
 
-- 4 modern CPU cores
-- 16 GB RAM
-- 512 GB SSD
-- gigabit Ethernet
-- UPS strongly recommended
+## Binding and scaling
+Record the actual infrastructure locator in the runtime-binding record. Keep it separate from `logical_node_id: NODE01`. A second execution environment may provide standby, failover or workload capacity; do not name it NODE02 merely because it is a second physical machine. Logical software identities and infrastructure asset names are separate namespaces.
 
-## Primary production NODE01
-
-- 8 to 16 modern CPU cores
-- 32 to 64 GB RAM
-- 2 x enterprise or high-endurance NVMe drives, mirrored
-- 2 TB usable storage or more
-- gigabit or faster wired networking
-- hardware-backed TPM where available
-- UPS with graceful-shutdown support
-- separate external/NAS backup target
-- stable public connectivity
-
-## Expansion
-
-GPU workloads should move to a dedicated IZAKHONO GPU COMPUTE NODE when they begin competing with transactional workloads. Backups and replicas should live on physically separate media or hosts.
-
-A second production machine should become NODE02/standby rather than adding every workload to NODE01 indefinitely.
+Hardware procurement, migration, replacement or loss does not alter NODE01's software identity.
