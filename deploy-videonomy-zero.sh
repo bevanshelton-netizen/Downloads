@@ -18,7 +18,7 @@ echo "[VIDEONOMY] Fetching production source: $RELEASE_BRANCH"
 git fetch --depth=1 origin "$RELEASE_BRANCH"
 RELEASE_COMMIT="$(git rev-parse FETCH_HEAD)"
 echo "[VIDEONOMY] Production source commit: $RELEASE_COMMIT"
-git archive "$RELEASE_COMMIT" package.json wrangler.jsonc src public migrations tests | tar -x -C "$APP_DIR"
+git archive "$RELEASE_COMMIT" | tar -x -C "$APP_DIR"
 
 for required in package.json wrangler.jsonc src/index.ts public migrations; do
   [[ -e "$APP_DIR/$required" ]] || { echo "[VIDEONOMY] ERROR: missing production source $required" >&2; exit 1; }
