@@ -203,7 +203,11 @@ async function deploy(planPath) {
   };
   writeFileSync(join(release, "IZAKHONO-RELEASE.json"), JSON.stringify(manifest, null, 2) + "\n", { mode: 0o440 });
   await execFileAsync("chown", ["-R", "izakhono:izakhono", release]);
-  process.stdout.write("[IZAKHONO BUILD] Immutable release prepared: " + release + "\n");
+  const backupCurrent = join(STATE_ROOT, "current", plan.project.id);
+  rmSync(backupCurrent, { recursive: true, force: true });
+  mkdirSync(resolve(backupCurrent, ".."), { recursive: true, mode: 0o750 });
+  cpSync(release, backupCurrent, { recursive: true, errorOnExist: true, force: false });
+  process.stdout.write("[IZAKHONO BUILD] Immutable release prepared: " + release + "\\n");
 
   const backup = spawn("node", [join(resolve(import.meta.dirname), "backup-five.mjs"), plan.project.id], { stdio: "inherit", env: process.env });
   const backupCode = await new Promise((resolvePromise, reject) => { backup.on("error", reject); backup.on("close", resolvePromise); });
