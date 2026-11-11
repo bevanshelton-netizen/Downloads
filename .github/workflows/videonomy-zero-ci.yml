@@ -28,7 +28,7 @@ jobs:
           git fetch --depth=1 origin videonomy-production
           rm -rf .videonomy-ci
           mkdir .videonomy-ci
-          git archive FETCH_HEAD package.json wrangler.jsonc src public migrations | tar -x -C .videonomy-ci
+          git archive FETCH_HEAD package.json wrangler.jsonc src public migrations tests | tar -x -C .videonomy-ci
       - name: Install production application dependencies
         working-directory: .videonomy-ci
         run: npm install
