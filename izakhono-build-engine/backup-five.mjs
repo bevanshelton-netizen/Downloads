@@ -39,7 +39,7 @@ function mountInfo(path) {
   let failureDomain = source;
   if (source.startsWith("/dev/")) {
     try {
-      const parents = execFileSync("lsblk", ["-ndo", "PKNAME", source], { encoding: "utf8" }).trim().split(/\\s+/).filter(Boolean).sort();
+      const parents = execFileSync("lsblk", ["-no", "PKNAME", source], { encoding: "utf8" }).trim().split(/\\s+/).filter(Boolean).sort();
       if (parents.length) failureDomain = parents.join(",");
     } catch {
       fail("CANNOT_PROVE_PHYSICAL_BACKUP_DEVICE:" + target);
