@@ -1,0 +1,36 @@
+{
+  "schema": "izakhono.build-engine.backups/v1",
+  "requiredCopies": 5,
+  "targets": [
+    {
+      "id": "primary",
+      "kind": "primary-encrypted",
+      "path": "/var/lib/izakhono-backup/archives",
+      "required": true
+    },
+    {
+      "id": "disk",
+      "kind": "separate-physical-disk",
+      "path": "/mnt/izakhono-backup/disk",
+      "required": true
+    },
+    {
+      "id": "nas",
+      "kind": "separate-nas",
+      "path": "/mnt/izakhono-backup/nas",
+      "required": true
+    },
+    {
+      "id": "node02",
+      "kind": "node02-replica",
+      "path": "/mnt/izakhono-backup/node02",
+      "required": true
+    },
+    {
+      "id": "offline",
+      "kind": "offline-rotation",
+      "path": "/mnt/izakhono-backup/offline",
+      "required": true
+    }
+  ]
+}
