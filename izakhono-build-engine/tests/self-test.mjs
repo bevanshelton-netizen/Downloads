@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { dirname, join } from "node:path";\nimport { spawnSync } from "node:child_process";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const engine = readFileSync(join(here, "..", "engine.mjs"), "utf8");
@@ -26,9 +26,9 @@ assert.match(engine, /FIVE_BACKUP_GATE_FAILED_DEPLOYMENT_BLOCKED/);
 assert.match(engine, /PrivateNetwork=yes/);
 assert.match(engine, /NoNewPrivileges=yes/);
 assert.match(engine, /ProtectSystem=strict/);
-assert.match(engine, /deployment-receipt/);
+assert.match(engine, /deployment-receipt/);\nassert.match(engine, /chown.*izakhono-ci/s);\nassert.match(engine, /\/etc\/izakhono\/apps\//);
 assert.match(backup, /BACKUP_TARGETS_SHARE_FILESYSTEM/);
 assert.match(backup, /authenticated|verify/i);
 assert.match(backup, /FOUR_EXTERNAL_BACKUP_COPIES_NOT_REPORTED/);
-assert.match(engine, /\/etc\/izakhono\/apps\//);\nassert.match(engine, /FIVE_BACKUP_GATE_FAILED_DEPLOYMENT_BLOCKED/);\nassert.doesNotMatch(engine, /VERCEL_TOKEN|CLOUDFLARE_API_TOKEN|SUPABASE_SERVICE_ROLE_KEY/);
+assert.match(engine, /\/etc\/izakhono\/apps\//);\nassert.match(engine, /FIVE_BACKUP_GATE_FAILED_DEPLOYMENT_BLOCKED/);\nassert.doesNotMatch(engine, /VERCEL_TOKEN|CLOUDFLARE_API_TOKEN|SUPABASE_SERVICE_ROLE_KEY/);\nconst validation = spawnSync(process.execPath, [join(here, "..", "engine.mjs"), "validate", join(here, "..", "config", "build-plan.example.json")], { encoding: "utf8" });\nassert.equal(validation.status, 0, validation.stderr);\nassert.match(validation.stdout, /BUILD_PLAN_VALID example-app/);
 console.log("IZAKHONO BUILD ENGINE SELF-TEST: PASS");
