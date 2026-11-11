@@ -9,6 +9,7 @@ export const metadata: Metadata = {
 };
 
 const benefits = [
+  'Ad-light viewing and premium catalogue access',
   'Premium African films, series and original programming',
   'A growing catalogue of music, culture and entertainment',
   'One account for your viewing library and membership',
