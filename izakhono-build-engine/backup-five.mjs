@@ -36,7 +36,16 @@ function mountInfo(path) {
   const mount = execFileSync("findmnt", ["-n", "-o", "TARGET,SOURCE,FSTYPE", "--target", target], { encoding: "utf8" }).trim();
   const [mountTarget, source, fsType] = mount.split(/\s+/);
   if (!mountTarget || resolve(mountTarget) !== target) fail("BACKUP_TARGET_NOT_MOUNT_ROOT:" + target);
-  return { mountTarget, source, fsType, device: String(statSync(target).dev) };
+  let failureDomain = source;
+  if (source.startsWith("/dev/")) {
+    try {
+      const parents = execFileSync("lsblk", ["-ndo", "PKNAME", source], { encoding: "utf8" }).trim().split(/\\s+/).filter(Boolean).sort();
+      if (parents.length) failureDomain = parents.join(",");
+    } catch {
+      fail("CANNOT_PROVE_PHYSICAL_BACKUP_DEVICE:" + target);
+    }
+  }
+  return { mountTarget, source, fsType, device: String(statSync(target).dev), failureDomain };
 }
 async function sha256(path) {
   const hash = createHash("sha256");
@@ -52,7 +61,7 @@ async function main() {
   if (config.schema !== "izakhono.build-engine.backups/v1" || config.requiredCopies !== 5 ||
       !Array.isArray(config.targets) || config.targets.length !== 5) fail("EXACTLY_FIVE_BACKUP_TARGETS_REQUIRED");
 
-  const ids = new Set(), kinds = new Set(), devices = new Set();
+  const ids = new Set(), kinds = new Set(), devices = new Set(), failureDomains = new Set();
   const targets = config.targets.map(target => {
     if (!target || typeof target.id !== "string" || ids.has(target.id) || !target.required) fail("INVALID_BACKUP_TARGET");
     ids.add(target.id);
@@ -67,7 +76,7 @@ async function main() {
   const required = ["primary-encrypted", "separate-physical-disk", "separate-nas", "node02-replica", "offline-rotation"];
   if (required.some(kind => !kinds.has(kind))) fail("FIVE_REQUIRED_BACKUP_FAILURE_DOMAINS_NOT_CONFIGURED");
 
-  const mirrorRoots = (env.IZAKHONO_BACKUP_MIRROR_ROOTS || "").split(",").map(x => x.trim()).filter(Boolean).map(resolve);
+  const mirrorRoots = (env.IZAKHONO_BACKUP_MIRROR_ROOTS || "").split(",").map(x => x.trim()).filter(Boolean).map(x => resolve(x));
   const mirrorTargets = targets.filter(x => x.kind !== "primary-encrypted");
   if (mirrorRoots.length !== 4 || mirrorTargets.some(t => !mirrorRoots.includes(resolve(t.path)))) {
     fail("BACKUP_NODE_MUST_BE_CONFIGURED_WITH_THE_FOUR_EXTERNAL_MIRROR_ROOTS");
@@ -108,7 +117,7 @@ async function main() {
     sha256: snapshot.sha256,
     sizeBytes: snapshot.size_bytes,
     verifiedAt: new Date().toISOString(),
-    targets: targets.map(t => ({ id: t.id, kind: t.kind, mount: t.mountTarget, source: t.source, filesystem: t.fsType }))
+    targets: targets.map(t => ({ id: t.id, kind: t.kind, mount: t.mountTarget, source: t.source, filesystem: t.fsType, failureDomain: t.failureDomain }))
   };
   process.stdout.write(JSON.stringify(receipt, null, 2) + "\n");
 }
