@@ -1,0 +1,29 @@
+{
+  "schema": "izakhono.build-plan/v1",
+  "project": {
+    "id": "example-app",
+    "name": "example-app",
+    "hostname": "example.izakhonoafrica.co.za"
+  },
+  "source": {
+    "root": "/opt/izakhono-source/Downloads",
+    "path": "example-app",
+    "ref": "main"
+  },
+  "build": {
+    "commands": [
+      { "run": ["npm", "ci", "--no-audit", "--no-fund"], "network": true, "timeoutSeconds": 900 },
+      { "run": ["npm", "run", "build"], "network": false, "timeoutSeconds": 900 }
+    ],
+    "artifacts": ["dist", "package.json", "server.mjs"],
+    "healthPath": "/health"
+  },
+  "runtime": {
+    "command": ["node", "server.mjs"],
+    "envFile": "/var/lib/izakhono-runtime/env/example-app.env"
+  },
+  "backup": {
+    "targetsFile": "/etc/izakhono/build-engine/five-backups.json",
+    "requiredCopies": 5
+  }
+}
