@@ -106,7 +106,7 @@ async function main() {
   let setName = "owned-build-engine";
   if (project) {
     if (!/^[a-z0-9][a-z0-9-]{1,62}$/.test(project)) fail("INVALID_BACKUP_PROJECT_ID");
-    const projectReleaseRoot = resolve("/var/lib/izakhono-runtime/releases", project);
+    const projectReleaseRoot = resolve("/var/lib/izakhono-build-engine/current", project);
     if (!existsSync(projectReleaseRoot)) fail("PROJECT_RELEASE_ROOT_MISSING");
     setName = "build-" + project;
   }
@@ -130,7 +130,7 @@ async function main() {
     try {
       const registered = await request("/v1/sets", key, "POST", {
         name: setName,
-        sources: ["/opt/izakhono-build-engine", "/var/lib/izakhono-build-engine", resolve("/var/lib/izakhono-runtime/releases", project)],
+        sources: ["/opt/izakhono-build-engine", resolve("/var/lib/izakhono-build-engine/current", project)],
         retentionCount: 30,
         enabled: true
       });
@@ -144,7 +144,7 @@ async function main() {
   }
   if (!set) fail("BUILD_ENGINE_BACKUP_SET_MISSING:" + setName);
   if (project) {
-    const expectedSources = ["/opt/izakhono-build-engine", "/var/lib/izakhono-build-engine", resolve("/var/lib/izakhono-runtime/releases", project)];
+    const expectedSources = ["/opt/izakhono-build-engine", resolve("/var/lib/izakhono-build-engine/current", project)];
     const actualSources = new Set(set.sources || []);
     if (expectedSources.some(source => !actualSources.has(source))) fail("PROJECT_BACKUP_SET_SOURCE_MISMATCH:" + project);
   }
