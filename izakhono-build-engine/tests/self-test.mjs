@@ -44,6 +44,7 @@ assert.match(backup, /BACKUP_TARGET_REQUIRES_REMOTE_HOST/);
 assert.match(backup, /THREE_EXTERNAL_BACKUP_COPIES_NOT_REPORTED/);
 assert.match(backup, /NODE02_REPLICA_COPY_NOT_VERIFIED/);
 assert.match(backup, /NODE02_REPLICA_MUST_BE_A_SEPARATE_HTTPS_HOST/);
+assert.match(backup, /NODE02_REPLICA_REMOTE_HEALTH_FAILED/);
 assert.match(backup, /setName = "build-" \+ project/);
 assert.doesNotMatch(engine, /VERCEL_TOKEN|CLOUDFLARE_API_TOKEN|SUPABASE_SERVICE_ROLE_KEY/);
 const validation = spawnSync(process.execPath, [
