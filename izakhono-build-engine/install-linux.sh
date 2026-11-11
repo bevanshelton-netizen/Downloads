@@ -8,13 +8,13 @@ NODE="$(command -v node || true)"
 "$NODE" -e 'const [a,b]=process.versions.node.split(".").map(Number);if(a<22||(a===22&&b<13))process.exit(1)' || { echo "Node.js 22.13+ required"; exit 3; }
 command -v systemd-run >/dev/null
 command -v findmnt >/dev/null
-id izakhono-ci >/dev/null 2>&1 || { echo "IZAKHONO CI sandbox user missing; install IZAKHONO CI WORKER first."; exit 4; }
-CI_GROUP="$(id -gn izakhono-ci)"
+useradd --system --home /nonexistent --shell /usr/sbin/nologin izakhono-build 2>/dev/null || true
+BUILD_GROUP="$(id -gn izakhono-build)"
 
 install -d -m 0755 /opt/izakhono-build-engine
-install -d -o root -g "$CI_GROUP" -m 0750 /var/lib/izakhono-build-engine
+install -d -o root -g "$BUILD_GROUP" -m 0750 /var/lib/izakhono-build-engine
 install -d -o root -g "$CI_GROUP" -m 0750 /var/lib/izakhono-build-engine/receipts
-install -d -o izakhono-ci -g "$CI_GROUP" -m 0700 /var/tmp/izakhono-build-engine\ninstall -d -o izakhono-ci -g "$CI_GROUP" -m 0750 /var/cache/izakhono-build-engine/npm
+install -d -o izakhono-build -g "$CI_GROUP" -m 0700 /var/tmp/izakhono-build-engine\ninstall -d -o izakhono-ci -g "$CI_GROUP" -m 0750 /var/cache/izakhono-build-engine/npm
 install -d -m 0750 /etc/izakhono/build-engine
 
 install -m 0644 "$ROOT/engine.mjs" /opt/izakhono-build-engine/engine.mjs
