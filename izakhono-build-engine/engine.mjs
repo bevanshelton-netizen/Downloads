@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { readFileSync, existsSync, mkdirSync, cpSync, writeFileSync, statSync } from "node:fs";
-import { resolve, relative, join, sep } from "node:path";
+import { readFileSync, existsSync, mkdirSync, cpSync, writeFileSync, readdirSync, lstatSync, createReadStream, rmSync } from "node:fs";
+import { resolve, relative, join } from "node:path";
 import { spawn, spawnSync } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
 import { promisify } from "node:util";
@@ -9,10 +9,11 @@ import { execFile } from "node:child_process";
 const execFileAsync = promisify(execFile);
 const RUNTIME_URL = process.env.IZAKHONO_RUNTIME_URL || "http://127.0.0.1:8790";
 const BACKUP_URL = process.env.IZAKHONO_BACKUP_URL || "http://127.0.0.1:8870";
+const PACKAGE_URL = process.env.IZAKHONO_PACKAGE_URL || "http://127.0.0.1:8910/";
 const STATE_ROOT = process.env.IZAKHONO_BUILD_STATE || "/var/lib/izakhono-build-engine";
+const WORK_ROOT = process.env.IZAKHONO_BUILD_WORK || "/var/tmp/izakhono-build-engine";
 const RELEASE_ROOT = process.env.IZAKHONO_RELEASE_ROOT || "/var/lib/izakhono-runtime/releases";
 const ALLOWED_BUILD_COMMANDS = new Set(["npm", "node", "python3", "make"]);
-const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 function fail(message) { throw new Error(message); }
 function parseEnv(path) {
@@ -43,14 +44,16 @@ function validate(plan) {
     if (!Array.isArray(step.run) || !step.run.length || !ALLOWED_BUILD_COMMANDS.has(step.run[0]) ||
         step.run.some(x => typeof x !== "string" || x.length > 2000)) fail("BUILD_COMMAND_NOT_ALLOWLISTED");
     if (step.network !== true && step.network !== false) fail("BUILD_NETWORK_POLICY_REQUIRED");
-    if (step.network && step.run[0] !== "npm") fail("NETWORK_ALLOWED_ONLY_FOR_PACKAGE_INSTALL_COMMANDS");
+    if (step.network && !(step.run[0] === "npm" && ["ci", "install"].includes(step.run[1]))) {
+      fail("NETWORK_ALLOWED_ONLY_FOR_NPM_INSTALL_STEPS");
+    }
     if (step.run[0] === "npm" && !["ci", "install", "run"].includes(step.run[1])) fail("NPM_COMMAND_NOT_ALLOWLISTED");
   }
   if (!Array.isArray(b.artifacts) || !b.artifacts.length) fail("BUILD_ARTIFACTS_REQUIRED");
   b.artifacts.forEach(safeRelative);
   if (!Array.isArray(r?.command) || !["node", "npm"].includes(r.command[0]) ||
       r.command.some(x => typeof x !== "string" || x.length > 500)) fail("RUNTIME_COMMAND_NOT_ALLOWLISTED");
-  if (r.envFile && !r.envFile.startsWith("/var/lib/izakhono-runtime/env/")) fail("RUNTIME_ENV_FILE_OUTSIDE_ALLOWLIST");
+  if (r.envFile && !r.envFile.startsWith("/etc/izakhono/apps/")) fail("RUNTIME_ENV_FILE_OUTSIDE_ALLOWLIST");
   if (plan.backup?.requiredCopies !== 5) fail("FIVE_BACKUPS_REQUIRED");
   if (!plan.backup.targetsFile) fail("BACKUP_TARGET_MANIFEST_REQUIRED");
   if (b.healthPath && !b.healthPath.startsWith("/")) fail("INVALID_HEALTH_PATH");
@@ -79,13 +82,15 @@ async function preflight(plan) {
   if (!existsSync(join(root, ".git"))) fail("SOURCE_CHECKOUT_NOT_FOUND:" + root);
   if (process.platform !== "linux") fail("LINUX_BUILD_HOST_REQUIRED");
   for (const command of ["git", "tar", "systemd-run", "findmnt"]) {
-    if (spawnSync("command", ["-v", command], { shell: true }).status !== 0) fail("REQUIRED_HOST_COMMAND_MISSING:" + command);
+    if (spawnSync("bash", ["-lc", "command -v " + command], { stdio: "ignore" }).status !== 0) fail("REQUIRED_HOST_COMMAND_MISSING:" + command);
   }
   const runtimeEnv = parseEnv("/etc/izakhono/runtime-node.env");
   const backupEnv = parseEnv("/etc/izakhono/backup-node.env");
   await health(RUNTIME_URL + "/health");
   await health(BACKUP_URL + "/health");
+  await health(PACKAGE_URL.replace(/\/$/, "") + "/health");
   if (!runtimeEnv.IZAKHONO_RUNTIME_KEY || !backupEnv.IZAKHONO_BACKUP_ADMIN_KEY) fail("SERVICE_AUTHORITY_KEY_MISSING");
+  if (plan.runtime.envFile && !existsSync(plan.runtime.envFile)) fail("RUNTIME_APP_ENV_FILE_MISSING");
   const git = await execFileAsync("git", ["-C", root, "rev-parse", "--verify", plan.source.ref + "^{commit}"]);
   const commit = git.stdout.trim();
   const status = await execFileAsync("git", ["-C", root, "status", "--porcelain"]);
@@ -100,7 +105,8 @@ function runSandbox(command, cwd, network, timeoutSeconds) {
       "--property=LockPersonality=yes", "--property=MemoryMax=2048M", "--property=CPUQuota=200%",
       "--property=RuntimeMaxSec=" + timeoutSeconds, "--property=ReadWritePaths=" + cwd,
       "--working-directory=" + cwd, "--setenv=PATH=/usr/local/bin:/usr/bin:/bin",
-      "--setenv=HOME=" + join(cwd, ".home"), "--setenv=CI=true", "--setenv=IZAKHONO_CI=1"];
+      "--setenv=HOME=" + join(cwd, ".home"), "--setenv=CI=true", "--setenv=IZAKHONO_CI=1",
+      "--setenv=NPM_CONFIG_REGISTRY=" + PACKAGE_URL, "--setenv=NPM_CONFIG_AUDIT=false", "--setenv=NPM_CONFIG_FUND=false"];
     if (!network) args.push("--property=PrivateNetwork=yes");
     args.push("--", ...command);
     const child = spawn("systemd-run", args, { stdio: "inherit", env: { PATH: process.env.PATH || "/usr/bin:/bin" } });
@@ -110,23 +116,36 @@ function runSandbox(command, cwd, network, timeoutSeconds) {
 }
 async function sha256(path) {
   const hash = createHash("sha256");
-  const { createReadStream } = await import("node:fs");
   for await (const chunk of createReadStream(path)) hash.update(chunk);
   return hash.digest("hex");
+}
+function runGitArchive(root, commit, sourcePath, destination) {
+  return new Promise((resolvePromise, reject) => {
+    const git = spawn("git", ["-C", root, "archive", commit, sourcePath], { stdio: ["ignore", "pipe", "inherit"] });
+    const tar = spawn("tar", ["-x", "-C", destination], { stdio: ["pipe", "inherit", "inherit"] });
+    git.stdout.pipe(tar.stdin);
+    let gitCode = null, tarCode = null;
+    const finish = () => {
+      if (gitCode === null || tarCode === null) return;
+      if (gitCode !== 0 || tarCode !== 0) reject(new Error("SOURCE_ARCHIVE_FAILED"));
+      else resolvePromise();
+    };
+    git.on("error", reject); tar.on("error", reject);
+    git.on("close", code => { gitCode = code; finish(); });
+    tar.on("close", code => { tarCode = code; finish(); });
+  });
 }
 async function deploy(planPath) {
   const plan = validate(JSON.parse(readFileSync(planPath, "utf8")));
   const ctx = await preflight(plan);
   const id = randomUUID();
-  const work = join(STATE_ROOT, "work", id);
+  const work = join(WORK_ROOT, id);
   const sourceDir = join(work, "source");
   mkdirSync(sourceDir, { recursive: true, mode: 0o700 });
+  await execFileAsync("chown", ["-R", "izakhono-ci:izakhono-ci", work]);
+  await runGitArchive(ctx.root, ctx.commit, plan.source.path, sourceDir);
   const appSource = join(sourceDir, plan.source.path);
-  const archive = spawn("bash", ["-lc", "git -C " + JSON.stringify(ctx.root) + " archive " + JSON.stringify(ctx.commit) + " " + JSON.stringify(plan.source.path) + " | tar -x -C " + JSON.stringify(sourceDir)], { stdio: "inherit" });
-  const archiveCode = await new Promise((resolvePromise, reject) => {
-    archive.on("error", reject); archive.on("close", resolvePromise);
-  });
-  if (archiveCode !== 0 || !existsSync(appSource)) fail("SOURCE_ARCHIVE_FAILED");
+  if (!existsSync(appSource)) fail("SOURCE_PROJECT_DIRECTORY_NOT_FOUND");
   mkdirSync(join(appSource, ".home"), { recursive: true });
   for (let i = 0; i < plan.build.commands.length; i++) {
     const step = plan.build.commands[i];
@@ -143,7 +162,6 @@ async function deploy(planPath) {
     cpSync(from, to, { recursive: true, errorOnExist: true, force: false });
   }
   const files = [];
-  const { readdirSync, lstatSync } = await import("node:fs");
   function walk(dir) {
     for (const name of readdirSync(dir)) {
       const path = join(dir, name), st = lstatSync(path);
@@ -164,7 +182,8 @@ async function deploy(planPath) {
     files
   };
   writeFileSync(join(release, "IZAKHONO-RELEASE.json"), JSON.stringify(manifest, null, 2) + "\n", { mode: 0o440 });
-  process.stdout.write("[IZAKHONO BUILD] Release prepared: " + release + "\n");
+  await execFileAsync("chown", ["-R", "izakhono:izakhono", release]);
+  process.stdout.write("[IZAKHONO BUILD] Immutable release prepared: " + release + "\n");
 
   const backup = spawn("node", [join(resolve(import.meta.dirname), "backup-five.mjs")], { stdio: "inherit", env: process.env });
   const backupCode = await new Promise((resolvePromise, reject) => { backup.on("error", reject); backup.on("close", resolvePromise); });
@@ -192,9 +211,10 @@ async function deploy(planPath) {
     completedAt: new Date().toISOString()
   };
   const receiptDir = join(STATE_ROOT, "receipts", plan.project.id);
-  mkdirSync(receiptDir, { recursive: true, mode: 0o700 });
-  writeFileSync(join(receiptDir, id + ".json"), JSON.stringify(receipt, null, 2) + "\n", { mode: 0o600 });
+  mkdirSync(receiptDir, { recursive: true, mode: 0o750 });
+  writeFileSync(join(receiptDir, id + ".json"), JSON.stringify(receipt, null, 2) + "\n", { mode: 0o640 });
   process.stdout.write(JSON.stringify(receipt, null, 2) + "\n");
+  rmSync(work, { recursive: true, force: true });
 }
 async function rollback(app) {
   if (!/^[a-z0-9][a-z0-9-]{1,62}$/.test(app || "")) fail("INVALID_APP_NAME");
