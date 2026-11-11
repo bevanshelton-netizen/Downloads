@@ -21,6 +21,7 @@ async function main() {
   if (!adminKey || !baseUrl || !receiveKey) fail("NODE02_PEER_CONFIGURATION_INCOMPLETE");
   const url = new URL(baseUrl);
   if (url.protocol !== "https:" || url.pathname !== "/" || url.search || url.hash) fail("NODE02_PEER_URL_MUST_BE_HTTPS_ORIGIN");
+  const canonicalBaseUrl = url.origin;
   const allowlist = (replica.IZAKHONO_REPLICA_TARGET_ALLOWLIST || "").split(",").map(x => x.trim().toLowerCase()).filter(Boolean);
   if (!allowlist.includes(url.hostname.toLowerCase())) fail("NODE02_HOST_NOT_IN_REPLICA_TARGET_ALLOWLIST");
   const health = await fetch(new URL("/health", url), { signal: AbortSignal.timeout(5000) });
@@ -34,7 +35,7 @@ async function main() {
   if (!existingResponse.ok) fail("LOCAL_REPLICA_PEER_LIST_FAILED");
   const existing = (existingBody.peers || []).find(x => x.name === "node02");
   if (existing) {
-    if (existing.base_url !== baseUrl || !existing.enabled) fail("NODE02_PEER_EXISTS_WITH_DIFFERENT_CONFIGURATION");
+    if (existing.base_url !== canonicalBaseUrl || !existing.enabled) fail("NODE02_PEER_EXISTS_WITH_DIFFERENT_CONFIGURATION");
     process.stdout.write("NODE02_REPLICA_PEER=ALREADY_CONFIGURED\n");
     return;
   }
@@ -42,7 +43,7 @@ async function main() {
   const response = await fetch(localBase + "/v1/peers", {
     method: "POST",
     headers,
-    body: JSON.stringify({ name: "node02", baseUrl, receiveKey, enabled: true }),
+    body: JSON.stringify({ name: "node02", baseUrl: canonicalBaseUrl, receiveKey, enabled: true }),
     signal: AbortSignal.timeout(15000)
   });
   const result = await response.json().catch(() => ({}));
