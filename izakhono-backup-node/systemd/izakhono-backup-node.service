@@ -15,7 +15,7 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=read-only
-ReadWritePaths=/var/lib/izakhono-backup
+ReadWritePaths=/var/lib/izakhono-backup /mnt/izakhono-backup
 RestrictSUIDSGID=true
 LockPersonality=true
 Environment=IZAKHONO_BACKUP_DB=/var/lib/izakhono-backup/backup.sqlite

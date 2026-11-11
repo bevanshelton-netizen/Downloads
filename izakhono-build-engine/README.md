@@ -1,0 +1,114 @@
+# IZAKHONO BUILD ENGINE v1
+
+Independent, reusable, owned-first build and deployment controller for IZAKHONO platforms.
+
+## Authority
+
+- Build/deployment authority: IZAKHONO NODE01 and IZAKHONO OWNED CLOUD.
+- Source authority: IZAKHONO CODE / canonical owned source checkout.
+- Build execution: disposable Linux systemd sandbox under the dedicated non-login `izakhono-build` account.
+- Dependency source: IZAKHONO PACKAGE NODE where configured.
+- Runtime: IZAKHONO RUNTIME NODE.
+- Recovery: IZAKHONO BACKUP NODE plus three separately mounted filesystem mirrors and one remote NODE02 Replica Node.
+- GitHub, Vercel and Cloudflare are not runtime or build authorities. They may remain optional source mirrors or external resilience adapters.
+
+## One reusable pipeline
+
+```text
+Project build plan
+  -> source commit pin
+  -> preflight
+  -> disposable sandbox build
+  -> immutable release + SHA-256 manifest
+  -> five-copy encrypted backup gate
+  -> health-gated IZAKHONO RUNTIME activation
+  -> deployment receipt
+  -> controlled rollback if required
+```
+
+A failed build, backup gate or health check does not replace the active release. The runtime's activation process starts the new release and checks its health before switching the active route.
+
+## Five independent backup copies
+
+The backup gate requires exactly five separately mounted filesystems/failure domains:
+
+1. Primary encrypted BACKUP NODE archive.
+2. Separate physical disk.
+3. Separate NAS.
+4. NODE02 replica.
+5. Offline rotation media.
+
+The existing BACKUP NODE encrypts archives with AES-256-GCM, verifies authenticated decryption and writes SHA-256 sidecars for mirrors. The build engine additionally checks that all five configured targets are present, have distinct filesystems and non-overlapping physical disks or remote hosts, that all three filesystem mirrors completed and the NODE02 Replica Node accepted the encrypted archive with matching SHA-256 and size, and that the primary archive passes cryptographic verification. Deployment is blocked unless all five copies pass.
+
+The example target paths are placeholders, not claims that hardware is already mounted. Block-device targets are checked against their parent physical disks; network targets are checked against their remote source hosts. RAM-backed and overlay filesystems are not accepted. Configure actual independent storage roots in `/etc/izakhono/build-engine/five-backups.json`, then configure the three filesystem roots in `IZAKHONO_BACKUP_MIRROR_ROOTS` in `/etc/izakhono/backup-node.env`. On NODE02, install REPLICA NODE with node ID `node02` and expose its receiver through HTTPS. On NODE01, add the NODE02 hostname to `IZAKHONO_REPLICA_TARGET_ALLOWLIST` in `/etc/izakhono/replica-node.env`, then create `/etc/izakhono/node02-peer.env` (mode 0600) with `NODE02_REPLICA_URL=https://node02.example.net` and `NODE02_REPLICA_RECEIVE_KEY` set to the receiver key from NODE02. Run `sudo node /opt/izakhono-build-engine/configure-node02-peer.mjs` to register the enabled peer named exactly `node02`. Each filesystem target must be mounted at its configured root. The offline target must be attached for the backup gate to pass.
+
+## Install
+
+On the dedicated IZAKHONO Linux infrastructure host, after NODE01, CODE, PACKAGE, INFRASTRUCTURE EXECUTOR, RUNTIME and BACKUP NODE are installed:
+
+```bash
+cd izakhono-build-engine
+sudo bash install-linux.sh
+```
+
+Do not install the production build engine on a laptop or WSL host.
+
+## Configure five backups
+
+Copy the example only as a starting point; replace every path with the real mount root. Do not reuse one filesystem for multiple targets.
+
+```bash
+sudo nano /etc/izakhono/build-engine/five-backups.json
+sudo nano /etc/izakhono/backup-node.env
+```
+
+Set `IZAKHONO_BACKUP_MIRROR_ROOTS` to the comma-separated paths for disk, NAS and offline rotation. Configure the NODE02 peer in IZAKHONO REPLICA NODE. Restart BACKUP NODE after changing its environment file:
+
+```bash
+sudo systemctl restart izakhono-backup-node
+```
+
+The installer creates an `owned-build-engine` backup set for engine control state. Each project deployment stages the current immutable release in a stable engine-owned recovery directory, then creates or reuses a `build-{project}` set containing the installed engine software and only that current release. This avoids re-archiving every historical release on every build. The existing `owned-cloud-core` set protects the complete runtime data tree. The engine checks all four filesystem mount points, the three local mirror roots and the enabled NODE02 HTTPS peer before it starts a build, then creates and verifies all five encrypted copies before deployment. Export the backup recovery key to a separate offline medium. Never keep the only recovery key on the primary host.
+
+## Project plan
+
+Copy `config/build-plan.example.json` and set:
+- project ID/name and hostname;
+- canonical source checkout and project subdirectory;
+- pinned branch or commit;
+- exact build commands and explicit network policy per command;
+- runtime artifact paths;
+- runtime command, environment file and health path.
+
+Commands are argument arrays, not shell strings. Only the documented build executables are accepted. Network is disabled by default and may be enabled only for npm dependency-install steps. The npm cache persists on NODE01 and uses IZAKHONO PACKAGE NODE as its registry, reducing repeated package downloads. Build steps run under the engine's own non-login `izakhono-build` account with resource limits, no inherited infrastructure secrets and write access limited to the disposable workspace and package cache. The engine does not require the separate CI WORKER service to execute builds.
+
+## Commands
+
+```bash
+node /opt/izakhono-build-engine/engine.mjs validate /path/to/build-plan.json
+node /opt/izakhono-build-engine/engine.mjs preflight /path/to/build-plan.json
+sudo node /opt/izakhono-build-engine/engine.mjs deploy /path/to/build-plan.json
+sudo node /opt/izakhono-build-engine/engine.mjs status
+sudo node /opt/izakhono-build-engine/engine.mjs rollback example-app
+```
+
+## Safety boundaries
+
+- No arbitrary shell command in a project plan.
+- No production deploy before all five encrypted backup copies are verified.
+- No public DNS changes or payment routing changes.
+- No laptop/WSL deployment target.
+- The engine itself has no third-party runtime dependencies; application dependencies are resolved through IZAKHONO PACKAGE NODE.
+- Secrets are read from root-owned service environment files and never placed in project build environments.
+- Existing active release remains in service until the new release passes its health check.
+- A successful local runtime deployment does not by itself prove public DNS/TLS or external payment readiness.
+
+## Acceptance
+
+Run:
+
+```bash
+npm run check
+```
+
+Then on the physical NODE01 host, complete the first controlled deployment and restore drill. Software tests cannot prove that five physical storage failure domains exist; the five-backup gate will fail closed until they are actually mounted and verified.

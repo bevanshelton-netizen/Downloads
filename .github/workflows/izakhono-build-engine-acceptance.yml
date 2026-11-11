@@ -1,0 +1,46 @@
+name: IZAKHONO Build Engine Acceptance
+
+on:
+  push:
+    branches: [izakhono-build-engine-v1]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'izakhono-build-engine/**'
+      - 'izakhono-backup-node/install-linux.sh'
+      - 'izakhono-backup-node/systemd/izakhono-backup-node.service'
+      - 'izakhono-owned-cloud/configure-build-engine-backup.sh'
+      - 'izakhono-owned-cloud/configure-stack-backup.sh'
+      - 'izakhono-owned-cloud/install-owned-stack.sh'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax checks
+        run: |
+          node --check izakhono-build-engine/engine.mjs
+          node --check izakhono-build-engine/backup-five.mjs
+          node --check izakhono-build-engine/configure-node02-peer.mjs
+          node --check izakhono-build-engine/tests/self-test.mjs
+          bash -n izakhono-build-engine/install-linux.sh
+          bash -n izakhono-owned-cloud/configure-build-engine-backup.sh
+          bash -n izakhono-owned-cloud/configure-stack-backup.sh
+          bash -n izakhono-owned-cloud/install-owned-stack.sh
+          bash -n izakhono-backup-node/install-linux.sh
+      - name: Verify infrastructure-only Vercel skip gate
+        run: |
+          git fetch --no-tags --depth=1 origin main
+          BASE_SHA="$(git rev-parse FETCH_HEAD)"
+          HEAD_SHA="$(git rev-parse HEAD)"
+          VERCEL_GIT_PREVIOUS_SHA="$BASE_SHA" VERCEL_GIT_COMMIT_SHA="$HEAD_SHA" bash scripts/vercel-ignore-build.sh
+      - name: Build engine tests
+        working-directory: izakhono-build-engine
+        run: npm run check

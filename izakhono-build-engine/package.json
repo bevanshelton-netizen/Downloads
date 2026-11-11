@@ -1,0 +1,11 @@
+{
+  "name": "izakhono-build-engine",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.13.0" },
+  "scripts": {
+    "check": "node tests/self-test.mjs",
+    "validate": "node engine.mjs validate"
+  }
+}

@@ -1,4 +1,4 @@
-# NODE01 Hardware Profile
+# Hardware Sizing Profile for the NODE01 Software Runtime
 
 NODE01 is software-defined and can move between machines without changing application contracts.
 

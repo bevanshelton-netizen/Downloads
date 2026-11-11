@@ -10,7 +10,7 @@ import {
   rmSync, statSync, unlinkSync, writeFileSync
 } from "node:fs";
 import { dirname, join, resolve, sep } from "node:path";
-import { spawn } from "node:child_process";
+import { spawn, execFileSync } from "node:child_process";
 import { pipeline } from "node:stream/promises";
 import { DatabaseSync } from "node:sqlite";
 
@@ -164,6 +164,11 @@ function mirrorSnapshot(setName,archivePath,sha){
   const mirrors=[];
   for(const root of MIRROR_ROOTS){
     try{
+      const resolvedRoot=resolve(root);
+      if(process.env.IZAKHONO_BACKUP_TEST_MODE!=="1"){
+        const mountedAt=execFileSync("findmnt",["-n","-o","TARGET","--target",resolvedRoot],{encoding:"utf8"}).trim();
+        if(!mountedAt || resolve(mountedAt)!==resolvedRoot) throw new Error("MIRROR_ROOT_NOT_MOUNTED:"+resolvedRoot);
+      }
       mkdirSync(root,{recursive:true});
       const dir=join(root,setName);
       mkdirSync(dir,{recursive:true});
@@ -179,8 +184,9 @@ function mirrorSnapshot(setName,archivePath,sha){
 }
 
 function pruneRetention(set){
-  const rows=db.prepare("SELECT * FROM snapshots WHERE set_id=? AND state='complete' ORDER BY datetime(created_at) DESC, rowid DESC").all(set.id);
-  const old=rows.slice(Number(set.retention_count));
+  const complete=db.prepare("SELECT * FROM snapshots WHERE set_id=? AND state='complete' ORDER BY datetime(created_at) DESC, rowid DESC").all(set.id);
+  const degraded=db.prepare("SELECT * FROM snapshots WHERE set_id=? AND state='degraded' ORDER BY datetime(created_at) DESC, rowid DESC").all(set.id);
+  const old=complete.slice(Number(set.retention_count)).concat(degraded.slice(10));
   for(const snap of old){
     try{if(snap.archive_path && existsSync(snap.archive_path)) unlinkSync(snap.archive_path);}catch{}
     try{
@@ -221,9 +227,13 @@ async function createSnapshot(set){
     const sha=await sha256File(finalPath);
     const size=statSync(finalPath).size;
     const mirrors=mirrorSnapshot(set.name,finalPath,sha);
-    db.prepare("UPDATE snapshots SET state='complete',sha256=?,size_bytes=?,mirror_json=?,completed_at=datetime('now'),error=NULL WHERE id=?")
-      .run(sha,size,JSON.stringify(mirrors),id);
-    audit("snapshot.complete",id,"success",{setId:set.id,size,sha256:sha,mirrors});
+    const mirrorFailures=mirrors.filter(x=>x.status!=="complete");
+    const mirrorConfigMissing=MIRROR_ROOTS.length===0;
+    const snapshotState=(mirrorConfigMissing||mirrorFailures.length)?"degraded":"complete";
+    const snapshotError=mirrorConfigMissing?"MIRROR_CONFIGURATION_MISSING":(mirrorFailures.length?"MIRROR_COPIES_INCOMPLETE":null);
+    db.prepare("UPDATE snapshots SET state=?,sha256=?,size_bytes=?,mirror_json=?,completed_at=datetime('now'),error=? WHERE id=?")
+      .run(snapshotState,sha,size,JSON.stringify(mirrors),snapshotError,id);
+    audit("snapshot."+snapshotState,id,snapshotState==="degraded"?"degraded":"success",{setId:set.id,size,sha256:sha,mirrors});
     pruneRetention(set);
     return snapshotById(id);
   }catch(error){

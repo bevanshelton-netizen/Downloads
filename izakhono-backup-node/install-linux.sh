@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+command -v findmnt >/dev/null 2>&1 || { echo "util-linux findmnt is required for safe mirror mounting."; exit 2; }
+
 if ! command -v node >/dev/null 2>&1; then
   echo "Node.js 22.13+ is required."
   exit 2
@@ -10,7 +12,7 @@ if ! command -v tar >/dev/null 2>&1; then
   exit 3
 fi
 
-sudo mkdir -p /opt/izakhono-backup-node/scripts   /var/lib/izakhono-backup/archives   /var/lib/izakhono-backup/restores   /var/lib/izakhono-backup/mirrors   /etc/izakhono
+sudo mkdir -p /opt/izakhono-backup-node/scripts /var/lib/izakhono-backup/archives /var/lib/izakhono-backup/restores /var/lib/izakhono-backup/mirrors /mnt/izakhono-backup/disk /mnt/izakhono-backup/nas /mnt/izakhono-backup/offline /etc/izakhono
 sudo cp server.mjs /opt/izakhono-backup-node/server.mjs
 sudo cp scripts/restore-external.mjs /opt/izakhono-backup-node/scripts/restore-external.mjs
 sudo chmod 0755 /opt/izakhono-backup-node/scripts/restore-external.mjs
@@ -25,7 +27,7 @@ HOST=127.0.0.1
 PORT=8870
 IZAKHONO_BACKUP_ADMIN_KEY=$ADMIN
 IZAKHONO_BACKUP_ENCRYPTION_KEY=$ENC
-IZAKHONO_BACKUP_SOURCE_ALLOWLIST=/etc/izakhono,/var/lib/izakhono-data,/var/lib/izakhono-object,/var/lib/izakhono-queue,/var/lib/izakhono-runtime,/var/lib/izakhono-auth,/var/lib/izakhono-analytics,/var/lib/izakhono-notify,/var/lib/izakhono-ai-gateway,/var/lib/izakhono-code,/var/lib/izakhono-package,/var/lib/izakhono-ci,/var/lib/izakhono-replica,/var/lib/izakhono-failover
+IZAKHONO_BACKUP_SOURCE_ALLOWLIST=/etc/izakhono,/opt/izakhono-build-engine,/var/lib/izakhono-data,/var/lib/izakhono-object,/var/lib/izakhono-queue,/var/lib/izakhono-runtime,/var/lib/izakhono-auth,/var/lib/izakhono-analytics,/var/lib/izakhono-notify,/var/lib/izakhono-ai-gateway,/var/lib/izakhono-code,/var/lib/izakhono-package,/var/lib/izakhono-ci,/var/lib/izakhono-replica,/var/lib/izakhono-failover
 IZAKHONO_BACKUP_MIRROR_ROOTS=
 IZAKHONO_BACKUP_INTERVAL_HOURS=24
 IZAKHONO_BACKUP_MAX_BODY_BYTES=262144
@@ -33,9 +35,35 @@ EOF
   sudo chmod 600 /etc/izakhono/backup-node.env
 fi
 
+# Extend existing installations without replacing generated recovery credentials.
+if ! sudo grep -q '^IZAKHONO_BACKUP_SOURCE_ALLOWLIST=.*\/var\/lib\/izakhono-build-engine' /etc/izakhono/backup-node.env; then
+  if sudo grep -q '^IZAKHONO_BACKUP_SOURCE_ALLOWLIST=' /etc/izakhono/backup-node.env; then
+    sudo sed -i '/^IZAKHONO_BACKUP_SOURCE_ALLOWLIST=/ s|$|,/var/lib/izakhono-build-engine|' /etc/izakhono/backup-node.env
+  else
+    echo 'IZAKHONO_BACKUP_SOURCE_ALLOWLIST=/etc/izakhono,/var/lib/izakhono-build-engine' | sudo tee -a /etc/izakhono/backup-node.env >/dev/null
+  fi
+fi
+
+if ! sudo grep -q '^IZAKHONO_BACKUP_MIRROR_ROOTS=.' /etc/izakhono/backup-node.env; then
+  if sudo grep -q '^IZAKHONO_BACKUP_MIRROR_ROOTS=' /etc/izakhono/backup-node.env; then
+    sudo sed -i '/^IZAKHONO_BACKUP_MIRROR_ROOTS=/ s|$|/mnt/izakhono-backup/disk,/mnt/izakhono-backup/nas,/mnt/izakhono-backup/offline|' /etc/izakhono/backup-node.env
+  else
+    echo 'IZAKHONO_BACKUP_MIRROR_ROOTS=/mnt/izakhono-backup/disk,/mnt/izakhono-backup/nas,/mnt/izakhono-backup/offline' | sudo tee -a /etc/izakhono/backup-node.env >/dev/null
+  fi
+fi
+
+if ! sudo grep -q '^IZAKHONO_BACKUP_SOURCE_ALLOWLIST=.*\/opt\/izakhono-build-engine' /etc/izakhono/backup-node.env; then
+  if sudo grep -q '^IZAKHONO_BACKUP_SOURCE_ALLOWLIST=' /etc/izakhono/backup-node.env; then
+    sudo sed -i '/^IZAKHONO_BACKUP_SOURCE_ALLOWLIST=/ s|$|,/opt/izakhono-build-engine|' /etc/izakhono/backup-node.env
+  else
+    echo 'IZAKHONO_BACKUP_SOURCE_ALLOWLIST=/etc/izakhono,/opt/izakhono-build-engine' | sudo tee -a /etc/izakhono/backup-node.env >/dev/null
+  fi
+fi
+
 sudo cp systemd/izakhono-backup-node.service /etc/systemd/system/izakhono-backup-node.service
 sudo systemctl daemon-reload
-sudo systemctl enable --now izakhono-backup-node
+sudo systemctl enable izakhono-backup-node
+sudo systemctl restart izakhono-backup-node 2>/dev/null || sudo systemctl start izakhono-backup-node
 sudo systemctl --no-pager --full status izakhono-backup-node
 
 echo

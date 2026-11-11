@@ -39,6 +39,8 @@ scripts=(
   izakhono-owned-cloud/deploy-recovery-node.sh
   izakhono-owned-cloud/deploy-fortress-protector.sh
   izakhono-owned-cloud/go-live-izakhono-pay.sh
+  izakhono-build-engine/install-linux.sh
+  izakhono-owned-cloud/configure-build-engine-backup.sh
 )
 
 fail(){ echo "FAIL $*" >&2; exit 20; }
@@ -60,6 +62,8 @@ for file in "${scripts[@]}"; do
   bash -n "$file" || fail "$file shell syntax"
 done
 pass "Owned Cloud deployment and HA scripts parse cleanly"
+node izakhono-build-engine/tests/self-test.mjs || fail "IZAKHONO BUILD ENGINE acceptance"
+pass "Reusable Build Engine and five-copy backup gate"
 
 grep -q 'automaticPromotion:false' izakhono-failover-node/server.mjs || fail "FAILOVER automatic promotion boundary missing"
 grep -q 'fence-required' izakhono-failover-node/server.mjs || fail "FAILOVER fencing boundary missing"
