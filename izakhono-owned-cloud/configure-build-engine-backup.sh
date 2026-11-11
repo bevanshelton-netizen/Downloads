@@ -8,7 +8,7 @@ BACKUP_ENV=/etc/izakhono/backup-node.env
 
 ADMIN_KEY="$(awk -F= '$1=="IZAKHONO_BACKUP_ADMIN_KEY" {sub(/^[^=]*=/,""); print; exit}' "$BACKUP_ENV")"
 [[ -n "$ADMIN_KEY" ]] || { echo "BACKUP admin key missing."; exit 5; }
-PAYLOAD="$(node -e 'process.stdout.write(JSON.stringify({name:"owned-build-engine",sources:["/var/lib/izakhono-build-engine"],retentionCount:30,enabled:true}))')"
+PAYLOAD="$(node -e 'process.stdout.write(JSON.stringify({name:"owned-build-engine",sources:["/opt/izakhono-build-engine","/var/lib/izakhono-build-engine"],retentionCount:30,enabled:true}))')"
 TMP="$(mktemp)"
 CODE="$(curl -sS -o "$TMP" -w '%{http_code}' -X POST http://127.0.0.1:8870/v1/sets -H "content-type: application/json" -H "x-izakhono-key: $ADMIN_KEY" --data-binary "$PAYLOAD")"
 unset ADMIN_KEY PAYLOAD
