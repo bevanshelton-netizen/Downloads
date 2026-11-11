@@ -42,7 +42,7 @@ The existing BACKUP NODE encrypts archives with AES-256-GCM, verifies authentica
 
 The example target paths are placeholders, not claims that hardware is already mounted. Configure actual independent storage roots in `/etc/izakhono/build-engine/five-backups.json`, then configure the four external roots in `IZAKHONO_BACKUP_MIRROR_ROOTS` in `/etc/izakhono/backup-node.env`. Each external target must be mounted at its configured root. The offline target must be attached for the backup gate to pass.
 
-The core backup set must include `/var/lib/izakhono-build-engine` and the runtime release directory. The backup service allowlist must include `/var/lib/izakhono-build-engine`.
+The installer registers a dedicated `owned-build-engine` encrypted backup set containing `/var/lib/izakhono-build-engine` and `/var/lib/izakhono-runtime` (including immutable releases). The backup service source allowlist must include `/var/lib/izakhono-build-engine`.
 
 ## Install
 
