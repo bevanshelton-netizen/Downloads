@@ -40,7 +40,7 @@ assert.match(backup, /BACKUP_TARGETS_SHARE_PHYSICAL_FAILURE_DOMAIN/);
 assert.match(backup, /BACKUP_TARGET_NOT_DURABLE/);
 assert.match(backup, /BACKUP_TARGET_REQUIRES_BLOCK_DEVICE/);
 assert.match(backup, /BACKUP_TARGET_REQUIRES_REMOTE_HOST/);
-assert.match(backup, /FOUR_EXTERNAL_BACKUP_COPIES_NOT_REPORTED/);
+assert.match(backup, /THREE_EXTERNAL_BACKUP_COPIES_NOT_REPORTED/);\nassert.match(backup, /NODE02_REPLICA_COPY_NOT_VERIFIED/);\nassert.match(backup, /NODE02_REPLICA_MUST_BE_A_SEPARATE_HTTPS_HOST/);
 assert.match(backup, /setName = "build-" \+ project/);
 assert.doesNotMatch(engine, /VERCEL_TOKEN|CLOUDFLARE_API_TOKEN|SUPABASE_SERVICE_ROLE_KEY/);
 const validation = spawnSync(process.execPath, [
