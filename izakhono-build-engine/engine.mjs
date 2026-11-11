@@ -37,6 +37,7 @@ function validate(plan) {
   if (!/^[a-z0-9][a-z0-9-]{1,62}$/.test(p?.id || "") || p.name !== p.id) fail("INVALID_PROJECT_ID");
   if (!/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(p.hostname || "")) fail("INVALID_PROJECT_HOSTNAME");
   if (typeof s?.root !== "string" || typeof s?.path !== "string" || typeof s?.ref !== "string") fail("INVALID_SOURCE_CONFIG");
+  if (s.syncScript != null && (typeof s.syncScript !== "string" || !s.syncScript.startsWith("/opt/izakhono-infrastructure-executor/"))) fail("SOURCE_SYNC_SCRIPT_NOT_ALLOWLISTED");
   safeRelative(s.path);
   if (!/^[A-Za-z0-9._/-]{1,180}$/.test(s.ref) || s.ref.includes("..")) fail("INVALID_SOURCE_REF");
   if (!Array.isArray(b?.commands) || b.commands.length < 1 || b.commands.length > 30) fail("INVALID_BUILD_COMMANDS");
@@ -80,6 +81,18 @@ async function health(url) {
 async function preflight(plan) {
   const root = resolve(plan.source.root);
   if (!existsSync(join(root, ".git"))) fail("SOURCE_CHECKOUT_NOT_FOUND:" + root);
+  if (plan.source.syncScript) {
+    if (!existsSync(plan.source.syncScript)) fail("SOURCE_SYNC_SCRIPT_MISSING");
+    const synced = await execFileAsync("bash", [plan.source.syncScript], {
+      env: { ...process.env, IZAKHONO_INFRA_SOURCE_ROOT: root },
+      maxBuffer: 8 * 1024 * 1024
+    });
+    if (!synced.stdout.includes("SOURCE_AUTHORITY=IZAKHONO_CODE") &&
+        !synced.stdout.includes("SOURCE_AUTHORITY=EXTERNAL_BOOTSTRAP_FALLBACK")) {
+      fail("SOURCE_AUTHORITY_NOT_VERIFIED");
+    }
+    process.stdout.write(synced.stdout);
+  }
   if (process.platform !== "linux") fail("LINUX_BUILD_HOST_REQUIRED");
   for (const command of ["git", "tar", "systemd-run", "findmnt"]) {
     if (spawnSync("bash", ["-lc", "command -v " + command], { stdio: "ignore" }).status !== 0) fail("REQUIRED_HOST_COMMAND_MISSING:" + command);
@@ -103,10 +116,10 @@ function runSandbox(command, cwd, network, timeoutSeconds) {
       "--property=NoNewPrivileges=yes", "--property=PrivateTmp=yes", "--property=ProtectSystem=strict",
       "--property=ProtectHome=yes", "--property=PrivateDevices=yes", "--property=RestrictSUIDSGID=yes",
       "--property=LockPersonality=yes", "--property=MemoryMax=2048M", "--property=CPUQuota=200%",
-      "--property=RuntimeMaxSec=" + timeoutSeconds, "--property=ReadWritePaths=" + cwd,
+      "--property=RuntimeMaxSec=" + timeoutSeconds, "--property=ReadWritePaths=" + cwd + " /var/cache/izakhono-build-engine/npm",
       "--working-directory=" + cwd, "--setenv=PATH=/usr/local/bin:/usr/bin:/bin",
       "--setenv=HOME=" + join(cwd, ".home"), "--setenv=CI=true", "--setenv=IZAKHONO_CI=1",
-      "--setenv=NPM_CONFIG_REGISTRY=" + PACKAGE_URL, "--setenv=NPM_CONFIG_AUDIT=false", "--setenv=NPM_CONFIG_FUND=false"];
+      "--setenv=NPM_CONFIG_REGISTRY=" + PACKAGE_URL, "--setenv=NPM_CONFIG_CACHE=/var/cache/izakhono-build-engine/npm", "--setenv=NPM_CONFIG_AUDIT=false", "--setenv=NPM_CONFIG_FUND=false"];
     if (!network) args.push("--property=PrivateNetwork=yes");
     args.push("--", ...command);
     const child = spawn("systemd-run", args, { stdio: "inherit", env: { PATH: process.env.PATH || "/usr/bin:/bin" } });
