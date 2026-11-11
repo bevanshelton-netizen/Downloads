@@ -25,7 +25,7 @@ HOST=127.0.0.1
 PORT=8870
 IZAKHONO_BACKUP_ADMIN_KEY=$ADMIN
 IZAKHONO_BACKUP_ENCRYPTION_KEY=$ENC
-IZAKHONO_BACKUP_SOURCE_ALLOWLIST=/etc/izakhono,/var/lib/izakhono-data,/var/lib/izakhono-object,/var/lib/izakhono-queue,/var/lib/izakhono-runtime,/var/lib/izakhono-auth,/var/lib/izakhono-analytics,/var/lib/izakhono-notify,/var/lib/izakhono-ai-gateway,/var/lib/izakhono-code,/var/lib/izakhono-package,/var/lib/izakhono-ci,/var/lib/izakhono-replica,/var/lib/izakhono-failover
+IZAKHONO_BACKUP_SOURCE_ALLOWLIST=/etc/izakhono,/opt/izakhono-build-engine,/var/lib/izakhono-data,/var/lib/izakhono-object,/var/lib/izakhono-queue,/var/lib/izakhono-runtime,/var/lib/izakhono-auth,/var/lib/izakhono-analytics,/var/lib/izakhono-notify,/var/lib/izakhono-ai-gateway,/var/lib/izakhono-code,/var/lib/izakhono-package,/var/lib/izakhono-ci,/var/lib/izakhono-replica,/var/lib/izakhono-failover
 IZAKHONO_BACKUP_MIRROR_ROOTS=
 IZAKHONO_BACKUP_INTERVAL_HOURS=24
 IZAKHONO_BACKUP_MAX_BODY_BYTES=262144
@@ -39,6 +39,14 @@ if ! grep -q '^IZAKHONO_BACKUP_SOURCE_ALLOWLIST=.*\/var\/lib\/izakhono-build-eng
     sudo sed -i '/^IZAKHONO_BACKUP_SOURCE_ALLOWLIST=/ s|$|,/var/lib/izakhono-build-engine|' /etc/izakhono/backup-node.env
   else
     echo 'IZAKHONO_BACKUP_SOURCE_ALLOWLIST=/etc/izakhono,/var/lib/izakhono-build-engine' | sudo tee -a /etc/izakhono/backup-node.env >/dev/null
+  fi
+fi
+
+if ! grep -q '^IZAKHONO_BACKUP_SOURCE_ALLOWLIST=.*\/opt\/izakhono-build-engine' /etc/izakhono/backup-node.env; then
+  if grep -q '^IZAKHONO_BACKUP_SOURCE_ALLOWLIST=' /etc/izakhono/backup-node.env; then
+    sudo sed -i '/^IZAKHONO_BACKUP_SOURCE_ALLOWLIST=/ s|$|,/opt/izakhono-build-engine|' /etc/izakhono/backup-node.env
+  else
+    echo 'IZAKHONO_BACKUP_SOURCE_ALLOWLIST=/etc/izakhono,/opt/izakhono-build-engine' | sudo tee -a /etc/izakhono/backup-node.env >/dev/null
   fi
 fi
 
