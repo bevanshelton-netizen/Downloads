@@ -23,6 +23,7 @@ install -d -m 0750 /etc/izakhono/build-engine
 
 install -m 0644 "$ROOT/engine.mjs" /opt/izakhono-build-engine/engine.mjs
 install -m 0644 "$ROOT/backup-five.mjs" /opt/izakhono-build-engine/backup-five.mjs
+install -m 0644 "$ROOT/configure-node02-peer.mjs" /opt/izakhono-build-engine/configure-node02-peer.mjs
 install -m 0644 "$ROOT/package.json" /opt/izakhono-build-engine/package.json
 install -m 0644 "$ROOT/config/five-backups.example.json" /etc/izakhono/build-engine/five-backups.example.json
 
