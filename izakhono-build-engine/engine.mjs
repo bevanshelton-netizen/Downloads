@@ -94,7 +94,7 @@ async function preflight(plan) {
     process.stdout.write(synced.stdout);
   }
   if (process.platform !== "linux") fail("LINUX_BUILD_HOST_REQUIRED");
-  for (const command of ["git", "tar", "systemd-run", "findmnt"]) {
+  for (const command of ["git", "tar", "systemd-run", "findmnt", "lsblk"]) {
     if (spawnSync("bash", ["-lc", "command -v " + command], { stdio: "ignore" }).status !== 0) fail("REQUIRED_HOST_COMMAND_MISSING:" + command);
   }
   const runtimeEnv = parseEnv("/etc/izakhono/runtime-node.env");
