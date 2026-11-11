@@ -70,13 +70,10 @@ c.r2_buckets[0].bucket_name=process.env.VIDEONOMY_R2_NAME;
 fs.writeFileSync(p,JSON.stringify(c,null,2)+"\n");
 '
 
-echo "[VIDEONOMY] Deploying Worker with provisioned D1/R2 bindings"
-"$WRANGLER" deploy
-
-echo "[VIDEONOMY] Applying production D1 migrations"
+echo "[VIDEONOMY] Applying production D1 migrations before exposing the release"
 "$WRANGLER" d1 migrations apply DB --remote
 
-echo "[VIDEONOMY] Publishing final production release"
+echo "[VIDEONOMY] Publishing production Worker with provisioned D1/R2 bindings"
 "$WRANGLER" deploy
 
 echo "[VIDEONOMY] Deployment command completed; verify the deployed Worker health endpoint before declaring production live."
