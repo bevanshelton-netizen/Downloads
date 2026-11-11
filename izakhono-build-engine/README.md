@@ -6,7 +6,7 @@ Independent, reusable, owned-first build and deployment controller for IZAKHONO 
 
 - Build/deployment authority: IZAKHONO NODE01 and IZAKHONO OWNED CLOUD.
 - Source authority: IZAKHONO CODE / canonical owned source checkout.
-- Build execution: disposable Linux systemd sandbox under `izakhono-ci`.
+- Build execution: disposable Linux systemd sandbox under the dedicated non-login `izakhono-build` account.
 - Dependency source: IZAKHONO PACKAGE NODE where configured.
 - Runtime: IZAKHONO RUNTIME NODE.
 - Recovery: IZAKHONO BACKUP NODE plus four separately mounted copies.
@@ -46,7 +46,7 @@ The installer registers a small `owned-build-engine` backup set for engine contr
 
 ## Install
 
-On the dedicated IZAKHONO Linux infrastructure host, after NODE01, CI WORKER, RUNTIME and BACKUP NODE are installed:
+On the dedicated IZAKHONO Linux infrastructure host, after NODE01, CODE, PACKAGE, INFRASTRUCTURE EXECUTOR, RUNTIME and BACKUP NODE are installed:
 
 ```bash
 cd izakhono-build-engine
@@ -70,7 +70,7 @@ Set `IZAKHONO_BACKUP_MIRROR_ROOTS` to the comma-separated paths for disk, NAS, N
 sudo systemctl restart izakhono-backup-node
 ```
 
-The dedicated `owned-build-engine` set is created by the installer; it includes the engine state and immutable runtime releases. Export the backup recovery key to a separate offline medium. Never keep the only recovery key on the primary host.
+The installer creates an `owned-build-engine` backup set for engine control state. Each project deployment creates or reuses a `build-{project}` set containing the engine state and only that project's immutable release directory. The existing `owned-cloud-core` set protects the complete runtime data tree. Export the backup recovery key to a separate offline medium. Never keep the only recovery key on the primary host.
 
 ## Project plan
 
