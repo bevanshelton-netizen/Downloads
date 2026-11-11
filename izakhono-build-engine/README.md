@@ -42,8 +42,6 @@ The existing BACKUP NODE encrypts archives with AES-256-GCM, verifies authentica
 
 The example target paths are placeholders, not claims that hardware is already mounted. Block-device targets are checked against their parent physical disks; network targets are checked against their remote source hosts. RAM-backed and overlay filesystems are not accepted. Configure actual independent storage roots in `/etc/izakhono/build-engine/five-backups.json`, then configure the four external roots in `IZAKHONO_BACKUP_MIRROR_ROOTS` in `/etc/izakhono/backup-node.env`. Each external target must be mounted at its configured root. The offline target must be attached for the backup gate to pass.
 
-The installer registers a small `owned-build-engine` backup set for engine control state. Each deployment creates or reuses a per-project backup set containing the engine state and only that project's immutable release directory. The existing `owned-cloud-core` set continues to protect the complete runtime data tree. The backup service source allowlist must include `/var/lib/izakhono-build-engine`.
-
 ## Install
 
 On the dedicated IZAKHONO Linux infrastructure host, after NODE01, CODE, PACKAGE, INFRASTRUCTURE EXECUTOR, RUNTIME and BACKUP NODE are installed:
@@ -70,7 +68,7 @@ Set `IZAKHONO_BACKUP_MIRROR_ROOTS` to the comma-separated paths for disk, NAS, N
 sudo systemctl restart izakhono-backup-node
 ```
 
-The installer creates an `owned-build-engine` backup set for engine control state. Each project deployment creates or reuses a `build-{project}` set containing the engine state and only that project's immutable release directory. The existing `owned-cloud-core` set protects the complete runtime data tree. Export the backup recovery key to a separate offline medium. Never keep the only recovery key on the primary host.
+The installer creates an `owned-build-engine` backup set for engine control state. Each project deployment creates or reuses a `build-{project}` set containing the engine state and only that project's immutable release directory. The existing `owned-cloud-core` set protects the complete runtime data tree. The engine checks all five mount points and mirror configuration before it starts a build, then creates, decrypts and hashes all five copies before deployment. Export the backup recovery key to a separate offline medium. Never keep the only recovery key on the primary host.
 
 ## Project plan
 
