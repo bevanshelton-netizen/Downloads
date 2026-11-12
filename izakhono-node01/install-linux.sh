@@ -71,7 +71,7 @@ const config = {
   external_runtime_dependency: false,
   public_live_claim: false
 };
-fs.writeFileSync(path, JSON.stringify(config, null, 2) + '\\n', { mode: 0o640 });
+fs.writeFileSync(path, JSON.stringify(config, null, 2) + '\n', { mode: 0o640 });
 NODE
 chown root:izakhono "$CONFIG_ROOT/node01.json"
 chmod 0640 "$CONFIG_ROOT/node01.json"
