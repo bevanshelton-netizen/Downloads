@@ -1,12 +1,11 @@
 {
-  "schema": "izakhono.node01-manifest/v1",
+  "schema": "izakhono.node01-manifest/v2",
   "node_id": "NODE01",
   "product": "IZAKHONO NODE01",
   "version": "1.0.0",
   "authority": "IZAKHONO",
   "execution_class": "IZAKHONO_SOVEREIGN_NODE",
   "owned_first": true,
-  "external_runtime_dependency": false,
   "public_ingress": "IZAKHONO EDGE",
   "private_control_bind": "127.0.0.1:8940",
   "tracking": false,
@@ -32,5 +31,10 @@
     "failover",
     "dns",
     "edge"
-  ]
+  ],
+  "logical_node_id": "NODE01",
+  "identity_type": "software-runtime",
+  "node_instance_policy": "stable-across-execution-environment-replacement",
+  "execution_environment_binding": "separate-runtime-binding",
+  "external_runtime_dependency": "environment-dependent"
 }
