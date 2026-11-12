@@ -46,7 +46,11 @@ if [ -s "$CONFIG_ROOT/node01.json" ]; then
   EXISTING_INSTANCE="$(node -e 'try{const c=require(process.argv[1]);if(c.node_id==="NODE01" && c.identity_type==="software-runtime" && typeof c.node_instance==="string" && c.node_instance.startsWith("NODE01-SW-")) process.stdout.write(c.node_instance)}catch{}' "$CONFIG_ROOT/node01.json")"
   if [ -n "$EXISTING_INSTANCE" ]; then NODE_INSTANCE="$EXISTING_INSTANCE"; fi
 fi
-RUNTIME_HOST="${IZAKHONO_RUNTIME_HOST:-UNBOUND}"
+RUNTIME_HOST="${IZAKHONO_RUNTIME_HOST:-}"
+if [ -z "$RUNTIME_HOST" ] && [ -s "$CONFIG_ROOT/node01.json" ]; then
+  RUNTIME_HOST="$(node -e 'try{const c=require(process.argv[1]);if(typeof c.runtime_host==="string")process.stdout.write(c.runtime_host)}catch{}' "$CONFIG_ROOT/node01.json")"
+fi
+[ -n "$RUNTIME_HOST" ] || RUNTIME_HOST="UNBOUND"
 cat >"$CONFIG_ROOT/node01.json" <<JSON
 {
   "schema": "izakhono.node01-config/v2",
