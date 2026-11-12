@@ -51,23 +51,28 @@ if [ -z "$RUNTIME_HOST" ] && [ -s "$CONFIG_ROOT/node01.json" ]; then
   RUNTIME_HOST="$(node -e 'try{const c=require(process.argv[1]);if(typeof c.runtime_host==="string")process.stdout.write(c.runtime_host)}catch{}' "$CONFIG_ROOT/node01.json")"
 fi
 [ -n "$RUNTIME_HOST" ] || RUNTIME_HOST="UNBOUND"
-cat >"$CONFIG_ROOT/node01.json" <<JSON
-{
-  "schema": "izakhono.node01-config/v2",
-  "logical_node_id": "NODE01",
-  "node_id": "NODE01",
-  "identity_type": "software-runtime",
-  "node_instance": "$NODE_INSTANCE",
-  "runtime_host": "$RUNTIME_HOST",
-  "runtime_host_is_separate": true,
-  "runtime_binding_status": "$([ "$RUNTIME_HOST" = "UNBOUND" ] && printf 'unbound' || printf 'pending-verification')",
-  "role": "primary",
-  "authority": "IZAKHONO",
-  "execution_class": "IZAKHONO_SOVEREIGN_NODE",
-  "external_runtime_dependency": false,
-  "public_live_claim": false
-}
-JSON
+node - "$CONFIG_ROOT/node01.json" "$NODE_INSTANCE" "$RUNTIME_HOST" <<'NODE'
+const fs = require('node:fs');
+const [path, nodeInstance, runtimeHost] = process.argv.slice(2);
+const prior = (() => { try { return JSON.parse(fs.readFileSync(path, 'utf8')); } catch { return {}; } })();
+const bound = runtimeHost !== 'UNBOUND';
+const config = {
+  schema: 'izakhono.node01-config/v2',
+  logical_node_id: 'NODE01',
+  node_id: 'NODE01',
+  identity_type: 'software-runtime',
+  node_instance: nodeInstance,
+  runtime_host: runtimeHost,
+  runtime_host_is_separate: true,
+  runtime_binding_status: bound ? 'pending-verification' : 'unbound',
+  role: prior.role || 'primary',
+  authority: 'IZAKHONO',
+  execution_class: 'IZAKHONO_SOVEREIGN_NODE',
+  external_runtime_dependency: false,
+  public_live_claim: false
+};
+fs.writeFileSync(path, JSON.stringify(config, null, 2) + '\\n', { mode: 0o640 });
+NODE
 chown root:izakhono "$CONFIG_ROOT/node01.json"
 chmod 0640 "$CONFIG_ROOT/node01.json"
 
