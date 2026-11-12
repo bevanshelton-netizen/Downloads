@@ -1,5 +1,5 @@
 {
-  "schema": "izakhono.node01-manifest/v2",
+  "schema": "izakhono.node01-manifest/v1",
   "node_id": "NODE01",
   "product": "IZAKHONO NODE01",
   "version": "1.0.0",
@@ -36,5 +36,5 @@
   "identity_type": "software-runtime",
   "node_instance_policy": "stable-across-execution-environment-replacement",
   "execution_environment_binding": "separate-runtime-binding",
-  "external_runtime_dependency": "environment-dependent"
+  "external_runtime_dependency": false
 }
