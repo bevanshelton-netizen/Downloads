@@ -39,16 +39,24 @@ install -o root -g izakhono -m 0640 "$HERE/server.mjs" "$INSTALL_ROOT/server.mjs
 install -o root -g root -m 0750 "$HERE/self-heal.sh" "$INSTALL_ROOT/self-heal.sh"
 install -o root -g root -m 0750 "$HERE/acceptance.sh" "$INSTALL_ROOT/acceptance.sh"
 
-MACHINE_ID="unknown"
-if [ -s /etc/machine-id ]; then MACHINE_ID="$(cat /etc/machine-id)"; fi
-FINGERPRINT="$(printf 'IZAKHONO-NODE01:%s' "$MACHINE_ID" | sha256sum | awk '{print substr($1,1,16)}')"
-NODE_INSTANCE="NODE01-$FINGERPRINT"
-
+# NODE01 software identity is stable and MUST NOT be derived from a machine fingerprint.
+# Preserve an existing software instance identifier across execution-environment replacement.
+NODE_INSTANCE="NODE01-SW-001"
+if [ -s "$CONFIG_ROOT/node01.json" ]; then
+  EXISTING_INSTANCE="$(node -e 'try{const c=require(process.argv[1]);if(c.node_id==="NODE01" && c.identity_type==="software-runtime" && typeof c.node_instance==="string" && c.node_instance.startsWith("NODE01-SW-")) process.stdout.write(c.node_instance)}catch{}' "$CONFIG_ROOT/node01.json")"
+  if [ -n "$EXISTING_INSTANCE" ]; then NODE_INSTANCE="$EXISTING_INSTANCE"; fi
+fi
+RUNTIME_HOST="${IZAKHONO_RUNTIME_HOST:-UNBOUND}"
 cat >"$CONFIG_ROOT/node01.json" <<JSON
 {
-  "schema": "izakhono.node01-config/v1",
+  "schema": "izakhono.node01-config/v2",
+  "logical_node_id": "NODE01",
   "node_id": "NODE01",
+  "identity_type": "software-runtime",
   "node_instance": "$NODE_INSTANCE",
+  "runtime_host": "$RUNTIME_HOST",
+  "runtime_host_is_separate": true,
+  "runtime_binding_status": "$([ "$RUNTIME_HOST" = "UNBOUND" ] && printf 'unbound' || printf 'pending-verification')",
   "role": "primary",
   "authority": "IZAKHONO",
   "execution_class": "IZAKHONO_SOVEREIGN_NODE",
