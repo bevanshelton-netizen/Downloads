@@ -1,66 +1,49 @@
-# IZAKHONO NODE01
+# IZAKHONO NODE01 Software
 
-NODE01 is the first-class sovereign compute node for the IZAKHONO portfolio.
+**NODE01 IS SOFTWARE. THE MACHINE RUNNING IT IS REPLACEABLE.**
 
-It is not a Vercel project, a GitHub runner, a ChatGPT runtime, or a cloud-provider VM contract. Those may be used as replaceable adapters or resilience paths, but NODE01 remains the authority.
+NODE01 is IZAKHONO's stable software/runtime identity and control plane. It is not a physical server, computer, laptop, VM, cloud instance, hostname or hardware asset.
 
-## Core contract
+The previous execution machine has been replaced. The replacement is a separate execution environment running the same NODE01 software identity. Machine replacement does not create a new NODE01 identity. Only the separate runtime binding changes.
 
-NODE01 owns and supervises:
+## Software responsibilities
 
-- IZAKHONO DATA NODE
-- IZAKHONO RUNTIME NODE
-- IZAKHONO OBJECT NODE
-- IZAKHONO QUEUE NODE
-- IZAKHONO AUTH NODE
-- IZAKHONO ANALYTICS NODE
-- IZAKHONO NOTIFY NODE
-- IZAKHONO AI GATEWAY NODE
-- IZAKHONO CODE NODE
-- IZAKHONO PACKAGE NODE
-- IZAKHONO CI WORKER NODE
-- IZAKHONO BACKUP NODE
-- IZAKHONO REPLICA NODE
-- IZAKHONO FAILOVER NODE
-- IZAKHONO DNS NODE
-- IZAKHONO EDGE NODE when TLS or an approved bridge is available
+NODE01 software governs the approved IZAKHONO service capabilities, including data, runtime, object, queue, auth, analytics, notification, AI gateway, code, package, CI, backup, replica, failover, DNS and edge integrations. Each capability may be implemented by a separately managed service or adapter.
 
-The NODE01 controller binds only to `127.0.0.1:8940`.
+The NODE01 controller binds to `127.0.0.1:8940` by default. That is a local software listen address, not NODE01's identity or the replacement machine's locator.
 
-## What makes NODE01 ours
+## Identity and execution environment
 
-- machine identity is generated locally and stored under `/etc/izakhono`;
-- service secrets are generated and retained locally;
-- application releases live on owned storage;
-- internal services bind to loopback/private interfaces;
-- public traffic enters only through IZAKHONO EDGE;
-- external providers are adapters, not authorities;
-- no behavioural tracking, profiling or silent analytics is built into NODE01;
-- the system can continue running if GitHub, Vercel or ChatGPT are unavailable.
+- Stable software identity: `logical_node_id: NODE01`
+- Identity type: `software-runtime`
+- Execution environment: recorded separately as `runtime_host`
+- Required boundary: `runtime_host_is_separate: true`
+- Replacing or migrating the machine changes the runtime binding only.
+- Never derive NODE01's identity from `/etc/machine-id`, hostname, IP address, serial number or cloud instance ID.
 
 ## Install
 
-On a dedicated Ubuntu/Debian system with systemd and Node.js 22.13+:
+On a supported Linux environment with systemd and Node.js 22.13+:
 
 ```bash
 sudo bash BUILD-IZAKHONO-NODE01.sh
 ```
 
-The installer first installs the existing IZAKHONO owned-cloud service plane, then installs NODE01 identity, controller, watchdog and acceptance proof.
+The installer installs the NODE01 software runtime and service adapters. It must preserve the software identity across environment replacement. The actual execution-environment locator must be supplied and verified separately; an unknown locator is recorded as UNBOUND, never guessed.
 
-## Health
+## Health and acceptance
 
 ```bash
 curl -fsS http://127.0.0.1:8940/health
 curl -fsS http://127.0.0.1:8940/v1/status
 ```
 
-A healthy NODE01 does not imply a public hostname is live. Public-live status still requires independent DNS/TLS/HTTPS verification.
+Local software health does not prove the execution environment binding, public DNS/TLS, or production readiness. Each requires independent evidence.
 
-## Recovery
+## Recovery and replacement
 
-NODE01's watchdog checks installed, enabled IZAKHONO services and restarts only allow-listed services that unexpectedly become inactive. It never changes public DNS, payment routing or provider credentials.
+When an execution environment is replaced, bind the existing NODE01 software identity to the new environment, restore approved state, verify runtime and service health, and perform backup/restore and release acceptance. Do not mint a new NODE01 identity from the new machine's fingerprint.
 
 ## Hardware
 
-NODE01 software is hardware-independent. For a serious primary production host, use ECC-capable memory where practical, mirrored NVMe storage, UPS power and a second physical backup target. See `HARDWARE.md`.
+Hardware is only one possible execution substrate. Hardware requirements apply to the separately managed physical environment, not to NODE01 software identity.
