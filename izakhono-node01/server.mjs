@@ -68,8 +68,14 @@ async function diskSnapshot() {
 export async function buildSnapshot() {
   const config = await readJson(CONFIG,{
     schema:'izakhono.node01-config/v1',
+    schema:'izakhono.node01-config/v2',
+    logical_node_id:'NODE01',
     node_id:'NODE01',
-    node_instance:'NODE01-unconfigured',
+    identity_type:'software-runtime',
+    node_instance:'NODE01-SW-001',
+    runtime_host:'UNBOUND',
+    runtime_host_is_separate:true,
+    runtime_binding_status:'unbound',
     role:'primary'
   });
   const componentResults = await Promise.all(services.map(probe));
@@ -89,7 +95,14 @@ export async function buildSnapshot() {
     status:degraded?'degraded':'healthy',
     authority:'IZAKHONO',
     node_id:'NODE01',
-    node_instance:config.node_instance || 'NODE01-unconfigured',
+    logical_node_id:'NODE01',
+    identity_type:'software-runtime',
+    node_instance:config.node_instance || 'NODE01-SW-001',
+    execution_environment:{
+      runtime_host:config.runtime_host || 'UNBOUND',
+      runtime_host_is_separate:config.runtime_host_is_separate === true,
+      binding_status:config.runtime_binding_status || 'unbound'
+    },
     role:config.role || 'primary',
     execution_class:'IZAKHONO_SOVEREIGN_NODE',
     owned_first:true,
