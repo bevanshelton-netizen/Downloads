@@ -36,5 +36,6 @@
   "identity_type": "software-runtime",
   "node_instance_policy": "stable-across-execution-environment-replacement",
   "execution_environment_binding": "separate-runtime-binding",
-  "external_runtime_dependency": false
+  "external_runtime_dependency": false,
+  "runtime_host_is_separate": true
 }
