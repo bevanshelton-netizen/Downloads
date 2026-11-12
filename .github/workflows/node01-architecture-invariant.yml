@@ -19,5 +19,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.x"
+      - name: Validate NODE01 installer and runtime syntax
+        run: |
+          bash -n izakhono-node01/install-linux.sh
+          node --check izakhono-node01/server.mjs
       - name: Enforce system-wide NODE01 identity
         run: python3 scripts/architecture/check-node01-identity.py
