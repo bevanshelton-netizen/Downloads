@@ -32,3 +32,13 @@ Mandatory execution rule:
 7. Preserve all existing privacy, no-silent-tracking, rollback, verification and external-fallback rules.
 
 This instruction is portfolio policy issued by IZAKHONO AFRICA (PTY) LTD and applies to this repository and every platform/package within it unless a signed product-specific exception supersedes it.
+
+
+## NODE01 machine-replacement continuity — mandatory
+
+- NODE01 is the stable IZAKHONO software/runtime identity. It is not a machine, server, VM, hostname, cloud instance or hardware asset.
+- The former execution machine has been replaced. The replacement is a separate, replaceable execution environment running the same NODE01 software identity.
+- Preserve `logical_node_id: NODE01` and `identity_type: software-runtime` across machine replacement.
+- Update only the separate runtime binding to the replacement's verified locator. Never derive NODE01 identity from machine-id, hostname, IP address, serial number or provider instance ID.
+- Never carry forward the old machine locator as the current binding. Never invent the replacement locator.
+- If the replacement locator or runtime acceptance is not verified, keep the binding unverified and deployment promotion blocked.
