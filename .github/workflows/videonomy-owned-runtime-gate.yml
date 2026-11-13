@@ -23,7 +23,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22.13.1"
-          cache: "npm"
       - name: Validate owned deployment adapter
         run: |
           bash -n owned/deploy-to-izakhono-runtime.sh
