@@ -49,6 +49,25 @@ $lines = @(
   'PAYFAST_ALLOWED_CIDRS='
 )
 [IO.File]::WriteAllLines($envPath, $lines, (New-Object System.Text.UTF8Encoding($false)))
+
+# Restrict the file to the current owner, local Administrators and SYSTEM.
+# Do not leave generated credentials inheriting broad workstation permissions.
+$acl = Get-Acl -LiteralPath $envPath
+$acl.SetAccessRuleProtection($true, $false)
+foreach ($rule in @($acl.Access)) { [void]$acl.RemoveAccessRuleAll($rule) }
+$currentSid = [Security.Principal.WindowsIdentity]::GetCurrent().User
+$systemSid = New-Object Security.Principal.SecurityIdentifier('S-1-5-18')
+$adminsSid = New-Object Security.Principal.SecurityIdentifier('S-1-5-32-544')
+$inheritance = [Security.AccessControl.InheritanceFlags]::None
+$propagation = [Security.AccessControl.PropagationFlags]::None
+$allow = [Security.AccessControl.AccessControlType]::Allow
+foreach ($sid in @($currentSid, $systemSid, $adminsSid)) {
+  $rule = New-Object Security.AccessControl.FileSystemAccessRule($sid, [Security.AccessControl.FileSystemRights]::FullControl, $inheritance, $propagation, $allow)
+  [void]$acl.AddAccessRule($rule)
+}
+$acl.SetOwner($currentSid)
+Set-Acl -LiteralPath $envPath -AclObject $acl
+
 Write-Host "Created protected local configuration: $envPath"
 Write-Host "Canonical origin: $origin"
 Write-Host 'Random application secrets generated locally; values were not printed.'
