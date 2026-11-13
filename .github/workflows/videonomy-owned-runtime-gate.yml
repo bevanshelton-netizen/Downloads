@@ -1,0 +1,35 @@
+name: VIDEONOMY IZAKHONO Owned Runtime Gate
+
+on:
+  push:
+    branches: [videonomy-production]
+    paths:
+      - "owned/**"
+      - "src/**"
+      - "migrations/**"
+      - ".github/workflows/videonomy-owned-runtime-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  owned-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.13.1"
+          cache: "npm"
+      - name: Validate owned deployment adapter
+        run: |
+          bash -n owned/deploy-to-izakhono-runtime.sh
+          node --check owned/server.mjs
+          node -e "const p=require('./owned/package.json'); if(!p.dependencies['better-sqlite3']||!p.dependencies.tsx) process.exit(1)"
+      - name: Install owned runtime dependencies
+        run: npm --prefix owned install --no-audit --no-fund
+      - name: Run owned engine smoke test
+        run: bash scripts/owned-smoke.sh
