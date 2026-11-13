@@ -58,8 +58,34 @@ if [ ! -f "$ENV_FILE" ]; then
   chmod 0640 "$ENV_FILE"
 fi
 
-# Require a deliberate, explicit public origin in the protected environment.
-grep -q '^PUBLIC_BASE_URL=https://' "$ENV_FILE" || { echo "Set PUBLIC_BASE_URL=https://$HOSTNAME in $ENV_FILE before deployment." >&2; exit 7; }
+# Validate the protected origin against the hostname registered with RUNTIME.
+# Never silently deploy a hostname that disagrees with the app's canonical origin.
+node - "$ENV_FILE" "$HOSTNAME" <<'NODE'
+const fs=require("node:fs");
+const [file,hostname]=process.argv.slice(2);
+const values={};
+for(const line of fs.readFileSync(file,"utf8").split(/\\r?\\n/)){
+  const i=line.indexOf("=");
+  if(i>0) values[line.slice(0,i).trim()]=line.slice(i+1).trim();
+}
+let origin;
+try { origin=new URL(values.PUBLIC_BASE_URL||""); } catch { throw new Error("PUBLIC_BASE_URL must be a valid HTTPS URL"); }
+if(origin.protocol!=="https:" || origin.hostname.toLowerCase()!==hostname.toLowerCase() || origin.pathname!=="/" || origin.search || origin.hash){
+  console.error("PUBLIC_BASE_URL must equal https://"+hostname+"/ in "+file);
+  process.exit(7);
+}
+const allowed=(values.ALLOWED_ORIGINS||"").split(",").map(x=>x.trim()).filter(Boolean);
+if(!allowed.includes("https://"+hostname)){
+  console.error("ALLOWED_ORIGINS must include https://"+hostname+" in "+file);
+  process.exit(8);
+}
+for(const key of ["ADMIN_SECRET","ABUSE_SALT"]){
+  if(!values[key] || values[key].length<32){
+    console.error(key+" is missing or too short in protected environment");
+    process.exit(9);
+  }
+}
+NODE
 install -d -o izakhono -g izakhono -m 0750 /var/lib/izakhono-runtime/apps/videonomy
 
 PAYLOAD="$(node - "$APP" "$HOSTNAME" "$RELEASE" <<'NODE'
