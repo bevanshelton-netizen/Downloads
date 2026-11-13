@@ -1,15 +1,10 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-if not exist ".env" (
-  echo ERROR: owned\.env is missing.
-  echo Copy .env.example to .env and insert the real secrets locally. Never commit .env.
-  exit /b 1
-)
-where docker >nul 2>nul || (
-  echo ERROR: Docker is not available.
-  exit /b 1
-)
+
+call PREFLIGHT-VIDEONOMY-OWNED.cmd
+if errorlevel 1 exit /b 1
+
 docker compose up -d --build
 if errorlevel 1 exit /b 1
 echo.
@@ -24,5 +19,5 @@ for /l %%i in (1,1,20) do (
   timeout /t 2 /nobreak >nul
 )
 echo VIDEONOMY OWNED ENGINE: FAIL
-docker compose logs --tail 120 videonomy
+docker compose logs --tail 120 videonomy-engine
 exit /b 1
