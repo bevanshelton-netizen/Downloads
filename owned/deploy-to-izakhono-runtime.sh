@@ -64,7 +64,7 @@ node - "$ENV_FILE" "$HOSTNAME" <<'NODE'
 const fs=require("node:fs");
 const [file,hostname]=process.argv.slice(2);
 const values={};
-for(const line of fs.readFileSync(file,"utf8").split(/\\r?\\n/)){
+for(const line of fs.readFileSync(file,"utf8").split(/\r?\n/)){
   const i=line.indexOf("=");
   if(i>0) values[line.slice(0,i).trim()]=line.slice(i+1).trim();
 }
