@@ -40,13 +40,27 @@ These percentages are not a fixed payment per view. Direct-fan payments enter th
 - the same API routes and payment adapters
 - Docker restart and health-check contract
 
-On the Windows/NODE01 host, copy `owned/.env.example` to `owned/.env`, insert secrets locally, then run:
+**Production deployment on the IZAKHONO Linux owner host**
+
+The supported managed production path uses IZAKHONO RUNTIME NODE. From the root of a complete checkout of the `videonomy-production` branch, after the primary RUNTIME NODE is installed and healthy, run:
+
+```bash
+sudo bash owned/deploy-to-izakhono-runtime.sh
+```
+
+The deployment script validates the protected runtime configuration, installs an immutable release, preserves application secrets and requests a health-gated deployment. It expects `/etc/izakhono/runtime-node.env` and a healthy local runtime API at `127.0.0.1:8790`. It does not configure registrar DNS, public firewall/NAT, TLS certificates or EDGE reachability; those must be verified separately.
+
+The app's internal health route is `/api/health`. Do not declare the public hostname live until public HTTPS, health, video playback, creator login/upload and a controlled real payment round trip have all been verified.
+
+**Local Windows owner-host option**
+
+For a standalone local run on the Windows/NODE01 host, copy `owned/.env.example` to `owned/.env`, insert secrets locally, then run:
 
 ```bat
 owned\START-VIDEONOMY-OWNED.cmd
 ```
 
-The local health route is `http://127.0.0.1:18081/api/health`. EDGE/TLS/DNS should route public HTTPS traffic to that loopback service after the local gate passes.
+The local health route is `http://127.0.0.1:18081/api/health`. This local launcher is distinct from the managed RUNTIME NODE production deployment.
 
 ### External fallback
 
