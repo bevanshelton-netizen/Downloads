@@ -4,7 +4,7 @@ cd /d "%~dp0"
 
 if not exist ".env" (
   echo FAIL: owned\.env is missing.
-  echo Copy .env.example to .env and add production secrets locally.
+  echo Run prepare-windows-env.ps1 or create .env from .env.example.
   exit /b 1
 )
 
@@ -26,6 +26,26 @@ where docker >nul 2>nul || (
   exit /b 1
 )
 
+docker info >nul 2>nul
+if errorlevel 1 (
+  echo FAIL: Docker Desktop is installed but its engine is not running.
+  echo Start Docker Desktop, wait until it is ready, then retry.
+  exit /b 1
+)
+
+docker compose version >nul 2>nul
+if errorlevel 1 (
+  echo FAIL: Docker Compose v2 is unavailable.
+  exit /b 1
+)
+
+docker compose config --quiet
+if errorlevel 1 (
+  echo FAIL: Docker Compose configuration is invalid. Check owned\.env and docker-compose.yml.
+  exit /b 1
+)
+
 echo VIDEONOMY OWNED NODE01 PREFLIGHT: PASS
- echo Next: run START-VIDEONOMY-OWNED.cmd
+echo Docker engine and Compose configuration are ready.
+echo Next: run START-VIDEONOMY-OWNED.cmd
 exit /b 0
