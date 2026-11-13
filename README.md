@@ -54,13 +54,17 @@ The app's internal health route is `/api/health`. Do not declare the public host
 
 **Local Windows owner-host option**
 
-For a standalone local run on the Windows/NODE01 host, copy `owned/.env.example` to `owned/.env`, insert secrets locally, then run:
+For a standalone local run on the Windows/NODE01 host, open PowerShell and create the local configuration with cryptographically random application secrets:
 
-```bat
-owned\START-VIDEONOMY-OWNED.cmd
+```powershell
+cd path\to\Downloads
+.\owned\prepare-windows-env.ps1 -PublicBaseUrl https://videonomy.izakhonoafrica.co.za
+.\owned\START-VIDEONOMY-OWNED.cmd
 ```
 
-The local health route is `http://127.0.0.1:18081/api/health`. This local launcher is distinct from the managed RUNTIME NODE production deployment.
+The bootstrap refuses to overwrite an existing `.env` unless `-Force` is explicitly supplied. It writes secrets only to the local ignored `.env` file and leaves both payment integrations in sandbox mode. Add merchant credentials locally and deliberately configure live mode only after payment verification. Docker Desktop must be installed and running. The launcher builds the container, starts it and polls `/api/health` before reporting PASS.
+
+The local health route is `http://127.0.0.1:18081/api/health`. This Windows standalone engine is distinct from the managed Linux RUNTIME NODE deployment; it does not by itself configure public EDGE/TLS/DNS routing.
 
 ### External fallback
 
