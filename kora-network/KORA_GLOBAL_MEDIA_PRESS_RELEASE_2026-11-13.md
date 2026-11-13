@@ -39,8 +39,6 @@ A CALL TO MEDIA, CREATORS AND STRATEGIC PARTNERS
 
 KORA welcomes conversations with media organisations interested in covering the platform and the wider African creative economy; creators and rights holders interested in content submissions; broadcasters and distributors exploring content partnerships; and brands, agencies and institutions interested in future advertising, sponsorship and enterprise collaborations.
 
-“[CEO QUOTE TO BE APPROVED BY BEVAN SHELTON BEFORE PUBLICATION]”
-
 ABOUT KORA NETWORK
 
 KORA Network is an African-first media and digital distribution initiative owned by IZAKHONO AFRICA (Pty) Ltd. Through Kora Stream Africa, it is creating a home for African films, series, documentaries, audiobooks, family content and creator-led channels. Its wider vision is to connect African stories, creators, audiences, brands and distribution partners through a sustainable media ecosystem.
