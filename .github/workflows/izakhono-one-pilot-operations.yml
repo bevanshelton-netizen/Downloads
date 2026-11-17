@@ -9,6 +9,7 @@ on:
     paths:
       - '.github/workflows/izakhono-one-pilot-operations.yml'
       - 'IZAKHONO-ONE-PILOT-OPERATIONS.md'
+      - 'izakhono-one-ai/supabase/functions/izakhono-one-interest/**'
 
 permissions:
   contents: read
@@ -22,25 +23,25 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          HUB='https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-hub'
+          CONTROL='https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-control'
           DEVICE='https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-device-ai'
           INTEREST='https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-interest'
 
-          hub_code="$(curl -sS --max-time 20 -o /tmp/hub.json -w '%{http_code}' "$HUB?health=1")"
+          route_code="$(curl -sS --max-time 20 -o /tmp/route.json -w '%{http_code}' "$CONTROL?health=1")"
           device_code="$(curl -sS --max-time 20 -o /tmp/device.json -w '%{http_code}' "$DEVICE?health=1")"
           interest_code="$(curl -sS --max-time 20 -o /tmp/interest.json -w '%{http_code}' "$INTEREST")"
 
-          test "$hub_code" = '200'
+          test "$route_code" = '200'
           test "$device_code" = '200'
           test "$interest_code" = '200'
 
           node - <<'NODE'
           const fs=require('fs');
-          const hub=JSON.parse(fs.readFileSync('/tmp/hub.json','utf8'));
+          const hub=JSON.parse(fs.readFileSync('/tmp/route.json','utf8'));
           const device=JSON.parse(fs.readFileSync('/tmp/device.json','utf8'));
           const interest=JSON.parse(fs.readFileSync('/tmp/interest.json','utf8'));
 
-          if(hub.ok!==true||hub.tracking!==false||hub.behavioural_profiling!==false||hub.referral_attribution!==false) process.exit(2);
+          if(hub.ok!==true||hub.tracking!==false||hub.behavioural_profiling!==false||hub.referral_attribution!==false||hub.route!=='external-resilience') process.exit(2);
           if(device.ok!==true||device.product!=='IZAKHONO ONE AI'||device.prompt_transport!=='device-local'||device.tracking!==false) process.exit(3);
           if(interest.tracking!==false||interest.referralAttribution!==false||interest.campaignAttribution!==false||interest.automaticFingerprinting!==false) process.exit(4);
 
