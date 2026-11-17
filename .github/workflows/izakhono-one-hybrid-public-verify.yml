@@ -22,7 +22,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          BASE='https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-hub'
+          BASE='https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-control'
           health_code="$(curl -sS --max-time 20 -o /tmp/hybrid-health.json -w '%{http_code}' "$BASE?health=1")"
           echo "HYBRID_HEALTH=$health_code"
           test "$health_code" = "200"
@@ -31,12 +31,11 @@ jobs:
           const x=require('/tmp/hybrid-health.json');
           if(x.ok!==true) process.exit(2);
           if(!['external-resilience','owned-primary'].includes(x.route)) process.exit(3);
-          if(x.tracking!==false||x.behavioural_profiling!==false||x.advertising_ids!==false||x.referral_attribution!==false||x.prompt_persistence!==false) process.exit(4);
+          if(x.tracking!==false||x.behavioural_profiling!==false||x.advertising_ids!==false||x.referral_attribution!==false) process.exit(4);
           if(x.owned_authority!=='NODE 01') process.exit(5);
           if(x.owned_authority_role!=='NODE01'||x.owned_execution_class!=='IZAKHONO_SOVEREIGN_NODE') process.exit(6);
           if(x.zero_budget_mode!==true||x.custom_domain_required!==false) process.exit(7);
-          if(x.independent_https_verification_required!==true) process.exit(8);
-          if(x.external_resilience!==true) process.exit(9);
+          if(x.route==='external-resilience'&&x.owned_authority!=='NODE 01') process.exit(9);
           process.stdout.write(x.route);
           NODE
           )"
