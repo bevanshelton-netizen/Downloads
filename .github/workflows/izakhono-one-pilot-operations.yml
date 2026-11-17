@@ -9,6 +9,7 @@ on:
     paths:
       - '.github/workflows/izakhono-one-pilot-operations.yml'
       - 'IZAKHONO-ONE-PILOT-OPERATIONS.md'
+      - 'izakhono-one-ai/supabase/functions/izakhono-one-interest/**'
 
 permissions:
   contents: read
