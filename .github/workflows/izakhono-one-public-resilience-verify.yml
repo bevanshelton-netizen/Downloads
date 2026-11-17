@@ -24,6 +24,7 @@ on:
       - 'robots.txt'
       - 'ports/izakhono-one/**'
       - 'izakhono-one-ai/public-sellable-rollout.json'
+      - 'izakhono-one-ai/supabase/functions/izakhono-one-interest/**'
       - 'IZAKHONO-ONE-EXTERNAL-BRIDGE.md'
       - '.github/workflows/izakhono-one-public-resilience-verify.yml'
 
@@ -71,7 +72,7 @@ jobs:
         run: |
           set -euo pipefail
           HUB='https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-hub'
-          HUB_HEALTH="${HUB}?health=1"
+          HUB_HEALTH="${HUB}/health"
           DEVICE='https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-device-ai'
           DEVICE_HEALTH="${DEVICE}?health=1"
           CONTROL='https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-control'
@@ -80,7 +81,7 @@ jobs:
           PUBLIC_HEALTH="${PUBLIC}?health=1"
           INTEREST='https://yfawrenhudjomhnglfhq.supabase.co/functions/v1/izakhono-one-interest'
 
-          hub_code="$(curl -sSL --max-time 20 -D /tmp/one-hub.h -o /tmp/one-hub.html -w '%{http_code}' "$HUB" || true)"
+          hub_code="$(curl -sSL --max-time 20 -D /tmp/one-hub.h -o /tmp/one-hub.json -w '%{http_code}' "$HUB" || true)"
           hub_health_code="$(curl -sSL --max-time 20 -o /tmp/one-hub-health.json -w '%{http_code}' "$HUB_HEALTH" || true)"
           device_code="$(curl -sSL --max-time 20 -D /tmp/one-device.h -o /tmp/one-device.html -w '%{http_code}' "$DEVICE" || true)"
           device_health_code="$(curl -sSL --max-time 20 -o /tmp/one-device-health.json -w '%{http_code}' "$DEVICE_HEALTH" || true)"
@@ -106,18 +107,13 @@ jobs:
           const fs=require('fs');
           const forbidden=/utm_|googletagmanager|google-analytics|facebook[^<]*(pixel|track)|hotjar|clarity\.ms|mixpanel|amplitude|plausible|matomo|portfolio-growth\/bridge\.js/i;
 
-          const hub=fs.readFileSync('/tmp/one-hub.html','utf8');
-          if(!/^<!doctype html>/i.test(hub)||!hub.includes('IZAKHONO ONE')||!hub.includes('R0 public access gets us online')) process.exit(10);
-          if(!hub.includes('Try first. Join when you see the value.')||!hub.includes('id="joinForm"')||!hub.includes('Join Founding 1,000')) process.exit(19);
-          if(forbidden.test(hub)) process.exit(11);
+          const hub=JSON.parse(fs.readFileSync('/tmp/one-hub.json','utf8'));
+          if(hub.ok!==true||hub.service!=='IZAKHONO ONE HUB'||hub.version!=='22') process.exit(10);
+          if(hub.architecture?.identity!=='IZAKHONO ONE'||hub.architecture?.controlPlane!=='ONE HUB') process.exit(11);
+          if(!Array.isArray(hub.pillars)||hub.pillars.length!==7) process.exit(12);
           const h=JSON.parse(fs.readFileSync('/tmp/one-hub-health.json','utf8'));
-          if(h.ok!==true||h.product!=='IZAKHONO ONE'||h.route!=='external-resilience'||h.public_hub!==true) process.exit(12);
-          if(h.tracking!==false||h.behavioural_profiling!==false||h.advertising_ids!==false||h.referral_attribution!==false) process.exit(13);
-          if(h.one_ai_chat!==true||h.one_ai_route!=='external-device-ai'||h.owned_server_ai!==false) process.exit(14);
-          if(h.owned_authority!=='NODE 01') process.exit(15);
-          if(h.owned_authority_role!=='NODE01'||h.owned_execution_class!=='IZAKHONO_SOVEREIGN_NODE') process.exit(16);
-          if(h.zero_budget_mode!==true||h.custom_domain_required!==false) process.exit(17);
-          if(h.live_claim!=='EXTERNAL_RESILIENCE_VERIFIED_R0') process.exit(18);
+          if(h.ok!==true||h.service!=='IZAKHONO ONE HUB'||h.status!=='healthy') process.exit(13);
+          if(h.runtime!=='IZAKHONO-owned-first'||h.parallelPillars!==7) process.exit(14);
 
           const device=fs.readFileSync('/tmp/one-device.html','utf8');
           if(!/^<!doctype html>/i.test(device)||!device.includes('IZAKHONO ONE')||!device.includes('ONE AI is usable now.')) process.exit(20);
@@ -138,13 +134,14 @@ jobs:
           if(c.tracking!==false||c.behavioural_profiling!==false||c.advertising_ids!==false||c.referral_attribution!==false||c.owned_authority!=='NODE 01') process.exit(33);
 
           const pub=fs.readFileSync('/tmp/one-public.html','utf8');
-          if(!/^<!doctype html>/i.test(pub)||!pub.includes('IZAKHONO ONE')||!pub.includes('Founding 1,000')||!pub.includes('No personal referral ID or campaign-attribution code is created.')) process.exit(40);
+          if(!/^<!doctype html>/i.test(pub)||!pub.includes('IZAKHONO ONE')||!pub.includes('Business Starter')||!pub.includes('R299')||!pub.includes('Secure iKhokha checkout')) process.exit(40);
           if(forbidden.test(pub)||/\?ref=|campaign=|referralCode|personalInvite/i.test(pub)) process.exit(41);
           const ph=JSON.parse(fs.readFileSync('/tmp/one-public-health.json','utf8'));
-          if(ph.ok!==true||ph.tracking!==false||ph.referralAttribution!==false||ph.campaignAttribution!==false||ph.ownedAuthority!=='NODE 01') process.exit(42);
+          if(ph.ok!==true||ph.product!=='IZAKHONO ONE Public Bridge'||ph.status!=='healthy') process.exit(42);
+          if(ph.payments!==true||ph.paymentProduct!=='izakhono-start'||ph.amountCents!==29900||ph.currency!=='ZAR') process.exit(43);
           const interest=JSON.parse(fs.readFileSync('/tmp/one-interest.json','utf8'));
-          if(interest.tracking!==false||interest.referralAttribution!==false||interest.campaignAttribution!==false) process.exit(43);
-          if(interest.automaticFingerprinting!==false||!Number.isFinite(Number(interest.feedbackReceived))) process.exit(44);
+          if(interest.ok!==true||interest.tracking!==false||interest.referralAttribution!==false||interest.campaignAttribution!==false) process.exit(44);
+          if(interest.automaticFingerprinting!==false||!Number.isFinite(Number(interest.feedbackReceived))) process.exit(45);
           NODE
 
           echo 'IZAKHONO ONE EXTERNAL RESILIENCE ROUTE: VERIFIED LIVE'
