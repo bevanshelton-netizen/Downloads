@@ -80,7 +80,7 @@ test("countRows rejects unsafe table names and filters", async () => {
     baseUrl: "https://example.supabase.co",
     serviceRoleKey: "test-key",
     table: "one_launch_interest;drop table users",
-  }), error => error.code === undefined);
+  }), error => error instanceof SupabaseRestError && error.message === "Invalid Supabase REST table name");
   await assert.rejects(countRows({
     baseUrl: "https://example.supabase.co",
     serviceRoleKey: "test-key",
