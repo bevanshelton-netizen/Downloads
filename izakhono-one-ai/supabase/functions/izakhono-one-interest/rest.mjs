@@ -9,6 +9,17 @@ export class SupabaseRestError extends Error {
   }
 }
 
+/**
+ * @param {{
+ *   baseUrl: string,
+ *   serviceRoleKey: string,
+ *   table: string,
+ *   filters?: Record<string, string>,
+ *   fetchImpl?: typeof fetch,
+ *   timeoutMs?: number
+ * }} options
+ * @returns {Promise<number>}
+ */
 export async function countRows({
   baseUrl,
   serviceRoleKey,
