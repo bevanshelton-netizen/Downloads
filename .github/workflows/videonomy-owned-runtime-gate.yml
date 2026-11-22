@@ -64,7 +64,7 @@ jobs:
             if ($values['ADMIN_SECRET'] -eq $values['ABUSE_SALT']) { throw 'Application secrets must be distinct' }
             if ($values['PUBLIC_BASE_URL'] -ne 'https://videonomy.izakhonoafrica.co.za') { throw 'Canonical origin mismatch' }
             if ($values['ALLOWED_ORIGINS'] -ne $values['PUBLIC_BASE_URL']) { throw 'Allowed origin mismatch' }
-            if ($values['IKHOKHA_MODE'] -ne 'sandbox' -or $values['PAYFAST_MODE'] -ne 'sandbox') { throw 'Payment providers must default to sandbox' }
+            if ($values['IKHOKHA_MODE'] -ne 'test' -or $values['PAYFAST_MODE'] -ne 'sandbox') { throw 'Payment providers must default to sandbox' }
 
             $acl = Get-Acl -LiteralPath $envPath
             if (-not $acl.AreAccessRulesProtected) { throw 'The .env ACL must not inherit permissions' }
