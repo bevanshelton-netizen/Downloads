@@ -35,6 +35,8 @@ Supply secrets through the hosting provider's secret manager; never commit them 
 - `IKHOKHA_APP_ID` and `IKHOKHA_APP_SECRET`: only after the production merchant account and callback configuration are approved. Keep payments disabled/unavailable until verified.
 - PayFast credentials only if the commercial-package flow is explicitly enabled and tested.
 
+**iKhokha mode is safety-sensitive:** the application recognises exactly `test` and `live`; any value other than `test` selects live mode. The sample environment therefore uses `IKHOKHA_MODE=test`. Do not set `live` until production credentials, callback verification, settlement and reconciliation have been explicitly approved. PayFast uses `PAYFAST_MODE=sandbox` for its sample configuration.
+
 Use the provider's production payment mode only after vendor credentials, webhook signature verification, callback URL, settlement handling and reconciliation have passed the launch acceptance tests. Never use real customer funds for initial smoke tests.
 
 ## Deployment and acceptance sequence
