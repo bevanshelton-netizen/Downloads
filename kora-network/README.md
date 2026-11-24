@@ -35,7 +35,7 @@ npm run build
 
 ## Production activation
 
-`DEPLOYMENT.md` is the authoritative production runbook and `PRODUCTION_AUTOMATION.md` describes the guarded GitHub workflows that automate the production database bootstrap, first-admin bootstrap, private-beta deployment and launch preflight.
+`DEPLOYMENT.md` is the authoritative production runbook. The production web-runtime target is IZAKHONO HOST; see `OWNED-RUNTIME.md` for the container build contract. `PRODUCTION_AUTOMATION.md` documents the existing guarded legacy Vercel workflows and must not be treated as an owned-runtime deployment mechanism.
 
 KORA exposes:
 
