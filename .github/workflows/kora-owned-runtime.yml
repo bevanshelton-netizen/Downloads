@@ -32,11 +32,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-          cache-dependency-path: kora-network/package-lock.json
 
       - name: Install dependencies
-        run: npm ci --no-audit --no-fund
+        run: npm install --no-audit --no-fund
 
       - name: Typecheck
         env:
@@ -59,7 +57,24 @@ jobs:
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: build-only-placeholder-publishable-key
           NEXT_PUBLIC_SUPABASE_ANON_KEY: build-only-placeholder-anon-key
           NEXT_PUBLIC_OPERATOR_NAME: IZAKHONO AFRICA
-        run: docker build --file Dockerfile.izakhono-production --tag kora-owned-runtime:ci .
+          NEXT_PUBLIC_KORA_DB_SCHEMA: kora
+          NEXT_PUBLIC_SUPPORT_EMAIL: support@example.invalid
+          NEXT_PUBLIC_PRIVACY_EMAIL: privacy@example.invalid
+          NEXT_PUBLIC_RIGHTS_EMAIL: rights@example.invalid
+        run: |
+          docker build \
+            --file Dockerfile.izakhono-production \
+            --build-arg NEXT_PUBLIC_APP_URL="$NEXT_PUBLIC_APP_URL" \
+            --build-arg NEXT_PUBLIC_SUPABASE_URL="$NEXT_PUBLIC_SUPABASE_URL" \
+            --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" \
+            --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="$NEXT_PUBLIC_SUPABASE_ANON_KEY" \
+            --build-arg NEXT_PUBLIC_OPERATOR_NAME="$NEXT_PUBLIC_OPERATOR_NAME" \
+            --build-arg NEXT_PUBLIC_SUPPORT_EMAIL="$NEXT_PUBLIC_SUPPORT_EMAIL" \
+            --build-arg NEXT_PUBLIC_PRIVACY_EMAIL="$NEXT_PUBLIC_PRIVACY_EMAIL" \
+            --build-arg NEXT_PUBLIC_RIGHTS_EMAIL="$NEXT_PUBLIC_RIGHTS_EMAIL" \
+            --build-arg NEXT_PUBLIC_KORA_DB_SCHEMA="$NEXT_PUBLIC_KORA_DB_SCHEMA" \
+            --build-arg VIDEO_PROVIDER=mock \
+            --tag kora-owned-runtime:ci .
 
       - name: Start production container
         run: |
