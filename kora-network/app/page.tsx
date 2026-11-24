@@ -87,7 +87,7 @@ export default function Home() {
       </section>
 
       <section className={styles.partnerSection}>
-        <div className={styles.partnerCard}><p className={styles.kicker}>PARTNER WITH KORA</p><h2>Build the African entertainment economy with us.</h2><p>For broadcasters, brands, rights holders, institutions, distributors and strategic partners.</p><Link href="/partners">PARTNER WITH KORA →</Link></div>
+        <div className={styles.partnerCard}><p className={styles.kicker}>PARTNER WITH KORA</p><h2>Build the African entertainment economy with us.</h2><p>For broadcasters, brands, rights holders, institutions, distributors and strategic partners.</p><Link href="/partners">PARTNER WITH KORA →</Link><Link href="/advertise">ADVERTISE WITH KORA →</Link></div>
         <div className={styles.partnerCard}><p className={styles.kicker}>SUBMIT YOUR FILM</p><h2>Your story deserves a route to an audience.</h2><p>Bring African film and original storytelling into the KORA ecosystem for consideration.</p><Link href="/partners">SUBMIT YOUR FILM →</Link></div>
       </section>
 
@@ -97,7 +97,7 @@ export default function Home() {
       </section>
 
       <section className={styles.creatorSection}>
-        <div><p className={styles.kicker}>CREATORS</p><h2>From creator to channel.</h2><p>KORA gives African creators a path beyond posting: identity, audience, video, music, live experiences, events, commerce and community.</p><Link href="/creators" className={styles.primary}>BUILD YOUR KORA WORLD →</Link></div>
+        <div><p className={styles.kicker}>CREATORS</p><h2>From creator to channel.</h2><p>KORA gives African creators a path beyond posting: identity, audience, video, music, live experiences, events, commerce and community. Eligible creators can earn through accepted deals, subscriptions, pay-per-view and cleared advertising revenue. Viewer rewards are funded only from cleared campaign revenue and verified events—not uncollected ad spend.</p><Link href="/creators" className={styles.primary}>BUILD YOUR KORA WORLD →</Link></div>
         <div className={styles.creatorList}><div>PROFILE <span>YOUR IDENTITY →</span></div><div>CHANNEL <span>YOUR AUDIENCE →</span></div><div>LIVE <span>YOUR MOMENT →</span></div><div>COMMERCE <span>YOUR BUSINESS →</span></div></div>
       </section>
 
