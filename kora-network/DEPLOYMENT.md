@@ -2,9 +2,15 @@
 
 KORA is designed to fail closed. A successful Next.js deployment is **not** the same as a public launch. Public launch is allowed only after infrastructure, database, money, legal, safety and operating-process gates pass and an administrator deliberately enables the release switch in `/admin/launch`.
 
-## Production topology
+## Runtime target and transition
 
-- Web: Vercel, repository `bevanshelton-netizen/Downloads`, Root Directory `kora-network`, production branch `main`.
+The production web-runtime target is **IZAKHONO HOST**, using the native KORA container behind the owned Caddy edge. See [OWNED-RUNTIME.md](./OWNED-RUNTIME.md) for the pinned source/build contract and HOST integration.
+
+The previously configured Vercel deployment is a legacy/current serving path until the owned runtime passes independent HTTPS, readiness, playback, payment, backup/restore and rollback acceptance. Documentation or a successful container build does not perform DNS cutover. Keep the legacy deployment available as a reversible fallback until the owned-runtime release is accepted.
+
+## Current legacy topology — not the target
+
+- Web: existing Vercel project, repository `bevanshelton-netizen/Downloads`, Root Directory `kora-network`, production branch `main`.
 - Database/auth: Supabase.
 - Video: Cloudflare Stream plus HTTPS HLS live feeds.
 - Payments: PayFast recurring subscriptions plus one-time pay-per-view.
